@@ -86,3 +86,44 @@ analysis TestControlledHouseWinterDesign
   extends TransientAnalysis(stop=7200.0)  # 2 hours
   model = TestThermalHouseControlled(T_initial=288.7)
 end
+
+# Test with solar cycle instead of constant irradiance
+test component TestThermalHouseControlledWithSolar
+  # Spring conditions
+  parameter T_outdoor::Temperature = 283.15  # 10°C
+  parameter T_initial::Temperature = 293.15  # 20°C
+  parameter T_setpoint::Temperature = 294.26 # 21.1°C (70°F)
+  
+  # Solar cycle parameters
+  parameter I_peak::Real = 800.0  # Peak solar irradiance W/m²
+  parameter solar_period::Time = 86400.0  # 24 hour cycle
+  parameter sunrise_time::Time = 21600.0  # 6 AM
+  
+  controlled_house = ThermalHouseControlled(
+    T_outdoor=T_outdoor,
+    T_initial=T_initial,
+    k_p=10000.0,
+    T_i=600.0
+  )
+  
+  # Solar cycle generator
+  solar_cycle = SolarIrradiance(
+    I_peak=I_peak,
+    period=solar_period,
+    phase_shift=sunrise_time
+  )
+  
+  # Constant setpoint signal
+  setpoint_signal = BlockComponents.Constant(k=T_setpoint)
+  
+relations
+  connect(setpoint_signal.y, controlled_house.T_setpoint)
+  connect(solar_cycle.y, controlled_house.solar_irradiance)
+  
+  guess controlled_house.house.wall_loss.ΔT = 10.0
+end
+
+analysis TestControlledHouseSolarCycle
+  extends TransientAnalysis(stop=259200.0)  # 3 days
+  model = TestThermalHouseControlledWithSolar()
+end

@@ -1,0 +1,45 @@
+# Solar irradiance signal with day/night cycle
+"""
+Generates a day/night solar irradiance cycle using a rectified sine squared model.
+
+The component produces a realistic solar irradiance pattern with:
+- Zero irradiance at night
+- Smooth sunrise and sunset transitions
+- Peak irradiance at solar noon
+
+The output is calculated as:
+```math
+I(t) = I_{peak} \cdot \max(0, \sin(\omega (t - t_{shift})))^2
+```
+where ω = 2π/period and the sine^2 shape provides a smooth diurnal curve.
+"""
+component SolarIrradiance
+  extends BlockComponents.Signal
+  "Peak solar irradiance during day (W/m²)"
+  parameter I_peak::Real = 800.0
+  "Period of day/night cycle (seconds, default 24 hours)"
+  parameter period::Time = 86400.0
+  "Phase shift to set sunrise time (seconds, default 6 AM = 21600 s)"
+  parameter phase_shift::Time = 21600.0
+  "Angular frequency for the cycle"
+  parameter omega::Real = 2 * π / period
+relations
+  y = offset + I_peak * max(0.0, sin(omega * (time - phase_shift)))^2
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://BlockComponents/Sine.svg"}
+  }
+}
+end
+
+# Test the solar irradiance signal
+test component TestSolarIrradiance
+  solar = SolarIrradiance(I_peak=1000.0, period=86400.0, phase_shift=21600.0)
+relations
+end
+
+analysis TestSolarIrradianceSignal
+  extends TransientAnalysis(stop=172800.0)  # 2 days
+  model = TestSolarIrradiance()
+end

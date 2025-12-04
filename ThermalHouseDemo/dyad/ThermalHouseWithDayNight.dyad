@@ -1,0 +1,75 @@
+"""
+Complete thermal house system with automatic day/night solar irradiance cycle.
+
+This component integrates:
+- ThermalHouse model with full building physics
+- SolarIrradiance signal generator for realistic day/night cycle
+- Controllable heater input for HVAC system
+- Temperature output for monitoring and control
+
+The solar cycle creates periodic heating during daytime with zero solar gain at night,
+allowing simulation of diurnal temperature swings and HVAC load profiles.
+"""
+test component ThermalHouseWithDayNight
+  solar_cycle = SolarIrradiance(I_peak = I_peak, period = solar_period, phase_shift = sunrise_time) {^solar_cycle}
+  house = ThermalHouse(T_ambient = T_outdoor, T_initial = T_initial, Q_people = Q_people, Q_lighting = Q_lighting, Q_appliances = Q_appliances) {^house}
+  
+  # Expose heater input and temperature output
+  Q_heater = RealInput()
+  T_interior = RealOutput()
+  
+  parameter T_outdoor::Temperature = 273.15
+  parameter T_initial::Temperature = 294.26
+  parameter I_peak::Real = 800.0
+  parameter solar_period::Time = 86400.0
+  parameter sunrise_time::Time = 21600.0
+  parameter Q_people::HeatFlowRate = 100.0
+  parameter Q_lighting::HeatFlowRate = 200.0
+  parameter Q_appliances::HeatFlowRate = 200.0
+relations
+  connect(solar_cycle.y, house.solar_irradiance) {^id5}
+  connect(Q_heater, house.Q_heater)
+  connect(T_interior, house.T_interior)
+  guess house.wall_loss.ΔT = 10.0
+metadata {
+  "Dyad": {"icons": {"default": "dyad://ThermalHouseDemo/thermal_house.svg"}},
+  "_links": {
+    "solar_cycle": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 0, "y1": 210, "x2": 100, "y2": 310, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "house": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 300, "y1": 400, "x2": 400, "y2": 500, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id5": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 350, "y": 260}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+test component TestThermalHouseWithDayNight
+  house = ThermalHouseWithDayNight(T_outdoor = T_outdoor, T_initial = T_initial, I_peak = 800.0, Q_people = 100.0, Q_lighting = 200.0, Q_appliances = 200.0)
+  heater_off = BlockComponents.Constant(k = 0.0)
+  parameter T_outdoor::Temperature = 283.15
+  parameter T_initial::Temperature = 293.15
+relations
+  connect(heater_off.y, house.Q_heater)
+end
+
+analysis TestDayNightCycle
+  extends TransientAnalysis(stop = 259200.0)
+  model = TestThermalHouseWithDayNight()
+end
