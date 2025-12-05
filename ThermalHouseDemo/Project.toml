@@ -5,6 +5,8 @@ version = "0.1.0"
 
 [deps]
 BlockComponents = "1ef5d832-be8e-447f-9f2c-8b5d17d15fd3"
+DyadControlSystems = "6f9e59d0-2838-4fee-9bce-c163a6c9592b"
+DyadData = "cab12561-e36c-4498-ae70-c9a5e79fef2a"
 DyadEcosystemDependencies = "7bc808db-8006-421e-b546-062440d520b7"
 DyadInterface = "99806f68-afab-45ca-9d8c-ceff6bc61f54"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
@@ -19,6 +21,8 @@ ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 
 [compat]
 BlockComponents = "2.8"
+DyadControlSystems = "1.7.4"
+DyadData = "1.2.3"
 DyadEcosystemDependencies = "=0.10.5"
 Markdown = "1"
 ThermalComponents = "1"
