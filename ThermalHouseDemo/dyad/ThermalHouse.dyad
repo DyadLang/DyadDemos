@@ -1,122 +1,126 @@
-# Thermal model of a house with inputs for heat from heater and solar irradiance
+"Thermal model of a house with inputs for heat from heater and solar irradiance"
 component ThermalHouse
   interior = Node() [{"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}}}}]
   wall_surface = Node() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}}}}]
   
-  # Input connectors for external control
+  "Input connectors for external control"
   Q_heater = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}}}}]
   solar_irradiance = RealInput() [{"Dyad": {"placement": {"icon": {"x1": 450, "y1": -50, "x2": 550, "y2": 50, "rot": 90}}}}]
+  T_ambient = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}}}}]
   
-  # Output signal for interior temperature
+  "Output signal for interior temperature"
   T_interior = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}}}}]
   
-  # Building geometry (default 1000 sq ft house)
+  "Building geometry (default 1000 sq ft house)"
   parameter area_floor::Area = 92.9
   parameter height::Length = 2.44
   parameter ratio_L_W::Real = 1.25
-  # Ratio of window to wall area
+  "Ratio of window to wall area"
   parameter Aratio_window_wall::Real = 0.15
-  # Number of doors
+  "Number of doors"
   parameter no_doors::Real = 2
-  # Area of single door
+  "Area of single door"
   parameter A_door::Area = 1.75
   parameter length::Length = sqrt(area_floor * ratio_L_W)
   parameter width::Length = length / ratio_L_W
 
   parameter volume::Volume = length * width * height
 
-  # Area calculations
-  # Total wall area (m²)
+  "Total wall area (m²)"
   parameter area_walls::Area = 2.0 * (length * height + width * height)
-  # Total window area (m²)
+  "Total window area (m²)"
   parameter area_window::Area = Aratio_window_wall * area_walls 
-  # Total door area (m²)
+  "Total door area (m²)"
   parameter area_doors::Area = no_doors * A_door
-  # Total roof area (m²)
+  "Total roof area (m²)"
   parameter area_roof::Area = area_floor
   
-  # Envelope thermal properties
-  # U-value for walls W/(m²·K)
+  "U-value for walls W/(m²·K)"
   parameter U_walls::CoefficientOfHeatTransfer = 0.47
-  # U-value for roof W/(m²·K)
+  "U-value for roof W/(m²·K)"
   parameter U_roof::CoefficientOfHeatTransfer = 0.15
-  # U-value for floor W/(m²·K)
+  "U-value for floor W/(m²·K)"
   parameter U_floor::CoefficientOfHeatTransfer = 0.35
-  # U-value for windows W/(m²·K)
+  "U-value for windows W/(m²·K)"
   parameter U_window::CoefficientOfHeatTransfer = 2.2
-  # U-value for door W/(m²·K)
+  "U-value for door W/(m²·K)"
   parameter U_door::CoefficientOfHeatTransfer = 1.2
-  # Window solar heat gain coefficient
+  "Window solar heat gain coefficient"
   parameter SHGC::Real = 0.6  
+  "Window orientation factor for sun-facing windows"
+  parameter f_window::Real = 0.3
   
-  # Thermal mass (air + structure)
+  "Thermal mass (air + structure)"
   parameter rho_air::Density = 1.2
   parameter cp_air::SpecificHeatCapacity = 1005.0
   parameter mass_air::Mass = rho_air * volume
   parameter C_air::HeatCapacity = mass_air * cp_air
   
-  # Drywall thermal mass
+  "Drywall thermal mass"
   parameter t_dw::Length = 0.0127
   parameter rho_dw::Density = 800
   parameter cp_dw::SpecificHeatCapacity = 1000
   parameter C_walls_ceiling::HeatCapacity = (area_floor + area_walls) * t_dw * rho_dw * cp_dw
   
-  # Floor thermal mass
+  "Floor thermal mass"
   parameter t_floor::Length = 0.019
   parameter rho_floor::Density = 700
   parameter cp_floor::SpecificHeatCapacity = 1600
   parameter C_floor::HeatCapacity = area_floor * t_floor * rho_floor * cp_floor
   
-  # Total thermal capacitance
+  "Total thermal capacitance"
   parameter C_tot::HeatCapacity = C_air + C_walls_ceiling + C_floor
   
-  # Envelope conductances
+  "Envelope conductances"
   parameter G_wall::ThermalConductance = U_walls * area_walls
   parameter G_window::ThermalConductance = U_window * area_window
   parameter G_roof::ThermalConductance = U_roof * area_roof
   parameter G_floor::ThermalConductance = U_floor * area_floor
   parameter G_door::ThermalConductance = U_door * area_doors
   parameter G_envelope::ThermalConductance = G_wall + G_window + G_roof + G_door + G_floor
-  # Envelope U-value relative to floor area W/(m²·K)
+  "Envelope U-value relative to floor area W/(m²·K)"
   parameter U_envelope::CoefficientOfHeatTransfer = G_envelope / area_floor
   
-  # Infiltration and ventilation (ACH = air changes per hour)
-  parameter ACH_infiltration::Real = 0.35  # Natural infiltration
-  parameter ACH_ventilation::Real = 0.15  # Mechanical ventilation (ASHRAE 62.2)
+  "Natural infiltration (ACH = air changes per hour)"
+  parameter ACH_infiltration::Real = 0.35
+  "Mechanical ventilation (ASHRAE 62.2)"
+  parameter ACH_ventilation::Real = 0.15
   parameter ACH_total::Real = ACH_infiltration + ACH_ventilation
-  parameter m_dot_air::Real = (ACH_total * volume * rho_air) / 3600.0  # kg/s
+  "Air mass flow rate (kg/s)"
+  parameter m_dot_air::Real = (ACH_total * volume * rho_air) / 3600.0
   parameter G_infiltration::ThermalConductance = m_dot_air * cp_air
-  # Infiltration U-value relative to floor area W/(m²·K)
+  "Infiltration U-value relative to floor area W/(m²·K)"
   parameter U_infiltration::CoefficientOfHeatTransfer = G_infiltration / area_floor
   
-  # Total conductance (envelope + infiltration)
+  "Total conductance (envelope + infiltration)"
   parameter G_total::ThermalConductance = G_envelope + G_infiltration
-  # Total U-value relative to floor area W/(m²·K)
+  "Total U-value relative to floor area W/(m²·K)"
   parameter U_total::CoefficientOfHeatTransfer = U_infiltration + U_envelope
   
-  # Convection at exterior surface
+  "Convection at exterior surface"
   parameter h_conv::CoefficientOfHeatTransfer = 10.0
   parameter G_conv::ThermalConductance = h_conv * area_walls
   
-  # Internal gains
-  parameter Q_people::HeatFlowRate = 0.0  # Occupant sensible heat
-  parameter Q_lighting::HeatFlowRate = 0.0  # Lighting heat
-  parameter Q_appliances::HeatFlowRate = 0.0  # Appliance heat
+  "Occupant sensible heat"
+  parameter Q_people::HeatFlowRate = 0.0
+  "Lighting heat"
+  parameter Q_lighting::HeatFlowRate = 0.0
+  "Appliance heat"
+  parameter Q_appliances::HeatFlowRate = 0.0
   parameter Q_internal::HeatFlowRate = Q_people + Q_lighting + Q_appliances
   
-  # Temperature references
+  "Temperature references"
   parameter T_initial::Temperature = 293.15
-  parameter T_ambient::Temperature = 273.15
   
   variable T_wall::Temperature(guess=283.15)
   
-  # Thermal components
+  "Thermal components"
   thermal_mass = ThermalComponents.HeatCapacitor(C=C_tot, T0=T_initial)
   solar_input = ThermalComponents.PrescribedHeatFlow()
   heater = ThermalComponents.PrescribedHeatFlow()
   internal_gains = ThermalComponents.PrescribedHeatFlow()
   
-  # Envelope losses
+  "Envelope losses"
   window_loss = ThermalComponents.ThermalConductor(G=G_window)
   door_loss = ThermalComponents.ThermalConductor(G=G_door)
   roof_loss = ThermalComponents.ThermalConductor(G=G_roof)
@@ -124,27 +128,30 @@ component ThermalHouse
 
   infiltration_loss = ThermalComponents.ThermalConductor(G=G_infiltration)
   
-  # Wall thermal network
+  "Wall thermal network"
   wall_loss = ThermalComponents.ThermalConductor(G=G_wall)
   wall_convection = ThermalComponents.ThermalConductor(G=G_conv)
   
-  ambient = ThermalComponents.FixedTemperature(T=T_ambient)
+  ambient = ThermalComponents.PrescribedTemperature()
   
 relations
-  # Connect thermal mass to interior node
+  "Connect thermal mass to interior node"
   connect(thermal_mass.node, interior)
   
-  # Connect input signals to heat flow components
+  "Connect input signals to heat flow components"
   connect(heater.Q, Q_heater)
-  solar_input.Q = solar_irradiance * area_window * SHGC
+  solar_input.Q = solar_irradiance * area_window * f_window * SHGC
   internal_gains.Q = Q_internal
   
-  # Connect heat sources
+  "Connect ambient temperature input to boundary condition"
+  connect(ambient.T, T_ambient)
+  
+  "Connect heat sources"
   connect(solar_input.node, interior)
   connect(heater.node, interior)
   connect(internal_gains.node, interior)
   
-  # Connect losses (walls + windows + floor + doors + infiltration)
+  "Connect losses (walls + windows + floor + doors + infiltration)"
   connect(roof_loss.node_a, interior)
   connect(roof_loss.node_b, ambient.node)
   connect(floor_loss.node_a, interior)
@@ -157,7 +164,7 @@ relations
   connect(infiltration_loss.node_a, interior)
   connect(infiltration_loss.node_b, ambient.node)
   
-  # Wall surface temperature (for detailed analysis)
+  "Wall surface temperature (for detailed analysis)"
   connect(wall_loss.node_a, interior)
   connect(wall_loss.node_b, wall_surface)
   connect(wall_convection.node_a, wall_surface)
@@ -165,42 +172,44 @@ relations
   
   T_wall = wall_surface.T
   
-  # Connect interior temperature to output signal
+  "Connect interior temperature to output signal"
   T_interior = thermal_mass.T
 metadata {"Dyad": {"icons": {"default": "dyad://ThermalHouseDemo/thermal_house.svg"}}}
 end
 
 test component TestThermalHouse
-  # Design conditions (99% winter design day)
-  parameter T_outdoor::Temperature = 273.15  # 0°C (32°F)
-  parameter T_indoor::Temperature = 294.26  # 21.1°C (70°F)
+  "Outdoor temperature 0°C (32°F)"
+  parameter T_outdoor::Temperature = 273.15
+  "Indoor temperature 21.1°C (70°F)"
+  parameter T_indoor::Temperature = 294.26
   
-  # Heat sources
-  parameter Q_heater::HeatFlowRate = 7500.0  # HVAC system
+  "HVAC system heat"
+  parameter Q_heater::HeatFlowRate = 7500.0
   
-  # Solar irradiance for summer conditions (W/m²)
+  "Solar irradiance for summer conditions (W/m²)"
   parameter solar_irrad::Real = 0.0  
   
   house = ThermalHouse(
     T_initial=T_indoor,
-    T_ambient=T_outdoor,
     Q_people=100.0,
     Q_lighting=200.0,
     Q_appliances=200.0
   )
   
-  # Signal sources for inputs
+  "Signal sources for inputs"
   heater_signal = BlockComponents.Constant(k=Q_heater)
   solar_signal = BlockComponents.Constant(k=solar_irrad)
+  ambient_signal = BlockComponents.Constant(k=T_outdoor)
   
 relations
   connect(heater_signal.y, house.Q_heater)
   connect(solar_signal.y, house.solar_irradiance)
+  connect(ambient_signal.y, house.T_ambient)
   
   guess house.wall_loss.ΔT = 10.0
 end
 
 analysis TestHouseWinterDesign
-  extends TransientAnalysis(stop=7200.0)  # 2 hours
+  extends TransientAnalysis(stop=7200.0)
   model = TestThermalHouse()
 end

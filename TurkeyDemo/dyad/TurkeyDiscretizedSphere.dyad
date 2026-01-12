@@ -5,7 +5,7 @@ component TurkeyDiscretizedSphere
   surface = Node() {^surface}
   # Structural parameter for discretization
   structural parameter N::Integer = 10
-  structural parameter Np1::Integer = 11
+  structural parameter Np1::Integer = N+1
   # Turkey properties
   parameter M::Mass = 5.0
   parameter rho::Density = 1050.0
@@ -56,8 +56,8 @@ relations
     m_shell[i] * cp * der(T[i]) = Q_cond[i] - Q_cond[i + 1]
   end
   # Surface shell - heat enters from interior and from surface connector
-  # Note: In thermal connector convention, positive surface.Q means heat leaving
-  # So we ADD surface.Q when it's negative (heat entering)
+  # Note: In thermal connector convention, positive surface.Q means heat entering
+  # So we ADD surface.Q 
   m_shell[N] * cp * der(T[N]) = Q_cond[N] + surface.Q
   # Surface connector relations
   surface.T = T[N]
@@ -66,7 +66,7 @@ relations
     initial T[i] = T_init
   end
   for i in 1:N
-    T_degF[i] = 9 / 5 * (T[i] - 273.15) + 32
+    T_degF[i] = KelvinToFahrenheit(T[i])
   end
 metadata {
   "Dyad": {"icons": {"default": "dyad://TurkeyDemo/turkey.svg"}},
@@ -79,7 +79,7 @@ end
 # Test harness with convection and radiation components
 test component TurkeySphereTest
   # Turkey body
-  turkey = TurkeyDiscretizedSphere(N = 10, Np1 = N + 1, M = M_turkey, T_init = 277.0) {^turkey}
+  turkey = TurkeyDiscretizedSphere(N = 10, M = M_turkey, T_init = 277.0) {^turkey}
   # Oven environment
   oven = ThermalComponents.FixedTemperature(T = T_oven) {^oven}
   # Convection heat transfer with signal input

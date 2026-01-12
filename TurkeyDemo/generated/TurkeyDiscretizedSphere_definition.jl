@@ -7,22 +7,19 @@
 @doc Markdown.doc"""
    TurkeyDiscretizedSphere(; name, N, Np1, M, rho, cp, k, T_init, pi, R, dr)
 
-Discretized spherical turkey thermal model component
-Implementation with array variables with thermal connector at surface
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `N`         | Structural parameter for discretization                         | --  |   10 |
-| `Np1`         |                          | --  |   11 |
-| `M`         | Turkey properties                         | kg  |   5 |
+| `N`         |                          | --  |   10 |
+| `Np1`         |                          | --  |   N + 1 |
+| `M`         |                          | kg  |   5 |
 | `rho`         |                          | kg/m3  |   1050 |
 | `cp`         |                          | J/(kg.K)  |   3500 |
 | `k`         |                          | W/(m.K)  |   0.5 |
 | `T_init`         |                          | K  |   277 |
-| `pi`         | Physical constants                         | --  |   3.14159265359 |
-| `R`         | Geometry                         | m  |   (3 * M / (4 * pi * rho)) ^ (1 / 3) |
+| `pi`         |                          | --  |   3.14159265359 |
+| `R`         |                          | m  |   (3 * M / (4 * pi * rho)) ^ (1 / 3) |
 | `dr`         |                          | m  |   R / N |
 
 ## Connectors
@@ -33,17 +30,16 @@ Implementation with array variables with thermal connector at surface
 
 | Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ | 
-| `T`         | Variables                         | K  | 
+| `T`         |                          | K  | 
 | `Q_cond`         |                          | W  | 
 | `r`         |                          | m  | 
 | `r_mid`         |                          | m  | 
 | `A_interface`         |                          | m2  | 
 | `V_shell`         |                          | m3  | 
 | `m_shell`         |                          | kg  | 
-| `T_degF`         | Output variables
-Temperature in deg F                         | --  | 
+| `T_degF`         |                          | --  | 
 """
-@component function TurkeyDiscretizedSphere(; name, N=10, Np1=11, M=5, rho=1050, cp=3500, k=0.5, T_init=277, pi=3.14159265359, R=(3 * M / (4 * pi * rho)) ^ (1 / 3), dr=R / N)
+@component function TurkeyDiscretizedSphere(; name, N=10, Np1=N + 1, M=5, rho=1050, cp=3500, k=0.5, T_init=277, pi=3.14159265359, R=(3 * M / (4 * pi * rho)) ^ (1 / 3), dr=R / N)
   __params = Any[]
   __vars = Any[]
   __systems = System[]
@@ -53,25 +49,24 @@ Temperature in deg F                         | --  |
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (M::Real = M), [description = "Turkey properties"])
+  append!(__params, @parameters (M::Real = M))
   append!(__params, @parameters (rho::Real = rho))
   append!(__params, @parameters (cp::Real = cp))
   append!(__params, @parameters (k::Real = k))
   append!(__params, @parameters (T_init::Real = T_init))
-  append!(__params, @parameters (pi::Real = pi), [description = "Physical constants"])
-  append!(__params, @parameters (R::Real = R), [description = "Geometry"])
+  append!(__params, @parameters (pi::Real = pi))
+  append!(__params, @parameters (R::Real = R))
   append!(__params, @parameters (dr::Real = dr))
 
   ### Variables
-  append!(__vars, @variables (T(t)[1:N]::Real), [description = "Variables"])
+  append!(__vars, @variables (T(t)[1:N]::Real))
   append!(__vars, @variables (Q_cond(t)[1:Np1]::Real))
   append!(__vars, @variables (r(t)[1:Np1]::Real))
   append!(__vars, @variables (r_mid(t)[1:N]::Real))
   append!(__vars, @variables (A_interface(t)[1:Np1]::Real))
   append!(__vars, @variables (V_shell(t)[1:N]::Real))
   append!(__vars, @variables (m_shell(t)[1:N]::Real))
-  append!(__vars, @variables (T_degF(t)[1:N]::Real), [description = "Output variables
-Temperature in deg F"])
+  append!(__vars, @variables (T_degF(t)[1:N]::Real))
 
   ### Constants
   __constants = Any[]
@@ -90,17 +85,10 @@ Temperature in deg F"])
 
   ### Equations
   push!(__eqs, A_interface[Np1] ~ 4 * pi * r[Np1] ^ 2)
-  # Conduction between shells (Fourier's law)
   push!(__eqs, Q_cond[1] ~ 0)
   push!(__eqs, Q_cond[Np1] ~ k * A_interface[Np1] * (T[N - 1] - T[N]) / dr)
-  # Energy balance for each shell
-  # Center shell
   push!(__eqs, m_shell[1] * cp * ModelingToolkit.D_nounits(T[1]) ~ Q_cond[1] - Q_cond[2])
-  # Surface shell - heat enters from interior and from surface connector
-  # Note: In thermal connector convention, positive surface.Q means heat leaving
-  # So we ADD surface.Q when it's negative (heat entering)
   push!(__eqs, m_shell[N] * cp * ModelingToolkit.D_nounits(T[N]) ~ Q_cond[N] + surface.Q)
-  # Surface connector relations
   push!(__eqs, surface.T ~ T[N])
 
   ### Control Structures
@@ -123,7 +111,7 @@ Temperature in deg F"])
       __defaults[T[i]] = (T_init)
   end
   for i in 1:N
-      push!(__eqs, T_degF[i] ~ 9 / 5 * (T[i] - 273.15) + 32)
+      push!(__eqs, T_degF[i] ~ KelvinToFahrenheit(T[i]))
   end
 
   # Return completely constructed System

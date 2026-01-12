@@ -10,14 +10,13 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct TurkeySphereCookingSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :TurkeySphereCooking
   var"alg"::String = "auto"
-  var"start"::Real = 0
-  var"stop"::Real = 14400
-  var"abstol"::Real = 0.000001
-  var"reltol"::Real = 0.000001
-  var"saveat"::Real = 60
-  var"dtmax"::Real = 0
+  var"start"::Float64 = 0
+  var"stop"::Float64 = 14400
+  var"abstol"::Float64 = 0.000001
+  var"reltol"::Float64 = 0.000001
+  var"saveat"::Float64 = 60
+  var"dtmax"::Float64 = 0
   var"IfLifting"::Bool = false
-  # Test harness with convection and radiation components
   var"model"::Union{Nothing, System} = TurkeyDemo.TurkeySphereTest(; name=:TurkeySphereTest)
 end
 

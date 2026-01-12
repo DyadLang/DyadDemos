@@ -7,20 +7,18 @@
 @doc Markdown.doc"""
    TurkeySphereTest(; name, N, T_oven, h, epsilon, M_turkey, rho_turkey, pi, R_turkey, A_surface, Gc_conv, Gr_rad)
 
-Test harness with convection and radiation components
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `N`         |                          | --  |   10 |
-| `T_oven`         | Parameters                         | K  |   450 |
+| `T_oven`         |                          | K  |   450 |
 | `h`         |                          | W/(m2.K)  |   15 |
 | `epsilon`         |                          | --  |   0.85 |
 | `M_turkey`         |                          | kg  |   5 |
 | `rho_turkey`         |                          | kg/m3  |   1050 |
 | `pi`         |                          | --  |   3.14159265359 |
-| `R_turkey`         | Compute turkey geometry                         | m  |   (3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3) |
+| `R_turkey`         |                          | m  |   (3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3) |
 | `A_surface`         |                          | m2  |   4 * pi * R_turkey ^ 2 |
 | `Gc_conv`         |                          | W/K  |   h * A_surface |
 | `Gr_rad`         |                          | --  |   epsilon * A_surface |
@@ -35,13 +33,13 @@ Test harness with convection and radiation components
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (T_oven::Real = T_oven), [description = "Parameters"])
+  append!(__params, @parameters (T_oven::Real = T_oven))
   append!(__params, @parameters (h::Real = h))
   append!(__params, @parameters (epsilon::Real = epsilon))
   append!(__params, @parameters (M_turkey::Real = M_turkey))
   append!(__params, @parameters (rho_turkey::Real = rho_turkey))
   append!(__params, @parameters (pi::Real = pi))
-  append!(__params, @parameters (R_turkey::Real = R_turkey), [description = "Compute turkey geometry"])
+  append!(__params, @parameters (R_turkey::Real = R_turkey))
   append!(__params, @parameters (A_surface::Real = A_surface))
   append!(__params, @parameters (Gc_conv::Real = Gc_conv))
   append!(__params, @parameters (Gr_rad::Real = Gr_rad))
@@ -52,7 +50,7 @@ Test harness with convection and radiation components
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(N=10, Np1=N + 1, M=M_turkey, T_init=277))
+  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(N=10, M=M_turkey, T_init=277))
   push!(__systems, @named oven = ThermalComponents.FixedTemperature(T=T_oven))
   push!(__systems, @named convection = ThermalComponents.Convection())
   push!(__systems, @named Gc_signal = BlockComponents.Constant(k=Gc_conv))
@@ -68,11 +66,9 @@ Test harness with convection and radiation components
   __assertions = []
 
   ### Equations
-  # Connect convection: oven (fluid) -> turkey surface (solid)
   push!(__eqs, connect(oven.node, convection.fluid))
   push!(__eqs, connect(convection.solid, turkey.surface))
   push!(__eqs, connect(Gc_signal.y, convection.Gc))
-  # Connect radiation: oven -> turkey surface
   push!(__eqs, connect(oven.node, radiation.node_a))
   push!(__eqs, connect(radiation.node_b, turkey.surface))
 

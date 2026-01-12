@@ -1,31 +1,32 @@
-# Thermal model of a house with controlled heater and input for temperature setpoint and solar irradiance
+"Thermal model of a house with controlled heater and input for temperature setpoint and solar irradiance"
 component ThermalHouseControlled
-  # Temperature setpoint input
-  T_setpoint = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
+  "Temperature setpoint input"
+  T_setpoint = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}}}}]
   
-  # Outputs
+  "Outputs"
   T_interior = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}}}}]
   Q_heater = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}}}}]
   
-  # External inputs
+  "External inputs"
   solar_irradiance = RealInput() [{"Dyad": {"placement": {"icon": {"x1": 450, "y1": -50, "x2": 550, "y2": 50, "rot": 90}}}}]
+  T_ambient = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}}}}]
   
-  # Parameters
-  parameter T_outdoor::Temperature = 273.15  # Ambient temperature
-  parameter T_initial::Temperature = 294.26  # 21.1°C
+  "Initial temperature 21.1°C"
+  parameter T_initial::Temperature = 294.26
   
-  # PI controller parameters
-  parameter k_p::Real = 10000.0  # Proportional gain (W/K)
-  parameter T_i::Time = 600.0    # Integral time constant (s)
-  parameter Q_max::HeatFlowRate = 10000.0  # Maximum heater capacity (W)
+  "Proportional gain (W/K)"
+  parameter k_p::Real = 10000.0
+  "Integral time constant (s)"
+  parameter T_i::Time = 600.0
+  "Maximum heater capacity (W)"
+  parameter Q_max::HeatFlowRate = 10000.0
   
-  # House model
+  "House model"
   house = ThermalHouse(
-    T_ambient=T_outdoor,
     T_initial=T_initial
   )
   
-  # PI controller for temperature control (no derivative action)
+  "PI controller for temperature control (no derivative action)"
   pid = BlockComponents.LimPID(
     k=k_p,
     Ti=T_i,
@@ -34,56 +35,60 @@ component ThermalHouseControlled
     y_min=0.0
   )
   
-  # Zero feed-forward input for PID
+  "Zero feed-forward input for PID"
   zero_ff = BlockComponents.Constant(k=0.0)
   
 relations
-  # Connect setpoint and measurement to PID
+  "Connect setpoint and measurement to PID"
   connect(T_setpoint, pid.u_s)
   connect(house.T_interior, pid.u_m)
   connect(zero_ff.y, pid.u_ff)
   
-  # Connect PID output to heater
+  "Connect PID output to heater"
   connect(pid.y, house.Q_heater)
   
-  # Connect solar input
+  "Connect external inputs"
   connect(solar_irradiance, house.solar_irradiance)
+  connect(T_ambient, house.T_ambient)
   
-  # Connect outputs
+  "Connect outputs"
   connect(T_interior, house.T_interior)
   connect(Q_heater, pid.y)
 metadata {"Dyad": {"icons": {"default": "dyad://ThermalHouseDemo/thermal_house_controlled.svg"}}}
 end
 
 test component TestThermalHouseControlled
-  # Design conditions
-  parameter T_outdoor::Temperature = 273.15  # 0°C (32°F)
-  parameter T_initial::Temperature = 294.26  # 21.1°C (70°F)
-  parameter T_setpoint::Temperature = 294.26  # 21.1°C (70°F)
+  "Outdoor temperature 0°C (32°F)"
+  parameter T_outdoor::Temperature = 273.15
+  "Initial temperature 21.1°C (70°F)"
+  parameter T_initial::Temperature = 294.26
+  "Setpoint temperature 21.1°C (70°F)"
+  parameter T_setpoint::Temperature = 294.26
   
-  # Solar irradiance
-  parameter solar_irrad::Real = 0.0  # W/m²
+  "Solar irradiance (W/m²)"
+  parameter solar_irrad::Real = 0.0
   
   controlled_house = ThermalHouseControlled(
-    T_outdoor=T_outdoor,
     T_initial=T_initial,
     k_p=10000.0,
     T_i=600.0
   )
   
-  # Constant setpoint and solar signals
+  "Constant setpoint, solar, and ambient signals"
   setpoint_signal = BlockComponents.Constant(k=T_setpoint)
   solar_irradiance_signal = BlockComponents.Constant(k=solar_irrad)
+  ambient_signal = BlockComponents.Constant(k=T_outdoor)
   
 relations
   connect(setpoint_signal.y, controlled_house.T_setpoint)
   connect(solar_irradiance_signal.y, controlled_house.solar_irradiance)
+  connect(ambient_signal.y, controlled_house.T_ambient)
   
   guess controlled_house.house.wall_loss.ΔT = 10.0
 end
 
 analysis TestControlledHouseWinterDesign
-  extends TransientAnalysis(stop=7200.0)  # 2 hours
+  extends TransientAnalysis(stop=7200.0)
   model = TestThermalHouseControlled(T_initial=288.7)
 end
 

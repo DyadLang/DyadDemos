@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="1000px"
+   preserveAspectRatio="xMidYMid meet"
+   version="1.1"
+   viewBox="0 0 250.0 275.0"
+   width="1000px"
+   id="svg6"
+   sodipodi:docname="to_degC.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.265"
+     inkscape:cx="499.60474"
+     inkscape:cy="500"
+     inkscape:window-width="2560"
+     inkscape:window-height="1494"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6" />
+  <defs
+     id="defs1" />
+  <rect
+     fill="rgb(255,255,255)"
+     fill-opacity="1"
+     height="200.0"
+     rx="0.0"
+     ry="0.0"
+     stroke="rgb(191,0,0)"
+     stroke-width="0.25mm"
+     width="200.0"
+     x="25.0"
+     y="65.0"
+     id="rect1" />
+  <defs
+     id="defs2" />
+  <polyline
+     fill="none"
+     fill-opacity="0"
+     points="35.0,165.0 155.0,165.0"
+     stroke="rgb(191,0,0)"
+     stroke-width="0.25mm"
+     id="polyline2" />
+  <defs
+     id="defs3" />
+  <polygon
+     fill="rgb(191,0,0)"
+     fill-opacity="1"
+     points="215.0,165.0 155.0,145.0 155.0,185.0 215.0,165.0"
+     stroke="rgb(191,0,0)"
+     stroke-width="0.25mm"
+     id="polygon3" />
+  <defs
+     id="defs4" />
+  <text
+     dominant-baseline="middle"
+     fill="#000000"
+     fill-opacity="1"
+     font-family="Verdana"
+     font-size="66.1348px"
+     text-anchor="middle"
+     x="53.28117"
+     y="101.1985"
+     id="text4"
+     transform="scale(0.98939312,1.0107206)"
+     style="stroke-width:0.826685">K</text>
+  <defs
+     id="defs5" />
+  <text
+     dominant-baseline="middle"
+     fill="#000000"
+     fill-opacity="1"
+     font-family="Verdana"
+     font-size="40.6414px"
+     text-anchor="middle"
+     x="166.1844"
+     y="227.31537"
+     id="text5"
+     transform="scale(1.0114784,0.98865185)"
+     style="stroke-width:0.508017">degC</text>
+  <defs
+     id="defs6" />
+</svg>
