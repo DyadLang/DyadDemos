@@ -1,0 +1,132 @@
+"""
+Undamped spring-mass oscillator with PID damping control.
+The system oscillates without natural damping, and the PID controller
+can apply damping force to suppress oscillations.
+"""
+component ControlledOscillator
+  "PID proportional gain"
+  parameter pid_k::Real = 10.0
+  
+  "PID integral time"
+  parameter pid_Ti::Real = 10.0
+  
+  "PID derivative time"
+  parameter pid_Td::Real = 0.5
+  
+  "Maximum control force"
+  parameter pid_y_max::Real = 50.0
+  
+  "Minimum control force"
+  parameter pid_y_min::Real = -50.0
+  
+  "Mass component"
+  mass = TranslationalComponents.Mass(m=1.0)
+  
+  "Spring component - provides restoring force"
+  spring = TranslationalComponents.Spring(c=100.0, s_rel0=0.0)
+  
+  "Fixed reference point"
+  fixed = TranslationalComponents.Fixed(s0=0.0)
+  
+  "PID controller - generates damping force based on velocity"
+  pid = BlockComponents.LimPID(
+    k=pid_k,
+    Ti=pid_Ti,
+    Td=pid_Td,
+    y_max=pid_y_max,
+    y_min=pid_y_min
+  )
+  
+  "Setpoint for PID (zero velocity = rest)"
+  setpoint = BlockComponents.Constant(k=0.0)
+  
+  "Velocity sensor for feedback"
+  velocity_sensor = TranslationalComponents.SpeedSensor()
+  
+  "Control force actuator"
+  control_force = TranslationalComponents.Force()
+  
+  "Ground for force actuator"
+  ground = TranslationalComponents.Fixed(s0=0.0)
+  
+  "Feed-forward input (zero by default)"
+  ff_input = BlockComponents.Constant(k=0.0)
+  
+relations
+  # Mechanical connections: spring only (no damper)
+  connect(fixed.flange, spring.flange_a)
+  connect(spring.flange_b, mass.flange_a)
+  
+  # Velocity sensor on mass
+  connect(velocity_sensor.flange, mass.flange_a)
+  
+  # Control force applied to mass
+  connect(ground.flange, control_force.flange_a)
+  connect(control_force.flange_b, mass.flange_b)
+  
+  # PID control loop: velocity feedback
+  connect(setpoint.y, pid.u_s)
+  connect(velocity_sensor.v, pid.u_m)
+  connect(pid.y, control_force.f)
+  connect(ff_input.y, pid.u_ff)
+
+
+  # Start with displaced position
+  initial mass.s = 0.5
+  initial mass.v = 0.0
+end
+
+# TEST HARNESS - Strong PID damping
+test component TestStrongDamping
+  "Initial displacement to trigger oscillation"
+  system = ControlledOscillator()
+  
+relations
+end
+
+# TEST HARNESS - Weak PID damping (oscillation persists)
+test component TestWeakDamping
+  "Reduced PID gain allows oscillation"
+  system = ControlledOscillator(
+    pid_k=1.0,
+    pid_Td=0.1,
+    pid_y_max=10.0,
+    pid_y_min=-10.0
+  )
+  
+relations
+  # Start with displaced position
+  initial system.mass.s = 0.5
+  initial system.mass.v = 0.0
+end
+
+# TEST HARNESS - No PID damping (free oscillation)
+test component TestNoDamping
+  "PID gain near zero - pure oscillation (avoiding k=0 singularity in LimPID)"
+  system = ControlledOscillator(
+    pid_k=1e-10,
+    pid_Td=1e-10,
+    pid_y_max=1e-10,
+    pid_y_min=-1e-10
+  )
+  
+relations
+  # Start with displaced position
+  initial system.mass.s = 0.5
+  initial system.mass.v = 0.0
+end
+
+analysis StrongDampingAnalysis
+  extends TransientAnalysis(stop=10.0)
+  model = TestStrongDamping()
+end
+
+analysis WeakDampingAnalysis
+  extends TransientAnalysis(stop=10.0)
+  model = TestWeakDamping()
+end
+
+analysis NoDampingAnalysis
+  extends TransientAnalysis(stop=10.0)
+  model = TestNoDamping()
+end

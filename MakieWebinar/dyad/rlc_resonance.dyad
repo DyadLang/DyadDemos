@@ -1,0 +1,93 @@
+"""
+RLC resonant circuit with variable damping.
+Shows underdamped, critically damped, and overdamped responses.
+"""
+component TunableRLCResonance
+  "Resistance (controls damping)"
+  parameter R::Resistance = 10.0
+  
+  "Inductance"
+  parameter L::Inductance = 0.001
+  
+  "Capacitance"
+  parameter C::Capacitance = 1e-6
+  
+  "Initial capacitor voltage"
+  parameter V_init::Voltage = 10.0
+  
+  "Series resistor"
+  resistor = ElectricalComponents.Resistor(R=R)
+  
+  "Series inductor"
+  inductor = ElectricalComponents.Inductor(L=L)
+  
+  "Capacitor (initially charged)"
+  capacitor = ElectricalComponents.Capacitor(C=C)
+  
+  "Ground"
+  ground = ElectricalComponents.Ground()
+  
+relations
+  # Simple series RLC - capacitor discharges through R and L
+  connect(capacitor.p, resistor.p)
+  connect(resistor.n, inductor.p)
+  connect(inductor.n, ground.g)
+  connect(capacitor.n, ground.g)
+end
+
+# Underdamped (oscillatory)
+test component TestUnderdamped
+  circuit = TunableRLCResonance(
+    R=5.0,
+    L=0.001,
+    C=1e-6,
+    V_init=10.0
+  )
+  
+relations
+  initial circuit.capacitor.v = circuit.V_init
+  initial circuit.inductor.i = 0.0
+end
+
+# Critically damped
+test component TestCriticallyDamped
+  circuit = TunableRLCResonance(
+    R=63.2,
+    L=0.001,
+    C=1e-6,
+    V_init=10.0
+  )
+  
+relations
+  initial circuit.capacitor.v = circuit.V_init
+  initial circuit.inductor.i = 0.0
+end
+
+# Overdamped (no oscillation)
+test component TestOverdamped
+  circuit = TunableRLCResonance(
+    R=200.0,
+    L=0.001,
+    C=1e-6,
+    V_init=10.0
+  )
+  
+relations
+  initial circuit.capacitor.v = circuit.V_init
+  initial circuit.inductor.i = 0.0
+end
+
+analysis UnderdampedAnalysis
+  extends TransientAnalysis(stop=0.001)
+  model = TestUnderdamped()
+end
+
+analysis CriticallyDampedAnalysis
+  extends TransientAnalysis(stop=0.001)
+  model = TestCriticallyDamped()
+end
+
+analysis OverdampedAnalysis
+  extends TransientAnalysis(stop=0.001)
+  model = TestOverdamped()
+end

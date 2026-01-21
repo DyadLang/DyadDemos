@@ -1,0 +1,29 @@
+"A simple lumped thermal model"
+component Hello
+  "Ambient temperature"
+  parameter T_inf::Temperature = 300
+  "Initial temperature"
+  parameter T0::Temperature = 320
+  "Convective heat transfer coefficient"
+  parameter h::CoefficientOfHeatTransfer = 0.7
+  "Surface area"
+  parameter A::Area = 1.0
+  "Mass of thermal capacitance"
+  parameter m::Mass = 0.1
+  "Specific Heat"
+  parameter c_p::SpecificHeatCapacity = 1.2
+  variable T::Temperature
+relations
+  "Specify initial conditions"
+  initial T = T0
+  "Newton's law of cooling/heating"
+  m * c_p * der(T) = h * A * (T_inf - T)
+metadata {"Dyad": {"tests": {"case1": {"stop": 10, "expect": {"initial": {"T": 320}}}}}}
+end
+
+analysis World
+  extends TransientAnalysis(stop = 10)
+  model = Hello(T_inf = T_inf, h = h)
+  parameter T_inf::Temperature = 300
+  parameter h::CoefficientOfHeatTransfer = 0.7
+end

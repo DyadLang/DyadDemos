@@ -1,0 +1,137 @@
+"""
+Spring-mass system with external force input.
+"""
+component SpringMassSystem
+  "RealInput force port for external force applied to the mass"
+  f = RealInput() {^f}
+  "Mass component"
+  mass = TranslationalComponents.Mass(m = 1.0) {^mass}
+  "Spring component"
+  spring = TranslationalComponents.Spring(c = 10.0, s_rel0 = 0.0) {^spring}
+  "Fixed reference point"
+  fixed = TranslationalComponents.Fixed(s0 = 0.0) {^fixed}
+  "Internal force source to apply the input signal"
+  force_source = TranslationalComponents.Force() {^force_source}
+  "Fixed ground for force source"
+  ground = TranslationalComponents.Fixed(s0 = 0.0) {^ground}
+relations
+  connect(fixed.flange, spring.flange_a) {^id7}
+  connect(spring.flange_b, mass.flange_a) {^id8}
+  connect(ground.flange, force_source.flange_a) {^id9}
+  connect(force_source.flange_b, mass.flange_b) {^id10}
+  connect(f, force_source.f) {^id11}
+metadata {
+  "_links": {
+    "f": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 245, "x2": 120, "y2": 345, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "mass": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 275, "y1": 20, "x2": 375, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "spring": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 145, "y1": 20, "x2": 245, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "fixed": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 125, "x2": 120, "y2": 225, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "force_source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 145, "y1": 355, "x2": 245, "y2": 455, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ground": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 460, "x2": 120, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id7": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 70, "y": 70}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id8": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id9": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 70, "y": 405}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id10": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 390, "y": 405}, {"x": 390, "y": 70}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id11": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 195, "y": 295}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+test component TestSpringMassSystem
+  "Step force input"
+  step_force = BlockComponents.Step(height = 5.0, offset = 0.0, start_time = 0.1) {^step_force}
+  "Spring-mass system under test"
+  system = SpringMassSystem() {^system}
+relations
+  connect(step_force.y, system.f) {^id3}
+  initial system.mass.s = 0.0
+  initial system.mass.v = 0.0
+metadata {
+  "_links": {
+    "step_force": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "system": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 150, "y1": 40.5, "x2": 250, "y2": 140.5, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id3": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end
+
+analysis TestSpringMassTransient
+  extends TransientAnalysis(stop = 5.0)
+  model = TestSpringMassSystem()
+end
