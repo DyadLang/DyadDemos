@@ -2,7 +2,7 @@
 
 julia_version = "1.11.8"
 manifest_format = "2.0"
-project_hash = "55de929a7c6020f472161560adac631b3648a669"
+project_hash = "f0a8f55ce5326914f1b6b9a92b239bdf542b1e9f"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "8b2b045b22740e4be20654175cc38291d48539db"
@@ -921,17 +921,21 @@ uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 version = "1.6.0"
 
 [[deps.DyadControlSystems]]
-deps = ["ADTypes", "Bumper", "ChainRules", "ChebyshevApprox", "Colors", "CommonSolve", "ControlSystemIdentification", "ControlSystems", "ControlSystemsBase", "ControlSystemsMTK", "Convex", "DAQP", "DSP", "DataFrames", "DataInterpolations", "DescriptorSystems", "DiffEqBase", "DifferentiationInterface", "Distributions", "DyadInterface", "DynamicPolynomials", "FillArrays", "FiniteDiff", "ForwardDiff", "ForwardDiffChainRules", "Hypatia", "IfElse", "Ipopt", "IterativeSolvers", "JSONSchema", "JuMP", "Juniper", "Kronecker", "LinearAlgebra", "LowLevelParticleFilters", "LowLevelParticleFiltersMTK", "Markdown", "MathOptInterface", "ModelingToolkit", "ModelingToolkitStandardLibrary", "MonteCarloMeasurements", "OSQP", "Optim", "Optimization", "OptimizationMOI", "OrdinaryDiffEq", "OrdinaryDiffEqDefault", "PlutoUI", "PlutoVSCodeApp", "Polynomials", "Printf", "Random", "RecipesBase", "Reexport", "RelocatableFolders", "ResumableFunctions", "RobustAndOptimalControl", "RuntimeGeneratedFunctions", "SciMLBase", "SeeToDee", "Serialization", "Setfield", "SparseArrays", "StableRNGs", "StaticArrays", "Statistics", "Symbolics", "ThreadTools", "TimerOutputs", "UUIDs", "UnPack", "UnoSolver"]
-git-tree-sha1 = "cca1620e9cf7aba1530a19a030a366daa4b7afe8"
+deps = ["ADTypes", "Bumper", "ChainRules", "ChebyshevApprox", "Colors", "CommonSolve", "ControlSystemIdentification", "ControlSystems", "ControlSystemsBase", "ControlSystemsMTK", "Convex", "DAQP", "DSP", "DataFrames", "DataInterpolations", "DescriptorSystems", "DiffEqBase", "DifferentiationInterface", "Distributions", "DyadInterface", "DynamicPolynomials", "FillArrays", "FiniteDiff", "ForwardDiff", "ForwardDiffChainRules", "Hypatia", "IfElse", "Ipopt", "IterativeSolvers", "JSONSchema", "JuMP", "Juniper", "Kronecker", "LinearAlgebra", "LowLevelParticleFilters", "LowLevelParticleFiltersMTK", "Markdown", "MathOptInterface", "Memoize", "ModelingToolkit", "ModelingToolkitStandardLibrary", "MonteCarloMeasurements", "OSQP", "Optim", "Optimization", "OptimizationMOI", "OrdinaryDiffEq", "OrdinaryDiffEqDefault", "PlutoUI", "PlutoVSCodeApp", "Polynomials", "Printf", "Random", "RecipesBase", "Reexport", "RelocatableFolders", "ResumableFunctions", "RobustAndOptimalControl", "RuntimeGeneratedFunctions", "SciMLBase", "SeeToDee", "Serialization", "Setfield", "SparseArrays", "StableRNGs", "StaticArrays", "Statistics", "Symbolics", "ThreadTools", "TimerOutputs", "UUIDs", "UnPack", "UnoSolver"]
+git-tree-sha1 = "2c1504a1fa47c72d0853f35fd46163a63b6427ec"
+repo-rev = "main"
+repo-url = "https://github.com/JuliaComputing/DyadControlSystems.jl.git"
 uuid = "6f9e59d0-2838-4fee-9bce-c163a6c9592b"
 version = "1.7.5"
 
     [deps.DyadControlSystems.extensions]
     DyadControlSystemsDyadDataExt = "DyadData"
+    DyadControlSystemsGLMakieExt = "GLMakie"
     DyadControlSystemsLinearMPCExt = "LinearMPC"
 
     [deps.DyadControlSystems.weakdeps]
     DyadData = "cab12561-e36c-4498-ae70-c9a5e79fef2a"
+    GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
     LinearMPC = "82e1c212-e1a2-49d2-b26a-a31d6968e3bd"
 
 [[deps.DyadData]]
@@ -1184,7 +1188,7 @@ version = "0.10.6"
 
 [[deps.DyadExampleComponents]]
 deps = ["BlockComponents", "DyadControlSystems", "DyadEcosystemDependencies", "DyadInterface", "ElectricalComponents", "Markdown", "ModelingToolkit", "Moshi", "OrdinaryDiffEqDefault", "PrecompileTools", "RotationalComponents", "RuntimeGeneratedFunctions", "Symbolics", "Test", "TranslationalComponents"]
-git-tree-sha1 = "0a9b37acd7468d3cd4fcfdd2754cc17a7d1ac72d"
+path = "/Users/anshul/temp/DyadExampleComponents/"
 uuid = "2fe18900-c5b3-5d06-b340-7a6acf678e36"
 version = "1.1.4"
 
@@ -2467,6 +2471,12 @@ version = "1.1.9"
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
 version = "2.28.6+0"
+
+[[deps.Memoize]]
+deps = ["MacroTools"]
+git-tree-sha1 = "2b1dfcba103de714d31c033b5dacc2e4a12c7caa"
+uuid = "c03570c3-d221-55d1-a50c-7939bbd78826"
+version = "0.4.4"
 
 [[deps.MeshIO]]
 deps = ["ColorTypes", "FileIO", "GeometryBasics", "Printf"]
