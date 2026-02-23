@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2874a6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="windowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#85c1e9;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#5dade2;stop-opacity:0.6" />
+    </linearGradient>
+    <radialGradient id="wheelGrad">
+      <stop offset="0%" style="stop-color:#7f8c8d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2c3e50;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Ground line -->
+  <line x1="0" y1="72" x2="100" y2="72" stroke="#95a5a6" stroke-width="1" opacity="0.3"/>
+  
+  <!-- Vehicle body (SUV silhouette) -->
+  <path d="M 15 55 L 22 48 L 30 43 L 42 42 L 50 38 L 58 38 L 70 42 L 82 48 L 88 55 L 88 58 L 15 58 Z" 
+        fill="url(#bodyGrad)" stroke="#2874a6" stroke-width="1.5"/>
+  
+  <!-- Windshield -->
+  <polygon points="42,42 50,38 56,41" fill="url(#windowGrad)" stroke="#2874a6" stroke-width="1"/>
+  
+  <!-- Windows -->
+  <rect x="32" y="44" width="8" height="6" fill="url(#windowGrad)" stroke="#2874a6" stroke-width="0.8" rx="1"/>
+  <rect x="60" y="44" width="8" height="6" fill="url(#windowGrad)" stroke="#2874a6" stroke-width="0.8" rx="1"/>
+  <rect x="72" y="46" width="8" height="6" fill="url(#windowGrad)" stroke="#2874a6" stroke-width="0.8" rx="1"/>
+  
+  <!-- Headlight -->
+  <ellipse cx="86" cy="52" rx="2" ry="3" fill="#f39c12" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+  </ellipse>
+  
+  <!-- Undercarriage -->
+  <line x1="15" y1="58" x2="88" y2="58" stroke="#34495e" stroke-width="2"/>
+  
+  <!-- Wheels with rotation -->
+  <g id="frontWheel">
+    <circle cx="72" cy="64" r="9" fill="url(#wheelGrad)" stroke="#1a252f" stroke-width="2"/>
+    <g>
+      <line x1="72" y1="58" x2="72" y2="70" stroke="#95a5a6" stroke-width="1.5"/>
+      <line x1="66" y1="64" x2="78" y2="64" stroke="#95a5a6" stroke-width="1.5"/>
+      <line x1="68" y1="59" x2="76" y2="69" stroke="#95a5a6" stroke-width="1"/>
+      <line x1="76" y1="59" x2="68" y2="69" stroke="#95a5a6" stroke-width="1"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 72 64" to="360 72 64" dur="1.5s" repeatCount="indefinite"/>
+    </g>
+    <circle cx="72" cy="64" r="3" fill="#34495e"/>
+  </g>
+  
+  <g id="rearWheel">
+    <circle cx="30" cy="64" r="9" fill="url(#wheelGrad)" stroke="#1a252f" stroke-width="2"/>
+    <g>
+      <line x1="30" y1="58" x2="30" y2="70" stroke="#95a5a6" stroke-width="1.5"/>
+      <line x1="24" y1="64" x2="36" y2="64" stroke="#95a5a6" stroke-width="1.5"/>
+      <line x1="26" y1="59" x2="34" y2="69" stroke="#95a5a6" stroke-width="1"/>
+      <line x1="34" y1="59" x2="26" y2="69" stroke="#95a5a6" stroke-width="1"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 30 64" to="360 30 64" dur="1.5s" repeatCount="indefinite"/>
+    </g>
+    <circle cx="30" cy="64" r="3" fill="#34495e"/>
+  </g>
+  
+  <!-- Speed lines (motion indicator) -->
+  <g opacity="0.5">
+    <line x1="8" y1="50" x2="15" y2="50" stroke="#95a5a6" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="x1" values="8;18" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="15;25" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0" dur="0.8s" repeatCount="indefinite"/>
+    </line>
+    <line x1="5" y1="56" x2="12" y2="56" stroke="#95a5a6" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="x1" values="5;15" dur="0.9s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="12;22" dur="0.9s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0" dur="0.9s" repeatCount="indefinite"/>
+    </line>
+    <line x1="10" y1="62" x2="17" y2="62" stroke="#95a5a6" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="x1" values="10;20" dur="0.7s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="17;27" dur="0.7s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0" dur="0.7s" repeatCount="indefinite"/>
+    </line>
+  </g>
+</svg>

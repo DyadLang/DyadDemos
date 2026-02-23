@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Vehicle body -->
+  <path d="M 20,50 L 30,35 L 70,35 L 80,50 L 80,65 L 20,65 Z" fill="#3498DB" stroke="#000" stroke-width="2"/>
+  
+  <!-- Windshield -->
+  <path d="M 32,35 L 38,40 L 62,40 L 68,35" fill="#87CEEB" stroke="#000" stroke-width="1.5"/>
+  
+  <!-- Wheels (rotating) -->
+  <g transform-origin="30 70">
+    <circle cx="30" cy="70" r="8" fill="#333" stroke="#000" stroke-width="2"/>
+    <circle cx="30" cy="70" r="4" fill="#666"/>
+    <line x1="30" y1="62" x2="30" y2="78" stroke="#888" stroke-width="2"/>
+    <line x1="22" y1="70" x2="38" y2="70" stroke="#888" stroke-width="2"/>
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="0 30 70"
+      to="360 30 70"
+      dur="2s"
+      repeatCount="indefinite"/>
+  </g>
+  
+  <g transform-origin="70 70">
+    <circle cx="70" cy="70" r="8" fill="#333" stroke="#000" stroke-width="2"/>
+    <circle cx="70" cy="70" r="4" fill="#666"/>
+    <line x1="70" y1="62" x2="70" y2="78" stroke="#888" stroke-width="2"/>
+    <line x1="62" y1="70" x2="78" y2="70" stroke="#888" stroke-width="2"/>
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="0 70 70"
+      to="360 70 70"
+      dur="2s"
+      repeatCount="indefinite"/>
+  </g>
+  
+  <!-- Motion lines (animated) -->
+  <line x1="15" y1="45" x2="5" y2="45" stroke="#999" stroke-width="2" opacity="0.6">
+    <animate attributeName="x1" values="15;5;15" dur="0.8s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="5;-5;5" dur="0.8s" repeatCount="indefinite"/>
+  </line>
+  <line x1="18" y1="55" x2="8" y2="55" stroke="#999" stroke-width="2" opacity="0.6">
+    <animate attributeName="x1" values="18;8;18" dur="0.9s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="8;-2;8" dur="0.9s" repeatCount="indefinite"/>
+  </line>
+  
+  <!-- Mechanical input flange (left boundary) -->
+  <circle cx="5" cy="50" r="5" fill="#4A90E2" stroke="#000" stroke-width="1.5"/>
+  <line x1="0" y1="50" x2="10" y2="50" stroke="#000" stroke-width="1.5"/>
+  <line x1="5" y1="45" x2="5" y2="55" stroke="#000" stroke-width="1.5"/>
+</svg>
