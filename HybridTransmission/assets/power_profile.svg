@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Signal generator box -->
+  <rect x="15" y="25" width="70" height="50" fill="#9B59B6" stroke="#000" stroke-width="2" rx="5"/>
+  
+  <!-- Sine wave display (animated) -->
+  <path d="M 20,50 Q 30,35 40,50 T 60,50 T 80,50" 
+        fill="none" stroke="#fff" stroke-width="3" opacity="0.9">
+    <animate attributeName="d" 
+             values="M 20,50 Q 30,35 40,50 T 60,50 T 80,50;
+                     M 20,50 Q 30,65 40,50 T 60,50 T 80,50;
+                     M 20,50 Q 30,35 40,50 T 60,50 T 80,50"
+             dur="2s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Axis lines -->
+  <line x1="20" y1="50" x2="80" y2="50" stroke="#ECF0F1" stroke-width="1" stroke-dasharray="2,2"/>
+  
+  <!-- Output indicator (pulsing) -->
+  <circle cx="50" cy="50" r="4" fill="#F1C40F" opacity="0.8">
+    <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.8;1;0.8" dur="1s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Label -->
+  <text x="30" y="42" font-size="8" fill="#ECF0F1" font-weight="bold">POWER</text>
+  <text x="28" y="68" font-size="7" fill="#ECF0F1">15kW ±50%</text>
+  
+  <!-- Output port (right boundary) -->
+  <circle cx="95" cy="50" r="5" fill="#E74C3C" stroke="#000" stroke-width="1.5"/>
+  <text x="91" y="53" font-size="8" fill="white" font-weight="bold">P</text>
+  
+  <!-- Time indicator (animated) -->
+  <line x1="25" y1="50" x2="25" y2="50" stroke="#F39C12" stroke-width="2">
+    <animate attributeName="x1" values="25;75;25" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="25;75;25" dur="4s" repeatCount="indefinite"/>
+  </line>
+</svg>

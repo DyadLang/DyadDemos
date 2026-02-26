@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="batteryGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a252f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cellGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1abc9c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16a085;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="chargeGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#27ae60;stop-opacity:0.3">
+        <animate attributeName="offset" values="0;0.6;0" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#27ae60;stop-opacity:0">
+        <animate attributeName="offset" values="0.1;1;0.1" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+  </defs>
+  
+  <!-- Battery pack outline -->
+  <rect x="22" y="30" width="56" height="50" fill="url(#batteryGrad)" stroke="#1a252f" stroke-width="2" rx="4"/>
+  
+  <!-- Terminal posts -->
+  <rect x="30" y="24" width="8" height="8" fill="#e74c3c" stroke="#c0392b" stroke-width="1.5" rx="2"/>
+  <text x="34" y="30" font-size="9" fill="white" font-weight="bold">+</text>
+  <rect x="62" y="24" width="8" height="8" fill="#3498db" stroke="#2980b9" stroke-width="1.5" rx="2"/>
+  <text x="66" y="30" font-size="9" fill="white" font-weight="bold">−</text>
+  
+  <!-- Battery cells (NiMH modules) -->
+  <g id="cells">
+    <rect x="27" y="36" width="7" height="38" fill="url(#cellGrad)" stroke="#0e6655" stroke-width="1" rx="1.5"/>
+    <rect x="36" y="36" width="7" height="38" fill="url(#cellGrad)" stroke="#0e6655" stroke-width="1" rx="1.5"/>
+    <rect x="45" y="36" width="7" height="38" fill="url(#cellGrad)" stroke="#0e6655" stroke-width="1" rx="1.5"/>
+    <rect x="54" y="36" width="7" height="38" fill="url(#cellGrad)" stroke="#0e6655" stroke-width="1" rx="1.5"/>
+    <rect x="63" y="36" width="7" height="38" fill="url(#cellGrad)" stroke="#0e6655" stroke-width="1" rx="1.5"/>
+  </g>
+  
+  <!-- Charge level animation overlay -->
+  <rect x="27" y="36" width="43" height="38" fill="url(#chargeGrad)" rx="1.5"/>
+  
+  <!-- Cell separators -->
+  <line x1="27" y1="50" x2="70" y2="50" stroke="#0a4d40" stroke-width="0.5" opacity="0.5"/>
+  <line x1="27" y1="60" x2="70" y2="60" stroke="#0a4d40" stroke-width="0.5" opacity="0.5"/>
+  
+  <!-- SOC indicator bars -->
+  <g id="socIndicator">
+    <rect x="28" y="82" width="8" height="3" fill="#27ae60" rx="1">
+      <animate attributeName="fill" values="#27ae60;#52be80;#27ae60" dur="2s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="38" y="82" width="8" height="3" fill="#27ae60" rx="1">
+      <animate attributeName="fill" values="#27ae60;#52be80;#27ae60" dur="2s" begin="0.2s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="48" y="82" width="8" height="3" fill="#f39c12" rx="1">
+      <animate attributeName="fill" values="#f39c12;#f5b041;#f39c12" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="58" y="82" width="8" height="3" fill="#95a5a6" rx="1" opacity="0.5"/>
+  </g>
+  
+  <!-- Energy flow particles -->
+  <g opacity="0.7">
+    <circle cx="30" cy="50" r="1" fill="#48c9b0">
+      <animate attributeName="cx" values="30;40;50;60;70" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0.7;0" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="30" cy="55" r="1" fill="#48c9b0">
+      <animate attributeName="cx" values="30;40;50;60;70" dur="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;0.7;0" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>
