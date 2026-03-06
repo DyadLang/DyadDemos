@@ -2,28 +2,9 @@
 
 A Dyad-based thermal modeling library for simulating the heating dynamics of a residential house. It models heat transfer through the building envelope (walls, roof, floor, windows, doors), air infiltration, solar gains, internal gains, and HVAC heating, allowing you to study how indoor temperature responds to weather conditions and control strategies.
 
-## Models
+## Getting Started
 
-The `dyad/` directory contains two component models and their associated test analyses:
-
-### ThermalHouse (`dyad/ThermalHouse.dyad`)
-
-An open-loop thermal model of a house. It accepts three external inputs -- heater power (`Q_heater`), solar irradiance (`solar_irradiance`), and ambient temperature (`T_ambient`) -- and outputs the interior temperature (`T_interior`). Key features:
-
-- **Building geometry** parameterized for a default 1000 sq ft house (floor area, wall height, window-to-wall ratio, number of doors).
-- **Envelope heat loss** through walls, windows, doors, roof, and floor, each with configurable U-values.
-- **Air infiltration and ventilation** losses based on air changes per hour (ACH).
-- **Thermal mass** accounting for air volume, drywall, and floor slab.
-- **Solar heat gain** through windows (via SHGC and orientation factor).
-- **Internal gains** from occupants, lighting, and appliances.
-
-The file also includes `TestThermalHouse`, a test component that wires constant signals into the house model (7500 W heater, 0 C outdoor temperature, no solar), and `TestHouseWinterDesign`, a transient analysis that runs this test for 7200 seconds (2 hours).
-
-### ThermalHouseControlled (`dyad/ThermalHouseControlled.dyad`)
-
-A closed-loop variant that wraps `ThermalHouse` with a PI (proportional-integral) controller. It accepts a temperature setpoint (`T_setpoint`), solar irradiance, and ambient temperature as inputs, and outputs the interior temperature and heater power. The PI controller automatically modulates heater output (clamped between 0 and `Q_max`) to track the setpoint.
-
-The file also includes `TestThermalHouseControlled`, a test component with constant setpoint (21.1 C) and outdoor (0 C) signals, and `TestControlledHouseWinterDesign`, a transient analysis that starts the house at 15.5 C (288.7 K) and simulates the controller warming it up over 7200 seconds.
+Download this folder to your machine and open it in VS Code with the [Dyad extension](https://help.juliahub.com/dyad/dev/getting_started/).
 
 ## Running Experiments
 
@@ -57,22 +38,25 @@ sol = TestHouseWinterDesign(stop=14400.0)
 sol = TestControlledHouseWinterDesign(k_p=15000.0, T_i=300.0)
 ```
 
-## Getting Started
+## Models
 
-This library was created with the Dyad Studio VS Code extension. Dyad models live in the `dyad/` directory (`.dyad` files) and the Dyad compiler generates Julia code into the `generated/` folder. Do not edit files in `generated/`.
+The `dyad/` directory contains two component models and their associated test analyses:
 
-1. Run `Julia: Start REPL` from the VS Code command palette.
+### ThermalHouse (`dyad/ThermalHouse.dyad`)
 
-2. Type `]` to enter the package manager prompt.
+An open-loop thermal model of a house. It accepts three external inputs -- heater power (`Q_heater`), solar irradiance (`solar_irradiance`), and ambient temperature (`T_ambient`) -- and outputs the interior temperature (`T_interior`). Key features:
 
-3. At the `pkg>` prompt, type `instantiate` to download all dependencies (this may take a while the first time).
+- **Building geometry** parameterized for a default 1000 sq ft house (floor area, wall height, window-to-wall ratio, number of doors).
+- **Envelope heat loss** through walls, windows, doors, roof, and floor, each with configurable U-values.
+- **Air infiltration and ventilation** losses based on air changes per hour (ACH).
+- **Thermal mass** accounting for air volume, drywall, and floor slab.
+- **Solar heat gain** through windows (via SHGC and orientation factor).
+- **Internal gains** from occupants, lighting, and appliances.
 
-4. From the same `pkg>` prompt, type `test` to run the test suite and verify the models compile and simulate correctly.
+The file also includes `TestThermalHouse`, a test component that wires constant signals into the house model (7500 W heater, 0 C outdoor temperature, no solar), and `TestHouseWinterDesign`, a transient analysis that runs this test for 7200 seconds (2 hours).
 
-5. Press `Backspace`/`Delete` to return to the `julia>` prompt.
+### ThermalHouseControlled (`dyad/ThermalHouseControlled.dyad`)
 
-6. Type `using ThermalHouseDemo` to load the library.
+A closed-loop variant that wraps `ThermalHouse` with a PI (proportional-integral) controller. It accepts a temperature setpoint (`T_setpoint`), solar irradiance, and ambient temperature as inputs, and outputs the interior temperature and heater power. The PI controller automatically modulates heater output (clamped between 0 and `Q_max`) to track the setpoint.
 
-7. Run an analysis, for example `TestHouseWinterDesign()`, to simulate the open-loop thermal house model.
-
-8. Type `using Plots` (answer `y` if prompted to add the dependency), then `plot(TestHouseWinterDesign())` to visualize the results.
+The file also includes `TestThermalHouseControlled`, a test component with constant setpoint (21.1 C) and outdoor (0 C) signals, and `TestControlledHouseWinterDesign`, a transient analysis that starts the house at 15.5 C (288.7 K) and simulates the controller warming it up over 7200 seconds.

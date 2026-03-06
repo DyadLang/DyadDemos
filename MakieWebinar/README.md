@@ -1,22 +1,12 @@
 # MakieWebinar
 
-This library demonstrates how to use [Makie](https://docs.makie.org/), the interactive plotting library for Julia, together with [Dyad](https://dyad.juliahub.com/) acausal models to build interactive plots and dashboards. It accompanies a webinar presented in January 2026 and covers everything from basic Makie concepts (figures, axes, observables) to advanced techniques like live parameter sweeps, real-time input control, and animated 2D spatial simulations.
+This library demonstrates how to use [Makie](https://docs.makie.org/), the interactive plotting library for Julia, together with [Dyad](https://help.juliahub.com/dyad) acausal models to build interactive plots and dashboards. It accompanies a webinar presented in January 2026 and covers everything from basic Makie concepts (figures, axes, observables) to advanced techniques like live parameter sweeps, real-time input control, and animated 2D spatial simulations.
 
 <img alt="An interactive dashboard showing a lumped thermal model with T0 and Tinf parameter controls" src="plots/readme_image.png" width=500/>
 
-## Models
+## Getting Started
 
-The `dyad/` directory contains seven Dyad model files spanning thermal, mechanical, electrical, and spatial-dynamics domains:
-
-| File | Description |
-|------|-------------|
-| `hello.dyad` | Lumped thermal model (Newton's law of cooling) with adjustable ambient temperature and heat transfer coefficient. |
-| `spring_mass.dyad` | Spring-mass system with an external step-force input. |
-| `controlled_oscillator.dyad` | Undamped spring-mass oscillator with a PID damping controller. Includes test cases for strong, weak, and no damping. |
-| `rc_circuit.dyad` | Tunable RC charging circuit. Tests fast, medium, and slow charging via different resistance values. |
-| `rlc_resonance.dyad` | RLC resonant circuit showing underdamped, critically damped, and overdamped transient responses. |
-| `diffusion_2d.dyad` | 2D diffusion on a grid using custom connector/component primitives (DiffusionPort, DiffusionCapacitor, DiffusionResistor). Includes 5x5 and 100x100 grid tests, plus FitzHugh-Nagumo excitable-media variants. |
-| `reaction_diffusion.dyad` | Reaction-diffusion models with exponential growth and FitzHugh-Nagumo traveling-wave dynamics on 5x5 and 20x20 grids. |
+Download this folder to your machine and open it in VS Code with the [Dyad extension](https://help.juliahub.com/dyad/dev/getting_started/).
 
 ## Scripts
 
@@ -44,6 +34,20 @@ Launches the `DyadControlSystems` PID autotuning designer UI on a pre-built acti
 ### `visualize_flat_mesh.jl` -- 2D Spatial Model Animations
 Creates side-by-side 3D mesh and 2D heatmap animations of the 20x20 reaction-diffusion and FitzHugh-Nagumo wave models. Uses a fixed flat mesh geometry and updates only the per-vertex color each frame for performance.
 
+## Models
+
+The `dyad/` directory contains seven Dyad model files spanning thermal, mechanical, electrical, and spatial-dynamics domains:
+
+| File | Description |
+|------|-------------|
+| `hello.dyad` | Lumped thermal model (Newton's law of cooling) with adjustable ambient temperature and heat transfer coefficient. |
+| `spring_mass.dyad` | Spring-mass system with an external step-force input. |
+| `controlled_oscillator.dyad` | Undamped spring-mass oscillator with a PID damping controller. Includes test cases for strong, weak, and no damping. |
+| `rc_circuit.dyad` | Tunable RC charging circuit. Tests fast, medium, and slow charging via different resistance values. |
+| `rlc_resonance.dyad` | RLC resonant circuit showing underdamped, critically damped, and overdamped transient responses. |
+| `diffusion_2d.dyad` | 2D diffusion on a grid using custom connector/component primitives (DiffusionPort, DiffusionCapacitor, DiffusionResistor). Includes 5x5 and 100x100 grid tests, plus FitzHugh-Nagumo excitable-media variants. |
+| `reaction_diffusion.dyad` | Reaction-diffusion models with exponential growth and FitzHugh-Nagumo traveling-wave dynamics on 5x5 and 20x20 grids. |
+
 ## Project Structure
 
 ```
@@ -56,26 +60,6 @@ MakieWebinar/
   plots/         -- Output images
   assets/        -- (reserved for additional assets)
 ```
-
-## Getting Started
-
-1. **Open the project.** In a Julia REPL, activate the environment:
-
-   ```julia
-   using Pkg
-   Pkg.activate("path/to/MakieWebinar")
-   Pkg.instantiate()
-   ```
-
-2. **Run a script.** Scripts are designed to be stepped through interactively (e.g., in VS Code with the Julia extension). Start with the intro:
-
-   ```julia
-   include("scripts/01_intro.jl")
-   ```
-
-   Then progress through `02_plot_solutions.jl`, `03_paramsweep.jl`, and the remaining scripts in order.
-
-3. **Backend choice.** Most scripts use `GLMakie` for interactive desktop windows. If you are working in a remote or browser-based environment, swap in `WGLMakie`. For static vector output, use `CairoMakie`. All three backends are listed in `Project.toml`.
 
 ## Dependencies
 

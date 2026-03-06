@@ -2,51 +2,9 @@
 
 A Dyad component library modeling a torque-split hybrid electric vehicle with power-split architecture. The system uses an Equivalent Consumption Minimization Strategy (ECMS) controller to optimally split torque demand between an internal combustion engine and two electric motor/generators, minimizing a weighted cost of fuel burn and battery drain in real time. The vehicle follows an EPA Highway Fuel Economy Test (HWFET) drive cycle.
 
-## Models
-
-The library is defined in a single Dyad file (`dyad/hybrid_transmission.dyad`) containing the following components:
-
-- **HybridEngine** -- Atkinson cycle ICE (74 kW / 99 hp) with a BSFC (Brake Specific Fuel Consumption) map expressed as polynomials. Fuel consumption data is based on Guzzella & Sciarretta, *Vehicle Propulsion Systems* (3rd ed., 2013).
-- **HybridMG** -- Permanent magnet AC motor/generator with ideal torque control. Used for both MG1 (25 kW, sun gear / generator) and MG2 (70 kW, ring gear / traction motor).
-- **HybridBattery** -- Simple equivalent-circuit lumped-parameter SOC estimator representing a NiMH battery pack (274--330 V nominal, 5.5 kWh usable).
-- **HybridVehicle** -- Lumped vehicle model (1750 kg mid-size SUV) with aerodynamic drag and rolling resistance.
-- **HighwayDriveCycle** -- EPA HWFET speed profile (765 s, 10.26 miles, max 60 mph). Downloaded from EPA data and encoded as a smooth piecewise approximation.
-- **ECMSController** -- ECMS torque-split controller. Minimizes an equivalent fuel cost `J = fuel_rate + s * P_battery` where `s` is a dynamically adjusted equivalence factor driven by SOC feedback.
-- **HybridPlanetaryGear** -- Planetary gear set (ratio 2.6) extending `RotationalComponents.IdealPlanetaryGear`, coupling engine (carrier), MG1 (sun), and MG2/wheels (ring).
-- **PowerSplitHybrid** -- Top-level test component that wires all sub-components together into a complete vehicle system.
-- **TestPowerSplitHybrid** -- Transient analysis running `PowerSplitHybrid` for 765 seconds (full HWFET cycle).
-
 ## Getting Started
 
-This library was created with the Dyad Studio VS Code extension. Dyad models are in the `dyad/` directory with the `.dyad` extension. The Dyad compiler compiles these into Julia code placed in the `generated/` folder. Do not edit or rename files in that directory.
-
-1. Run `Julia: Start REPL` from the VS Code command palette.
-
-2. Type `]` to enter the package manager prompt.
-
-3. At the `pkg>` prompt, type `instantiate` to download all dependencies (this may take a while the first time).
-
-4. From the same `pkg>` prompt, type `test`. This will run the auto-generated test suite which validates all eight components (`HybridEngine`, `HybridMG`, `HybridBattery`, `HybridVehicle`, `HighwayDriveCycle`, `ECMSController`, `HybridPlanetaryGear`, and `PowerSplitHybrid`).
-
-5. Press `Backspace`/`Delete` to return to the `julia>` prompt.
-
-6. Type `using HybridTransmission` to load the library.
-
-7. Run the full HWFET drive cycle simulation:
-   ```julia
-   sol = TestPowerSplitHybrid()
-   ```
-   The first invocation may take a few seconds for compilation; subsequent runs are fast.
-
-8. To visualize results, type `using Plots` (answer `y` if prompted to add it as a dependency), then:
-   ```julia
-   plot(TestPowerSplitHybrid())
-   ```
-
-9. You can customize simulation parameters via keyword arguments, for example:
-   ```julia
-   plot(TestPowerSplitHybrid(stop=200.0))
-   ```
+Download this folder to your machine and open it in VS Code with the [Dyad extension](https://help.juliahub.com/dyad/dev/getting_started/).
 
 ## Running Experiments
 
@@ -67,6 +25,20 @@ The `src/fuel_efficiency_helpers.jl` file contains supporting Julia functions us
 ### Drive Cycle Data
 
 The file `hwfet_data.csv` in the project root contains the raw EPA HWFET speed-vs-time data used as the basis for the drive cycle source block.
+
+## Models
+
+The library is defined in a single Dyad file (`dyad/hybrid_transmission.dyad`) containing the following components:
+
+- **HybridEngine** -- Atkinson cycle ICE (74 kW / 99 hp) with a BSFC (Brake Specific Fuel Consumption) map expressed as polynomials. Fuel consumption data is based on Guzzella & Sciarretta, *Vehicle Propulsion Systems* (3rd ed., 2013).
+- **HybridMG** -- Permanent magnet AC motor/generator with ideal torque control. Used for both MG1 (25 kW, sun gear / generator) and MG2 (70 kW, ring gear / traction motor).
+- **HybridBattery** -- Simple equivalent-circuit lumped-parameter SOC estimator representing a NiMH battery pack (274--330 V nominal, 5.5 kWh usable).
+- **HybridVehicle** -- Lumped vehicle model (1750 kg mid-size SUV) with aerodynamic drag and rolling resistance.
+- **HighwayDriveCycle** -- EPA HWFET speed profile (765 s, 10.26 miles, max 60 mph). Downloaded from EPA data and encoded as a smooth piecewise approximation.
+- **ECMSController** -- ECMS torque-split controller. Minimizes an equivalent fuel cost `J = fuel_rate + s * P_battery` where `s` is a dynamically adjusted equivalence factor driven by SOC feedback.
+- **HybridPlanetaryGear** -- Planetary gear set (ratio 2.6) extending `RotationalComponents.IdealPlanetaryGear`, coupling engine (carrier), MG1 (sun), and MG2/wheels (ring).
+- **PowerSplitHybrid** -- Top-level test component that wires all sub-components together into a complete vehicle system.
+- **TestPowerSplitHybrid** -- Transient analysis running `PowerSplitHybrid` for 765 seconds (full HWFET cycle).
 
 ## Demo Notes
 
