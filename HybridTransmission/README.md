@@ -1,72 +1,91 @@
 # HybridTransmission
-  
+
+A Dyad component library modeling a torque-split hybrid electric vehicle with power-split architecture. The system uses an Equivalent Consumption Minimization Strategy (ECMS) controller to optimally split torque demand between an internal combustion engine and two electric motor/generators, minimizing a weighted cost of fuel burn and battery drain in real time. The vehicle follows an EPA Highway Fuel Economy Test (HWFET) drive cycle.
+
+## Models
+
+The library is defined in a single Dyad file (`dyad/hybrid_transmission.dyad`) containing the following components:
+
+- **HybridEngine** -- Atkinson cycle ICE (74 kW / 99 hp) with a BSFC (Brake Specific Fuel Consumption) map expressed as polynomials. Fuel consumption data is based on Guzzella & Sciarretta, *Vehicle Propulsion Systems* (3rd ed., 2013).
+- **HybridMG** -- Permanent magnet AC motor/generator with ideal torque control. Used for both MG1 (25 kW, sun gear / generator) and MG2 (70 kW, ring gear / traction motor).
+- **HybridBattery** -- Simple equivalent-circuit lumped-parameter SOC estimator representing a NiMH battery pack (274--330 V nominal, 5.5 kWh usable).
+- **HybridVehicle** -- Lumped vehicle model (1750 kg mid-size SUV) with aerodynamic drag and rolling resistance.
+- **HighwayDriveCycle** -- EPA HWFET speed profile (765 s, 10.26 miles, max 60 mph). Downloaded from EPA data and encoded as a smooth piecewise approximation.
+- **ECMSController** -- ECMS torque-split controller. Minimizes an equivalent fuel cost `J = fuel_rate + s * P_battery` where `s` is a dynamically adjusted equivalence factor driven by SOC feedback.
+- **HybridPlanetaryGear** -- Planetary gear set (ratio 2.6) extending `RotationalComponents.IdealPlanetaryGear`, coupling engine (carrier), MG1 (sun), and MG2/wheels (ring).
+- **PowerSplitHybrid** -- Top-level test component that wires all sub-components together into a complete vehicle system.
+- **TestPowerSplitHybrid** -- Transient analysis running `PowerSplitHybrid` for 765 seconds (full HWFET cycle).
+
 ## Getting Started
-  
-This library was created with the Dyad Studio VS Code extension.  Your Dyad
-models should be placed in the `dyad` directory and the files should be
-given the `.dyad` extension.  Several such files have already been placed
-in there to get you started.  The Dyad compiler will compile the Dyad models
-into Julia code and place it in the `generated` folder.  Do not edit the
-files in that directory or remove/rename that directory.
 
-A complete tutorial on using Dyad Studio can be found [here](#).  But you
-can run the provided example models by doing the following:
+This library was created with the Dyad Studio VS Code extension. Dyad models are in the `dyad/` directory with the `.dyad` extension. The Dyad compiler compiles these into Julia code placed in the `generated/` folder. Do not edit or rename files in that directory.
 
-1. Run `Julia: Start REPL` from the command palette.
+1. Run `Julia: Start REPL` from the VS Code command palette.
 
-2. Type `]`.  This will take you to the package manager prompt.
+2. Type `]` to enter the package manager prompt.
 
-3. At the `pkg>` prompt, type `instantiate` (this downloads all the Julia libraries
-   you will need, and the very first time you do it it might take a while).
+3. At the `pkg>` prompt, type `instantiate` to download all dependencies (this may take a while the first time).
 
-4. From the same `pkg>` prompt, type `test`.  This will test to make sure the models
-   are working as expected.  It may also take some time but you should eventually
-   see a result that indicates 2 of 2 tests passed.
+4. From the same `pkg>` prompt, type `test`. This will run the auto-generated test suite which validates all eight components (`HybridEngine`, `HybridMG`, `HybridBattery`, `HybridVehicle`, `HighwayDriveCycle`, `ECMSController`, `HybridPlanetaryGear`, and `PowerSplitHybrid`).
 
-5. Use the `Backspace`/`Delete` key to return to the normal Julia REPL, it should
-   look like this: `julia>`.
+5. Press `Backspace`/`Delete` to return to the `julia>` prompt.
 
-6. Type `using HybridTransmission`.  This will load your model library.
+6. Type `using HybridTransmission` to load the library.
 
-7. Type `World()` to run a simulation of the `Hello` model.  The first time you run it,
-   this might take a few seconds, but each successive time you run it, it should be very fast.
+7. Run the full HWFET drive cycle simulation:
+   ```julia
+   sol = TestPowerSplitHybrid()
+   ```
+   The first invocation may take a few seconds for compilation; subsequent runs are fast.
 
-8. To see simulation results type `using Plots` (and answer `y` if asked if you want
-   to add it as a dependency).
+8. To visualize results, type `using Plots` (answer `y` if prompted to add it as a dependency), then:
+   ```julia
+   plot(TestPowerSplitHybrid())
+   ```
 
-9. To plot results of the `World` simulation, simply type `plot(World())`.
+9. You can customize simulation parameters via keyword arguments, for example:
+   ```julia
+   plot(TestPowerSplitHybrid(stop=200.0))
+   ```
 
-10. You can plot variations on that simulation using keyword arguments.  For example,
-    try `plot(World(stop=20, k=4))`.
-   
-# Demo Notes
-1. This is a model of a torque-split hybrid transmission, and follows an ECMS 
-(Equivalent Consumption Minimization Strategy) control strategy to split torque
-demand between the battery and the engine
-2. ECMS: the core principle is that in real-time, a weight cost that is the sum of 
-fuel-burn and battery drain is minimized. The relative costs of fuel burn and battery
-drain are deteremined by an equivalent factor. In this model, an effective equivalent
-factor is set dynamically. 
-3. Fuel burn is determed by a BFSC (Brake Specific Fuel Consumption) map in the engine
-component, expressed as polynomials. This was extracted by our agent from a book called 
-Vehicle Propulsion Systems
-4. The battery is a very simple equivalent circuit lumped parameter soc estimator, 
-loosely based on a Nickel Metal Hydride chemistry. This was developed just for the 
-control systems development.
-5. A standard EPA Highway Drive cycle was downloaded from the internet by the agent
-and used as a source block. Vehicle speed tracking is not the focus of this model so
-a simple proportional law is incorporated in the controller.
+## Running Experiments
+
+### Analysis Notebook
+
+The `scripts/analysis-notebook.ipynb` Jupyter notebook provides an interactive workflow using `DyadOrchestrator`. It loads the component library, runs any available analysis (such as `TestPowerSplitHybrid`), and produces artifacts including simulation solution plots. You can also select individual symbols to visualize specific variables from the solution.
+
+### Helper Functions
+
+The `src/fuel_efficiency_helpers.jl` file contains supporting Julia functions used by the Dyad models and available for custom scripting:
+
+- `engine_bsfc_fuel_rate(torque_nm, speed_rpm)` -- Computes engine fuel rate (g/s) from a parabolic BSFC map.
+- `epa_highway_speed(t)` -- Returns the smooth HWFET speed profile (m/s) at a given time.
+- `rolling_resistance_force(speed_ms, C_rr, m_kg)` -- Calculates rolling resistance with a velocity threshold.
+- `optimal_engine_point(power_demand_kw)` -- Returns the (torque, speed) operating point that minimizes BSFC for a given power demand.
+- `udds_speed_profile(t)` -- A simplified UDDS (urban) drive cycle speed profile for alternative testing.
+
+### Drive Cycle Data
+
+The file `hwfet_data.csv` in the project root contains the raw EPA HWFET speed-vs-time data used as the basis for the drive cycle source block.
+
+## Demo Notes
+
+1. This is a model of a torque-split hybrid transmission, and follows an ECMS (Equivalent Consumption Minimization Strategy) control strategy to split torque demand between the battery and the engine.
+2. ECMS: the core principle is that in real-time, a weight cost that is the sum of fuel-burn and battery drain is minimized. The relative costs of fuel burn and battery drain are determined by an equivalent factor. In this model, an effective equivalent factor is set dynamically.
+3. Fuel burn is determined by a BSFC (Brake Specific Fuel Consumption) map in the engine component, expressed as polynomials. This was extracted by our agent from a book called *Vehicle Propulsion Systems*.
+4. The battery is a very simple equivalent circuit lumped parameter SOC estimator, loosely based on a Nickel Metal Hydride chemistry. This was developed just for the control systems development.
+5. A standard EPA Highway Drive cycle was downloaded from the internet by the agent and used as a source block. Vehicle speed tracking is not the focus of this model so a simple proportional law is incorporated in the controller.
 6. The vehicle is modeled as a simple lumped mass with rolling resistance and aerodynamic drag.
-7. The coupling mechanism is modeled as an ideal planetary gear which actuates two
-electric motors MG1 and MG2
+7. The coupling mechanism is modeled as an ideal planetary gear which actuates two electric motors MG1 and MG2.
 
-## Prompts used for a typical demo: 
-1. Summarize the models in this repo
-2. Please take a look at hybrid_full_cycle.png. The controller seems to fail charge sustaining operation. Can the controller be tuned to improve performance? Provide an assessment. 
+## Prompts Used for a Typical Demo
+
+1. Summarize the models in this repo.
+2. Please take a look at `hybrid_full_cycle.png`. The controller seems to fail charge sustaining operation. Can the controller be tuned to improve performance? Provide an assessment.
 3. Can you write an optimization script to tune the controller and make a new plot just like the full cycle one?
 
-## Future Improvements to the Model
-1. Perfect speed tracking through a separate closed loop PID 
-2. Higher fidelity battery model 
-3. This model operates only in hybrid mode. With state machines you can operate this
-in pure EV or pure gas mode
+## Future Improvements
+
+1. Perfect speed tracking through a separate closed loop PID.
+2. Higher fidelity battery model.
+3. This model operates only in hybrid mode. With state machines you can operate this in pure EV or pure gas mode.

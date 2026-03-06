@@ -1,40 +1,80 @@
 # CoffeeMugDemo
-  
+
+A thermal simulation library built with [Dyad](https://dyad.dev) that models the cooling of an espresso in a porcelain mug. The library captures heat transfer through convection, conduction, and radiation across multiple interacting subsystems -- including the coffee, the mug, a hand holding the mug, the steam rising from the top surface, and an optional metal spoon. It serves as a demonstration of modular, component-based thermal modeling using Dyad's acausal modeling language and the Julia `ModelingToolkit` ecosystem.
+
+## Models
+
+All Dyad models are defined in `dyad/CoffeeMugSubsystems.dyad`:
+
+- **CoffeeMugSubsystem** -- The core subsystem containing the espresso thermal mass (60 mL, starting at 90 C) and a porcelain cup (starting at 20 C). Models internal convection from espresso to the cup inner wall, conduction through the cup wall, and external convection and radiation from the cup outer surface to the environment. Outputs the espresso temperature in degrees Celsius.
+
+- **SteamSubsystem** -- Models heat loss from the top surface of the espresso to the surrounding air via convection and radiation.
+
+- **SpoonSubsystem** -- Models a stainless steel teaspoon partially submerged in the espresso. It acts as a thermal fin, conducting heat from the liquid through the spoon mass and dissipating it via convection and radiation from the exposed handle.
+
+- **HandSubsystem** -- Models a hand in contact with the outer surface of the cup, represented as a thermal mass at body temperature (37 C) connected through a contact conductance.
+
+- **EspressoCupSystemModular** -- A top-level assembly that connects the `CoffeeMugSubsystem`, `SteamSubsystem`, and `HandSubsystem` to a fixed-temperature ambient environment (20 C). This is the baseline configuration without a spoon.
+
+- **EspressoCupSystemWithSpoon** -- An extended top-level assembly that adds the `SpoonSubsystem` to the baseline system, allowing comparison of cooling rates with and without a spoon.
+
+Two transient analyses are also defined:
+
+- **EspressoCoolingModular** -- Runs `EspressoCupSystemModular` for 6000 seconds using the Rodas5P solver.
+- **EspressoCoolingWithSpoon** -- Runs `EspressoCupSystemWithSpoon` for 6000 seconds using the Rodas5P solver.
+
+## Running Experiments
+
+The script `scripts/simulate_coffee_mug.jl` demonstrates how to simulate and visualize the espresso cooling process. It:
+
+1. Simulates the **EspressoCupSystemModular** (no spoon) and plots the espresso temperature, cup temperature, hand temperature, and ambient temperature over time.
+2. Simulates the **EspressoCupSystemWithSpoon** and plots the same quantities plus the spoon temperature.
+3. Compares the espresso temperature curves from both configurations on a single plot, showing the effect of the spoon on cooling rate.
+
+To run the script, start a Julia REPL from this project directory and execute:
+
+```julia
+include("scripts/simulate_coffee_mug.jl")
+```
+
 ## Getting Started
-  
-This library was created with the Dyad Studio VS Code extension.  Your Dyad
-models should be placed in the `dyad` directory and the files should be
-given the `.dyad` extension.  Several such files have already been placed
-in there to get you started.  The Dyad compiler will compile the Dyad models
-into Julia code and place it in the `generated` folder.  Do not edit the
-files in that directory or remove/rename that directory.
 
-A complete tutorial on using Dyad Studio can be found [here](#).  But you
-can run the provided example models by doing the following:
+1. Run `Julia: Start REPL` from the VS Code command palette (or start Julia in a terminal).
 
-1. Run `Julia: Start REPL` from the command palette.
+2. Enter the package manager by typing `]`, then run:
 
-2. Type `]`.  This will take you to the package manager prompt.
+   ```
+   pkg> instantiate
+   ```
 
-3. At the `pkg>` prompt, type `instantiate` (this downloads all the Julia libraries
-   you will need, and the very first time you do it it might take a while).
+   This downloads all required dependencies (the first time may take a while).
 
-4. From the same `pkg>` prompt, type `test`.  This will test to make sure the models
-   are working as expected.  It may also take some time but you should eventually
-   see a result that indicates 2 of 2 tests passed.
+3. To verify the models are working, run the tests from the package manager prompt:
 
-5. Use the `Backspace`/`Delete` key to return to the normal Julia REPL, it should
-   look like this: `julia>`.
+   ```
+   pkg> test
+   ```
 
-6. Type `using CoffeeMugDemo`.  This will load your model library.
+4. Return to the Julia REPL with `Backspace`/`Delete`, then load the library:
 
-7. Type `World()` to run a simulation of the `Hello` model.  The first time you run it,
-   this might take a few seconds, but each successive time you run it, it should be very fast.
+   ```julia
+   using CoffeeMugDemo
+   ```
 
-8. To see simulation results type `using Plots` (and answer `y` if asked if you want
-   to add it as a dependency).
+5. Run a simulation using the pre-defined analyses:
 
-9. To plot results of the `World` simulation, simply type `plot(World())`.
+   ```julia
+   EspressoCoolingModular()
+   EspressoCoolingWithSpoon()
+   ```
 
-10. You can plot variations on that simulation using keyword arguments.  For example,
-    try `plot(World(stop=20, k=4))`.
+6. For plotting, add the `Plots` package and follow the pattern in `scripts/simulate_coffee_mug.jl`:
+
+   ```julia
+   using Plots
+   using ModelingToolkit, DyadInterface
+
+   @named model = EspressoCupSystemModular()
+   res = TransientAnalysis(; model, alg = "auto", abstol = 10.0e-3, reltol = 1.0e-3, start = 0.0, stop = 6000)
+   plot(res, idxs=[model.coffeeMug.espressoTemp_degC])
+   ```
