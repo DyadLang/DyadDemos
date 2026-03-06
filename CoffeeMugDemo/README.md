@@ -1,6 +1,6 @@
 # CoffeeMugDemo
 
-A thermal simulation library built with [Dyad](https://dyad.dev) that models the cooling of an espresso in a porcelain mug. The library captures heat transfer through convection, conduction, and radiation across multiple interacting subsystems -- including the coffee, the mug, a hand holding the mug, the steam rising from the top surface, and an optional metal spoon. It serves as a demonstration of modular, component-based thermal modeling using Dyad's acausal modeling language and the Julia `ModelingToolkit` ecosystem.
+A thermal simulation library built with [Dyad](https://help.juliahub.com/dyad) that models the cooling of an espresso in a porcelain mug. The library captures heat transfer through convection, conduction, and radiation across multiple interacting subsystems -- including the coffee, the mug, a hand holding the mug, the steam rising from the top surface, and an optional metal spoon. It serves as a demonstration of modular, component-based thermal modeling using Dyad's acausal modeling language and the Julia `ModelingToolkit` ecosystem.
 
 ## Models
 
