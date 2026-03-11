@@ -1,5 +1,7 @@
 # MakieWebinar
 
+<img src="./assets/icon.svg" width="96" align="right"/>
+
 This library demonstrates how to use [Makie](https://docs.makie.org/), the interactive plotting library for Julia, together with [Dyad](https://help.juliahub.com/dyad) acausal models to build interactive plots and dashboards. It accompanies a webinar presented in January 2026 and covers everything from basic Makie concepts (figures, axes, observables) to advanced techniques like live parameter sweeps, real-time input control, and animated 2D spatial simulations.
 
 <img alt="An interactive dashboard showing a lumped thermal model with T0 and Tinf parameter controls" src="plots/readme_image.png" width=500/>

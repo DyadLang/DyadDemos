@@ -1,5 +1,7 @@
 # FrictionBrakeDemo
 
+<img src="./assets/icon.svg" width="96" align="right"/>
+
 This library provides acausal, equation-based models of a vehicle friction brake system with coupled thermal effects, built using the Dyad modeling language. It includes individual subsystem models for a friction brake, brake thermal dynamics, a simple powertrain, a driver controller, and a simple vehicle, which can be composed together into full-system simulations. The primary goal is to demonstrate how braking energy is converted to heat and how disk and pad temperatures evolve under realistic driving cycles.
 
 ## Getting Started

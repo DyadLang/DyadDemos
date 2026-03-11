@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8D6E63"/>
+      <stop offset="100%" stop-color="#6D4C41"/>
+    </linearGradient>
+    <linearGradient id="warm" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#FF6F00"/>
+      <stop offset="100%" stop-color="#FFD54F"/>
+    </linearGradient>
+    <linearGradient id="roof-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D84315"/>
+      <stop offset="100%" stop-color="#BF360C"/>
+    </linearGradient>
+  </defs>
+  <!-- House body -->
+  <rect x="22" y="56" width="84" height="60" fill="url(#wall)" stroke="#4E342E" stroke-width="2"/>
+  <!-- Roof -->
+  <polygon points="14,58 64,16 114,58" fill="url(#roof-grad)" stroke="#4E342E" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Chimney -->
+  <rect x="82" y="22" width="14" height="28" fill="#795548" stroke="#4E342E" stroke-width="1.5"/>
+  <!-- Door -->
+  <rect x="52" y="82" width="24" height="34" rx="2" fill="#4E342E" stroke="#3E2723" stroke-width="1.5"/>
+  <circle cx="72" cy="100" r="2" fill="#FFD54F"/>
+  <!-- Windows -->
+  <g fill="#FFF9C4" stroke="#4E342E" stroke-width="1.5" opacity="0.9">
+    <rect x="30" y="66" width="16" height="14" rx="1"/>
+    <rect x="82" y="66" width="16" height="14" rx="1"/>
+  </g>
+  <!-- Window crosses -->
+  <g stroke="#4E342E" stroke-width="1">
+    <line x1="38" y1="66" x2="38" y2="80"/>
+    <line x1="30" y1="73" x2="46" y2="73"/>
+    <line x1="90" y1="66" x2="90" y2="80"/>
+    <line x1="82" y1="73" x2="98" y2="73"/>
+  </g>
+  <!-- Window warm glow -->
+  <rect x="31" y="67" width="14" height="12" fill="url(#warm)" opacity="0.4" rx="1"/>
+  <rect x="83" y="67" width="14" height="12" fill="url(#warm)" opacity="0.4" rx="1"/>
+  <!-- Heat waves from chimney -->
+  <g fill="none" stroke="#FF6F00" stroke-width="2.5" stroke-linecap="round" opacity="0.7">
+    <path d="M86 20 Q82 12 86 6 Q90 0 86 -6"/>
+    <path d="M93 18 Q89 10 93 4 Q97 -2 93 -8"/>
+  </g>
+  <!-- Heat arrows (showing thermal flow) -->
+  <g opacity="0.6">
+    <!-- Outward arrows showing heat loss -->
+    <path d="M18 80 L8 80" stroke="#42A5F5" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow-cold)"/>
+    <path d="M110 80 L120 80" stroke="#42A5F5" stroke-width="2" stroke-linecap="round"/>
+    <polygon points="120,80 116,77 116,83" fill="#42A5F5"/>
+    <polygon points="8,80 12,77 12,83" fill="#42A5F5"/>
+    <!-- Up arrow from roof -->
+    <path d="M40 30 L34 20" stroke="#42A5F5" stroke-width="2" stroke-linecap="round"/>
+    <polygon points="34,20 38,23 32,24" fill="#42A5F5"/>
+  </g>
+</svg>

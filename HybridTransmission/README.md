@@ -1,5 +1,7 @@
 # HybridTransmission
 
+<img src="./assets/icon.svg" width="96" align="right"/>
+
 A Dyad component library modeling a torque-split hybrid electric vehicle with power-split architecture. The system uses an Equivalent Consumption Minimization Strategy (ECMS) controller to optimally split torque demand between an internal combustion engine and two electric motor/generators, minimizing a weighted cost of fuel burn and battery drain in real time. The vehicle follows an EPA Highway Fuel Economy Test (HWFET) drive cycle.
 
 ## Getting Started

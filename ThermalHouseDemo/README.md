@@ -1,5 +1,7 @@
 # ThermalHouseDemo
 
+<img src="./assets/icon.svg" width="96" align="right"/>
+
 A Dyad-based thermal modeling library for simulating the heating dynamics of a residential house. It models heat transfer through the building envelope (walls, roof, floor, windows, doors), air infiltration, solar gains, internal gains, and HVAC heating, allowing you to study how indoor temperature responds to weather conditions and control strategies.
 
 ## Getting Started

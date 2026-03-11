@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="turkey-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8D6E63"/>
+      <stop offset="100%" stop-color="#5D4037"/>
+    </linearGradient>
+    <linearGradient id="golden" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFB74D"/>
+      <stop offset="100%" stop-color="#E65100"/>
+    </linearGradient>
+  </defs>
+  <!-- Platter -->
+  <ellipse cx="64" cy="100" rx="52" ry="12" fill="#BDBDBD" stroke="#9E9E9E" stroke-width="1.5"/>
+  <ellipse cx="64" cy="98" rx="48" ry="10" fill="#E0E0E0"/>
+  <!-- Turkey body -->
+  <ellipse cx="64" cy="72" rx="36" ry="28" fill="url(#turkey-body)"/>
+  <!-- Drumsticks -->
+  <g fill="url(#golden)" stroke="#BF360C" stroke-width="1.5">
+    <path d="M28 78 Q18 88 22 96 Q24 100 28 98 Q34 94 36 82 Z"/>
+    <path d="M100 78 Q110 88 106 96 Q104 100 100 98 Q94 94 92 82 Z"/>
+  </g>
+  <!-- Drumstick bone tips -->
+  <circle cx="22" cy="97" r="3" fill="#EFEBE9" stroke="#BCAAA4" stroke-width="1"/>
+  <circle cx="106" cy="97" r="3" fill="#EFEBE9" stroke="#BCAAA4" stroke-width="1"/>
+  <!-- Golden skin highlight -->
+  <ellipse cx="64" cy="65" rx="28" ry="18" fill="url(#golden)" opacity="0.35"/>
+  <!-- Thermometer -->
+  <g transform="translate(72, 36) rotate(25)">
+    <rect x="-2" y="0" width="4" height="32" rx="2" fill="#E0E0E0" stroke="#9E9E9E" stroke-width="1"/>
+    <!-- Mercury -->
+    <rect x="-1" y="8" width="2" height="22" fill="#F44336"/>
+    <!-- Bulb -->
+    <circle cx="0" cy="32" r="4" fill="#F44336" stroke="#9E9E9E" stroke-width="1"/>
+    <!-- Tick marks -->
+    <line x1="2" y1="10" x2="5" y2="10" stroke="#757575" stroke-width="0.8"/>
+    <line x1="2" y1="15" x2="5" y2="15" stroke="#757575" stroke-width="0.8"/>
+    <line x1="2" y1="20" x2="5" y2="20" stroke="#757575" stroke-width="0.8"/>
+    <line x1="2" y1="25" x2="5" y2="25" stroke="#757575" stroke-width="0.8"/>
+  </g>
+  <!-- Steam wisps -->
+  <g fill="none" stroke="#BDBDBD" stroke-width="2" stroke-linecap="round" opacity="0.6">
+    <path d="M48 42 Q44 34 48 26 Q52 18 48 10"/>
+    <path d="M58 38 Q54 30 58 22 Q62 14 58 6"/>
+    <path d="M40 46 Q36 38 40 30 Q44 22 40 14"/>
+  </g>
+</svg>

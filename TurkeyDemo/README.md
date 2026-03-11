@@ -1,5 +1,7 @@
 # TurkeyDemo
 
+<img src="./assets/icon.svg" width="96" align="right"/>
+
 A discretized thermal model of cooking a turkey, built with [Dyad](https://help.juliahub.com/dyad/dev/). The turkey is approximated as a sphere divided into concentric shells, and heat transfer from the oven to the turkey surface occurs via both convection and radiation. The simulation tracks temperature over time at every radial shell, letting you predict when the center reaches a safe internal temperature (165 F).
 
 ## Getting Started
