@@ -30,11 +30,6 @@
   <circle cx="64" cy="64" r="28" fill="#546E7A" stroke="#37474F" stroke-width="1.5"/>
   <!-- Lightning bolt (electric) -->
   <path d="M72 34 L56 62 L68 62 L54 94 L78 58 L64 58 Z" fill="url(#electric)" stroke="#0D47A1" stroke-width="1.5" stroke-linejoin="round"/>
-  <!-- Electric glow -->
-  <path d="M72 34 L56 62 L68 62 L54 94 L78 58 L64 58 Z" fill="#42A5F5" opacity="0.3" filter="url(#glow)"/>
-  <!-- Small energy dots -->
-  <circle cx="42" cy="38" r="2" fill="#64B5F6" opacity="0.7"/>
-  <circle cx="90" cy="48" r="1.5" fill="#64B5F6" opacity="0.5"/>
-  <circle cx="36" cy="80" r="1.5" fill="#64B5F6" opacity="0.6"/>
-  <circle cx="94" cy="82" r="2" fill="#64B5F6" opacity="0.5"/>
+  <!-- Electric glow highlight -->
+  <path d="M72 34 L56 62 L68 62 L54 94 L78 58 L64 58 Z" fill="#64B5F6" opacity="0.25"/>
 </svg>
