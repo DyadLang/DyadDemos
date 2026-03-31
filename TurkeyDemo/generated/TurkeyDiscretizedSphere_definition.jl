@@ -60,6 +60,7 @@
   append!(__params, @parameters (cp::Real = cp))
   append!(__params, @parameters (k::Real = k))
   append!(__params, @parameters (T_init::Real = T_init), [bounds = (0, Inf)])
+  append!(__params, @parameters (T_inits[1:N]::Real = T_init * ones(N)), [description = "Workaround for array initial conditions", bounds = (0, Inf)])
   append!(__params, @parameters (pi::Real = pi))
   append!(__params, @parameters (R::Real = R))
   append!(__params, @parameters (dr::Real = dr))
@@ -83,6 +84,7 @@
   ### Guesses
 
   ### Defaults
+  __initial_conditions[T] = (T_inits)
 
   ### Initialization Equations
 
@@ -112,9 +114,6 @@
   end
   for i in 2:(N - 1)
       push!(__eqs, m_shell[i] * cp * ModelingToolkit.D_nounits(T[i]) ~ Q_cond[i] - Q_cond[i + 1])
-  end
-  for i in 1:N
-      __initial_conditions[T[i]] = (T_init)
   end
   for i in 1:N
       push!(__eqs, T_degF[i] ~ KelvinToFahrenheit(T[i]))

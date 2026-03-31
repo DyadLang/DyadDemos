@@ -12,6 +12,8 @@ component TurkeyDiscretizedSphere
   parameter cp::SpecificHeatCapacity = 3500.0
   parameter k::ThermalConductivity = 0.5
   parameter T_init::Temperature = 277.0
+  "Workaround for array initial conditions"
+  final parameter T_inits::Temperature[N] = T_init * ones(N)
   # Physical constants
   parameter pi::Real = 3.14159265359
   # Geometry
@@ -62,9 +64,7 @@ relations
   # Surface connector relations
   surface.T = T[N]
   # Initial conditions
-  for i in 1:N
-    initial T[i] = T_init
-  end
+  initial T = T_inits
   for i in 1:N
     T_degF[i] = KelvinToFahrenheit(T[i])
   end
