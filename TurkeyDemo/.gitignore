@@ -6,4 +6,5 @@
 /docs/Manifest*.toml
 /scripts/Manifest*.toml
 .claude/
-dyad_resources/
+agent_resources/
+/.migration-backups/

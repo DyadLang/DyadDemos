@@ -23,21 +23,27 @@
 | `Gc_conv`         |                          | W/K  |   h * A_surface |
 | `Gr_rad`         |                          | --  |   epsilon * A_surface |
 """
-@component function TurkeySphereTest(; name, N=10, T_oven=450, h=15, epsilon=0.85, M_turkey=5, rho_turkey=1050, pi=3.14159265359, R_turkey=(3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3), A_surface=4 * pi * R_turkey ^ 2, Gc_conv=h * A_surface, Gr_rad=epsilon * A_surface)
-  __params = Any[]
-  __vars = Any[]
+@component function TurkeySphereTest(; name = nothing, N=10, T_oven=450, h=15, epsilon=0.85, M_turkey=5, rho_turkey=1050, pi=3.14159265359, R_turkey=(3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3), A_surface=4 * pi * R_turkey ^ 2, Gc_conv=h * A_surface, Gr_rad=epsilon * A_surface)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TurkeySphereTest()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (T_oven::Real = T_oven))
+  append!(__params, @parameters (T_oven::Real = T_oven), [bounds = (0, Inf)])
   append!(__params, @parameters (h::Real = h))
   append!(__params, @parameters (epsilon::Real = epsilon))
-  append!(__params, @parameters (M_turkey::Real = M_turkey))
-  append!(__params, @parameters (rho_turkey::Real = rho_turkey))
+  append!(__params, @parameters (M_turkey::Real = M_turkey), [bounds = (0, Inf)])
+  append!(__params, @parameters (rho_turkey::Real = rho_turkey), [bounds = (0, Inf)])
   append!(__params, @parameters (pi::Real = pi))
   append!(__params, @parameters (R_turkey::Real = R_turkey))
   append!(__params, @parameters (A_surface::Real = A_surface))
@@ -73,6 +79,6 @@
   push!(__eqs, connect(radiation.node_b, turkey.surface))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TurkeySphereTest
