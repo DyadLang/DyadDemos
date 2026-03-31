@@ -17,13 +17,19 @@
 | `N_v_res`         | Number of vertical resistors                         | --  |   20 |
 | `N_boundary`         | Number of boundary components                         | --  |   20 |
 """
-@component function TestDiffusion5x5(; name, N=5, N_caps=25, N_h_res=20, N_v_res=20, N_boundary=20)
-  __params = Any[]
-  __vars = Any[]
+@component function TestDiffusion5x5(; name = nothing, N=5, N_caps=25, N_h_res=20, N_v_res=20, N_boundary=20)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TestDiffusion5x5()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -58,9 +64,9 @@
   ### Guesses
 
   ### Defaults
-  __defaults[caps[13].C] = (100)
 
   ### Initialization Equations
+  push!(__initialization_eqs, getproperty(caps[13], :C) ~ 100)
 
   ### Assertions
   __assertions = []
@@ -70,36 +76,36 @@
   ### Control Structures
   for row in 0:(N - 1)
       for col in 0:(N - 2)
-            push!(__eqs, connect(caps[row * N + col + 1].port, r_horiz[row * (N - 1) + col + 1].port_a))
-            push!(__eqs, connect(r_horiz[row * (N - 1) + col + 1].port_b, caps[row * N + col + 2].port))
+            push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_horiz[row * (N - 1) + col + 1], :port_a)))
+            push!(__eqs, connect(getproperty(r_horiz[row * (N - 1) + col + 1], :port_b), getproperty(caps[row * N + col + 2], :port)))
       end
   end
   for row in 0:(N - 2)
       for col in 0:(N - 1)
-            push!(__eqs, connect(caps[row * N + col + 1].port, r_vert[row * N + col + 1].port_a))
-            push!(__eqs, connect(r_vert[row * N + col + 1].port_b, caps[(row + 1) * N + col + 1].port))
+            push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_vert[row * N + col + 1], :port_a)))
+            push!(__eqs, connect(getproperty(r_vert[row * N + col + 1], :port_b), getproperty(caps[(row + 1) * N + col + 1], :port)))
       end
   end
   for i in 1:N_caps
       if i != 13
-            __defaults[caps[i].C] = (0)
+            __initial_conditions[caps[i].C] = (0)
       else
       end
   end
   for row in 0:(N - 1)
-      push!(__eqs, connect(caps[row * N + 1].port, boundaries[row + 1].port))
+      push!(__eqs, connect(getproperty(caps[row * N + 1], :port), getproperty(boundaries[row + 1], :port)))
   end
   for row in 0:(N - 1)
-      push!(__eqs, connect(caps[row * N + N].port, boundaries[N + row + 1].port))
+      push!(__eqs, connect(getproperty(caps[row * N + N], :port), getproperty(boundaries[N + row + 1], :port)))
   end
   for col in 0:(N - 1)
-      push!(__eqs, connect(caps[col + 1].port, boundaries[2 * N + col + 1].port))
+      push!(__eqs, connect(getproperty(caps[col + 1], :port), getproperty(boundaries[2 * N + col + 1], :port)))
   end
   for col in 0:(N - 1)
-      push!(__eqs, connect(caps[(N - 1) * N + col + 1].port, boundaries[3 * N + col + 1].port))
+      push!(__eqs, connect(getproperty(caps[(N - 1) * N + col + 1], :port), getproperty(boundaries[3 * N + col + 1], :port)))
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TestDiffusion5x5

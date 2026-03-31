@@ -55,13 +55,19 @@ Supported dynamics:
 | `ΔC`         | Concentration difference                         | --  | 
 | `J`         | Mass flux through resistor                         | --  | 
 """
-@component function DiffusionResistor(; name, D=1, dx=0.1, A=1)
-  __params = Any[]
-  __vars = Any[]
+@component function DiffusionResistor(; name = nothing, D=1, dx=0.1, A=1)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = DiffusionResistor()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -96,6 +102,6 @@ Supported dynamics:
   push!(__eqs, port_a.J + port_b.J ~ 0)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export DiffusionResistor

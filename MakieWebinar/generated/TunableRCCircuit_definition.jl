@@ -18,18 +18,24 @@ User can adjust R and C to see different charging behaviors.
 | `C`         | Capacitance (controls charge storage)                         | F  |   0.000001 |
 | `V_supply`         | Supply voltage                         | V  |   10 |
 """
-@component function TunableRCCircuit(; name, R=1000, C=0.000001, V_supply=10)
-  __params = Any[]
-  __vars = Any[]
+@component function TunableRCCircuit(; name = nothing, R=1000, C=0.000001, V_supply=10)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TunableRCCircuit()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
   append!(__params, @parameters (R::Real = R), [description = "Resistance (controls charging speed)"])
-  append!(__params, @parameters (C::Real = C), [description = "Capacitance (controls charge storage)"])
+  append!(__params, @parameters (C::Real = C), [description = "Capacitance (controls charge storage)", bounds = (0, Inf)])
   append!(__params, @parameters (V_supply::Real = V_supply), [description = "Supply voltage"])
 
   ### Variables
@@ -61,6 +67,6 @@ User can adjust R and C to see different charging behaviors.
   push!(__eqs, connect(source.n, ground.g))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TunableRCCircuit

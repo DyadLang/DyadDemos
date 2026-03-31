@@ -5,18 +5,23 @@
 
 
 using DyadInterface
-
+using DyadInterface: ODEAlg, DEVerbosity
+using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct WorldSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :World
-  var"alg"::String = "auto"
+  var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
   var"stop"::Float64 = 10
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
   var"saveat"::Float64 = 0
   var"dtmax"::Float64 = 0
+  var"tstops"::Array{Float64, 1} = []
   var"IfLifting"::Bool = false
+  var"progress"::Bool = true
+  var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
+  var"log_file"::String = ""
   var"T_inf"::Float64 = 300
   var"h"::Float64 = 0.7
   # A simple lumped thermal model
@@ -24,9 +29,12 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 end
 
 function DyadInterface.run_analysis(spec::WorldSpec)
-  spec.model = DyadInterface.update_model(spec.model, (; var"T_inf"=spec.var"T_inf", var"h"=spec.var"h"))
+  overrides = Dict{SymbolicT, SymbolicT}()
+  no_namespace_model = toggle_namespacing(spec.model, false)
+  push!(overrides, no_namespace_model.T_inf => spec.var"T_inf")
+  push!(overrides, no_namespace_model.h => spec.var"h")
   base_spec = TransientAnalysisSpec(;
-    name=:TransientAnalysis, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, IfLifting=spec.IfLifting, model=spec.model
+    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, IfLifting=spec.IfLifting, progress=spec.progress, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
   )
   run_analysis(base_spec)
 end

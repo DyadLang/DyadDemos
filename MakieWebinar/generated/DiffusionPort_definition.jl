@@ -26,6 +26,8 @@ Supported dynamics:
     (C(t)::Real), []
     (J(t)::Real), [connect = Flow]
   end
-  return System(Equation[], t, vars, []; name)
+  __metadata = Dict{DataType, Any}(
+  )
+  return System(Equation[], t, vars, []; name, metadata = __metadata)
 end
 export DiffusionPort

@@ -21,13 +21,19 @@ can apply damping force to suppress oscillations.
 | `pid_y_max`         | Maximum control force                         | --  |   50 |
 | `pid_y_min`         | Minimum control force                         | --  |   -50 |
 """
-@component function ControlledOscillator(; name, pid_k=10, pid_Ti=10, pid_Td=0.5, pid_y_max=50, pid_y_min=-50)
-  __params = Any[]
-  __vars = Any[]
+@component function ControlledOscillator(; name = nothing, pid_k=10, pid_Ti=10, pid_Td=0.5, pid_y_max=50, pid_y_min=-50)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = ControlledOscillator()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -56,8 +62,8 @@ can apply damping force to suppress oscillations.
   ### Guesses
 
   ### Defaults
-  __defaults[mass.s] = (0.5)
-  __defaults[mass.v] = (0)
+  __initial_conditions[mass.s] = (0.5)
+  __initial_conditions[mass.v] = (0)
 
   ### Initialization Equations
 
@@ -76,6 +82,6 @@ can apply damping force to suppress oscillations.
   push!(__eqs, connect(ff_input.y, pid.u_ff))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export ControlledOscillator

@@ -26,21 +26,27 @@ A simple lumped thermal model
 | ------------ | ----------------------------------- | ------ | 
 | `T`         |                          | K  | 
 """
-@component function Hello(; name, T_inf=300, T0=320, h=0.7, A=1, m=0.1, c_p=1.2)
-  __params = Any[]
-  __vars = Any[]
+@component function Hello(; name = nothing, T_inf=300, T0=320, h=0.7, A=1, m=0.1, c_p=1.2)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = Hello()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (T_inf::Real = T_inf), [description = "Ambient temperature"])
-  append!(__params, @parameters (T0::Real = T0), [description = "Initial temperature"])
+  append!(__params, @parameters (T_inf::Real = T_inf), [description = "Ambient temperature", bounds = (0, Inf)])
+  append!(__params, @parameters (T0::Real = T0), [description = "Initial temperature", bounds = (0, Inf)])
   append!(__params, @parameters (h::Real = h), [description = "Convective heat transfer coefficient"])
   append!(__params, @parameters (A::Real = A), [description = "Surface area"])
-  append!(__params, @parameters (m::Real = m), [description = "Mass of thermal capacitance"])
+  append!(__params, @parameters (m::Real = m), [description = "Mass of thermal capacitance", bounds = (0, Inf)])
   append!(__params, @parameters (c_p::Real = c_p), [description = "Specific Heat"])
 
   ### Variables
@@ -54,7 +60,7 @@ A simple lumped thermal model
   ### Guesses
 
   ### Defaults
-  __defaults[T] = (T0)
+  __initial_conditions[T] = (T0)
 
   ### Initialization Equations
 
@@ -66,6 +72,6 @@ A simple lumped thermal model
   push!(__eqs, m * c_p * ModelingToolkit.D_nounits(T) ~ h * A * (T_inf - T))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export Hello
