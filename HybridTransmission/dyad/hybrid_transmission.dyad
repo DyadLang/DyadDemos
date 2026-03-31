@@ -537,6 +537,36 @@ relations
   guess transmission.sun.tau = 0.0
   guess transmission.ring.tau = 0.0
 metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 765,
+        "atol": {
+          "battery.SOC": 0.02,
+          "engine.fuel_consumed": 50,
+          "vehicle.speed": 2.0
+        },
+        "expect": {
+          "initial": {
+            "vehicle.speed": 0.0,
+            "battery.SOC": 0.6,
+            "engine.fuel_consumed": 0.0
+          },
+          "final": {
+            "battery.SOC": 0.4,
+            "engine.fuel_consumed": 1292,
+            "vehicle.speed": 20.0
+          },
+          "signals": [
+            "vehicle.speed",
+            "battery.SOC",
+            "engine.fuel_consumed",
+            "controller.engine_throttle"
+          ]
+        }
+      }
+    }
+  },
   "_links": {
     "drive_cycle": {
       "Dyad": {
