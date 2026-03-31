@@ -14,12 +14,12 @@
 
         @named model = PowerSplitHybrid()
         """))
-  __params = Any[]
-  __vars = Any[]
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -40,6 +40,11 @@
   push!(__systems, @named battery = HybridTransmission.HybridBattery())
 
   ### Guesses
+  __guesses[engine.omega] = (0)
+  __guesses[mg1.omega] = (0)
+  __guesses[mg2.omega] = (0)
+  __guesses[mg1.flange.phi] = (0)
+  __guesses[mg2.flange.phi] = (0)
   __guesses[engine.flange.tau] = (0)
   __guesses[mg1.flange.tau] = (0)
   __guesses[mg2.flange.tau] = (0)
@@ -48,14 +53,9 @@
   __guesses[transmission.ring.tau] = (0)
 
   ### Defaults
-  __defaults[engine.omega] = (0)
-  __defaults[mg1.omega] = (0)
-  __defaults[mg2.omega] = (0)
-  __defaults[vehicle.omega_wheel] = (0)
-  __defaults[engine.flange.phi] = (0)
-  __defaults[mg1.flange.phi] = (0)
-  __defaults[mg2.flange.phi] = (0)
-  __defaults[vehicle.flange.phi] = (0)
+  __initial_conditions[vehicle.omega_wheel] = (0)
+  __initial_conditions[engine.flange.phi] = (0)
+  __initial_conditions[vehicle.flange.phi] = (0)
 
   ### Initialization Equations
 
@@ -79,6 +79,6 @@
   push!(__eqs, connect(mg2.power_elec, battery.mg2_power))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export PowerSplitHybrid

@@ -486,9 +486,7 @@ component HybridPlanetaryGear
   """
   extends RotationalComponents.IdealPlanetaryGear(ratio = 2.6)
 relations
-metadata {
-  "Dyad": {"icons": {"default": "dyad://HybridTransmission/planetary_gear.svg"}}
-}
+metadata {"Dyad": {"icons": {"default": "dyad://HybridTransmission/planetary_gear.svg"}}}
 end
 
 # ===== COMPLETE HYBRID VEHICLE SYSTEM =====
@@ -521,14 +519,16 @@ relations
   connect(mg1.power_elec, battery.mg1_power) {^id21}
   connect(mg2.power_elec, battery.mg2_power) {^id22}
   # Initial conditions - all at rest
-  initial engine.omega = 0.0
-  initial mg1.omega = 0.0
-  initial mg2.omega = 0.0
+  # Only set initials for independent DOFs; connected/constrained vars use guesses
   initial vehicle.omega_wheel = 0.0
   initial engine.flange.phi = 0.0
-  initial mg1.flange.phi = 0.0
-  initial mg2.flange.phi = 0.0
   initial vehicle.flange.phi = 0.0
+  # Guesses for dependent mechanical variables (determined by connections + planetary constraint)
+  guess engine.omega = 0.0
+  guess mg1.omega = 0.0
+  guess mg2.omega = 0.0
+  guess mg1.flange.phi = 0.0
+  guess mg2.flange.phi = 0.0
   # Guesses for algebraic torques
   guess engine.flange.tau = 0.0
   guess mg1.flange.tau = 0.0
