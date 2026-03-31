@@ -1,0 +1,66 @@
+component HybridEngine
+  # ===== ENGINE WITH BSFC MAP =====
+  """
+  Atkinson cycle ICE with brake specific fuel consumption map.
+  
+  BSFC data based on: Guzzella & Sciarretta, "Vehicle Propulsion Systems" 3rd ed., 2013
+  Table 3.1: Typical gasoline engine BSFC characteristics
+  - Best point: 250 g/kWh at ~2500 RPM, 75% load
+  - Part load penalty: +50-100 g/kWh at low torque
+  - Speed penalty: +30-50 g/kWh away from optimal RPM
+  """
+  flange = Spline() {^flange}
+  throttle = RealInput() {^throttle} # Throttle command (0-1)
+  omega_output = RealOutput() {^omega_output} # Engine speed output for controller (rad/s)
+  parameter max_torque::Torque = 145.0 # Maximum torque (N·m) at 4000 RPM
+  parameter b_friction::Real = 0.4 # Internal friction (N·m·s/rad) - includes speed limiting effect
+  parameter idle_fuel_rate::Real = 0.6 # Idle consumption (g/s)
+  variable omega::AngularVelocity
+  variable torque::Torque
+  variable power::Power
+  variable fuel_rate::Real # Fuel consumption rate (g/s)
+  variable fuel_consumed::Real # Cumulative fuel (g)
+relations
+  omega = der(flange.phi)
+  omega_output = omega
+  torque = throttle * max_torque
+  power = torque * omega
+  # BSFC model (g/kWh): parabolic with sweet spot at mid-range
+  # Convert omega to RPM for fuel map
+  fuel_rate = HybridTransmission.engine_bsfc_fuel_rate(torque, max(abs(omega) * 9.5493, 60.0))
+  # Apply torque (TorqueSource convention: negative for accelerating)
+  # Include viscous friction that opposes motion
+  flange.tau = -torque + b_friction * omega
+  # Integrate fuel consumption
+  der(fuel_consumed) = fuel_rate
+  initial fuel_consumed = 0.0
+metadata {
+  "Dyad": {"icons": {"default": "dyad://HybridTransmission/engine.svg"}},
+  "_links": {
+    "flange": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 440, "y1": -40, "x2": 540, "y2": 60, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "throttle": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 460, "x2": 1060, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "omega_output": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 460, "x2": 60, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

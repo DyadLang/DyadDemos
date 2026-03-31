@@ -1,0 +1,159 @@
+component ECMSController
+  """
+  Equivalent Consumption Minimization Strategy (ECMS) controller.
+  
+  Reference: Sciarretta & Guzzella, "Control of Hybrid Electric Vehicles," IEEE Control Systems Magazine, 2007
+  
+  Key concept: At each instant, minimize equivalent fuel consumption:
+    J = ṁ_fuel + s * P_battery
+  where s is the equivalence factor (fuel-equivalent cost of battery power).
+  
+  Implementation: Torque-based split to avoid power-speed coupling issues in planetary gear.
+  """
+  speed_ref = RealInput() {^speed_ref} # Reference speed from drive cycle (m/s)
+  speed_actual = RealInput() {^speed_actual} # Actual vehicle speed (m/s)
+  soc = RealInput() {^soc} # Battery state of charge (0-1)
+  engine_omega = RealInput() {^engine_omega} # Actual engine speed (rad/s)
+  mg1_omega = RealInput() {^mg1_omega} # Actual MG1 speed (rad/s) for power limiting
+  # Outputs
+  engine_throttle = RealOutput() {^engine_throttle} # Engine throttle command (0-1)
+  mg1_torque_cmd = RealOutput() {^mg1_torque_cmd} # MG1 torque command (N·m)
+  mg2_torque_cmd = RealOutput() {^mg2_torque_cmd} # MG2 torque command (N·m)
+  # ECMS parameters
+  parameter s_base::Real = 2.5 # Base equivalence factor
+  parameter k_soc::Real = 5.0 # SOC feedback gain (reduced to avoid over-relying on engine)
+  parameter soc_target::Real = 0.6 # Target SOC for charge sustaining
+  # Vehicle parameters (duplicated for self-contained controller)
+  parameter m_vehicle::Real = 1750.0
+  parameter C_rr::Real = 0.012
+  parameter C_d::Real = 0.38
+  parameter A_front::Real = 2.56
+  parameter r_wheel::Real = 0.318
+  # Controller gains
+  parameter k_speed::Real = 100.0 # Speed tracking gain (N·m/(m/s)) - increased for better tracking
+  parameter k_mg1::Real = 0.5 # MG1 speed control gain (N·m/(rad/s)) - balanced for control authority
+  parameter k_soc_mg1::Real = 150.0 # MG1 SOC feedback gain (N·m per unit SOC) - for charge sustaining
+  # Engine/motor limits
+  parameter engine_max_torque::Torque = 145.0
+  parameter engine_max_power::Real = 74000.0 # Maximum engine power (W)
+  parameter mg1_max_torque::Torque = 130.0 # MG1 maximum torque (N·m)
+  parameter mg1_max_power::Real = 40000.0 # MG1 maximum power (W)
+  parameter mg2_max_torque::Torque = 330.0
+  # Engine speed control limits
+  parameter omega_engine_min::Real = 105.0 # Minimum engine speed (rad/s, ~1000 RPM)
+  parameter omega_engine_max::Real = 471.0 # Maximum engine speed (rad/s, ~4500 RPM)
+  # Controller variables
+  variable speed_error::Real
+  variable F_load::Real # Total load force (N)
+  variable T_wheel_demand::Torque # Wheel torque demand (N·m)
+  variable s_effective::Real # Effective equivalence factor with SOC feedback
+  variable engine_fraction::Real # Engine torque contribution fraction
+  variable omega_engine_target::Real # Target engine speed for optimal BSFC (rad/s)
+  variable mg1_torque_proportional::Real # MG1 proportional control output (N·m)
+relations
+  # Speed tracking error
+  speed_error = speed_ref - speed_actual
+  # Calculate load force at actual vehicle speed
+  # Rolling resistance: smooth tanh() for numerical stability at v=0
+  # Aerodynamic drag: F = 0.5 * ρ * Cd * A * v²
+  F_load = C_rr * m_vehicle * 9.81 * tanh(speed_actual / 0.1) + 0.5 * 1.225 * C_d * A_front * (speed_actual * speed_actual)
+  # Wheel torque demand: overcome load + speed tracking
+  T_wheel_demand = F_load * r_wheel + k_speed * speed_error
+  # ECMS equivalence factor with SOC feedback
+  # Increases when SOC < target (favor engine), decreases when SOC > target (favor battery)
+  s_effective = s_base + k_soc * (soc_target - soc)
+  # Engine fraction: smooth ECMS formula without discrete switching
+  # Use smooth_max(0, x) = (x + sqrt(x² + ε²)) / 2 to avoid ifelse discontinuities
+  # smooth_s = smooth_max(0, s_effective) for clamping negative values
+  # smooth_T = smooth_max(0, T_wheel_demand) for braking (no engine during regen)
+  engine_fraction = (s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 / ((s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 + s_base + 0.001) * (T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 / ((T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 + 1.0)
+  # Convert engine fraction to throttle (saturate at 1.0 using smooth min)
+  # smooth_min(1, x) = 1 - smooth_max(0, 1-x) = 1 - (1-x + sqrt((1-x)² + ε²)) / 2
+  # Multiply by demand indicator: tanh(|T_wheel_demand|/10) ensures throttle=0 at rest
+  engine_throttle = (1.0 - ((1.0 - engine_fraction) + sqrt((1.0 - engine_fraction) * (1.0 - engine_fraction) + 0.0001)) / 2.0) * tanh(abs(T_wheel_demand) / 10.0)
+  # Target engine speed for optimal BSFC operation
+  # Smooth transition: omega_target scales with throttle (0 when off, optimal when on)
+  # omega_base = P_engine / T_optimal, where T_optimal = 0.75 * max_torque
+  # Clamp to [omega_engine_min, omega_engine_max] using smooth operations
+  omega_engine_target = engine_throttle * (omega_engine_min + (omega_engine_max - omega_engine_min) * engine_throttle)
+  # MG1: Speed control + SOC feedback for charge sustaining
+  # Scale speed control by SOC ratio: when SOC is low, prioritize charging over speed control
+  # soc_factor = max(0.1, soc/soc_target) - ranges from 0.1 (low SOC) to 1.0+ (high SOC)
+  # This reduces negative speed term when battery needs charging
+  mg1_torque_proportional = k_mg1 * (omega_engine_target - engine_omega) * max(0.1, soc / soc_target) + k_soc_mg1 * (soc_target - soc)
+  # Hard clamp to motor limits using min/max
+  mg1_torque_cmd = max(-mg1_max_torque, min(mg1_max_torque, mg1_torque_proportional))
+  # MG2: provides torque after engine contribution
+  # Positive T_wheel_demand means accelerate forward, so MG2 should provide positive torque
+  # Hard clamp to motor limits using min/max
+  mg2_torque_cmd = max(-mg2_max_torque, min(mg2_max_torque, T_wheel_demand * (1.0 - engine_fraction)))
+metadata {
+  "Dyad": {"icons": {"default": "dyad://HybridTransmission/controller.svg"}},
+  "_links": {
+    "speed_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -30, "y1": 250, "x2": 70, "y2": 350, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "speed_actual": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -30, "y1": 40, "x2": 70, "y2": 140, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "soc": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -30, "y1": 630, "x2": 70, "y2": 730, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "engine_omega": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -30, "y1": 430, "x2": 70, "y2": 530, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "mg1_omega": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 820, "x2": 60, "y2": 920, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "engine_throttle": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 190, "x2": 1060, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "mg1_torque_cmd": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 760, "x2": 1060, "y2": 860, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "mg2_torque_cmd": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

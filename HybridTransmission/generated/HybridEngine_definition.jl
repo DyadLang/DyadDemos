@@ -7,21 +7,6 @@
 @doc Markdown.doc"""
    HybridEngine(; name, max_torque, b_friction, idle_fuel_rate)
 
-Power-Split Hybrid Electric Vehicle Model
-
-This model implements a power-split architecture with planetary gear coupling.
-
-Architecture:
-- Atkinson cycle ICE (74 kW / 99 hp) connected to planetary carrier
-- Motor/Generator MG1 (permanent magnet, 25 kW) connected to sun gear (generator/speed control)
-- Motor/Generator MG2 (permanent magnet, 70 kW) connected to ring gear and wheels (traction motor)
-- NiMH battery (274-330V, 5.5 kWh usable)
-- Planetary gear ratio: 2.6 (ring teeth / sun teeth)
-
-Reference: 
-- SAE 2005-01-1364: "Hybrid Electric Powertrains for Passenger Vehicles: Configuration, Performance, and Testing" by Miller, J.M.
-- EPA Test Cycle Data: 40 CFR Part 86, Appendix I (HWFET)
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
