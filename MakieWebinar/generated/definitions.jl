@@ -21,6 +21,7 @@ import RotationalComponents
 import ThermalComponents
 import BlockComponents
 import DyadControlSystems
+import DyadData
 import DyadExampleComponents
 import TranslationalComponents
 import ElectricalComponents
