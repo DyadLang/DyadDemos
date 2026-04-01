@@ -36,13 +36,13 @@ component SimpleVehicle
   parameter wheel_radius::Length = 0.15
   # Combined drag/resistance in N⋅s/m
   parameter damping_coeff::TranslationalDampingConstant = 30.0
-  # Initial conditions for the inertia
-  parameter initial_angle::Angle = 0.0
-  parameter initial_speed::AngularVelocity = 0.0
+  # Initial conditions (translational, via wheel radius conversion)
+  parameter initial_position::Length = 0.0
+  parameter initial_velocity::Velocity = 0.0
 relations
-  # Set initial conditions
-  initial inertia.phi = initial_angle
-  initial inertia.w = initial_speed
+  # Set initial conditions on translational side
+  initial vehicle_mass.s = initial_position
+  initial vehicle_mass.v = initial_velocity
   # Output signal assignments
   # Vehicle translational speed
   vehicle_speed = vehicle_mass.v
@@ -62,6 +62,9 @@ relations
   connect(wheel.support_t, ground.flange)
   # Connect wheel rotational support to housing
   connect(wheel.support_r, housing.spline)
+  # Support reaction equations (missing from PartialElementaryRotationalToTranslational)
+  wheel.support_r.tau = -wheel.spline.tau
+  wheel.support_t.f = -wheel.flange.f
 metadata {"Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//car.svg"}}}
 end
 
@@ -135,7 +138,7 @@ end
 # Test case for SimpleVehicleModel with constant input torque
 test component SimpleVehicleTest_CoastDown
   # Vehicle model under test
-  vehicle = SimpleVehicle(initial_speed = 108 * 1000 / 3600 / 0.15) [{
+  vehicle = SimpleVehicle(initial_velocity = 108 * 1000 / 3600) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 285, "y1": 20, "x2": 385, "y2": 120, "rot": 0}

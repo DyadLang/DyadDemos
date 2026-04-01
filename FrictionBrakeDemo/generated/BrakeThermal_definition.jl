@@ -7,40 +7,23 @@
 @doc Markdown.doc"""
    BrakeThermal(; name, C_disk, C_pad, T_disk_init, T_pad_init, T_ambient, h_disk_base, h_pad_base, k_disk_speed, k_pad_speed, A_disk, A_pad, epsilon_disk, G_rad_pad_disk)
 
-Brake thermal model with pad-disk radiation coupling and external heat inputs
-
-This component models the thermal behavior of a brake system consisting of:
-- Brake disk: Primary thermal mass with convection and radiation cooling to ambient
-- Brake pad: Secondary thermal mass with convection cooling only
-- Radiation coupling: Heat exchange between pad and disk via radiation
-
-Heat generation is provided externally via thermal ports for flexible coupling
-to mechanical friction models.
-
-Energy balance equations:
-Disk: C_disk * dT_disk/dt = Q_heat_disk - Q_conv_disk - Q_rad_disk + Q_rad_pad_disk
-Pad:  C_pad * dT_pad/dt = Q_heat_pad - Q_conv_pad - Q_rad_pad_disk
-
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `C_disk`         | === Thermal parameters ===
-Disk thermal capacity [J/K]                         | J/K  |   4000 |
-| `C_pad`         | Pad thermal capacity [J/K]                         | J/K  |   1000 |
-| `T_disk_init`         | Disk initial temperature [K]                         | K  |   293.15 |
-| `T_pad_init`         | Pad initial temperature [K]                         | K  |   293.15 |
-| `T_ambient`         | Ambient temperature [K]                         | K  |   293.15 |
-| `h_disk_base`         | === Heat transfer parameters ===
-Base disk convection coefficient [W/(m2.K)]                         | W/(m2.K)  |   20 |
-| `h_pad_base`         | Base pad convection coefficient [W/(m2.K)]                         | W/(m2.K)  |   15 |
-| `k_disk_speed`         | Disk convection enhancement factor [W.s/(m3.K)]                         | --  |   3 |
-| `k_pad_speed`         | Pad convection enhancement factor [W.s/(m3.K)]                         | --  |   4 |
-| `A_disk`         | Disk surface area for convection [m2]                         | m2  |   0.15 |
-| `A_pad`         | Pad surface area for convection [m2]                         | m2  |   0.032 |
-| `epsilon_disk`         | Disk emissivity [-]                         | --  |   0.75 |
-| `G_rad_pad_disk`         | Radiative conductance for pad-disk coupling [m2]                         | m2  |   0.012 |
+| `C_disk`         |                          | J/K  |   4000 |
+| `C_pad`         |                          | J/K  |   1000 |
+| `T_disk_init`         |                          | K  |   293.15 |
+| `T_pad_init`         |                          | K  |   293.15 |
+| `T_ambient`         |                          | K  |   293.15 |
+| `h_disk_base`         |                          | W/(m2.K)  |   20 |
+| `h_pad_base`         |                          | W/(m2.K)  |   15 |
+| `k_disk_speed`         |                          | --  |   3 |
+| `k_pad_speed`         |                          | --  |   4 |
+| `A_disk`         |                          | m2  |   0.15 |
+| `A_pad`         |                          | m2  |   0.032 |
+| `epsilon_disk`         |                          | --  |   0.75 |
+| `G_rad_pad_disk`         |                          | m2  |   0.012 |
 
 ## Connectors
 
@@ -49,31 +32,35 @@ Base disk convection coefficient [W/(m2.K)]                         | W/(m2.K)  
  * `vehicle_speed` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `wheel_speed` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
 """
-@component function BrakeThermal(; name, C_disk=4000, C_pad=1000, T_disk_init=293.15, T_pad_init=293.15, T_ambient=293.15, h_disk_base=20, h_pad_base=15, k_disk_speed=3, k_pad_speed=4, A_disk=0.15, A_pad=0.032, epsilon_disk=0.75, G_rad_pad_disk=0.012)
-  __params = Any[]
-  __vars = Any[]
+@component function BrakeThermal(; name = nothing, C_disk=4000, C_pad=1000, T_disk_init=293.15, T_pad_init=293.15, T_ambient=293.15, h_disk_base=20, h_pad_base=15, k_disk_speed=3, k_pad_speed=4, A_disk=0.15, A_pad=0.032, epsilon_disk=0.75, G_rad_pad_disk=0.012)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = BrakeThermal()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (C_disk::Real = C_disk), [description = "=== Thermal parameters ===
-Disk thermal capacity [J/K]"])
-  append!(__params, @parameters (C_pad::Real = C_pad), [description = "Pad thermal capacity [J/K]"])
-  append!(__params, @parameters (T_disk_init::Real = T_disk_init), [description = "Disk initial temperature [K]"])
-  append!(__params, @parameters (T_pad_init::Real = T_pad_init), [description = "Pad initial temperature [K]"])
-  append!(__params, @parameters (T_ambient::Real = T_ambient), [description = "Ambient temperature [K]"])
-  append!(__params, @parameters (h_disk_base::Real = h_disk_base), [description = "=== Heat transfer parameters ===
-Base disk convection coefficient [W/(m2.K)]"])
-  append!(__params, @parameters (h_pad_base::Real = h_pad_base), [description = "Base pad convection coefficient [W/(m2.K)]"])
-  append!(__params, @parameters (k_disk_speed::Real = k_disk_speed), [description = "Disk convection enhancement factor [W.s/(m3.K)]"])
-  append!(__params, @parameters (k_pad_speed::Real = k_pad_speed), [description = "Pad convection enhancement factor [W.s/(m3.K)]"])
-  append!(__params, @parameters (A_disk::Real = A_disk), [description = "Disk surface area for convection [m2]"])
-  append!(__params, @parameters (A_pad::Real = A_pad), [description = "Pad surface area for convection [m2]"])
-  append!(__params, @parameters (epsilon_disk::Real = epsilon_disk), [description = "Disk emissivity [-]"])
-  append!(__params, @parameters (G_rad_pad_disk::Real = G_rad_pad_disk), [description = "Radiative conductance for pad-disk coupling [m2]"])
+  append!(__params, @parameters (C_disk::Real = C_disk))
+  append!(__params, @parameters (C_pad::Real = C_pad))
+  append!(__params, @parameters (T_disk_init::Real = T_disk_init), [bounds = (0, Inf)])
+  append!(__params, @parameters (T_pad_init::Real = T_pad_init), [bounds = (0, Inf)])
+  append!(__params, @parameters (T_ambient::Real = T_ambient), [bounds = (0, Inf)])
+  append!(__params, @parameters (h_disk_base::Real = h_disk_base))
+  append!(__params, @parameters (h_pad_base::Real = h_pad_base))
+  append!(__params, @parameters (k_disk_speed::Real = k_disk_speed))
+  append!(__params, @parameters (k_pad_speed::Real = k_pad_speed))
+  append!(__params, @parameters (A_disk::Real = A_disk))
+  append!(__params, @parameters (A_pad::Real = A_pad))
+  append!(__params, @parameters (epsilon_disk::Real = epsilon_disk))
+  append!(__params, @parameters (G_rad_pad_disk::Real = G_rad_pad_disk))
 
   ### Variables
   append!(__vars, @variables (vehicle_speed(t)::Real), [input = true])
@@ -113,38 +100,30 @@ Base disk convection coefficient [W/(m2.K)]"])
   __assertions = []
 
   ### Equations
-  # Connect heat inputs to thermal masses
   push!(__eqs, connect(heat_disk, disk_mass.node))
   push!(__eqs, connect(heat_pad, pad_mass.node))
-  # Build disk convection coefficient: h_disk = h_disk_base + k_disk_speed * wheel_speed
   push!(__eqs, connect(wheel_speed, wheel_speed_gain.u))
   push!(__eqs, connect(disk_h_base_const.y, disk_h_calc.u1))
   push!(__eqs, connect(wheel_speed_gain.y, disk_h_calc.u2))
-  # Build pad convection coefficient: h_pad = h_pad_base + k_pad_speed * vehicle_speed
   push!(__eqs, connect(vehicle_speed, vehicle_speed_gain.u))
   push!(__eqs, connect(pad_h_base_const.y, pad_h_calc.u1))
   push!(__eqs, connect(vehicle_speed_gain.y, pad_h_calc.u2))
-  # Calculate thermal conductances (h * A)
   push!(__eqs, connect(disk_h_calc.y, disk_conductance.u1))
   push!(__eqs, connect(disk_area_const.y, disk_conductance.u2))
   push!(__eqs, connect(pad_h_calc.y, pad_conductance.u1))
   push!(__eqs, connect(pad_area_const.y, pad_conductance.u2))
-  # Connect convective cooling
   push!(__eqs, connect(disk_mass.node, disk_convection.solid))
   push!(__eqs, connect(pad_mass.node, pad_convection.solid))
   push!(__eqs, connect(disk_convection.fluid, ambient.node))
   push!(__eqs, connect(pad_convection.fluid, ambient.node))
-  # Connect disk radiation to ambient
   push!(__eqs, connect(disk_mass.node, disk_radiation.node_a))
   push!(__eqs, connect(disk_radiation.node_b, ambient.node))
-  # Connect pad-disk radiation
   push!(__eqs, connect(pad_mass.node, pad_disk_radiation.node_a))
   push!(__eqs, connect(disk_mass.node, pad_disk_radiation.node_b))
-  # Connect convection coefficient signals
   push!(__eqs, connect(disk_conductance.y, disk_convection.Gc))
   push!(__eqs, connect(pad_conductance.y, pad_convection.Gc))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export BrakeThermal

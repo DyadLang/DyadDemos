@@ -4,19 +4,19 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for FrictionBrakeTest" begin
+@testset "Running test case1 for FrictionBrakeDemo.FrictionBrakeTest" begin
   using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol
-  using ModelingToolkit: toggle_namespacing, get_defaults, @named
+  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
+  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
 
-  @named model = FrictionBrakeTest()
+  @named model = FrictionBrakeDemo.FrictionBrakeTest()
   model = toggle_namespacing(model, false)
   
   model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = "auto", start = 0e+0, stop = 4.75e+0, abstol=1e-6, reltol=1e-6)
+  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 4.75e+0, abstol=1e-6, reltol=1e-6)
   sol = rebuild_sol(result)
   @test SciMLBase.successful_retcode(sol)
-  @test sol[model.inertia.w][1] ≈ 10 atol=0.001
+  @test sol[model.inertia.w][1] ≈ 10 atol=0.001 rtol=9.999999999999999e-6
 # Signals selected for regression testing: ["inertia.w","brake.disk.Q","brake.pad.Q"]
   ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
   if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
@@ -28,7 +28,7 @@
   end
     if isfile("snapshots/FrictionBrakeTest_case1_sig0.ref")
       ref = CSV.read("snapshots/FrictionBrakeTest_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.inertia.w) atol=0.001 for i in 1:length(ref.expected)]
+      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.inertia.w) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.inertia.w])
         dfr = CSV.read("snapshots/FrictionBrakeTest_case1_sig0.ref", DataFrame)
@@ -44,7 +44,7 @@
     end
     if isfile("snapshots/FrictionBrakeTest_case1_sig1.ref")
       ref = CSV.read("snapshots/FrictionBrakeTest_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.disk.Q) atol=0.001 for i in 1:length(ref.expected)]
+      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.disk.Q) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.brake.disk.Q])
         dfr = CSV.read("snapshots/FrictionBrakeTest_case1_sig1.ref", DataFrame)
@@ -59,7 +59,7 @@
     end
     if isfile("snapshots/FrictionBrakeTest_case1_sig2.ref")
       ref = CSV.read("snapshots/FrictionBrakeTest_case1_sig2.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.pad.Q) atol=0.001 for i in 1:length(ref.expected)]
+      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.pad.Q) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.brake.pad.Q])
         dfr = CSV.read("snapshots/FrictionBrakeTest_case1_sig2.ref", DataFrame)

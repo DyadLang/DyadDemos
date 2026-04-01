@@ -5,29 +5,18 @@
 
 
 @doc Markdown.doc"""
-   SimpleVehicle(; name, vehicle_mass_kg, inertia_moment, wheel_radius, damping_coeff, initial_angle, initial_speed)
-
-Simple vehicle model with rotational shaft interface
-
-This component represents a basic vehicle drivetrain model with:
-- A rotational shaft interface for connecting to drive systems
-- An inertia representing the rotating mass (engine/motor inertia)
-- A rolling wheel that converts rotational to translational motion
-- A vehicle mass representing the vehicle body
-- A translational damper representing vehicle load/resistance
-- Fixed supports for the wheel and damper
+   SimpleVehicle(; name, vehicle_mass_kg, inertia_moment, wheel_radius, damping_coeff, initial_position, initial_velocity)
 
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `vehicle_mass_kg`         | Physical parameters - with defaults for typical passenger car
-Vehicle mass in kg                         | kg  |   2194 |
-| `inertia_moment`         | Rotational inertia in kg⋅m²                         | kg.m2  |   3.08 |
-| `wheel_radius`         | Wheel radius in m                         | m  |   0.15 |
-| `damping_coeff`         | Combined drag/resistance in N⋅s/m                         | N.s/m  |   30 |
-| `initial_angle`         | Initial conditions for the inertia                         | rad  |   0 |
-| `initial_speed`         |                          | rad/s  |   0 |
+| `vehicle_mass_kg`         |                          | kg  |   2194 |
+| `inertia_moment`         |                          | kg.m2  |   3.08 |
+| `wheel_radius`         |                          | m  |   0.15 |
+| `damping_coeff`         |                          | N.s/m  |   30 |
+| `initial_position`         |                          | m  |   0 |
+| `initial_velocity`         |                          | m/s  |   0 |
 
 ## Connectors
 
@@ -35,23 +24,28 @@ Vehicle mass in kg                         | kg  |   2194 |
  * `vehicle_speed` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `wheel_speed` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function SimpleVehicle(; name, vehicle_mass_kg=2194, inertia_moment=3.08, wheel_radius=0.15, damping_coeff=30, initial_angle=0, initial_speed=0)
-  __params = Any[]
-  __vars = Any[]
+@component function SimpleVehicle(; name = nothing, vehicle_mass_kg=2194, inertia_moment=3.08, wheel_radius=0.15, damping_coeff=30, initial_position=0, initial_velocity=0)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = SimpleVehicle()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (vehicle_mass_kg::Real = vehicle_mass_kg), [description = "Physical parameters - with defaults for typical passenger car
-Vehicle mass in kg"])
-  append!(__params, @parameters (inertia_moment::Real = inertia_moment), [description = "Rotational inertia in kg⋅m²"])
-  append!(__params, @parameters (wheel_radius::Real = wheel_radius), [description = "Wheel radius in m"])
-  append!(__params, @parameters (damping_coeff::Real = damping_coeff), [description = "Combined drag/resistance in N⋅s/m"])
-  append!(__params, @parameters (initial_angle::Real = initial_angle), [description = "Initial conditions for the inertia"])
-  append!(__params, @parameters (initial_speed::Real = initial_speed))
+  append!(__params, @parameters (vehicle_mass_kg::Real = vehicle_mass_kg), [bounds = (0, Inf)])
+  append!(__params, @parameters (inertia_moment::Real = inertia_moment))
+  append!(__params, @parameters (wheel_radius::Real = wheel_radius))
+  append!(__params, @parameters (damping_coeff::Real = damping_coeff))
+  append!(__params, @parameters (initial_position::Real = initial_position))
+  append!(__params, @parameters (initial_velocity::Real = initial_velocity))
 
   ### Variables
   append!(__vars, @variables (vehicle_speed(t)::Real), [output = true])
@@ -73,8 +67,8 @@ Vehicle mass in kg"])
   ### Guesses
 
   ### Defaults
-  __defaults[inertia.phi] = (initial_angle)
-  __defaults[inertia.w] = (initial_speed)
+  __initial_conditions[vehicle_mass.s] = (initial_position)
+  __initial_conditions[vehicle_mass.v] = (initial_velocity)
 
   ### Initialization Equations
 
@@ -82,27 +76,19 @@ Vehicle mass in kg"])
   __assertions = []
 
   ### Equations
-  # Output signal assignments
-  # Vehicle translational speed
   push!(__eqs, vehicle_speed ~ vehicle_mass.v)
-  # Wheel rotational speed
   push!(__eqs, wheel_speed ~ inertia.w)
-  # Connect shaft to inertia
+  push!(__eqs, wheel.support_r.tau ~ -wheel.spline.tau)
+  push!(__eqs, wheel.support_t.f ~ -wheel.flange.f)
   push!(__eqs, connect(shaft, inertia.spline_a))
-  # Connect inertia to rolling wheel
   push!(__eqs, connect(inertia.spline_b, wheel.spline))
-  # Connect wheel translational side to vehicle mass
   push!(__eqs, connect(wheel.flange, vehicle_mass.flange_a))
-  # Connect vehicle mass to load damper
   push!(__eqs, connect(vehicle_mass.flange_b, load_damper.flange_a))
-  # Connect damper to load anchor
   push!(__eqs, connect(load_damper.flange_b, load_anchor.flange))
-  # Connect wheel translational support to ground
   push!(__eqs, connect(wheel.support_t, ground.flange))
-  # Connect wheel rotational support to housing
   push!(__eqs, connect(wheel.support_r, housing.spline))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export SimpleVehicle

@@ -7,15 +7,13 @@
 @doc Markdown.doc"""
    Driver(; name, k, Ti, Td)
 
-Driver model that generates throttle and brake commands from speed reference and actual speed
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `k`         | Proportional gain for PID                         | --  |   0.5 |
-| `Ti`         | Integral time constant for PID                         | --  |   2 |
-| `Td`         | Derivative time constant for PID                         | --  |   0.1 |
+| `k`         |                          | --  |   0.5 |
+| `Ti`         |                          | --  |   2 |
+| `Td`         |                          | --  |   0.1 |
 
 ## Connectors
 
@@ -24,19 +22,25 @@ Driver model that generates throttle and brake commands from speed reference and
  * `throttle` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `brake` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function Driver(; name, k=0.5, Ti=2, Td=0.1)
-  __params = Any[]
-  __vars = Any[]
+@component function Driver(; name = nothing, k=0.5, Ti=2, Td=0.1)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = Driver()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (k::Real = k), [description = "Proportional gain for PID"])
-  append!(__params, @parameters (Ti::Real = Ti), [description = "Integral time constant for PID"])
-  append!(__params, @parameters (Td::Real = Td), [description = "Derivative time constant for PID"])
+  append!(__params, @parameters (k::Real = k))
+  append!(__params, @parameters (Ti::Real = Ti))
+  append!(__params, @parameters (Td::Real = Td))
 
   ### Variables
   append!(__vars, @variables (speed_ref(t)::Real), [input = true])
@@ -61,16 +65,13 @@ Driver model that generates throttle and brake commands from speed reference and
   __assertions = []
 
   ### Equations
-  # Split PID output into throttle and brake
-  # Positive output -> throttle, negative output -> brake
   push!(__eqs, throttle ~ ifelse(speed_pid.y > 0, speed_pid.y, 0))
   push!(__eqs, brake ~ ifelse(speed_pid.y < 0, -speed_pid.y, 0))
-  # Connect PID inputs
   push!(__eqs, connect(speed_ref, speed_pid.u_s))
   push!(__eqs, connect(speed_act, speed_pid.u_m))
   push!(__eqs, connect(ff_input.y, speed_pid.u_ff))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export Driver

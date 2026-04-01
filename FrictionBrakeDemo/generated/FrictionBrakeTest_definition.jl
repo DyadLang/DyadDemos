@@ -6,16 +6,20 @@
 
 @doc Markdown.doc"""
    FrictionBrakeTest(; name)
-
-Test system for FrictionBrake with inertia, torque source, and thermal boundaries
 """
-@component function FrictionBrakeTest(; name)
-  __params = Any[]
-  __vars = Any[]
+@component function FrictionBrakeTest(; name = nothing)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = FrictionBrakeTest()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -36,11 +40,11 @@ Test system for FrictionBrake with inertia, torque source, and thermal boundarie
   push!(__systems, @named torque_input = BlockComponents.Constant(k=50))
 
   ### Guesses
+  __guesses[brake.T_interface] = (293.15)
 
   ### Defaults
-  __defaults[inertia.phi] = (0)
-  __defaults[inertia.w] = (10)
-  __defaults[brake.T_interface] = (293.15)
+  __initial_conditions[inertia.phi] = (0)
+  __initial_conditions[inertia.w] = (10)
 
   ### Initialization Equations
 
@@ -48,10 +52,8 @@ Test system for FrictionBrake with inertia, torque source, and thermal boundarie
   __assertions = []
 
   ### Equations
-  # Thermal connections
   push!(__eqs, connect(brake.disk, disk_boundary.node))
   push!(__eqs, connect(brake.pad, pad_boundary.node))
-  # Control connections
   push!(__eqs, connect(brake_command.y, brake.brake_command))
   push!(__eqs, connect(torque_input.y, torque_source.tau))
   push!(__eqs, connect(torque_source.support, fixed_support.spline))
@@ -59,6 +61,6 @@ Test system for FrictionBrake with inertia, torque source, and thermal boundarie
   push!(__eqs, connect(brake.shaft, inertia.spline_b))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export FrictionBrakeTest

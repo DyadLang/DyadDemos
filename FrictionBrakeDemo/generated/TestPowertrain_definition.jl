@@ -6,16 +6,20 @@
 
 @doc Markdown.doc"""
    TestPowertrain(; name)
-
-Test harness with inertial load and damper
 """
-@component function TestPowertrain(; name)
-  __params = Any[]
-  __vars = Any[]
+@component function TestPowertrain(; name = nothing)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TestPowertrain()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -35,9 +39,9 @@ Test harness with inertial load and damper
   ### Guesses
 
   ### Defaults
-  __defaults[powertrain.torque] = (0)
-  __defaults[load.phi] = (0)
-  __defaults[load.w] = (0)
+  __initial_conditions[powertrain.torque] = (0)
+  __initial_conditions[load.phi] = (0)
+  __initial_conditions[load.w] = (0)
 
   ### Initialization Equations
 
@@ -46,15 +50,12 @@ Test harness with inertial load and damper
 
   ### Equations
   push!(__eqs, powertrain.vehicle_speed ~ load.w * 0.15)
-  # Connect throttle command
   push!(__eqs, connect(throttle_cmd.y, powertrain.throttle))
-  # Connect drive to load
   push!(__eqs, connect(powertrain.drive, load.spline_a))
-  # Connect damper between load and ground
   push!(__eqs, connect(load.spline_b, damper.spline_a))
   push!(__eqs, connect(damper.spline_b, fixed.spline))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TestPowertrain

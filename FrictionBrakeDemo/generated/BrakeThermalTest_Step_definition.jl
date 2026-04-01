@@ -6,16 +6,20 @@
 
 @doc Markdown.doc"""
    BrakeThermalTest_Step(; name)
-
-Test component for brake thermal model with transient heat application (1500s on, then off)
 """
-@component function BrakeThermalTest_Step(; name)
-  __params = Any[]
-  __vars = Any[]
+@component function BrakeThermalTest_Step(; name = nothing)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = BrakeThermalTest_Step()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -44,17 +48,14 @@ Test component for brake thermal model with transient heat application (1500s on
   __assertions = []
 
   ### Equations
-  # Connect heat step signals to prescribed heat flows
   push!(__eqs, connect(disk_heat_step.y, disk_heat_input.Q))
   push!(__eqs, connect(pad_heat_step.y, pad_heat_input.Q))
-  # Connect heat flows to thermal model
   push!(__eqs, connect(disk_heat_input.node, brake_thermal.heat_disk))
   push!(__eqs, connect(pad_heat_input.node, brake_thermal.heat_pad))
-  # Connect speed inputs
   push!(__eqs, connect(vehicle_speed_source.y, brake_thermal.vehicle_speed))
   push!(__eqs, connect(wheel_speed_source.y, brake_thermal.wheel_speed))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export BrakeThermalTest_Step

@@ -7,31 +7,35 @@
 @doc Markdown.doc"""
    BrakeThermalTest_Constant(; name, Q_disk, Q_pad, vehicle_speed, wheel_speed)
 
-Test component for the refined brake thermal model with speed inputs
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `Q_disk`         | Heat flow to disk                         | W  |   9300 |
-| `Q_pad`         | Heat flow to disk                         | W  |   700 |
-| `vehicle_speed`         | Vehicle speed                         | m/s  |   25 |
-| `wheel_speed`         | Wheel speed                         | rad/s  |   83 |
+| `Q_disk`         |                          | W  |   9300 |
+| `Q_pad`         |                          | W  |   700 |
+| `vehicle_speed`         |                          | m/s  |   25 |
+| `wheel_speed`         |                          | rad/s  |   83 |
 """
-@component function BrakeThermalTest_Constant(; name, Q_disk=9300, Q_pad=700, vehicle_speed=25, wheel_speed=83)
-  __params = Any[]
-  __vars = Any[]
+@component function BrakeThermalTest_Constant(; name = nothing, Q_disk=9300, Q_pad=700, vehicle_speed=25, wheel_speed=83)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = BrakeThermalTest_Constant()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (Q_disk::Real = Q_disk), [description = "Heat flow to disk"])
-  append!(__params, @parameters (Q_pad::Real = Q_pad), [description = "Heat flow to disk"])
-  append!(__params, @parameters (vehicle_speed::Real = vehicle_speed), [description = "Vehicle speed"])
-  append!(__params, @parameters (wheel_speed::Real = wheel_speed), [description = "Wheel speed"])
+  append!(__params, @parameters (Q_disk::Real = Q_disk))
+  append!(__params, @parameters (Q_pad::Real = Q_pad))
+  append!(__params, @parameters (vehicle_speed::Real = vehicle_speed))
+  append!(__params, @parameters (wheel_speed::Real = wheel_speed))
 
   ### Variables
 
@@ -55,14 +59,12 @@ Test component for the refined brake thermal model with speed inputs
   __assertions = []
 
   ### Equations
-  # Connect heat inputs
   push!(__eqs, connect(disk_heat_input.node, brake_thermal.heat_disk))
   push!(__eqs, connect(pad_heat_input.node, brake_thermal.heat_pad))
-  # Connect speed inputs
   push!(__eqs, connect(vehicle_speed_source.y, brake_thermal.vehicle_speed))
   push!(__eqs, connect(wheel_speed_source.y, brake_thermal.wheel_speed))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export BrakeThermalTest_Constant

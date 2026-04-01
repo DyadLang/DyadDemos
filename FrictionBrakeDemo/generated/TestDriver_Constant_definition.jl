@@ -7,38 +7,40 @@
 @doc Markdown.doc"""
    TestDriver_Constant(; name, max_accel, drag_coeff)
 
-TEST HARNESS - Step response test
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `max_accel`         |                          | --  |   5 |
-| `drag_coeff`         | m/s^2                         | --  |   0.2 |
+| `drag_coeff`         |                          | --  |   0.2 |
 
 ## Variables
 
 | Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ | 
-| `vehicle_speed`         | Simulated vehicle dynamics: simple first-order response
-Acceleration = (throttle - brake) * max_accel - drag                         | --  | 
+| `vehicle_speed`         |                          | --  | 
 """
-@component function TestDriver_Constant(; name, max_accel=5, drag_coeff=0.2)
-  __params = Any[]
-  __vars = Any[]
+@component function TestDriver_Constant(; name = nothing, max_accel=5, drag_coeff=0.2)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TestDriver_Constant()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
   append!(__params, @parameters (max_accel::Real = max_accel))
-  append!(__params, @parameters (drag_coeff::Real = drag_coeff), [description = "m/s^2"])
+  append!(__params, @parameters (drag_coeff::Real = drag_coeff))
 
   ### Variables
-  append!(__vars, @variables (vehicle_speed(t)::Real), [description = "Simulated vehicle dynamics: simple first-order response
-Acceleration = (throttle - brake) * max_accel - drag"])
+  append!(__vars, @variables (vehicle_speed(t)::Real))
 
   ### Constants
   __constants = Any[]
@@ -50,7 +52,7 @@ Acceleration = (throttle - brake) * max_accel - drag"])
   ### Guesses
 
   ### Defaults
-  __defaults[vehicle_speed] = (0)
+  __initial_conditions[vehicle_speed] = (0)
 
   ### Initialization Equations
 
@@ -58,14 +60,11 @@ Acceleration = (throttle - brake) * max_accel - drag"])
   __assertions = []
 
   ### Equations
-  # Vehicle dynamics: simple model
-  # acceleration = (throttle - brake) * max_accel - drag * speed
   push!(__eqs, ModelingToolkit.D_nounits(vehicle_speed) ~ (driver.throttle - driver.brake) * max_accel - drag_coeff * vehicle_speed)
   push!(__eqs, driver.speed_act ~ vehicle_speed)
-  # Connect driver inputs directly
   push!(__eqs, connect(speed_ref_source.y, driver.speed_ref))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TestDriver_Constant
