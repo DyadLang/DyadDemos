@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="turkey-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A1887F"/>
+      <stop offset="100%" stop-color="#5D4037"/>
+    </linearGradient>
+    <linearGradient id="golden" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFB74D"/>
+      <stop offset="100%" stop-color="#E65100"/>
+    </linearGradient>
+    <radialGradient id="skin-sheen" cx="45%" cy="35%" r="50%">
+      <stop offset="0%" stop-color="#FFCC80" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#5D4037" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Platter -->
+  <ellipse cx="64" cy="104" rx="54" ry="12" fill="#BDBDBD" stroke="#9E9E9E" stroke-width="1.5"/>
+  <ellipse cx="64" cy="102" rx="50" ry="10" fill="#E8E8E8"/>
+  <!-- Turkey body — rounder, more dome-shaped -->
+  <path d="M28 92 Q28 48 64 42 Q100 48 100 92 Z" fill="url(#turkey-body)" stroke="#4E342E" stroke-width="1.5"/>
+  <!-- Golden roasted skin sheen -->
+  <path d="M28 92 Q28 48 64 42 Q100 48 100 92 Z" fill="url(#skin-sheen)"/>
+  <!-- Crispy skin scoring lines -->
+  <g stroke="#4E342E" stroke-width="0.8" opacity="0.3" fill="none">
+    <path d="M48 58 Q64 54 80 58"/>
+    <path d="M42 72 Q64 66 86 72"/>
+    <path d="M38 86 Q64 80 90 86"/>
+  </g>
+  <!-- Drumsticks — bigger, more prominent -->
+  <g fill="url(#golden)" stroke="#BF360C" stroke-width="1.5">
+    <path d="M30 82 Q16 92 18 100 Q20 106 26 104 Q34 98 36 86 Z"/>
+    <path d="M98 82 Q112 92 110 100 Q108 106 102 104 Q94 98 92 86 Z"/>
+  </g>
+  <!-- Drumstick bone tips -->
+  <circle cx="18" cy="101" r="3.5" fill="#EFEBE9" stroke="#BCAAA4" stroke-width="1.2"/>
+  <circle cx="110" cy="101" r="3.5" fill="#EFEBE9" stroke="#BCAAA4" stroke-width="1.2"/>
+  <!-- Thermometer -->
+  <g transform="translate(74, 30) rotate(20)">
+    <rect x="-2.5" y="0" width="5" height="34" rx="2.5" fill="#E0E0E0" stroke="#9E9E9E" stroke-width="1"/>
+    <!-- Mercury -->
+    <rect x="-1.2" y="6" width="2.4" height="26" fill="#F44336"/>
+    <!-- Bulb -->
+    <circle cx="0" cy="34" r="5" fill="#F44336" stroke="#9E9E9E" stroke-width="1"/>
+    <!-- Tick marks -->
+    <line x1="2.5" y1="10" x2="6" y2="10" stroke="#757575" stroke-width="1"/>
+    <line x1="2.5" y1="16" x2="6" y2="16" stroke="#757575" stroke-width="1"/>
+    <line x1="2.5" y1="22" x2="6" y2="22" stroke="#757575" stroke-width="1"/>
+    <line x1="2.5" y1="28" x2="6" y2="28" stroke="#757575" stroke-width="1"/>
+  </g>
+  <!-- Steam wisps — bolder -->
+  <g fill="none" stroke="#9E9E9E" stroke-width="2.5" stroke-linecap="round" opacity="0.55">
+    <path d="M42 38 Q37 28 42 20 Q47 12 42 4"/>
+    <path d="M54 34 Q49 24 54 16 Q59 8 54 0"/>
+  </g>
+</svg>

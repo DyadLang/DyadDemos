@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <radialGradient id="heat" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF6B35"/>
+      <stop offset="100%" stop-color="#D32F2F"/>
+    </radialGradient>
+  </defs>
+  <!-- Outer disc -->
+  <circle cx="64" cy="64" r="56" fill="#37474F" stroke="#263238" stroke-width="2"/>
+  <!-- Ventilation slots -->
+  <g fill="#263238">
+    <rect x="60" y="14" width="8" height="18" rx="3" transform="rotate(0 64 64)"/>
+    <rect x="60" y="14" width="8" height="18" rx="3" transform="rotate(45 64 64)"/>
+    <rect x="60" y="14" width="8" height="18" rx="3" transform="rotate(90 64 64)"/>
+    <rect x="60" y="14" width="8" height="18" rx="3" transform="rotate(135 64 64)"/>
+    <rect x="60" y="14" width="8" height="18" rx="3" transform="rotate(180 64 64)"/>
+    <rect x="60" y="14" width="8" height="18" rx="3" transform="rotate(225 64 64)"/>
+    <rect x="60" y="14" width="8" height="18" rx="3" transform="rotate(270 64 64)"/>
+    <rect x="60" y="14" width="8" height="18" rx="3" transform="rotate(315 64 64)"/>
+  </g>
+  <!-- Inner ring -->
+  <circle cx="64" cy="64" r="28" fill="#455A64" stroke="#263238" stroke-width="2"/>
+  <!-- Center hub -->
+  <circle cx="64" cy="64" r="14" fill="url(#heat)" stroke="#BF360C" stroke-width="1.5"/>
+  <!-- Hub bolts -->
+  <circle cx="64" cy="54" r="2.5" fill="#263238"/>
+  <circle cx="72.7" cy="59" r="2.5" fill="#263238"/>
+  <circle cx="72.7" cy="69" r="2.5" fill="#263238"/>
+  <circle cx="64" cy="74" r="2.5" fill="#263238"/>
+  <circle cx="55.3" cy="69" r="2.5" fill="#263238"/>
+  <circle cx="55.3" cy="59" r="2.5" fill="#263238"/>
+  <!-- Heat waves -->
+  <g fill="none" stroke="#FF6B35" stroke-width="2.5" stroke-linecap="round" opacity="0.85">
+    <path d="M18 28 Q14 22 18 16 Q22 10 18 4"/>
+    <path d="M10 36 Q6 30 10 24 Q14 18 10 12"/>
+    <path d="M110 28 Q114 22 110 16 Q106 10 110 4"/>
+    <path d="M118 36 Q122 30 118 24 Q114 18 118 12"/>
+  </g>
+</svg>
