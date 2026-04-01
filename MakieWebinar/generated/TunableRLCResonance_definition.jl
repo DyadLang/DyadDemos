@@ -19,19 +19,25 @@ Shows underdamped, critically damped, and overdamped responses.
 | `C`         | Capacitance                         | F  |   0.000001 |
 | `V_init`         | Initial capacitor voltage                         | V  |   10 |
 """
-@component function TunableRLCResonance(; name, R=10, L=0.001, C=0.000001, V_init=10)
-  __params = Any[]
-  __vars = Any[]
+@component function TunableRLCResonance(; name = nothing, R=10, L=0.001, C=0.000001, V_init=10)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TunableRLCResonance()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
   append!(__params, @parameters (R::Real = R), [description = "Resistance (controls damping)"])
   append!(__params, @parameters (L::Real = L), [description = "Inductance"])
-  append!(__params, @parameters (C::Real = C), [description = "Capacitance"])
+  append!(__params, @parameters (C::Real = C), [description = "Capacitance", bounds = (0, Inf)])
   append!(__params, @parameters (V_init::Real = V_init), [description = "Initial capacitor voltage"])
 
   ### Variables
@@ -61,6 +67,6 @@ Shows underdamped, critically damped, and overdamped responses.
   push!(__eqs, connect(capacitor.n, ground.g))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TunableRLCResonance

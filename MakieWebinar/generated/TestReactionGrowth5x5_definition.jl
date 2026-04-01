@@ -17,13 +17,19 @@
 | `N_v_res`         |                          | --  |   20 |
 | `N_bound`         |                          | --  |   20 |
 """
-@component function TestReactionGrowth5x5(; name, N=5, N_caps=25, N_h_res=20, N_v_res=20, N_bound=20)
-  __params = Any[]
-  __vars = Any[]
+@component function TestReactionGrowth5x5(; name = nothing, N=5, N_caps=25, N_h_res=20, N_v_res=20, N_bound=20)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TestReactionGrowth5x5()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -58,13 +64,13 @@
   ### Guesses
 
   ### Defaults
-  __defaults[caps[1].C] = (0.05)
-  __defaults[caps[7].C] = (0.08)
-  __defaults[caps[13].C] = (0.1)
-  __defaults[caps[19].C] = (0.06)
-  __defaults[caps[25].C] = (0.04)
 
   ### Initialization Equations
+  push!(__initialization_eqs, getproperty(caps[1], :C) ~ 0.05)
+  push!(__initialization_eqs, getproperty(caps[7], :C) ~ 0.08)
+  push!(__initialization_eqs, getproperty(caps[13], :C) ~ 0.1)
+  push!(__initialization_eqs, getproperty(caps[19], :C) ~ 0.06)
+  push!(__initialization_eqs, getproperty(caps[25], :C) ~ 0.04)
 
   ### Assertions
   __assertions = []
@@ -74,29 +80,29 @@
   ### Control Structures
   for row in 0:(N - 1)
       for col in 0:(N - 2)
-            push!(__eqs, connect(caps[row * N + col + 1].port, r_h[row * (N - 1) + col + 1].port_a))
-            push!(__eqs, connect(r_h[row * (N - 1) + col + 1].port_b, caps[row * N + col + 2].port))
+            push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_h[row * (N - 1) + col + 1], :port_a)))
+            push!(__eqs, connect(getproperty(r_h[row * (N - 1) + col + 1], :port_b), getproperty(caps[row * N + col + 2], :port)))
       end
   end
   for row in 0:(N - 2)
       for col in 0:(N - 1)
-            push!(__eqs, connect(caps[row * N + col + 1].port, r_v[row * N + col + 1].port_a))
-            push!(__eqs, connect(r_v[row * N + col + 1].port_b, caps[(row + 1) * N + col + 1].port))
+            push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_v[row * N + col + 1], :port_a)))
+            push!(__eqs, connect(getproperty(r_v[row * N + col + 1], :port_b), getproperty(caps[(row + 1) * N + col + 1], :port)))
       end
   end
   for i in [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24]
-      __defaults[caps[i].C] = (0.02)
+      push!(__initialization_eqs, getproperty(caps[i], :C) ~ 0.02)
   end
   for row in 0:(N - 1)
-      push!(__eqs, connect(caps[row * N + 1].port, bounds[row + 1].port))
-      push!(__eqs, connect(caps[row * N + N].port, bounds[N + row + 1].port))
+      push!(__eqs, connect(getproperty(caps[row * N + 1], :port), getproperty(bounds[row + 1], :port)))
+      push!(__eqs, connect(getproperty(caps[row * N + N], :port), getproperty(bounds[N + row + 1], :port)))
   end
   for col in 0:(N - 1)
-      push!(__eqs, connect(caps[col + 1].port, bounds[2 * N + col + 1].port))
-      push!(__eqs, connect(caps[(N - 1) * N + col + 1].port, bounds[3 * N + col + 1].port))
+      push!(__eqs, connect(getproperty(caps[col + 1], :port), getproperty(bounds[2 * N + col + 1], :port)))
+      push!(__eqs, connect(getproperty(caps[(N - 1) * N + col + 1], :port), getproperty(bounds[3 * N + col + 1], :port)))
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TestReactionGrowth5x5

@@ -7,36 +7,40 @@
 @doc Markdown.doc"""
    TestDriverWithBraking(; name, max_accel, drag_coeff)
 
-TEST HARNESS - Speed up and slow down to test both throttle and brake
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `max_accel`         |                          | --  |   5 |
-| `drag_coeff`         | m/s^2                         | --  |   0.2 |
+| `drag_coeff`         |                          | --  |   0.2 |
 
 ## Variables
 
 | Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ | 
-| `vehicle_speed`         | Simulated vehicle dynamics                         | --  | 
+| `vehicle_speed`         |                          | --  | 
 """
-@component function TestDriverWithBraking(; name, max_accel=5, drag_coeff=0.2)
-  __params = Any[]
-  __vars = Any[]
+@component function TestDriverWithBraking(; name = nothing, max_accel=5, drag_coeff=0.2)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TestDriverWithBraking()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
   append!(__params, @parameters (max_accel::Real = max_accel))
-  append!(__params, @parameters (drag_coeff::Real = drag_coeff), [description = "m/s^2"])
+  append!(__params, @parameters (drag_coeff::Real = drag_coeff))
 
   ### Variables
-  append!(__vars, @variables (vehicle_speed(t)::Real), [description = "Simulated vehicle dynamics"])
+  append!(__vars, @variables (vehicle_speed(t)::Real))
 
   ### Constants
   __constants = Any[]
@@ -50,7 +54,7 @@ TEST HARNESS - Speed up and slow down to test both throttle and brake
   ### Guesses
 
   ### Defaults
-  __defaults[vehicle_speed] = (0)
+  __initial_conditions[vehicle_speed] = (0)
 
   ### Initialization Equations
 
@@ -58,16 +62,13 @@ TEST HARNESS - Speed up and slow down to test both throttle and brake
   __assertions = []
 
   ### Equations
-  # Vehicle dynamics
   push!(__eqs, ModelingToolkit.D_nounits(vehicle_speed) ~ (driver.throttle - driver.brake) * max_accel - drag_coeff * vehicle_speed)
   push!(__eqs, driver.speed_act ~ vehicle_speed)
-  # Combine steps to create speed profile: 0 -> 25 at t=1s, then 25 -> 10 at t=6s
   push!(__eqs, connect(step1.y, sum_steps.u1))
   push!(__eqs, connect(step2.y, sum_steps.u2))
-  # Connect driver
   push!(__eqs, connect(sum_steps.y, driver.speed_ref))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TestDriverWithBraking

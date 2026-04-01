@@ -1,9 +1,9 @@
 {
-    "files.autoSave": "off",
-    "workbench.secondarySideBar.defaultVisibility": "hidden",
-    "julia.environmentPath": "${workspaceFolder}",
-    "julia.NumThreads": "auto",
-    "julia.languageServerJuliaupChannel": "dyad-2.1.0",
-    "julia.executablePath": "julia +dyad-2.1.0",
-    "julia.juliaup.server": "https://juliahub.com/juliabin"
+  "files.autoSave": "off",
+  "workbench.secondarySideBar.defaultVisibility": "hidden",
+  "julia.environmentPath": "${workspaceFolder}",
+  "julia.NumThreads": "auto",
+  "julia.languageServerJuliaupChannel": "dyad-2.3.0",
+  "julia.executablePath": "julia +dyad-2.3.0",
+  "julia.juliaup.server": "https://juliahub.com/juliabin"
 }

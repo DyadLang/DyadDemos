@@ -5,25 +5,45 @@
 
 
 using DyadInterface
-
+using DyadInterface: ODEAlg, DEVerbosity
+using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct TestPowerSplitHybridSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :TestPowerSplitHybrid
-  var"alg"::String = "auto"
+  var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
   var"stop"::Float64 = 765
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.001
   var"saveat"::Float64 = 0.5
   var"dtmax"::Float64 = 0
+  var"tstops"::Array{Float64, 1} = []
   var"IfLifting"::Bool = false
+  var"progress"::Bool = true
+  var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
+  var"log_file"::String = ""
+  # Power-Split Hybrid Electric Vehicle Model
+  # 
+  # This model implements a power-split architecture with planetary gear coupling.
+  # 
+  # Architecture:
+  # - Atkinson cycle ICE (74 kW / 99 hp) connected to planetary carrier
+  # - Motor/Generator MG1 (permanent magnet, 25 kW) connected to sun gear (generator/speed control)
+  # - Motor/Generator MG2 (permanent magnet, 70 kW) connected to ring gear and wheels (traction motor)
+  # - NiMH battery (274-330V, 5.5 kWh usable)
+  # - Planetary gear ratio: 2.6 (ring teeth / sun teeth)
+  # 
+  # Reference: 
+  # - SAE 2005-01-1364: "Hybrid Electric Powertrains for Passenger Vehicles: Configuration, Performance, and Testing" by Miller, J.M.
+  # - EPA Test Cycle Data: 40 CFR Part 86, Appendix I (HWFET)
   var"model"::Union{Nothing, System} = HybridTransmission.PowerSplitHybrid(; name=:PowerSplitHybrid)
 end
 
 function DyadInterface.run_analysis(spec::TestPowerSplitHybridSpec)
-  spec.model = DyadInterface.update_model(spec.model, (; ))
+  overrides = Dict{SymbolicT, SymbolicT}()
+  no_namespace_model = toggle_namespacing(spec.model, false)
   base_spec = TransientAnalysisSpec(;
-    name=:TransientAnalysis, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, IfLifting=spec.IfLifting, model=spec.model
+    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, IfLifting=spec.IfLifting, progress=spec.progress, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
   )
   run_analysis(base_spec)
 end

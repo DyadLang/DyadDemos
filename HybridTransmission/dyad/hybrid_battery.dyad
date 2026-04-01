@@ -1,0 +1,63 @@
+component HybridBattery
+  """
+  Simple battery model with SOC tracking.
+  Represents NiMH battery pack (274-330V nominal, 5.5 kWh usable).
+  
+  Efficiency and voltage dynamics neglected for ECMS study.
+  """
+  mg1_power = RealInput() {^mg1_power} # MG1 electrical power (W)
+  mg2_power = RealInput() {^mg2_power} # MG2 electrical power (W)
+  soc_output = RealOutput() {^soc_output} # State of charge (0-1)
+  parameter V_nom::Voltage = 300.0 # Nominal voltage (V)
+  parameter Q_nom::Real = 6.5 # Capacity (Ah) - 5.5 kWh / 300V ≈ 18.3 Ah, but use 6.5 for ~2 kWh usable
+  parameter SOC_init::Real = 0.6 # Initial SOC
+  parameter SOC_min::Real = 0.4 # Minimum SOC (charge depleting limit)
+  parameter SOC_max::Real = 0.8 # Maximum SOC (charge sustaining target)
+  variable SOC::Real # State of charge (0-1)
+  variable total_power::Power # Total electrical power draw (W)
+  variable energy_discharged::Real # Cumulative energy from battery (Wh)
+relations
+  # Total power: sum of motor/generator powers
+  # Positive power = discharging (motors consuming)
+  # Negative power = charging (generators producing)
+  total_power = mg1_power + mg2_power
+  # SOC dynamics: dSOC/dt = -Power / (V_nom * Q_nom * 3600)
+  # Factor 3600 converts hours to seconds
+  der(SOC) = -total_power / (V_nom * Q_nom * 3600.0)
+  # Track energy
+  der(energy_discharged) = total_power / 3600.0 # Convert W to Wh
+  # Output SOC for controller
+  soc_output = SOC
+  # Initial conditions
+  initial SOC = SOC_init
+  initial energy_discharged = 0.0
+metadata {
+  "Dyad": {"icons": {"default": "dyad://HybridTransmission/battery.svg"}},
+  "_links": {
+    "mg1_power": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 190, "x2": 60, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "mg2_power": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 680, "x2": 60, "y2": 780, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "soc_output": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

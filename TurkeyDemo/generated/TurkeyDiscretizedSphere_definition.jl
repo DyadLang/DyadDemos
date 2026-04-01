@@ -39,21 +39,28 @@
 | `m_shell`         |                          | kg  | 
 | `T_degF`         |                          | --  | 
 """
-@component function TurkeyDiscretizedSphere(; name, N=10, Np1=N + 1, M=5, rho=1050, cp=3500, k=0.5, T_init=277, pi=3.14159265359, R=(3 * M / (4 * pi * rho)) ^ (1 / 3), dr=R / N)
-  __params = Any[]
-  __vars = Any[]
+@component function TurkeyDiscretizedSphere(; name = nothing, N=10, Np1=N + 1, M=5, rho=1050, cp=3500, k=0.5, T_init=277, pi=3.14159265359, R=(3 * M / (4 * pi * rho)) ^ (1 / 3), dr=R / N)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TurkeyDiscretizedSphere()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (M::Real = M))
-  append!(__params, @parameters (rho::Real = rho))
+  append!(__params, @parameters (M::Real = M), [bounds = (0, Inf)])
+  append!(__params, @parameters (rho::Real = rho), [bounds = (0, Inf)])
   append!(__params, @parameters (cp::Real = cp))
   append!(__params, @parameters (k::Real = k))
-  append!(__params, @parameters (T_init::Real = T_init))
+  append!(__params, @parameters (T_init::Real = T_init), [bounds = (0, Inf)])
+  append!(__params, @parameters (T_inits[1:N]::Real = T_init * ones(N)), [description = "Workaround for array initial conditions", bounds = (0, Inf)])
   append!(__params, @parameters (pi::Real = pi))
   append!(__params, @parameters (R::Real = R))
   append!(__params, @parameters (dr::Real = dr))
@@ -77,6 +84,7 @@
   ### Guesses
 
   ### Defaults
+  __initial_conditions[T] = (T_inits)
 
   ### Initialization Equations
 
@@ -108,13 +116,10 @@
       push!(__eqs, m_shell[i] * cp * ModelingToolkit.D_nounits(T[i]) ~ Q_cond[i] - Q_cond[i + 1])
   end
   for i in 1:N
-      __defaults[T[i]] = (T_init)
-  end
-  for i in 1:N
       push!(__eqs, T_degF[i] ~ KelvinToFahrenheit(T[i]))
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TurkeyDiscretizedSphere

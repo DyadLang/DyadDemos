@@ -157,7 +157,7 @@ relations
   initial inertia.w = 10.0
   # Initial shaft speed (10 rad/s)
   # Initial guess for brake interface temperature to avoid algebraic loop
-  initial brake.T_interface = 293.15
+  guess brake.T_interface = 293.15
   connect(torque_source.support, fixed_support.spline) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
   connect(torque_source.spline, inertia.spline_a) [{"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}]
   connect(brake.shaft, inertia.spline_b) [{

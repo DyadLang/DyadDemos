@@ -5,26 +5,31 @@
 
 
 using DyadInterface
-
+using DyadInterface: ODEAlg, DEVerbosity
+using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct FrictionBrakeTestAnalysisSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :FrictionBrakeTestAnalysis
-  var"alg"::String = "auto"
-  var"start"::Real = 0
-  var"stop"::Real = 4.75
-  var"abstol"::Real = 0.000001
-  var"reltol"::Real = 0.000001
-  var"saveat"::Real = 0
-  var"dtmax"::Real = 0
+  var"alg"::ODEAlg.Type = ODEAlg.Auto()
+  var"start"::Float64 = 0
+  var"stop"::Float64 = 4.75
+  var"abstol"::Float64 = 0.000001
+  var"reltol"::Float64 = 0.000001
+  var"saveat"::Float64 = 0
+  var"dtmax"::Float64 = 0
+  var"tstops"::Array{Float64, 1} = []
   var"IfLifting"::Bool = false
-  # Test system for FrictionBrake with inertia, torque source, and thermal boundaries
+  var"progress"::Bool = true
+  var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
+  var"log_file"::String = ""
   var"model"::Union{Nothing, System} = FrictionBrakeDemo.FrictionBrakeTest(; name=:FrictionBrakeTest)
 end
 
 function DyadInterface.run_analysis(spec::FrictionBrakeTestAnalysisSpec)
-  spec.model = DyadInterface.update_model(spec.model, (; ))
+  overrides = Dict{SymbolicT, SymbolicT}()
+  no_namespace_model = toggle_namespacing(spec.model, false)
   base_spec = TransientAnalysisSpec(;
-    name=:TransientAnalysis, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, IfLifting=spec.IfLifting, model=spec.model
+    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, IfLifting=spec.IfLifting, progress=spec.progress, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
   )
   run_analysis(base_spec)
 end

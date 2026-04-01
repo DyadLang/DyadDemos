@@ -7,21 +7,6 @@
 @doc Markdown.doc"""
    HybridEngine(; name, max_torque, b_friction, idle_fuel_rate)
 
-Power-Split Hybrid Electric Vehicle Model
-
-This model implements a power-split architecture with planetary gear coupling.
-
-Architecture:
-- Atkinson cycle ICE (74 kW / 99 hp) connected to planetary carrier
-- Motor/Generator MG1 (permanent magnet, 25 kW) connected to sun gear (generator/speed control)
-- Motor/Generator MG2 (permanent magnet, 70 kW) connected to ring gear and wheels (traction motor)
-- NiMH battery (274-330V, 5.5 kWh usable)
-- Planetary gear ratio: 2.6 (ring teeth / sun teeth)
-
-Reference: 
-- SAE 2005-01-1364: "Hybrid Electric Powertrains for Passenger Vehicles: Configuration, Performance, and Testing" by Miller, J.M.
-- EPA Test Cycle Data: 40 CFR Part 86, Appendix I (HWFET)
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
@@ -53,12 +38,12 @@ Reference:
 
         @named model = HybridEngine()
         """))
-  __params = Any[]
-  __vars = Any[]
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -84,7 +69,7 @@ Reference:
   ### Guesses
 
   ### Defaults
-  __defaults[fuel_consumed] = (0)
+  __initial_conditions[fuel_consumed] = (0)
 
   ### Initialization Equations
 
@@ -101,6 +86,6 @@ Reference:
   push!(__eqs, ModelingToolkit.D_nounits(fuel_consumed) ~ fuel_rate)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export HybridEngine

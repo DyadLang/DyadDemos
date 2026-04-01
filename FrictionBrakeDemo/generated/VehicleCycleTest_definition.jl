@@ -6,16 +6,20 @@
 
 @doc Markdown.doc"""
    VehicleCycleTest(; name)
-
-Simulation experiment for the brake thermal system assembly with a vehicle on a transient cycle
 """
-@component function VehicleCycleTest(; name)
-  __params = Any[]
-  __vars = Any[]
+@component function VehicleCycleTest(; name = nothing)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = VehicleCycleTest()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -34,6 +38,8 @@ Simulation experiment for the brake thermal system assembly with a vehicle on a 
   push!(__systems, @named vehicle_speed_ref = BlockComponents.Sine(start_time=0, offset=15.2, amplitude=15, frequency=0.02))
 
   ### Guesses
+  __guesses[brake.T_interface] = (293.15)
+  __guesses[brake.ω] = (0)
 
   ### Defaults
 
@@ -56,6 +62,6 @@ Simulation experiment for the brake thermal system assembly with a vehicle on a 
   push!(__eqs, connect(powertrain.drive, vehicle.shaft))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export VehicleCycleTest

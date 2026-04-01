@@ -7,25 +7,18 @@
 @doc Markdown.doc"""
    FrictionBrake(; name, R_effective, N_surfaces, N_wheels, F_normal_max, μ_0, α_T, T_ref, f_partition)
 
-Friction brake component that converts mechanical power to heat
-Provides brake torque based on normalized command and outputs heat to disk and pad
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `R_effective`         | Geometric parameters
-Effective friction radius [m]                         | m  |   0.15 |
-| `N_surfaces`         | Number of friction surfaces (1=single-sided, 2=double-sided)                         | --  |   2 |
-| `N_wheels`         | Number of wheels with identical brakes                         | --  |   4 |
-| `F_normal_max`         | Actuation parameter
-Maximum normal force per wheel [N]                         | N  |   5000 |
-| `μ_0`         | Material properties
-Base coefficient of friction [-]                         | --  |   0.4 |
-| `α_T`         | Temperature coefficient of friction [1/K]                         | --  |   0.0005 |
-| `T_ref`         | Reference temperature [K]                         | K  |   293.15 |
-| `f_partition`         | Heat partition parameter
-Heat partition fraction to disk [-]                         | --  |   0.6 |
+| `R_effective`         |                          | m  |   0.15 |
+| `N_surfaces`         |                          | --  |   2 |
+| `N_wheels`         |                          | --  |   4 |
+| `F_normal_max`         |                          | N  |   5000 |
+| `μ_0`         |                          | --  |   0.4 |
+| `α_T`         |                          | --  |   0.0005 |
+| `T_ref`         |                          | K  |   293.15 |
+| `f_partition`         |                          | --  |   0.6 |
 
 ## Connectors
 
@@ -38,49 +31,49 @@ Heat partition fraction to disk [-]                         | --  |   0.6 |
 
 | Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ | 
-| `F_normal`         | Internal variables
-Actual normal force applied                         | N  | 
-| `T_interface`         | Interface temperature                         | K  | 
-| `μ`         | Effective coefficient of friction                         | --  | 
-| `T_brake_single_surface`         | Torque from single friction surface                         | N.m  | 
-| `T_brake_per_wheel`         | Brake torque per wheel                         | N.m  | 
-| `T_brake_magnitude`         | Magnitude of total brake torque                         | N.m  | 
-| `P_friction_total`         | Total friction power                         | W  | 
+| `F_normal`         |                          | N  | 
+| `T_interface`         |                          | K  | 
+| `μ`         |                          | --  | 
+| `T_brake_single_surface`         |                          | N.m  | 
+| `T_brake_per_wheel`         |                          | N.m  | 
+| `T_brake_magnitude`         |                          | N.m  | 
+| `P_friction_total`         |                          | W  | 
 | `ω`         |                          | rad/s  | 
 """
-@component function FrictionBrake(; name, R_effective=0.15, N_surfaces=2, N_wheels=4, F_normal_max=5000, μ_0=0.4, α_T=0.0005, T_ref=293.15, f_partition=0.6)
-  __params = Any[]
-  __vars = Any[]
+@component function FrictionBrake(; name = nothing, R_effective=0.15, N_surfaces=2, N_wheels=4, F_normal_max=5000, μ_0=0.4, α_T=0.0005, T_ref=293.15, f_partition=0.6)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = FrictionBrake()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (R_effective::Real = R_effective), [description = "Geometric parameters
-Effective friction radius [m]"])
-  append!(__params, @parameters (N_surfaces::Int = N_surfaces), [description = "Number of friction surfaces (1=single-sided, 2=double-sided)"])
-  append!(__params, @parameters (N_wheels::Int = N_wheels), [description = "Number of wheels with identical brakes"])
-  append!(__params, @parameters (F_normal_max::Real = F_normal_max), [description = "Actuation parameter
-Maximum normal force per wheel [N]"])
-  append!(__params, @parameters (μ_0::Real = μ_0), [description = "Material properties
-Base coefficient of friction [-]"])
-  append!(__params, @parameters (α_T::Real = α_T), [description = "Temperature coefficient of friction [1/K]"])
-  append!(__params, @parameters (T_ref::Real = T_ref), [description = "Reference temperature [K]"])
-  append!(__params, @parameters (f_partition::Real = f_partition), [description = "Heat partition parameter
-Heat partition fraction to disk [-]"])
+  append!(__params, @parameters (R_effective::Real = R_effective))
+  append!(__params, @parameters (N_surfaces::Int = N_surfaces))
+  append!(__params, @parameters (N_wheels::Int = N_wheels))
+  append!(__params, @parameters (F_normal_max::Real = F_normal_max))
+  append!(__params, @parameters (μ_0::Real = μ_0))
+  append!(__params, @parameters (α_T::Real = α_T))
+  append!(__params, @parameters (T_ref::Real = T_ref), [bounds = (0, Inf)])
+  append!(__params, @parameters (f_partition::Real = f_partition))
 
   ### Variables
   append!(__vars, @variables (brake_command(t)::Real), [input = true])
-  append!(__vars, @variables (F_normal(t)::Real), [description = "Internal variables
-Actual normal force applied"])
-  append!(__vars, @variables (T_interface(t)::Real), [description = "Interface temperature"])
-  append!(__vars, @variables (μ(t)::Real), [description = "Effective coefficient of friction"])
-  append!(__vars, @variables (T_brake_single_surface(t)::Real), [description = "Torque from single friction surface"])
-  append!(__vars, @variables (T_brake_per_wheel(t)::Real), [description = "Brake torque per wheel"])
-  append!(__vars, @variables (T_brake_magnitude(t)::Real), [description = "Magnitude of total brake torque"])
-  append!(__vars, @variables (P_friction_total(t)::Real), [description = "Total friction power"])
+  append!(__vars, @variables (F_normal(t)::Real))
+  append!(__vars, @variables (T_interface(t)::Real))
+  append!(__vars, @variables (μ(t)::Real))
+  append!(__vars, @variables (T_brake_single_surface(t)::Real))
+  append!(__vars, @variables (T_brake_per_wheel(t)::Real))
+  append!(__vars, @variables (T_brake_magnitude(t)::Real))
+  append!(__vars, @variables (P_friction_total(t)::Real))
   append!(__vars, @variables (ω(t)::Real))
 
   ### Constants
@@ -101,27 +94,19 @@ Actual normal force applied"])
   __assertions = []
 
   ### Equations
-  # Extract angular velocity from mechanical interface
   push!(__eqs, ω ~ ModelingToolkit.D_nounits(shaft.phi))
-  # Normal force from brake command
   push!(__eqs, F_normal ~ brake_command * F_normal_max)
-  # Interface temperature (average of disk and pad)
   push!(__eqs, T_interface ~ (disk.T + pad.T) / 2)
-  # Temperature-dependent friction coefficient
   push!(__eqs, μ ~ μ_0 * (1 - α_T * (T_interface - T_ref)))
-  # Friction torque calculations
   push!(__eqs, T_brake_single_surface ~ μ * F_normal * R_effective)
   push!(__eqs, T_brake_per_wheel ~ T_brake_single_surface * N_surfaces)
   push!(__eqs, T_brake_magnitude ~ T_brake_per_wheel * N_wheels)
-  # Total power dissipation (always positive)
   push!(__eqs, P_friction_total ~ T_brake_magnitude * abs(ω))
-  # Apply brake torque (always opposes rotation direction)
   push!(__eqs, shaft.tau ~ sign(ω) * T_brake_magnitude)
-  # Heat flow outputs (per wheel)
   push!(__eqs, disk.Q ~ -f_partition * P_friction_total / N_wheels)
   push!(__eqs, pad.Q ~ -(1 - f_partition) * P_friction_total / N_wheels)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export FrictionBrake

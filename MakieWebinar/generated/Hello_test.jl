@@ -6,17 +6,17 @@
 
 @testset "Running test case1 for MakieWebinar.Hello" begin
   using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol
-  using ModelingToolkit: toggle_namespacing, get_defaults, @named
+  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
+  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
 
   @named model = MakieWebinar.Hello()
   model = toggle_namespacing(model, false)
   
   model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = "auto", start = 0e+0, stop = 1e+1, abstol=1e-6, reltol=1e-6)
+  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 1e+1, abstol=1e-6, reltol=1e-6)
   sol = rebuild_sol(result)
   @test SciMLBase.successful_retcode(sol)
-  @test sol[model.T][1] ≈ 320
+  @test sol[model.T][1] ≈ 320 atol=9.999999999999999e-6 rtol=9.999999999999999e-6
 # Signals selected for regression testing: []
   ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
   if get(ENV, "DYAD_UPDATE_REFS", "") !== ""

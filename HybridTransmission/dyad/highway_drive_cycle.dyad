@@ -1,0 +1,32 @@
+component HighwayDriveCycle
+  """
+  EPA Highway Fuel Economy Test (HWFET) speed profile.
+  
+  Source: EPA 40 CFR Part 86, Appendix I, Section (f)
+  - Duration: 765 seconds
+  - Distance: 10.26 miles (16.5 km)
+  - Average speed: 48.3 mph (77.7 km/h)  
+  - Maximum speed: 60 mph (96.6 km/h)
+  
+  Simplified piecewise constant approximation of official EPA test.
+  """
+  speed_ref = RealOutput() {^speed_ref}
+relations
+  # EPA HWFET profile (simplified piecewise approximation)
+  # Using nested ifelse for symbolic-safe evaluation
+  # 1 mph = 0.44704 m/s
+  speed_ref = HybridTransmission.epa_highway_speed(time)
+metadata {
+  "Dyad": {"icons": {"default": "dyad://HybridTransmission/vehicle.svg"}},
+  "_links": {
+    "speed_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 450, "x2": 1070, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

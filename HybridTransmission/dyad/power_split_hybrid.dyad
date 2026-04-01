@@ -1,0 +1,311 @@
+"""
+Power-Split Hybrid Electric Vehicle Model
+
+This model implements a power-split architecture with planetary gear coupling.
+
+Architecture:
+- Atkinson cycle ICE (74 kW / 99 hp) connected to planetary carrier
+- Motor/Generator MG1 (permanent magnet, 25 kW) connected to sun gear (generator/speed control)
+- Motor/Generator MG2 (permanent magnet, 70 kW) connected to ring gear and wheels (traction motor)
+- NiMH battery (274-330V, 5.5 kWh usable)
+- Planetary gear ratio: 2.6 (ring teeth / sun teeth)
+
+Reference: 
+- SAE 2005-01-1364: "Hybrid Electric Powertrains for Passenger Vehicles: Configuration, Performance, and Testing" by Miller, J.M.
+- EPA Test Cycle Data: 40 CFR Part 86, Appendix I (HWFET)
+"""
+test component PowerSplitHybrid
+  "Complete power-split hybrid vehicle model with ECMS control."
+  drive_cycle = HighwayDriveCycle() {^drive_cycle}
+  controller = ECMSController() {^controller}
+  engine = HybridEngine() {^engine}
+  mg1 = HybridMG(Kt = 1.0, max_torque = 130.0) {^mg1} # 40 kW generator
+  mg2 = HybridMG(Kt = 1.0, max_torque = 330.0) {^mg2} # 70 kW traction motor
+  transmission = HybridPlanetaryGear() {^transmission}
+  vehicle = HybridVehicle() {^vehicle}
+  battery = HybridBattery() {^battery}
+relations
+  # Control connections
+  connect(drive_cycle.speed_ref, controller.speed_ref) {^id9}
+  connect(vehicle.speed_output, controller.speed_actual) {^id10}
+  connect(battery.soc_output, controller.soc) {^id11}
+  connect(engine.omega_output, controller.engine_omega) {^id12}
+  connect(mg1.omega_output, controller.mg1_omega) {^id13}
+  connect(controller.engine_throttle, engine.throttle) {^id14}
+  connect(controller.mg1_torque_cmd, mg1.torque_cmd) {^id15}
+  connect(controller.mg2_torque_cmd, mg2.torque_cmd) {^id16}
+  # Mechanical connections - planetary gear
+  connect(engine.flange, transmission.carrier) {^id17} # Engine to carrier
+  connect(mg1.flange, transmission.sun) {^id18} # MG1 to sun (generator)
+  connect(mg2.flange, transmission.ring) {^id19} # MG2 to ring (traction)
+  connect(vehicle.flange, transmission.ring) {^id20} # Vehicle to ring (same as MG2)
+  # Electrical connections
+  connect(mg1.power_elec, battery.mg1_power) {^id21}
+  connect(mg2.power_elec, battery.mg2_power) {^id22}
+  # Initial conditions - all at rest
+  # Only set initials for independent DOFs; connected/constrained vars use guesses
+  initial vehicle.omega_wheel = 0.0
+  initial engine.flange.phi = 0.0
+  initial vehicle.flange.phi = 0.0
+  # Guesses for dependent mechanical variables (determined by connections + planetary constraint)
+  guess engine.omega = 0.0
+  guess mg1.omega = 0.0
+  guess mg2.omega = 0.0
+  guess mg1.flange.phi = 0.0
+  guess mg2.flange.phi = 0.0
+  # Guesses for algebraic torques
+  guess engine.flange.tau = 0.0
+  guess mg1.flange.tau = 0.0
+  guess mg2.flange.tau = 0.0
+  guess transmission.carrier.tau = 0.0
+  guess transmission.sun.tau = 0.0
+  guess transmission.ring.tau = 0.0
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 765,
+        "atol": {
+          "battery.SOC": 0.02,
+          "engine.fuel_consumed": 50,
+          "vehicle.speed": 2.0
+        },
+        "expect": {
+          "initial": {
+            "vehicle.speed": 0.0,
+            "battery.SOC": 0.6,
+            "engine.fuel_consumed": 0.0
+          },
+          "final": {
+            "battery.SOC": 0.4,
+            "engine.fuel_consumed": 1292,
+            "vehicle.speed": 20.0
+          },
+          "signals": [
+            "vehicle.speed",
+            "battery.SOC",
+            "engine.fuel_consumed",
+            "controller.engine_throttle"
+          ]
+        }
+      }
+    }
+  },
+  "_links": {
+    "drive_cycle": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 10, "y1": 190, "x2": 210, "y2": 390, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "controller": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 318, "y1": 431, "x2": 518, "y2": 631, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "engine": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 400, "y1": 190, "x2": 600, "y2": 390, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "mg1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 330, "y1": 810, "x2": 530, "y2": 1010, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "mg2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 640, "y1": 520, "x2": 840, "y2": 720, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "transmission": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 680, "y1": 70, "x2": 880, "y2": 270, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "vehicle": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 30, "y1": 670, "x2": 230, "y2": 870, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "battery": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 810, "y1": 790, "x2": 1010, "y2": 990, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id9": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 281, "y": 290}, {"x": 281, "y": 491}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id10": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 280, "y": 770}, {"x": 280, "y": 449}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id11": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 1010, "y": 795}, {"x": 290, "y": 795}, {"x": 290, "y": 567}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id12": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 300, "y": 292}, {"x": 300, "y": 527}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id13": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 300, "y": 858}, {"x": 300, "y": 605}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id14": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 790, "y": 479},
+              {"x": 790, "y": 310},
+              {"x": 642, "y": 310},
+              {"x": 642, "y": 292}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id15": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 590, "y": 593},
+              {"x": 590, "y": 1050},
+              {"x": 200, "y": 1050},
+              {"x": 200, "y": 910}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id16": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 550, "y": 531}, {"x": 550, "y": 620}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id17": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 498, "y": 128}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id18": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 430, "y": 947}, {"x": 270, "y": 947}, {"x": 270, "y": 170}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id19": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 740, "y": 489}, {"x": 940, "y": 489}, {"x": 940, "y": 170}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id20": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 128, "y": 641},
+              {"x": 230, "y": 641},
+              {"x": 230, "y": 20},
+              {"x": 940, "y": 20}
+            ],
+            "E": -1
+          },
+          {"S": -1, "M": [], "E": 2}
+        ],
+        "junctions": [{"x": 940, "y": 170}],
+        "renderStyle": "standard"
+      }
+    },
+    "id21": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 530, "y": 910}, {"x": 772, "y": 910}, {"x": 772, "y": 838}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id22": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 790, "y": 666}, {"x": 790, "y": 936}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+# ===== ANALYSIS =====
+analysis TestPowerSplitHybrid
+  extends TransientAnalysis(stop = 765.0, abstol = 1e-6, reltol = 1e-3, saveat = 0.5)
+  model = PowerSplitHybrid()
+relations
+end

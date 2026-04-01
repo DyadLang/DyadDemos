@@ -4,20 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for BrakeThermalTest_Step" begin
+@testset "Running test case1 for FrictionBrakeDemo.BrakeThermalTest_Step" begin
   using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol
-  using ModelingToolkit: toggle_namespacing, get_defaults, @named
+  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
+  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
 
-  @named model = BrakeThermalTest_Step()
+  @named model = FrictionBrakeDemo.BrakeThermalTest_Step()
   model = toggle_namespacing(model, false)
   
   model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = "auto", start = 0e+0, stop = 5e+3, abstol=1e-6, reltol=1e-6)
+  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 5e+3, abstol=1e-6, reltol=1e-6)
   sol = rebuild_sol(result)
   @test SciMLBase.successful_retcode(sol)
-  @test sol[model.brake_thermal.pad_mass.T][1] ≈ 293.15 atol=0.1
-  @test sol[model.brake_thermal.disk_mass.T][1] ≈ 293.15 atol=0.1
+  @test sol[model.brake_thermal.pad_mass.T][1] ≈ 293.15 atol=0.1 rtol=9.999999999999999e-6
+  @test sol[model.brake_thermal.disk_mass.T][1] ≈ 293.15 atol=0.1 rtol=9.999999999999999e-6
 # Signals selected for regression testing: ["brake_thermal.pad_mass.T","brake_thermal.disk_mass.T"]
   ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
   if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
@@ -28,7 +28,7 @@
   end
     if isfile("snapshots/BrakeThermalTest_Step_case1_sig0.ref")
       ref = CSV.read("snapshots/BrakeThermalTest_Step_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.pad_mass.T) atol=0.1 for i in 1:length(ref.expected)]
+      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.pad_mass.T) atol=0.1 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.pad_mass.T])
         dfr = CSV.read("snapshots/BrakeThermalTest_Step_case1_sig0.ref", DataFrame)
@@ -44,7 +44,7 @@
     end
     if isfile("snapshots/BrakeThermalTest_Step_case1_sig1.ref")
       ref = CSV.read("snapshots/BrakeThermalTest_Step_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.disk_mass.T) atol=0.1 for i in 1:length(ref.expected)]
+      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.disk_mass.T) atol=0.1 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.disk_mass.T])
         dfr = CSV.read("snapshots/BrakeThermalTest_Step_case1_sig1.ref", DataFrame)

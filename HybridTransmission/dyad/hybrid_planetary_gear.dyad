@@ -1,0 +1,11 @@
+component HybridPlanetaryGear
+  """
+  Planetary gear set for power-split hybrid.
+  Exposes sun, carrier, and ring flanges using RotationalComponents standard library.
+  
+  Gear ratio = 2.6 (ring teeth / sun teeth).
+  """
+  extends RotationalComponents.IdealPlanetaryGear(ratio = 2.6)
+relations
+metadata {"Dyad": {"icons": {"default": "dyad://HybridTransmission/planetary_gear.svg"}}}
+end

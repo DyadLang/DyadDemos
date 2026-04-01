@@ -21,6 +21,7 @@ import RotationalComponents
 import ThermalComponents
 import BlockComponents
 import DyadControlSystems
+import DyadData
 import DyadExampleComponents
 import TranslationalComponents
 import ElectricalComponents
@@ -32,7 +33,9 @@ This connector represents an electrical pin with voltage and current as the pote
     (v(t)::Real), []
     (i(t)::Real), [connect = Flow]
   end
-  return System(Equation[], t, vars, []; name)
+  __metadata = Dict{DataType, Any}(
+  )
+  return System(Equation[], t, vars, []; name, metadata = __metadata)
 end
 @doc Markdown.doc"""
 This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively.
@@ -42,7 +45,9 @@ This connector represents a thermal node with temperature and heat flow as the p
     (T(t)::Real), []
     (Q(t)::Real), [connect = Flow]
   end
-  return System(Equation[], t, vars, []; name)
+  __metadata = Dict{DataType, Any}(
+  )
+  return System(Equation[], t, vars, []; name, metadata = __metadata)
 end
 @doc Markdown.doc"""
 This connector represents a mechanical flange with position and force as the potential and flow variables, respectively.
@@ -52,7 +57,9 @@ This connector represents a mechanical flange with position and force as the pot
     (s(t)::Real), []
     (f(t)::Real), [connect = Flow]
   end
-  return System(Equation[], t, vars, []; name)
+  __metadata = Dict{DataType, Any}(
+  )
+  return System(Equation[], t, vars, []; name, metadata = __metadata)
 end
 @doc Markdown.doc"""
 This connector represents a rotational spline with angle and torque as the potential and flow variables, respectively.
@@ -62,7 +69,43 @@ This connector represents a rotational spline with angle and torque as the poten
     (phi(t)::Real), []
     (tau(t)::Real), [connect = Flow]
   end
-  return System(Equation[], t, vars, []; name)
+  __metadata = Dict{DataType, Any}(
+  )
+  return System(Equation[], t, vars, []; name, metadata = __metadata)
+end
+@doc Markdown.doc"""
+Coordinate system (2-dim.) fixed to the component with one cut-force and cut-torque.
+All variables are resolved in the planar world frame.
+"""
+@connector function __Dyad__Frame2D(; name)
+  vars = @variables begin
+    (x(t)::Real), []
+    (y(t)::Real), []
+    (phi(t)::Real), []
+    (fx(t)::Real), [connect = Flow]
+    (fy(t)::Real), [connect = Flow]
+    (tau(t)::Real), [connect = Flow]
+  end
+  __metadata = Dict{DataType, Any}(
+  )
+  return System(Equation[], t, vars, []; name, metadata = __metadata)
+end
+@doc Markdown.doc"""
+Frame3D is the fundamental 3D connector used for 6DOF motion. Most components have one or several `Frame`
+connectors that can be connected together
+"""
+@connector function __Dyad__Frame3D(; name)
+  vars = @variables begin
+    (r_0(t)[1:3]::Real), [description = "The position vector from the world frame to the frame origin, resolved in the world frame"]
+    (R(t)[1:3,1:3]::Real), [description = "This is the Rotation matrix used to represent orientation"]
+    (f(t)[1:3]::Real), [description = "The cut force resolved in the connector frame", connect = Flow]
+    (tau(t)[1:3]::Real), [description = "The cut torque resolved in the connector frame", connect = Flow]
+  end
+  __metadata = Dict{DataType, Any}(
+ModelingToolkit.FrameOrientation => ModelingToolkit.RotationMatrix(collect(unwrap(R))::Matrix{Symbolics.SymbolicT}, ModelingToolkit.get_w(unwrap(R), t)),
+ModelingToolkit.IsFrame => true,
+  )
+  return System(Equation[], t, vars, []; name, metadata = __metadata)
 end
 
 include("ControlledOscillator_definition.jl")
@@ -83,8 +126,8 @@ include("SlowChargeAnalysis_definition.jl")
 include("SpringMassSystem_definition.jl")
 include("StrongDampingAnalysis_definition.jl")
 include("TestCriticallyDamped_definition.jl")
-include("TestDiffusion100x100Transient_definition.jl")
-include("TestDiffusion100x100_definition.jl")
+include("TestDiffusion30x30Transient_definition.jl")
+include("TestDiffusion30x30_definition.jl")
 include("TestDiffusion5x5Transient_definition.jl")
 include("TestDiffusion5x5_definition.jl")
 include("TestFHNWave20x20Transient_definition.jl")

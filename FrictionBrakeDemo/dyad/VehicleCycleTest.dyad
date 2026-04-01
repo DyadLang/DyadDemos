@@ -143,6 +143,9 @@ relations
       "renderStyle": "standard"
     }
   }]
+  # Guesses to help initialization convergence
+  guess brake.T_interface = 293.15
+  guess brake.ω = 0.0
 metadata {
   "Dyad": {
     "tests": {

@@ -7,16 +7,14 @@
 @doc Markdown.doc"""
    SimplePowertrain(; name, base_torque, c_normalized_torque, tau, tau_start)
 
-Powertrain model with throttle input and rotational torque output
-
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `base_torque`         | Maximum torque capacity                         | N.m  |   150 |
-| `c_normalized_torque`         | Normalized torque coefficients as a function of vehicle speed: c[1] + c[2]*vehicle_speed + c[3]*vehicle_speed^2 + c[3]*vehicle_speed^2                         | --  |   [12.343, -0.57128, 0.010451, -0.000062024] |
-| `tau`         | Time constant for torque response                         | s  |   0.1 |
-| `tau_start`         | Torque start value                         | N.m  |   0 |
+| `base_torque`         |                          | N.m  |   150 |
+| `c_normalized_torque`         |                          | --  |   [12.343, -0.57128, 0.010451, -0.000062024] |
+| `tau`         |                          | s  |   0.1 |
+| `tau_start`         |                          | N.m  |   0 |
 
 ## Connectors
 
@@ -28,29 +26,35 @@ Powertrain model with throttle input and rotational torque output
 
 | Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ | 
-| `normalized_torque`         | Normalized torque                         | --  | 
-| `torque`         | Actual torque being produced                         | N.m  | 
+| `normalized_torque`         |                          | --  | 
+| `torque`         |                          | N.m  | 
 """
-@component function SimplePowertrain(; name, base_torque=150, c_normalized_torque=[12.343, -0.57128, 0.010451, -0.000062024], tau=0.1, tau_start=0)
-  __params = Any[]
-  __vars = Any[]
+@component function SimplePowertrain(; name = nothing, base_torque=150, c_normalized_torque=[12.343, -0.57128, 0.010451, -0.000062024], tau=0.1, tau_start=0)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = SimplePowertrain()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
-  append!(__params, @parameters (base_torque::Real = base_torque), [description = "Maximum torque capacity"])
-  append!(__params, @parameters (c_normalized_torque[1:4]::Real = c_normalized_torque), [description = "Normalized torque coefficients as a function of vehicle speed: c[1] + c[2]*vehicle_speed + c[3]*vehicle_speed^2 + c[3]*vehicle_speed^2"])
-  append!(__params, @parameters (tau::Real = tau), [description = "Time constant for torque response"])
-  append!(__params, @parameters (tau_start::Real = tau_start), [description = "Torque start value"])
+  append!(__params, @parameters (base_torque::Real = base_torque))
+  append!(__params, @parameters (c_normalized_torque[1:4]::Real = c_normalized_torque))
+  append!(__params, @parameters (tau::Real = tau))
+  append!(__params, @parameters (tau_start::Real = tau_start))
 
   ### Variables
   append!(__vars, @variables (throttle(t)::Real), [input = true])
   append!(__vars, @variables (vehicle_speed(t)::Real), [input = true])
-  append!(__vars, @variables (normalized_torque(t)::Real), [description = "Normalized torque"])
-  append!(__vars, @variables (torque(t)::Real), [description = "Actual torque being produced"])
+  append!(__vars, @variables (normalized_torque(t)::Real))
+  append!(__vars, @variables (torque(t)::Real))
 
   ### Constants
   __constants = Any[]
@@ -61,7 +65,7 @@ Powertrain model with throttle input and rotational torque output
   ### Guesses
 
   ### Defaults
-  __defaults[torque] = (tau_start)
+  __initial_conditions[torque] = (tau_start)
 
   ### Initialization Equations
 
@@ -70,12 +74,10 @@ Powertrain model with throttle input and rotational torque output
 
   ### Equations
   push!(__eqs, normalized_torque ~ c_normalized_torque[1] + c_normalized_torque[2] * vehicle_speed + c_normalized_torque[3] * vehicle_speed ^ 2 + c_normalized_torque[4] * vehicle_speed ^ 3)
-  # First-order lag dynamics: torque response to throttle
   push!(__eqs, ModelingToolkit.D_nounits(torque) ~ (throttle * base_torque * normalized_torque - torque) / tau)
-  # Torque acts on the drive spline
   push!(__eqs, drive.tau ~ -torque)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export SimplePowertrain

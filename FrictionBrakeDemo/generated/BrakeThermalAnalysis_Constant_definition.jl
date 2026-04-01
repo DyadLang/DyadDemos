@@ -5,34 +5,39 @@
 
 
 using DyadInterface
-
+using DyadInterface: ODEAlg, DEVerbosity
+using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct BrakeThermalAnalysis_ConstantSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :BrakeThermalAnalysis_Constant
-  var"alg"::String = "auto"
-  var"start"::Real = 0
-  var"stop"::Real = 1800
-  var"abstol"::Real = 1e-8
-  var"reltol"::Real = 0.000001
-  var"saveat"::Real = 0
-  var"dtmax"::Real = 0
+  var"alg"::ODEAlg.Type = ODEAlg.Auto()
+  var"start"::Float64 = 0
+  var"stop"::Float64 = 1800
+  var"abstol"::Float64 = 1e-8
+  var"reltol"::Float64 = 0.000001
+  var"saveat"::Float64 = 0
+  var"dtmax"::Float64 = 0
+  var"tstops"::Array{Float64, 1} = []
   var"IfLifting"::Bool = false
-  # Heat flow to disk
-  var"Q_disk"::Real = 9300
-  # Heat flow to disk
-  var"Q_pad"::Real = 700
-  # Vehicle speed
-  var"vehicle_speed"::Real = 25
-  # Wheel speed
-  var"wheel_speed"::Real = 83
-  # Test component for the refined brake thermal model with speed inputs
+  var"progress"::Bool = true
+  var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
+  var"log_file"::String = ""
+  var"Q_disk"::Float64 = 9300
+  var"Q_pad"::Float64 = 700
+  var"vehicle_speed"::Float64 = 25
+  var"wheel_speed"::Float64 = 83
   var"model"::Union{Nothing, System} = FrictionBrakeDemo.BrakeThermalTest_Constant(; name=:BrakeThermalTest_Constant)
 end
 
 function DyadInterface.run_analysis(spec::BrakeThermalAnalysis_ConstantSpec)
-  spec.model = DyadInterface.update_model(spec.model, (; var"Q_disk"=spec.var"Q_disk", var"Q_pad"=spec.var"Q_pad", var"vehicle_speed"=spec.var"vehicle_speed", var"wheel_speed"=spec.var"wheel_speed"))
+  overrides = Dict{SymbolicT, SymbolicT}()
+  no_namespace_model = toggle_namespacing(spec.model, false)
+  push!(overrides, no_namespace_model.Q_disk => spec.var"Q_disk")
+  push!(overrides, no_namespace_model.Q_pad => spec.var"Q_pad")
+  push!(overrides, no_namespace_model.vehicle_speed => spec.var"vehicle_speed")
+  push!(overrides, no_namespace_model.wheel_speed => spec.var"wheel_speed")
   base_spec = TransientAnalysisSpec(;
-    name=:TransientAnalysis, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, IfLifting=spec.IfLifting, model=spec.model
+    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, IfLifting=spec.IfLifting, progress=spec.progress, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
   )
   run_analysis(base_spec)
 end

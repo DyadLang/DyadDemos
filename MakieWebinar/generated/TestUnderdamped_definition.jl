@@ -7,13 +7,19 @@
 @doc Markdown.doc"""
    TestUnderdamped(; name)
 """
-@component function TestUnderdamped(; name)
-  __params = Any[]
-  __vars = Any[]
+@component function TestUnderdamped(; name = nothing)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TestUnderdamped()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -29,8 +35,8 @@
   ### Guesses
 
   ### Defaults
-  __defaults[circuit.capacitor.v] = (circuit.V_init)
-  __defaults[circuit.inductor.i] = (0)
+  __initial_conditions[circuit.capacitor.v] = (circuit.V_init)
+  __initial_conditions[circuit.inductor.i] = (0)
 
   ### Initialization Equations
 
@@ -40,6 +46,6 @@
   ### Equations
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TestUnderdamped

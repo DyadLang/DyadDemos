@@ -17,13 +17,19 @@
 | `N_v_res`         |                          | --  |   380 |
 | `N_bound`         |                          | --  |   80 |
 """
-@component function TestReactionGrowth20x20(; name, N=20, N_caps=400, N_h_res=380, N_v_res=380, N_bound=80)
-  __params = Any[]
-  __vars = Any[]
+@component function TestReactionGrowth20x20(; name = nothing, N=20, N_caps=400, N_h_res=380, N_v_res=380, N_bound=80)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = TestReactionGrowth20x20()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
   __systems = System[]
-  __guesses = Dict()
-  __defaults = Dict()
-  __initialization_eqs = []
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
   __eqs = Equation[]
 
   ### Symbolic Parameters
@@ -58,14 +64,14 @@
   ### Guesses
 
   ### Defaults
-  __defaults[caps[50].C] = (0.08)
-  __defaults[caps[150].C] = (0.1)
-  __defaults[caps[250].C] = (0.06)
-  __defaults[caps[350].C] = (0.09)
-  __defaults[caps[100].C] = (0.07)
-  __defaults[caps[300].C] = (0.085)
 
   ### Initialization Equations
+  push!(__initialization_eqs, getproperty(caps[50], :C) ~ 0.08)
+  push!(__initialization_eqs, getproperty(caps[150], :C) ~ 0.1)
+  push!(__initialization_eqs, getproperty(caps[250], :C) ~ 0.06)
+  push!(__initialization_eqs, getproperty(caps[350], :C) ~ 0.09)
+  push!(__initialization_eqs, getproperty(caps[100], :C) ~ 0.07)
+  push!(__initialization_eqs, getproperty(caps[300], :C) ~ 0.085)
 
   ### Assertions
   __assertions = []
@@ -75,47 +81,47 @@
   ### Control Structures
   for row in 0:(N - 1)
       for col in 0:(N - 2)
-            push!(__eqs, connect(caps[row * N + col + 1].port, r_h[row * (N - 1) + col + 1].port_a))
-            push!(__eqs, connect(r_h[row * (N - 1) + col + 1].port_b, caps[row * N + col + 2].port))
+            push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_h[row * (N - 1) + col + 1], :port_a)))
+            push!(__eqs, connect(getproperty(r_h[row * (N - 1) + col + 1], :port_b), getproperty(caps[row * N + col + 2], :port)))
       end
   end
   for row in 0:(N - 2)
       for col in 0:(N - 1)
-            push!(__eqs, connect(caps[row * N + col + 1].port, r_v[row * N + col + 1].port_a))
-            push!(__eqs, connect(r_v[row * N + col + 1].port_b, caps[(row + 1) * N + col + 1].port))
+            push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_v[row * N + col + 1], :port_a)))
+            push!(__eqs, connect(getproperty(r_v[row * N + col + 1], :port_b), getproperty(caps[(row + 1) * N + col + 1], :port)))
       end
   end
   for i in 1:49
-      __defaults[caps[i].C] = (0.02)
+      push!(__initialization_eqs, getproperty(caps[i], :C) ~ 0.02)
   end
   for i in 51:99
-      __defaults[caps[i].C] = (0.02)
+      push!(__initialization_eqs, getproperty(caps[i], :C) ~ 0.02)
   end
   for i in 101:149
-      __defaults[caps[i].C] = (0.02)
+      push!(__initialization_eqs, getproperty(caps[i], :C) ~ 0.02)
   end
   for i in 151:249
-      __defaults[caps[i].C] = (0.02)
+      push!(__initialization_eqs, getproperty(caps[i], :C) ~ 0.02)
   end
   for i in 251:299
-      __defaults[caps[i].C] = (0.02)
+      push!(__initialization_eqs, getproperty(caps[i], :C) ~ 0.02)
   end
   for i in 301:349
-      __defaults[caps[i].C] = (0.02)
+      push!(__initialization_eqs, getproperty(caps[i], :C) ~ 0.02)
   end
   for i in 351:N_caps
-      __defaults[caps[i].C] = (0.02)
+      push!(__initialization_eqs, getproperty(caps[i], :C) ~ 0.02)
   end
   for row in 0:(N - 1)
-      push!(__eqs, connect(caps[row * N + 1].port, bounds[row + 1].port))
-      push!(__eqs, connect(caps[row * N + N].port, bounds[N + row + 1].port))
+      push!(__eqs, connect(getproperty(caps[row * N + 1], :port), getproperty(bounds[row + 1], :port)))
+      push!(__eqs, connect(getproperty(caps[row * N + N], :port), getproperty(bounds[N + row + 1], :port)))
   end
   for col in 0:(N - 1)
-      push!(__eqs, connect(caps[col + 1].port, bounds[2 * N + col + 1].port))
-      push!(__eqs, connect(caps[(N - 1) * N + col + 1].port, bounds[3 * N + col + 1].port))
+      push!(__eqs, connect(getproperty(caps[col + 1], :port), getproperty(bounds[2 * N + col + 1], :port)))
+      push!(__eqs, connect(getproperty(caps[(N - 1) * N + col + 1], :port), getproperty(bounds[3 * N + col + 1], :port)))
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, defaults=__defaults, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
 export TestReactionGrowth20x20

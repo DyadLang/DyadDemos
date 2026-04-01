@@ -216,27 +216,27 @@ analysis TestDiffusion5x5Transient
   model = TestDiffusion5x5()
 end
 
-# Large 100x100 grid model
-test component TestDiffusion100x100
+# Larger 30x30 grid model
+test component TestDiffusion30x30
   "Grid size (each dimension)"
-  structural parameter N::Integer = 100
+  structural parameter N::Integer = 30
   "Total number of capacitors"
-  structural parameter N_caps::Integer = 10000
+  structural parameter N_caps::Integer = 900
   "Number of horizontal resistors"
-  structural parameter N_h_res::Integer = 9900
+  structural parameter N_h_res::Integer = 870
   "Number of vertical resistors"
-  structural parameter N_v_res::Integer = 9900
+  structural parameter N_v_res::Integer = 870
   "Number of boundary components"
-  structural parameter N_boundary::Integer = 400
+  structural parameter N_boundary::Integer = 120
   
   "Capacitors at each grid point"
   caps = [DiffusionCapacitor(V=0.0001) for i in 1:N_caps]
   
   "Horizontal resistors"
-  r_horiz = [DiffusionResistor(D=1.0, dx=0.01, A=0.01) for i in 1:N_h_res]
+  r_horiz = [DiffusionResistor(D=1.0, dx=0.033, A=0.033) for i in 1:N_h_res]
   
   "Vertical resistors"
-  r_vert = [DiffusionResistor(D=1.0, dx=0.01, A=0.01) for i in 1:N_v_res]
+  r_vert = [DiffusionResistor(D=1.0, dx=0.033, A=0.033) for i in 1:N_v_res]
   
   "Boundary components"
   boundaries = [ZeroFluxBoundary() for i in 1:N_boundary]
@@ -258,12 +258,12 @@ relations
     end
   end
   
-  # Initial condition: concentration spike in center (row=49, col=49 -> index 4950)
-  initial caps[4950].C = 1000.0
+  # Initial condition: concentration spike in center (row=14, col=14 -> index 435)
+  initial caps[435].C = 1000.0
   
   # All other cells start at zero
   for i in 1:N_caps
-    if i != 4950
+    if i != 435
       initial caps[i].C = 0.0
     end
   end
@@ -290,9 +290,9 @@ relations
   end
 end
 
-analysis TestDiffusion100x100Transient
+analysis TestDiffusion30x30Transient
   extends TransientAnalysis(stop=0.1, saveat=0.002)
-  model = TestDiffusion100x100()
+  model = TestDiffusion30x30()
 end
 
 # Test: Exponential growth with diffusion (unstable but interesting)

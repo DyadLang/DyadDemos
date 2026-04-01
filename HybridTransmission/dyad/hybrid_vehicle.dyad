@@ -1,0 +1,63 @@
+component HybridVehicle
+  """
+  Lumped vehicle model with aerodynamic drag and rolling resistance.
+  
+  Parameters for mid-size SUV hybrid:
+  - Mass: 1750 kg (curb weight)
+  - Cd: 0.38 (drag coefficient)
+  - A: 2.56 m² (frontal area)
+  - Crr: 0.012 (rolling resistance coefficient, paved road)
+  """
+  flange = Spline() {^flange} # Connection to drivetrain
+  speed_output = RealOutput() {^speed_output} # Vehicle speed (m/s)
+  parameter J_equiv::Inertia = 250.0 # Equivalent inertia at wheels (kg·m²)
+  parameter m_vehicle::Real = 1750.0 # Vehicle mass (kg)
+  parameter C_d::Real = 0.38 # Drag coefficient
+  parameter A_front::Real = 2.56 # Frontal area (m²)
+  parameter C_rr::Real = 0.012 # Rolling resistance coefficient
+  parameter r_wheel::Real = 0.318 # Effective wheel radius (m) - P235/70R16 tires
+  variable omega_wheel::AngularVelocity
+  variable speed::Real # Vehicle speed (m/s)
+  variable F_aero::Real # Aerodynamic drag force (N)
+  variable F_rolling::Real # Rolling resistance force (N)
+  variable F_total::Real # Total resistive force (N)
+  variable T_load::Torque # Load torque at wheels (N·m)
+relations
+  omega_wheel = der(flange.phi)
+  speed = omega_wheel * r_wheel
+  speed_output = speed
+  # Aerodynamic drag: F = 0.5 * rho * Cd * A * v^2
+  F_aero = 0.5 * 1.225 * C_d * A_front * (speed * speed)
+  # Rolling resistance: smooth transition using tanh() for numerical stability
+  # F = Crr * m * g * tanh(v / v_threshold) - zero at v=0, ±Crr*m*g at high speed
+  F_rolling = C_rr * m_vehicle * 9.81 * tanh(speed / 0.1)
+  # Total resistive force
+  F_total = F_aero + F_rolling
+  # Convert to torque at wheels
+  T_load = F_total * r_wheel
+  # Vehicle dynamics: J*dω/dt = τ_drive - τ_load
+  # Spline convention: flange.tau is reaction torque FROM vehicle
+  # Driving torque = -flange.tau (motor pushes, vehicle reacts opposite)
+  J_equiv * der(omega_wheel) = -flange.tau - T_load
+metadata {
+  "Dyad": {"icons": {"default": "dyad://HybridTransmission/vehicle.svg"}},
+  "_links": {
+    "flange": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 440, "y1": -30, "x2": 540, "y2": 70, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "speed_output": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
