@@ -5,24 +5,24 @@
 
 
 @doc Markdown.doc"""
-   TestDiffusion100x100(; name, N, N_caps, N_h_res, N_v_res, N_boundary)
+   TestDiffusion30x30(; name, N, N_caps, N_h_res, N_v_res, N_boundary)
 
 ## Parameters: 
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `N`         | Grid size (each dimension)                         | --  |   100 |
-| `N_caps`         | Total number of capacitors                         | --  |   10000 |
-| `N_h_res`         | Number of horizontal resistors                         | --  |   9900 |
-| `N_v_res`         | Number of vertical resistors                         | --  |   9900 |
-| `N_boundary`         | Number of boundary components                         | --  |   400 |
+| `N`         | Grid size (each dimension)                         | --  |   30 |
+| `N_caps`         | Total number of capacitors                         | --  |   900 |
+| `N_h_res`         | Number of horizontal resistors                         | --  |   870 |
+| `N_v_res`         | Number of vertical resistors                         | --  |   870 |
+| `N_boundary`         | Number of boundary components                         | --  |   120 |
 """
-@component function TestDiffusion100x100(; name = nothing, N=100, N_caps=10000, N_h_res=9900, N_v_res=9900, N_boundary=400)
+@component function TestDiffusion30x30(; name = nothing, N=30, N_caps=900, N_h_res=870, N_v_res=870, N_boundary=120)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
-        @named model = TestDiffusion100x100()
+        @named model = TestDiffusion30x30()
         """))
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
@@ -47,12 +47,12 @@
   append!(__systems, caps)
   r_horiz = System[]
   for i in 1:N_h_res
-    push!(r_horiz, MakieWebinar.DiffusionResistor(D=1, dx=0.01, A=0.01, name=Symbol("r_horiz", "⸺", i)))
+    push!(r_horiz, MakieWebinar.DiffusionResistor(D=1, dx=0.033, A=0.033, name=Symbol("r_horiz", "⸺", i)))
   end
   append!(__systems, r_horiz)
   r_vert = System[]
   for i in 1:N_v_res
-    push!(r_vert, MakieWebinar.DiffusionResistor(D=1, dx=0.01, A=0.01, name=Symbol("r_vert", "⸺", i)))
+    push!(r_vert, MakieWebinar.DiffusionResistor(D=1, dx=0.033, A=0.033, name=Symbol("r_vert", "⸺", i)))
   end
   append!(__systems, r_vert)
   boundaries = System[]
@@ -66,7 +66,7 @@
   ### Defaults
 
   ### Initialization Equations
-  push!(__initialization_eqs, getproperty(caps[4950], :C) ~ 1000)
+  push!(__initialization_eqs, getproperty(caps[435], :C) ~ 1000)
 
   ### Assertions
   __assertions = []
@@ -87,7 +87,7 @@
       end
   end
   for i in 1:N_caps
-      if i != 4950
+      if i != 435
             __initial_conditions[caps[i].C] = (0)
       else
       end
@@ -108,4 +108,4 @@
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
 end
-export TestDiffusion100x100
+export TestDiffusion30x30

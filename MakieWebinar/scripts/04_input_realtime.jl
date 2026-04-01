@@ -1,8 +1,9 @@
-using ModelingToolkit, ModelingToolkitInputs, DyadInterface
+using ModelingToolkit, DyadInterface
 using GLMakie, Makie
 using MakieWebinar
 
 @named model = MakieWebinar.ControlledOscillator()
-sys = mtkcompile(InputSystem(model; inputs=[model.pid_k, model.pid_Td]))
+sys = mtkcompile(model)
+prob = ODEProblem(sys, [], (0.0, 10.0))
 
 # TODO coming soon!

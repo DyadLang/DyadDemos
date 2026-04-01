@@ -8,8 +8,8 @@ using DyadInterface
 using DyadInterface: ODEAlg, DEVerbosity
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
-@kwdef mutable struct TestDiffusion100x100TransientSpec <: AbstractTransientAnalysisSpec
-  name::Symbol = :TestDiffusion100x100Transient
+@kwdef mutable struct TestDiffusion30x30TransientSpec <: AbstractTransientAnalysisSpec
+  name::Symbol = :TestDiffusion30x30Transient
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
   var"stop"::Float64 = 0.1
@@ -22,10 +22,10 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   var"progress"::Bool = true
   var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
   var"log_file"::String = ""
-  var"model"::Union{Nothing, System} = MakieWebinar.TestDiffusion100x100(; name=:TestDiffusion100x100)
+  var"model"::Union{Nothing, System} = MakieWebinar.TestDiffusion30x30(; name=:TestDiffusion30x30)
 end
 
-function DyadInterface.run_analysis(spec::TestDiffusion100x100TransientSpec)
+function DyadInterface.run_analysis(spec::TestDiffusion30x30TransientSpec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
   base_spec = TransientAnalysisSpec(;
@@ -34,6 +34,6 @@ function DyadInterface.run_analysis(spec::TestDiffusion100x100TransientSpec)
   run_analysis(base_spec)
 end
 
-TestDiffusion100x100Transient(;kwargs...) = run_analysis(TestDiffusion100x100TransientSpec(;kwargs...))
-export TestDiffusion100x100Transient, TestDiffusion100x100TransientSpec
-export TestDiffusion100x100TransientSpec, TestDiffusion100x100Transient
+TestDiffusion30x30Transient(;kwargs...) = run_analysis(TestDiffusion30x30TransientSpec(;kwargs...))
+export TestDiffusion30x30Transient, TestDiffusion30x30TransientSpec
+export TestDiffusion30x30TransientSpec, TestDiffusion30x30Transient
