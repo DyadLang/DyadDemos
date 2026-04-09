@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <defs>
+    <linearGradient id="z1-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0099FF"/>
+      <stop offset="100%" stop-color="#33ADFF"/>
+    </linearGradient>
+    <linearGradient id="z2-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#637AFF"/>
+      <stop offset="100%" stop-color="#7B90FF"/>
+    </linearGradient>
+    <linearGradient id="z3-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#372CD5"/>
+      <stop offset="100%" stop-color="#4F42E0"/>
+    </linearGradient>
+    <linearGradient id="hvac1-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#33ADFF"/>
+      <stop offset="100%" stop-color="#0099FF"/>
+    </linearGradient>
+    <linearGradient id="hvac2-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6C44FF"/>
+      <stop offset="100%" stop-color="#3D00B7"/>
+    </linearGradient>
+    <linearGradient id="hvac3-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7B42FF"/>
+      <stop offset="100%" stop-color="#6C44FF"/>
+    </linearGradient>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#0A0A0A" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Outer frame -->
+  <rect x="2" y="2" width="276" height="276" rx="8" ry="8" fill="#F5F5F5" stroke="#D6D6D6" stroke-width="1.5"/>
+
+  <!-- Inner background -->
+  <rect x="18" y="18" width="244" height="244" rx="5" ry="5" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="140" y="40" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#0A0A0A" letter-spacing="0.3">ThreeZoneBuilding</text>
+
+  <!-- Compass labels -->
+  <text x="244" y="56" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="10" font-weight="500" fill="#7D7D7D">N</text>
+  <text x="244" y="254" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="10" font-weight="500" fill="#7D7D7D">S</text>
+
+  <!-- Zone 3 (North) - top -->
+  <rect x="36" y="52" width="196" height="54" rx="3" ry="3" fill="url(#z3-grad)" filter="url(#shadow)"/>
+  <text x="43" y="65" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" font-weight="500" fill="#F0F4FF" opacity="0.8">Z3</text>
+  <text x="122" y="86" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">20.0°C</text>
+  <!-- HVAC bar Z3 -->
+  <rect x="214" y="56" width="14" height="46" rx="2" ry="2" fill="url(#hvac3-grad)" opacity="0.9"/>
+
+  <!-- Partition line Z3-Z2 -->
+  <line x1="36" y1="114" x2="232" y2="114" stroke="#D6D6D6" stroke-width="1.5" stroke-dasharray="6,3"/>
+
+  <!-- Zone 2 (Core) - middle -->
+  <rect x="36" y="122" width="196" height="54" rx="3" ry="3" fill="url(#z2-grad)" filter="url(#shadow)"/>
+  <text x="43" y="135" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" font-weight="500" fill="#F0F4FF" opacity="0.8">Z2</text>
+  <text x="122" y="156" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">20.8°C</text>
+  <!-- HVAC bar Z2 -->
+  <rect x="214" y="126" width="14" height="46" rx="2" ry="2" fill="url(#hvac2-grad)" opacity="0.9"/>
+
+  <!-- Partition line Z2-Z1 -->
+  <line x1="36" y1="184" x2="232" y2="184" stroke="#D6D6D6" stroke-width="1.5" stroke-dasharray="6,3"/>
+
+  <!-- Zone 1 (South) - bottom -->
+  <rect x="36" y="192" width="196" height="54" rx="3" ry="3" fill="url(#z1-grad)" filter="url(#shadow)"/>
+  <text x="43" y="205" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" font-weight="500" fill="#F0F4FF" opacity="0.8">Z1</text>
+  <text x="122" y="226" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">19.7°C</text>
+  <!-- HVAC bar Z1 -->
+  <rect x="214" y="196" width="14" height="46" rx="2" ry="2" fill="url(#hvac1-grad)" opacity="0.9"/>
+
+  <!-- Connector ports -->
+  <!-- outdoor_port (top-left) -->
+  <circle cx="8" cy="79" r="5" fill="#FFFFFF" stroke="#0099FF" stroke-width="2"/>
+  <!-- ground_port (bottom-left) -->
+  <circle cx="8" cy="219" r="5" fill="#FFFFFF" stroke="#7D7D7D" stroke-width="2"/>
+  <!-- zone1_gain_port (right, bottom) -->
+  <circle cx="272" cy="219" r="5" fill="#FFFFFF" stroke="#0099FF" stroke-width="2"/>
+  <!-- zone2_gain_port (right, middle) -->
+  <circle cx="272" cy="149" r="5" fill="#FFFFFF" stroke="#637AFF" stroke-width="2"/>
+  <!-- zone3_gain_port (right, top) -->
+  <circle cx="272" cy="79" r="5" fill="#FFFFFF" stroke="#372CD5" stroke-width="2"/>
+</svg>

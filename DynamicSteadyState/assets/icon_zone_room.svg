@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <defs>
+    <linearGradient id="wall-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#D6D6D6"/>
+      <stop offset="100%" stop-color="#E8E8E8"/>
+    </linearGradient>
+    <linearGradient id="roof-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4B4B4B"/>
+      <stop offset="100%" stop-color="#7D7D7D"/>
+    </linearGradient>
+    <linearGradient id="slab-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A0A0A0"/>
+      <stop offset="100%" stop-color="#C0C0C0"/>
+    </linearGradient>
+    <linearGradient id="zone-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0F4FF"/>
+      <stop offset="100%" stop-color="#E0E8FF"/>
+    </linearGradient>
+    <linearGradient id="hvac-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0099FF"/>
+      <stop offset="100%" stop-color="#006BCC"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer frame -->
+  <rect x="2" y="2" width="276" height="276" rx="8" ry="8" fill="#F5F5F5" stroke="#D6D6D6" stroke-width="1.5"/>
+
+  <!-- === BUILDING CROSS-SECTION === -->
+
+  <!-- Roof -->
+  <polygon points="30,50 140,32 250,50 250,64 30,64" fill="url(#roof-grad)"/>
+
+  <!-- Left wall -->
+  <rect x="30" y="64" width="20" height="172" fill="url(#wall-grad)" stroke="#B0B0B0" stroke-width="0.5"/>
+  <!-- Wall insulation hatching -->
+  <g stroke="#B0B0B0" stroke-width="0.5" opacity="0.5">
+    <line x1="32" y1="70" x2="48" y2="84"/>
+    <line x1="32" y1="88" x2="48" y2="102"/>
+    <line x1="32" y1="106" x2="48" y2="120"/>
+    <line x1="32" y1="124" x2="48" y2="138"/>
+    <line x1="32" y1="142" x2="48" y2="156"/>
+    <line x1="32" y1="160" x2="48" y2="174"/>
+    <line x1="32" y1="178" x2="48" y2="192"/>
+    <line x1="32" y1="196" x2="48" y2="210"/>
+    <line x1="32" y1="214" x2="48" y2="228"/>
+  </g>
+
+  <!-- Right wall -->
+  <rect x="230" y="64" width="20" height="172" fill="url(#wall-grad)" stroke="#B0B0B0" stroke-width="0.5"/>
+  <g stroke="#B0B0B0" stroke-width="0.5" opacity="0.5">
+    <line x1="232" y1="70" x2="248" y2="84"/>
+    <line x1="232" y1="88" x2="248" y2="102"/>
+    <line x1="232" y1="106" x2="248" y2="120"/>
+    <line x1="232" y1="124" x2="248" y2="138"/>
+    <line x1="232" y1="142" x2="248" y2="156"/>
+    <line x1="232" y1="160" x2="248" y2="174"/>
+    <line x1="232" y1="178" x2="248" y2="192"/>
+    <line x1="232" y1="196" x2="248" y2="210"/>
+    <line x1="232" y1="214" x2="248" y2="228"/>
+  </g>
+
+  <!-- Window (in left wall) -->
+  <rect x="33" y="80" width="14" height="36" rx="1" fill="#C8DFFF" stroke="#637AFF" stroke-width="1"/>
+  <line x1="40" y1="80" x2="40" y2="116" stroke="#637AFF" stroke-width="0.5"/>
+  <line x1="33" y1="98" x2="47" y2="98" stroke="#637AFF" stroke-width="0.5"/>
+
+  <!-- Floor slab -->
+  <rect x="30" y="236" width="220" height="16" fill="url(#slab-grad)" stroke="#B0B0B0" stroke-width="0.5"/>
+
+  <!-- Interior air space (zone) -->
+  <rect x="50" y="64" width="180" height="172" fill="url(#zone-grad)"/>
+
+  <!-- Ground hatching below slab -->
+  <g stroke="#A0A0A0" stroke-width="0.5" opacity="0.35">
+    <line x1="34" y1="256" x2="50" y2="268"/>
+    <line x1="54" y1="256" x2="70" y2="268"/>
+    <line x1="74" y1="256" x2="90" y2="268"/>
+    <line x1="94" y1="256" x2="110" y2="268"/>
+    <line x1="114" y1="256" x2="130" y2="268"/>
+    <line x1="134" y1="256" x2="150" y2="268"/>
+    <line x1="154" y1="256" x2="170" y2="268"/>
+    <line x1="174" y1="256" x2="190" y2="268"/>
+    <line x1="194" y1="256" x2="210" y2="268"/>
+    <line x1="214" y1="256" x2="230" y2="268"/>
+    <line x1="234" y1="256" x2="246" y2="266"/>
+  </g>
+
+  <!-- === ZONE INTERIOR ELEMENTS === -->
+
+  <!-- Thermal mass block (capacitor symbol) -->
+  <rect x="64" y="160" width="56" height="48" rx="4" fill="#FFFFFF" stroke="#372CD5" stroke-width="1.5"/>
+  <line x1="78" y1="173" x2="78" y2="197" stroke="#372CD5" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="90" y1="173" x2="90" y2="197" stroke="#372CD5" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Lead wires -->
+  <line x1="70" y1="185" x2="78" y2="185" stroke="#372CD5" stroke-width="1.2"/>
+  <line x1="90" y1="185" x2="98" y2="185" stroke="#372CD5" stroke-width="1.2"/>
+  <!-- Thermal node dot -->
+  <circle cx="106" cy="185" r="2.5" fill="#372CD5"/>
+
+  <!-- HVAC unit -->
+  <rect x="148" y="84" width="72" height="56" rx="5" fill="url(#hvac-grad)"/>
+  <!-- Thermometer icon -->
+  <rect x="178" y="92" width="6" height="28" rx="3" fill="#FFFFFF" opacity="0.85"/>
+  <circle cx="181" cy="124" r="6" fill="#FFFFFF" opacity="0.85"/>
+  <circle cx="181" cy="124" r="3.5" fill="#D93025"/>
+  <rect x="179" y="104" width="4" height="16" rx="1" fill="#D93025" opacity="0.85"/>
+  <!-- Vent lines -->
+  <line x1="158" y1="100" x2="170" y2="100" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="158" y1="108" x2="170" y2="108" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="158" y1="116" x2="170" y2="116" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="158" y1="124" x2="170" y2="124" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Heat flow: outdoor → wall → zone -->
+  <g opacity="0.65">
+    <path d="M18,150 Q22,146 26,150 Q30,154 34,150 Q38,146 42,150 Q46,154 50,150" fill="none" stroke="#D93025" stroke-width="1.8" stroke-linecap="round"/>
+    <polygon points="48,147 48,153 54,150" fill="#D93025" opacity="0.65"/>
+  </g>
+
+  <!-- Heat flow: ground → slab → zone -->
+  <g opacity="0.65">
+    <path d="M140,272 Q136,268 140,264 Q144,260 140,256 Q136,252 140,248 Q144,244 140,240" fill="none" stroke="#D93025" stroke-width="1.8" stroke-linecap="round"/>
+    <polygon points="138,240 142,240 140,234" fill="#D93025" opacity="0.65"/>
+  </g>
+
+  <!-- Gain arrow: right → zone -->
+  <g opacity="0.65">
+    <line x1="262" y1="170" x2="238" y2="170" stroke="#E8710A" stroke-width="2" stroke-linecap="round"/>
+    <polygon points="238,167 238,173 232,170" fill="#E8710A" opacity="0.65"/>
+  </g>
+
+  <!-- Infiltration arrows (dashed curves through roof) -->
+  <g opacity="0.45">
+    <path d="M72,56 C76,66 72,74 78,80" fill="none" stroke="#7D7D7D" stroke-width="1.2" stroke-dasharray="3,2"/>
+    <polygon points="76,78 78,82 82,78" fill="#7D7D7D" opacity="0.45"/>
+    <path d="M208,56 C204,66 208,74 202,80" fill="none" stroke="#7D7D7D" stroke-width="1.2" stroke-dasharray="3,2"/>
+    <polygon points="198,78 202,82 204,78" fill="#7D7D7D" opacity="0.45"/>
+  </g>
+
+  <!-- === CONNECTOR PORTS === -->
+  <!-- outdoor_port (left, upper) -->
+  <circle cx="8" cy="57" r="5" fill="#FFFFFF" stroke="#0099FF" stroke-width="2"/>
+
+  <!-- ground_port (left, lower) -->
+  <circle cx="8" cy="252" r="5" fill="#FFFFFF" stroke="#7D7D7D" stroke-width="2"/>
+
+  <!-- gain_port (right, middle) -->
+  <circle cx="272" cy="170" r="5" fill="#FFFFFF" stroke="#E8710A" stroke-width="2"/>
+
+  <!-- zone_port (right, lower) -->
+  <circle cx="272" cy="252" r="5" fill="#FFFFFF" stroke="#6C44FF" stroke-width="2"/>
+</svg>
