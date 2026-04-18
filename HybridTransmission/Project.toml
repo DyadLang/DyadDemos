@@ -29,6 +29,13 @@ Markdown = "1"
 Plots = "1.41.4"
 RotationalComponents = "=2.0.0"
 
+[workspace]
+projects = [
+  # "test",
+  "scripts",
+  "docs",
+]
+
 [dyad]
 kernel = "3.0.0-rc1"
 

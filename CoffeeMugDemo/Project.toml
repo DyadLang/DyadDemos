@@ -25,6 +25,13 @@ DyadEcosystemDependencies = "=0.11.6"
 Markdown = "1"
 ThermalComponents = "=2.0.0"
 
+[workspace]
+projects = [
+  # "test",
+  "scripts",
+  "docs",
+]
+
 [dyad]
 kernel = "3.0.0-rc1"
 

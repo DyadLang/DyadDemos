@@ -27,6 +27,13 @@ RotationalComponents = "=2.0.0"
 ThermalComponents = "=2.0.0"
 TranslationalComponents = "=2.0.0"
 
+[workspace]
+projects = [
+  # "test",
+  "scripts",
+  "docs",
+]
+
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
