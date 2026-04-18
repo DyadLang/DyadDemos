@@ -22,15 +22,15 @@ RotationalComponents = "824fa3ed-d7dc-4365-8bdf-ac77a1ac2011"
 RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
 
 [compat]
-BlockComponents = "=3.1.8"
+BlockComponents = "=4.0.1"
 DyadData = "2.0.1"
-DyadEcosystemDependencies = "=0.11.4"
+DyadEcosystemDependencies = "=0.11.6"
 Markdown = "1"
 Plots = "1.41.4"
-RotationalComponents = "=1.2.4"
+RotationalComponents = "=2.0.0"
 
 [dyad]
-kernel = "2.3.0"
+kernel = "3.0.0-rc1"
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
