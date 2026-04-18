@@ -16,13 +16,14 @@
 | `T_setpoint`         | Setpoint temperature 21.1°C (70°F)                         | K  |   294.26 |
 | `solar_irrad`         | Solar irradiance (W/m²)                         | --  |   0 |
 """
-@component function TestThermalHouseControlled(; name = nothing, T_outdoor=273.15, T_initial=294.26, T_setpoint=294.26, solar_irrad=0)
+@component function TestThermalHouseControlled(; name = nothing, T_outdoor=273.15, T_initial=294.26, T_setpoint=294.26, solar_irrad=Float64(0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TestThermalHouseControlled()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -30,28 +31,68 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (T_outdoor::Real = T_outdoor), [description = "Outdoor temperature 0°C (32°F)", bounds = (0, Inf)])
-  append!(__params, @parameters (T_initial::Real = T_initial), [description = "Initial temperature 21.1°C (70°F)", bounds = (0, Inf)])
-  append!(__params, @parameters (T_setpoint::Real = T_setpoint), [description = "Setpoint temperature 21.1°C (70°F)", bounds = (0, Inf)])
-  append!(__params, @parameters (solar_irrad::Real = solar_irrad), [description = "Solar irradiance (W/m²)"])
+  __local__T_outdoor = T_outdoor
+  append!(__params, @parameters (T_outdoor::Real), [description = "Outdoor temperature 0°C (32°F)", bounds = (0, Inf)])
+  __initial_conditions[T_outdoor] = __local__T_outdoor
+  __local__T_initial = T_initial
+  append!(__params, @parameters (T_initial::Real), [description = "Initial temperature 21.1°C (70°F)", bounds = (0, Inf)])
+  __initial_conditions[T_initial] = __local__T_initial
+  __local__T_setpoint = T_setpoint
+  append!(__params, @parameters (T_setpoint::Real), [description = "Setpoint temperature 21.1°C (70°F)", bounds = (0, Inf)])
+  __initial_conditions[T_setpoint] = __local__T_setpoint
+  __local__solar_irrad = solar_irrad
+  append!(__params, @parameters (solar_irrad::Real), [description = "Solar irradiance (W/m²)"])
+  __initial_conditions[solar_irrad] = __local__solar_irrad
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named controlled_house = ThermalHouseDemo.ThermalHouseControlled(T_initial=T_initial, k_p=10000, T_i=600))
-  push!(__systems, @named setpoint_signal = BlockComponents.Constant(k=T_setpoint))
-  push!(__systems, @named solar_irradiance_signal = BlockComponents.Constant(k=solar_irrad))
-  push!(__systems, @named ambient_signal = BlockComponents.Constant(k=T_outdoor))
+  # Subcomponent controlled_house of type ThermalHouseDemo.ThermalHouseControlled
+  controlled_house_overrides = Dict(Symbol(replace(string(k), r"^controlled_house__" => "")) => v for (k, v) in __overrides if startswith(string(k), "controlled_house__"))
+  filter!(p -> !startswith(string(first(p)), "controlled_house__"), __overrides)
+  push!(__systems, @named controlled_house = ThermalHouseDemo.ThermalHouseControlled(T_initial=T_initial, k_p=10000, T_i=600, controlled_house_overrides...))
+  # Subcomponent setpoint_signal of type BlockComponents.Sources.Constant
+  setpoint_signal_overrides = Dict(Symbol(replace(string(k), r"^setpoint_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "setpoint_signal__"))
+  filter!(p -> !startswith(string(first(p)), "setpoint_signal__"), __overrides)
+  push!(__systems, @named setpoint_signal = BlockComponents.Sources.Constant(k=T_setpoint, setpoint_signal_overrides...))
+  # Subcomponent solar_irradiance_signal of type BlockComponents.Sources.Constant
+  solar_irradiance_signal_overrides = Dict(Symbol(replace(string(k), r"^solar_irradiance_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar_irradiance_signal__"))
+  filter!(p -> !startswith(string(first(p)), "solar_irradiance_signal__"), __overrides)
+  push!(__systems, @named solar_irradiance_signal = BlockComponents.Sources.Constant(k=solar_irrad, solar_irradiance_signal_overrides...))
+  # Subcomponent ambient_signal of type BlockComponents.Sources.Constant
+  ambient_signal_overrides = Dict(Symbol(replace(string(k), r"^ambient_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ambient_signal__"))
+  filter!(p -> !startswith(string(first(p)), "ambient_signal__"), __overrides)
+  push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(k=T_outdoor, ambient_signal_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
   __guesses[controlled_house.house.wall_loss.ΔT] = (10)
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -64,6 +105,6 @@
   push!(__eqs, connect(ambient_signal.y, controlled_house.T_ambient))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestThermalHouseControlled

@@ -71,8 +71,8 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
 
 ## Connectors
 
- * `interior` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
- * `wall_surface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `interior` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `wall_surface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `Q_heater` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `solar_irradiance` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `T_ambient` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
@@ -84,13 +84,14 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
 | ------------ | ----------------------------------- | ------ | 
 | `T_wall`         |                          | K  | 
 """
-@component function ThermalHouse(; name = nothing, area_floor=92.9, height=2.44, ratio_L_W=1.25, Aratio_window_wall=0.15, no_doors=2, A_door=1.75, length=sqrt(area_floor * ratio_L_W), width=length / ratio_L_W, volume=length * width * height, area_walls=2 * (length * height + width * height), area_window=Aratio_window_wall * area_walls, area_doors=no_doors * A_door, area_roof=area_floor, U_walls=0.47, U_roof=0.15, U_floor=0.35, U_window=2.2, U_door=1.2, SHGC=0.6, f_window=0.3, rho_air=1.2, cp_air=1005, mass_air=rho_air * volume, C_air=mass_air * cp_air, t_dw=0.0127, rho_dw=800, cp_dw=1000, C_walls_ceiling=(area_floor + area_walls) * t_dw * rho_dw * cp_dw, t_floor=0.019, rho_floor=700, cp_floor=1600, C_floor=area_floor * t_floor * rho_floor * cp_floor, C_tot=C_air + C_walls_ceiling + C_floor, G_wall=U_walls * area_walls, G_window=U_window * area_window, G_roof=U_roof * area_roof, G_floor=U_floor * area_floor, G_door=U_door * area_doors, G_envelope=G_wall + G_window + G_roof + G_door + G_floor, U_envelope=G_envelope / area_floor, ACH_infiltration=0.35, ACH_ventilation=0.15, ACH_total=ACH_infiltration + ACH_ventilation, m_dot_air=(ACH_total * volume * rho_air) / 3600, G_infiltration=m_dot_air * cp_air, U_infiltration=G_infiltration / area_floor, G_total=G_envelope + G_infiltration, U_total=U_infiltration + U_envelope, h_conv=10, G_conv=h_conv * area_walls, Q_people=0, Q_lighting=0, Q_appliances=0, Q_internal=Q_people + Q_lighting + Q_appliances, T_initial=293.15)
+@component function ThermalHouse(; name = nothing, area_floor=92.9, height=2.44, ratio_L_W=1.25, Aratio_window_wall=0.15, no_doors=Float64(2), A_door=1.75, length=sqrt(area_floor * ratio_L_W), width=length / ratio_L_W, volume=length * width * height, area_walls=2 * (length * height + width * height), area_window=Aratio_window_wall * area_walls, area_doors=no_doors * A_door, area_roof=area_floor, U_walls=0.47, U_roof=0.15, U_floor=0.35, U_window=2.2, U_door=1.2, SHGC=0.6, f_window=0.3, rho_air=1.2, cp_air=Float64(1005), mass_air=rho_air * volume, C_air=mass_air * cp_air, t_dw=0.0127, rho_dw=Float64(800), cp_dw=Float64(1000), C_walls_ceiling=(area_floor + area_walls) * t_dw * rho_dw * cp_dw, t_floor=0.019, rho_floor=Float64(700), cp_floor=Float64(1600), C_floor=area_floor * t_floor * rho_floor * cp_floor, C_tot=C_air + C_walls_ceiling + C_floor, G_wall=U_walls * area_walls, G_window=U_window * area_window, G_roof=U_roof * area_roof, G_floor=U_floor * area_floor, G_door=U_door * area_doors, G_envelope=G_wall + G_window + G_roof + G_door + G_floor, U_envelope=G_envelope / area_floor, ACH_infiltration=0.35, ACH_ventilation=0.15, ACH_total=ACH_infiltration + ACH_ventilation, m_dot_air=(ACH_total * volume * rho_air) / 3600, G_infiltration=m_dot_air * cp_air, U_infiltration=G_infiltration / area_floor, G_total=G_envelope + G_infiltration, U_total=U_infiltration + U_envelope, h_conv=Float64(10), G_conv=h_conv * area_walls, Q_people=Float64(0), Q_lighting=Float64(0), Q_appliances=Float64(0), Q_internal=Q_people + Q_lighting + Q_appliances, T_initial=293.15, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = ThermalHouse()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -98,93 +99,261 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (area_floor::Real = area_floor), [description = "Building geometry (default 1000 sq ft house)"])
-  append!(__params, @parameters (height::Real = height))
-  append!(__params, @parameters (ratio_L_W::Real = ratio_L_W))
-  append!(__params, @parameters (Aratio_window_wall::Real = Aratio_window_wall), [description = "Ratio of window to wall area"])
-  append!(__params, @parameters (no_doors::Real = no_doors), [description = "Number of doors"])
-  append!(__params, @parameters (A_door::Real = A_door), [description = "Area of single door"])
-  append!(__params, @parameters (length::Real = length))
-  append!(__params, @parameters (width::Real = width))
-  append!(__params, @parameters (volume::Real = volume))
-  append!(__params, @parameters (area_walls::Real = area_walls), [description = "Total wall area (m²)"])
-  append!(__params, @parameters (area_window::Real = area_window), [description = "Total window area (m²)"])
-  append!(__params, @parameters (area_doors::Real = area_doors), [description = "Total door area (m²)"])
-  append!(__params, @parameters (area_roof::Real = area_roof), [description = "Total roof area (m²)"])
-  append!(__params, @parameters (U_walls::Real = U_walls), [description = "U-value for walls W/(m²·K)"])
-  append!(__params, @parameters (U_roof::Real = U_roof), [description = "U-value for roof W/(m²·K)"])
-  append!(__params, @parameters (U_floor::Real = U_floor), [description = "U-value for floor W/(m²·K)"])
-  append!(__params, @parameters (U_window::Real = U_window), [description = "U-value for windows W/(m²·K)"])
-  append!(__params, @parameters (U_door::Real = U_door), [description = "U-value for door W/(m²·K)"])
-  append!(__params, @parameters (SHGC::Real = SHGC), [description = "Window solar heat gain coefficient"])
-  append!(__params, @parameters (f_window::Real = f_window), [description = "Window orientation factor for sun-facing windows"])
-  append!(__params, @parameters (rho_air::Real = rho_air), [description = "Thermal mass (air + structure)", bounds = (0, Inf)])
-  append!(__params, @parameters (cp_air::Real = cp_air))
-  append!(__params, @parameters (mass_air::Real = mass_air), [bounds = (0, Inf)])
-  append!(__params, @parameters (C_air::Real = C_air))
-  append!(__params, @parameters (t_dw::Real = t_dw), [description = "Drywall thermal mass"])
-  append!(__params, @parameters (rho_dw::Real = rho_dw), [bounds = (0, Inf)])
-  append!(__params, @parameters (cp_dw::Real = cp_dw))
-  append!(__params, @parameters (C_walls_ceiling::Real = C_walls_ceiling))
-  append!(__params, @parameters (t_floor::Real = t_floor), [description = "Floor thermal mass"])
-  append!(__params, @parameters (rho_floor::Real = rho_floor), [bounds = (0, Inf)])
-  append!(__params, @parameters (cp_floor::Real = cp_floor))
-  append!(__params, @parameters (C_floor::Real = C_floor))
-  append!(__params, @parameters (C_tot::Real = C_tot), [description = "Total thermal capacitance"])
-  append!(__params, @parameters (G_wall::Real = G_wall), [description = "Envelope conductances"])
-  append!(__params, @parameters (G_window::Real = G_window))
-  append!(__params, @parameters (G_roof::Real = G_roof))
-  append!(__params, @parameters (G_floor::Real = G_floor))
-  append!(__params, @parameters (G_door::Real = G_door))
-  append!(__params, @parameters (G_envelope::Real = G_envelope))
-  append!(__params, @parameters (U_envelope::Real = U_envelope), [description = "Envelope U-value relative to floor area W/(m²·K)"])
-  append!(__params, @parameters (ACH_infiltration::Real = ACH_infiltration), [description = "Natural infiltration (ACH = air changes per hour)"])
-  append!(__params, @parameters (ACH_ventilation::Real = ACH_ventilation), [description = "Mechanical ventilation (ASHRAE 62.2)"])
-  append!(__params, @parameters (ACH_total::Real = ACH_total))
-  append!(__params, @parameters (m_dot_air::Real = m_dot_air), [description = "Air mass flow rate (kg/s)"])
-  append!(__params, @parameters (G_infiltration::Real = G_infiltration))
-  append!(__params, @parameters (U_infiltration::Real = U_infiltration), [description = "Infiltration U-value relative to floor area W/(m²·K)"])
-  append!(__params, @parameters (G_total::Real = G_total), [description = "Total conductance (envelope + infiltration)"])
-  append!(__params, @parameters (U_total::Real = U_total), [description = "Total U-value relative to floor area W/(m²·K)"])
-  append!(__params, @parameters (h_conv::Real = h_conv), [description = "Convection at exterior surface"])
-  append!(__params, @parameters (G_conv::Real = G_conv))
-  append!(__params, @parameters (Q_people::Real = Q_people), [description = "Occupant sensible heat"])
-  append!(__params, @parameters (Q_lighting::Real = Q_lighting), [description = "Lighting heat"])
-  append!(__params, @parameters (Q_appliances::Real = Q_appliances), [description = "Appliance heat"])
-  append!(__params, @parameters (Q_internal::Real = Q_internal))
-  append!(__params, @parameters (T_initial::Real = T_initial), [description = "Temperature references", bounds = (0, Inf)])
+  __local__area_floor = area_floor
+  append!(__params, @parameters (area_floor::Real), [description = "Building geometry (default 1000 sq ft house)"])
+  __initial_conditions[area_floor] = __local__area_floor
+  __local__height = height
+  append!(__params, @parameters (height::Real))
+  __initial_conditions[height] = __local__height
+  __local__ratio_L_W = ratio_L_W
+  append!(__params, @parameters (ratio_L_W::Real))
+  __initial_conditions[ratio_L_W] = __local__ratio_L_W
+  __local__Aratio_window_wall = Aratio_window_wall
+  append!(__params, @parameters (Aratio_window_wall::Real), [description = "Ratio of window to wall area"])
+  __initial_conditions[Aratio_window_wall] = __local__Aratio_window_wall
+  __local__no_doors = no_doors
+  append!(__params, @parameters (no_doors::Real), [description = "Number of doors"])
+  __initial_conditions[no_doors] = __local__no_doors
+  __local__A_door = A_door
+  append!(__params, @parameters (A_door::Real), [description = "Area of single door"])
+  __initial_conditions[A_door] = __local__A_door
+  __local__length = length
+  append!(__params, @parameters (length::Real))
+  __initial_conditions[length] = __local__length
+  __local__width = width
+  append!(__params, @parameters (width::Real))
+  __initial_conditions[width] = __local__width
+  __local__volume = volume
+  append!(__params, @parameters (volume::Real))
+  __initial_conditions[volume] = __local__volume
+  __local__area_walls = area_walls
+  append!(__params, @parameters (area_walls::Real), [description = "Total wall area (m²)"])
+  __initial_conditions[area_walls] = __local__area_walls
+  __local__area_window = area_window
+  append!(__params, @parameters (area_window::Real), [description = "Total window area (m²)"])
+  __initial_conditions[area_window] = __local__area_window
+  __local__area_doors = area_doors
+  append!(__params, @parameters (area_doors::Real), [description = "Total door area (m²)"])
+  __initial_conditions[area_doors] = __local__area_doors
+  __local__area_roof = area_roof
+  append!(__params, @parameters (area_roof::Real), [description = "Total roof area (m²)"])
+  __initial_conditions[area_roof] = __local__area_roof
+  __local__U_walls = U_walls
+  append!(__params, @parameters (U_walls::Real), [description = "U-value for walls W/(m²·K)"])
+  __initial_conditions[U_walls] = __local__U_walls
+  __local__U_roof = U_roof
+  append!(__params, @parameters (U_roof::Real), [description = "U-value for roof W/(m²·K)"])
+  __initial_conditions[U_roof] = __local__U_roof
+  __local__U_floor = U_floor
+  append!(__params, @parameters (U_floor::Real), [description = "U-value for floor W/(m²·K)"])
+  __initial_conditions[U_floor] = __local__U_floor
+  __local__U_window = U_window
+  append!(__params, @parameters (U_window::Real), [description = "U-value for windows W/(m²·K)"])
+  __initial_conditions[U_window] = __local__U_window
+  __local__U_door = U_door
+  append!(__params, @parameters (U_door::Real), [description = "U-value for door W/(m²·K)"])
+  __initial_conditions[U_door] = __local__U_door
+  __local__SHGC = SHGC
+  append!(__params, @parameters (SHGC::Real), [description = "Window solar heat gain coefficient"])
+  __initial_conditions[SHGC] = __local__SHGC
+  __local__f_window = f_window
+  append!(__params, @parameters (f_window::Real), [description = "Window orientation factor for sun-facing windows"])
+  __initial_conditions[f_window] = __local__f_window
+  __local__rho_air = rho_air
+  append!(__params, @parameters (rho_air::Real), [description = "Thermal mass (air + structure)", bounds = (0, Inf)])
+  __initial_conditions[rho_air] = __local__rho_air
+  __local__cp_air = cp_air
+  append!(__params, @parameters (cp_air::Real))
+  __initial_conditions[cp_air] = __local__cp_air
+  __local__mass_air = mass_air
+  append!(__params, @parameters (mass_air::Real), [bounds = (0, Inf)])
+  __initial_conditions[mass_air] = __local__mass_air
+  __local__C_air = C_air
+  append!(__params, @parameters (C_air::Real))
+  __initial_conditions[C_air] = __local__C_air
+  __local__t_dw = t_dw
+  append!(__params, @parameters (t_dw::Real), [description = "Drywall thermal mass"])
+  __initial_conditions[t_dw] = __local__t_dw
+  __local__rho_dw = rho_dw
+  append!(__params, @parameters (rho_dw::Real), [bounds = (0, Inf)])
+  __initial_conditions[rho_dw] = __local__rho_dw
+  __local__cp_dw = cp_dw
+  append!(__params, @parameters (cp_dw::Real))
+  __initial_conditions[cp_dw] = __local__cp_dw
+  __local__C_walls_ceiling = C_walls_ceiling
+  append!(__params, @parameters (C_walls_ceiling::Real))
+  __initial_conditions[C_walls_ceiling] = __local__C_walls_ceiling
+  __local__t_floor = t_floor
+  append!(__params, @parameters (t_floor::Real), [description = "Floor thermal mass"])
+  __initial_conditions[t_floor] = __local__t_floor
+  __local__rho_floor = rho_floor
+  append!(__params, @parameters (rho_floor::Real), [bounds = (0, Inf)])
+  __initial_conditions[rho_floor] = __local__rho_floor
+  __local__cp_floor = cp_floor
+  append!(__params, @parameters (cp_floor::Real))
+  __initial_conditions[cp_floor] = __local__cp_floor
+  __local__C_floor = C_floor
+  append!(__params, @parameters (C_floor::Real))
+  __initial_conditions[C_floor] = __local__C_floor
+  __local__C_tot = C_tot
+  append!(__params, @parameters (C_tot::Real), [description = "Total thermal capacitance"])
+  __initial_conditions[C_tot] = __local__C_tot
+  __local__G_wall = G_wall
+  append!(__params, @parameters (G_wall::Real), [description = "Envelope conductances"])
+  __initial_conditions[G_wall] = __local__G_wall
+  __local__G_window = G_window
+  append!(__params, @parameters (G_window::Real))
+  __initial_conditions[G_window] = __local__G_window
+  __local__G_roof = G_roof
+  append!(__params, @parameters (G_roof::Real))
+  __initial_conditions[G_roof] = __local__G_roof
+  __local__G_floor = G_floor
+  append!(__params, @parameters (G_floor::Real))
+  __initial_conditions[G_floor] = __local__G_floor
+  __local__G_door = G_door
+  append!(__params, @parameters (G_door::Real))
+  __initial_conditions[G_door] = __local__G_door
+  __local__G_envelope = G_envelope
+  append!(__params, @parameters (G_envelope::Real))
+  __initial_conditions[G_envelope] = __local__G_envelope
+  __local__U_envelope = U_envelope
+  append!(__params, @parameters (U_envelope::Real), [description = "Envelope U-value relative to floor area W/(m²·K)"])
+  __initial_conditions[U_envelope] = __local__U_envelope
+  __local__ACH_infiltration = ACH_infiltration
+  append!(__params, @parameters (ACH_infiltration::Real), [description = "Natural infiltration (ACH = air changes per hour)"])
+  __initial_conditions[ACH_infiltration] = __local__ACH_infiltration
+  __local__ACH_ventilation = ACH_ventilation
+  append!(__params, @parameters (ACH_ventilation::Real), [description = "Mechanical ventilation (ASHRAE 62.2)"])
+  __initial_conditions[ACH_ventilation] = __local__ACH_ventilation
+  __local__ACH_total = ACH_total
+  append!(__params, @parameters (ACH_total::Real))
+  __initial_conditions[ACH_total] = __local__ACH_total
+  __local__m_dot_air = m_dot_air
+  append!(__params, @parameters (m_dot_air::Real), [description = "Air mass flow rate (kg/s)"])
+  __initial_conditions[m_dot_air] = __local__m_dot_air
+  __local__G_infiltration = G_infiltration
+  append!(__params, @parameters (G_infiltration::Real))
+  __initial_conditions[G_infiltration] = __local__G_infiltration
+  __local__U_infiltration = U_infiltration
+  append!(__params, @parameters (U_infiltration::Real), [description = "Infiltration U-value relative to floor area W/(m²·K)"])
+  __initial_conditions[U_infiltration] = __local__U_infiltration
+  __local__G_total = G_total
+  append!(__params, @parameters (G_total::Real), [description = "Total conductance (envelope + infiltration)"])
+  __initial_conditions[G_total] = __local__G_total
+  __local__U_total = U_total
+  append!(__params, @parameters (U_total::Real), [description = "Total U-value relative to floor area W/(m²·K)"])
+  __initial_conditions[U_total] = __local__U_total
+  __local__h_conv = h_conv
+  append!(__params, @parameters (h_conv::Real), [description = "Convection at exterior surface"])
+  __initial_conditions[h_conv] = __local__h_conv
+  __local__G_conv = G_conv
+  append!(__params, @parameters (G_conv::Real))
+  __initial_conditions[G_conv] = __local__G_conv
+  __local__Q_people = Q_people
+  append!(__params, @parameters (Q_people::Real), [description = "Occupant sensible heat"])
+  __initial_conditions[Q_people] = __local__Q_people
+  __local__Q_lighting = Q_lighting
+  append!(__params, @parameters (Q_lighting::Real), [description = "Lighting heat"])
+  __initial_conditions[Q_lighting] = __local__Q_lighting
+  __local__Q_appliances = Q_appliances
+  append!(__params, @parameters (Q_appliances::Real), [description = "Appliance heat"])
+  __initial_conditions[Q_appliances] = __local__Q_appliances
+  __local__Q_internal = Q_internal
+  append!(__params, @parameters (Q_internal::Real))
+  __initial_conditions[Q_internal] = __local__Q_internal
+  __local__T_initial = T_initial
+  append!(__params, @parameters (T_initial::Real), [description = "Temperature references", bounds = (0, Inf)])
+  __initial_conditions[T_initial] = __local__T_initial
 
-  ### Variables
+  ### Final Path Parameters
   append!(__vars, @variables (Q_heater(t)::Real), [input = true])
   append!(__vars, @variables (solar_irradiance(t)::Real), [input = true])
   append!(__vars, @variables (T_ambient(t)::Real), [input = true])
   append!(__vars, @variables (T_interior(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (T_wall(t)::Real), [guess = 283.15])
+
+  ### Variables (assignments)
+  __ovr_T_wall = pop!(__overrides, "T_wall", nothing); isnothing(__ovr_T_wall) || push!(__eqs, T_wall ~ __ovr_T_wall)
+  __ovr_T_wall__initial = pop!(__overrides, "T_wall__initial", nothing); isnothing(__ovr_T_wall__initial) || (__initial_conditions[T_wall] = __ovr_T_wall__initial)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named interior = __Dyad__Node())
-  push!(__systems, @named wall_surface = __Dyad__Node())
-  push!(__systems, @named thermal_mass = ThermalComponents.HeatCapacitor(C=C_tot, T0=T_initial))
-  push!(__systems, @named solar_input = ThermalComponents.PrescribedHeatFlow())
-  push!(__systems, @named heater = ThermalComponents.PrescribedHeatFlow())
-  push!(__systems, @named internal_gains = ThermalComponents.PrescribedHeatFlow())
-  push!(__systems, @named window_loss = ThermalComponents.ThermalConductor(G=G_window))
-  push!(__systems, @named door_loss = ThermalComponents.ThermalConductor(G=G_door))
-  push!(__systems, @named roof_loss = ThermalComponents.ThermalConductor(G=G_roof))
-  push!(__systems, @named floor_loss = ThermalComponents.ThermalConductor(G=G_floor))
-  push!(__systems, @named infiltration_loss = ThermalComponents.ThermalConductor(G=G_infiltration))
-  push!(__systems, @named wall_loss = ThermalComponents.ThermalConductor(G=G_wall))
-  push!(__systems, @named wall_convection = ThermalComponents.ThermalConductor(G=G_conv))
-  push!(__systems, @named ambient = ThermalComponents.PrescribedTemperature())
+  push!(__systems, @named interior = __Dyad__HeatPort())
+  push!(__systems, @named wall_surface = __Dyad__HeatPort())
+  # Subcomponent thermal_mass of type ThermalComponents.Components.HeatCapacitor
+  thermal_mass_overrides = Dict(Symbol(replace(string(k), r"^thermal_mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "thermal_mass__"))
+  filter!(p -> !startswith(string(first(p)), "thermal_mass__"), __overrides)
+  push!(__systems, @named thermal_mass = ThermalComponents.Components.HeatCapacitor(C=C_tot, T0=T_initial, thermal_mass_overrides...))
+  # Subcomponent solar_input of type ThermalComponents.Sources.PrescribedHeatFlow
+  solar_input_overrides = Dict(Symbol(replace(string(k), r"^solar_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar_input__"))
+  filter!(p -> !startswith(string(first(p)), "solar_input__"), __overrides)
+  push!(__systems, @named solar_input = ThermalComponents.Sources.PrescribedHeatFlow(solar_input_overrides...))
+  # Subcomponent heater of type ThermalComponents.Sources.PrescribedHeatFlow
+  heater_overrides = Dict(Symbol(replace(string(k), r"^heater__" => "")) => v for (k, v) in __overrides if startswith(string(k), "heater__"))
+  filter!(p -> !startswith(string(first(p)), "heater__"), __overrides)
+  push!(__systems, @named heater = ThermalComponents.Sources.PrescribedHeatFlow(heater_overrides...))
+  # Subcomponent internal_gains of type ThermalComponents.Sources.PrescribedHeatFlow
+  internal_gains_overrides = Dict(Symbol(replace(string(k), r"^internal_gains__" => "")) => v for (k, v) in __overrides if startswith(string(k), "internal_gains__"))
+  filter!(p -> !startswith(string(first(p)), "internal_gains__"), __overrides)
+  push!(__systems, @named internal_gains = ThermalComponents.Sources.PrescribedHeatFlow(internal_gains_overrides...))
+  # Subcomponent window_loss of type ThermalComponents.Components.ThermalConductor
+  window_loss_overrides = Dict(Symbol(replace(string(k), r"^window_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "window_loss__"))
+  filter!(p -> !startswith(string(first(p)), "window_loss__"), __overrides)
+  push!(__systems, @named window_loss = ThermalComponents.Components.ThermalConductor(G=G_window, window_loss_overrides...))
+  # Subcomponent door_loss of type ThermalComponents.Components.ThermalConductor
+  door_loss_overrides = Dict(Symbol(replace(string(k), r"^door_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "door_loss__"))
+  filter!(p -> !startswith(string(first(p)), "door_loss__"), __overrides)
+  push!(__systems, @named door_loss = ThermalComponents.Components.ThermalConductor(G=G_door, door_loss_overrides...))
+  # Subcomponent roof_loss of type ThermalComponents.Components.ThermalConductor
+  roof_loss_overrides = Dict(Symbol(replace(string(k), r"^roof_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "roof_loss__"))
+  filter!(p -> !startswith(string(first(p)), "roof_loss__"), __overrides)
+  push!(__systems, @named roof_loss = ThermalComponents.Components.ThermalConductor(G=G_roof, roof_loss_overrides...))
+  # Subcomponent floor_loss of type ThermalComponents.Components.ThermalConductor
+  floor_loss_overrides = Dict(Symbol(replace(string(k), r"^floor_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "floor_loss__"))
+  filter!(p -> !startswith(string(first(p)), "floor_loss__"), __overrides)
+  push!(__systems, @named floor_loss = ThermalComponents.Components.ThermalConductor(G=G_floor, floor_loss_overrides...))
+  # Subcomponent infiltration_loss of type ThermalComponents.Components.ThermalConductor
+  infiltration_loss_overrides = Dict(Symbol(replace(string(k), r"^infiltration_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "infiltration_loss__"))
+  filter!(p -> !startswith(string(first(p)), "infiltration_loss__"), __overrides)
+  push!(__systems, @named infiltration_loss = ThermalComponents.Components.ThermalConductor(G=G_infiltration, infiltration_loss_overrides...))
+  # Subcomponent wall_loss of type ThermalComponents.Components.ThermalConductor
+  wall_loss_overrides = Dict(Symbol(replace(string(k), r"^wall_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wall_loss__"))
+  filter!(p -> !startswith(string(first(p)), "wall_loss__"), __overrides)
+  push!(__systems, @named wall_loss = ThermalComponents.Components.ThermalConductor(G=G_wall, wall_loss_overrides...))
+  # Subcomponent wall_convection of type ThermalComponents.Components.ThermalConductor
+  wall_convection_overrides = Dict(Symbol(replace(string(k), r"^wall_convection__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wall_convection__"))
+  filter!(p -> !startswith(string(first(p)), "wall_convection__"), __overrides)
+  push!(__systems, @named wall_convection = ThermalComponents.Components.ThermalConductor(G=G_conv, wall_convection_overrides...))
+  # Subcomponent ambient of type ThermalComponents.Sources.PrescribedTemperature
+  ambient_overrides = Dict(Symbol(replace(string(k), r"^ambient__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ambient__"))
+  filter!(p -> !startswith(string(first(p)), "ambient__"), __overrides)
+  push!(__systems, @named ambient = ThermalComponents.Sources.PrescribedTemperature(ambient_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -192,15 +361,15 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   __assertions = []
 
   ### Equations
-  push!(__eqs, solar_input.Q ~ solar_irradiance * area_window * f_window * SHGC)
-  push!(__eqs, internal_gains.Q ~ Q_internal)
+  push!(__eqs, solar_input.Q_flow ~ solar_irradiance * area_window * f_window * SHGC)
+  push!(__eqs, internal_gains.Q_flow ~ Q_internal)
   push!(__eqs, T_wall ~ wall_surface.T)
   # Connect interior temperature to output signal
   push!(__eqs, T_interior ~ thermal_mass.T)
   # Connect thermal mass to interior node
   push!(__eqs, connect(thermal_mass.node, interior))
   # Connect input signals to heat flow components
-  push!(__eqs, connect(heater.Q, Q_heater))
+  push!(__eqs, connect(heater.Q_flow, Q_heater))
   # Connect ambient temperature input to boundary condition
   push!(__eqs, connect(ambient.T, T_ambient))
   # Connect heat sources
@@ -225,6 +394,6 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   push!(__eqs, connect(wall_convection.node_b, ambient.node))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ThermalHouse
