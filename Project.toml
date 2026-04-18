@@ -1,0 +1,5 @@
+[workspace]
+projects = [
+    "CoffeeMugDemo", "FrictionBrakeDemo",  "HybridTransmission", 
+    "MakieWebinar",  "ThermalHouseDemo", "TurkeyDemo",
+]
