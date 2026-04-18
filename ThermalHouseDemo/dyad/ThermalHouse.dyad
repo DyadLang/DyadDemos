@@ -1,7 +1,7 @@
 "Thermal model of a house with inputs for heat from heater and solar irradiance"
 component ThermalHouse
-  interior = Node() [{"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}}}}]
-  wall_surface = Node() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}}}}]
+  interior = HeatPort() [{"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}}}}]
+  wall_surface = HeatPort() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}}}}]
   
   "Input connectors for external control"
   Q_heater = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}}}}]
@@ -115,33 +115,33 @@ component ThermalHouse
   variable T_wall::Temperature(guess=283.15)
   
   "Thermal components"
-  thermal_mass = ThermalComponents.HeatCapacitor(C=C_tot, T0=T_initial)
-  solar_input = ThermalComponents.PrescribedHeatFlow()
-  heater = ThermalComponents.PrescribedHeatFlow()
-  internal_gains = ThermalComponents.PrescribedHeatFlow()
+  thermal_mass = ThermalComponents.Components.HeatCapacitor(C=C_tot, T0=T_initial)
+  solar_input = ThermalComponents.Sources.PrescribedHeatFlow()
+  heater = ThermalComponents.Sources.PrescribedHeatFlow()
+  internal_gains = ThermalComponents.Sources.PrescribedHeatFlow()
   
   "Envelope losses"
-  window_loss = ThermalComponents.ThermalConductor(G=G_window)
-  door_loss = ThermalComponents.ThermalConductor(G=G_door)
-  roof_loss = ThermalComponents.ThermalConductor(G=G_roof)
-  floor_loss = ThermalComponents.ThermalConductor(G=G_floor)
+  window_loss = ThermalComponents.Components.ThermalConductor(G=G_window)
+  door_loss = ThermalComponents.Components.ThermalConductor(G=G_door)
+  roof_loss = ThermalComponents.Components.ThermalConductor(G=G_roof)
+  floor_loss = ThermalComponents.Components.ThermalConductor(G=G_floor)
 
-  infiltration_loss = ThermalComponents.ThermalConductor(G=G_infiltration)
+  infiltration_loss = ThermalComponents.Components.ThermalConductor(G=G_infiltration)
   
   "Wall thermal network"
-  wall_loss = ThermalComponents.ThermalConductor(G=G_wall)
-  wall_convection = ThermalComponents.ThermalConductor(G=G_conv)
+  wall_loss = ThermalComponents.Components.ThermalConductor(G=G_wall)
+  wall_convection = ThermalComponents.Components.ThermalConductor(G=G_conv)
   
-  ambient = ThermalComponents.PrescribedTemperature()
+  ambient = ThermalComponents.Sources.PrescribedTemperature()
   
 relations
   "Connect thermal mass to interior node"
   connect(thermal_mass.node, interior)
   
   "Connect input signals to heat flow components"
-  connect(heater.Q, Q_heater)
-  solar_input.Q = solar_irradiance * area_window * f_window * SHGC
-  internal_gains.Q = Q_internal
+  connect(heater.Q_flow, Q_heater)
+  solar_input.Q_flow = solar_irradiance * area_window * f_window * SHGC
+  internal_gains.Q_flow = Q_internal
   
   "Connect ambient temperature input to boundary condition"
   connect(ambient.T, T_ambient)
@@ -197,9 +197,9 @@ test component TestThermalHouse
   )
   
   "Signal sources for inputs"
-  heater_signal = BlockComponents.Constant(k=Q_heater)
-  solar_signal = BlockComponents.Constant(k=solar_irrad)
-  ambient_signal = BlockComponents.Constant(k=T_outdoor)
+  heater_signal = BlockComponents.Sources.Constant(k=Q_heater)
+  solar_signal = BlockComponents.Sources.Constant(k=solar_irrad)
+  ambient_signal = BlockComponents.Sources.Constant(k=T_outdoor)
   
 relations
   connect(heater_signal.y, house.Q_heater)
