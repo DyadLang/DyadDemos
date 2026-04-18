@@ -31,13 +31,14 @@
 | `total_power`         |                          | W  | 
 | `energy_discharged`         |                          | --  | 
 """
-@component function HybridBattery(; name = nothing, V_nom=300, Q_nom=6.5, SOC_init=0.6, SOC_min=0.4, SOC_max=0.8)
+@component function HybridBattery(; name = nothing, V_nom=Float64(300), Q_nom=6.5, SOC_init=0.6, SOC_min=0.4, SOC_max=0.8, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = HybridBattery()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -45,34 +46,70 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (V_nom::Real = V_nom))
-  append!(__params, @parameters (Q_nom::Real = Q_nom))
-  append!(__params, @parameters (SOC_init::Real = SOC_init))
-  append!(__params, @parameters (SOC_min::Real = SOC_min))
-  append!(__params, @parameters (SOC_max::Real = SOC_max))
+  __local__V_nom = V_nom
+  append!(__params, @parameters (V_nom::Real))
+  __initial_conditions[V_nom] = __local__V_nom
+  __local__Q_nom = Q_nom
+  append!(__params, @parameters (Q_nom::Real))
+  __initial_conditions[Q_nom] = __local__Q_nom
+  __local__SOC_init = SOC_init
+  append!(__params, @parameters (SOC_init::Real))
+  __initial_conditions[SOC_init] = __local__SOC_init
+  __local__SOC_min = SOC_min
+  append!(__params, @parameters (SOC_min::Real))
+  __initial_conditions[SOC_min] = __local__SOC_min
+  __local__SOC_max = SOC_max
+  append!(__params, @parameters (SOC_max::Real))
+  __initial_conditions[SOC_max] = __local__SOC_max
 
-  ### Variables
+  ### Final Path Parameters
   append!(__vars, @variables (mg1_power(t)::Real), [input = true])
   append!(__vars, @variables (mg2_power(t)::Real), [input = true])
   append!(__vars, @variables (soc_output(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (SOC(t)::Real))
   append!(__vars, @variables (total_power(t)::Real))
   append!(__vars, @variables (energy_discharged(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_SOC = pop!(__overrides, "SOC", nothing); isnothing(__ovr_SOC) || push!(__eqs, SOC ~ __ovr_SOC)
+  __ovr_SOC__initial = pop!(__overrides, "SOC__initial", nothing); isnothing(__ovr_SOC__initial) || (__initial_conditions[SOC] = __ovr_SOC__initial)
+  __ovr_total_power = pop!(__overrides, "total_power", nothing); isnothing(__ovr_total_power) || push!(__eqs, total_power ~ __ovr_total_power)
+  __ovr_total_power__initial = pop!(__overrides, "total_power__initial", nothing); isnothing(__ovr_total_power__initial) || (__initial_conditions[total_power] = __ovr_total_power__initial)
+  __ovr_energy_discharged = pop!(__overrides, "energy_discharged", nothing); isnothing(__ovr_energy_discharged) || push!(__eqs, energy_discharged ~ __ovr_energy_discharged)
+  __ovr_energy_discharged__initial = pop!(__overrides, "energy_discharged__initial", nothing); isnothing(__ovr_energy_discharged__initial) || (__initial_conditions[energy_discharged] = __ovr_energy_discharged__initial)
 
   ### Constants
   __constants = Any[]
 
   ### Components
 
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[SOC] = (SOC_init)
-  __initial_conditions[energy_discharged] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, SOC ~ SOC_init)
+  push!(__initialization_eqs, energy_discharged ~ 0)
 
   ### Assertions
   __assertions = []
@@ -84,6 +121,6 @@
   push!(__eqs, soc_output ~ SOC)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HybridBattery
