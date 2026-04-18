@@ -17,13 +17,14 @@
 | `N_v_res`         |                          | --  |   20 |
 | `N_boundary`         |                          | --  |   20 |
 """
-@component function TestReactionDiffusion5x5(; name = nothing, N=5, N_caps=25, N_h_res=20, N_v_res=20, N_boundary=20)
+@component function TestReactionDiffusion5x5(; name = nothing, N=5, N_caps=25, N_h_res=20, N_v_res=20, N_boundary=20, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TestReactionDiffusion5x5()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -31,39 +32,71 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
+  # Subcomponent caps of type MakieWebinar.ReactionDiffusionCapacitor
+  caps_overrides = Dict(Symbol(replace(string(k), r"^caps__" => "")) => v for (k, v) in __overrides if startswith(string(k), "caps__"))
+  filter!(p -> !startswith(string(first(p)), "caps__"), __overrides)
   caps = System[]
   for i in 1:N_caps
-    push!(caps, MakieWebinar.ReactionDiffusionCapacitor(V=0.01, k=2, name=Symbol("caps", "⸺", i)))
+    push!(caps, MakieWebinar.ReactionDiffusionCapacitor(V=0.01, k=2, name=Symbol("caps", "⸺", i), caps_overrides...))
   end
   append!(__systems, caps)
+  # Subcomponent r_horiz of type MakieWebinar.DiffusionResistor
+  r_horiz_overrides = Dict(Symbol(replace(string(k), r"^r_horiz__" => "")) => v for (k, v) in __overrides if startswith(string(k), "r_horiz__"))
+  filter!(p -> !startswith(string(first(p)), "r_horiz__"), __overrides)
   r_horiz = System[]
   for i in 1:N_h_res
-    push!(r_horiz, MakieWebinar.DiffusionResistor(D=0.5, dx=0.1, A=0.1, name=Symbol("r_horiz", "⸺", i)))
+    push!(r_horiz, MakieWebinar.DiffusionResistor(D=0.5, dx=0.1, A=0.1, name=Symbol("r_horiz", "⸺", i), r_horiz_overrides...))
   end
   append!(__systems, r_horiz)
+  # Subcomponent r_vert of type MakieWebinar.DiffusionResistor
+  r_vert_overrides = Dict(Symbol(replace(string(k), r"^r_vert__" => "")) => v for (k, v) in __overrides if startswith(string(k), "r_vert__"))
+  filter!(p -> !startswith(string(first(p)), "r_vert__"), __overrides)
   r_vert = System[]
   for i in 1:N_v_res
-    push!(r_vert, MakieWebinar.DiffusionResistor(D=0.5, dx=0.1, A=0.1, name=Symbol("r_vert", "⸺", i)))
+    push!(r_vert, MakieWebinar.DiffusionResistor(D=0.5, dx=0.1, A=0.1, name=Symbol("r_vert", "⸺", i), r_vert_overrides...))
   end
   append!(__systems, r_vert)
+  # Subcomponent boundaries of type MakieWebinar.ZeroFluxBoundary
+  boundaries_overrides = Dict(Symbol(replace(string(k), r"^boundaries__" => "")) => v for (k, v) in __overrides if startswith(string(k), "boundaries__"))
+  filter!(p -> !startswith(string(first(p)), "boundaries__"), __overrides)
   boundaries = System[]
   for i in 1:N_boundary
-    push!(boundaries, MakieWebinar.ZeroFluxBoundary(name=Symbol("boundaries", "⸺", i)))
+    push!(boundaries, MakieWebinar.ZeroFluxBoundary(name=Symbol("boundaries", "⸺", i), boundaries_overrides...))
   end
   append!(__systems, boundaries)
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
   push!(__initialization_eqs, getproperty(caps[1], :C) ~ 0.1)
@@ -103,6 +136,6 @@
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestReactionDiffusion5x5

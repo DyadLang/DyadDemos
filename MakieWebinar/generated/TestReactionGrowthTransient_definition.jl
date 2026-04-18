@@ -5,7 +5,7 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct TestReactionGrowthTransientSpec <: AbstractTransientAnalysisSpec
@@ -18,8 +18,10 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   var"saveat"::Float64 = 0.02
   var"dtmax"::Float64 = 0
   var"tstops"::Array{Float64, 1} = []
-  var"IfLifting"::Bool = false
+  var"automatic_discontinuity_detection"::Bool = false
+  var"optimize"::OptimizationLevel.Type = OptimizationLevel.None()
   var"progress"::Bool = true
+  var"respecialize"::Bool = false
   var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
   var"log_file"::String = ""
   var"model"::Union{Nothing, System} = MakieWebinar.TestReactionGrowth5x5(; name=:TestReactionGrowth5x5)
@@ -29,11 +31,10 @@ function DyadInterface.run_analysis(spec::TestReactionGrowthTransientSpec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
   base_spec = TransientAnalysisSpec(;
-    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, IfLifting=spec.IfLifting, progress=spec.progress, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
+    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, automatic_discontinuity_detection=spec.automatic_discontinuity_detection, optimize=spec.optimize, progress=spec.progress, respecialize=spec.respecialize, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
   )
   run_analysis(base_spec)
 end
 
 TestReactionGrowthTransient(;kwargs...) = run_analysis(TestReactionGrowthTransientSpec(;kwargs...))
 export TestReactionGrowthTransient, TestReactionGrowthTransientSpec
-export TestReactionGrowthTransientSpec, TestReactionGrowthTransient

@@ -7,13 +7,14 @@
 @doc Markdown.doc"""
    TestWeakDamping(; name)
 """
-@component function TestWeakDamping(; name = nothing)
+@component function TestWeakDamping(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TestWeakDamping()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,24 +22,47 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named system = MakieWebinar.ControlledOscillator(pid_k=1, pid_Td=0.1, pid_y_max=10, pid_y_min=-10))
+  # Subcomponent system of type MakieWebinar.ControlledOscillator
+  system_overrides = Dict(Symbol(replace(string(k), r"^system__" => "")) => v for (k, v) in __overrides if startswith(string(k), "system__"))
+  filter!(p -> !startswith(string(first(p)), "system__"), __overrides)
+  push!(__systems, @named system = MakieWebinar.ControlledOscillator(pid_k=1, pid_Td=0.1, pid_y_max=10, pid_y_min=-10, system_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[system.mass.s] = (0.5)
-  __initial_conditions[system.mass.v] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, system.mass.s ~ 0.5)
+  push!(__initialization_eqs, system.mass.v ~ 0)
 
   ### Assertions
   __assertions = []
@@ -46,6 +70,6 @@
   ### Equations
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestWeakDamping

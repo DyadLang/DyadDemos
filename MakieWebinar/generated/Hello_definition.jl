@@ -26,13 +26,14 @@ A simple lumped thermal model
 | ------------ | ----------------------------------- | ------ | 
 | `T`         |                          | K  | 
 """
-@component function Hello(; name = nothing, T_inf=300, T0=320, h=0.7, A=1, m=0.1, c_p=1.2)
+@component function Hello(; name = nothing, T_inf=Float64(300), T0=Float64(320), h=0.7, A=Float64(1), m=0.1, c_p=1.2, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = Hello()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,29 +41,64 @@ A simple lumped thermal model
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (T_inf::Real = T_inf), [description = "Ambient temperature", bounds = (0, Inf)])
-  append!(__params, @parameters (T0::Real = T0), [description = "Initial temperature", bounds = (0, Inf)])
-  append!(__params, @parameters (h::Real = h), [description = "Convective heat transfer coefficient"])
-  append!(__params, @parameters (A::Real = A), [description = "Surface area"])
-  append!(__params, @parameters (m::Real = m), [description = "Mass of thermal capacitance", bounds = (0, Inf)])
-  append!(__params, @parameters (c_p::Real = c_p), [description = "Specific Heat"])
+  __local__T_inf = T_inf
+  append!(__params, @parameters (T_inf::Real), [description = "Ambient temperature", bounds = (0, Inf)])
+  __initial_conditions[T_inf] = __local__T_inf
+  __local__T0 = T0
+  append!(__params, @parameters (T0::Real), [description = "Initial temperature", bounds = (0, Inf)])
+  __initial_conditions[T0] = __local__T0
+  __local__h = h
+  append!(__params, @parameters (h::Real), [description = "Convective heat transfer coefficient"])
+  __initial_conditions[h] = __local__h
+  __local__A = A
+  append!(__params, @parameters (A::Real), [description = "Surface area"])
+  __initial_conditions[A] = __local__A
+  __local__m = m
+  append!(__params, @parameters (m::Real), [description = "Mass of thermal capacitance", bounds = (0, Inf)])
+  __initial_conditions[m] = __local__m
+  __local__c_p = c_p
+  append!(__params, @parameters (c_p::Real), [description = "Specific Heat"])
+  __initial_conditions[c_p] = __local__c_p
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (T(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
+  __ovr_T__initial = pop!(__overrides, "T__initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
 
   ### Constants
   __constants = Any[]
 
   ### Components
 
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[T] = (T0)
-
   ### Initialization Equations
+  # Specify initial conditions
+  push!(__initialization_eqs, T ~ T0)
 
   ### Assertions
   __assertions = []
@@ -72,6 +108,6 @@ A simple lumped thermal model
   push!(__eqs, m * c_p * ModelingToolkit.D_nounits(T) ~ h * A * (T_inf - T))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export Hello

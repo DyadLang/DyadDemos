@@ -7,13 +7,14 @@
 @doc Markdown.doc"""
    TestMediumCharge(; name)
 """
-@component function TestMediumCharge(; name = nothing)
+@component function TestMediumCharge(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TestMediumCharge()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,23 +22,46 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named circuit = MakieWebinar.TunableRCCircuit(R=1000, C=0.000001, V_supply=10))
+  # Subcomponent circuit of type MakieWebinar.TunableRCCircuit
+  circuit_overrides = Dict(Symbol(replace(string(k), r"^circuit__" => "")) => v for (k, v) in __overrides if startswith(string(k), "circuit__"))
+  filter!(p -> !startswith(string(first(p)), "circuit__"), __overrides)
+  push!(__systems, @named circuit = MakieWebinar.TunableRCCircuit(R=1000, C=0.000001, V_supply=10, circuit_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[circuit.capacitor.v] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, circuit.capacitor.v ~ 0)
 
   ### Assertions
   __assertions = []
@@ -45,6 +69,6 @@
   ### Equations
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestMediumCharge
