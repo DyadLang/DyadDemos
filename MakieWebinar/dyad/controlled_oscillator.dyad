@@ -5,23 +5,23 @@ can apply damping force to suppress oscillations.
 """
 component ControlledOscillator
   "Mass component"
-  mass = TranslationalComponents.Mass(m = 1.0) {^mass}
+  mass = TranslationalComponents.Components.Mass(m = 1.0) {^mass}
   "Spring component - provides restoring force"
-  spring = TranslationalComponents.Spring(c = 100.0, s_rel0 = 0.0) {^spring}
+  spring = TranslationalComponents.Components.Spring(c = 100.0, s_rel0 = 0.0) {^spring}
   "Fixed reference point"
-  fixed = TranslationalComponents.Fixed(s0 = 0.0) {^fixed}
+  fixed = TranslationalComponents.Components.Fixed(s0 = 0.0) {^fixed}
   "PID controller - generates damping force based on velocity"
-  pid = BlockComponents.LimPID(k = pid_k, Ti = pid_Ti, Td = pid_Td, y_max = pid_y_max, y_min = pid_y_min) {^pid}
+  pid = BlockComponents.Continuous.LimPID(k = pid_k, Ti = pid_Ti, Td = pid_Td, y_max = pid_y_max, y_min = pid_y_min) {^pid}
   "Setpoint for PID (zero velocity = rest)"
-  setpoint = BlockComponents.Constant(k = 0.0) {^setpoint}
+  setpoint = BlockComponents.Sources.Constant(k = 0.0) {^setpoint}
   "Velocity sensor for feedback"
-  velocity_sensor = TranslationalComponents.SpeedSensor() {^velocity_sensor}
+  velocity_sensor = TranslationalComponents.Sensors.SpeedSensor() {^velocity_sensor}
   "Control force actuator"
-  control_force = TranslationalComponents.Force() {^control_force}
+  control_force = TranslationalComponents.Sources.Force() {^control_force}
   "Ground for force actuator"
-  ground = TranslationalComponents.Fixed(s0 = 0.0) {^ground}
+  ground = TranslationalComponents.Components.Fixed(s0 = 0.0) {^ground}
   "Feed-forward input (zero by default)"
-  ff_input = BlockComponents.Constant(k = 0.0) {^ff_input}
+  ff_input = BlockComponents.Sources.Constant(k = 0.0) {^ff_input}
   "PID proportional gain"
   parameter pid_k::Real = 10.0
   "PID integral time"

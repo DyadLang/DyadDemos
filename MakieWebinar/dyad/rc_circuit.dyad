@@ -13,19 +13,19 @@ component TunableRCCircuit
   parameter V_supply::Voltage = 10.0
   
   "Voltage source"
-  source = ElectricalComponents.VoltageSource()
+  source = ElectricalComponents.Analog.Sources.VoltageSource()
   
   "Input voltage signal"
-  voltage_signal = BlockComponents.Constant(k=V_supply)
+  voltage_signal = BlockComponents.Sources.Constant(k=V_supply)
   
   "Resistor"
-  resistor = ElectricalComponents.Resistor(R=R)
+  resistor = ElectricalComponents.Analog.Basic.Resistor(R=R)
   
   "Capacitor"
-  capacitor = ElectricalComponents.Capacitor(C=C)
+  capacitor = ElectricalComponents.Analog.Basic.Capacitor(C=C)
   
   "Ground"
-  ground = ElectricalComponents.Ground()
+  ground = ElectricalComponents.Analog.Basic.Ground()
   
 relations
   connect(voltage_signal.y, source.V)
