@@ -15,41 +15,41 @@
 component BrakeThermal
   # === External heat input ports ===
   # Heat input to disk (from friction)
-  heat_disk = Node() {^heat_disk}
+  heat_disk = HeatPort() {^heat_disk}
   # Heat input to pad (from friction)
-  heat_pad = Node() {^heat_pad}
+  heat_pad = HeatPort() {^heat_pad}
   # === Speed inputs ===
   # Vehicle speed input [m/s]
   vehicle_speed = RealInput() {^vehicle_speed}
   # Wheel angular speed input [rad/s]
   wheel_speed = RealInput() {^wheel_speed}
   # === Thermal masses ===
-  disk_mass = ThermalComponents.HeatCapacitor(C = C_disk, T0 = T_disk_init) {^disk_mass}
-  pad_mass = ThermalComponents.HeatCapacitor(C = C_pad, T0 = T_pad_init) {^pad_mass}
+  disk_mass = ThermalComponents.Components.HeatCapacitor(C = C_disk, T0 = T_disk_init) {^disk_mass}
+  pad_mass = ThermalComponents.Components.HeatCapacitor(C = C_pad, T0 = T_pad_init) {^pad_mass}
   # === Convective cooling ===
-  disk_convection = ThermalComponents.Convection() {^disk_convection}
-  pad_convection = ThermalComponents.Convection() {^pad_convection}
+  disk_convection = ThermalComponents.Components.Convection() {^disk_convection}
+  pad_convection = ThermalComponents.Components.Convection() {^pad_convection}
   # === Radiative cooling (disk to ambient only) ===
-  disk_radiation = ThermalComponents.BodyRadiation(Gr = epsilon_disk * A_disk) {^disk_radiation}
+  disk_radiation = ThermalComponents.Components.BodyRadiation(Gr = epsilon_disk * A_disk) {^disk_radiation}
   # === Pad-disk radiation coupling ===
-  pad_disk_radiation = ThermalComponents.BodyRadiation(Gr = G_rad_pad_disk) {^pad_disk_radiation}
+  pad_disk_radiation = ThermalComponents.Components.BodyRadiation(Gr = G_rad_pad_disk) {^pad_disk_radiation}
   # === Ambient temperature boundary ===
-  ambient = ThermalComponents.FixedTemperature(T = T_ambient) {^ambient}
+  ambient = ThermalComponents.Sources.FixedTemperature(T = T_ambient) {^ambient}
   # === Convection coefficient calculations ===
   # Disk convection: h_disk = h_disk_base + k_disk_speed * |wheel_speed|
-  wheel_speed_gain = BlockComponents.Gain(k = k_disk_speed) {^wheel_speed_gain}
-  disk_h_base_const = BlockComponents.Constant(k = h_disk_base) {^disk_h_base_const}
-  disk_h_calc = BlockComponents.Add(k1 = 1.0, k2 = 1.0) {^disk_h_calc}
+  wheel_speed_gain = BlockComponents.Math.Gain(k = k_disk_speed) {^wheel_speed_gain}
+  disk_h_base_const = BlockComponents.Sources.Constant(k = h_disk_base) {^disk_h_base_const}
+  disk_h_calc = BlockComponents.Math.Add(k1 = 1.0, k2 = 1.0) {^disk_h_calc}
   # Pad convection: h_pad = h_pad_base + k_pad_speed * |vehicle_speed|
-  vehicle_speed_gain = BlockComponents.Gain(k = k_pad_speed) {^vehicle_speed_gain}
-  pad_h_base_const = BlockComponents.Constant(k = h_pad_base) {^pad_h_base_const}
-  pad_h_calc = BlockComponents.Add(k1 = 1.0, k2 = 1.0) {^pad_h_calc}
+  vehicle_speed_gain = BlockComponents.Math.Gain(k = k_pad_speed) {^vehicle_speed_gain}
+  pad_h_base_const = BlockComponents.Sources.Constant(k = h_pad_base) {^pad_h_base_const}
+  pad_h_calc = BlockComponents.Math.Add(k1 = 1.0, k2 = 1.0) {^pad_h_calc}
   # Convert to thermal conductances (h * A)
-  disk_conductance = BlockComponents.Product() {^disk_conductance}
-  pad_conductance = BlockComponents.Product() {^pad_conductance}
+  disk_conductance = BlockComponents.Math.Product() {^disk_conductance}
+  pad_conductance = BlockComponents.Math.Product() {^pad_conductance}
   # Constants for surface areas
-  disk_area_const = BlockComponents.Constant(k = A_disk) {^disk_area_const}
-  pad_area_const = BlockComponents.Constant(k = A_pad) {^pad_area_const}
+  disk_area_const = BlockComponents.Sources.Constant(k = A_disk) {^disk_area_const}
+  pad_area_const = BlockComponents.Sources.Constant(k = A_pad) {^pad_area_const}
   # === Thermal parameters ===
   # Disk thermal capacity [J/K]
   parameter C_disk::HeatCapacity = 4000
@@ -438,11 +438,11 @@ test component BrakeThermalTest_Constant
   # Brake thermal model instance
   brake_thermal = BrakeThermal() {^brake_thermal}
   # Fixed heat inputs to simulate friction
-  disk_heat_input = ThermalComponents.FixedHeatFlow(Q = Q_disk) {^disk_heat_input}
-  pad_heat_input = ThermalComponents.FixedHeatFlow(Q = Q_pad) {^pad_heat_input}
+  disk_heat_input = ThermalComponents.Sources.FixedHeatFlow(Q_flow = Q_disk) {^disk_heat_input}
+  pad_heat_input = ThermalComponents.Sources.FixedHeatFlow(Q_flow = Q_pad) {^pad_heat_input}
   # Speed signal sources
-  vehicle_speed_source = BlockComponents.Constant(k = vehicle_speed) {^vehicle_speed_source}
-  wheel_speed_source = BlockComponents.Constant(k = wheel_speed) {^wheel_speed_source}
+  vehicle_speed_source = BlockComponents.Sources.Constant(k = vehicle_speed) {^vehicle_speed_source}
+  wheel_speed_source = BlockComponents.Sources.Constant(k = wheel_speed) {^wheel_speed_source}
   # Heat flow to disk
   parameter Q_disk::HeatFlowRate = 9300
   # Heat flow to disk
@@ -556,18 +556,18 @@ test component BrakeThermalTest_Step
   brake_thermal = BrakeThermal() {^brake_thermal}
   # Heat input sources with time-dependent behavior
   # Disk heat: 9300W for first 1500s, then 0W
-  disk_heat_step = BlockComponents.Step(height = -9300, offset = 9300, start_time = 1500.0) {^disk_heat_step}
-  disk_heat_input = ThermalComponents.PrescribedHeatFlow() {^disk_heat_input}
+  disk_heat_step = BlockComponents.Sources.Step(height = -9300, offset = 9300, start_time = 1500.0) {^disk_heat_step}
+  disk_heat_input = ThermalComponents.Sources.PrescribedHeatFlow() {^disk_heat_input}
   # Pad heat: 700W for first 1500s, then 0W
-  pad_heat_step = BlockComponents.Step(height = -700, offset = 700, start_time = 1500.0) {^pad_heat_step}
-  pad_heat_input = ThermalComponents.PrescribedHeatFlow() {^pad_heat_input}
+  pad_heat_step = BlockComponents.Sources.Step(height = -700, offset = 700, start_time = 1500.0) {^pad_heat_step}
+  pad_heat_input = ThermalComponents.Sources.PrescribedHeatFlow() {^pad_heat_input}
   # Speed signal sources (same as original test)
-  vehicle_speed_source = BlockComponents.Constant(k = 6.94) {^vehicle_speed_source}
-  wheel_speed_source = BlockComponents.Constant(k = 64.8) {^wheel_speed_source}
+  vehicle_speed_source = BlockComponents.Sources.Constant(k = 6.94) {^vehicle_speed_source}
+  wheel_speed_source = BlockComponents.Sources.Constant(k = 64.8) {^wheel_speed_source}
 relations
   # Connect heat step signals to prescribed heat flows
-  connect(disk_heat_step.y, disk_heat_input.Q) {^id8}
-  connect(pad_heat_step.y, pad_heat_input.Q) {^id9}
+  connect(disk_heat_step.y, disk_heat_input.Q_flow) {^id8}
+  connect(pad_heat_step.y, pad_heat_input.Q_flow) {^id9}
   # Connect heat flows to thermal model
   connect(disk_heat_input.node, brake_thermal.heat_disk) {^id10}
   connect(pad_heat_input.node, brake_thermal.heat_pad) {^id11}
