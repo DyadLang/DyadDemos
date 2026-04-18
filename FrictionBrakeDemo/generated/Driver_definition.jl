@@ -22,13 +22,14 @@
  * `throttle` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `brake` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function Driver(; name = nothing, k=0.5, Ti=2, Td=0.1)
+@component function Driver(; name = nothing, k=0.5, Ti=Float64(2), Td=0.1, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = Driver()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -36,28 +37,60 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (k::Real = k))
-  append!(__params, @parameters (Ti::Real = Ti))
-  append!(__params, @parameters (Td::Real = Td))
+  __local__k = k
+  append!(__params, @parameters (k::Real))
+  __initial_conditions[k] = __local__k
+  __local__Ti = Ti
+  append!(__params, @parameters (Ti::Real))
+  __initial_conditions[Ti] = __local__Ti
+  __local__Td = Td
+  append!(__params, @parameters (Td::Real))
+  __initial_conditions[Td] = __local__Td
 
-  ### Variables
+  ### Final Path Parameters
   append!(__vars, @variables (speed_ref(t)::Real), [input = true])
   append!(__vars, @variables (speed_act(t)::Real), [input = true])
   append!(__vars, @variables (throttle(t)::Real), [output = true])
   append!(__vars, @variables (brake(t)::Real), [output = true])
 
+  ### Variables (declarations)
+
+  ### Variables (assignments)
+
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named speed_pid = BlockComponents.LimPID(k=k, Ti=Ti, Td=Td, y_max=1, y_min=-1, wp=1, wd=0, Ni=0.9, Nd=10, k_ff=0))
-  push!(__systems, @named ff_input = BlockComponents.Constant(k=0))
+  # Subcomponent speed_pid of type BlockComponents.Continuous.LimPID
+  speed_pid_overrides = Dict(Symbol(replace(string(k), r"^speed_pid__" => "")) => v for (k, v) in __overrides if startswith(string(k), "speed_pid__"))
+  filter!(p -> !startswith(string(first(p)), "speed_pid__"), __overrides)
+  push!(__systems, @named speed_pid = BlockComponents.Continuous.LimPID(k=k, Ti=Ti, Td=Td, y_max=1, y_min=-1, wp=1, wd=0, Ni=0.9, Nd=10, k_ff=0, speed_pid_overrides...))
+  # Subcomponent ff_input of type BlockComponents.Sources.Constant
+  ff_input_overrides = Dict(Symbol(replace(string(k), r"^ff_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ff_input__"))
+  filter!(p -> !startswith(string(first(p)), "ff_input__"), __overrides)
+  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(k=0, ff_input_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -72,6 +105,6 @@
   push!(__eqs, connect(ff_input.y, speed_pid.u_ff))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export Driver

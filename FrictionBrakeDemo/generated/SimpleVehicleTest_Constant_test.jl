@@ -29,7 +29,9 @@
   end
     if isfile("snapshots/SimpleVehicleTest_Constant_case1_sig0.ref")
       ref = CSV.read("snapshots/SimpleVehicleTest_Constant_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.vehicle_speed) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.vehicle_speed) atol=0.001 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.vehicle.vehicle_speed])
         dfr = CSV.read("snapshots/SimpleVehicleTest_Constant_case1_sig0.ref", DataFrame)
@@ -46,7 +48,9 @@
     end
     if isfile("snapshots/SimpleVehicleTest_Constant_case1_sig1.ref")
       ref = CSV.read("snapshots/SimpleVehicleTest_Constant_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.wheel_speed) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.wheel_speed) atol=0.001 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.vehicle.wheel_speed])
         dfr = CSV.read("snapshots/SimpleVehicleTest_Constant_case1_sig1.ref", DataFrame)
@@ -61,7 +65,9 @@
     end
     if isfile("snapshots/SimpleVehicleTest_Constant_case1_sig2.ref")
       ref = CSV.read("snapshots/SimpleVehicleTest_Constant_case1_sig2.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.inertia.w) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.inertia.w) atol=0.001 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.vehicle.inertia.w])
         dfr = CSV.read("snapshots/SimpleVehicleTest_Constant_case1_sig2.ref", DataFrame)

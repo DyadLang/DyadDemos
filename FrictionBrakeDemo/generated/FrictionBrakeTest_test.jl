@@ -17,18 +17,20 @@
   sol = rebuild_sol(result)
   @test SciMLBase.successful_retcode(sol)
   @test sol[model.inertia.w][1] ≈ 10 atol=0.001 rtol=9.999999999999999e-6
-# Signals selected for regression testing: ["inertia.w","brake.disk.Q","brake.pad.Q"]
+# Signals selected for regression testing: ["inertia.w","brake.disk.Q_flow","brake.pad.Q_flow"]
   ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
   if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
     # If asked to update snapshots, write out reference data for all signals
     mkpath("snapshots")
     CSV.write("snapshots/FrictionBrakeTest_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.inertia.w) for t in ref_times]))
-    CSV.write("snapshots/FrictionBrakeTest_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.disk.Q) for t in ref_times]))
-    CSV.write("snapshots/FrictionBrakeTest_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.pad.Q) for t in ref_times]))
+    CSV.write("snapshots/FrictionBrakeTest_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.disk.Q_flow) for t in ref_times]))
+    CSV.write("snapshots/FrictionBrakeTest_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.pad.Q_flow) for t in ref_times]))
   end
     if isfile("snapshots/FrictionBrakeTest_case1_sig0.ref")
       ref = CSV.read("snapshots/FrictionBrakeTest_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.inertia.w) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.inertia.w) atol=0.001 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.inertia.w])
         dfr = CSV.read("snapshots/FrictionBrakeTest_case1_sig0.ref", DataFrame)
@@ -44,32 +46,36 @@
     end
     if isfile("snapshots/FrictionBrakeTest_case1_sig1.ref")
       ref = CSV.read("snapshots/FrictionBrakeTest_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.disk.Q) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.disk.Q_flow) atol=0.001 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.brake.disk.Q])
+        df = DataFrame(t=sol[:t], actual=sol[model.brake.disk.Q_flow])
         dfr = CSV.read("snapshots/FrictionBrakeTest_case1_sig1.ref", DataFrame)
-        plot(sol, idxs=[model.brake.disk.Q], width=2, label="Actual value of brake.disk.Q")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of brake.disk.Q")
+        plot(sol, idxs=[model.brake.disk.Q_flow], width=2, label="Actual value of brake.disk.Q_flow")
+        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of brake.disk.Q_flow")
         mkpath("comparisons")
         savefig("comparisons/FrictionBrakeTest_case1_sig1.png")
       end
     else
       mkpath("snapshots")
-      CSV.write("snapshots/FrictionBrakeTest_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.disk.Q) for t in ref_times]))
+      CSV.write("snapshots/FrictionBrakeTest_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.disk.Q_flow) for t in ref_times]))
     end
     if isfile("snapshots/FrictionBrakeTest_case1_sig2.ref")
       ref = CSV.read("snapshots/FrictionBrakeTest_case1_sig2.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.pad.Q) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.pad.Q_flow) atol=0.001 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.brake.pad.Q])
+        df = DataFrame(t=sol[:t], actual=sol[model.brake.pad.Q_flow])
         dfr = CSV.read("snapshots/FrictionBrakeTest_case1_sig2.ref", DataFrame)
-        plot(sol, idxs=[model.brake.pad.Q], width=2, label="Actual value of brake.pad.Q")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of brake.pad.Q")
+        plot(sol, idxs=[model.brake.pad.Q_flow], width=2, label="Actual value of brake.pad.Q_flow")
+        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of brake.pad.Q_flow")
         mkpath("comparisons")
         savefig("comparisons/FrictionBrakeTest_case1_sig2.png")
       end
     else
       mkpath("snapshots")
-      CSV.write("snapshots/FrictionBrakeTest_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.pad.Q) for t in ref_times]))
+      CSV.write("snapshots/FrictionBrakeTest_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.pad.Q_flow) for t in ref_times]))
     end
 end
