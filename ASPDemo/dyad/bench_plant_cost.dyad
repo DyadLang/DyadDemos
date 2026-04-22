@@ -1,0 +1,102 @@
+component BenchPlantCOST
+  structural parameter input_file::String = "dyad://ASPDemo/../test/data/Inf_dry_const_benchmark.csv"
+  source = FlowSourceFile(input_file=input_file)
+  mixer = Mixer3()
+
+  parameter medium::AbstractMedium = ASM1(b_h_T = 0.3, b_a_T = 0.05, k_a_T = 0.05, k_h_T = 3.0, K_x_T = 0.1,  K_s = 10.0, ny_h = 0.8,
+                                           i_xb = 0.08, i_xp = 0.06)
+
+  tank1 = Denitrification(medium=medium)
+  tank2 = Denitrification(medium=medium, states_start=[3.000000000000e+01, 2.963119860782e+00, 1.115525591261e+03, 1.047623215724e+02, 2.560547745833e+03, 1.031268208361e+02,
+                                        4.344353591719e+02, 3.460669280848e-05, 2.374326657217e-01, 1.943283861745e+01, 3.395010672094e-01, 6.666141082522e+00,
+                                        6.077331022060e+00])
+  # So_sat = 8 must be used in nitrification tanks to reproduce COST benchmark results
+  tank3 = Nitrification(medium=medium, V=1333, states_start=[3.000000000000e+01, 3.303021229952e+00, 1.115644789581e+03, 4.595646450845e+01, 2.587816054472e+03, 1.042607977985e+02,
+                                              4.368395184843e+02, 2.258220736507e+00, 6.086417053368e+00, 1.320662231965e+01, 8.483247444772e-01, 3.147367816870e+00, 5.185981698738e+00])
+  tank4 = Nitrification(medium=medium, V=1333, states_start=[3.000000000000e+01, 1.965671861503e+00, 1.119243168969e+03, 1.995691428575e+01, 2.602154360121e+03, 1.057038911944e+02,
+                                              4.404846296373e+02, 3.505091698746e+00, 1.223560863789e+01, 7.372095764081e+00, 6.723187178583e-01, 1.509911199178e+00, 4.336906375072e+00])
+  tank5 = Nitrification(medium=medium, V=1333, states_start=[3.000000000000e+01, 1.263795984345e+00, 1.123348086405e+03, 1.185225923915e+01, 2.606406877777e+03, 1.068019744323e+02, 
+                                              4.439932752854e+02, 1.999997685099e+00, 1.674245866877e+01, 3.117292580061e+00, 4.979610348992e-01, 9.817952441673e-01, 3.735179685088e+00])
+  divider = Divider2()
+  settler = SecondaryClarifierTakacs()
+  recyclePump = Pump(Q_max=55338)
+  returnPump = Pump(Q_max=18446)
+  wastePump = Pump(Q_max=385)
+  sinkWaste = SludgeSink()
+  sinkEffluent = EffluentSink()
+
+
+  blower1 = Blower(Q_max=34574.2654508612)
+  blower2 = Blower(Q_max=34574.2654508612)
+  blower3 = Blower(Q_max=12100.99290780142)
+
+  sensor_NO = CombinedSensor()
+  sensor_O2 = CombinedSensor()
+  sensor_TSS1 = CombinedSensor()
+  sensor_effluent = CombinedSensor()
+
+  constant1 = BlockComponents.Constant(k=1)
+  constant2 = BlockComponents.Constant(k=1)
+  temperature = BlockComponents.Constant(k=15)
+relations                                
+  connect(temperature.y, tank1.T)
+  connect(temperature.y, tank2.T)  
+  connect(temperature.y, tank3.T)  
+  connect(temperature.y, tank4.T)  
+  connect(temperature.y, tank5.T)
+
+  connect(source.port, mixer.portIn1)
+  connect(mixer.portOut, tank1.portIn)
+  connect(tank1.portOut, tank2.portIn)
+  connect(tank2.portOut, sensor_NO.portIn)
+  connect(sensor_NO.portOut, tank3.portIn)
+  connect(tank3.portOut, tank4.portIn)
+  connect(tank4.portOut, tank5.portIn)
+  connect(tank5.portOut, sensor_O2.portIn)
+  connect(sensor_O2.portOut, divider.portIn)
+  connect(divider.portOut1, sensor_TSS1.portIn)
+  connect(sensor_TSS1.portOut, settler.feed)
+
+  connect(divider.portOut2, recyclePump.portIn)
+  connect(recyclePump.portOut, mixer.portIn3)
+
+  connect(settler.return1, returnPump.portIn)
+  connect(returnPump.portOut, mixer.portIn2)
+
+  connect(settler.waste, wastePump.portIn)
+  connect(wastePump.portOut, sinkWaste.port)
+
+  connect(settler.effluent, sensor_effluent.portIn)
+  connect(sensor_effluent.portOut, sinkEffluent.port)
+
+  # Blower connections
+  connect(blower1.Q_air, tank3.Q_air)
+  connect(blower2.Q_air, tank4.Q_air)
+  connect(blower3.Q_air, tank5.Q_air)
+
+  # Controls
+  connect(constant1.y, blower1.u)
+  connect(constant1.y, blower2.u)
+  connect(constant2.y, returnPump.u)
+  connect(constant2.y, wastePump.u)
+
+
+  connect(constant1.y, blower3.u)
+
+  connect(constant2.y, recyclePump.u)
+
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {"stop": 100, "expect": {"signals": ["volume.T", "resistance.port_a.m_flow"]}}
+    },
+      "icons": {"default": "dyad://ASPDemo/Example.svg"}
+  }
+}
+end
+
+
+analysis simbenchplantcost
+  extends TransientAnalysis(stop=100)
+  model = BenchPlantCOST()
+end

@@ -1,0 +1,18 @@
+connector SolubleOut
+  # Mass Concentrations in [g COD/m3]
+  # Solube inert organic matter
+  output Si::MassConcentration
+  # Readily bidegradable substrate
+  output Ss::MassConcentration
+  # Dissolved oxygen
+  output So::MassConcentration
+  # Nitrate and nitrite oxygen
+  output Sno::MassConcentration
+  # Ammonium nitrogen
+  output Snh::MassConcentration
+  # Solube biodegradable organic nitrogen 
+  output Snd::MassConcentration
+  # Alkanility in [mmol/L]
+  output Salk::Real
+metadata {"Dyad": {"icons": {"default": "dyad://ASPDemo/SolubleOutPort.svg"}}}
+end

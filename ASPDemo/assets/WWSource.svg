@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="-100.0 -100.0 200.0 200.0">
+<g transform="scale(1,-1) translate(0,-0.0)">
+<ellipse cx="1.0" cy="0.0" rx="55.0" ry="54.0" stroke="rgb(192,192,192)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<polygon points="-8.0,-54.0 -14.0,-52.0 -24.0,-48.0 -32.0,-44.0 -36.0,-40.0 -42.0,-34.0 -48.0,-26.0 -50.0,-20.0 52.0,-20.0 50.0,-26.0 46.0,-32.0 42.0,-36.0 38.0,-40.0 34.0,-44.0 30.0,-46.0 26.0,-48.0 22.0,-50.0 16.0,-52.0 10.0,-54.0 4.0,-54.0 0.0,-54.0 -8.0,-54.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="1.0" cy="0.0" rx="55.0" ry="54.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="none"/>
+<rect x="-4.0" y="-74.0" width="8.0" height="22.0"  stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<rect x="4.0" y="-74.0" width="84.0" height="6.0"  stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polyline points="-4.0,-54.0 -4.0,-74.0 88.0,-74.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="4.0,-54.0 4.0,-68.0 88.0,-68.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+</g>
+</svg>

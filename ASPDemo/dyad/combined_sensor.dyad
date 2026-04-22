@@ -1,0 +1,89 @@
+component CombinedSensor
+  portIn = FluidPortIn() [{"Dyad": {"placement": {"icon": {"x1": 100, "y1": 450, "x2": 200, "y2": 550}}}}]
+  portOut = FluidPortOut() [{"Dyad": {"placement": {"icon": {"x1": 800, "y1": 450, "x2": 900, "y2": 550}}}}]
+  Q = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}}}}]
+  COD = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 50, "y1": 100, "x2": 150, "y2": 200, "rot": 270}}}}]
+  Snh = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 200, "y1": 100, "x2": 300, "y2": 200, "rot": 270}}}}]
+  Sno = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 350, "y1": 100, "x2": 450, "y2": 200, "rot": 270}}}}]
+  So = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 500, "y1": 100, "x2": 600, "y2": 200, "rot": 270}}}}]
+  TKN = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 650, "y1": 100, "x2": 750, "y2": 200, "rot": 270}}}}]
+  TSS = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 800, "y1": 100, "x2": 900, "y2": 200, "rot": 270}}}}]
+  parameter factor_TSS::Real = 0.75
+
+relations
+  Q = portIn.Q
+  COD = portIn.Si + portIn.Ss + portIn.Xi + portIn.Xs + 
+        portIn.Xbh + portIn.Xba + portIn.Xp
+  Snh = portIn.Snh
+  Sno = portIn.Sno
+  So = portIn.So
+   # FIXME: TKN (requires medium model call to calculate), -999 is dummy value
+  TKN = -999
+  TSS = factor_TSS * (portIn.Xs + portIn.Xbh + portIn.Xba + portIn.Xp + portIn.Xi)
+
+  portOut.Q = portIn.Q
+ 
+  portOut.Si = portIn.Si
+  portOut.Ss = portIn.Ss
+  portOut.Xi = portIn.Xi
+  portOut.Xs = portIn.Xs
+  portOut.Xbh = portIn.Xbh
+  portOut.Xba = portIn.Xba
+  portOut.Xp = portIn.Xp
+  portOut.So = portIn.So
+  portOut.Sno = portIn.Sno
+  portOut.Snh = portIn.Snh
+  portOut.Snd = portIn.Snd
+  portOut.Xnd = portIn.Xnd
+  portOut.Salk = portIn.Salk
+
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 850, "rot": 0, "layer":"icon"}],
+    "icons": {"default": "dyad://ASPDemo/Sensor.svg"}
+  }
+}
+end
+
+test component TestCombinedSensor
+  source = WWSource()
+  pump = Pump()
+  sensor = CombinedSensor()
+  sink = EffluentSink()
+  variable Q::Real
+relations   
+  initial Q = 0                              
+  pump.u = -1 + 0.25*floor(time/0.5)
+
+  der(Q) = (sensor.Q - Q)/0.05
+
+  source.Si = 3.0000000000000000e+01
+  source.Ss = 6.3634549999999997e+01 
+  source.Xi = 5.8475999999999999e+01
+  source.Xs = 2.2435200000000000e+02
+  source.Xbh = 3.1425000000000001e+01
+  source.Xba = 0.0000000000000000e+00
+  source.Xp = 0.0000000000000000e+00
+  source.So = 0.0000000000000000e+00
+  source.Sno = 0.0000000000000000e+00 
+  source.Snh = 3.0247620000000001e+01 
+  source.Snd = 6.3634599999999999e+00 
+  source.Xnd = 1.1814000000000000e+01 
+  source.Salk = 7.0000000000000000e+00
+                                  
+  connect(source.port, pump.portIn)
+  connect(pump.portOut, sensor.portIn)
+  connect(sensor.portOut, sink.port)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {"stop": 100, "expect": {"signals": ["volume.T", "resistance.port_a.m_flow"]}}
+    }
+  }
+}
+end
+
+analysis simcombinedsensor
+  extends TransientAnalysis(stop=4.5)
+  model = TestCombinedSensor()
+end

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="-100.0 -100.0 200.0 200.0">
+<g transform="scale(1,-1) translate(0,-0.0)">
+<rect x="-80.0" y="-80.0" width="160.0" height="100.0"  stroke="rgb(255,255,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<polyline points="-80.0,-6.0 -80.0,-80.0 80.0,-80.0 80.0,-6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="-80.0,6.0 -80.0,20.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="80.0,6.0 80.0,20.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<rect x="-90.0" y="-6.0" width="10.0" height="12.0"  stroke="rgb(223,191,159)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<rect x="80.0" y="-6.0" width="10.0" height="12.0"  stroke="rgb(223,191,159)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<polyline points="-90.0,-6.0 -80.0,-6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="-90.0,6.0 -80.0,6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="80.0,6.0 90.0,6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="80.0,-6.0 90.0,-6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="-70.0,-74.0 70.0,-74.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="0.0,-80.0 0.0,-74.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="0.0,-80.0 0.0,-94.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polygon points="-70.0,-70.0 -68.0,-74.0 -62.0,-74.0 -60.0,-70.0 -70.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<polygon points="60.0,-70.0 62.0,-74.0 68.0,-74.0 70.0,-70.0 60.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<polygon points="4.0,-70.0 6.0,-74.0 12.0,-74.0 14.0,-70.0 4.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<polygon points="-14.0,-70.0 -12.0,-74.0 -6.0,-74.0 -4.0,-70.0 -14.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<polygon points="-52.0,-70.0 -50.0,-74.0 -44.0,-74.0 -42.0,-70.0 -52.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<polygon points="-32.0,-70.0 -30.0,-74.0 -24.0,-74.0 -22.0,-70.0 -32.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<polygon points="42.0,-70.0 44.0,-74.0 50.0,-74.0 52.0,-70.0 42.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<polygon points="22.0,-70.0 24.0,-74.0 30.0,-74.0 32.0,-70.0 22.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<rect x="-64.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-62.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-68.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-70.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-64.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-68.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-66.0" y="-50.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-68.0" y="-44.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-66.0" y="-38.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,0,255)"/>
+<rect x="-68.0" y="-34.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-64.0" y="-26.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-68.0" y="-20.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-64.0" y="-10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-68.0" y="-2.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-62.0" y="10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<polygon points="-70.0,-70.0 -68.0,-74.0 -62.0,-74.0 -60.0,-70.0 -70.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<rect x="-64.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-62.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-68.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-70.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-64.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-68.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-66.0" y="-50.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-68.0" y="-44.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-66.0" y="-38.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,0,255)"/>
+<rect x="-68.0" y="-34.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-64.0" y="-26.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-68.0" y="-20.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-64.0" y="-10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-68.0" y="-2.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-62.0" y="10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<polygon points="-52.0,-70.0 -50.0,-74.0 -44.0,-74.0 -42.0,-70.0 -52.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<rect x="-46.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-44.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-50.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-52.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-46.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-50.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-48.0" y="-50.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-50.0" y="-44.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-48.0" y="-38.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,0,255)"/>
+<rect x="-50.0" y="-34.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-46.0" y="-26.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-50.0" y="-20.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-46.0" y="-10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-50.0" y="-2.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-44.0" y="10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<polygon points="-32.0,-70.0 -30.0,-74.0 -24.0,-74.0 -22.0,-70.0 -32.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<rect x="-26.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-24.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-30.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-32.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-26.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-30.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-28.0" y="-50.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-30.0" y="-44.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-28.0" y="-38.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,0,255)"/>
+<rect x="-30.0" y="-34.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-26.0" y="-26.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-30.0" y="-20.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-26.0" y="-10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-30.0" y="-2.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-24.0" y="10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<polygon points="-14.0,-70.0 -12.0,-74.0 -6.0,-74.0 -4.0,-70.0 -14.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<rect x="-8.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-6.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-12.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-14.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-8.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-12.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-10.0" y="-50.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-12.0" y="-44.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-10.0" y="-38.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,0,255)"/>
+<rect x="-12.0" y="-34.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-8.0" y="-26.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-12.0" y="-20.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-8.0" y="-10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="-12.0" y="-2.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="-6.0" y="10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<polygon points="4.0,-70.0 6.0,-74.0 12.0,-74.0 14.0,-70.0 4.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<rect x="10.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="12.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="6.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="4.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="10.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="6.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="8.0" y="-50.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="6.0" y="-44.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="8.0" y="-38.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,0,255)"/>
+<rect x="6.0" y="-34.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="10.0" y="-26.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="6.0" y="-20.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="10.0" y="-10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="6.0" y="-2.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="12.0" y="10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<polygon points="22.0,-70.0 24.0,-74.0 30.0,-74.0 32.0,-70.0 22.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<rect x="28.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="30.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="24.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="22.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="28.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="24.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="26.0" y="-50.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="24.0" y="-44.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="26.0" y="-38.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,0,255)"/>
+<rect x="24.0" y="-34.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="28.0" y="-26.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="24.0" y="-20.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="28.0" y="-10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="24.0" y="-2.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="30.0" y="10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<polygon points="42.0,-70.0 44.0,-74.0 50.0,-74.0 52.0,-70.0 42.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<rect x="48.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="50.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="44.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="42.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="48.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="44.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="46.0" y="-50.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="44.0" y="-44.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="46.0" y="-38.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,0,255)"/>
+<rect x="44.0" y="-34.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="48.0" y="-26.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="44.0" y="-20.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="38.0" y="-10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="44.0" y="-2.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="50.0" y="10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<polygon points="60.0,-70.0 62.0,-74.0 68.0,-74.0 70.0,-70.0 60.0,-70.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(127,191,255)"/>
+<rect x="66.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="68.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="62.0" y="-68.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="60.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="66.0" y="-64.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="62.0" y="-58.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="64.0" y="-50.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="62.0" y="-44.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="64.0" y="-38.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,0,255)"/>
+<rect x="62.0" y="-34.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="66.0" y="-26.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="62.0" y="-20.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="66.0" y="-10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,95,191)"/>
+<rect x="62.0" y="-2.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<rect x="68.0" y="10.0" width="2.0" height="2.0"  stroke="rgb(0,127,255)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<ellipse cx="55.0" cy="-11.0" rx="5.0" ry="5.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<rect x="-56.0" y="-6.0" width="3.0" height="46.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<ellipse cx="-55.0" cy="-11.0" rx="5.0" ry="5.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<polyline points="-90.0,40.0 -53.0,40.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="none"/>
+</g>
+</svg>

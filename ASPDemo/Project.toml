@@ -1,0 +1,38 @@
+name = "ASPDemo"
+uuid = "b02750c1-4830-4cab-be92-b74f0edaa03e"
+authors = [" <>"]
+version = "0.1.0"
+
+[deps]
+BlockComponents = "1ef5d832-be8e-447f-9f2c-8b5d17d15fd3"
+DataInterpolations = "82cc6244-b520-54b8-b5a6-8a565e85f1d0"
+DyadData = "cab12561-e36c-4498-ae70-c9a5e79fef2a"
+DyadEcosystemDependencies = "7bc808db-8006-421e-b546-062440d520b7"
+DyadInterface = "99806f68-afab-45ca-9d8c-ceff6bc61f54"
+Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
+Moshi = "2e0e35c7-a2e4-4343-998d-7ef72827ed2d"
+OrdinaryDiffEqDefault = "50262376-6c5a-4cf5-baba-aaf4f84d72d7"
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
+RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
+TranslationalComponents = "42acc370-819b-4877-bdd6-eb3294461f5d"
+
+[compat]
+BlockComponents = "3.1.8"
+DataInterpolations = "8.9.0"
+DyadData = "2.0.1"
+DyadEcosystemDependencies = "=0.11.4"
+Markdown = "1"
+TranslationalComponents = "1.1.8"
+
+[dyad]
+kernel = "2.3.0"
+
+[extras]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["CSV", "DataFrames", "Plots", "Test"]

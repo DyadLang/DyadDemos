@@ -1,0 +1,93 @@
+component ControlledDivider2
+  u = RealInput() [{"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 90}}}}]
+  portIn = FluidPortIn() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 430, "x2": 50, "y2": 530}}}}]
+  portOut1 = FluidPortOut() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 320, "x2": 1050, "y2": 420}}}}]
+  portOut2 = FluidPortOut() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 520, "x2": 1050, "y2": 620}}}}]
+relations
+  portOut1.Q = portIn.Q*u
+  portOut2.Q = portIn.Q*(1-u)
+
+  portOut1.Si = portIn.Si
+  portOut1.Ss = portIn.Ss
+  portOut1.Xi = portIn.Xi
+  portOut1.Xs = portIn.Xs
+  portOut1.Xbh = portIn.Xbh
+  portOut1.Xba = portIn.Xba
+  portOut1.Xp = portIn.Xp
+  portOut1.So = portIn.So
+  portOut1.Sno = portIn.Sno
+  portOut1.Snh = portIn.Snh
+  portOut1.Snd = portIn.Snd
+  portOut1.Xnd = portIn.Xnd
+  portOut1.Salk = portIn.Salk
+
+  portOut2.Si = portIn.Si
+  portOut2.Ss = portIn.Ss
+  portOut2.Xi = portIn.Xi
+  portOut2.Xs = portIn.Xs
+  portOut2.Xbh = portIn.Xbh
+  portOut2.Xba = portIn.Xba
+  portOut2.Xp = portIn.Xp
+  portOut2.So = portIn.So
+  portOut2.Sno = portIn.Sno
+  portOut2.Snh = portIn.Snh
+  portOut2.Snd = portIn.Snd
+  portOut2.Xnd = portIn.Xnd
+  portOut2.Salk = portIn.Salk
+
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 150, "rot": 0, "layer":"icon"}],
+    "icons": {"default": "dyad://ASPDemo/ControlledDivider2.svg"}
+  }
+}
+end
+
+# A test model for a fixed volume
+test component TestControlledDivider2
+  source = FlowSource()
+  divider = ControlledDivider2()
+  sink = EffluentSink()
+  sink2 = EffluentSink()
+  variable Q1::Real
+  variable Q2::Real
+relations   
+  initial Q1 = 0     
+  initial Q2 = 0                                         
+  divider.u = 0 + 0.25*floor(time/0.5)
+
+  der(Q1) = (sink.port.Q - Q1)/0.05
+  der(Q2) = (sink2.port.Q - Q2)/0.05
+
+  source.Q_in = 2.1477000000000000e+04  
+
+  source.Si = 3.0000000000000000e+01
+  source.Ss = 6.3634549999999997e+01 
+  source.Xi = 5.8475999999999999e+01
+  source.Xs = 2.2435200000000000e+02
+  source.Xbh = 3.1425000000000001e+01
+  source.Xba = 0.0000000000000000e+00
+  source.Xp = 0.0000000000000000e+00
+  source.So = 0.0000000000000000e+00
+  source.Sno = 0.0000000000000000e+00 
+  source.Snh = 3.0247620000000001e+01 
+  source.Snd = 6.3634599999999999e+00 
+  source.Xnd = 1.1814000000000000e+01 
+  source.Salk = 7.0000000000000000e+00
+                                   
+  connect(source.port, divider.portIn)
+  connect(divider.portOut1, sink.port)
+  connect(divider.portOut2, sink2.port)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {"stop": 100, "expect": {"signals": ["volume.T", "resistance.port_a.m_flow"]}}
+    }
+  }
+}
+end
+
+analysis simcontrolleddivider2
+  extends TransientAnalysis(stop=2.5)
+  model = TestControlledDivider2()
+end

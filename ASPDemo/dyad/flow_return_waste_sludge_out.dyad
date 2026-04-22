@@ -1,0 +1,7 @@
+connector FlowReturnWasteSludgeOut
+  # Return Flow
+  output Qr::VolumeFlowRate
+  # Waste Sludge Flow
+  output Qw::VolumeFlowRate
+metadata {"Dyad": {"icons": {"default": "dyad://ASPDemo/GenericOutPort3.svg"}}}
+end
