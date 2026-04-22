@@ -97,8 +97,8 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(brake.disk, disk_boundary.node))
-  push!(__eqs, connect(brake.pad, pad_boundary.node))
+  push!(__eqs, connect(brake.disk, disk_boundary.port))
+  push!(__eqs, connect(brake.pad, pad_boundary.port))
   push!(__eqs, connect(brake_command.y, brake.brake_command))
   push!(__eqs, connect(torque_input.y, torque_source.tau))
   push!(__eqs, connect(torque_source.support, fixed_support.spline))

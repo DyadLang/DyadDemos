@@ -198,8 +198,8 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(heat_disk, disk_mass.node))
-  push!(__eqs, connect(heat_pad, pad_mass.node))
+  push!(__eqs, connect(heat_disk, disk_mass.port))
+  push!(__eqs, connect(heat_pad, pad_mass.port))
   push!(__eqs, connect(wheel_speed, wheel_speed_gain.u))
   push!(__eqs, connect(disk_h_base_const.y, disk_h_calc.u1))
   push!(__eqs, connect(wheel_speed_gain.y, disk_h_calc.u2))
@@ -210,14 +210,14 @@
   push!(__eqs, connect(disk_area_const.y, disk_conductance.u2))
   push!(__eqs, connect(pad_h_calc.y, pad_conductance.u1))
   push!(__eqs, connect(pad_area_const.y, pad_conductance.u2))
-  push!(__eqs, connect(disk_mass.node, disk_convection.solid))
-  push!(__eqs, connect(pad_mass.node, pad_convection.solid))
-  push!(__eqs, connect(disk_convection.fluid, ambient.node))
-  push!(__eqs, connect(pad_convection.fluid, ambient.node))
-  push!(__eqs, connect(disk_mass.node, disk_radiation.node_a))
-  push!(__eqs, connect(disk_radiation.node_b, ambient.node))
-  push!(__eqs, connect(pad_mass.node, pad_disk_radiation.node_a))
-  push!(__eqs, connect(disk_mass.node, pad_disk_radiation.node_b))
+  push!(__eqs, connect(disk_mass.port, disk_convection.solid))
+  push!(__eqs, connect(pad_mass.port, pad_convection.solid))
+  push!(__eqs, connect(disk_convection.fluid, ambient.port))
+  push!(__eqs, connect(pad_convection.fluid, ambient.port))
+  push!(__eqs, connect(disk_mass.port, disk_radiation.port_a))
+  push!(__eqs, connect(disk_radiation.port_b, ambient.port))
+  push!(__eqs, connect(pad_mass.port, pad_disk_radiation.port_a))
+  push!(__eqs, connect(disk_mass.port, pad_disk_radiation.port_b))
   push!(__eqs, connect(disk_conductance.y, disk_convection.Gc))
   push!(__eqs, connect(pad_conductance.y, pad_convection.Gc))
 

@@ -103,8 +103,8 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(disk_heat_input.node, brake_thermal.heat_disk))
-  push!(__eqs, connect(pad_heat_input.node, brake_thermal.heat_pad))
+  push!(__eqs, connect(disk_heat_input.port, brake_thermal.heat_disk))
+  push!(__eqs, connect(pad_heat_input.port, brake_thermal.heat_pad))
   push!(__eqs, connect(vehicle_speed_source.y, brake_thermal.vehicle_speed))
   push!(__eqs, connect(wheel_speed_source.y, brake_thermal.wheel_speed))
 
