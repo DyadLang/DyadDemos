@@ -10,3 +10,4 @@ Complex, in-depth demos of the capabilities of Dyad, the new platform for modeli
 | <img src="./HybridTransmission/assets/icon.svg" width="48"/> | [**HybridTransmission**](./HybridTransmission/) | A torque-split hybrid transmission model with ECMS control strategy over an EPA highway drive cycle. |
 | <img src="./MakieWebinar/assets/icon.svg" width="48"/> | [**MakieWebinar**](./MakieWebinar/) | Demonstrations of using Makie interactive plotting with Dyad models, including dashboards and parameter sweeps. |
 | <img src="./ThermalHouseDemo/assets/icon.svg" width="48"/> | [**ThermalHouseDemo**](./ThermalHouseDemo/) | A residential house thermal model covering envelope heat loss, infiltration, solar gains, and HVAC control. |
+| <img src="./ASPDemo/assets/ASPPlant.svg" width="48"/> | [**ASPDemo**](./ASPDemo/) | Wastewater treatment activated sludge process (ASP) model. |
