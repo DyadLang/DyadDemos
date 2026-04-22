@@ -71,8 +71,8 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
 
 ## Connectors
 
- * `interior` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
- * `wall_surface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `interior` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `wall_surface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `Q_heater` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `solar_irradiance` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `T_ambient` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
@@ -367,31 +367,31 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   # Connect interior temperature to output signal
   push!(__eqs, T_interior ~ thermal_mass.T)
   # Connect thermal mass to interior node
-  push!(__eqs, connect(thermal_mass.node, interior))
+  push!(__eqs, connect(thermal_mass.port, interior))
   # Connect input signals to heat flow components
   push!(__eqs, connect(heater.Q_flow, Q_heater))
   # Connect ambient temperature input to boundary condition
   push!(__eqs, connect(ambient.T, T_ambient))
   # Connect heat sources
-  push!(__eqs, connect(solar_input.node, interior))
-  push!(__eqs, connect(heater.node, interior))
-  push!(__eqs, connect(internal_gains.node, interior))
+  push!(__eqs, connect(solar_input.port, interior))
+  push!(__eqs, connect(heater.port, interior))
+  push!(__eqs, connect(internal_gains.port, interior))
   # Connect losses (walls + windows + floor + doors + infiltration)
-  push!(__eqs, connect(roof_loss.node_a, interior))
-  push!(__eqs, connect(roof_loss.node_b, ambient.node))
-  push!(__eqs, connect(floor_loss.node_a, interior))
-  push!(__eqs, connect(floor_loss.node_b, ambient.node))
-  push!(__eqs, connect(window_loss.node_a, interior))
-  push!(__eqs, connect(window_loss.node_b, ambient.node))
-  push!(__eqs, connect(door_loss.node_a, interior))
-  push!(__eqs, connect(door_loss.node_b, ambient.node))
-  push!(__eqs, connect(infiltration_loss.node_a, interior))
-  push!(__eqs, connect(infiltration_loss.node_b, ambient.node))
+  push!(__eqs, connect(roof_loss.port_a, interior))
+  push!(__eqs, connect(roof_loss.port_b, ambient.port))
+  push!(__eqs, connect(floor_loss.port_a, interior))
+  push!(__eqs, connect(floor_loss.port_b, ambient.port))
+  push!(__eqs, connect(window_loss.port_a, interior))
+  push!(__eqs, connect(window_loss.port_b, ambient.port))
+  push!(__eqs, connect(door_loss.port_a, interior))
+  push!(__eqs, connect(door_loss.port_b, ambient.port))
+  push!(__eqs, connect(infiltration_loss.port_a, interior))
+  push!(__eqs, connect(infiltration_loss.port_b, ambient.port))
   # Wall surface temperature (for detailed analysis)
-  push!(__eqs, connect(wall_loss.node_a, interior))
-  push!(__eqs, connect(wall_loss.node_b, wall_surface))
-  push!(__eqs, connect(wall_convection.node_a, wall_surface))
-  push!(__eqs, connect(wall_convection.node_b, ambient.node))
+  push!(__eqs, connect(wall_loss.port_a, interior))
+  push!(__eqs, connect(wall_loss.port_b, wall_surface))
+  push!(__eqs, connect(wall_convection.port_a, wall_surface))
+  push!(__eqs, connect(wall_convection.port_b, ambient.port))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

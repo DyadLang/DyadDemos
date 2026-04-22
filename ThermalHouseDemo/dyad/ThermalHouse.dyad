@@ -136,7 +136,7 @@ component ThermalHouse
   
 relations
   "Connect thermal mass to interior node"
-  connect(thermal_mass.node, interior)
+  connect(thermal_mass.port, interior)
   
   "Connect input signals to heat flow components"
   connect(heater.Q_flow, Q_heater)
@@ -147,28 +147,28 @@ relations
   connect(ambient.T, T_ambient)
   
   "Connect heat sources"
-  connect(solar_input.node, interior)
-  connect(heater.node, interior)
-  connect(internal_gains.node, interior)
+  connect(solar_input.port, interior)
+  connect(heater.port, interior)
+  connect(internal_gains.port, interior)
   
   "Connect losses (walls + windows + floor + doors + infiltration)"
-  connect(roof_loss.node_a, interior)
-  connect(roof_loss.node_b, ambient.node)
-  connect(floor_loss.node_a, interior)
-  connect(floor_loss.node_b, ambient.node)
-  connect(window_loss.node_a, interior)
-  connect(window_loss.node_b, ambient.node)
-  connect(door_loss.node_a, interior)
-  connect(door_loss.node_b, ambient.node)
+  connect(roof_loss.port_a, interior)
+  connect(roof_loss.port_b, ambient.port)
+  connect(floor_loss.port_a, interior)
+  connect(floor_loss.port_b, ambient.port)
+  connect(window_loss.port_a, interior)
+  connect(window_loss.port_b, ambient.port)
+  connect(door_loss.port_a, interior)
+  connect(door_loss.port_b, ambient.port)
   
-  connect(infiltration_loss.node_a, interior)
-  connect(infiltration_loss.node_b, ambient.node)
+  connect(infiltration_loss.port_a, interior)
+  connect(infiltration_loss.port_b, ambient.port)
   
   "Wall surface temperature (for detailed analysis)"
-  connect(wall_loss.node_a, interior)
-  connect(wall_loss.node_b, wall_surface)
-  connect(wall_convection.node_a, wall_surface)
-  connect(wall_convection.node_b, ambient.node)
+  connect(wall_loss.port_a, interior)
+  connect(wall_loss.port_b, wall_surface)
+  connect(wall_convection.port_a, wall_surface)
+  connect(wall_convection.port_b, ambient.port)
   
   T_wall = wall_surface.T
   

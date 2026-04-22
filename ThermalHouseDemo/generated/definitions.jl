@@ -16,9 +16,9 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
   include(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
 end
 
-import DyadInterface
 import ThermalComponents
 import BlockComponents
+import DyadInterface
 @doc Markdown.doc"""
 This connector represents an electrical pin with voltage and current as the potential and flow variables, respectively.
 """
@@ -39,7 +39,7 @@ This connector represents an electrical pin with voltage and current as the pote
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
 @doc Markdown.doc"""
-This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively.
+This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively.
 """
 @connector function __Dyad__HeatPort(; name=nothing)
   isnothing(name) && throw(ArgumentError("""
