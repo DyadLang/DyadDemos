@@ -80,8 +80,8 @@ component BrakeThermal
   parameter G_rad_pad_disk::Area = 0.012
 relations
   # Connect heat inputs to thermal masses
-  connect(heat_disk, disk_mass.node) {^id22}
-  connect(heat_pad, pad_mass.node) {^id23}
+  connect(heat_disk, disk_mass.port) {^id22}
+  connect(heat_pad, pad_mass.port) {^id23}
   # Build disk convection coefficient: h_disk = h_disk_base + k_disk_speed * wheel_speed
   connect(wheel_speed, wheel_speed_gain.u) {^id24}
   connect(disk_h_base_const.y, disk_h_calc.u1) {^id25}
@@ -96,16 +96,16 @@ relations
   connect(pad_h_calc.y, pad_conductance.u1) {^id32}
   connect(pad_area_const.y, pad_conductance.u2) {^id33}
   # Connect convective cooling
-  connect(disk_mass.node, disk_convection.solid) {^id34}
-  connect(pad_mass.node, pad_convection.solid) {^id35}
-  connect(disk_convection.fluid, ambient.node) {^id36}
-  connect(pad_convection.fluid, ambient.node) {^id37}
+  connect(disk_mass.port, disk_convection.solid) {^id34}
+  connect(pad_mass.port, pad_convection.solid) {^id35}
+  connect(disk_convection.fluid, ambient.port) {^id36}
+  connect(pad_convection.fluid, ambient.port) {^id37}
   # Connect disk radiation to ambient
-  connect(disk_mass.node, disk_radiation.node_a) {^id38}
-  connect(disk_radiation.node_b, ambient.node) {^id39}
+  connect(disk_mass.port, disk_radiation.port_a) {^id38}
+  connect(disk_radiation.port_b, ambient.port) {^id39}
   # Connect pad-disk radiation
-  connect(pad_mass.node, pad_disk_radiation.node_a) {^id40}
-  connect(disk_mass.node, pad_disk_radiation.node_b) {^id41}
+  connect(pad_mass.port, pad_disk_radiation.port_a) {^id40}
+  connect(disk_mass.port, pad_disk_radiation.port_b) {^id41}
   # Connect convection coefficient signals
   connect(disk_conductance.y, disk_convection.Gc) {^id42}
   connect(pad_conductance.y, pad_convection.Gc) {^id43}
@@ -453,8 +453,8 @@ test component BrakeThermalTest_Constant
   parameter wheel_speed::AngularVelocity = 83
 relations
   # Connect heat inputs
-  connect(disk_heat_input.node, brake_thermal.heat_disk) {^id6}
-  connect(pad_heat_input.node, brake_thermal.heat_pad) {^id7}
+  connect(disk_heat_input.port, brake_thermal.heat_disk) {^id6}
+  connect(pad_heat_input.port, brake_thermal.heat_pad) {^id7}
   # Connect speed inputs
   connect(vehicle_speed_source.y, brake_thermal.vehicle_speed) {^id8}
   connect(wheel_speed_source.y, brake_thermal.wheel_speed) {^id9}
@@ -569,8 +569,8 @@ relations
   connect(disk_heat_step.y, disk_heat_input.Q_flow) {^id8}
   connect(pad_heat_step.y, pad_heat_input.Q_flow) {^id9}
   # Connect heat flows to thermal model
-  connect(disk_heat_input.node, brake_thermal.heat_disk) {^id10}
-  connect(pad_heat_input.node, brake_thermal.heat_pad) {^id11}
+  connect(disk_heat_input.port, brake_thermal.heat_disk) {^id10}
+  connect(pad_heat_input.port, brake_thermal.heat_pad) {^id11}
   # Connect speed inputs
   connect(vehicle_speed_source.y, brake_thermal.vehicle_speed) {^id12}
   connect(wheel_speed_source.y, brake_thermal.wheel_speed) {^id13}

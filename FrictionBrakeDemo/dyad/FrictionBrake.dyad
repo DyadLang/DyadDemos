@@ -136,13 +136,13 @@ test component FrictionBrakeTest
   }]
 relations
   # Thermal connections
-  connect(brake.disk, disk_boundary.node) [{
+  connect(brake.disk, disk_boundary.port) [{
     "Dyad": {
       "edges": [{"S": 1, "M": [{"x": 365, "y": 220}], "E": 2}],
       "renderStyle": "standard"
     }
   }]
-  connect(brake.pad, pad_boundary.node) [{
+  connect(brake.pad, pad_boundary.port) [{
     "Dyad": {
       "edges": [{"S": 1, "M": [{"x": 415, "y": 90}], "E": 2}],
       "renderStyle": "standard"
