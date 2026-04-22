@@ -75,10 +75,10 @@
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-  __guesses[coffeeMug.condCup.node_b.T] = (330)
+  __guesses[coffeeMug.outerSurface.T] = (330)
   __guesses[coffeeMug.convCup2Env.ΔT] = (37)
   __guesses[hand.handContact.ΔT] = (-20)
-  __guesses[spoon.spoonMass.node.T] = (350)
+  __guesses[spoon.spoonMass.port.T] = (350)
 
   ### Initialization Equations
 
@@ -89,9 +89,9 @@
   push!(__eqs, connect(steam.liquidInterface, coffeeMug.topSurface))
   push!(__eqs, connect(spoon.liquidInterface, coffeeMug.topSurface))
   push!(__eqs, connect(hand.cupContact, coffeeMug.outerSurface))
-  push!(__eqs, connect(coffeeMug.ambient, environment.node))
-  push!(__eqs, connect(steam.ambient, environment.node))
-  push!(__eqs, connect(spoon.ambient, environment.node))
+  push!(__eqs, connect(coffeeMug.ambient, environment.port))
+  push!(__eqs, connect(steam.ambient, environment.port))
+  push!(__eqs, connect(spoon.ambient, environment.port))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

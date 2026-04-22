@@ -16,8 +16,8 @@
 
 ## Connectors
 
- * `liquidInterface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
- * `ambient` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `liquidInterface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `ambient` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
 @component function SteamSubsystem(; name = nothing, Gc_top=0.01, Gr_top=0.001, kwargs...)
   isnothing(name) && throw(ArgumentError("""
@@ -97,8 +97,8 @@
   push!(__eqs, connect(liquidInterface, convTop.solid))
   push!(__eqs, connect(convTop.fluid, ambient))
   push!(__eqs, connect(gcTop.y, convTop.Gc))
-  push!(__eqs, connect(liquidInterface, radTop.node_a))
-  push!(__eqs, connect(radTop.node_b, ambient))
+  push!(__eqs, connect(liquidInterface, radTop.port_a))
+  push!(__eqs, connect(radTop.port_b, ambient))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

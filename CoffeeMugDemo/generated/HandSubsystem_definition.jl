@@ -17,7 +17,7 @@
 
 ## Connectors
 
- * `cupContact` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `cupContact` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
 @component function HandSubsystem(; name = nothing, C_hand=Float64(500), T0_hand=310.15, G_contact=0.5, kwargs...)
   isnothing(name) && throw(ArgumentError("""
@@ -92,8 +92,8 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(handMass.node, handContact.node_a))
-  push!(__eqs, connect(handContact.node_b, cupContact))
+  push!(__eqs, connect(handMass.port, handContact.port_a))
+  push!(__eqs, connect(handContact.port_b, cupContact))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

@@ -19,8 +19,8 @@
 
 ## Connectors
 
- * `liquidInterface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
- * `ambient` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `liquidInterface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `ambient` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
 @component function SpoonSubsystem(; name = nothing, C_spoon=Float64(10), T0_spoon=293.15, G_liquid_contact=0.2, Gc_exposed=0.02, Gr_exposed=0.0005, kwargs...)
   isnothing(name) && throw(ArgumentError("""
@@ -114,13 +114,13 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(liquidInterface, liquidContact.node_a))
-  push!(__eqs, connect(liquidContact.node_b, spoonMass.node))
-  push!(__eqs, connect(spoonMass.node, convExposed.solid))
+  push!(__eqs, connect(liquidInterface, liquidContact.port_a))
+  push!(__eqs, connect(liquidContact.port_b, spoonMass.port))
+  push!(__eqs, connect(spoonMass.port, convExposed.solid))
   push!(__eqs, connect(convExposed.fluid, ambient))
   push!(__eqs, connect(gcExposed.y, convExposed.Gc))
-  push!(__eqs, connect(spoonMass.node, radExposed.node_a))
-  push!(__eqs, connect(radExposed.node_b, ambient))
+  push!(__eqs, connect(spoonMass.port, radExposed.port_a))
+  push!(__eqs, connect(radExposed.port_b, ambient))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

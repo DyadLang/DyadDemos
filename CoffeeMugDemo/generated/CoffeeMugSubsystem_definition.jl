@@ -22,9 +22,9 @@
 
 ## Connectors
 
- * `topSurface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
- * `outerSurface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
- * `ambient` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `topSurface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `outerSurface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `ambient` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `espressoTemp_degC` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
 @component function CoffeeMugSubsystem(; name = nothing, C_espresso=248.5, T0_espresso=363.15, C_cup=Float64(113), T0_cup=293.15, Gc_internal=0.6314, G_wall=2.74, Gc_external=0.0705, Gr_external=0.005, kwargs...)
@@ -158,18 +158,18 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(hotEspresso.node, convEspresso2Cup.solid))
-  push!(__eqs, connect(convEspresso2Cup.fluid, cupMass.node))
+  push!(__eqs, connect(hotEspresso.port, convEspresso2Cup.solid))
+  push!(__eqs, connect(convEspresso2Cup.fluid, cupMass.port))
   push!(__eqs, connect(gcEsp2Cup.y, convEspresso2Cup.Gc))
-  push!(__eqs, connect(cupMass.node, condCup.node_a))
-  push!(__eqs, connect(hotEspresso.node, topSurface))
-  push!(__eqs, connect(condCup.node_b, outerSurface))
+  push!(__eqs, connect(cupMass.port, condCup.port_a))
+  push!(__eqs, connect(hotEspresso.port, topSurface))
+  push!(__eqs, connect(condCup.port_b, outerSurface))
   push!(__eqs, connect(outerSurface, convCup2Env.solid))
   push!(__eqs, connect(convCup2Env.fluid, ambient))
   push!(__eqs, connect(gcCup2Env.y, convCup2Env.Gc))
-  push!(__eqs, connect(outerSurface, radCup2Env.node_a))
-  push!(__eqs, connect(radCup2Env.node_b, ambient))
-  push!(__eqs, connect(tempSensor.node, hotEspresso.node))
+  push!(__eqs, connect(outerSurface, radCup2Env.port_a))
+  push!(__eqs, connect(radCup2Env.port_b, ambient))
+  push!(__eqs, connect(tempSensor.port, hotEspresso.port))
   push!(__eqs, connect(tempSensor.T, to_degC.u))
   push!(__eqs, connect(to_degC.y, add_offset.u1))
   push!(__eqs, connect(offset_degC.y, add_offset.u2))
