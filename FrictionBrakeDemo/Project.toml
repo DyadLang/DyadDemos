@@ -20,12 +20,12 @@ ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 TranslationalComponents = "42acc370-819b-4877-bdd6-eb3294461f5d"
 
 [compat]
-BlockComponents = "=4.0.1"
-DyadEcosystemDependencies = "=0.11.6"
+BlockComponents = "4.0.1"
+DyadEcosystemDependencies = "0.11.6"
 Markdown = "1"
-RotationalComponents = "=2.0.0"
-ThermalComponents = "=2.0.0"
-TranslationalComponents = "=2.0.0"
+RotationalComponents = "2.0.0"
+ThermalComponents = "2.0.1"
+TranslationalComponents = "2.0.0"
 
 [workspace]
 projects = [
