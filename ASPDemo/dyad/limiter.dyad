@@ -1,0 +1,19 @@
+# Signal limiter that constrains input values between specified boundaries.
+#
+# Implements a hard saturation that restricts the output signal to remain within the bounds
+# specified by y_min and y_max. When the input signal is within these limits, it passes through
+# unchanged; otherwise, the output is clamped to the nearest limit value. This is commonly used
+# in control systems to prevent signals from exceeding safe operating ranges.
+component Limiter
+  # Input signal port
+  u = RealInput() [{"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
+  # Output signal port
+  y = RealOutput() [{"Dyad": {"placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}]
+  # Maximum allowed output value
+  parameter y_max::Real
+  # Minimum allowed output value, defaults to negative of y_max
+  parameter y_min::Real = -y_max
+relations
+  y = clamp(u, y_min, y_max)
+metadata {"Dyad": {"icons": {"default": "dyad://ASPDemo/Limiter.svg"}}}
+end

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="200"
+   height="200"
+   viewBox="-100.0 -100.0 200.0 200.0"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="PI.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <marker
+       style="overflow:visible"
+       id="Triangle"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="6"
+       markerHeight="6"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Triangle-1"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="6"
+       markerHeight="6"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135-7" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="6.325"
+     inkscape:cx="99.920949"
+     inkscape:cy="100"
+     inkscape:window-width="2560"
+     inkscape:window-height="1494"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <g
+     transform="scale(1,-1) translate(0,-0.0)"
+     id="g1"
+     style="stroke:#0000ff;stroke-opacity:1">
+    <rect
+       x="-100.0"
+       y="-100.0"
+       width="200.0"
+       height="200.0"
+       stroke="rgb(0,0,0)"
+       stroke-width="0.25"
+       fill="none"
+       id="rect1"
+       style="stroke:#0000ff;stroke-opacity:1" />
+  </g>
+  <path
+     style="fill:#0000ff;stroke:#b3b3b3;stroke-width:0.304496;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Triangle)"
+     d="M -83.399209,-83.244499 V 90.19763"
+     id="path1" />
+  <path
+     style="fill:#0000ff;stroke:#b3b3b3;stroke-width:0.304496;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Triangle-1)"
+     d="M 83.368675,80.834812 -90.073098,81.187284"
+     id="path1-5" />
+  <path
+     style="fill:none;stroke:#0000ff;stroke-width:0.279;stroke-dasharray:none;stroke-opacity:1"
+     d="M -83.399209,81.34387 V 12.72727 L 63.1245,-71.868229"
+     id="path2" />
+  <text
+     xml:space="preserve"
+     style="font-size:52.4743px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#999999;fill-opacity:1;stroke:none;stroke-width:1.22003;stroke-dasharray:none;stroke-opacity:1"
+     x="9.7233181"
+     y="51.166012"
+     id="text2"><tspan
+       sodipodi:role="line"
+       id="tspan2"
+       x="9.7233181"
+       y="51.166012"
+       style="stroke-width:1.22003">PI</tspan></text>
+</svg>

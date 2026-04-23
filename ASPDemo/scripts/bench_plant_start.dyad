@@ -1,0 +1,478 @@
+component BenchPlant
+  source = FlowSourceFile(input_file = input_file) {^source}
+  mixer = Mixer3() {^mixer}
+  tank1 = Denitrification() {^tank1}
+  tank2 = Denitrification(states_start = [3.000000000000e+01, 2.963119860782e+00, 1.115525591261e+03, 1.047623215724e+02, 2.560547745833e+03, 1.031268208361e+02, 4.344353591719e+02, 3.460669280848e-05, 2.374326657217e-01, 1.943283861745e+01, 3.395010672094e-01, 6.666141082522e+00, 6.077331022060e+00]) {^tank2}
+  tank3 = Nitrification(V = 1333, states_start = [3.000000000000e+01, 3.303021229952e+00, 1.115644789581e+03, 4.595646450845e+01, 2.587816054472e+03, 1.042607977985e+02, 4.368395184843e+02, 2.258220736507e+00, 6.086417053368e+00, 1.320662231965e+01, 8.483247444772e-01, 3.147367816870e+00, 5.185981698738e+00]) {^tank3}
+  tank4 = Nitrification(V = 1333, states_start = [3.000000000000e+01, 1.965671861503e+00, 1.119243168969e+03, 1.995691428575e+01, 2.602154360121e+03, 1.057038911944e+02, 4.404846296373e+02, 3.505091698746e+00, 1.223560863789e+01, 7.372095764081e+00, 6.723187178583e-01, 1.509911199178e+00, 4.336906375072e+00]) {^tank4}
+  tank5 = Nitrification(V = 1333, states_start = [3.000000000000e+01, 1.263795984345e+00, 1.123348086405e+03, 1.185225923915e+01, 2.606406877777e+03, 1.068019744323e+02, 4.439932752854e+02, 1.999997685099e+00, 1.674245866877e+01, 3.117292580061e+00, 4.979610348992e-01, 9.817952441673e-01, 3.735179685088e+00]) {^tank5}
+  divider = Divider2() {^divider}
+  settler = SecondaryClarifierTakacs() {^settler}
+  recyclePump = Pump(Q_max = 92230) {^recyclePump}
+  returnPump = Pump(Q_max = 18446) {^returnPump}
+  wastePump = Pump(Q_max = 385) {^wastePump}
+  sinkWaste = SludgeSink() {^sinkWaste}
+  sinkEffluent = EffluentSink() {^sinkEffluent}
+  blower1 = Blower(Q_max = 34574.2654508612) {^blower1}
+  blower2 = Blower(Q_max = 34574.2654508612) {^blower2}
+  blower3 = Blower(Q_max = 34574.2654508612) {^blower3}
+  sensor_NO = CombinedSensor() {^sensor_NO}
+  sensor_O2 = CombinedSensor() {^sensor_O2}
+  sensor_TSS1 = CombinedSensor() {^sensor_TSS1}
+  sensor_effluent = CombinedSensor() {^sensor_effluent}
+  constant1 = BlockComponents.Constant(k = 1) {^constant1}
+  constant2 = BlockComponents.Constant(k = 1) {^constant2}
+  temperature = BlockComponents.Constant(k = 15) {^temperature}
+  oxygenSetpoint = BlockComponents.Step(height = 2) {^oxygenSetpoint}
+  PI1 = PI(Ti = 0.001, k = 500) {^PI1}
+  nitrogenSetpoint = BlockComponents.Constant(k = 1) {^nitrogenSetpoint}
+  limiter1 = Limiter(y_max = 10, y_min = 0.1) {^limiter1}
+  PI2 = PI(Ti = 0.05, k = 15000) {^PI2}
+  structural parameter input_file::String = "dyad://ASPDemo/../test/data/Inf_dry.csv"
+relations
+  connect(temperature.y, tank1.T) {^id30}
+  connect(temperature.y, tank2.T) {^id31}
+  connect(temperature.y, tank3.T) {^id32}
+  connect(temperature.y, tank4.T) {^id33}
+  connect(temperature.y, tank5.T) {^id34}
+  connect(source.port, mixer.portIn1) {^id35}
+  connect(mixer.portOut, tank1.portIn) {^id36}
+  connect(tank1.portOut, tank2.portIn) {^id37}
+  connect(tank2.portOut, sensor_NO.portIn) {^id38}
+  connect(sensor_NO.portOut, tank3.portIn) {^id39}
+  connect(tank3.portOut, tank4.portIn) {^id40}
+  connect(tank4.portOut, tank5.portIn) {^id41}
+  connect(tank5.portOut, sensor_O2.portIn) {^id42}
+  connect(sensor_O2.portOut, divider.portIn) {^id43}
+  connect(divider.portOut1, sensor_TSS1.portIn) {^id44}
+  connect(sensor_TSS1.portOut, settler.feed) {^id45}
+  connect(divider.portOut2, recyclePump.portIn) {^id46}
+  connect(recyclePump.portOut, mixer.portIn3) {^id47}
+  connect(settler.return1, returnPump.portIn) {^id48}
+  connect(returnPump.portOut, mixer.portIn2) {^id49}
+  connect(settler.waste, wastePump.portIn) {^id50}
+  connect(wastePump.portOut, sinkWaste.port) {^id51}
+  connect(settler.effluent, sensor_effluent.portIn) {^id52}
+  connect(sensor_effluent.portOut, sinkEffluent.port) {^id53}
+  connect(blower1.Q_air, tank3.Q_air) {^id54}
+  connect(blower2.Q_air, tank4.Q_air) {^id55}
+  connect(blower3.Q_air, tank5.Q_air) {^id56}
+  connect(constant1.y, blower1.u) {^id57}
+  connect(constant1.y, blower2.u) {^id58}
+  connect(constant2.y, returnPump.u) {^id59}
+  connect(constant2.y, wastePump.u) {^id60}
+  connect(oxygenSetpoint.y, PI1.u_s) {^id61}
+  connect(sensor_O2.So, PI1.u_m) {^id62}
+  connect(PI1.y, blower3.u) {^id63}
+  connect(nitrogenSetpoint.y, PI2.u_s) {^id64}
+  connect(sensor_NO.Sno, limiter1.u) {^id65}
+  connect(limiter1.y, PI2.u_m) {^id66}
+  connect(PI2.y, recyclePump.u) {^id67}
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {"stop": 100, "expect": {"signals": ["volume.T", "resistance.port_a.m_flow"]}}
+    },
+    "icons": {"default": "dyad://ASPDemo/Example.svg"}
+  },
+  "_links": {
+    "source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 150, "x2": 250, "y1": 40, "y2": 140, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "mixer": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 60, "x2": 160, "y1": 310, "y2": 410, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "tank1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 190, "x2": 290, "y1": 310, "y2": 410, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "tank2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 330, "x2": 430, "y1": 310, "y2": 410, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "tank3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 170, "x2": 270, "y1": 430, "y2": 530, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "tank4": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 310, "x2": 410, "y1": 430, "y2": 530, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "tank5": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 450, "x2": 550, "y1": 430, "y2": 530, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "divider": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 680, "x2": 780, "y1": 430, "y2": 530, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "settler": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 700, "x2": 800, "y1": 590, "y2": 690, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "recyclePump": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 170, "x2": 70, "y1": 690, "y2": 790, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "returnPump": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 700, "x2": 600, "y1": 730, "y2": 830, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "wastePump": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 720, "x2": 820, "y1": 870, "y2": 970, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "sinkWaste": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 850, "x2": 950, "y1": 850, "y2": 950, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "sinkEffluent": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 850, "x2": 950, "y1": 740, "y2": 840, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "blower1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 180, "x2": 280, "y1": 560, "y2": 660, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "blower2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 320, "x2": 420, "y1": 560, "y2": 660, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "blower3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 460, "x2": 560, "y1": 560, "y2": 660, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "sensor_NO": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 460, "x2": 560, "y1": 310, "y2": 410, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "sensor_O2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 560, "x2": 660, "y1": 430, "y2": 530, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "sensor_TSS1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 810, "x2": 910, "y1": 420, "y2": 520, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "sensor_effluent": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 820, "x2": 920, "y1": 560, "y2": 660, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "constant1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 120, "x2": 220, "y1": 850, "y2": 950, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "constant2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 560, "x2": 660, "y1": 860, "y2": 960, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "temperature": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 40, "x2": 140, "y1": 180, "y2": 280, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "oxygenSetpoint": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 680, "x2": 780, "y1": 270, "y2": 370, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "PI1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 830, "x2": 930, "y1": 270, "y2": 370, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "nitrogenSetpoint": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 470, "y1": 40, "x2": 570, "y2": 140, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "limiter1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 550, "x2": 650, "y1": 170, "y2": 270, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "PI2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"x1": 630, "x2": 730, "y1": 40, "y2": 140, "rot": 0, "sh": 0.1, "sw": 0.1}
+        }
+      }
+    },
+    "id30": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 160, "y": 230}, {"x": 160, "y": 340}]}]}
+    },
+    "id31": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 310, "y": 230}, {"x": 310, "y": 340}]}]}
+    },
+    "id32": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 160, "y": 230}, {"x": 160, "y": 460}]}]}
+    },
+    "id33": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 160, "y": 230}, {"x": 160, "y": 460}]}]}
+    },
+    "id34": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 160, "y": 230}, {"x": 160, "y": 460}]}]}
+    },
+    "id35": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "E": 2,
+            "M": [{"x": 250, "y": 165}, {"x": 20, "y": 165}, {"x": 20, "y": 342.5}]
+          }
+        ]
+      }
+    },
+    "id36": {
+      "Dyad": {
+        "edges": [{"S": 1, "E": 2, "M": [{"x": 175, "y": 362.5}, {"x": 175, "y": 360}]}]
+      }
+    },
+    "id37": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id38": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id39": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "E": 2,
+            "M": [
+              {"x": 570, "y": 360},
+              {"x": 570, "y": 420},
+              {"x": 150, "y": 420},
+              {"x": 150, "y": 480}
+            ]
+          }
+        ]
+      }
+    },
+    "id40": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id41": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id42": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id43": {
+      "Dyad": {
+        "edges": [{"S": 1, "E": 2, "M": [{"x": 662.5, "y": 480}, {"x": 662.5, "y": 478}]}]
+      }
+    },
+    "id44": {
+      "Dyad": {
+        "edges": [{"S": 1, "E": 2, "M": [{"x": 802.5, "y": 467}, {"x": 802.5, "y": 470}]}]
+      }
+    },
+    "id45": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "E": 2,
+            "M": [
+              {"x": 930, "y": 470},
+              {"x": 930, "y": 550},
+              {"x": 690, "y": 550},
+              {"x": 690, "y": 633}
+            ]
+          }
+        ]
+      }
+    },
+    "id46": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "E": 2,
+            "M": [{"x": 780, "y": 540}, {"x": 580, "y": 540}, {"x": 580, "y": 756}]
+          }
+        ]
+      }
+    },
+    "id47": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 60, "y": 726}]}]}},
+    "id48": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 735, "y": 796}]}]}},
+    "id49": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "E": 2,
+            "M": [
+              {"x": 560, "y": 766},
+              {"x": 560, "y": 820},
+              {"x": 40, "y": 820},
+              {"x": 40, "y": 362.5}
+            ]
+          }
+        ]
+      }
+    },
+    "id50": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "E": 2,
+            "M": [{"x": 765, "y": 880}, {"x": 700, "y": 880}, {"x": 700, "y": 936}]
+          }
+        ]
+      }
+    },
+    "id51": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id52": {
+      "Dyad": {
+        "edges": [{"S": 1, "E": 2, "M": [{"x": 820, "y": 612.5}, {"x": 820, "y": 610}]}]
+      }
+    },
+    "id53": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "E": 2,
+            "M": [
+              {"x": 950, "y": 610},
+              {"x": 950, "y": 750},
+              {"x": 840, "y": 750},
+              {"x": 840, "y": 780}
+            ]
+          }
+        ]
+      }
+    },
+    "id54": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 225, "y": 545}, {"x": 220, "y": 545}]}]}
+    },
+    "id55": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 365, "y": 545}, {"x": 360, "y": 545}]}]}
+    },
+    "id56": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 505, "y": 545}, {"x": 500, "y": 545}]}]}
+    },
+    "id57": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 300, "y": 900}, {"x": 300, "y": 625}]}]}
+    },
+    "id58": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 440, "y": 900}, {"x": 440, "y": 625}]}]}
+    },
+    "id59": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 710, "y": 910}, {"x": 710, "y": 765}]}]}
+    },
+    "id60": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 710, "y": 910}, {"x": 710, "y": 905}]}]}
+    },
+    "id61": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id62": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 615, "y": 400}, {"x": 880, "y": 400}]}]}
+    },
+    "id63": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "E": 2,
+            "M": [
+              {"x": 960, "y": 320},
+              {"x": 960, "y": 720},
+              {"x": 570, "y": 720},
+              {"x": 570, "y": 625}
+            ]
+          }
+        ]
+      }
+    },
+    "id64": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id65": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 500, "y": 220}]}]}},
+    "id66": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 680, "y": 220}]}]}},
+    "id67": {
+      "Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 980, "y": 90}, {"x": 980, "y": 725}]}]}
+    }
+  }
+}
+end
+
+analysis simbenchplant
+  extends TransientAnalysis(stop = 1, abstol = 1e-6, reltol = 1e-6)
+  model = BenchPlant()
+relations
+end

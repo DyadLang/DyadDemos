@@ -1,0 +1,7 @@
+connector SedimentationFluxSludgeIn
+  # Sedimentation flux
+  input SedFlux::Real
+  # Total sludge concentration in m-th layer
+  input X::MassConcentration
+metadata {"Dyad": {"icons": {"default": "dyad://ASPDemo/GenericInPort.svg"}}}
+end

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="-100.0 -100.0 200.0 200.0">
+<g transform="scale(1,-1) translate(0,-0.0)">
+<rect x="-46.0" y="-37.0" width="91.0" height="84.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(128,128,128)"/>
+<rect x="-90.0" y="10.0" width="88.0" height="30.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<rect x="-90.0" y="-30.0" width="87.0" height="30.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<ellipse cx="0.0" cy="5.0" rx="40.0" ry="35.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<rect x="10.0" y="-12.0" width="80.0" height="33.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<ellipse cx="0.0" cy="5.0" rx="38.0" ry="33.0" stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<rect x="-90.0" y="13.0" width="86.0" height="24.0"  stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<rect x="-90.0" y="-27.0" width="85.0" height="24.0"  stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<rect x="31.0" y="-9.0" width="59.0" height="27.0"  stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<polygon points="-74.0,-19.0 -55.0,-19.0 -56.0,-17.0 -50.0,-20.0 -56.0,-23.0 -55.0,-21.0 -74.0,-21.0 -74.0,-19.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="-18.0,24.0 1.0,24.0 0.0,26.0 6.0,23.0 0.0,20.0 1.0,22.0 -18.0,22.0 -18.0,24.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="-28.0,-12.0 -9.0,-12.0 -10.0,-10.0 -4.0,-13.0 -10.0,-16.0 -9.0,-14.0 -28.0,-14.0 -28.0,-12.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="22.0,10.0 41.0,10.0 40.0,12.0 46.0,9.0 40.0,6.0 41.0,8.0 22.0,8.0 22.0,10.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="57.0,-2.0 76.0,-2.0 75.0,0.0 81.0,-3.0 75.0,-6.0 76.0,-4.0 57.0,-4.0 57.0,-2.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="-74.0,30.0 -55.0,30.0 -56.0,32.0 -50.0,29.0 -56.0,26.0 -55.0,28.0 -74.0,28.0 -74.0,30.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+</g>
+</svg>

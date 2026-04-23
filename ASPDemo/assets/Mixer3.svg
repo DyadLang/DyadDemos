@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="-100.0 -100.0 200.0 200.0">
+<g transform="scale(1,-1) translate(0,-0.0)">
+<rect x="-60.0" y="-65.0" width="120.0" height="121.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(160,160,164)"/>
+<rect x="30.0" y="-30.0" width="60.0" height="50.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<rect x="-90.0" y="20.0" width="90.0" height="30.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<rect x="-90.0" y="-60.0" width="90.0" height="30.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<rect x="-90.0" y="-20.0" width="90.0" height="30.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<ellipse cx="0.0" cy="4.5" rx="50.0" ry="45.5" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<ellipse cx="0.0" cy="-14.5" rx="50.0" ry="45.5" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<ellipse cx="0.0" cy="5.0" rx="47.0" ry="43.0" stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<ellipse cx="0.0" cy="-15.0" rx="47.0" ry="43.0" stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<rect x="-90.0" y="23.0" width="92.0" height="24.0"  stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<rect x="-90.0" y="-17.0" width="92.0" height="24.0"  stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<rect x="-90.0" y="-57.0" width="90.0" height="24.0"  stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<rect x="11.0" y="-26.0" width="79.0" height="42.0"  stroke="rgb(0,0,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<polygon points="-20.0,-7.0 -1.0,-7.0 -2.0,-5.0 4.0,-8.0 -2.0,-11.0 -1.0,-9.0 -20.0,-9.0 -20.0,-7.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="10.0,14.0 29.0,14.0 28.0,16.0 34.0,13.0 28.0,10.0 29.0,12.0 10.0,12.0 10.0,14.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="11.0,-28.0 30.0,-28.0 29.0,-26.0 35.0,-29.0 29.0,-32.0 30.0,-30.0 11.0,-30.0 11.0,-28.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="-75.0,-1.0 -56.0,-1.0 -57.0,1.0 -51.0,-2.0 -57.0,-5.0 -56.0,-3.0 -75.0,-3.0 -75.0,-1.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="-74.0,41.0 -55.0,41.0 -56.0,43.0 -50.0,40.0 -56.0,37.0 -55.0,39.0 -74.0,39.0 -74.0,41.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="-71.0,-49.0 -52.0,-49.0 -53.0,-47.0 -47.0,-50.0 -53.0,-53.0 -52.0,-51.0 -71.0,-51.0 -71.0,-49.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="-30.0,33.0 -11.0,33.0 -12.0,35.0 -6.0,32.0 -12.0,29.0 -11.0,31.0 -30.0,31.0 -30.0,33.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="-28.0,-42.0 -9.0,-42.0 -10.0,-40.0 -4.0,-43.0 -10.0,-46.0 -9.0,-44.0 -28.0,-44.0 -28.0,-42.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<polygon points="44.0,-7.0 63.0,-7.0 62.0,-5.0 68.0,-8.0 62.0,-11.0 63.0,-9.0 44.0,-9.0 44.0,-7.0" stroke="none" stroke-width="0.25" fill="rgb(191,95,0)"/>
+</g>
+</svg>

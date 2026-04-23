@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="-100.0 -100.0 200.0 200.0">
+<g transform="scale(1,-1) translate(0,-0.0)">
+<rect x="-90.0" y="0.0" width="90.0" height="38.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<polygon points="-80.0,-20.0 -60.0,-80.0 60.0,-80.0 80.0,-20.0 -80.0,-20.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(0,127,255)"/>
+<polyline points="0.0,14.0 8.0,4.0 10.0,0.0 12.0,-8.0 12.0,-16.0 12.0,-22.0" stroke="rgb(0,127,255)" stroke-width="1.0" fill="none"/>
+<polyline points="0.0,20.0 6.0,14.0 8.0,12.0 10.0,8.0 12.0,2.0 14.0,-2.0 16.0,-6.0 16.0,-10.0 16.0,-16.0 16.0,-22.0" stroke="rgb(0,127,255)" stroke-width="1.0" fill="none"/>
+<polyline points="0.0,8.0 4.0,6.0 6.0,2.0 8.0,-2.0 8.0,-6.0 10.0,-14.0 10.0,-20.0" stroke="rgb(0,127,255)" stroke-width="1.0" fill="none"/>
+<polygon points="-80.0,-20.0 -94.0,-20.0 -94.0,-80.0 -60.0,-80.0 -80.0,-20.0 -80.0,-20.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(0,191,0)"/>
+<polygon points="80.0,-20.0 94.0,-20.0 94.0,-80.0 60.0,-80.0 80.0,-20.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(0,191,0)"/>
+<rect x="-94.0" y="-94.0" width="188.0" height="14.0"  stroke="rgb(0,191,0)" stroke-width="0.25" fill="rgb(0,191,0)"/>
+<polygon points="-52.0,58.0 -52.0,42.0 -40.0,50.0 -52.0,58.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(0,0,0)"/>
+<polygon points="-40.0,50.0 -30.0,58.0 -30.0,42.0 -40.0,50.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(0,0,0)"/>
+<polyline points="-40.0,50.0 -40.0,38.0" stroke="rgb(0,0,0)" stroke-width="1.0" fill="none"/>
+</g>
+</svg>

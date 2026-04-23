@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="-100.0 -100.0 200.0 200.0">
+<g transform="scale(1,-1) translate(0,-0.0)">
+<rect x="-80.0" y="-80.0" width="160.0" height="100.0"  stroke="rgb(255,255,255)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<polyline points="-80.0,-6.0 -80.0,-80.0 80.0,-80.0 80.0,-6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="-80.0,6.0 -80.0,20.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="80.0,6.0 80.0,20.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<rect x="-90.0" y="-6.0" width="10.0" height="12.0"  stroke="rgb(223,191,159)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<rect x="80.0" y="-6.0" width="10.0" height="12.0"  stroke="rgb(223,191,159)" stroke-width="0.25" fill="rgb(223,191,159)"/>
+<polyline points="-90.0,-6.0 -80.0,-6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="-90.0,6.0 -80.0,6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="80.0,6.0 90.0,6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="80.0,-6.0 90.0,-6.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<ellipse cx="0.0" cy="-36.0" rx="2.0" ry="2.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(0,0,0)"/>
+<polyline points="0.0,-34.0 0.0,40.0 0.0,44.0" stroke="rgb(0,0,0)" stroke-width="1.0" fill="none"/>
+<polyline points="-2.0,-36.0 -10.0,-36.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<polyline points="10.0,-36.0 2.0,-36.0" stroke="rgb(0,0,0)" stroke-width="0.5" fill="none"/>
+<ellipse cx="-36.0" cy="-36.0" rx="26.0" ry="4.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(128,128,128)"/>
+<ellipse cx="36.0" cy="-36.0" rx="26.0" ry="4.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(128,128,128)"/>
+<ellipse cx="-71.0" cy="-1.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-53.0" cy="-3.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-37.0" cy="-1.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-67.0" cy="-17.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-43.0" cy="-21.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-13.0" cy="-5.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-27.0" cy="-17.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="11.0" cy="-1.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="29.0" cy="-3.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="45.0" cy="-1.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="15.0" cy="-17.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="39.0" cy="-21.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="69.0" cy="-5.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="62.0" cy="-25.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-67.0" cy="-49.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-49.0" cy="-51.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-33.0" cy="-49.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-63.0" cy="-65.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-39.0" cy="-69.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-9.0" cy="-53.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-23.0" cy="-65.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="9.0" cy="-49.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="27.0" cy="-51.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="43.0" cy="-49.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="13.0" cy="-65.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="37.0" cy="-69.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="67.0" cy="-53.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="53.0" cy="-65.0" rx="1.0" ry="1.0" stroke="rgb(191,95,0)" stroke-width="0.25" fill="rgb(191,95,0)"/>
+<ellipse cx="-56.0" cy="-11.0" rx="5.0" ry="5.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<rect x="-58.0" y="-6.0" width="3.0" height="46.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<polyline points="-90.0,40.0 -55.0,40.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="none"/>
+<rect x="54.0" y="-6.0" width="3.0" height="46.0"  stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+<ellipse cx="56.0" cy="-11.0" rx="5.0" ry="5.0" stroke="rgb(0,0,0)" stroke-width="0.25" fill="rgb(192,192,192)"/>
+</g>
+</svg>

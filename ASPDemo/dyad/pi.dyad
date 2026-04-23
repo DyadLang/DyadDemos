@@ -1,0 +1,47 @@
+component PI
+  u_s = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
+  u_m = RealInput() [{"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 270}}}}]
+  y = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}]
+  # Gain
+  parameter k::Real = 1
+  # Time constant (T>0 required)
+  parameter Ti::Time = 1
+  # Initial value of state
+  parameter x_start::Real = 0
+  # Controller difference
+  variable u::Real
+  # State of block
+  variable x::Real
+relations
+  initial x = x_start
+  u = u_s - u_m
+  der(x) = u/Ti
+  y = k*(x + u)
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": -50, "rot": 0, "layer":"icon"}],
+    "icons": {"default": "dyad://ASPDemo/PI.svg"}
+  }
+}
+end
+
+# A test model for a PI conroller
+test component TestPI
+  PI = PI()
+relations   
+  PI.u_s = 5       
+  PI.u_m = 2                      
+  
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {"stop": 4, "expect": {"signals": ["PI.y"]}}
+    }
+  }
+}
+end
+
+analysis simpi
+  extends TransientAnalysis(stop=4)
+  model = TestPI()
+end
