@@ -22,15 +22,16 @@
 
  * `T_outdoor` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `T_ground` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
- * `zone_port` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `zone_port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function ZoneRoom(; name = nothing, R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=400000)
+@component function ZoneRoom(; name = nothing, R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000), kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = ZoneRoom()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -38,36 +39,92 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (R_wall::Real = R_wall))
-  append!(__params, @parameters (R_win::Real = R_win))
-  append!(__params, @parameters (R_roof::Real = R_roof))
-  append!(__params, @parameters (R_slab::Real = R_slab))
-  append!(__params, @parameters (R_infil::Real = R_infil))
-  append!(__params, @parameters (C::Real = C))
+  __local__R_wall = R_wall
+  append!(__params, @parameters (R_wall::Real))
+  __initial_conditions[R_wall] = __local__R_wall
+  __local__R_win = R_win
+  append!(__params, @parameters (R_win::Real))
+  __initial_conditions[R_win] = __local__R_win
+  __local__R_roof = R_roof
+  append!(__params, @parameters (R_roof::Real))
+  __initial_conditions[R_roof] = __local__R_roof
+  __local__R_slab = R_slab
+  append!(__params, @parameters (R_slab::Real))
+  __initial_conditions[R_slab] = __local__R_slab
+  __local__R_infil = R_infil
+  append!(__params, @parameters (R_infil::Real))
+  __initial_conditions[R_infil] = __local__R_infil
+  __local__C = C
+  append!(__params, @parameters (C::Real))
+  __initial_conditions[C] = __local__C
 
-  ### Variables
+  ### Final Path Parameters
   append!(__vars, @variables (T_outdoor(t)::Real), [input = true])
   append!(__vars, @variables (T_ground(t)::Real), [input = true])
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named zone_port = __Dyad__Node())
-  push!(__systems, @named outdoor_src = ThermalComponents.PrescribedTemperature())
-  push!(__systems, @named ground_src = ThermalComponents.PrescribedTemperature())
-  push!(__systems, @named wall = ThermalComponents.ThermalResistor(R=R_wall))
-  push!(__systems, @named win = ThermalComponents.ThermalResistor(R=R_win))
-  push!(__systems, @named roof = ThermalComponents.ThermalResistor(R=R_roof))
-  push!(__systems, @named slab = ThermalComponents.ThermalResistor(R=R_slab))
-  push!(__systems, @named infil = ThermalComponents.ThermalResistor(R=R_infil))
-  push!(__systems, @named cap = DynamicSteadyState.HeatCapacitorNoInit(C=C))
+  push!(__systems, @named zone_port = __Dyad__HeatPort())
+  # Subcomponent outdoor_src of type ThermalComponents.Sources.PrescribedTemperature
+  outdoor_src_overrides = Dict(Symbol(replace(string(k), r"^outdoor_src__" => "")) => v for (k, v) in __overrides if startswith(string(k), "outdoor_src__"))
+  filter!(p -> !startswith(string(first(p)), "outdoor_src__"), __overrides)
+  push!(__systems, @named outdoor_src = ThermalComponents.Sources.PrescribedTemperature(outdoor_src_overrides...))
+  # Subcomponent ground_src of type ThermalComponents.Sources.PrescribedTemperature
+  ground_src_overrides = Dict(Symbol(replace(string(k), r"^ground_src__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground_src__"))
+  filter!(p -> !startswith(string(first(p)), "ground_src__"), __overrides)
+  push!(__systems, @named ground_src = ThermalComponents.Sources.PrescribedTemperature(ground_src_overrides...))
+  # Subcomponent wall of type ThermalComponents.Components.ThermalResistor
+  wall_overrides = Dict(Symbol(replace(string(k), r"^wall__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wall__"))
+  filter!(p -> !startswith(string(first(p)), "wall__"), __overrides)
+  push!(__systems, @named wall = ThermalComponents.Components.ThermalResistor(R=R_wall, wall_overrides...))
+  # Subcomponent win of type ThermalComponents.Components.ThermalResistor
+  win_overrides = Dict(Symbol(replace(string(k), r"^win__" => "")) => v for (k, v) in __overrides if startswith(string(k), "win__"))
+  filter!(p -> !startswith(string(first(p)), "win__"), __overrides)
+  push!(__systems, @named win = ThermalComponents.Components.ThermalResistor(R=R_win, win_overrides...))
+  # Subcomponent roof of type ThermalComponents.Components.ThermalResistor
+  roof_overrides = Dict(Symbol(replace(string(k), r"^roof__" => "")) => v for (k, v) in __overrides if startswith(string(k), "roof__"))
+  filter!(p -> !startswith(string(first(p)), "roof__"), __overrides)
+  push!(__systems, @named roof = ThermalComponents.Components.ThermalResistor(R=R_roof, roof_overrides...))
+  # Subcomponent slab of type ThermalComponents.Components.ThermalResistor
+  slab_overrides = Dict(Symbol(replace(string(k), r"^slab__" => "")) => v for (k, v) in __overrides if startswith(string(k), "slab__"))
+  filter!(p -> !startswith(string(first(p)), "slab__"), __overrides)
+  push!(__systems, @named slab = ThermalComponents.Components.ThermalResistor(R=R_slab, slab_overrides...))
+  # Subcomponent infil of type ThermalComponents.Components.ThermalResistor
+  infil_overrides = Dict(Symbol(replace(string(k), r"^infil__" => "")) => v for (k, v) in __overrides if startswith(string(k), "infil__"))
+  filter!(p -> !startswith(string(first(p)), "infil__"), __overrides)
+  push!(__systems, @named infil = ThermalComponents.Components.ThermalResistor(R=R_infil, infil_overrides...))
+  # Subcomponent cap of type DynamicSteadyState.HeatCapacitorNoInit
+  cap_overrides = Dict(Symbol(replace(string(k), r"^cap__" => "")) => v for (k, v) in __overrides if startswith(string(k), "cap__"))
+  filter!(p -> !startswith(string(first(p)), "cap__"), __overrides)
+  push!(__systems, @named cap = DynamicSteadyState.HeatCapacitorNoInit(C=C, cap_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -77,11 +134,11 @@
   ### Equations
   push!(__eqs, connect(T_outdoor, outdoor_src.T))
   push!(__eqs, connect(T_ground, ground_src.T))
-  push!(__eqs, connect(outdoor_src.node, wall.node_a, win.node_a, roof.node_a, infil.node_a))
-  push!(__eqs, connect(ground_src.node, slab.node_a))
-  push!(__eqs, connect(wall.node_b, win.node_b, roof.node_b, slab.node_b, infil.node_b, cap.node, zone_port))
+  push!(__eqs, connect(outdoor_src.port, wall.port_a, win.port_a, roof.port_a, infil.port_a))
+  push!(__eqs, connect(ground_src.port, slab.port_a))
+  push!(__eqs, connect(wall.port_b, win.port_b, roof.port_b, slab.port_b, infil.port_b, cap.port, zone_port))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ZoneRoom

@@ -31,7 +31,7 @@ The occupancy schedule is a representative weekday office profile with
 
 ## Connectors
 
- * `node` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 
 ## Variables
 
@@ -40,13 +40,14 @@ The occupancy schedule is a representative weekday office profile with
 | `T`         | Temperature of the element                         | K  | 
 | `dT`         | Time derivative of temperature                         | K/s  | 
 """
-@component function HeatCapacitorNoInit(; name = nothing, C=nothing)
+@component function HeatCapacitorNoInit(; name = nothing, C=nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = HeatCapacitorNoInit()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -54,23 +55,49 @@ The occupancy schedule is a representative weekday office profile with
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (C::Real = C), [description = "Heat capacity of the element (J/K)"])
+  __local__C = C
+  append!(__params, @parameters (C::Real), [description = "Heat capacity of the element (J/K)"])
+  __initial_conditions[C] = __local__C
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (T(t)::Real), [description = "Temperature of the element"])
   append!(__vars, @variables (dT(t)::Real), [description = "Time derivative of temperature"])
+
+  ### Variables (assignments)
+  __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
+  __ovr_T__initial = pop!(__overrides, "T__initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
+  __ovr_dT = pop!(__overrides, "dT", nothing); isnothing(__ovr_dT) || push!(__eqs, dT ~ __ovr_dT)
+  __ovr_dT__initial = pop!(__overrides, "dT__initial", nothing); isnothing(__ovr_dT__initial) || (__initial_conditions[dT] = __ovr_dT__initial)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named node = __Dyad__Node())
+  push!(__systems, @named port = __Dyad__HeatPort())
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -78,11 +105,11 @@ The occupancy schedule is a representative weekday office profile with
   __assertions = []
 
   ### Equations
-  push!(__eqs, T ~ node.T)
+  push!(__eqs, T ~ port.T)
   push!(__eqs, ModelingToolkit.D_nounits(T) ~ dT)
-  push!(__eqs, dT ~ node.Q / C)
+  push!(__eqs, dT ~ port.Q_flow / C)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HeatCapacitorNoInit

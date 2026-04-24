@@ -7,13 +7,14 @@
 @doc Markdown.doc"""
    TestSteadySizing(; name)
 """
-@component function TestSteadySizing(; name = nothing)
+@component function TestSteadySizing(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TestSteadySizing()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,30 +22,83 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named building = DynamicSteadyState.ThreeZoneBuilding())
-  push!(__systems, @named outdoor_signal = BlockComponents.Constant(k=268.15))
-  push!(__systems, @named ground_signal = BlockComponents.Constant(k=283.15))
-  push!(__systems, @named int1 = ThermalComponents.FixedHeatFlow(Q=600))
-  push!(__systems, @named int2 = ThermalComponents.FixedHeatFlow(Q=500))
-  push!(__systems, @named int3 = ThermalComponents.FixedHeatFlow(Q=400))
-  push!(__systems, @named solar1 = ThermalComponents.FixedHeatFlow(Q=1500))
-  push!(__systems, @named solar3 = ThermalComponents.FixedHeatFlow(Q=375))
-  push!(__systems, @named zone1_setpoint = ThermalComponents.FixedTemperature(T=294.15))
-  push!(__systems, @named zone2_setpoint = ThermalComponents.FixedTemperature(T=294.15))
-  push!(__systems, @named zone3_setpoint = ThermalComponents.FixedTemperature(T=294.15))
+  # Subcomponent building of type DynamicSteadyState.ThreeZoneBuilding
+  building_overrides = Dict(Symbol(replace(string(k), r"^building__" => "")) => v for (k, v) in __overrides if startswith(string(k), "building__"))
+  filter!(p -> !startswith(string(first(p)), "building__"), __overrides)
+  push!(__systems, @named building = DynamicSteadyState.ThreeZoneBuilding(building_overrides...))
+  # Subcomponent outdoor_signal of type BlockComponents.Sources.Constant
+  outdoor_signal_overrides = Dict(Symbol(replace(string(k), r"^outdoor_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "outdoor_signal__"))
+  filter!(p -> !startswith(string(first(p)), "outdoor_signal__"), __overrides)
+  push!(__systems, @named outdoor_signal = BlockComponents.Sources.Constant(k=268.15, outdoor_signal_overrides...))
+  # Subcomponent ground_signal of type BlockComponents.Sources.Constant
+  ground_signal_overrides = Dict(Symbol(replace(string(k), r"^ground_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground_signal__"))
+  filter!(p -> !startswith(string(first(p)), "ground_signal__"), __overrides)
+  push!(__systems, @named ground_signal = BlockComponents.Sources.Constant(k=283.15, ground_signal_overrides...))
+  # Subcomponent int1 of type ThermalComponents.Sources.FixedHeatFlow
+  int1_overrides = Dict(Symbol(replace(string(k), r"^int1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "int1__"))
+  filter!(p -> !startswith(string(first(p)), "int1__"), __overrides)
+  push!(__systems, @named int1 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=600, int1_overrides...))
+  # Subcomponent int2 of type ThermalComponents.Sources.FixedHeatFlow
+  int2_overrides = Dict(Symbol(replace(string(k), r"^int2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "int2__"))
+  filter!(p -> !startswith(string(first(p)), "int2__"), __overrides)
+  push!(__systems, @named int2 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=500, int2_overrides...))
+  # Subcomponent int3 of type ThermalComponents.Sources.FixedHeatFlow
+  int3_overrides = Dict(Symbol(replace(string(k), r"^int3__" => "")) => v for (k, v) in __overrides if startswith(string(k), "int3__"))
+  filter!(p -> !startswith(string(first(p)), "int3__"), __overrides)
+  push!(__systems, @named int3 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=400, int3_overrides...))
+  # Subcomponent solar1 of type ThermalComponents.Sources.FixedHeatFlow
+  solar1_overrides = Dict(Symbol(replace(string(k), r"^solar1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar1__"))
+  filter!(p -> !startswith(string(first(p)), "solar1__"), __overrides)
+  push!(__systems, @named solar1 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=1500, solar1_overrides...))
+  # Subcomponent solar3 of type ThermalComponents.Sources.FixedHeatFlow
+  solar3_overrides = Dict(Symbol(replace(string(k), r"^solar3__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar3__"))
+  filter!(p -> !startswith(string(first(p)), "solar3__"), __overrides)
+  push!(__systems, @named solar3 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=375, solar3_overrides...))
+  # Subcomponent zone1_setpoint of type ThermalComponents.Sources.FixedTemperature
+  zone1_setpoint_overrides = Dict(Symbol(replace(string(k), r"^zone1_setpoint__" => "")) => v for (k, v) in __overrides if startswith(string(k), "zone1_setpoint__"))
+  filter!(p -> !startswith(string(first(p)), "zone1_setpoint__"), __overrides)
+  push!(__systems, @named zone1_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone1_setpoint_overrides...))
+  # Subcomponent zone2_setpoint of type ThermalComponents.Sources.FixedTemperature
+  zone2_setpoint_overrides = Dict(Symbol(replace(string(k), r"^zone2_setpoint__" => "")) => v for (k, v) in __overrides if startswith(string(k), "zone2_setpoint__"))
+  filter!(p -> !startswith(string(first(p)), "zone2_setpoint__"), __overrides)
+  push!(__systems, @named zone2_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone2_setpoint_overrides...))
+  # Subcomponent zone3_setpoint of type ThermalComponents.Sources.FixedTemperature
+  zone3_setpoint_overrides = Dict(Symbol(replace(string(k), r"^zone3_setpoint__" => "")) => v for (k, v) in __overrides if startswith(string(k), "zone3_setpoint__"))
+  filter!(p -> !startswith(string(first(p)), "zone3_setpoint__"), __overrides)
+  push!(__systems, @named zone3_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone3_setpoint_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -54,11 +108,11 @@
   ### Equations
   push!(__eqs, connect(outdoor_signal.y, building.T_outdoor))
   push!(__eqs, connect(ground_signal.y, building.T_ground))
-  push!(__eqs, connect(int1.node, solar1.node, zone1_setpoint.node, building.zone1_port))
-  push!(__eqs, connect(int2.node, zone2_setpoint.node, building.zone2_port))
-  push!(__eqs, connect(int3.node, solar3.node, zone3_setpoint.node, building.zone3_port))
+  push!(__eqs, connect(int1.port, solar1.port, zone1_setpoint.port, building.zone1_port))
+  push!(__eqs, connect(int2.port, zone2_setpoint.port, building.zone2_port))
+  push!(__eqs, connect(int3.port, solar3.port, zone3_setpoint.port, building.zone3_port))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestSteadySizing

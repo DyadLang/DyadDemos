@@ -5,15 +5,16 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractSteadyStateAnalysisSpec, SteadyStateAnalysisSpec
 @kwdef mutable struct ColdNightSizingSpec <: AbstractSteadyStateAnalysisSpec
   name::Symbol = :ColdNightSizing
-  var"alg"::String = "auto"
+  var"alg"::NonlinearSolveAlg.Type = NonlinearSolveAlg.Auto()
   var"abstol"::Float64 = 1e-8
   var"reltol"::Float64 = 1e-8
-  var"IfLifting"::Bool = false
+  var"automatic_discontinuity_detection"::Bool = false
+  var"respecialize"::Bool = false
   var"model"::Union{Nothing, System} = DynamicSteadyState.TestColdNightSizing(; name=:TestColdNightSizing)
 end
 
@@ -21,11 +22,10 @@ function DyadInterface.run_analysis(spec::ColdNightSizingSpec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
   base_spec = SteadyStateAnalysisSpec(;
-    name=:SteadyStateAnalysis, overrides, alg=spec.alg, abstol=spec.abstol, reltol=spec.reltol, IfLifting=spec.IfLifting, model=spec.model
+    name=:SteadyStateAnalysis, overrides, alg=spec.alg, abstol=spec.abstol, reltol=spec.reltol, automatic_discontinuity_detection=spec.automatic_discontinuity_detection, respecialize=spec.respecialize, model=spec.model
   )
   run_analysis(base_spec)
 end
 
 ColdNightSizing(;kwargs...) = run_analysis(ColdNightSizingSpec(;kwargs...))
 export ColdNightSizing, ColdNightSizingSpec
-export ColdNightSizingSpec, ColdNightSizing

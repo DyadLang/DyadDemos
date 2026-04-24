@@ -25,7 +25,7 @@ component HeatCapacitorNoInit
   # analysis free of over-determined initialization constraints.
   # ================================================================
   "Thermal port for heat exchange"
-  node = Node() {^node}
+  port = HeatPort() {^port}
   "Heat capacity of the element (J/K)"
   parameter C::HeatCapacity
   "Temperature of the element"
@@ -33,16 +33,16 @@ component HeatCapacitorNoInit
   "Time derivative of temperature"
   variable dT::TemperatureSlope
 relations
-  T = node.T
+  T = port.T
   der(T) = dT
-  dT = node.Q / C
+  dT = port.Q_flow / C
 metadata {
   "Dyad": {
     "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
     "icons": {"default": "dyad://ThermalComponents/HeatCapacitor.svg"}
   },
   "_links": {
-    "node": {"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}}}}
+    "port": {"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}}}}
   }
 }
 end
@@ -51,8 +51,8 @@ component ThermostatHeater
   # ================================================================
   # Proportional thermostat heater (reusable subcomponent)
   # ================================================================
-  "Thermal port — connects to the zone node"
-  node = Node() {^node}
+  "Thermal port — connects to the zone port"
+  port = HeatPort() {^port}
   "Proportional gain (W/K)"
   parameter K::Real = 500.0
   "Heating setpoint temperature"
@@ -64,13 +64,13 @@ component ThermostatHeater
   "Delivered heating power (W, 0 ≤ Q ≤ Q_max)"
   variable Q_delivered::HeatFlowRate
 relations
-  Q_raw = K * (T_set - node.T)
+  Q_raw = K * (T_set - port.T)
   Q_delivered = ifelse(Q_raw > Q_max, Q_max, ifelse(Q_raw < 0.0, 0.0, Q_raw))
-  node.Q = -Q_delivered
+  port.Q_flow = -Q_delivered
 metadata {
   "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_thermostat_heater.svg"}},
   "_links": {
-    "node": {
+    "port": {
       "Dyad": {
         "placement": {
           "diagram": {"iconName": "default", "x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 0}
@@ -101,16 +101,16 @@ component ZoneRoom
   "Ground temperature signal (K)"
   T_ground = RealInput() {^T_ground}
   "Zone port — connect HVAC, gains, and inter-zone partitions here"
-  zone_port = Node() {^zone_port}
+  zone_port = HeatPort() {^zone_port}
   # ---- Internal boundary condition sources ----
-  outdoor_src = ThermalComponents.PrescribedTemperature() {^outdoor_src}
-  ground_src = ThermalComponents.PrescribedTemperature() {^ground_src}
+  outdoor_src = ThermalComponents.Sources.PrescribedTemperature() {^outdoor_src}
+  ground_src = ThermalComponents.Sources.PrescribedTemperature() {^ground_src}
   # ---- Envelope resistors ----
-  wall = ThermalComponents.ThermalResistor(R = R_wall) {^wall}
-  win = ThermalComponents.ThermalResistor(R = R_win) {^win}
-  roof = ThermalComponents.ThermalResistor(R = R_roof) {^roof}
-  slab = ThermalComponents.ThermalResistor(R = R_slab) {^slab}
-  infil = ThermalComponents.ThermalResistor(R = R_infil) {^infil}
+  wall = ThermalComponents.Components.ThermalResistor(R = R_wall) {^wall}
+  win = ThermalComponents.Components.ThermalResistor(R = R_win) {^win}
+  roof = ThermalComponents.Components.ThermalResistor(R = R_roof) {^roof}
+  slab = ThermalComponents.Components.ThermalResistor(R = R_slab) {^slab}
+  infil = ThermalComponents.Components.ThermalResistor(R = R_infil) {^infil}
   cap = HeatCapacitorNoInit(C = C) {^cap}
   # ---- Envelope thermal resistances ----
   parameter R_wall::ThermalResistance = 0.01
@@ -125,11 +125,11 @@ relations
   connect(T_outdoor, outdoor_src.T) {^id12}
   connect(T_ground, ground_src.T) {^id13}
   # Outdoor source → envelope resistors
-  connect(outdoor_src.node, wall.node_a, win.node_a, roof.node_a, infil.node_a) {^id14}
+  connect(outdoor_src.port, wall.port_a, win.port_a, roof.port_a, infil.port_a) {^id14}
   # Ground source → slab
-  connect(ground_src.node, slab.node_a) {^id15}
-  # Zone node: all resistor b-sides, capacitor, zone port
-  connect(wall.node_b, win.node_b, roof.node_b, slab.node_b, infil.node_b, cap.node, zone_port) {^id16}
+  connect(ground_src.port, slab.port_a) {^id15}
+  # Zone port: all resistor b-sides, capacitor, zone port
+  connect(wall.port_b, win.port_b, roof.port_b, slab.port_b, infil.port_b, cap.port, zone_port) {^id16}
 metadata {
   "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_zone_room.svg"}},
   "_links": {
@@ -292,25 +292,25 @@ component ThreeZoneBuilding
   "Ground temperature signal (K)"
   T_ground = RealInput() {^T_ground}
   "Zone 1 (South) port — connect HVAC, gains, and external loads here"
-  zone1_port = Node() {^zone1_port}
+  zone1_port = HeatPort() {^zone1_port}
   "Zone 2 (Core) port"
-  zone2_port = Node() {^zone2_port}
+  zone2_port = HeatPort() {^zone2_port}
   "Zone 3 (North) port"
-  zone3_port = Node() {^zone3_port}
+  zone3_port = HeatPort() {^zone3_port}
   # ==== Three rooms ====
   z1 = ZoneRoom(R_wall = 0.01, R_win = 0.015, R_roof = 0.025, R_slab = 0.05, R_infil = 0.0333, C = 400000.0) {^z1}
   z2 = ZoneRoom(R_wall = 1e6, R_win = 1e6, R_roof = 0.025, R_slab = 0.05, R_infil = 0.0667, C = 300000.0) {^z2}
   z3 = ZoneRoom(R_wall = 0.01, R_win = 0.02, R_roof = 0.025, R_slab = 0.05, R_infil = 0.0333, C = 400000.0) {^z3}
   # ==== Inter-zone partitions ====
-  partition12 = ThermalComponents.ThermalResistor(R = 0.01) {^partition12}
-  partition23 = ThermalComponents.ThermalResistor(R = 0.01) {^partition23}
+  partition12 = ThermalComponents.Components.ThermalResistor(R = 0.01) {^partition12}
+  partition23 = ThermalComponents.Components.ThermalResistor(R = 0.01) {^partition23}
 relations
   # Outdoor and ground signals fan out to each zone
   connect(T_ground, z1.T_ground, z2.T_ground, z3.T_ground) {^id11}
-  connect(z2.zone_port, zone2_port, partition23.node_a, partition12.node_b) {^id12}
+  connect(z2.zone_port, zone2_port, partition23.port_a, partition12.port_b) {^id12}
   connect(T_outdoor, z1.T_outdoor, z2.T_outdoor, z3.T_outdoor) {^id13}
-  connect(z1.zone_port, zone1_port, partition12.node_a) {^id14}
-  connect(z3.zone_port, zone3_port, partition23.node_b) {^id15}
+  connect(z1.zone_port, zone1_port, partition12.port_a) {^id14}
+  connect(z3.zone_port, zone3_port, partition23.port_b) {^id15}
 metadata {
   "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_three_zone_building.svg"}},
   "_links": {
@@ -473,24 +473,24 @@ end
 test component TestSteadySizing
   building = ThreeZoneBuilding() {^building}
   # ---- Boundary condition signals ----
-  outdoor_signal = BlockComponents.Constant(k = 268.15) {^outdoor_signal}
-  ground_signal = BlockComponents.Constant(k = 283.15) {^ground_signal}
+  outdoor_signal = BlockComponents.Sources.Constant(k = 268.15) {^outdoor_signal}
+  ground_signal = BlockComponents.Sources.Constant(k = 283.15) {^ground_signal}
   # ---- Internal and solar gains ----
-  int1 = ThermalComponents.FixedHeatFlow(Q = 600.0) {^int1}
-  int2 = ThermalComponents.FixedHeatFlow(Q = 500.0) {^int2}
-  int3 = ThermalComponents.FixedHeatFlow(Q = 400.0) {^int3}
-  solar1 = ThermalComponents.FixedHeatFlow(Q = 1500.0) {^solar1}
-  solar3 = ThermalComponents.FixedHeatFlow(Q = 375.0) {^solar3}
+  int1 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 600.0) {^int1}
+  int2 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 500.0) {^int2}
+  int3 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 400.0) {^int3}
+  solar1 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 1500.0) {^solar1}
+  solar3 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 375.0) {^solar3}
   # ---- Zone temperature setpoints (FixedTemperature at 21°C) ----
-  zone1_setpoint = ThermalComponents.FixedTemperature(T = 294.15) {^zone1_setpoint}
-  zone2_setpoint = ThermalComponents.FixedTemperature(T = 294.15) {^zone2_setpoint}
-  zone3_setpoint = ThermalComponents.FixedTemperature(T = 294.15) {^zone3_setpoint}
+  zone1_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone1_setpoint}
+  zone2_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone2_setpoint}
+  zone3_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone3_setpoint}
 relations
   connect(outdoor_signal.y, building.T_outdoor) {^id12}
   connect(ground_signal.y, building.T_ground) {^id13}
-  connect(int1.node, solar1.node, zone1_setpoint.node, building.zone1_port) {^id14}
-  connect(int2.node, zone2_setpoint.node, building.zone2_port) {^id15}
-  connect(int3.node, solar3.node, zone3_setpoint.node, building.zone3_port) {^id16}
+  connect(int1.port, solar1.port, zone1_setpoint.port, building.zone1_port) {^id14}
+  connect(int2.port, zone2_setpoint.port, building.zone2_port) {^id15}
+  connect(int3.port, solar3.port, zone3_setpoint.port, building.zone3_port) {^id16}
 metadata {
   "Dyad": {
     "experiments": {},
@@ -657,7 +657,7 @@ metadata {
 end
 
 analysis HVACSizing
-  extends DyadInterface.SteadyStateAnalysis()
+  extends SteadyStateAnalysis()
   model = TestSteadySizing()
 relations
 end
@@ -676,18 +676,18 @@ end
 test component TestColdNightSizing
   building = ThreeZoneBuilding() {^building}
   # ---- Boundary condition signals ----
-  outdoor_signal = BlockComponents.Constant(k = 263.15) {^outdoor_signal}
-  ground_signal = BlockComponents.Constant(k = 283.15) {^ground_signal}
+  outdoor_signal = BlockComponents.Sources.Constant(k = 263.15) {^outdoor_signal}
+  ground_signal = BlockComponents.Sources.Constant(k = 283.15) {^ground_signal}
   # ---- Zone temperature setpoints (FixedTemperature at 21°C) ----
-  zone1_setpoint = ThermalComponents.FixedTemperature(T = 294.15) {^zone1_setpoint}
-  zone2_setpoint = ThermalComponents.FixedTemperature(T = 294.15) {^zone2_setpoint}
-  zone3_setpoint = ThermalComponents.FixedTemperature(T = 294.15) {^zone3_setpoint}
+  zone1_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone1_setpoint}
+  zone2_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone2_setpoint}
+  zone3_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone3_setpoint}
 relations
   connect(outdoor_signal.y, building.T_outdoor) {^id7}
   connect(ground_signal.y, building.T_ground) {^id8}
-  connect(zone1_setpoint.node, building.zone1_port) {^id9}
-  connect(zone2_setpoint.node, building.zone2_port) {^id10}
-  connect(zone3_setpoint.node, building.zone3_port) {^id11}
+  connect(zone1_setpoint.port, building.zone1_port) {^id9}
+  connect(zone2_setpoint.port, building.zone2_port) {^id10}
+  connect(zone3_setpoint.port, building.zone3_port) {^id11}
 metadata {
   "Dyad": {
     "experiments": {},
@@ -795,7 +795,7 @@ metadata {
 end
 
 analysis ColdNightSizing
-  extends DyadInterface.SteadyStateAnalysis()
+  extends SteadyStateAnalysis()
   model = TestColdNightSizing()
 relations
 end
@@ -843,24 +843,24 @@ end
 test component TestDiurnalOperation
   building = ThreeZoneBuilding() {^building}
   # ---- Outdoor temperature (diurnal sine) — connects directly as signal ----
-  outdoor_signal = BlockComponents.Sine(amplitude = 5.0, frequency = 1.1574e-5, phase = -1.5708, offset = 268.15) {^outdoor_signal}
+  outdoor_signal = BlockComponents.Sources.Sine(amplitude = 5.0, frequency = 1.1574e-5, phase = -1.5708, offset = 268.15) {^outdoor_signal}
   # ---- Ground (stable year-round) ----
-  ground_signal = BlockComponents.Constant(k = 283.15) {^ground_signal}
+  ground_signal = BlockComponents.Sources.Constant(k = 283.15) {^ground_signal}
   # ---- Representative office occupancy schedule ----
   occ_schedule = OfficeOccupancy() {^occ_schedule}
   # ---- Solar gains (sine, peaks at noon) ----
-  solar_south = BlockComponents.Sine(amplitude = 1500.0, frequency = 1.1574e-5, phase = -1.5708, offset = 1500.0) {^solar_south}
-  solar_north = BlockComponents.Sine(amplitude = 375.0, frequency = 1.1574e-5, phase = -1.5708, offset = 375.0) {^solar_north}
+  solar_south = BlockComponents.Sources.Sine(amplitude = 1500.0, frequency = 1.1574e-5, phase = -1.5708, offset = 1500.0) {^solar_south}
+  solar_north = BlockComponents.Sources.Sine(amplitude = 375.0, frequency = 1.1574e-5, phase = -1.5708, offset = 375.0) {^solar_north}
   # ---- Internal gains = occupancy × peak watts ----
-  int1_scale = BlockComponents.Gain(k = 600.0) {^int1_scale}
-  int1_source = ThermalComponents.PrescribedHeatFlow() {^int1_source}
-  int2_scale = BlockComponents.Gain(k = 500.0) {^int2_scale}
-  int2_source = ThermalComponents.PrescribedHeatFlow() {^int2_source}
-  int3_scale = BlockComponents.Gain(k = 400.0) {^int3_scale}
-  int3_source = ThermalComponents.PrescribedHeatFlow() {^int3_source}
+  int1_scale = BlockComponents.Math.Gain(k = 600.0) {^int1_scale}
+  int1_source = ThermalComponents.Sources.PrescribedHeatFlow() {^int1_source}
+  int2_scale = BlockComponents.Math.Gain(k = 500.0) {^int2_scale}
+  int2_source = ThermalComponents.Sources.PrescribedHeatFlow() {^int2_source}
+  int3_scale = BlockComponents.Math.Gain(k = 400.0) {^int3_scale}
+  int3_source = ThermalComponents.Sources.PrescribedHeatFlow() {^int3_source}
   # ---- Solar thermal sources ----
-  solar1_source = ThermalComponents.PrescribedHeatFlow() {^solar1_source}
-  solar3_source = ThermalComponents.PrescribedHeatFlow() {^solar3_source}
+  solar1_source = ThermalComponents.Sources.PrescribedHeatFlow() {^solar1_source}
+  solar3_source = ThermalComponents.Sources.PrescribedHeatFlow() {^solar3_source}
   # ---- HVAC thermostat controllers (capacity = max(design-day, cold-night) × 1.2) ----
   hvac1 = ThermostatHeater(K = 5000.0, T_set = 294.15, Q_max = 9070.0) {^hvac1}
   hvac2 = ThermostatHeater(K = 5000.0, T_set = 294.15, Q_max = 2310.0) {^hvac2}
@@ -873,16 +873,16 @@ relations
   connect(occ_schedule.y, int1_scale.u) {^id20}
   connect(occ_schedule.y, int2_scale.u) {^id21}
   connect(occ_schedule.y, int3_scale.u) {^id22}
-  connect(int1_scale.y, int1_source.Q) {^id23}
-  connect(int2_scale.y, int2_source.Q) {^id24}
-  connect(int3_scale.y, int3_source.Q) {^id25}
+  connect(int1_scale.y, int1_source.Q_flow) {^id23}
+  connect(int2_scale.y, int2_source.Q_flow) {^id24}
+  connect(int3_scale.y, int3_source.Q_flow) {^id25}
   # Solar → heat sources
-  connect(solar_south.y, solar1_source.Q) {^id26}
-  connect(solar_north.y, solar3_source.Q) {^id27}
+  connect(solar_south.y, solar1_source.Q_flow) {^id26}
+  connect(solar_north.y, solar3_source.Q_flow) {^id27}
   # Heat sources + HVAC controllers → building zone ports
-  connect(int1_source.node, solar1_source.node, hvac1.node, building.zone1_port) {^id28}
-  connect(int2_source.node, hvac2.node, building.zone2_port) {^id29}
-  connect(int3_source.node, solar3_source.node, hvac3.node, building.zone3_port) {^id30}
+  connect(int1_source.port, solar1_source.port, hvac1.port, building.zone1_port) {^id28}
+  connect(int2_source.port, hvac2.port, building.zone2_port) {^id29}
+  connect(int3_source.port, solar3_source.port, hvac3.port, building.zone3_port) {^id30}
   # Initial zone temperatures (cold-start at 12°C)
   initial building.z1.cap.T = 285.15
   initial building.z2.cap.T = 285.15

@@ -11,7 +11,7 @@ Requirements: CairoMakie, ColorSchemes, DynamicSteadyState, DyadInterface
 =#
 
 using Pkg
-Pkg.activate(normpath(@__DIR__, ".."))
+Pkg.activate(joinpath(@__DIR__, ".."))
 
 using DynamicSteadyState
 using DyadInterface: symbolic_container

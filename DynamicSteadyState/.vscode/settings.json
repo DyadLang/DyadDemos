@@ -4,7 +4,10 @@
   "workbench.secondarySideBar.defaultVisibility": "hidden",
   "julia.environmentPath": "${workspaceFolder}",
   "julia.NumThreads": "auto",
-  "julia.languageServerJuliaupChannel": "dyad-2.3.0",
-  "julia.executablePath": "julia +dyad-2.3.0",
-  "julia.juliaup.server": "https://juliahub.com/juliabin"
+  "julia.languageServerJuliaupChannel": "release",
+  "julia.executablePath": "julia +release",
+  "julia.juliaup.server": "https://juliahub.com/juliabin",
+  "julia.additionalArgs": [
+    "--optimize=0"
+  ]
 }
