@@ -1,0 +1,130 @@
+# =====================================================
+# Full 6-DOF GNC closed-loop with jet actuation
+#
+# Architecture:
+#   [TrapezoidalProfile x3] → ref angles/rates/accels
+#                                    ↓
+#   [AttitudeController] ← estimated rates from [LuenbergerObserver]
+#         ↓ torques                                    ↑
+#   [ThrusterAllocator] → 8 × [ReactionJet]           │
+#         ↓ forces + torques (summed)                  │
+#   [SatelliteBody6DOF] → measured angles ─────────────┘
+#
+# Scenario: CubeSat 3-axis repointing on 400 km LEO orbit
+#   φ → 20° (0.349 rad)
+#   θ → 10° (0.175 rad)
+#   ψ → 30° (0.524 rad)
+#
+# The attitude controller commands torques, which the allocator
+# distributes to 8 bipropellant jets. The satellite simultaneously
+# orbits Earth under two-body gravity with gravity gradient torque.
+# Force inputs to the satellite are zero (attitude-only maneuver).
+# =====================================================
+test component TestFullGNC6DOF
+  "Plant (6-DOF)"
+  sat = SatelliteBody6DOF(Ixx = 10.0, Iyy = 8.0, Izz = 6.0, m = 4.0)
+  "Trajectory generators (one per axis)"
+  traj_phi = TrapezoidalProfile(target_angle = 0.3491, w_max = 0.0349, a_max = 0.00873)
+  traj_theta = TrapezoidalProfile(target_angle = 0.1745, w_max = 0.0349, a_max = 0.00873)
+  traj_psi = TrapezoidalProfile(target_angle = 0.5236, w_max = 0.0349, a_max = 0.00873)
+  "Observer"
+  obs = LuenbergerObserver(Ixx = 10.0, Iyy = 8.0, Izz = 6.0, p = 2.0, La_x = 4.0, La_y = 4.0, La_z = 4.0, Lw_x = 40.0, Lw_y = 32.0, Lw_z = 24.0)
+  "Controller"
+  ctrl = AttitudeController(Kp_x = 5.0, Kd_x = 20.0, Kp_y = 4.0, Kd_y = 16.0, Kp_z = 3.0, Kd_z = 12.0, Ixx_ff = 10.0, Iyy_ff = 8.0, Izz_ff = 6.0)
+  "Thruster allocator"
+  alloc = ThrusterAllocator(F_max = 0.5)
+  "8 reaction jets"
+  jet1 = ReactionJet(rx =  0.15, ry =  0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5)
+  jet2 = ReactionJet(rx =  0.15, ry = -0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5)
+  jet3 = ReactionJet(rx = -0.15, ry =  0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5)
+  jet4 = ReactionJet(rx = -0.15, ry = -0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5)
+  jet5 = ReactionJet(rx =  0.15, ry = 0.0,   rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.5)
+  jet6 = ReactionJet(rx = -0.15, ry = 0.0,   rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.5)
+  jet7 = ReactionJet(rx = 0.0,   ry =  0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.5)
+  jet8 = ReactionJet(rx = 0.0,   ry = -0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.5)
+relations
+  # --- Initial conditions ---
+  # Plant: 400 km LEO circular orbit, at rest, zero attitude
+  initial sat.pos_x = 6771000.0
+  initial sat.pos_y = 0.0
+  initial sat.pos_z = 0.0
+  initial sat.vel_x = 0.0
+  initial sat.vel_y = 7672.6
+  initial sat.vel_z = 0.0
+  initial sat.wx = 0.0
+  initial sat.wy = 0.0
+  initial sat.wz = 0.0
+  initial sat.phi = 0.0
+  initial sat.theta = 0.0
+  initial sat.psi = 0.0
+  # Observer starts with zero estimates
+  initial obs.phi_est = 0.0
+  initial obs.theta_est = 0.0
+  initial obs.psi_est = 0.0
+  initial obs.wx_est = 0.0
+  initial obs.wy_est = 0.0
+  initial obs.wz_est = 0.0
+
+  # --- Trajectory refs → Controller ---
+  connect(traj_phi.angle_ref, ctrl.phi_ref)
+  connect(traj_theta.angle_ref, ctrl.theta_ref)
+  connect(traj_psi.angle_ref, ctrl.psi_ref)
+  connect(traj_phi.rate_ref, ctrl.wx_ref)
+  connect(traj_theta.rate_ref, ctrl.wy_ref)
+  connect(traj_psi.rate_ref, ctrl.wz_ref)
+  connect(traj_phi.accel_ref, ctrl.ax_ff)
+  connect(traj_theta.accel_ref, ctrl.ay_ff)
+  connect(traj_psi.accel_ref, ctrl.az_ff)
+
+  # --- Measured angles → Controller (direct) ---
+  connect(sat.phi_out, ctrl.phi_meas)
+  connect(sat.theta_out, ctrl.theta_meas)
+  connect(sat.psi_out, ctrl.psi_meas)
+
+  # --- Estimated rates → Controller ---
+  connect(obs.wx_hat, ctrl.wx_meas)
+  connect(obs.wy_hat, ctrl.wy_meas)
+  connect(obs.wz_hat, ctrl.wz_meas)
+
+  # --- Measured angles → Observer ---
+  connect(sat.phi_out, obs.phi_meas)
+  connect(sat.theta_out, obs.theta_meas)
+  connect(sat.psi_out, obs.psi_meas)
+
+  # --- Controller torques → Allocator ---
+  connect(ctrl.tau_x, alloc.tau_x_cmd)
+  connect(ctrl.tau_y, alloc.tau_y_cmd)
+  connect(ctrl.tau_z, alloc.tau_z_cmd)
+  # No translational force commands (attitude-only maneuver)
+  alloc.Fx_cmd = 0.0
+  alloc.Fy_cmd = 0.0
+  alloc.Fz_cmd = 0.0
+
+  # --- Allocator → Jets ---
+  connect(alloc.cmd1, jet1.cmd)
+  connect(alloc.cmd2, jet2.cmd)
+  connect(alloc.cmd3, jet3.cmd)
+  connect(alloc.cmd4, jet4.cmd)
+  connect(alloc.cmd5, jet5.cmd)
+  connect(alloc.cmd6, jet6.cmd)
+  connect(alloc.cmd7, jet7.cmd)
+  connect(alloc.cmd8, jet8.cmd)
+
+  # --- Sum jet forces and torques → Satellite ---
+  sat.tau_x = jet1.tx_out + jet2.tx_out + jet3.tx_out + jet4.tx_out + jet5.tx_out + jet6.tx_out + jet7.tx_out + jet8.tx_out
+  sat.tau_y = jet1.ty_out + jet2.ty_out + jet3.ty_out + jet4.ty_out + jet5.ty_out + jet6.ty_out + jet7.ty_out + jet8.ty_out
+  sat.tau_z = jet1.tz_out + jet2.tz_out + jet3.tz_out + jet4.tz_out + jet5.tz_out + jet6.tz_out + jet7.tz_out + jet8.tz_out
+  sat.fx = jet1.fx_out + jet2.fx_out + jet3.fx_out + jet4.fx_out + jet5.fx_out + jet6.fx_out + jet7.fx_out + jet8.fx_out
+  sat.fy = jet1.fy_out + jet2.fy_out + jet3.fy_out + jet4.fy_out + jet5.fy_out + jet6.fy_out + jet7.fy_out + jet8.fy_out
+  sat.fz = jet1.fz_out + jet2.fz_out + jet3.fz_out + jet4.fz_out + jet5.fz_out + jet6.fz_out + jet7.fz_out + jet8.fz_out
+
+  # --- Controller torques → Observer (known inputs) ---
+  connect(ctrl.tau_x, obs.tau_x)
+  connect(ctrl.tau_y, obs.tau_y)
+  connect(ctrl.tau_z, obs.tau_z)
+end
+
+analysis TestFullGNC6DOFSim
+  extends TransientAnalysis(stop = 40.0)
+  model = TestFullGNC6DOF()
+end

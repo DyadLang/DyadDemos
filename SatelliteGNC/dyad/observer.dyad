@@ -1,0 +1,172 @@
+"""
+3-axis Luenberger observer for satellite attitude estimation.
+
+Estimates angular velocities (ωx, ωy, ωz) from angle measurements
+(φ, θ, ψ) and known applied torques. Uses a linearized copy of the
+satellite dynamics with correction gains.
+
+For each axis i the observer dynamics are:
+  dθ̂_i/dt = ω̂_i + L_a_i * (θ_meas_i - θ̂_i)
+  I_i * dω̂_i/dt = τ_i + L_w_i * (θ_meas_i - θ̂_i)
+
+Observer poles placed at -p (double pole per axis):
+  L_a_i = 2p,  L_w_i = p² * I_i
+
+Typical design: p ≈ 3× controller bandwidth for separation principle.
+"""
+component LuenbergerObserver
+  "Measured angle inputs (from star tracker)"
+  phi_meas = RealInput() {^phi_meas}
+  theta_meas = RealInput() {^theta_meas}
+  psi_meas = RealInput() {^psi_meas}
+  "Known applied torque inputs"
+  tau_x = RealInput() {^tau_x}
+  tau_y = RealInput() {^tau_y}
+  tau_z = RealInput() {^tau_z}
+  "Estimated angle outputs"
+  phi_hat = RealOutput() {^phi_hat}
+  theta_hat = RealOutput() {^theta_hat}
+  psi_hat = RealOutput() {^psi_hat}
+  "Estimated angular velocity outputs"
+  wx_hat = RealOutput() {^wx_hat}
+  wy_hat = RealOutput() {^wy_hat}
+  wz_hat = RealOutput() {^wz_hat}
+  "Principal moments of inertia (must match plant)"
+  parameter Ixx::Real = 10.0
+  parameter Iyy::Real = 8.0
+  parameter Izz::Real = 6.0
+  "Observer pole location (rad/s) — sets estimation bandwidth"
+  parameter p::Real = 2.0
+  "Angle correction gains (L_a = 2p)"
+  parameter La_x::Real = 4.0
+  parameter La_y::Real = 4.0
+  parameter La_z::Real = 4.0
+  "Rate correction gains (L_w = p^2 * I)"
+  parameter Lw_x::Real = 40.0
+  parameter Lw_y::Real = 32.0
+  parameter Lw_z::Real = 24.0
+  "Estimated states"
+  variable phi_est::Real
+  variable theta_est::Real
+  variable psi_est::Real
+  variable wx_est::Real
+  variable wy_est::Real
+  variable wz_est::Real
+relations
+  # --- Angle estimation with correction ---
+  der(phi_est) = wx_est + La_x * (phi_meas - phi_est)
+  der(theta_est) = wy_est + La_y * (theta_meas - theta_est)
+  der(psi_est) = wz_est + La_z * (psi_meas - psi_est)
+  # --- Rate estimation: linearized Euler's eqs + correction ---
+  Ixx * der(wx_est) = tau_x + Lw_x * (phi_meas - phi_est)
+  Iyy * der(wy_est) = tau_y + Lw_y * (theta_meas - theta_est)
+  Izz * der(wz_est) = tau_z + Lw_z * (psi_meas - psi_est)
+  # --- Wire outputs ---
+  phi_hat = phi_est
+  theta_hat = theta_est
+  psi_hat = psi_est
+  wx_hat = wx_est
+  wy_hat = wy_est
+  wz_hat = wz_est
+metadata {
+  "Dyad": {"icons": {"default": "dyad://SatelliteGNC/LuenbergerObserver.svg"}},
+  "_links": {
+    "phi_meas": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 40, "x2": 50, "y2": 140, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "theta_meas": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 400, "x2": 60, "y2": 500, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "psi_meas": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 230, "x2": 60, "y2": 330, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tau_x": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 570, "x2": 60, "y2": 670, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tau_y": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 730, "x2": 60, "y2": 830, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tau_z": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 890, "x2": 60, "y2": 990, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "phi_hat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 50, "x2": 1070, "y2": 150, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "theta_hat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 420, "x2": 1070, "y2": 520, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "psi_hat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 230, "x2": 1070, "y2": 330, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wx_hat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 570, "x2": 1070, "y2": 670, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wy_hat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 720, "x2": 1070, "y2": 820, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wz_hat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 890, "x2": 1070, "y2": 990, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
