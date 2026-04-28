@@ -1,0 +1,41 @@
+"""
+4-zone thermal network ROM discovered via SVD mode clustering.
+
+Zone assignments (data-driven, energy-weighted k-means on SVD mode shapes):
+  Zone 1: nodes [1,2,3,4,5]   — 5 nodes
+  Zone 2: nodes [6,7,8,9,10]  — 5 nodes
+  Zone 3: nodes [11,12,13,14] — 4 nodes
+  Zone 4: nodes [15,16,17,18,19,20] — 6 nodes
+
+Calibrated against CFD training data via Nelder-Mead optimization.
+All variables are in deviation coordinates: θ = T - T_cool.
+"""
+component SVDThermalNetworkROM
+  "Heat input at oil side [W]"
+  Q_in = RealInput()
+  "Zone thermal capacitances [J/K] (C_per_node × zone_size)"
+  parameter C1::Real = 400.0
+  parameter C2::Real = 400.0
+  parameter C3::Real = 320.0
+  parameter C4::Real = 480.0
+  "Inter-zone conductances [W/K]"
+  parameter G12::Real = 39.76
+  parameter G23::Real = 46.60
+  parameter G34::Real = 43.32
+  "Coolant-side conductance [W/K]"
+  parameter Gc::Real = 9.66
+  "Zone temperature deviations [K]"
+  variable theta1::Real
+  variable theta2::Real
+  variable theta3::Real
+  variable theta4::Real
+relations
+  initial theta1 = 0.0
+  initial theta2 = 0.0
+  initial theta3 = 0.0
+  initial theta4 = 0.0
+  C1 * der(theta1) = Q_in + G12 * (theta2 - theta1)
+  C2 * der(theta2) = G12 * (theta1 - theta2) + G23 * (theta3 - theta2)
+  C3 * der(theta3) = G23 * (theta2 - theta3) + G34 * (theta4 - theta3)
+  C4 * der(theta4) = G34 * (theta3 - theta4) - Gc * theta4
+end
