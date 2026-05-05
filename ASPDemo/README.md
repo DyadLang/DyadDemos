@@ -10,12 +10,6 @@ The tradeoff of interest is how clean the water is after treatment and how much 
 
 Download this folder to your machine and open it in VS Code with the [Dyad extension](https://help.juliahub.com/dyad/dev/getting_started/).
 
-## Running Experiments
-
-**`scripts/main.jl`** loads the library, simulates the `simbenchplant` analysis using the `BenchPlant` model.  Plotting commands are provided to plot variables of interest.
-
-
-
 ## Models
 `BenchPlant` is a wastewater treatment plant model representing the BSM1 (Benchmark Simulation Model No. 1) activated sludge process, consisting of a five-tank biological reactor train (two anoxic denitrification tanks followed by three aerated nitrification tanks) feeding a secondary clarifier, with internal recycle and return sludge loops controlled by PI controllers regulating dissolved oxygen and nitrate levels.  The `BenchPlant` model is made up of the following components:
 
@@ -42,3 +36,9 @@ Download this folder to your machine and open it in VS Code with the [Dyad exten
 | `limiter1` | `Limiter` | 1 | Signal limiter on NO sensor output (0.1–10) |
 
 Each model file also contains its own test harnesses (prefixed with `Test` or suffixed with `Test`) and corresponding `analysis` definitions used for standalone verification.
+
+## Running the Demo
+
+**`scripts/main.jl`** loads the library, simulates the `simbenchplant` analysis using the `BenchPlant` model.  Plotting commands are provided to plot variables of interest.
+
+**`scripts/prompts.md`** contains queries to use with the Dyad Agent.  Note that the Agent will modify `dyad/bench_plant.dyad` once given these queries.  An unmodified version of this file can be found at `scripts/bench_plant_start.dyad`.
