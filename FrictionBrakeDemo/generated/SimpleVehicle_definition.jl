@@ -24,13 +24,14 @@
  * `vehicle_speed` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `wheel_speed` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function SimpleVehicle(; name = nothing, vehicle_mass_kg=2194, inertia_moment=3.08, wheel_radius=0.15, damping_coeff=30, initial_position=0, initial_velocity=0)
+@component function SimpleVehicle(; name = nothing, vehicle_mass_kg=Float64(2194), inertia_moment=3.08, wheel_radius=0.15, damping_coeff=Float64(30), initial_position=Float64(0), initial_velocity=Float64(0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = SimpleVehicle()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -38,39 +39,92 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (vehicle_mass_kg::Real = vehicle_mass_kg), [bounds = (0, Inf)])
-  append!(__params, @parameters (inertia_moment::Real = inertia_moment))
-  append!(__params, @parameters (wheel_radius::Real = wheel_radius))
-  append!(__params, @parameters (damping_coeff::Real = damping_coeff))
-  append!(__params, @parameters (initial_position::Real = initial_position))
-  append!(__params, @parameters (initial_velocity::Real = initial_velocity))
+  __local__vehicle_mass_kg = vehicle_mass_kg
+  append!(__params, @parameters (vehicle_mass_kg::Real), [bounds = (0, Inf)])
+  __initial_conditions[vehicle_mass_kg] = __local__vehicle_mass_kg
+  __local__inertia_moment = inertia_moment
+  append!(__params, @parameters (inertia_moment::Real))
+  __initial_conditions[inertia_moment] = __local__inertia_moment
+  __local__wheel_radius = wheel_radius
+  append!(__params, @parameters (wheel_radius::Real))
+  __initial_conditions[wheel_radius] = __local__wheel_radius
+  __local__damping_coeff = damping_coeff
+  append!(__params, @parameters (damping_coeff::Real))
+  __initial_conditions[damping_coeff] = __local__damping_coeff
+  __local__initial_position = initial_position
+  append!(__params, @parameters (initial_position::Real))
+  __initial_conditions[initial_position] = __local__initial_position
+  __local__initial_velocity = initial_velocity
+  append!(__params, @parameters (initial_velocity::Real))
+  __initial_conditions[initial_velocity] = __local__initial_velocity
 
-  ### Variables
+  ### Final Path Parameters
   append!(__vars, @variables (vehicle_speed(t)::Real), [output = true])
   append!(__vars, @variables (wheel_speed(t)::Real), [output = true])
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
   push!(__systems, @named shaft = __Dyad__Spline())
-  push!(__systems, @named inertia = RotationalComponents.Inertia(J=inertia_moment))
-  push!(__systems, @named wheel = RotationalComponents.IdealRollingWheel(radius=wheel_radius))
-  push!(__systems, @named vehicle_mass = TranslationalComponents.Mass(m=vehicle_mass_kg))
-  push!(__systems, @named load_damper = TranslationalComponents.Damper(d=damping_coeff))
-  push!(__systems, @named ground = TranslationalComponents.Fixed(s0=0))
-  push!(__systems, @named housing = RotationalComponents.Fixed(phi0=0))
-  push!(__systems, @named load_anchor = TranslationalComponents.Fixed(s0=0))
+  # Subcomponent inertia of type RotationalComponents.Components.Inertia
+  inertia_overrides = Dict(Symbol(replace(string(k), r"^inertia__" => "")) => v for (k, v) in __overrides if startswith(string(k), "inertia__"))
+  filter!(p -> !startswith(string(first(p)), "inertia__"), __overrides)
+  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(J=inertia_moment, inertia_overrides...))
+  # Subcomponent wheel of type RotationalComponents.Components.IdealRollingWheel
+  wheel_overrides = Dict(Symbol(replace(string(k), r"^wheel__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wheel__"))
+  filter!(p -> !startswith(string(first(p)), "wheel__"), __overrides)
+  push!(__systems, @named wheel = RotationalComponents.Components.IdealRollingWheel(radius=wheel_radius, wheel_overrides...))
+  # Subcomponent vehicle_mass of type TranslationalComponents.Components.Mass
+  vehicle_mass_overrides = Dict(Symbol(replace(string(k), r"^vehicle_mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle_mass__"))
+  filter!(p -> !startswith(string(first(p)), "vehicle_mass__"), __overrides)
+  push!(__systems, @named vehicle_mass = TranslationalComponents.Components.Mass(m=vehicle_mass_kg, vehicle_mass_overrides...))
+  # Subcomponent load_damper of type TranslationalComponents.Components.Damper
+  load_damper_overrides = Dict(Symbol(replace(string(k), r"^load_damper__" => "")) => v for (k, v) in __overrides if startswith(string(k), "load_damper__"))
+  filter!(p -> !startswith(string(first(p)), "load_damper__"), __overrides)
+  push!(__systems, @named load_damper = TranslationalComponents.Components.Damper(d=damping_coeff, load_damper_overrides...))
+  # Subcomponent ground of type TranslationalComponents.Components.Fixed
+  ground_overrides = Dict(Symbol(replace(string(k), r"^ground__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground__"))
+  filter!(p -> !startswith(string(first(p)), "ground__"), __overrides)
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0, ground_overrides...))
+  # Subcomponent housing of type RotationalComponents.Components.Fixed
+  housing_overrides = Dict(Symbol(replace(string(k), r"^housing__" => "")) => v for (k, v) in __overrides if startswith(string(k), "housing__"))
+  filter!(p -> !startswith(string(first(p)), "housing__"), __overrides)
+  push!(__systems, @named housing = RotationalComponents.Components.Fixed(phi0=0, housing_overrides...))
+  # Subcomponent load_anchor of type TranslationalComponents.Components.Fixed
+  load_anchor_overrides = Dict(Symbol(replace(string(k), r"^load_anchor__" => "")) => v for (k, v) in __overrides if startswith(string(k), "load_anchor__"))
+  filter!(p -> !startswith(string(first(p)), "load_anchor__"), __overrides)
+  push!(__systems, @named load_anchor = TranslationalComponents.Components.Fixed(s0=0, load_anchor_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[vehicle_mass.s] = (initial_position)
-  __initial_conditions[vehicle_mass.v] = (initial_velocity)
-
   ### Initialization Equations
+  push!(__initialization_eqs, vehicle_mass.s ~ initial_position)
+  push!(__initialization_eqs, vehicle_mass.v ~ initial_velocity)
 
   ### Assertions
   __assertions = []
@@ -78,8 +132,6 @@
   ### Equations
   push!(__eqs, vehicle_speed ~ vehicle_mass.v)
   push!(__eqs, wheel_speed ~ inertia.w)
-  push!(__eqs, wheel.support_r.tau ~ -wheel.spline.tau)
-  push!(__eqs, wheel.support_t.f ~ -wheel.flange.f)
   push!(__eqs, connect(shaft, inertia.spline_a))
   push!(__eqs, connect(inertia.spline_b, wheel.spline))
   push!(__eqs, connect(wheel.flange, vehicle_mass.flange_a))
@@ -89,6 +141,6 @@
   push!(__eqs, connect(wheel.support_r, housing.spline))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SimpleVehicle

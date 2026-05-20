@@ -13,13 +13,14 @@ Spring-mass system with external force input.
 
  * `f` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
 """
-@component function SpringMassSystem(; name = nothing)
+@component function SpringMassSystem(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = SpringMassSystem()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -27,25 +28,60 @@ Spring-mass system with external force input.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
   append!(__vars, @variables (f(t)::Real), [input = true])
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named mass = TranslationalComponents.Mass(m=1))
-  push!(__systems, @named spring = TranslationalComponents.Spring(c=10, s_rel0=0))
-  push!(__systems, @named fixed = TranslationalComponents.Fixed(s0=0))
-  push!(__systems, @named force_source = TranslationalComponents.Force())
-  push!(__systems, @named ground = TranslationalComponents.Fixed(s0=0))
+  # Subcomponent mass of type TranslationalComponents.Components.Mass
+  mass_overrides = Dict(Symbol(replace(string(k), r"^mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mass__"))
+  filter!(p -> !startswith(string(first(p)), "mass__"), __overrides)
+  push!(__systems, @named mass = TranslationalComponents.Components.Mass(m=1, mass_overrides...))
+  # Subcomponent spring of type TranslationalComponents.Components.Spring
+  spring_overrides = Dict(Symbol(replace(string(k), r"^spring__" => "")) => v for (k, v) in __overrides if startswith(string(k), "spring__"))
+  filter!(p -> !startswith(string(first(p)), "spring__"), __overrides)
+  push!(__systems, @named spring = TranslationalComponents.Components.Spring(c=10, s_rel0=0, spring_overrides...))
+  # Subcomponent fixed of type TranslationalComponents.Components.Fixed
+  fixed_overrides = Dict(Symbol(replace(string(k), r"^fixed__" => "")) => v for (k, v) in __overrides if startswith(string(k), "fixed__"))
+  filter!(p -> !startswith(string(first(p)), "fixed__"), __overrides)
+  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(s0=0, fixed_overrides...))
+  # Subcomponent force_source of type TranslationalComponents.Sources.Force
+  force_source_overrides = Dict(Symbol(replace(string(k), r"^force_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "force_source__"))
+  filter!(p -> !startswith(string(first(p)), "force_source__"), __overrides)
+  push!(__systems, @named force_source = TranslationalComponents.Sources.Force(force_source_overrides...))
+  # Subcomponent ground of type TranslationalComponents.Components.Fixed
+  ground_overrides = Dict(Symbol(replace(string(k), r"^ground__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground__"))
+  filter!(p -> !startswith(string(first(p)), "ground__"), __overrides)
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0, ground_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -60,6 +96,6 @@ Spring-mass system with external force input.
   push!(__eqs, connect(f, force_source.f))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SpringMassSystem

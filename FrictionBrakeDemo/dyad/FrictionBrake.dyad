@@ -4,8 +4,8 @@ component FrictionBrake
   # Mechanical interface - rotational connection
   shaft = Spline() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}]
   # Thermal interfaces - heat outputs (per wheel)
-  disk = Node() [{"Dyad": {"placement": {"icon": {"x1": 200, "y1": -50, "x2": 300, "y2": 50}}}}]
-  pad = Node() [{"Dyad": {"placement": {"icon": {"x1": 700, "y1": -50, "x2": 800, "y2": 50}}}}]
+  disk = HeatPort() [{"Dyad": {"placement": {"icon": {"x1": 200, "y1": -50, "x2": 300, "y2": 50}}}}]
+  pad = HeatPort() [{"Dyad": {"placement": {"icon": {"x1": 700, "y1": -50, "x2": 800, "y2": 50}}}}]
   # Control input - normalized brake command (0 to 1)
   brake_command = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
   # Geometric parameters
@@ -62,8 +62,8 @@ relations
   # Apply brake torque (always opposes rotation direction)
   shaft.tau = sign(ω) * T_brake_magnitude
   # Heat flow outputs (per wheel)
-  disk.Q = -f_partition * P_friction_total / N_wheels
-  pad.Q = -(1 - f_partition) * P_friction_total / N_wheels
+  disk.Q_flow = -f_partition * P_friction_total / N_wheels
+  pad.Q_flow = -(1 - f_partition) * P_friction_total / N_wheels
 metadata {"Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//brake_caliper.svg"}}}
 end
 
@@ -78,7 +78,7 @@ test component FrictionBrakeTest
     }
   }]
   # Inertia connected to brake shaft
-  inertia = RotationalComponents.Inertia(J = 2.0) [{
+  inertia = RotationalComponents.Components.Inertia(J = 2.0) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 380, "y1": 450, "x2": 480, "y2": 550, "rot": 0}
@@ -86,7 +86,7 @@ test component FrictionBrakeTest
     }
   }]
   # Torque source providing driving torque
-  torque_source = RotationalComponents.TorqueSource() [{
+  torque_source = RotationalComponents.Sources.TorqueSource() [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 170, "y1": 450, "x2": 270, "y2": 550, "rot": 0}
@@ -94,7 +94,7 @@ test component FrictionBrakeTest
     }
   }]
   # Fixed support for torque source
-  fixed_support = RotationalComponents.Fixed() [{
+  fixed_support = RotationalComponents.Components.Fixed() [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 170, "y1": 620, "x2": 270, "y2": 720, "rot": 0}
@@ -102,7 +102,7 @@ test component FrictionBrakeTest
     }
   }]
   # Fixed temperature boundaries for thermal ports
-  disk_boundary = ThermalComponents.FixedTemperature(T = 293.15) [{
+  disk_boundary = ThermalComponents.Sources.FixedTemperature(T = 293.15) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 210, "y1": 170, "x2": 310, "y2": 270, "rot": 0}
@@ -110,7 +110,7 @@ test component FrictionBrakeTest
     }
   }]
   # 20°C ambient
-  pad_boundary = ThermalComponents.FixedTemperature(T = 293.15) [{
+  pad_boundary = ThermalComponents.Sources.FixedTemperature(T = 293.15) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 200, "y1": 40, "x2": 300, "y2": 140, "rot": 0}
@@ -119,7 +119,7 @@ test component FrictionBrakeTest
   }]
   # 20°C ambient
   # Step input for brake command (activated at 4s)
-  brake_command = BlockComponents.Step(height = 1.0, start_time = 4.0, offset = 0.0) [{
+  brake_command = BlockComponents.Sources.Step(height = 1.0, start_time = 4.0, offset = 0.0) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 200, "y1": 310, "x2": 300, "y2": 410, "rot": 0}
@@ -127,7 +127,7 @@ test component FrictionBrakeTest
     }
   }]
   # Constant torque input
-  torque_input = BlockComponents.Constant(k = 50.0) [{
+  torque_input = BlockComponents.Sources.Constant(k = 50.0) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 20, "y1": 450, "x2": 120, "y2": 550, "rot": 0}
@@ -136,13 +136,13 @@ test component FrictionBrakeTest
   }]
 relations
   # Thermal connections
-  connect(brake.disk, disk_boundary.node) [{
+  connect(brake.disk, disk_boundary.port) [{
     "Dyad": {
       "edges": [{"S": 1, "M": [{"x": 365, "y": 220}], "E": 2}],
       "renderStyle": "standard"
     }
   }]
-  connect(brake.pad, pad_boundary.node) [{
+  connect(brake.pad, pad_boundary.port) [{
     "Dyad": {
       "edges": [{"S": 1, "M": [{"x": 415, "y": 90}], "E": 2}],
       "renderStyle": "standard"
@@ -171,10 +171,10 @@ metadata {
     "tests": {
       "case1": {
         "stop": 4.75,
-        "atol": {"inertia.w": 0.001, "brake.disk.Q": 0.001, "brake.pad.Q": 0.001},
+        "atol": {"inertia.w": 0.001, "brake.disk.Q_flow": 0.001, "brake.pad.Q_flow": 0.001},
         "expect": {
           "initial": {"inertia.w": 10},
-          "signals": ["inertia.w", "brake.disk.Q", "brake.pad.Q"]
+          "signals": ["inertia.w", "brake.disk.Q_flow", "brake.pad.Q_flow"]
         }
       }
     }

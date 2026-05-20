@@ -14,11 +14,11 @@ component CoffeeMugSubsystem
   # Thermal interfaces
   # ---------------------------------------------------------------------------
   # Top surface of espresso - connects to steam subsystem
-  topSurface = Node() {^topSurface}
+  topSurface = HeatPort() {^topSurface}
   # Outer surface of cup - connects to hand subsystem and external environment
-  outerSurface = Node() {^outerSurface}
+  outerSurface = HeatPort() {^outerSurface}
   # Ambient connection for external convection and radiation
-  ambient = Node() {^ambient}
+  ambient = HeatPort() {^ambient}
   # ---------------------------------------------------------------------------
   # Signal output
   # ---------------------------------------------------------------------------
@@ -27,28 +27,28 @@ component CoffeeMugSubsystem
   # ---------------------------------------------------------------------------
   # Internal components - Thermal masses
   # ---------------------------------------------------------------------------
-  hotEspresso = ThermalComponents.HeatCapacitor(C = C_espresso, T0 = T0_espresso)
-  cupMass = ThermalComponents.HeatCapacitor(C = C_cup, T0 = T0_cup)
+  hotEspresso = ThermalComponents.Components.HeatCapacitor(C = C_espresso, T0 = T0_espresso)
+  cupMass = ThermalComponents.Components.HeatCapacitor(C = C_cup, T0 = T0_cup)
   # ---------------------------------------------------------------------------
   # Internal components - Heat transfer
   # ---------------------------------------------------------------------------
   # Internal convection from espresso to cup inner wall
-  convEspresso2Cup = ThermalComponents.Convection()
-  gcEsp2Cup = BlockComponents.Constant(k = Gc_internal)
+  convEspresso2Cup = ThermalComponents.Components.Convection()
+  gcEsp2Cup = BlockComponents.Sources.Constant(k = Gc_internal)
   # Conduction through cup wall
-  condCup = ThermalComponents.ThermalConductor(G = G_wall)
+  condCup = ThermalComponents.Components.ThermalConductor(G = G_wall)
   # External convection from cup outer surface to environment
-  convCup2Env = ThermalComponents.Convection()
-  gcCup2Env = BlockComponents.Constant(k = Gc_external)
+  convCup2Env = ThermalComponents.Components.Convection()
+  gcCup2Env = BlockComponents.Sources.Constant(k = Gc_external)
   # External radiation from cup outer surface to environment
-  radCup2Env = ThermalComponents.BodyRadiation(Gr = Gr_external)
+  radCup2Env = ThermalComponents.Components.BodyRadiation(Gr = Gr_external)
   # ---------------------------------------------------------------------------
   # Internal components - Temperature measurement
   # ---------------------------------------------------------------------------
-  tempSensor = ThermalComponents.TemperatureSensor()
-  to_degC = BlockComponents.Gain(k = 1.0)
-  offset_degC = BlockComponents.Constant(k = -273.15)
-  add_offset = BlockComponents.Add()
+  tempSensor = ThermalComponents.Sensors.TemperatureSensor()
+  to_degC = BlockComponents.Math.Gain(k = 1.0)
+  offset_degC = BlockComponents.Sources.Constant(k = -273.15)
+  add_offset = BlockComponents.Math.Add()
   # ---------------------------------------------------------------------------
   # Parameters
   # ---------------------------------------------------------------------------
@@ -71,29 +71,29 @@ relations
   # Internal thermal path: espresso → cup inner wall → cup outer surface
   # ---------------------------------------------------------------------------
   # Espresso to cup internal convection
-  connect(hotEspresso.node, convEspresso2Cup.solid)
-  connect(convEspresso2Cup.fluid, cupMass.node)
+  connect(hotEspresso.port, convEspresso2Cup.solid)
+  connect(convEspresso2Cup.fluid, cupMass.port)
   connect(gcEsp2Cup.y, convEspresso2Cup.Gc)
   # Conduction through cup wall (cup inner to outer)
-  connect(cupMass.node, condCup.node_a)
+  connect(cupMass.port, condCup.port_a)
   # ---------------------------------------------------------------------------
   # External interfaces
   # ---------------------------------------------------------------------------
   # Top surface exposed to steam subsystem
-  connect(hotEspresso.node, topSurface)
+  connect(hotEspresso.port, topSurface)
   # Outer surface exposed to hand and environment
-  connect(condCup.node_b, outerSurface)
+  connect(condCup.port_b, outerSurface)
   # External convection path: cup outer surface → ambient
   connect(outerSurface, convCup2Env.solid)
   connect(convCup2Env.fluid, ambient)
   connect(gcCup2Env.y, convCup2Env.Gc)
   # External radiation path: cup outer surface → ambient
-  connect(outerSurface, radCup2Env.node_a)
-  connect(radCup2Env.node_b, ambient)
+  connect(outerSurface, radCup2Env.port_a)
+  connect(radCup2Env.port_b, ambient)
   # ---------------------------------------------------------------------------
   # Temperature measurement and conversion
   # ---------------------------------------------------------------------------
-  connect(tempSensor.node, hotEspresso.node)
+  connect(tempSensor.port, hotEspresso.port)
   connect(tempSensor.T, to_degC.u)
   connect(to_degC.y, add_offset.u1)
   connect(offset_degC.y, add_offset.u2)
@@ -131,17 +131,17 @@ component SteamSubsystem
   # Thermal interfaces
   # ---------------------------------------------------------------------------
   # Connection to liquid surface (espresso top)
-  liquidInterface = Node() {^liquidInterface}
+  liquidInterface = HeatPort() {^liquidInterface}
   # Connection to ambient environment
-  ambient = Node() {^ambient}
+  ambient = HeatPort() {^ambient}
   # ---------------------------------------------------------------------------
   # Internal components
   # ---------------------------------------------------------------------------
   # Top surface convection - liquid to air
-  convTop = ThermalComponents.Convection()
-  gcTop = BlockComponents.Constant(k = Gc_top)
+  convTop = ThermalComponents.Components.Convection()
+  gcTop = BlockComponents.Sources.Constant(k = Gc_top)
   # Top surface radiation - liquid to surroundings
-  radTop = ThermalComponents.BodyRadiation(Gr = Gr_top)
+  radTop = ThermalComponents.Components.BodyRadiation(Gr = Gr_top)
   # ---------------------------------------------------------------------------
   # Parameters
   # ---------------------------------------------------------------------------
@@ -159,8 +159,8 @@ relations
   # ---------------------------------------------------------------------------
   # Top surface radiation path
   # ---------------------------------------------------------------------------
-  connect(liquidInterface, radTop.node_a)
-  connect(radTop.node_b, ambient)
+  connect(liquidInterface, radTop.port_a)
+  connect(radTop.port_b, ambient)
 metadata {
   "Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/steam.svg"}},
   "_links": {
@@ -188,21 +188,21 @@ component SpoonSubsystem
   # Thermal interfaces
   # ---------------------------------------------------------------------------
   # Connection to espresso liquid (submerged portion)
-  liquidInterface = Node() {^liquidInterface}
+  liquidInterface = HeatPort() {^liquidInterface}
   # Connection to ambient environment (exposed portion)
-  ambient = Node() {^ambient}
+  ambient = HeatPort() {^ambient}
   # ---------------------------------------------------------------------------
   # Internal components
   # ---------------------------------------------------------------------------
   # Spoon thermal mass
-  spoonMass = ThermalComponents.HeatCapacitor(C = C_spoon, T0 = T0_spoon)
+  spoonMass = ThermalComponents.Components.HeatCapacitor(C = C_spoon, T0 = T0_spoon)
   # Submerged portion: spoon to liquid conduction
-  liquidContact = ThermalComponents.ThermalConductor(G = G_liquid_contact)
+  liquidContact = ThermalComponents.Components.ThermalConductor(G = G_liquid_contact)
   # Exposed portion: spoon to air convection
-  convExposed = ThermalComponents.Convection()
-  gcExposed = BlockComponents.Constant(k = Gc_exposed)
+  convExposed = ThermalComponents.Components.Convection()
+  gcExposed = BlockComponents.Sources.Constant(k = Gc_exposed)
   # Exposed portion: spoon radiation
-  radExposed = ThermalComponents.BodyRadiation(Gr = Gr_exposed)
+  radExposed = ThermalComponents.Components.BodyRadiation(Gr = Gr_exposed)
   # ---------------------------------------------------------------------------
   # Parameters
   # ---------------------------------------------------------------------------
@@ -219,19 +219,19 @@ relations
   # ---------------------------------------------------------------------------
   # Submerged portion path: liquid → spoon mass
   # ---------------------------------------------------------------------------
-  connect(liquidInterface, liquidContact.node_a)
-  connect(liquidContact.node_b, spoonMass.node)
+  connect(liquidInterface, liquidContact.port_a)
+  connect(liquidContact.port_b, spoonMass.port)
   # ---------------------------------------------------------------------------
   # Exposed portion convection: spoon → ambient air
   # ---------------------------------------------------------------------------
-  connect(spoonMass.node, convExposed.solid)
+  connect(spoonMass.port, convExposed.solid)
   connect(convExposed.fluid, ambient)
   connect(gcExposed.y, convExposed.Gc)
   # ---------------------------------------------------------------------------
   # Exposed portion radiation: spoon → ambient
   # ---------------------------------------------------------------------------
-  connect(spoonMass.node, radExposed.node_a)
-  connect(radExposed.node_b, ambient)
+  connect(spoonMass.port, radExposed.port_a)
+  connect(radExposed.port_b, ambient)
 metadata {
   "Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/spoon.svg"}},
   "_links": {
@@ -259,12 +259,12 @@ component HandSubsystem
   # Thermal interfaces
   # ---------------------------------------------------------------------------
   # Connection to cup outer surface
-  cupContact = Node() {^cupContact}
+  cupContact = HeatPort() {^cupContact}
   # ---------------------------------------------------------------------------
   # Internal components
   # ---------------------------------------------------------------------------
-  handMass = ThermalComponents.HeatCapacitor(C = C_hand, T0 = T0_hand)
-  handContact = ThermalComponents.ThermalConductor(G = G_contact)
+  handMass = ThermalComponents.Components.HeatCapacitor(C = C_hand, T0 = T0_hand)
+  handContact = ThermalComponents.Components.ThermalConductor(G = G_contact)
   # ---------------------------------------------------------------------------
   # Parameters
   # ---------------------------------------------------------------------------
@@ -277,8 +277,8 @@ relations
   # ---------------------------------------------------------------------------
   # Hand contact path
   # ---------------------------------------------------------------------------
-  connect(handMass.node, handContact.node_a)
-  connect(handContact.node_b, cupContact)
+  connect(handMass.port, handContact.port_a)
+  connect(handContact.port_b, cupContact)
 metadata {
   "Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/hands.svg"}},
   "_links": {
@@ -304,22 +304,19 @@ test component EspressoCupSystemModular
   # ---------------------------------------------------------------------------
   # Boundary condition
   # ---------------------------------------------------------------------------
-  environment = ThermalComponents.FixedTemperature(T = 293.15) {^environment}
+  environment = ThermalComponents.Sources.FixedTemperature(T = 293.15) {^environment}
 relations
   # Hand subsystem to cup outer surface
   connect(hand.cupContact, coffeeMug.outerSurface) {^id5}
   # Both subsystems to environment
-  connect(coffeeMug.ambient, environment.node) {^id6}
-  connect(steam.ambient, environment.node) {^id7}
+  connect(coffeeMug.ambient, environment.port) {^id6}
+  connect(steam.ambient, environment.port) {^id7}
   # ---------------------------------------------------------------------------
   # Initial conditions and guesses
   # ---------------------------------------------------------------------------
   # Differential states already initialized via T0 parameters in HeatCapacitors
   # Guess intermediate node temperature (cup outer surface ~330 K = 57°C)
-  # Workaround: guess must target the internal variable that mtkcompile selects as
-  # the representative for this node. Guessing on the connector alias outerSurface.T
-  # causes a cyclic resolution failure. See cyclic_guess_issue.md.
-  guess coffeeMug.radCup2Env.node_a.T = 330.0
+  guess coffeeMug.outerSurface.T = 330.0
   # Guess for algebraic variable to break cyclic dependency
   # ΔT = hand temp - cup surface temp ≈ 310.15 - 330 = -20 K
   guess hand.handContact.ΔT = -20.0
@@ -388,7 +385,7 @@ test component EspressoCupSystemWithSpoon
   # ---------------------------------------------------------------------------
   # Boundary condition
   # ---------------------------------------------------------------------------
-  environment = ThermalComponents.FixedTemperature(T = 293.15) {^environment}
+  environment = ThermalComponents.Sources.FixedTemperature(T = 293.15) {^environment}
 relations
   # ---------------------------------------------------------------------------
   # Connect subsystems together
@@ -400,20 +397,22 @@ relations
   # Hand subsystem to cup outer surface
   connect(hand.cupContact, coffeeMug.outerSurface) {^id8}
   # All subsystems to environment
-  connect(coffeeMug.ambient, environment.node) {^id9}
-  connect(steam.ambient, environment.node) {^id10}
-  connect(spoon.ambient, environment.node) {^id11}
+  connect(coffeeMug.ambient, environment.port) {^id9}
+  connect(steam.ambient, environment.port) {^id10}
+  connect(spoon.ambient, environment.port) {^id11}
   # ---------------------------------------------------------------------------
   # Initial conditions and guesses
   # ---------------------------------------------------------------------------
   # Differential states already initialized via T0 parameters in HeatCapacitors
   # Guess intermediate node temperature (cup outer surface ~330 K = 57°C)
   guess coffeeMug.outerSurface.T = 330.0
+  # Guess for convective ΔT at cup outer surface
+  guess coffeeMug.convCup2Env.ΔT = 37.0
   # Guess for algebraic variable to break cyclic dependency
   # ΔT = hand temp - cup surface temp ≈ 310.15 - 330 = -20 K
   guess hand.handContact.ΔT = -20.0
   # Guess spoon mass temperature (warms rapidly toward espresso temp)
-  guess spoon.spoonMass.node.T = 350.0
+  guess spoon.spoonMass.port.T = 350.0
 metadata {
   "_links": {
     "coffeeMug": {

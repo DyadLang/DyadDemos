@@ -34,7 +34,9 @@
   end
     if isfile("snapshots/PowerSplitHybrid_case1_sig0.ref")
       ref = CSV.read("snapshots/PowerSplitHybrid_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.speed) atol=2 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.speed) atol=2 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.vehicle.speed])
         dfr = CSV.read("snapshots/PowerSplitHybrid_case1_sig0.ref", DataFrame)
@@ -51,7 +53,9 @@
     end
     if isfile("snapshots/PowerSplitHybrid_case1_sig1.ref")
       ref = CSV.read("snapshots/PowerSplitHybrid_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.battery.SOC) atol=0.02 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.battery.SOC) atol=0.02 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.battery.SOC])
         dfr = CSV.read("snapshots/PowerSplitHybrid_case1_sig1.ref", DataFrame)
@@ -68,7 +72,9 @@
     end
     if isfile("snapshots/PowerSplitHybrid_case1_sig2.ref")
       ref = CSV.read("snapshots/PowerSplitHybrid_case1_sig2.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.engine.fuel_consumed) atol=50 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.engine.fuel_consumed) atol=50 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.engine.fuel_consumed])
         dfr = CSV.read("snapshots/PowerSplitHybrid_case1_sig2.ref", DataFrame)
@@ -85,7 +91,9 @@
     end
     if isfile("snapshots/PowerSplitHybrid_case1_sig3.ref")
       ref = CSV.read("snapshots/PowerSplitHybrid_case1_sig3.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.controller.engine_throttle) atol=9.999999999999999e-6 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.controller.engine_throttle) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.controller.engine_throttle])
         dfr = CSV.read("snapshots/PowerSplitHybrid_case1_sig3.ref", DataFrame)

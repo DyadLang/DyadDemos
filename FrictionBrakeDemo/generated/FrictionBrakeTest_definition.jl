@@ -7,13 +7,14 @@
 @doc Markdown.doc"""
    FrictionBrakeTest(; name)
 """
-@component function FrictionBrakeTest(; name = nothing)
+@component function FrictionBrakeTest(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = FrictionBrakeTest()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,39 +22,83 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named brake = FrictionBrakeDemo.FrictionBrake(N_wheels=1, N_surfaces=1))
-  push!(__systems, @named inertia = RotationalComponents.Inertia(J=2))
-  push!(__systems, @named torque_source = RotationalComponents.TorqueSource())
-  push!(__systems, @named fixed_support = RotationalComponents.Fixed())
-  push!(__systems, @named disk_boundary = ThermalComponents.FixedTemperature(T=293.15))
-  push!(__systems, @named pad_boundary = ThermalComponents.FixedTemperature(T=293.15))
-  push!(__systems, @named brake_command = BlockComponents.Step(height=1, start_time=4, offset=0))
-  push!(__systems, @named torque_input = BlockComponents.Constant(k=50))
+  # Subcomponent brake of type FrictionBrakeDemo.FrictionBrake
+  brake_overrides = Dict(Symbol(replace(string(k), r"^brake__" => "")) => v for (k, v) in __overrides if startswith(string(k), "brake__"))
+  filter!(p -> !startswith(string(first(p)), "brake__"), __overrides)
+  push!(__systems, @named brake = FrictionBrakeDemo.FrictionBrake(N_wheels=1, N_surfaces=1, brake_overrides...))
+  # Subcomponent inertia of type RotationalComponents.Components.Inertia
+  inertia_overrides = Dict(Symbol(replace(string(k), r"^inertia__" => "")) => v for (k, v) in __overrides if startswith(string(k), "inertia__"))
+  filter!(p -> !startswith(string(first(p)), "inertia__"), __overrides)
+  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(J=2, inertia_overrides...))
+  # Subcomponent torque_source of type RotationalComponents.Sources.TorqueSource
+  torque_source_overrides = Dict(Symbol(replace(string(k), r"^torque_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "torque_source__"))
+  filter!(p -> !startswith(string(first(p)), "torque_source__"), __overrides)
+  push!(__systems, @named torque_source = RotationalComponents.Sources.TorqueSource(torque_source_overrides...))
+  # Subcomponent fixed_support of type RotationalComponents.Components.Fixed
+  fixed_support_overrides = Dict(Symbol(replace(string(k), r"^fixed_support__" => "")) => v for (k, v) in __overrides if startswith(string(k), "fixed_support__"))
+  filter!(p -> !startswith(string(first(p)), "fixed_support__"), __overrides)
+  push!(__systems, @named fixed_support = RotationalComponents.Components.Fixed(fixed_support_overrides...))
+  # Subcomponent disk_boundary of type ThermalComponents.Sources.FixedTemperature
+  disk_boundary_overrides = Dict(Symbol(replace(string(k), r"^disk_boundary__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_boundary__"))
+  filter!(p -> !startswith(string(first(p)), "disk_boundary__"), __overrides)
+  push!(__systems, @named disk_boundary = ThermalComponents.Sources.FixedTemperature(T=293.15, disk_boundary_overrides...))
+  # Subcomponent pad_boundary of type ThermalComponents.Sources.FixedTemperature
+  pad_boundary_overrides = Dict(Symbol(replace(string(k), r"^pad_boundary__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_boundary__"))
+  filter!(p -> !startswith(string(first(p)), "pad_boundary__"), __overrides)
+  push!(__systems, @named pad_boundary = ThermalComponents.Sources.FixedTemperature(T=293.15, pad_boundary_overrides...))
+  # Subcomponent brake_command of type BlockComponents.Sources.Step
+  brake_command_overrides = Dict(Symbol(replace(string(k), r"^brake_command__" => "")) => v for (k, v) in __overrides if startswith(string(k), "brake_command__"))
+  filter!(p -> !startswith(string(first(p)), "brake_command__"), __overrides)
+  push!(__systems, @named brake_command = BlockComponents.Sources.Step(height=1, start_time=4, offset=0, brake_command_overrides...))
+  # Subcomponent torque_input of type BlockComponents.Sources.Constant
+  torque_input_overrides = Dict(Symbol(replace(string(k), r"^torque_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "torque_input__"))
+  filter!(p -> !startswith(string(first(p)), "torque_input__"), __overrides)
+  push!(__systems, @named torque_input = BlockComponents.Sources.Constant(k=50, torque_input_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
   __guesses[brake.T_interface] = (293.15)
 
-  ### Defaults
-  __initial_conditions[inertia.phi] = (0)
-  __initial_conditions[inertia.w] = (10)
-
   ### Initialization Equations
+  push!(__initialization_eqs, inertia.phi ~ 0)
+  push!(__initialization_eqs, inertia.w ~ 10)
 
   ### Assertions
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(brake.disk, disk_boundary.node))
-  push!(__eqs, connect(brake.pad, pad_boundary.node))
+  push!(__eqs, connect(brake.disk, disk_boundary.port))
+  push!(__eqs, connect(brake.pad, pad_boundary.port))
   push!(__eqs, connect(brake_command.y, brake.brake_command))
   push!(__eqs, connect(torque_input.y, torque_source.tau))
   push!(__eqs, connect(torque_source.support, fixed_support.spline))
@@ -61,6 +106,6 @@
   push!(__eqs, connect(brake.shaft, inertia.spline_b))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FrictionBrakeTest

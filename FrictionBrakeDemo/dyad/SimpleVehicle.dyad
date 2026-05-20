@@ -11,19 +11,19 @@ component SimpleVehicle
   # Rotational shaft interface - this is where external torque is applied
   shaft = Spline() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
   # Drive inertia (engine/motor/flywheel inertia)
-  inertia = RotationalComponents.Inertia(J = inertia_moment)
+  inertia = RotationalComponents.Components.Inertia(J = inertia_moment)
   # Rolling wheel converting rotational to translational motion
-  wheel = RotationalComponents.IdealRollingWheel(radius = wheel_radius)
+  wheel = RotationalComponents.Components.IdealRollingWheel(radius = wheel_radius)
   # Vehicle mass
-  vehicle_mass = TranslationalComponents.Mass(m = vehicle_mass_kg)
+  vehicle_mass = TranslationalComponents.Components.Mass(m = vehicle_mass_kg)
   # Vehicle load damper (aerodynamic drag, rolling resistance, etc.)
-  load_damper = TranslationalComponents.Damper(d = damping_coeff)
+  load_damper = TranslationalComponents.Components.Damper(d = damping_coeff)
   # Fixed translational support for the wheel (ground)
-  ground = TranslationalComponents.Fixed(s0 = 0.0)
+  ground = TranslationalComponents.Components.Fixed(s0 = 0.0)
   # Fixed rotational support for wheel (housing)
-  housing = RotationalComponents.Fixed(phi0 = 0.0)
+  housing = RotationalComponents.Components.Fixed(phi0 = 0.0)
   # Fixed translational support for damper end (load anchor)
-  load_anchor = TranslationalComponents.Fixed(s0 = 0.0)
+  load_anchor = TranslationalComponents.Components.Fixed(s0 = 0.0)
   # Output signals for monitoring
   vehicle_speed = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}}}}]
   wheel_speed = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}}}}]
@@ -62,9 +62,6 @@ relations
   connect(wheel.support_t, ground.flange)
   # Connect wheel rotational support to housing
   connect(wheel.support_r, housing.spline)
-  # Support reaction equations (missing from PartialElementaryRotationalToTranslational)
-  wheel.support_r.tau = -wheel.spline.tau
-  wheel.support_t.f = -wheel.flange.f
 metadata {"Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//car.svg"}}}
 end
 
@@ -79,7 +76,7 @@ test component SimpleVehicleTest_Constant
     }
   }]
   # Constant torque source (100 N.m)
-  torque_input = BlockComponents.Constant(k = 250.0) [{
+  torque_input = BlockComponents.Sources.Constant(k = 250.0) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
@@ -87,7 +84,7 @@ test component SimpleVehicleTest_Constant
     }
   }]
   # Torque source to convert signal to mechanical torque
-  torque_source = RotationalComponents.TorqueSource() [{
+  torque_source = RotationalComponents.Sources.TorqueSource() [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 150, "y1": 20, "x2": 250, "y2": 120, "rot": 0}
@@ -95,7 +92,7 @@ test component SimpleVehicleTest_Constant
     }
   }]
   # Fixed reference for torque source support
-  torque_ground = RotationalComponents.Fixed() [{
+  torque_ground = RotationalComponents.Components.Fixed() [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 150, "y1": 170, "x2": 250, "y2": 270, "rot": 0}
@@ -146,7 +143,7 @@ test component SimpleVehicleTest_CoastDown
     }
   }]
   # Constant torque source (100 N.m)
-  torque_input = BlockComponents.Constant(k = 0) [{
+  torque_input = BlockComponents.Sources.Constant(k = 0) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
@@ -154,7 +151,7 @@ test component SimpleVehicleTest_CoastDown
     }
   }]
   # Torque source to convert signal to mechanical torque
-  torque_source = RotationalComponents.TorqueSource() [{
+  torque_source = RotationalComponents.Sources.TorqueSource() [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 150, "y1": 20, "x2": 250, "y2": 120, "rot": 0}
@@ -162,7 +159,7 @@ test component SimpleVehicleTest_CoastDown
     }
   }]
   # Fixed reference for torque source support
-  torque_ground = RotationalComponents.Fixed() [{
+  torque_ground = RotationalComponents.Components.Fixed() [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 150, "y1": 180, "x2": 250, "y2": 280, "rot": 0}

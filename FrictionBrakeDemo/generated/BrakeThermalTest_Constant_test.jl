@@ -30,7 +30,9 @@
   end
     if isfile("snapshots/BrakeThermalTest_Constant_case1_sig0.ref")
       ref = CSV.read("snapshots/BrakeThermalTest_Constant_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.pad_mass.T) atol=0.1 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.pad_mass.T) atol=0.1 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.pad_mass.T])
         dfr = CSV.read("snapshots/BrakeThermalTest_Constant_case1_sig0.ref", DataFrame)
@@ -47,7 +49,9 @@
     end
     if isfile("snapshots/BrakeThermalTest_Constant_case1_sig1.ref")
       ref = CSV.read("snapshots/BrakeThermalTest_Constant_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.disk_mass.T) atol=0.1 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.disk_mass.T) atol=0.1 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.disk_mass.T])
         dfr = CSV.read("snapshots/BrakeThermalTest_Constant_case1_sig1.ref", DataFrame)

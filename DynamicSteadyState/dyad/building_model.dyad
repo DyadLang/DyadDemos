@@ -1,0 +1,1103 @@
+"""
+Three-Zone Commercial Office Building — Single Source of Truth
+
+This file defines ONE building model (ThreeZoneBuilding) and applies
+TWO different analyses to it:
+
+  1. SteadyStateAnalysis  →  HVAC equipment sizing at design-day conditions
+  2. TransientAnalysis    →  24-hour diurnal operation with thermostat control
+
+Both analyses share the exact same thermal network, zone capacitances,
+envelope resistances, and HVAC controller logic. Only the boundary
+conditions differ (fixed vs. time-varying), demonstrating that Dyad
+supports dynamic and steady-state workflows on a single source of truth.
+
+The occupancy schedule is a representative weekday office profile with
+  piecewise-linear interpolation between hourly breakpoints (fractions 0–1).
+"""
+component HeatCapacitorNoInit
+  # ================================================================
+  # HeatCapacitorNoInit — HeatCapacitor without built-in initial condition
+  #
+  # Identical to ThermalComponents.HeatCapacitor but omits
+  # "initial T = T0", allowing the test harness to supply initial
+  # conditions for transient analysis while leaving the steady-state
+  # analysis free of over-determined initialization constraints.
+  # ================================================================
+  "Thermal port for heat exchange"
+  port = HeatPort() {^port}
+  "Heat capacity of the element (J/K)"
+  parameter C::HeatCapacity
+  "Temperature of the element"
+  variable T::Temperature
+  "Time derivative of temperature"
+  variable dT::TemperatureSlope
+relations
+  T = port.T
+  der(T) = dT
+  dT = port.Q_flow / C
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://ThermalComponents/HeatCapacitor.svg"}
+  },
+  "_links": {
+    "port": {"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}}}}
+  }
+}
+end
+
+component ThermostatHeater
+  # ================================================================
+  # Proportional thermostat heater (reusable subcomponent)
+  # ================================================================
+  "Thermal port — connects to the zone port"
+  port = HeatPort() {^port}
+  "Proportional gain (W/K)"
+  parameter K::Real = 500.0
+  "Heating setpoint temperature"
+  parameter T_set::Temperature = 294.15
+  "Maximum heating capacity (W)"
+  parameter Q_max::HeatFlowRate = 5000.0
+  "Raw proportional demand (W)"
+  variable Q_raw::HeatFlowRate
+  "Delivered heating power (W, 0 ≤ Q ≤ Q_max)"
+  variable Q_delivered::HeatFlowRate
+relations
+  Q_raw = K * (T_set - port.T)
+  Q_delivered = ifelse(Q_raw > Q_max, Q_max, ifelse(Q_raw < 0.0, 0.0, Q_raw))
+  port.Q_flow = -Q_delivered
+metadata {
+  "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_thermostat_heater.svg"}},
+  "_links": {
+    "port": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+# ================================================================
+# ZoneRoom — Lumped single-zone thermal model
+#
+# Encapsulates per-zone envelope (wall, window, roof, slab,
+# infiltration) and thermal mass into one reusable passive block.
+# Set R_wall or R_win to a large value (e.g. 1e6) for interior
+# zones with no exterior wall/window.
+#
+# Outdoor and ground temperatures enter as causal signal inputs
+# (RealInput), converted internally via PrescribedTemperature.
+# The zone_port is the single acausal Node port for HVAC,
+# gains, and inter-zone connections.
+# ================================================================
+component ZoneRoom
+  "Outdoor temperature signal (K)"
+  T_outdoor = RealInput() {^T_outdoor}
+  "Ground temperature signal (K)"
+  T_ground = RealInput() {^T_ground}
+  "Zone port — connect HVAC, gains, and inter-zone partitions here"
+  zone_port = HeatPort() {^zone_port}
+  # ---- Internal boundary condition sources ----
+  outdoor_src = ThermalComponents.Sources.PrescribedTemperature() {^outdoor_src}
+  ground_src = ThermalComponents.Sources.PrescribedTemperature() {^ground_src}
+  # ---- Envelope resistors ----
+  wall = ThermalComponents.Components.ThermalResistor(R = R_wall) {^wall}
+  win = ThermalComponents.Components.ThermalResistor(R = R_win) {^win}
+  roof = ThermalComponents.Components.ThermalResistor(R = R_roof) {^roof}
+  slab = ThermalComponents.Components.ThermalResistor(R = R_slab) {^slab}
+  infil = ThermalComponents.Components.ThermalResistor(R = R_infil) {^infil}
+  cap = HeatCapacitorNoInit(C = C) {^cap}
+  # ---- Envelope thermal resistances ----
+  parameter R_wall::ThermalResistance = 0.01
+  parameter R_win::ThermalResistance = 0.015
+  parameter R_roof::ThermalResistance = 0.025
+  parameter R_slab::ThermalResistance = 0.05
+  parameter R_infil::ThermalResistance = 0.0333
+  # ---- Zone thermal mass ----
+  parameter C::HeatCapacity = 400000.0
+relations
+  # Signal inputs drive internal prescribed temperature sources
+  connect(T_outdoor, outdoor_src.T) {^id12}
+  connect(T_ground, ground_src.T) {^id13}
+  # Outdoor source → envelope resistors
+  connect(outdoor_src.port, wall.port_a, win.port_a, roof.port_a, infil.port_a) {^id14}
+  # Ground source → slab
+  connect(ground_src.port, slab.port_a) {^id15}
+  # Zone port: all resistor b-sides, capacitor, zone port
+  connect(wall.port_b, win.port_b, roof.port_b, slab.port_b, infil.port_b, cap.port, zone_port) {^id16}
+metadata {
+  "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_zone_room.svg"}},
+  "_links": {
+    "T_outdoor": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 680, "x2": 60, "y2": 780, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "T_ground": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -30, "y1": 120, "x2": 70, "y2": 220, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone_port": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 440, "x2": 1060, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "outdoor_src": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 145, "y1": 310, "x2": 245, "y2": 410, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ground_src": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 545, "y1": 20, "x2": 645, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wall": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 275, "y1": 310, "x2": 375, "y2": 410, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "win": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 405, "y1": 240, "x2": 505, "y2": 340, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "roof": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 545, "y1": 140, "x2": 645, "y2": 240, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "slab": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 675, "y1": 20, "x2": 775, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "infil": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 780, "y1": 300, "x2": 880, "y2": 400, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "cap": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 930, "y1": 145, "x2": 1030, "y2": 245, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id12": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 107.5, "y": 730}, {"x": 107.5, "y": 360}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id13": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 500, "y": 170}, {"x": 500, "y": 70}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id14": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": -1, "M": [{"x": 260, "y": 290}], "E": -2},
+          {"S": -2, "M": [], "E": 3},
+          {"S": -2, "M": [{"x": 390, "y": 190}], "E": -3},
+          {"S": -3, "M": [], "E": 4},
+          {"S": -3, "M": [{"x": 530, "y": 350}], "E": 5}
+        ],
+        "junctions": [{"x": 260, "y": 360}, {"x": 390, "y": 290}, {"x": 530, "y": 190}],
+        "renderStyle": "standard"
+      }
+    },
+    "id15": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id16": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 520, "y": 360}], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": -1, "M": [{"x": 660, "y": 290}], "E": -2},
+          {"S": -2, "M": [], "E": 3},
+          {"S": -2, "M": [{"x": 790, "y": 190}], "E": -3},
+          {"S": -3, "M": [], "E": 4},
+          {"S": -3, "M": [{"x": 920, "y": 70}], "E": -4},
+          {"S": -4, "M": [{"x": 912.5, "y": 300}, {"x": 912.5, "y": 350}], "E": 5},
+          {"S": -4, "M": [], "E": -5},
+          {"S": -5, "M": [], "E": 6},
+          {"S": -5, "M": [{"x": 1000, "y": 300}, {"x": 1000, "y": 490}], "E": 7}
+        ],
+        "junctions": [
+          {"x": 520, "y": 290},
+          {"x": 660, "y": 190},
+          {"x": 790, "y": 70},
+          {"x": 920, "y": 300},
+          {"x": 980, "y": 300}
+        ],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+# ================================================================
+# THE SOURCE OF TRUTH: Three-Zone Building Envelope
+#
+# Three ZoneRoom blocks connected by partition resistors.
+# Outdoor and ground temperatures enter as causal RealInput
+# signals, eliminating two acausal Node ports and reducing
+# diagram wiring. HVAC strategy is external to this model.
+# ================================================================
+component ThreeZoneBuilding
+  "Outdoor temperature signal (K)"
+  T_outdoor = RealInput() {^T_outdoor}
+  "Ground temperature signal (K)"
+  T_ground = RealInput() {^T_ground}
+  "Zone 1 (South) port — connect HVAC, gains, and external loads here"
+  zone1_port = HeatPort() {^zone1_port}
+  "Zone 2 (Core) port"
+  zone2_port = HeatPort() {^zone2_port}
+  "Zone 3 (North) port"
+  zone3_port = HeatPort() {^zone3_port}
+  # ==== Three rooms ====
+  z1 = ZoneRoom(R_wall = 0.01, R_win = 0.015, R_roof = 0.025, R_slab = 0.05, R_infil = 0.0333, C = 400000.0) {^z1}
+  z2 = ZoneRoom(R_wall = 1e6, R_win = 1e6, R_roof = 0.025, R_slab = 0.05, R_infil = 0.0667, C = 300000.0) {^z2}
+  z3 = ZoneRoom(R_wall = 0.01, R_win = 0.02, R_roof = 0.025, R_slab = 0.05, R_infil = 0.0333, C = 400000.0) {^z3}
+  # ==== Inter-zone partitions ====
+  partition12 = ThermalComponents.Components.ThermalResistor(R = 0.01) {^partition12}
+  partition23 = ThermalComponents.Components.ThermalResistor(R = 0.01) {^partition23}
+relations
+  # Outdoor and ground signals fan out to each zone
+  connect(T_ground, z1.T_ground, z2.T_ground, z3.T_ground) {^id11}
+  connect(z2.zone_port, zone2_port, partition23.port_a, partition12.port_b) {^id12}
+  connect(T_outdoor, z1.T_outdoor, z2.T_outdoor, z3.T_outdoor) {^id13}
+  connect(z1.zone_port, zone1_port, partition12.port_a) {^id14}
+  connect(z3.zone_port, zone3_port, partition23.port_b) {^id15}
+metadata {
+  "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_three_zone_building.svg"}},
+  "_links": {
+    "T_outdoor": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -30, "y1": 450, "x2": 70, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "T_ground": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -30, "y1": 170, "x2": 70, "y2": 270, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone1_port": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 950, "y1": 120, "x2": 1050, "y2": 220, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone2_port": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 460, "x2": 1060, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone3_port": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 950, "y1": 830, "x2": 1050, "y2": 930, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "z1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 100, "x2": 570, "y2": 220, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "z2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 450, "x2": 580, "y2": 580, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "z3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 820, "x2": 580, "y2": 950, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "partition12": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 430, "y1": 280, "x2": 560, "y2": 410, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "partition23": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 630, "x2": 580, "y2": 760, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "id11": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [{"x": 370, "y": 120.4}], "E": 2},
+          {"S": 3, "M": [{"x": 370, "y": 472.1}], "E": -2},
+          {"S": -2, "M": [], "E": -1},
+          {"S": 4, "M": [{"x": 370, "y": 842.1}], "E": -2}
+        ],
+        "junctions": [{"x": 370, "y": 220}, {"x": 370, "y": 470}],
+        "renderStyle": "standard"
+      }
+    },
+    "id12": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [{"x": 1010, "y": 513.7}], "E": 2},
+          {"S": 3, "M": [{"x": 515, "y": 610}, {"x": 680, "y": 610}], "E": -1},
+          {"S": 4, "M": [{"x": 495, "y": 440}, {"x": 680, "y": 440}], "E": -1}
+        ],
+        "junctions": [{"x": 680, "y": 513.7}],
+        "renderStyle": "standard"
+      }
+    },
+    "id13": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 140, "y": 500}, {"x": 140, "y": 530}], "E": -1},
+          {"S": -1, "M": [{"x": 280, "y": 530}, {"x": 280, "y": 187.6}], "E": 2},
+          {"S": 3, "M": [{"x": 411.3, "y": 544.9}, {"x": 411.3, "y": 530}], "E": -1},
+          {"S": 4, "M": [{"x": 280, "y": 914.9}], "E": -1}
+        ],
+        "junctions": [{"x": 280, "y": 530}],
+        "renderStyle": "standard"
+      }
+    },
+    "id14": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [{"x": 1000, "y": 158.8}], "E": 2},
+          {"S": 3, "M": [{"x": 495, "y": 250}, {"x": 640, "y": 250}], "E": -1}
+        ],
+        "junctions": [{"x": 640, "y": 158.8}],
+        "renderStyle": "standard"
+      }
+    },
+    "id15": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [{"x": 1000, "y": 883.7}], "E": 2},
+          {"S": 3, "M": [{"x": 515, "y": 810}, {"x": 690, "y": 810}], "E": -1}
+        ],
+        "junctions": [{"x": 690, "y": 883.7}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+# ================================================================
+# ANALYSIS 1a: Design-Day HVAC Sizing
+#
+# Occupied design-day winter conditions:
+#   Outdoor = −5°C, Ground = 10°C
+#   Internal gains = peak occupancy values (600, 500, 400 W)
+#   Solar gains = design average (1500 W south, 375 W north)
+#
+# FixedTemperature boundary conditions at 21°C (294.15 K) on each
+# HVAC port impose the desired zone temperature directly. The solver
+# determines the heat flow Q through each port — this IS the
+# required HVAC capacity. No controller or equipment model is needed.
+# ================================================================
+test component TestSteadySizing
+  building = ThreeZoneBuilding() {^building}
+  # ---- Boundary condition signals ----
+  outdoor_signal = BlockComponents.Sources.Constant(k = 268.15) {^outdoor_signal}
+  ground_signal = BlockComponents.Sources.Constant(k = 283.15) {^ground_signal}
+  # ---- Internal and solar gains ----
+  int1 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 600.0) {^int1}
+  int2 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 500.0) {^int2}
+  int3 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 400.0) {^int3}
+  solar1 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 1500.0) {^solar1}
+  solar3 = ThermalComponents.Sources.FixedHeatFlow(Q_flow = 375.0) {^solar3}
+  # ---- Zone temperature setpoints (FixedTemperature at 21°C) ----
+  zone1_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone1_setpoint}
+  zone2_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone2_setpoint}
+  zone3_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone3_setpoint}
+relations
+  connect(outdoor_signal.y, building.T_outdoor) {^id12}
+  connect(ground_signal.y, building.T_ground) {^id13}
+  connect(int1.port, solar1.port, zone1_setpoint.port, building.zone1_port) {^id14}
+  connect(int2.port, zone2_setpoint.port, building.zone2_port) {^id15}
+  connect(int3.port, solar3.port, zone3_setpoint.port, building.zone3_port) {^id16}
+metadata {
+  "Dyad": {
+    "experiments": {},
+    "tests": {},
+    "labels": [
+      {
+        "label": "Design Day Sizing Analysis",
+        "x": 230,
+        "y": 20,
+        "rot": 0,
+        "layer": "diagram",
+        "attrs": {
+          "fill": "black",
+          "font-size": "20",
+          "dominant-baseline": "central",
+          "text-anchor": "middle"
+        }
+      }
+    ],
+    "icons": {"default": "dyad://Dyad/Default.svg"},
+    "path": {},
+    "doc": {"behavior": true}
+  },
+  "_links": {
+    "building": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 405, "y1": 368, "x2": 505, "y2": 468, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "outdoor_signal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 90, "y1": 490, "x2": 190, "y2": 590, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ground_signal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 90, "y1": 350, "x2": 190, "y2": 450, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "int1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "int2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 145, "y1": 880, "x2": 245, "y2": 980, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "int3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 780, "x2": 120, "y2": 880, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "solar1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 145, "y1": 120, "x2": 245, "y2": 220, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "solar3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 145, "y1": 680, "x2": 245, "y2": 780, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone1_setpoint": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 275, "y1": 220, "x2": 375, "y2": 320, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone2_setpoint": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 275, "y1": 780, "x2": 375, "y2": 880, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone3_setpoint": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 275, "y1": 580, "x2": 375, "y2": 680, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id12": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 390, "y": 540}, {"x": 390, "y": 421}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id13": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 390.5, "y": 400}, {"x": 390.5, "y": 390}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id14": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 260, "y": 70}], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": -1, "M": [{"x": 390, "y": 170}], "E": -2},
+          {"S": -2, "M": [], "E": 3},
+          {"S": -2, "M": [{"x": 521, "y": 270}, {"x": 521, "y": 385}], "E": 4}
+        ],
+        "junctions": [{"x": 260, "y": 170}, {"x": 390, "y": 270}],
+        "renderStyle": "standard"
+      }
+    },
+    "id15": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 390, "y": 930}], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": -1, "M": [{"x": 531, "y": 830}, {"x": 531, "y": 419}], "E": 3}
+        ],
+        "junctions": [{"x": 390, "y": 830}],
+        "renderStyle": "standard"
+      }
+    },
+    "id16": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 260, "y": 830}], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": -1, "M": [{"x": 390, "y": 730}], "E": -2},
+          {"S": -2, "M": [], "E": 3},
+          {"S": -2, "M": [{"x": 521, "y": 630}, {"x": 521, "y": 456}], "E": 4}
+        ],
+        "junctions": [{"x": 260, "y": 730}, {"x": 390, "y": 630}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+analysis HVACSizing
+  extends SteadyStateAnalysis()
+  model = TestSteadySizing()
+relations
+end
+
+# ================================================================
+# ANALYSIS 1b: Cold-Night HVAC Sizing
+#
+# Unoccupied cold-night conditions (worst-case heating demand):
+#   Outdoor = −10°C, Ground = 10°C
+#   No internal gains, no solar gains (nighttime)
+#
+# Same building, same setpoint — only boundary conditions differ.
+# Equipment must be sized to the maximum of design-day and cold-night
+# demand per zone: Q_max = max(design-day, cold-night) × safety factor.
+# ================================================================
+test component TestColdNightSizing
+  building = ThreeZoneBuilding() {^building}
+  # ---- Boundary condition signals ----
+  outdoor_signal = BlockComponents.Sources.Constant(k = 263.15) {^outdoor_signal}
+  ground_signal = BlockComponents.Sources.Constant(k = 283.15) {^ground_signal}
+  # ---- Zone temperature setpoints (FixedTemperature at 21°C) ----
+  zone1_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone1_setpoint}
+  zone2_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone2_setpoint}
+  zone3_setpoint = ThermalComponents.Sources.FixedTemperature(T = 294.15) {^zone3_setpoint}
+relations
+  connect(outdoor_signal.y, building.T_outdoor) {^id7}
+  connect(ground_signal.y, building.T_ground) {^id8}
+  connect(zone1_setpoint.port, building.zone1_port) {^id9}
+  connect(zone2_setpoint.port, building.zone2_port) {^id10}
+  connect(zone3_setpoint.port, building.zone3_port) {^id11}
+metadata {
+  "Dyad": {
+    "experiments": {},
+    "tests": {},
+    "labels": [
+      {
+        "label": "Cold Night Sizing Analysis",
+        "x": 630,
+        "y": 80,
+        "rot": 0,
+        "layer": "diagram",
+        "attrs": {
+          "fill": "black",
+          "font-size": "20",
+          "dominant-baseline": "central",
+          "text-anchor": "middle"
+        }
+      }
+    ],
+    "icons": {"default": "dyad://Dyad/Default.svg"},
+    "path": {},
+    "doc": {"behavior": true}
+  },
+  "_links": {
+    "building": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 600, "y1": 460, "x2": 700, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "outdoor_signal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 250, "y1": 660, "x2": 350, "y2": 760, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ground_signal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 280, "y1": 440, "x2": 380, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone1_setpoint": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 360, "y1": 280, "x2": 460, "y2": 380, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone2_setpoint": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 240, "y1": 160, "x2": 340, "y2": 260, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zone3_setpoint": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 400, "y1": 60, "x2": 500, "y2": 160, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id7": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 550, "y": 710}, {"x": 550, "y": 510}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id8": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 440, "y": 490}, {"x": 440, "y": 482}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id9": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 710, "y": 330}, {"x": 710, "y": 477}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id10": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 730, "y": 210}, {"x": 730, "y": 511}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id11": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 770, "y": 110}, {"x": 770, "y": 548}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+analysis ColdNightSizing
+  extends SteadyStateAnalysis()
+  model = TestColdNightSizing()
+relations
+end
+
+# ================================================================
+# Representative Weekday Office Occupancy Schedule
+# Piecewise linear interpolation of hourly fractions (0–1)
+# ================================================================
+component OfficeOccupancy
+  "Occupancy fraction output (0–1)"
+  y = RealOutput() {^y}
+  variable occ::Real
+relations
+  occ = ifelse(time < 18000.0, 0.0, ifelse(time < 21600.0, (time - 18000.0) * 2.7778e-5, ifelse(time < 25200.0, 0.10 + (time - 21600.0) * 2.7778e-5, ifelse(time < 28800.0, 0.20 + (time - 25200.0) * 2.0833e-4, ifelse(time < 39600.0, 0.95, ifelse(time < 43200.0, 0.95 - (time - 39600.0) * 1.25e-4, ifelse(time < 46800.0, 0.50 + (time - 43200.0) * 1.25e-4, ifelse(time < 57600.0, 0.95, ifelse(time < 61200.0, 0.95 - (time - 57600.0) * 1.8056e-4, ifelse(time < 64800.0, 0.30 - (time - 61200.0) * 5.5556e-5, ifelse(time < 75600.0, 0.10, ifelse(time < 79200.0, 0.10 - (time - 75600.0) * 1.3889e-5, ifelse(time < 82800.0, 0.05, ifelse(time < 86400.0, 0.05 - (time - 82800.0) * 1.3889e-5, 0.0))))))))))))))
+  y = occ
+metadata {
+  "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_office_occupancy.svg"}},
+  "_links": {
+    "y": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 950, "y1": 460, "x2": 1050, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+# ================================================================
+# ANALYSIS 2: 24-Hour Diurnal Operation
+#
+# Same ThreeZoneBuilding, now with time-varying boundary conditions:
+#   Outdoor = sinusoidal diurnal cycle (−10°C to 0°C)
+#   Solar = sinusoidal, peaks at noon (south 0–3000 W, north 0–750 W)
+#   Internal gains = occupancy fraction × peak watts
+#
+# ThermostatHeater controllers are attached at the test harness
+# level. Q_max = max(design-day, cold-night) × 1.2 safety factor:
+#   Z1 = max(4274, 7558) × 1.2 = 7558 × 1.2 ≈ 9070 W  (cold night governs)
+#   Z2 = max(1150, 1925) × 1.2 = 1925 × 1.2 ≈ 2310 W  (cold night governs)
+#   Z3 = max(5166, 7041) × 1.2 = 7041 × 1.2 ≈ 8450 W  (cold night governs)
+# ================================================================
+test component TestDiurnalOperation
+  building = ThreeZoneBuilding() {^building}
+  # ---- Outdoor temperature (diurnal sine) — connects directly as signal ----
+  outdoor_signal = BlockComponents.Sources.Sine(amplitude = 5.0, frequency = 1.1574e-5, phase = -1.5708, offset = 268.15) {^outdoor_signal}
+  # ---- Ground (stable year-round) ----
+  ground_signal = BlockComponents.Sources.Constant(k = 283.15) {^ground_signal}
+  # ---- Representative office occupancy schedule ----
+  occ_schedule = OfficeOccupancy() {^occ_schedule}
+  # ---- Solar gains (sine, peaks at noon) ----
+  solar_south = BlockComponents.Sources.Sine(amplitude = 1500.0, frequency = 1.1574e-5, phase = -1.5708, offset = 1500.0) {^solar_south}
+  solar_north = BlockComponents.Sources.Sine(amplitude = 375.0, frequency = 1.1574e-5, phase = -1.5708, offset = 375.0) {^solar_north}
+  # ---- Internal gains = occupancy × peak watts ----
+  int1_scale = BlockComponents.Math.Gain(k = 600.0) {^int1_scale}
+  int1_source = ThermalComponents.Sources.PrescribedHeatFlow() {^int1_source}
+  int2_scale = BlockComponents.Math.Gain(k = 500.0) {^int2_scale}
+  int2_source = ThermalComponents.Sources.PrescribedHeatFlow() {^int2_source}
+  int3_scale = BlockComponents.Math.Gain(k = 400.0) {^int3_scale}
+  int3_source = ThermalComponents.Sources.PrescribedHeatFlow() {^int3_source}
+  # ---- Solar thermal sources ----
+  solar1_source = ThermalComponents.Sources.PrescribedHeatFlow() {^solar1_source}
+  solar3_source = ThermalComponents.Sources.PrescribedHeatFlow() {^solar3_source}
+  # ---- HVAC thermostat controllers (capacity = max(design-day, cold-night) × 1.2) ----
+  hvac1 = ThermostatHeater(K = 5000.0, T_set = 294.15, Q_max = 9070.0) {^hvac1}
+  hvac2 = ThermostatHeater(K = 5000.0, T_set = 294.15, Q_max = 2310.0) {^hvac2}
+  hvac3 = ThermostatHeater(K = 5000.0, T_set = 294.15, Q_max = 8450.0) {^hvac3}
+relations
+  # Boundary condition signals → building
+  connect(outdoor_signal.y, building.T_outdoor) {^id18}
+  connect(ground_signal.y, building.T_ground) {^id19}
+  # Occupancy → gain scaling → heat sources
+  connect(occ_schedule.y, int1_scale.u) {^id20}
+  connect(occ_schedule.y, int2_scale.u) {^id21}
+  connect(occ_schedule.y, int3_scale.u) {^id22}
+  connect(int1_scale.y, int1_source.Q_flow) {^id23}
+  connect(int2_scale.y, int2_source.Q_flow) {^id24}
+  connect(int3_scale.y, int3_source.Q_flow) {^id25}
+  # Solar → heat sources
+  connect(solar_south.y, solar1_source.Q_flow) {^id26}
+  connect(solar_north.y, solar3_source.Q_flow) {^id27}
+  # Heat sources + HVAC controllers → building zone ports
+  connect(int1_source.port, solar1_source.port, hvac1.port, building.zone1_port) {^id28}
+  connect(int2_source.port, hvac2.port, building.zone2_port) {^id29}
+  connect(int3_source.port, solar3_source.port, hvac3.port, building.zone3_port) {^id30}
+  # Initial zone temperatures (cold-start at 12°C)
+  initial building.z1.cap.T = 285.15
+  initial building.z2.cap.T = 285.15
+  initial building.z3.cap.T = 285.15
+metadata {
+  "_links": {
+    "building": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 678, "y1": 579, "x2": 778, "y2": 679, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "outdoor_signal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 545, "y1": 671, "x2": 645, "y2": 771, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ground_signal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 545, "y1": 551, "x2": 645, "y2": 651, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "occ_schedule": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 244, "x2": 120, "y2": 344, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "solar_south": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 285, "y1": 125, "x2": 385, "y2": 225, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "solar_north": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 285, "y1": 896, "x2": 385, "y2": 996, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "int1_scale": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 155, "y1": 245, "x2": 255, "y2": 345, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "int1_source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 290, "y1": 245, "x2": 390, "y2": 345, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "int2_scale": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 155, "y1": 450, "x2": 255, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "int2_source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 290, "y1": 450, "x2": 390, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "int3_scale": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 155, "y1": 570, "x2": 255, "y2": 670, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "int3_source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 290, "y1": 570, "x2": 390, "y2": 670, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "solar1_source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 420, "y1": 125, "x2": 520, "y2": 225, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "solar3_source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 420, "y1": 896, "x2": 520, "y2": 996, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "hvac1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 550, "y1": 20, "x2": 650, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "hvac2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 420, "y1": 345, "x2": 520, "y2": 445, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "hvac3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 550, "y1": 791, "x2": 650, "y2": 891, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id18": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 665, "y": 721}, {"x": 665, "y": 629}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id19": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id20": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id21": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": -2},
+          {"S": -2, "M": [], "E": 2}
+        ],
+        "junctions": [{"x": 135, "y": 295}, {"x": 135, "y": 500}],
+        "renderStyle": "standard"
+      }
+    },
+    "id22": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 135, "y": 295}, {"x": 135, "y": 620}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id23": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id24": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id25": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id26": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id27": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id28": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 535, "y": 295}], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": -1, "M": [], "E": -2},
+          {"S": -2, "M": [], "E": 3},
+          {"S": -2, "M": [{"x": 804, "y": 175}, {"x": 804, "y": 596}], "E": 4}
+        ],
+        "junctions": [{"x": 535, "y": 175}, {"x": 600, "y": 175}],
+        "renderStyle": "standard"
+      }
+    },
+    "id29": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": -1, "M": [{"x": 794, "y": 500}, {"x": 794, "y": 630}], "E": 3}
+        ],
+        "junctions": [{"x": 470, "y": 500}],
+        "renderStyle": "standard"
+      }
+    },
+    "id30": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 535, "y": 620}], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": -1, "M": [], "E": -2},
+          {"S": -2, "M": [], "E": 3},
+          {"S": -2, "M": [{"x": 794, "y": 946}, {"x": 794, "y": 667}], "E": 4}
+        ],
+        "junctions": [{"x": 535, "y": 946}, {"x": 600, "y": 946}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+analysis DiurnalOperation
+  extends TransientAnalysis(stop = 86400.0)
+  model = TestDiurnalOperation()
+relations
+end

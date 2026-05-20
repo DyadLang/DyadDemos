@@ -33,7 +33,9 @@
   end
     if isfile("snapshots/VehicleCycleTest_case1_sig0.ref")
       ref = CSV.read("snapshots/VehicleCycleTest_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.vehicle_speed) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.vehicle_speed) atol=0.001 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.vehicle.vehicle_speed])
         dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig0.ref", DataFrame)
@@ -49,7 +51,9 @@
     end
     if isfile("snapshots/VehicleCycleTest_case1_sig1.ref")
       ref = CSV.read("snapshots/VehicleCycleTest_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.wheel_speed) atol=9.999999999999999e-6 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.wheel_speed) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.vehicle.wheel_speed])
         dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig1.ref", DataFrame)
@@ -64,7 +68,9 @@
     end
     if isfile("snapshots/VehicleCycleTest_case1_sig2.ref")
       ref = CSV.read("snapshots/VehicleCycleTest_case1_sig2.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.pad_mass.T) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.pad_mass.T) atol=0.001 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.pad_mass.T])
         dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig2.ref", DataFrame)
@@ -80,7 +86,9 @@
     end
     if isfile("snapshots/VehicleCycleTest_case1_sig3.ref")
       ref = CSV.read("snapshots/VehicleCycleTest_case1_sig3.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.disk_mass.T) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.disk_mass.T) atol=0.001 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.disk_mass.T])
         dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig3.ref", DataFrame)
@@ -96,7 +104,9 @@
     end
     if isfile("snapshots/VehicleCycleTest_case1_sig4.ref")
       ref = CSV.read("snapshots/VehicleCycleTest_case1_sig4.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.powertrain.drive.tau) atol=9.999999999999999e-6 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.powertrain.drive.tau) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.powertrain.drive.tau])
         dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig4.ref", DataFrame)
@@ -111,7 +121,9 @@
     end
     if isfile("snapshots/VehicleCycleTest_case1_sig5.ref")
       ref = CSV.read("snapshots/VehicleCycleTest_case1_sig5.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.shaft.tau) atol=9.999999999999999e-6 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.shaft.tau) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.brake.shaft.tau])
         dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig5.ref", DataFrame)

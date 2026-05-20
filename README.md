@@ -11,3 +11,4 @@ Complex, in-depth demos of the capabilities of Dyad, the new platform for modeli
 | <img src="./MakieWebinar/assets/icon.svg" width="48"/> | [**MakieWebinar**](./MakieWebinar/) | Demonstrations of using Makie interactive plotting with Dyad models, including dashboards and parameter sweeps. |
 | <img src="./ThermalHouseDemo/assets/icon.svg" width="48"/> | [**ThermalHouseDemo**](./ThermalHouseDemo/) | A residential house thermal model covering envelope heat loss, infiltration, solar gains, and HVAC control. |
 | <img src="./ASPDemo/assets/ASPPlant.svg" width="48"/> | [**ASPDemo**](./ASPDemo/) | Wastewater treatment activated sludge process (ASP) model. |
+| <img src="./DynamicSteadyState/assets/icon_three_zone_building.svg" width="48"/> | [**DynamicSteadyState**](./DynamicSteadyState/) | A three-zone office building thermal model with steady-state HVAC sizing and 24-hour diurnal transient operation. |

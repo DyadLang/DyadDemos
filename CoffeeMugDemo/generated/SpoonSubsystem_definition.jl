@@ -19,16 +19,17 @@
 
 ## Connectors
 
- * `liquidInterface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
- * `ambient` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `liquidInterface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `ambient` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function SpoonSubsystem(; name = nothing, C_spoon=10, T0_spoon=293.15, G_liquid_contact=0.2, Gc_exposed=0.02, Gr_exposed=0.0005)
+@component function SpoonSubsystem(; name = nothing, C_spoon=Float64(10), T0_spoon=293.15, G_liquid_contact=0.2, Gc_exposed=0.02, Gr_exposed=0.0005, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = SpoonSubsystem()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -36,31 +37,76 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (C_spoon::Real = C_spoon))
-  append!(__params, @parameters (T0_spoon::Real = T0_spoon), [bounds = (0, Inf)])
-  append!(__params, @parameters (G_liquid_contact::Real = G_liquid_contact))
-  append!(__params, @parameters (Gc_exposed::Real = Gc_exposed))
-  append!(__params, @parameters (Gr_exposed::Real = Gr_exposed))
+  __local__C_spoon = C_spoon
+  append!(__params, @parameters (C_spoon::Real))
+  __initial_conditions[C_spoon] = __local__C_spoon
+  __local__T0_spoon = T0_spoon
+  append!(__params, @parameters (T0_spoon::Real), [bounds = (0, Inf)])
+  __initial_conditions[T0_spoon] = __local__T0_spoon
+  __local__G_liquid_contact = G_liquid_contact
+  append!(__params, @parameters (G_liquid_contact::Real))
+  __initial_conditions[G_liquid_contact] = __local__G_liquid_contact
+  __local__Gc_exposed = Gc_exposed
+  append!(__params, @parameters (Gc_exposed::Real))
+  __initial_conditions[Gc_exposed] = __local__Gc_exposed
+  __local__Gr_exposed = Gr_exposed
+  append!(__params, @parameters (Gr_exposed::Real))
+  __initial_conditions[Gr_exposed] = __local__Gr_exposed
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named liquidInterface = __Dyad__Node())
-  push!(__systems, @named ambient = __Dyad__Node())
-  push!(__systems, @named spoonMass = ThermalComponents.HeatCapacitor(C=C_spoon, T0=T0_spoon))
-  push!(__systems, @named liquidContact = ThermalComponents.ThermalConductor(G=G_liquid_contact))
-  push!(__systems, @named convExposed = ThermalComponents.Convection())
-  push!(__systems, @named gcExposed = BlockComponents.Constant(k=Gc_exposed))
-  push!(__systems, @named radExposed = ThermalComponents.BodyRadiation(Gr=Gr_exposed))
+  push!(__systems, @named liquidInterface = __Dyad__HeatPort())
+  push!(__systems, @named ambient = __Dyad__HeatPort())
+  # Subcomponent spoonMass of type ThermalComponents.Components.HeatCapacitor
+  spoonMass_overrides = Dict(Symbol(replace(string(k), r"^spoonMass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "spoonMass__"))
+  filter!(p -> !startswith(string(first(p)), "spoonMass__"), __overrides)
+  push!(__systems, @named spoonMass = ThermalComponents.Components.HeatCapacitor(C=C_spoon, T0=T0_spoon, spoonMass_overrides...))
+  # Subcomponent liquidContact of type ThermalComponents.Components.ThermalConductor
+  liquidContact_overrides = Dict(Symbol(replace(string(k), r"^liquidContact__" => "")) => v for (k, v) in __overrides if startswith(string(k), "liquidContact__"))
+  filter!(p -> !startswith(string(first(p)), "liquidContact__"), __overrides)
+  push!(__systems, @named liquidContact = ThermalComponents.Components.ThermalConductor(G=G_liquid_contact, liquidContact_overrides...))
+  # Subcomponent convExposed of type ThermalComponents.Components.Convection
+  convExposed_overrides = Dict(Symbol(replace(string(k), r"^convExposed__" => "")) => v for (k, v) in __overrides if startswith(string(k), "convExposed__"))
+  filter!(p -> !startswith(string(first(p)), "convExposed__"), __overrides)
+  push!(__systems, @named convExposed = ThermalComponents.Components.Convection(convExposed_overrides...))
+  # Subcomponent gcExposed of type BlockComponents.Sources.Constant
+  gcExposed_overrides = Dict(Symbol(replace(string(k), r"^gcExposed__" => "")) => v for (k, v) in __overrides if startswith(string(k), "gcExposed__"))
+  filter!(p -> !startswith(string(first(p)), "gcExposed__"), __overrides)
+  push!(__systems, @named gcExposed = BlockComponents.Sources.Constant(k=Gc_exposed, gcExposed_overrides...))
+  # Subcomponent radExposed of type ThermalComponents.Components.BodyRadiation
+  radExposed_overrides = Dict(Symbol(replace(string(k), r"^radExposed__" => "")) => v for (k, v) in __overrides if startswith(string(k), "radExposed__"))
+  filter!(p -> !startswith(string(first(p)), "radExposed__"), __overrides)
+  push!(__systems, @named radExposed = ThermalComponents.Components.BodyRadiation(Gr=Gr_exposed, radExposed_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -68,15 +114,15 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(liquidInterface, liquidContact.node_a))
-  push!(__eqs, connect(liquidContact.node_b, spoonMass.node))
-  push!(__eqs, connect(spoonMass.node, convExposed.solid))
+  push!(__eqs, connect(liquidInterface, liquidContact.port_a))
+  push!(__eqs, connect(liquidContact.port_b, spoonMass.port))
+  push!(__eqs, connect(spoonMass.port, convExposed.solid))
   push!(__eqs, connect(convExposed.fluid, ambient))
   push!(__eqs, connect(gcExposed.y, convExposed.Gc))
-  push!(__eqs, connect(spoonMass.node, radExposed.node_a))
-  push!(__eqs, connect(radExposed.node_b, ambient))
+  push!(__eqs, connect(spoonMass.port, radExposed.port_a))
+  push!(__eqs, connect(radExposed.port_b, ambient))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SpoonSubsystem

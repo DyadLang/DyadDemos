@@ -7,13 +7,14 @@
 @doc Markdown.doc"""
    SimpleVehicleTest_Constant(; name)
 """
-@component function SimpleVehicleTest_Constant(; name = nothing)
+@component function SimpleVehicleTest_Constant(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = SimpleVehicleTest_Constant()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,23 +22,55 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle())
-  push!(__systems, @named torque_input = BlockComponents.Constant(k=250))
-  push!(__systems, @named torque_source = RotationalComponents.TorqueSource())
-  push!(__systems, @named torque_ground = RotationalComponents.Fixed())
+  # Subcomponent vehicle of type FrictionBrakeDemo.SimpleVehicle
+  vehicle_overrides = Dict(Symbol(replace(string(k), r"^vehicle__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle__"))
+  filter!(p -> !startswith(string(first(p)), "vehicle__"), __overrides)
+  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle(vehicle_overrides...))
+  # Subcomponent torque_input of type BlockComponents.Sources.Constant
+  torque_input_overrides = Dict(Symbol(replace(string(k), r"^torque_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "torque_input__"))
+  filter!(p -> !startswith(string(first(p)), "torque_input__"), __overrides)
+  push!(__systems, @named torque_input = BlockComponents.Sources.Constant(k=250, torque_input_overrides...))
+  # Subcomponent torque_source of type RotationalComponents.Sources.TorqueSource
+  torque_source_overrides = Dict(Symbol(replace(string(k), r"^torque_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "torque_source__"))
+  filter!(p -> !startswith(string(first(p)), "torque_source__"), __overrides)
+  push!(__systems, @named torque_source = RotationalComponents.Sources.TorqueSource(torque_source_overrides...))
+  # Subcomponent torque_ground of type RotationalComponents.Components.Fixed
+  torque_ground_overrides = Dict(Symbol(replace(string(k), r"^torque_ground__" => "")) => v for (k, v) in __overrides if startswith(string(k), "torque_ground__"))
+  filter!(p -> !startswith(string(first(p)), "torque_ground__"), __overrides)
+  push!(__systems, @named torque_ground = RotationalComponents.Components.Fixed(torque_ground_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -50,6 +83,6 @@
   push!(__eqs, connect(torque_source.support, torque_ground.spline))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SimpleVehicleTest_Constant

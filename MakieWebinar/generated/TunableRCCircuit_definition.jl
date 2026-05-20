@@ -18,13 +18,14 @@ User can adjust R and C to see different charging behaviors.
 | `C`         | Capacitance (controls charge storage)                         | F  |   0.000001 |
 | `V_supply`         | Supply voltage                         | V  |   10 |
 """
-@component function TunableRCCircuit(; name = nothing, R=1000, C=0.000001, V_supply=10)
+@component function TunableRCCircuit(; name = nothing, R=Float64(1000), C=0.000001, V_supply=Float64(10), kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TunableRCCircuit()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -32,27 +33,68 @@ User can adjust R and C to see different charging behaviors.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (R::Real = R), [description = "Resistance (controls charging speed)"])
-  append!(__params, @parameters (C::Real = C), [description = "Capacitance (controls charge storage)", bounds = (0, Inf)])
-  append!(__params, @parameters (V_supply::Real = V_supply), [description = "Supply voltage"])
+  __local__R = R
+  append!(__params, @parameters (R::Real), [description = "Resistance (controls charging speed)"])
+  __initial_conditions[R] = __local__R
+  __local__C = C
+  append!(__params, @parameters (C::Real), [description = "Capacitance (controls charge storage)", bounds = (0, Inf)])
+  __initial_conditions[C] = __local__C
+  __local__V_supply = V_supply
+  append!(__params, @parameters (V_supply::Real), [description = "Supply voltage"])
+  __initial_conditions[V_supply] = __local__V_supply
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named source = ElectricalComponents.VoltageSource())
-  push!(__systems, @named voltage_signal = BlockComponents.Constant(k=V_supply))
-  push!(__systems, @named resistor = ElectricalComponents.Resistor(R=R))
-  push!(__systems, @named capacitor = ElectricalComponents.Capacitor(C=C))
-  push!(__systems, @named ground = ElectricalComponents.Ground())
+  # Subcomponent source of type ElectricalComponents.Analog.Sources.VoltageSource
+  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
+  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  push!(__systems, @named source = ElectricalComponents.Analog.Sources.VoltageSource(source_overrides...))
+  # Subcomponent voltage_signal of type BlockComponents.Sources.Constant
+  voltage_signal_overrides = Dict(Symbol(replace(string(k), r"^voltage_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "voltage_signal__"))
+  filter!(p -> !startswith(string(first(p)), "voltage_signal__"), __overrides)
+  push!(__systems, @named voltage_signal = BlockComponents.Sources.Constant(k=V_supply, voltage_signal_overrides...))
+  # Subcomponent resistor of type ElectricalComponents.Analog.Basic.Resistor
+  resistor_overrides = Dict(Symbol(replace(string(k), r"^resistor__" => "")) => v for (k, v) in __overrides if startswith(string(k), "resistor__"))
+  filter!(p -> !startswith(string(first(p)), "resistor__"), __overrides)
+  push!(__systems, @named resistor = ElectricalComponents.Analog.Basic.Resistor(R=R, resistor_overrides...))
+  # Subcomponent capacitor of type ElectricalComponents.Analog.Basic.Capacitor
+  capacitor_overrides = Dict(Symbol(replace(string(k), r"^capacitor__" => "")) => v for (k, v) in __overrides if startswith(string(k), "capacitor__"))
+  filter!(p -> !startswith(string(first(p)), "capacitor__"), __overrides)
+  push!(__systems, @named capacitor = ElectricalComponents.Analog.Basic.Capacitor(C=C, capacitor_overrides...))
+  # Subcomponent ground of type ElectricalComponents.Analog.Basic.Ground
+  ground_overrides = Dict(Symbol(replace(string(k), r"^ground__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground__"))
+  filter!(p -> !startswith(string(first(p)), "ground__"), __overrides)
+  push!(__systems, @named ground = ElectricalComponents.Analog.Basic.Ground(ground_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -67,6 +109,6 @@ User can adjust R and C to see different charging behaviors.
   push!(__eqs, connect(source.n, ground.g))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TunableRCCircuit

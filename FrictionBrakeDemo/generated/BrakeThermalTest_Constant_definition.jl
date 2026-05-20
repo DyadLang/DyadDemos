@@ -16,13 +16,14 @@
 | `vehicle_speed`         |                          | m/s  |   25 |
 | `wheel_speed`         |                          | rad/s  |   83 |
 """
-@component function BrakeThermalTest_Constant(; name = nothing, Q_disk=9300, Q_pad=700, vehicle_speed=25, wheel_speed=83)
+@component function BrakeThermalTest_Constant(; name = nothing, Q_disk=Float64(9300), Q_pad=Float64(700), vehicle_speed=Float64(25), wheel_speed=Float64(83), kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = BrakeThermalTest_Constant()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -30,28 +31,71 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (Q_disk::Real = Q_disk))
-  append!(__params, @parameters (Q_pad::Real = Q_pad))
-  append!(__params, @parameters (vehicle_speed::Real = vehicle_speed))
-  append!(__params, @parameters (wheel_speed::Real = wheel_speed))
+  __local__Q_disk = Q_disk
+  append!(__params, @parameters (Q_disk::Real))
+  __initial_conditions[Q_disk] = __local__Q_disk
+  __local__Q_pad = Q_pad
+  append!(__params, @parameters (Q_pad::Real))
+  __initial_conditions[Q_pad] = __local__Q_pad
+  __local__vehicle_speed = vehicle_speed
+  append!(__params, @parameters (vehicle_speed::Real))
+  __initial_conditions[vehicle_speed] = __local__vehicle_speed
+  __local__wheel_speed = wheel_speed
+  append!(__params, @parameters (wheel_speed::Real))
+  __initial_conditions[wheel_speed] = __local__wheel_speed
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal())
-  push!(__systems, @named disk_heat_input = ThermalComponents.FixedHeatFlow(Q=Q_disk))
-  push!(__systems, @named pad_heat_input = ThermalComponents.FixedHeatFlow(Q=Q_pad))
-  push!(__systems, @named vehicle_speed_source = BlockComponents.Constant(k=vehicle_speed))
-  push!(__systems, @named wheel_speed_source = BlockComponents.Constant(k=wheel_speed))
+  # Subcomponent brake_thermal of type FrictionBrakeDemo.BrakeThermal
+  brake_thermal_overrides = Dict(Symbol(replace(string(k), r"^brake_thermal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "brake_thermal__"))
+  filter!(p -> !startswith(string(first(p)), "brake_thermal__"), __overrides)
+  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(brake_thermal_overrides...))
+  # Subcomponent disk_heat_input of type ThermalComponents.Sources.FixedHeatFlow
+  disk_heat_input_overrides = Dict(Symbol(replace(string(k), r"^disk_heat_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_heat_input__"))
+  filter!(p -> !startswith(string(first(p)), "disk_heat_input__"), __overrides)
+  push!(__systems, @named disk_heat_input = ThermalComponents.Sources.FixedHeatFlow(Q_flow=Q_disk, disk_heat_input_overrides...))
+  # Subcomponent pad_heat_input of type ThermalComponents.Sources.FixedHeatFlow
+  pad_heat_input_overrides = Dict(Symbol(replace(string(k), r"^pad_heat_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_heat_input__"))
+  filter!(p -> !startswith(string(first(p)), "pad_heat_input__"), __overrides)
+  push!(__systems, @named pad_heat_input = ThermalComponents.Sources.FixedHeatFlow(Q_flow=Q_pad, pad_heat_input_overrides...))
+  # Subcomponent vehicle_speed_source of type BlockComponents.Sources.Constant
+  vehicle_speed_source_overrides = Dict(Symbol(replace(string(k), r"^vehicle_speed_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle_speed_source__"))
+  filter!(p -> !startswith(string(first(p)), "vehicle_speed_source__"), __overrides)
+  push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(k=vehicle_speed, vehicle_speed_source_overrides...))
+  # Subcomponent wheel_speed_source of type BlockComponents.Sources.Constant
+  wheel_speed_source_overrides = Dict(Symbol(replace(string(k), r"^wheel_speed_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wheel_speed_source__"))
+  filter!(p -> !startswith(string(first(p)), "wheel_speed_source__"), __overrides)
+  push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(k=wheel_speed, wheel_speed_source_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -59,12 +103,12 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(disk_heat_input.node, brake_thermal.heat_disk))
-  push!(__eqs, connect(pad_heat_input.node, brake_thermal.heat_pad))
+  push!(__eqs, connect(disk_heat_input.port, brake_thermal.heat_disk))
+  push!(__eqs, connect(pad_heat_input.port, brake_thermal.heat_pad))
   push!(__eqs, connect(vehicle_speed_source.y, brake_thermal.vehicle_speed))
   push!(__eqs, connect(wheel_speed_source.y, brake_thermal.wheel_speed))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export BrakeThermalTest_Constant

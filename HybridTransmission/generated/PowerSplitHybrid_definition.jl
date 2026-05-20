@@ -22,13 +22,14 @@ Reference:
 - SAE 2005-01-1364: "Hybrid Electric Powertrains for Passenger Vehicles: Configuration, Performance, and Testing" by Miller, J.M.
 - EPA Test Cycle Data: 40 CFR Part 86, Appendix I (HWFET)
 """
-@component function PowerSplitHybrid(; name = nothing)
+@component function PowerSplitHybrid(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = PowerSplitHybrid()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -36,23 +37,69 @@ Reference:
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named drive_cycle = HybridTransmission.HighwayDriveCycle())
-  push!(__systems, @named controller = HybridTransmission.ECMSController())
-  push!(__systems, @named engine = HybridTransmission.HybridEngine())
-  push!(__systems, @named mg1 = HybridTransmission.HybridMG(Kt=1, max_torque=130))
-  push!(__systems, @named mg2 = HybridTransmission.HybridMG(Kt=1, max_torque=330))
-  push!(__systems, @named transmission = HybridTransmission.HybridPlanetaryGear())
-  push!(__systems, @named vehicle = HybridTransmission.HybridVehicle())
-  push!(__systems, @named battery = HybridTransmission.HybridBattery())
+  # Subcomponent drive_cycle of type HybridTransmission.HighwayDriveCycle
+  drive_cycle_overrides = Dict(Symbol(replace(string(k), r"^drive_cycle__" => "")) => v for (k, v) in __overrides if startswith(string(k), "drive_cycle__"))
+  filter!(p -> !startswith(string(first(p)), "drive_cycle__"), __overrides)
+  push!(__systems, @named drive_cycle = HybridTransmission.HighwayDriveCycle(drive_cycle_overrides...))
+  # Subcomponent controller of type HybridTransmission.ECMSController
+  controller_overrides = Dict(Symbol(replace(string(k), r"^controller__" => "")) => v for (k, v) in __overrides if startswith(string(k), "controller__"))
+  filter!(p -> !startswith(string(first(p)), "controller__"), __overrides)
+  push!(__systems, @named controller = HybridTransmission.ECMSController(controller_overrides...))
+  # Subcomponent engine of type HybridTransmission.HybridEngine
+  engine_overrides = Dict(Symbol(replace(string(k), r"^engine__" => "")) => v for (k, v) in __overrides if startswith(string(k), "engine__"))
+  filter!(p -> !startswith(string(first(p)), "engine__"), __overrides)
+  push!(__systems, @named engine = HybridTransmission.HybridEngine(engine_overrides...))
+  # Subcomponent mg1 of type HybridTransmission.HybridMG
+  mg1_overrides = Dict(Symbol(replace(string(k), r"^mg1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mg1__"))
+  filter!(p -> !startswith(string(first(p)), "mg1__"), __overrides)
+  push!(__systems, @named mg1 = HybridTransmission.HybridMG(Kt=1, max_torque=130, mg1_overrides...))
+  # Subcomponent mg2 of type HybridTransmission.HybridMG
+  mg2_overrides = Dict(Symbol(replace(string(k), r"^mg2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mg2__"))
+  filter!(p -> !startswith(string(first(p)), "mg2__"), __overrides)
+  push!(__systems, @named mg2 = HybridTransmission.HybridMG(Kt=1, max_torque=330, mg2_overrides...))
+  # Subcomponent transmission of type HybridTransmission.HybridPlanetaryGear
+  transmission_overrides = Dict(Symbol(replace(string(k), r"^transmission__" => "")) => v for (k, v) in __overrides if startswith(string(k), "transmission__"))
+  filter!(p -> !startswith(string(first(p)), "transmission__"), __overrides)
+  push!(__systems, @named transmission = HybridTransmission.HybridPlanetaryGear(transmission_overrides...))
+  # Subcomponent vehicle of type HybridTransmission.HybridVehicle
+  vehicle_overrides = Dict(Symbol(replace(string(k), r"^vehicle__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle__"))
+  filter!(p -> !startswith(string(first(p)), "vehicle__"), __overrides)
+  push!(__systems, @named vehicle = HybridTransmission.HybridVehicle(vehicle_overrides...))
+  # Subcomponent battery of type HybridTransmission.HybridBattery
+  battery_overrides = Dict(Symbol(replace(string(k), r"^battery__" => "")) => v for (k, v) in __overrides if startswith(string(k), "battery__"))
+  filter!(p -> !startswith(string(first(p)), "battery__"), __overrides)
+  push!(__systems, @named battery = HybridTransmission.HybridBattery(battery_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
   __guesses[engine.omega] = (0)
@@ -67,12 +114,10 @@ Reference:
   __guesses[transmission.sun.tau] = (0)
   __guesses[transmission.ring.tau] = (0)
 
-  ### Defaults
-  __initial_conditions[vehicle.omega_wheel] = (0)
-  __initial_conditions[engine.flange.phi] = (0)
-  __initial_conditions[vehicle.flange.phi] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, vehicle.omega_wheel ~ 0)
+  push!(__initialization_eqs, engine.flange.phi ~ 0)
+  push!(__initialization_eqs, vehicle.flange.phi ~ 0)
 
   ### Assertions
   __assertions = []
@@ -94,6 +139,6 @@ Reference:
   push!(__eqs, connect(mg2.power_elec, battery.mg2_power))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export PowerSplitHybrid

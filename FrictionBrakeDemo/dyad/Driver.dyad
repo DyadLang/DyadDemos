@@ -9,9 +9,9 @@ component Driver
   # Output: brake command (0-1)
   brake = RealOutput() {^brake}
   # Single PID controller with symmetric output range
-  speed_pid = BlockComponents.LimPID(k = k, Ti = Ti, Td = Td, y_max = 1.0, y_min = -1.0, wp = 1.0, wd = 0.0, Ni = 0.9, Nd = 10.0, k_ff = 0.0) {^speed_pid}
+  speed_pid = BlockComponents.Continuous.LimPID(k = k, Ti = Ti, Td = Td, y_max = 1.0, y_min = -1.0, wp = 1.0, wd = 0.0, Ni = 0.9, Nd = 10.0, k_ff = 0.0) {^speed_pid}
   # Feed-forward input (not used)
-  ff_input = BlockComponents.Constant(k = 0.0) {^ff_input}
+  ff_input = BlockComponents.Sources.Constant(k = 0.0) {^ff_input}
   # Proportional gain for PID
   parameter k::Real = 0.5
   # Integral time constant for PID
@@ -107,7 +107,7 @@ end
 # TEST HARNESS - Step response test
 test component TestDriver_Constant
   # Step input for reference speed: 0 m/s to 20 m/s at t=1s
-  speed_ref_source = BlockComponents.Step(height = 20.0, offset = 0.0, start_time = 1.0) {^speed_ref_source}
+  speed_ref_source = BlockComponents.Sources.Step(height = 20.0, offset = 0.0, start_time = 1.0) {^speed_ref_source}
   # drag coefficient
   # Driver model
   driver = Driver() {^driver}
@@ -161,9 +161,9 @@ end
 # TEST HARNESS - Speed up and slow down to test both throttle and brake
 test component TestDriverWithBraking
   # Multi-step reference: 0 -> 25 -> 10 m/s
-  step1 = BlockComponents.Step(height = 25.0, offset = 0.0, start_time = 1.0) {^step1}
-  step2 = BlockComponents.Step(height = -15.0, offset = 0.0, start_time = 6.0) {^step2}
-  sum_steps = BlockComponents.Add() {^sum_steps}
+  step1 = BlockComponents.Sources.Step(height = 25.0, offset = 0.0, start_time = 1.0) {^step1}
+  step2 = BlockComponents.Sources.Step(height = -15.0, offset = 0.0, start_time = 6.0) {^step2}
+  sum_steps = BlockComponents.Math.Add() {^sum_steps}
   # drag coefficient
   # Driver model
   driver = Driver() {^driver}

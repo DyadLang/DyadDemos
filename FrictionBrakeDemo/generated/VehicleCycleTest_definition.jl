@@ -7,13 +7,14 @@
 @doc Markdown.doc"""
    VehicleCycleTest(; name)
 """
-@component function VehicleCycleTest(; name = nothing)
+@component function VehicleCycleTest(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = VehicleCycleTest()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,27 +22,65 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named brake = FrictionBrakeDemo.FrictionBrake(f_partition=0.93))
-  push!(__systems, @named powertrain = FrictionBrakeDemo.SimplePowertrain())
-  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle())
-  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal())
-  push!(__systems, @named driver = FrictionBrakeDemo.Driver())
-  push!(__systems, @named vehicle_speed_ref = BlockComponents.Sine(start_time=0, offset=15.2, amplitude=15, frequency=0.02))
+  # Subcomponent brake of type FrictionBrakeDemo.FrictionBrake
+  brake_overrides = Dict(Symbol(replace(string(k), r"^brake__" => "")) => v for (k, v) in __overrides if startswith(string(k), "brake__"))
+  filter!(p -> !startswith(string(first(p)), "brake__"), __overrides)
+  push!(__systems, @named brake = FrictionBrakeDemo.FrictionBrake(f_partition=0.93, brake_overrides...))
+  # Subcomponent powertrain of type FrictionBrakeDemo.SimplePowertrain
+  powertrain_overrides = Dict(Symbol(replace(string(k), r"^powertrain__" => "")) => v for (k, v) in __overrides if startswith(string(k), "powertrain__"))
+  filter!(p -> !startswith(string(first(p)), "powertrain__"), __overrides)
+  push!(__systems, @named powertrain = FrictionBrakeDemo.SimplePowertrain(powertrain_overrides...))
+  # Subcomponent vehicle of type FrictionBrakeDemo.SimpleVehicle
+  vehicle_overrides = Dict(Symbol(replace(string(k), r"^vehicle__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle__"))
+  filter!(p -> !startswith(string(first(p)), "vehicle__"), __overrides)
+  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle(vehicle_overrides...))
+  # Subcomponent brake_thermal of type FrictionBrakeDemo.BrakeThermal
+  brake_thermal_overrides = Dict(Symbol(replace(string(k), r"^brake_thermal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "brake_thermal__"))
+  filter!(p -> !startswith(string(first(p)), "brake_thermal__"), __overrides)
+  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(brake_thermal_overrides...))
+  # Subcomponent driver of type FrictionBrakeDemo.Driver
+  driver_overrides = Dict(Symbol(replace(string(k), r"^driver__" => "")) => v for (k, v) in __overrides if startswith(string(k), "driver__"))
+  filter!(p -> !startswith(string(first(p)), "driver__"), __overrides)
+  push!(__systems, @named driver = FrictionBrakeDemo.Driver(driver_overrides...))
+  # Subcomponent vehicle_speed_ref of type BlockComponents.Sources.Sine
+  vehicle_speed_ref_overrides = Dict(Symbol(replace(string(k), r"^vehicle_speed_ref__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle_speed_ref__"))
+  filter!(p -> !startswith(string(first(p)), "vehicle_speed_ref__"), __overrides)
+  push!(__systems, @named vehicle_speed_ref = BlockComponents.Sources.Sine(start_time=0, offset=15.2, amplitude=15, frequency=0.02, vehicle_speed_ref_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
   __guesses[brake.T_interface] = (293.15)
   __guesses[brake.ω] = (0)
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -62,6 +101,6 @@
   push!(__eqs, connect(powertrain.drive, vehicle.shaft))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export VehicleCycleTest

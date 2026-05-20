@@ -41,13 +41,14 @@ Supported dynamics:
 | ------------ | ----------------------------------- | ------ | 
 | `C`         |                          | --  | 
 """
-@component function ReactionCapacitor(; name = nothing, V=1, growth_rate=1)
+@component function ReactionCapacitor(; name = nothing, V=Float64(1), growth_rate=Float64(1), kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = ReactionCapacitor()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,13 +56,38 @@ Supported dynamics:
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (V::Real = V))
-  append!(__params, @parameters (growth_rate::Real = growth_rate))
+  __local__V = V
+  append!(__params, @parameters (V::Real))
+  __initial_conditions[V] = __local__V
+  __local__growth_rate = growth_rate
+  append!(__params, @parameters (growth_rate::Real))
+  __initial_conditions[growth_rate] = __local__growth_rate
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (C(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_C = pop!(__overrides, "C", nothing); isnothing(__ovr_C) || push!(__eqs, C ~ __ovr_C)
+  __ovr_C__initial = pop!(__overrides, "C__initial", nothing); isnothing(__ovr_C__initial) || (__initial_conditions[C] = __ovr_C__initial)
 
   ### Constants
   __constants = Any[]
@@ -69,9 +95,10 @@ Supported dynamics:
   ### Components
   push!(__systems, @named port = MakieWebinar.DiffusionPort())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
 
@@ -83,6 +110,6 @@ Supported dynamics:
   push!(__eqs, V * ModelingToolkit.D_nounits(C) ~ port.J + V * growth_rate * C)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ReactionCapacitor

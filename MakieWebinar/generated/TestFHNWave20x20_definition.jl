@@ -17,13 +17,14 @@
 | `N_v_res`         |                          | --  |   380 |
 | `N_bound`         |                          | --  |   80 |
 """
-@component function TestFHNWave20x20(; name = nothing, N=20, N_caps=400, N_h_res=380, N_v_res=380, N_bound=80)
+@component function TestFHNWave20x20(; name = nothing, N=20, N_caps=400, N_h_res=380, N_v_res=380, N_bound=80, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TestFHNWave20x20()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -31,39 +32,71 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
+  # Subcomponent caps of type MakieWebinar.FHNCapacitor
+  caps_overrides = Dict(Symbol(replace(string(k), r"^caps__" => "")) => v for (k, v) in __overrides if startswith(string(k), "caps__"))
+  filter!(p -> !startswith(string(first(p)), "caps__"), __overrides)
   caps = System[]
   for i in 1:N_caps
-    push!(caps, MakieWebinar.FHNCapacitor(V=0.01, a=0.1, b=0.01, eps=0.01, name=Symbol("caps", "⸺", i)))
+    push!(caps, MakieWebinar.FHNCapacitor(V=0.01, a=0.1, b=0.01, eps=0.01, name=Symbol("caps", "⸺", i), caps_overrides...))
   end
   append!(__systems, caps)
+  # Subcomponent r_h of type MakieWebinar.DiffusionResistor
+  r_h_overrides = Dict(Symbol(replace(string(k), r"^r_h__" => "")) => v for (k, v) in __overrides if startswith(string(k), "r_h__"))
+  filter!(p -> !startswith(string(first(p)), "r_h__"), __overrides)
   r_h = System[]
   for i in 1:N_h_res
-    push!(r_h, MakieWebinar.DiffusionResistor(D=3, dx=0.1, A=0.1, name=Symbol("r_h", "⸺", i)))
+    push!(r_h, MakieWebinar.DiffusionResistor(D=3, dx=0.1, A=0.1, name=Symbol("r_h", "⸺", i), r_h_overrides...))
   end
   append!(__systems, r_h)
+  # Subcomponent r_v of type MakieWebinar.DiffusionResistor
+  r_v_overrides = Dict(Symbol(replace(string(k), r"^r_v__" => "")) => v for (k, v) in __overrides if startswith(string(k), "r_v__"))
+  filter!(p -> !startswith(string(first(p)), "r_v__"), __overrides)
   r_v = System[]
   for i in 1:N_v_res
-    push!(r_v, MakieWebinar.DiffusionResistor(D=3, dx=0.1, A=0.1, name=Symbol("r_v", "⸺", i)))
+    push!(r_v, MakieWebinar.DiffusionResistor(D=3, dx=0.1, A=0.1, name=Symbol("r_v", "⸺", i), r_v_overrides...))
   end
   append!(__systems, r_v)
+  # Subcomponent bounds of type MakieWebinar.ZeroFluxBoundary
+  bounds_overrides = Dict(Symbol(replace(string(k), r"^bounds__" => "")) => v for (k, v) in __overrides if startswith(string(k), "bounds__"))
+  filter!(p -> !startswith(string(first(p)), "bounds__"), __overrides)
   bounds = System[]
   for i in 1:N_bound
-    push!(bounds, MakieWebinar.ZeroFluxBoundary(name=Symbol("bounds", "⸺", i)))
+    push!(bounds, MakieWebinar.ZeroFluxBoundary(name=Symbol("bounds", "⸺", i), bounds_overrides...))
   end
   append!(__systems, bounds)
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
   push!(__initialization_eqs, getproperty(caps[1], :u) ~ 0.6)
@@ -101,6 +134,6 @@
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestFHNWave20x20

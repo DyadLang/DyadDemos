@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <defs>
+    <linearGradient id="fill-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#637AFF" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#0099FF" stop-opacity="0.25"/>
+    </linearGradient>
+    <linearGradient id="line-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#372CD5"/>
+      <stop offset="50%" stop-color="#6C44FF"/>
+      <stop offset="100%" stop-color="#372CD5"/>
+    </linearGradient>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0A0A0A" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Outer frame -->
+  <rect x="2" y="2" width="276" height="276" rx="8" ry="8" fill="#F5F5F5" stroke="#D6D6D6" stroke-width="1.5"/>
+
+  <!-- Inner background -->
+  <rect x="18" y="18" width="244" height="244" rx="5" ry="5" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="140" y="40" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#0A0A0A" letter-spacing="0.3">OfficeOccupancy</text>
+
+  <!-- Subtitle -->
+  <text x="140" y="55" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="9" font-weight="400" fill="#7D7D7D">Representative Weekday Profile</text>
+
+  <!-- Chart area: x=40..252 (212px for 24h), y=68..220 (152px for 0..1.0) -->
+  <!-- Y-axis -->
+  <line x1="40" y1="68" x2="40" y2="220" stroke="#D6D6D6" stroke-width="1"/>
+  <!-- X-axis -->
+  <line x1="40" y1="220" x2="252" y2="220" stroke="#D6D6D6" stroke-width="1"/>
+
+  <!-- Y-axis labels -->
+  <text x="35" y="72" text-anchor="end" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">1.0</text>
+  <text x="35" y="148" text-anchor="end" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">0.5</text>
+  <text x="35" y="224" text-anchor="end" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">0.0</text>
+
+  <!-- Y-axis grid lines (dashed) -->
+  <line x1="40" y1="68" x2="252" y2="68" stroke="#D6D6D6" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="40" y1="144" x2="252" y2="144" stroke="#D6D6D6" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+  <!-- X-axis labels (hours) -->
+  <text x="40" y="233" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">0</text>
+  <text x="84" y="233" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">5</text>
+  <text x="110" y="233" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">8</text>
+  <text x="146" y="233" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">12</text>
+  <text x="181" y="233" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">16</text>
+  <text x="225" y="233" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">21</text>
+  <text x="252" y="233" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" fill="#7D7D7D">24</text>
+
+  <!-- X-axis label -->
+  <text x="146" y="246" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" font-weight="500" fill="#4B4B4B">Hour of Day</text>
+
+  <!--
+    Occupancy profile polyline.
+    Chart mapping: x = 40 + (hour/24)*212,  y = 220 - fraction*152
+
+    Key points (hour, fraction):
+    (0, 0.0)   → x=40,   y=220
+    (5, 0.0)   → x=84,   y=220
+    (6, 0.10)  → x=93,   y=205
+    (7, 0.20)  → x=101,  y=190
+    (8, 0.95)  → x=110,  y=76
+    (11, 0.95) → x=137,  y=76
+    (12, 0.50) → x=146,  y=144
+    (13, 0.95) → x=154,  y=76
+    (16, 0.95) → x=181,  y=76
+    (17, 0.30) → x=190,  y=174
+    (18, 0.10) → x=199,  y=205
+    (21, 0.10) → x=225,  y=205
+    (22, 0.05) → x=234,  y=212
+    (23, 0.05) → x=243,  y=212
+    (24, 0.0)  → x=252,  y=220
+  -->
+
+  <!-- Filled area under curve -->
+  <polygon points="40,220 84,220 93,205 101,190 110,76 137,76 146,144 154,76 181,76 190,174 199,205 225,205 234,212 243,212 252,220"
+           fill="url(#fill-grad)" stroke="none"/>
+
+  <!-- Profile line -->
+  <polyline points="40,220 84,220 93,205 101,190 110,76 137,76 146,144 154,76 181,76 190,174 199,205 225,205 234,212 243,212 252,220"
+            fill="none" stroke="url(#line-grad)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- Peak label -->
+  <text x="124" y="70" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="9" font-weight="600" fill="#372CD5">0.95</text>
+
+  <!-- Lunch dip label -->
+  <text x="146" y="139" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="8" font-weight="500" fill="#6C44FF">lunch</text>
+
+  <!-- Output fraction label at bottom -->
+  <rect x="78" y="254" width="124" height="18" rx="3" ry="3" fill="#F0F4FF" stroke="#D6D6D6" stroke-width="0.75"/>
+  <text x="140" y="267" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="9" font-weight="500" fill="#4B4B4B">y : occupancy (0–1)</text>
+
+  <!-- RealOutput connector port (right edge) -->
+  <circle cx="272" cy="144" r="5" fill="#FFFFFF" stroke="#6C44FF" stroke-width="2"/>
+</svg>
