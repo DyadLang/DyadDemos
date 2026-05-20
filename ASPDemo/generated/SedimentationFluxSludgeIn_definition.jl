@@ -4,13 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@connector function SedimentationFluxSludgeIn(; name)
-  vars = @variables begin
+@connector function SedimentationFluxSludgeIn(; name=nothing)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = SedimentationFluxSludgeIn()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = @variables begin
     (SedFlux(t)::Real), [input = true]
     (X(t)::Real), [input = true]
   end
   __metadata = Dict{DataType, Any}(
   )
-  return System(Equation[], t, vars, []; name, metadata = __metadata)
+  return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
 export SedimentationFluxSludgeIn

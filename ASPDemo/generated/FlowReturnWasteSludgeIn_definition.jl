@@ -4,13 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@connector function FlowReturnWasteSludgeIn(; name)
-  vars = @variables begin
+@connector function FlowReturnWasteSludgeIn(; name=nothing)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = FlowReturnWasteSludgeIn()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = @variables begin
     (Qr(t)::Real), [input = true]
     (Qw(t)::Real), [input = true]
   end
   __metadata = Dict{DataType, Any}(
   )
-  return System(Equation[], t, vars, []; name, metadata = __metadata)
+  return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
 export FlowReturnWasteSludgeIn

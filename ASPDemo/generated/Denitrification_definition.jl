@@ -31,13 +31,14 @@
 | `aeration`         |                          | --  | 
 | `Q`         |                          | --  | 
 """
-@component function Denitrification(; name = nothing, nS=13, V=1000, states_start=[30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], medium=ASM1())
+@component function Denitrification(; name = nothing, nS=13, V=Float64(1000), states_start=[30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], medium=ASM1(), kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = Denitrification()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -45,18 +46,51 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (V::Real = V))
-  append!(__params, @parameters (states_start[1:nS]::Real = states_start))
-  append!(__params, @parameters (medium::ASPDemo.AbstractMedium = medium))
+  __local__V = V
+  append!(__params, @parameters (V::Real))
+  __initial_conditions[V] = __local__V
+  __local__states_start = states_start
+  append!(__params, @parameters (states_start[1:nS]::Real))
+  __initial_conditions[states_start] = __local__states_start
+  __local__medium = medium
+  append!(__params, @parameters (medium::ASPDemo.AbstractMedium))
+  __initial_conditions[medium] = __local__medium
 
-  ### Variables
+  ### Final Path Parameters
   append!(__vars, @variables (T(t)::Real), [input = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (states(t)[1:nS]::Real))
   append!(__vars, @variables (r(t)[1:nS]::Real))
   append!(__vars, @variables (aeration(t)::Real))
   append!(__vars, @variables (Q(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_states = pop!(__overrides, "states", nothing); isnothing(__ovr_states) || push!(__eqs, states ~ __ovr_states)
+  __ovr_states__initial = pop!(__overrides, "states__initial", nothing); isnothing(__ovr_states__initial) || (__initial_conditions[states] = __ovr_states__initial)
+  __ovr_r = pop!(__overrides, "r", nothing); isnothing(__ovr_r) || push!(__eqs, r ~ __ovr_r)
+  __ovr_r__initial = pop!(__overrides, "r__initial", nothing); isnothing(__ovr_r__initial) || (__initial_conditions[r] = __ovr_r__initial)
+  __ovr_aeration = pop!(__overrides, "aeration", nothing); isnothing(__ovr_aeration) || push!(__eqs, aeration ~ __ovr_aeration)
+  __ovr_aeration__initial = pop!(__overrides, "aeration__initial", nothing); isnothing(__ovr_aeration__initial) || (__initial_conditions[aeration] = __ovr_aeration__initial)
+  __ovr_Q = pop!(__overrides, "Q", nothing); isnothing(__ovr_Q) || push!(__eqs, Q ~ __ovr_Q)
+  __ovr_Q__initial = pop!(__overrides, "Q__initial", nothing); isnothing(__ovr_Q__initial) || (__initial_conditions[Q] = __ovr_Q__initial)
 
   ### Constants
   __constants = Any[]
@@ -65,12 +99,13 @@
   push!(__systems, @named portIn = ASPDemo.FluidPortIn())
   push!(__systems, @named portOut = ASPDemo.FluidPortOut())
 
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[states] = (states_start)
-
   ### Initialization Equations
+  push!(__initialization_eqs, states ~ states_start)
 
   ### Assertions
   __assertions = []
@@ -108,6 +143,6 @@
   push!(__eqs, aeration ~ 0)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export Denitrification

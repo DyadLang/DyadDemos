@@ -13,13 +13,14 @@
 | ------------ | ----------------------------------- | ------ | 
 | `Q_air`         |                          | --  | 
 """
-@component function TestBlower(; name = nothing)
+@component function TestBlower(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TestBlower()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -27,24 +28,49 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (Q_air(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_Q_air = pop!(__overrides, "Q_air", nothing); isnothing(__ovr_Q_air) || push!(__eqs, Q_air ~ __ovr_Q_air)
+  __ovr_Q_air__initial = pop!(__overrides, "Q_air__initial", nothing); isnothing(__ovr_Q_air__initial) || (__initial_conditions[Q_air] = __ovr_Q_air__initial)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named blower = ASPDemo.Blower())
+  # Subcomponent blower of type ASPDemo.Blower
+  blower_overrides = Dict(Symbol(replace(string(k), r"^blower__" => "")) => v for (k, v) in __overrides if startswith(string(k), "blower__"))
+  filter!(p -> !startswith(string(first(p)), "blower__"), __overrides)
+  push!(__systems, @named blower = ASPDemo.Blower(blower_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[Q_air] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, Q_air ~ 0)
 
   ### Assertions
   __assertions = []
@@ -54,6 +80,6 @@
   push!(__eqs, ModelingToolkit.D_nounits(Q_air) ~ (blower.Q_air - Q_air) / 0.05)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestBlower

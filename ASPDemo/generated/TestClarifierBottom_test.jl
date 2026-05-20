@@ -26,7 +26,9 @@
   end
     if isfile("snapshots/TestClarifierBottom_case1_sig0.ref")
       ref = CSV.read("snapshots/TestClarifierBottom_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.volume.T) atol=9.999999999999999e-6 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.volume.T) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.volume.T])
         dfr = CSV.read("snapshots/TestClarifierBottom_case1_sig0.ref", DataFrame)
@@ -41,7 +43,9 @@
     end
     if isfile("snapshots/TestClarifierBottom_case1_sig1.ref")
       ref = CSV.read("snapshots/TestClarifierBottom_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.resistance.port_a.m_flow) atol=9.999999999999999e-6 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.resistance.port_a.m_flow) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.resistance.port_a.m_flow])
         dfr = CSV.read("snapshots/TestClarifierBottom_case1_sig1.ref", DataFrame)

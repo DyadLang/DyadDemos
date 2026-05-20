@@ -4,8 +4,15 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@connector function FluidPortIn(; name)
-  vars = @variables begin
+@connector function FluidPortIn(; name=nothing)
+  isnothing(name) && throw(ArgumentError("""
+        The `name` keyword must be provided. Please consider using the `@named` macro,
+        like so:
+
+        @named model = FluidPortIn()
+        """))
+  __params = Symbolics.SymbolicT[]
+  __vars = @variables begin
     (Q(t)::Real), [input = true]
     (Si(t)::Real), [input = true]
     (Ss(t)::Real), [input = true]
@@ -23,6 +30,6 @@
   end
   __metadata = Dict{DataType, Any}(
   )
-  return System(Equation[], t, vars, []; name, metadata = __metadata)
+  return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
 export FluidPortIn

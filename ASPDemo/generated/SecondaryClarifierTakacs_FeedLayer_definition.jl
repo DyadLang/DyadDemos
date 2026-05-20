@@ -43,13 +43,14 @@
 | `Snd`         |                          | kg/m3  | 
 | `Salk`         |                          | kg/m3  | 
 """
-@component function SecondaryClarifierTakacs_FeedLayer(; name = nothing, Asc=nothing, zm=nothing, X_start=nothing, soluble_start=nothing)
+@component function SecondaryClarifierTakacs_FeedLayer(; name = nothing, Asc=nothing, zm=nothing, X_start=nothing, soluble_start=nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = SecondaryClarifierTakacs_FeedLayer()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -57,15 +58,40 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (Asc::Real = Asc))
-  append!(__params, @parameters (zm::Real = zm))
-  append!(__params, @parameters (X_start::Real = X_start))
-  append!(__params, @parameters (soluble_start[1:7]::Real = soluble_start))
+  __local__Asc = Asc
+  append!(__params, @parameters (Asc::Real))
+  __initial_conditions[Asc] = __local__Asc
+  __local__zm = zm
+  append!(__params, @parameters (zm::Real))
+  __initial_conditions[zm] = __local__zm
+  __local__X_start = X_start
+  append!(__params, @parameters (X_start::Real))
+  __initial_conditions[X_start] = __local__X_start
+  __local__soluble_start = soluble_start
+  append!(__params, @parameters (soluble_start[1:7]::Real))
+  __initial_conditions[soluble_start] = __local__soluble_start
 
-  ### Variables
+  ### Final Path Parameters
   append!(__vars, @variables (Xf(t)::Real), [input = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (X(t)::Real))
   append!(__vars, @variables (vS(t)::Real))
   append!(__vars, @variables (Jsm(t)::Real))
@@ -76,6 +102,28 @@
   append!(__vars, @variables (Snh(t)::Real))
   append!(__vars, @variables (Snd(t)::Real))
   append!(__vars, @variables (Salk(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_X = pop!(__overrides, "X", nothing); isnothing(__ovr_X) || push!(__eqs, X ~ __ovr_X)
+  __ovr_X__initial = pop!(__overrides, "X__initial", nothing); isnothing(__ovr_X__initial) || (__initial_conditions[X] = __ovr_X__initial)
+  __ovr_vS = pop!(__overrides, "vS", nothing); isnothing(__ovr_vS) || push!(__eqs, vS ~ __ovr_vS)
+  __ovr_vS__initial = pop!(__overrides, "vS__initial", nothing); isnothing(__ovr_vS__initial) || (__initial_conditions[vS] = __ovr_vS__initial)
+  __ovr_Jsm = pop!(__overrides, "Jsm", nothing); isnothing(__ovr_Jsm) || push!(__eqs, Jsm ~ __ovr_Jsm)
+  __ovr_Jsm__initial = pop!(__overrides, "Jsm__initial", nothing); isnothing(__ovr_Jsm__initial) || (__initial_conditions[Jsm] = __ovr_Jsm__initial)
+  __ovr_Si = pop!(__overrides, "Si", nothing); isnothing(__ovr_Si) || push!(__eqs, Si ~ __ovr_Si)
+  __ovr_Si__initial = pop!(__overrides, "Si__initial", nothing); isnothing(__ovr_Si__initial) || (__initial_conditions[Si] = __ovr_Si__initial)
+  __ovr_Ss = pop!(__overrides, "Ss", nothing); isnothing(__ovr_Ss) || push!(__eqs, Ss ~ __ovr_Ss)
+  __ovr_Ss__initial = pop!(__overrides, "Ss__initial", nothing); isnothing(__ovr_Ss__initial) || (__initial_conditions[Ss] = __ovr_Ss__initial)
+  __ovr_So = pop!(__overrides, "So", nothing); isnothing(__ovr_So) || push!(__eqs, So ~ __ovr_So)
+  __ovr_So__initial = pop!(__overrides, "So__initial", nothing); isnothing(__ovr_So__initial) || (__initial_conditions[So] = __ovr_So__initial)
+  __ovr_Sno = pop!(__overrides, "Sno", nothing); isnothing(__ovr_Sno) || push!(__eqs, Sno ~ __ovr_Sno)
+  __ovr_Sno__initial = pop!(__overrides, "Sno__initial", nothing); isnothing(__ovr_Sno__initial) || (__initial_conditions[Sno] = __ovr_Sno__initial)
+  __ovr_Snh = pop!(__overrides, "Snh", nothing); isnothing(__ovr_Snh) || push!(__eqs, Snh ~ __ovr_Snh)
+  __ovr_Snh__initial = pop!(__overrides, "Snh__initial", nothing); isnothing(__ovr_Snh__initial) || (__initial_conditions[Snh] = __ovr_Snh__initial)
+  __ovr_Snd = pop!(__overrides, "Snd", nothing); isnothing(__ovr_Snd) || push!(__eqs, Snd ~ __ovr_Snd)
+  __ovr_Snd__initial = pop!(__overrides, "Snd__initial", nothing); isnothing(__ovr_Snd__initial) || (__initial_conditions[Snd] = __ovr_Snd__initial)
+  __ovr_Salk = pop!(__overrides, "Salk", nothing); isnothing(__ovr_Salk) || push!(__eqs, Salk ~ __ovr_Salk)
+  __ovr_Salk__initial = pop!(__overrides, "Salk__initial", nothing); isnothing(__ovr_Salk__initial) || (__initial_conditions[Salk] = __ovr_Salk__initial)
 
   ### Constants
   __constants = Any[]
@@ -90,19 +138,20 @@
   push!(__systems, @named outDn = ASPDemo.SedimentationFluxSludgeOut())
   push!(__systems, @named soluble = ASPDemo.SolubleOut())
 
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[X] = (X_start)
-  __initial_conditions[Si] = (soluble_start[1])
-  __initial_conditions[Ss] = (soluble_start[2])
-  __initial_conditions[So] = (soluble_start[3])
-  __initial_conditions[Sno] = (soluble_start[4])
-  __initial_conditions[Snh] = (soluble_start[5])
-  __initial_conditions[Snd] = (soluble_start[6])
-  __initial_conditions[Salk] = (soluble_start[7])
-
   ### Initialization Equations
+  push!(__initialization_eqs, X ~ X_start)
+  push!(__initialization_eqs, Si ~ soluble_start[1])
+  push!(__initialization_eqs, Ss ~ soluble_start[2])
+  push!(__initialization_eqs, So ~ soluble_start[3])
+  push!(__initialization_eqs, Sno ~ soluble_start[4])
+  push!(__initialization_eqs, Snh ~ soluble_start[5])
+  push!(__initialization_eqs, Snd ~ soluble_start[6])
+  push!(__initialization_eqs, Salk ~ soluble_start[7])
 
   ### Assertions
   __assertions = []
@@ -132,6 +181,6 @@
   push!(__eqs, soluble.Salk ~ Salk)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SecondaryClarifierTakacs_FeedLayer

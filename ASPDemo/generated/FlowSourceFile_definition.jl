@@ -31,13 +31,14 @@
 
  * `port` - ([`FluidPortOut`](@ref))
 """
-@component function FlowSourceFile(; name = nothing, input_file="dyad://ASPDemo/../test/data/Inf_dry_const_benchmark.csv", dataset_Q=DyadData.DyadTimeseries(input_file, dependent_vars=["Q"], independent_var="t"), dataset_Si=DyadData.DyadTimeseries(input_file, dependent_vars=["Si"], independent_var="t"), dataset_Ss=DyadData.DyadTimeseries(input_file, dependent_vars=["Ss"], independent_var="t"), dataset_Xi=DyadData.DyadTimeseries(input_file, dependent_vars=["Xi"], independent_var="t"), dataset_Xs=DyadData.DyadTimeseries(input_file, dependent_vars=["Xs"], independent_var="t"), dataset_Xbh=DyadData.DyadTimeseries(input_file, dependent_vars=["Xbh"], independent_var="t"), dataset_Xba=DyadData.DyadTimeseries(input_file, dependent_vars=["Xba"], independent_var="t"), dataset_Xp=DyadData.DyadTimeseries(input_file, dependent_vars=["Xp"], independent_var="t"), dataset_So=DyadData.DyadTimeseries(input_file, dependent_vars=["So"], independent_var="t"), dataset_Sno=DyadData.DyadTimeseries(input_file, dependent_vars=["Sno"], independent_var="t"), dataset_Snh=DyadData.DyadTimeseries(input_file, dependent_vars=["Snh"], independent_var="t"), dataset_Snd=DyadData.DyadTimeseries(input_file, dependent_vars=["Snd"], independent_var="t"), dataset_Xnd=DyadData.DyadTimeseries(input_file, dependent_vars=["Xnd"], independent_var="t"), dataset_Salk=DyadData.DyadTimeseries(input_file, dependent_vars=["Salk"], independent_var="t"))
+@component function FlowSourceFile(; name = nothing, input_file="dyad://ASPDemo/../test/data/Inf_dry_const_benchmark.csv", dataset_Q=DyadData.DyadTimeseries(input_file, dependent_vars=["Q"], independent_var="t"), dataset_Si=DyadData.DyadTimeseries(input_file, dependent_vars=["Si"], independent_var="t"), dataset_Ss=DyadData.DyadTimeseries(input_file, dependent_vars=["Ss"], independent_var="t"), dataset_Xi=DyadData.DyadTimeseries(input_file, dependent_vars=["Xi"], independent_var="t"), dataset_Xs=DyadData.DyadTimeseries(input_file, dependent_vars=["Xs"], independent_var="t"), dataset_Xbh=DyadData.DyadTimeseries(input_file, dependent_vars=["Xbh"], independent_var="t"), dataset_Xba=DyadData.DyadTimeseries(input_file, dependent_vars=["Xba"], independent_var="t"), dataset_Xp=DyadData.DyadTimeseries(input_file, dependent_vars=["Xp"], independent_var="t"), dataset_So=DyadData.DyadTimeseries(input_file, dependent_vars=["So"], independent_var="t"), dataset_Sno=DyadData.DyadTimeseries(input_file, dependent_vars=["Sno"], independent_var="t"), dataset_Snh=DyadData.DyadTimeseries(input_file, dependent_vars=["Snh"], independent_var="t"), dataset_Snd=DyadData.DyadTimeseries(input_file, dependent_vars=["Snd"], independent_var="t"), dataset_Xnd=DyadData.DyadTimeseries(input_file, dependent_vars=["Xnd"], independent_var="t"), dataset_Salk=DyadData.DyadTimeseries(input_file, dependent_vars=["Salk"], independent_var="t"), kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = FlowSourceFile()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -45,34 +46,96 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
   push!(__systems, @named port = ASPDemo.FluidPortOut())
-  push!(__systems, @named Q_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Q))
-  push!(__systems, @named Si_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Si))
-  push!(__systems, @named Ss_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Ss))
-  push!(__systems, @named Xi_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Xi))
-  push!(__systems, @named Xs_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Xs))
-  push!(__systems, @named Xbh_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Xbh))
-  push!(__systems, @named Xba_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Xba))
-  push!(__systems, @named Xp_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Xp))
-  push!(__systems, @named So_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_So))
-  push!(__systems, @named Sno_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Sno))
-  push!(__systems, @named Snh_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Snh))
-  push!(__systems, @named Snd_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Snd))
-  push!(__systems, @named Xnd_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Xnd))
-  push!(__systems, @named Salk_interp = BlockComponents.Interpolation(interpolation_type=BlockComponents.InterpolationType.LinearInterpolation(), dataset=dataset_Salk))
+  # Subcomponent Q_interp of type BlockComponents.Tables.Interpolation
+  Q_interp_overrides = Dict(Symbol(replace(string(k), r"^Q_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Q_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Q_interp__"), __overrides)
+  push!(__systems, @named Q_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Q, Q_interp_overrides...))
+  # Subcomponent Si_interp of type BlockComponents.Tables.Interpolation
+  Si_interp_overrides = Dict(Symbol(replace(string(k), r"^Si_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Si_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Si_interp__"), __overrides)
+  push!(__systems, @named Si_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Si, Si_interp_overrides...))
+  # Subcomponent Ss_interp of type BlockComponents.Tables.Interpolation
+  Ss_interp_overrides = Dict(Symbol(replace(string(k), r"^Ss_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Ss_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Ss_interp__"), __overrides)
+  push!(__systems, @named Ss_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Ss, Ss_interp_overrides...))
+  # Subcomponent Xi_interp of type BlockComponents.Tables.Interpolation
+  Xi_interp_overrides = Dict(Symbol(replace(string(k), r"^Xi_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xi_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Xi_interp__"), __overrides)
+  push!(__systems, @named Xi_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xi, Xi_interp_overrides...))
+  # Subcomponent Xs_interp of type BlockComponents.Tables.Interpolation
+  Xs_interp_overrides = Dict(Symbol(replace(string(k), r"^Xs_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xs_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Xs_interp__"), __overrides)
+  push!(__systems, @named Xs_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xs, Xs_interp_overrides...))
+  # Subcomponent Xbh_interp of type BlockComponents.Tables.Interpolation
+  Xbh_interp_overrides = Dict(Symbol(replace(string(k), r"^Xbh_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xbh_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Xbh_interp__"), __overrides)
+  push!(__systems, @named Xbh_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xbh, Xbh_interp_overrides...))
+  # Subcomponent Xba_interp of type BlockComponents.Tables.Interpolation
+  Xba_interp_overrides = Dict(Symbol(replace(string(k), r"^Xba_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xba_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Xba_interp__"), __overrides)
+  push!(__systems, @named Xba_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xba, Xba_interp_overrides...))
+  # Subcomponent Xp_interp of type BlockComponents.Tables.Interpolation
+  Xp_interp_overrides = Dict(Symbol(replace(string(k), r"^Xp_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xp_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Xp_interp__"), __overrides)
+  push!(__systems, @named Xp_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xp, Xp_interp_overrides...))
+  # Subcomponent So_interp of type BlockComponents.Tables.Interpolation
+  So_interp_overrides = Dict(Symbol(replace(string(k), r"^So_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "So_interp__"))
+  filter!(p -> !startswith(string(first(p)), "So_interp__"), __overrides)
+  push!(__systems, @named So_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_So, So_interp_overrides...))
+  # Subcomponent Sno_interp of type BlockComponents.Tables.Interpolation
+  Sno_interp_overrides = Dict(Symbol(replace(string(k), r"^Sno_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Sno_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Sno_interp__"), __overrides)
+  push!(__systems, @named Sno_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Sno, Sno_interp_overrides...))
+  # Subcomponent Snh_interp of type BlockComponents.Tables.Interpolation
+  Snh_interp_overrides = Dict(Symbol(replace(string(k), r"^Snh_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Snh_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Snh_interp__"), __overrides)
+  push!(__systems, @named Snh_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Snh, Snh_interp_overrides...))
+  # Subcomponent Snd_interp of type BlockComponents.Tables.Interpolation
+  Snd_interp_overrides = Dict(Symbol(replace(string(k), r"^Snd_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Snd_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Snd_interp__"), __overrides)
+  push!(__systems, @named Snd_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Snd, Snd_interp_overrides...))
+  # Subcomponent Xnd_interp of type BlockComponents.Tables.Interpolation
+  Xnd_interp_overrides = Dict(Symbol(replace(string(k), r"^Xnd_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xnd_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Xnd_interp__"), __overrides)
+  push!(__systems, @named Xnd_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xnd, Xnd_interp_overrides...))
+  # Subcomponent Salk_interp of type BlockComponents.Tables.Interpolation
+  Salk_interp_overrides = Dict(Symbol(replace(string(k), r"^Salk_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Salk_interp__"))
+  filter!(p -> !startswith(string(first(p)), "Salk_interp__"), __overrides)
+  push!(__systems, @named Salk_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Salk, Salk_interp_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -110,6 +173,6 @@
   push!(__eqs, port.Salk ~ Salk_interp.y)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FlowSourceFile
