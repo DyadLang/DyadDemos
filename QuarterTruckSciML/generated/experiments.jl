@@ -11,9 +11,12 @@ end
 
 include("ConfigurableTireSpringDamper_experiment.jl")
 include("CoulombFriction_experiment.jl")
+include("Demux3_experiment.jl")
 include("DenseISO8608Road_experiment.jl")
 include("HalfSineBump_experiment.jl")
 include("ISO8608Road_experiment.jl")
+include("Mux3_experiment.jl")
+include("NeuralNetworkBlock_experiment.jl")
 include("PureExternalForce_experiment.jl")
 include("QuarterTruckConfigurable_experiment.jl")
 include("QuarterTruckFullNN_experiment.jl")

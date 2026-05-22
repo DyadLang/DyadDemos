@@ -1,0 +1,60 @@
+"Generic linear spring-damper whose total force includes an external residual force supplied via a RealInput port (`f_residual`). No gating — the full `k*Δs + d*v + f_residual` is always transmitted. Used by `seat_to_driver` in the gray-box truck."
+component SpringDamperWithExternalResidual
+  flange_a = Flange() {^flange_a}
+  flange_b = Flange() {^flange_b}
+  f_residual = RealInput() {^f_residual}
+  v_rel_out = Dyad.RealOutput() {^v_rel_out}
+  parameter k::TranslationalSpringConstant = 10e3
+  parameter d::TranslationalDampingConstant = 500.0
+  parameter s_rel0::Distance = 0.1
+  variable s_rel::Distance
+  variable v_rel::Velocity
+  variable f::Force
+  parameter v_seat_scale::Real
+  variable f_residual_scaled::Force = d * v_rel * f_residual
+
+relations
+  s_rel = flange_b.s - flange_a.s
+  v_rel = der(s_rel)
+  f = k * (s_rel - s_rel0) + d * v_rel + f_residual_scaled
+  flange_b.f = f
+  flange_a.f = -f
+  v_rel_out = v_rel / v_seat_scale
+metadata {
+  "Dyad": {"icons": {"default": "dyad://TranslationalComponents/SpringDamper.svg"}},
+  "_links": {
+    "flange_a": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "flange_b": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "f_residual": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 210, "y1": -80, "x2": 290, "y2": 0, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "v_rel_out": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 710, "y1": -80, "x2": 790, "y2": 0, "rot": 270}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

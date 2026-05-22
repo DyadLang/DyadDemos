@@ -25,11 +25,6 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
 | `v_seat_scale`         | Seat-driver velocity normalization [m/s]                         | m/s  |   0.2 |
 | `f_scale_tire`         | Force scale for tire NN output [N]                         | N  |   1000 |
 | `f_scale_friction`         | Force scale for friction NN output [N] (matches true F_c magnitude)                         | N  |   500 |
-
-## Connectors
-
- * `nn_inputs` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
- * `nn_outputs` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
 @component function QuarterTruckFullNN(; name = nothing, n_input=3, n_output=3, nn_depth=1, nn_width=5, chain=DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output, depth=nn_depth, width=nn_width, activation=Lux.tanh), s_rel0_tire=0.2, s_rel0_seat=0.1, s_scale_tire=0.05, v_friction_scale=0.1, v_seat_scale=0.2, f_scale_tire=Float64(1000), f_scale_friction=Float64(500), kwargs...)
   isnothing(name) && throw(ArgumentError("""
@@ -86,8 +81,6 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   __initial_conditions[f_scale_friction] = __local__f_scale_friction
 
   ### Final Path Parameters
-  append!(__vars, @variables (nn_inputs(t)[1:n_input]::Real), [input = true])
-  append!(__vars, @variables (nn_outputs(t)[1:n_output]::Real), [output = true])
 
   ### Variables (declarations)
 
@@ -116,13 +109,16 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   # Subcomponent tire_to_road of type QuarterTruckSciML.TireWithExternalResidual
   tire_to_road_overrides = Dict(Symbol(replace(string(k), r"^tire_to_road__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tire_to_road__"))
   filter!(p -> !startswith(string(first(p)), "tire_to_road__"), __overrides)
-  push!(__systems, @named tire_to_road = QuarterTruckSciML.TireWithExternalResidual(k1=200000, d=50, tire_to_road_overrides...))
+  push!(__systems, @named tire_to_road = QuarterTruckSciML.TireWithExternalResidual(k1=200000, d=50, f_scale_tire=f_scale_tire, tire_to_road_overrides...))
   __bindings[tire_to_road.s_rel0] = s_rel0_tire
+  __bindings[tire_to_road.s_scale_tire] = s_scale_tire
   # Now remove initial conditions in tire_to_road that correspond to the bindings just added
   __tire_to_road_ics = ModelingToolkit.get_initial_conditions(tire_to_road)
   __no_namespace_tire_to_road = ModelingToolkit.toggle_namespacing(tire_to_road, false)
   __tire_to_road_s_rel0 = Symbolics.unwrap(__no_namespace_tire_to_road.s_rel0)::Symbolics.SymbolicT
   delete!(__tire_to_road_ics, __tire_to_road_s_rel0)
+  __tire_to_road_s_scale_tire = Symbolics.unwrap(__no_namespace_tire_to_road.s_scale_tire)::Symbolics.SymbolicT
+  delete!(__tire_to_road_ics, __tire_to_road_s_scale_tire)
   # Subcomponent tire_to_body of type TranslationalComponents.Components.SpringDamper
   tire_to_body_overrides = Dict(Symbol(replace(string(k), r"^tire_to_body__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tire_to_body__"))
   filter!(p -> !startswith(string(first(p)), "tire_to_body__"), __overrides)
@@ -130,7 +126,7 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   # Subcomponent friction_tb of type QuarterTruckSciML.PureExternalForce
   friction_tb_overrides = Dict(Symbol(replace(string(k), r"^friction_tb__" => "")) => v for (k, v) in __overrides if startswith(string(k), "friction_tb__"))
   filter!(p -> !startswith(string(first(p)), "friction_tb__"), __overrides)
-  push!(__systems, @named friction_tb = QuarterTruckSciML.PureExternalForce(friction_tb_overrides...))
+  push!(__systems, @named friction_tb = QuarterTruckSciML.PureExternalForce(v_friction_scale=v_friction_scale, f_scale_friction=f_scale_friction, friction_tb_overrides...))
   # Subcomponent body_to_seat of type TranslationalComponents.Components.SpringDamper
   body_to_seat_overrides = Dict(Symbol(replace(string(k), r"^body_to_seat__" => "")) => v for (k, v) in __overrides if startswith(string(k), "body_to_seat__"))
   filter!(p -> !startswith(string(first(p)), "body_to_seat__"), __overrides)
@@ -149,10 +145,18 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   road_overrides = Dict(Symbol(replace(string(k), r"^road__" => "")) => v for (k, v) in __overrides if startswith(string(k), "road__"))
   filter!(p -> !startswith(string(first(p)), "road__"), __overrides)
   push!(__systems, @named road = TranslationalComponents.Sources.Position(f_crit=100, road_overrides...))
-  # Subcomponent nn of type DyadModelDiscovery.NeuralNetworkBlock
+  # Subcomponent nn of type QuarterTruckSciML.NeuralNetworkBlock
   nn_overrides = Dict(Symbol(replace(string(k), r"^nn__" => "")) => v for (k, v) in __overrides if startswith(string(k), "nn__"))
   filter!(p -> !startswith(string(first(p)), "nn__"), __overrides)
-  push!(__systems, @named nn = DyadModelDiscovery.NeuralNetworkBlock(n_input=n_input, n_output=n_output, chain=chain, nn_overrides...))
+  push!(__systems, @named nn = QuarterTruckSciML.NeuralNetworkBlock(n_input=n_input, n_output=n_output, chain=chain, nn_overrides...))
+  # Subcomponent demux of type QuarterTruckSciML.Demux3
+  demux_overrides = Dict(Symbol(replace(string(k), r"^demux__" => "")) => v for (k, v) in __overrides if startswith(string(k), "demux__"))
+  filter!(p -> !startswith(string(first(p)), "demux__"), __overrides)
+  push!(__systems, @named demux = QuarterTruckSciML.Demux3(demux_overrides...))
+  # Subcomponent mux of type QuarterTruckSciML.Mux3
+  mux_overrides = Dict(Symbol(replace(string(k), r"^mux__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mux__"))
+  filter!(p -> !startswith(string(first(p)), "mux__"), __overrides)
+  push!(__systems, @named mux = QuarterTruckSciML.Mux3(mux_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -174,30 +178,24 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   __assertions = []
 
   ### Equations
-  push!(__eqs, nn_inputs[1] ~ (tire_to_road.s_rel - s_rel0_tire) / s_scale_tire)
-  push!(__eqs, nn_inputs[2] ~ friction_tb.v_rel / v_friction_scale)
-  push!(__eqs, nn_inputs[3] ~ seat_to_driver.v_rel / v_seat_scale)
-  push!(__eqs, tire_to_road.f_residual ~ nn_outputs[1] * f_scale_tire)
-  push!(__eqs, friction_tb.f_external ~ nn_outputs[2] * f_scale_friction)
-  push!(__eqs, seat_to_driver.f_residual ~ seat_to_driver.d * seat_to_driver.v_rel * nn_outputs[3])
   push!(__eqs, connect(road.flange, tire_to_road.flange_a))
   push!(__eqs, connect(tire_to_road.flange_b, tire.flange_a))
   push!(__eqs, connect(tire.flange_b, tire_to_body.flange_a))
-  push!(__eqs, connect(tire_to_body.flange_b, body.flange_a))
   push!(__eqs, connect(tire.flange_b, friction_tb.flange_a))
   push!(__eqs, connect(friction_tb.flange_b, body.flange_a))
   push!(__eqs, connect(body.flange_b, body_to_seat.flange_a))
   push!(__eqs, connect(body_to_seat.flange_b, seat.flange_a))
   push!(__eqs, connect(seat.flange_b, seat_to_driver.flange_a))
   push!(__eqs, connect(seat_to_driver.flange_b, driver.flange_a))
-
-  ### Control Structures
-  for i in 1:n_input
-      push!(__eqs, connect(nn_inputs[i], nn.inputs[i]))
-  end
-  for i in 1:n_output
-      push!(__eqs, connect(nn.outputs[i], nn_outputs[i]))
-  end
+  push!(__eqs, connect(tire_to_body.flange_b, body.flange_a))
+  push!(__eqs, connect(mux.y, nn.inputs))
+  push!(__eqs, connect(nn.outputs, demux.u))
+  push!(__eqs, connect(tire_to_road.s_rel_out, mux.u1))
+  push!(__eqs, connect(friction_tb.v_rel_out, mux.u2))
+  push!(__eqs, connect(seat_to_driver.v_rel_out, mux.u3))
+  push!(__eqs, connect(demux.y1, tire_to_road.f_residual))
+  push!(__eqs, connect(demux.y2, friction_tb.f_external))
+  push!(__eqs, connect(demux.y3, seat_to_driver.f_residual))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

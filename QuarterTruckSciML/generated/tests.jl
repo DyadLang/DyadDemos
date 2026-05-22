@@ -18,9 +18,12 @@ end
 @testset "`QuarterTruckSciML`" begin
 include("ConfigurableTireSpringDamper_test.jl")
 include("CoulombFriction_test.jl")
+include("Demux3_test.jl")
 include("DenseISO8608Road_test.jl")
 include("HalfSineBump_test.jl")
 include("ISO8608Road_test.jl")
+include("Mux3_test.jl")
+include("NeuralNetworkBlock_test.jl")
 include("PureExternalForce_test.jl")
 include("QuarterTruckConfigurable_test.jl")
 include("QuarterTruckFullNN_test.jl")

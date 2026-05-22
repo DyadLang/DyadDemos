@@ -1,0 +1,55 @@
+"Force element that transmits an externally supplied force (via `f_external` RealInput) between its flanges, with no internal dynamics. Used to inject the NN-learned friction force between tire and body masses."
+component PureExternalForce
+  flange_a = Flange() {^flange_a}
+  flange_b = Flange() {^flange_b}
+  f_external = RealInput() {^f_external}
+  v_rel_out = Dyad.RealOutput() {^v_rel_out}
+  variable s_rel::Distance
+  variable v_rel::Velocity
+  parameter v_friction_scale::Real
+  parameter f_scale_friction::Real
+  variable f_external_scaled::Force = f_external * f_scale_friction
+relations
+  s_rel = flange_b.s - flange_a.s
+  v_rel = der(s_rel)
+  flange_b.f = f_external_scaled
+  flange_a.f = -f_external_scaled
+  v_rel_out = v_rel / v_friction_scale
+metadata {
+  "Dyad": {"icons": {"default": "dyad://TranslationalComponents/SpringDamper.svg"}},
+  "_links": {
+    "flange_a": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "flange_b": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "f_external": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 200, "y1": -80, "x2": 280, "y2": 0, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "v_rel_out": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 720, "y1": -80, "x2": 800, "y2": 0, "rot": 270}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

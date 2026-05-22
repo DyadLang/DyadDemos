@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TireWithExternalResidual(; name, k1, d, s_rel0)
+   TireWithExternalResidual(; name, k1, d, s_rel0, s_scale_tire, f_scale_tire)
 
 Tire-specific spring-damper with compression-only gate baked in: above the unstretched length the *entire* force (linear + external residual) is zero (matching the ground-truth `ConfigurableTireSpringDamper` lift-off behaviour). The NN-injected residual `f_residual` is added to the linear baseline below the cutoff.
 
@@ -16,12 +16,15 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
 | `k1`         |                          | N/m  |   200000 |
 | `d`         |                          | N.s/m  |   50 |
 | `s_rel0`         |                          | m  |   0.2 |
+| `s_scale_tire`         |                          | m  |    |
+| `f_scale_tire`         |                          | N  |    |
 
 ## Connectors
 
  * `flange_a` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
  * `flange_b` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
  * `f_residual` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
+ * `s_rel_out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 
 ## Variables
 
@@ -30,8 +33,9 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
 | `s_rel`         |                          | m  | 
 | `v_rel`         |                          | m/s  | 
 | `f`         |                          | N  | 
+| `f_residual_scaled`         |                          | N  | 
 """
-@component function TireWithExternalResidual(; name = nothing, k1=Float64(200000), d=Float64(50), s_rel0=0.2, kwargs...)
+@component function TireWithExternalResidual(; name = nothing, k1=Float64(200000), d=Float64(50), s_rel0=0.2, s_scale_tire=nothing, f_scale_tire=nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
@@ -72,14 +76,22 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [bounds = (0, Inf)])
   __initial_conditions[s_rel0] = __local__s_rel0
+  __local__s_scale_tire = s_scale_tire
+  append!(__params, @parameters (s_scale_tire::Real), [bounds = (0, Inf)])
+  __initial_conditions[s_scale_tire] = __local__s_scale_tire
+  __local__f_scale_tire = f_scale_tire
+  append!(__params, @parameters (f_scale_tire::Real))
+  __initial_conditions[f_scale_tire] = __local__f_scale_tire
 
   ### Final Path Parameters
   append!(__vars, @variables (f_residual(t)::Real), [input = true])
+  append!(__vars, @variables (s_rel_out(t)::Real), [output = true])
 
   ### Variables (declarations)
   append!(__vars, @variables (s_rel(t)::Real))
   append!(__vars, @variables (v_rel(t)::Real))
   append!(__vars, @variables (f(t)::Real))
+  append!(__vars, @variables (f_residual_scaled(t)::Real))
 
   ### Variables (assignments)
   __ovr_s_rel = pop!(__overrides, "s_rel", nothing); isnothing(__ovr_s_rel) || push!(__eqs, s_rel ~ __ovr_s_rel)
@@ -88,6 +100,8 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
   __ovr_v_rel__initial = pop!(__overrides, "v_rel__initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
   __ovr_f = pop!(__overrides, "f", nothing); isnothing(__ovr_f) || push!(__eqs, f ~ __ovr_f)
   __ovr_f__initial = pop!(__overrides, "f__initial", nothing); isnothing(__ovr_f__initial) || (__initial_conditions[f] = __ovr_f__initial)
+  __ovr_f_residual_scaled = pop!(__overrides, "f_residual_scaled", nothing); isnothing(__ovr_f_residual_scaled) || push!(__eqs, f_residual_scaled ~ __ovr_f_residual_scaled)
+  __ovr_f_residual_scaled__initial = pop!(__overrides, "f_residual_scaled__initial", nothing); isnothing(__ovr_f_residual_scaled__initial) || (__initial_conditions[f_residual_scaled] = __ovr_f_residual_scaled__initial)
 
   ### Constants
   __constants = Any[]
@@ -107,11 +121,13 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
   __assertions = []
 
   ### Equations
+  push!(__eqs, f_residual_scaled ~ f_residual * f_scale_tire)
   push!(__eqs, s_rel ~ flange_b.s - flange_a.s)
   push!(__eqs, v_rel ~ ModelingToolkit.D_nounits(s_rel))
-  push!(__eqs, f ~ ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + d * v_rel + f_residual, 0))
+  push!(__eqs, f ~ ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + d * v_rel + f_residual_scaled, 0))
   push!(__eqs, flange_b.f ~ f)
   push!(__eqs, flange_a.f ~ -f)
+  push!(__eqs, s_rel_out ~ (s_rel - s_rel0) / s_scale_tire)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

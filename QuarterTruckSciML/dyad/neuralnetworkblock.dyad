@@ -1,0 +1,32 @@
+external component NeuralNetworkBlock
+  inputs = [Dyad.RealInput() for i in 1:n_input] {^inputs}
+  outputs = [Dyad.RealOutput() for i in 1:n_output] {^outputs}
+  structural parameter chain::Native = ModelingToolkitNeuralNets.multi_layer_feed_forward(n_input, n_output)
+  structural parameter n_input::Integer = 1
+  structural parameter n_output::Integer = 1
+  structural parameter rng::Native = Xoshiro(0)
+  structural parameter init_params::Real[:] = Lux.initialparameters(rng, chain)
+  parameter p::Real[:]
+relations
+metadata {
+  "Dyad": {"icons": {"default": "dyad://DyadModelDiscovery/nn_icon.svg"}},
+  "_links": {
+    "inputs": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "outputs": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

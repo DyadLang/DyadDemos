@@ -1,0 +1,61 @@
+"Tire-specific spring-damper with compression-only gate baked in: above the unstretched length the *entire* force (linear + external residual) is zero (matching the ground-truth `ConfigurableTireSpringDamper` lift-off behaviour). The NN-injected residual `f_residual` is added to the linear baseline below the cutoff."
+component TireWithExternalResidual
+  flange_a = Flange() {^flange_a}
+  flange_b = Flange() {^flange_b}
+  f_residual = RealInput() {^f_residual}
+  s_rel_out = Dyad.RealOutput() {^s_rel_out}
+  parameter k1::TranslationalSpringConstant = 200e3
+  parameter d::TranslationalDampingConstant = 50.0
+  parameter s_rel0::Distance = 0.2
+  variable s_rel::Distance
+  variable v_rel::Velocity
+  variable f::Force
+  parameter s_scale_tire::Distance
+  parameter f_scale_tire::Force
+  variable f_residual_scaled::Force
+relations
+  f_residual_scaled = f_residual * f_scale_tire
+  s_rel = flange_b.s - flange_a.s
+  v_rel = der(s_rel)
+  f = ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + d * v_rel + f_residual_scaled, 0.0)
+  flange_b.f = f
+  flange_a.f = -f
+  s_rel_out = (s_rel - s_rel0) / s_scale_tire
+metadata {
+  "Dyad": {"icons": {"default": "dyad://TranslationalComponents/SpringDamper.svg"}},
+  "_links": {
+    "flange_a": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "flange_b": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "f_residual": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 180, "y1": -80, "x2": 260, "y2": 0, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "s_rel_out": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 710, "y1": -80, "x2": 790, "y2": 0, "rot": 270}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
