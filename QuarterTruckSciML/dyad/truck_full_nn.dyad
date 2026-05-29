@@ -1,0 +1,151 @@
+# Full 3-nonlinearity gray-box quarter truck.
+#
+# A single neural network recovers three distinct suspension nonlinearities
+# simultaneously from sin-input training data:
+#   1. Tire cubic stiffness with compression-only lift-off
+#   2. Tire-body Coulomb friction
+#   3. Seat-driver viscoelastic damping (power-law)
+#
+# Validation: held-out ISO 8608 Class A road, compared against linear baseline
+# and nonlinear ground truth.
+"Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning THREE suspension nonlinearities: tire cubic residual (compression-only gated), tire-body Coulomb friction, and seat-driver viscoelastic damping residual. Physics inputs: normalized tire deflection, normalized tire-body relative velocity, normalized seat-driver relative velocity. Outputs (each × its own f_scale): tire residual force [N], friction force [N], seat damping residual force [N]."
+component QuarterTruckFullNN
+  # Masses (identical to QuarterTruckConfigurable)
+  tire = TranslationalComponents.Components.Mass(m = 40.0, L = 0.0, g = 9.81, theta = 1.5708)
+  body = TranslationalComponents.Components.Mass(m = 300.0, L = 0.0, g = 9.81, theta = 1.5708)
+  seat = TranslationalComponents.Components.Mass(m = 15.0, L = 0.0, g = 9.81, theta = 1.5708)
+  driver = TranslationalComponents.Components.Mass(m = 75.0, L = 0.0, g = 9.81, theta = 1.5708)
+  # Gray-box spring-damper elements (each carries the known linear physics;
+  # the NN-learned nonlinear residual is injected via the RealInput port).
+  tire_to_road = TireWithExternalResidual(k1 = 200e3, d = 50.0, final s_rel0 = s_rel0_tire)
+  tire_to_body = TranslationalComponents.Components.SpringDamper(c = 20e3, d = 1500.0, s_rel0 = 1.0)
+  friction_tb = PureExternalForce()
+  body_to_seat = TranslationalComponents.Components.SpringDamper(c = 15e3, d = 800.0, s_rel0 = 0.2)
+  seat_to_driver = SpringDamperWithExternalResidual(k = 10e3, d = 500.0, final s_rel0 = s_rel0_seat)
+  road = TranslationalComponents.Sources.Position(f_crit = 100.0)
+  # Local RealInput / RealOutput arrays (required workaround for the Dyad
+  # compiler's indexed-connector access issue on `nn.inputs[i]`).
+  nn_inputs = [RealInput() for i in 1:n_input]
+  nn_outputs = [RealOutput() for i in 1:n_output]
+  nn = DyadModelDiscovery.NeuralNetworkBlock(n_input = n_input, n_output = n_output, chain = chain)
+  structural parameter n_input::Integer = 3
+  structural parameter n_output::Integer = 3
+  structural parameter nn_depth::Integer = 1
+  structural parameter nn_width::Integer = 5
+  structural parameter chain::Native = DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output, depth = nn_depth, width = nn_width, activation = Lux.tanh)
+  "Tire unstretched length [m]"
+  parameter s_rel0_tire::Distance = 0.2
+  "Seat-driver unstretched length [m]"
+  parameter s_rel0_seat::Distance = 0.1
+  "Tire deflection normalization [m]"
+  parameter s_scale_tire::Distance = 0.05
+  "Friction velocity normalization [m/s]"
+  parameter v_friction_scale::Velocity = 0.1
+  "Seat-driver velocity normalization [m/s]"
+  parameter v_seat_scale::Velocity = 0.2
+  "Force scale for tire NN output [N]"
+  parameter f_scale_tire::Force = 1000.0
+  "Force scale for friction NN output [N] (matches true F_c magnitude)"
+  parameter f_scale_friction::Force = 500.0
+relations
+  connect(road.flange, tire_to_road.flange_a)
+  connect(tire_to_road.flange_b, tire.flange_a)
+  connect(tire.flange_b, tire_to_body.flange_a)
+  connect(tire_to_body.flange_b, body.flange_a)
+  connect(tire.flange_b, friction_tb.flange_a)
+  connect(friction_tb.flange_b, body.flange_a)
+  connect(body.flange_b, body_to_seat.flange_a)
+  connect(body_to_seat.flange_b, seat.flange_a)
+  connect(seat.flange_b, seat_to_driver.flange_a)
+  connect(seat_to_driver.flange_b, driver.flange_a)
+  for i in 1:n_input
+    connect(nn_inputs[i], nn.inputs[i])
+  end
+  for i in 1:n_output
+    connect(nn.outputs[i], nn_outputs[i])
+  end
+  # NN inputs: physics-motivated normalizations.
+  nn_inputs[1] = (tire_to_road.s_rel - s_rel0_tire) / s_scale_tire
+  nn_inputs[2] = friction_tb.v_rel / v_friction_scale
+  nn_inputs[3] = seat_to_driver.v_rel / v_seat_scale
+  # NN outputs wired to gray-box force-injection ports.
+  # Tire:     direct NN residual scaled to Newtons (compression-only gate is
+  #           applied INSIDE TireWithExternalResidual).
+  # Friction: direct NN output scaled to the expected F_c magnitude.
+  # Seat:     physics-informed factorization. The viscoelastic damping residual
+  #           is d·v·[(v²+v_reg²)^((n−1)/2) − 1] — a function with a cusp-like
+  #           infinite slope at v=0 which a smooth tanh NN cannot resolve.
+  #           Factoring out `d·v` transforms the NN's learning target into the
+  #           smooth, bounded bracket modifier, and the `v` prefactor enforces
+  #           the kinematic constraint that damping force vanishes at v=0.
+  tire_to_road.f_residual = nn_outputs[1] * f_scale_tire
+  friction_tb.f_external = nn_outputs[2] * f_scale_friction
+  seat_to_driver.f_residual = seat_to_driver.d * seat_to_driver.v_rel * nn_outputs[3]
+  initial tire.s = 0.178908
+  initial tire.v = 0.0
+  initial body.s = 0.987613
+  initial body.v = 0.0
+  initial seat.s = 1.128754
+  initial seat.v = 0.0
+  initial driver.s = 1.128754 + 0.1 - 75.0 * 9.81 / 10e3
+  initial driver.v = 0.0
+  initial tire_to_road.v_rel = 0.0
+end
+
+# =============================================================================
+#   Training harnesses (sin-driven)
+# =============================================================================
+"Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-body Coulomb friction, AND seat-driver viscoelastic damping all active. Sin road excitation — used to generate training data."
+test component TestQuarterTruckConfigurableFullSin
+  model = QuarterTruckConfigurable(tire_k3 = tire_k3, tire_compression_only = tire_compression_only, friction_Fc = friction_Fc, friction_v0 = friction_v0, seat_driver_n = seat_driver_n)
+  sin_signal = BlockComponents.Sources.Sine(amplitude = amplitude, frequency = frequency, start_time = 0.1)
+  parameter amplitude::Distance = 0.03
+  parameter frequency::Frequency = 2.0
+  parameter tire_k3::Real = 1e7
+  parameter tire_compression_only::Real = 1.0
+  parameter friction_Fc::Force = 500.0
+  parameter friction_v0::Velocity = 0.1
+  parameter seat_driver_n::Real = 0.5
+relations
+  connect(sin_signal.y, model.road.s_ref)
+end
+
+"Training harness: full 3-nonlinearity gray-box truck driven by the same sin as the ground-truth. The NN learns all three nonlinear residual forces jointly."
+test component TestQuarterTruckFullNNSin
+  model = QuarterTruckFullNN()
+  sin_signal = BlockComponents.Sources.Sine(amplitude = amplitude, frequency = frequency, start_time = 0.1)
+  parameter amplitude::Distance = 0.03
+  parameter frequency::Frequency = 2.0
+relations
+  connect(sin_signal.y, model.road.s_ref)
+end
+
+# =============================================================================
+#   Validation harnesses: 3-way comparison on ISO 8608 Class A
+# =============================================================================
+"Linear-baseline quarter truck (all three nonlinearities disabled — tire_k3=0, friction_Fc=0, seat_driver_n=1.0) driven by ISO 8608 Class A road excitation. This is the 'before' model in the demo."
+test component TestQuarterTruckLinearISOA
+  model = QuarterTruckConfigurable()
+  iso_road = DenseISO8608Road(roughness = 1e-6, speed = speed, start_time = 0.0)
+  parameter speed::Velocity = 13.89
+relations
+  connect(iso_road.y, model.road.s_ref)
+end
+
+"Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction + viscoelastic seat) driven by ISO 8608 Class A. This is the 'truth' against which linear and NN models are compared."
+test component TestQuarterTruckNonlinearISOA
+  model = QuarterTruckConfigurable(tire_k3 = 1e7, tire_compression_only = 1.0, friction_Fc = 500.0, seat_driver_n = 0.5)
+  iso_road = DenseISO8608Road(roughness = 1e-6, speed = speed, start_time = 0.0)
+  parameter speed::Velocity = 13.89
+relations
+  connect(iso_road.y, model.road.s_ref)
+end
+
+"Full-NN gray-box quarter truck driven by ISO 8608 Class A — trained weights are loaded in the Julia validation script."
+test component TestQuarterTruckFullNNISOA
+  model = QuarterTruckFullNN()
+  iso_road = DenseISO8608Road(roughness = 1e-6, speed = speed, start_time = 0.0)
+  parameter speed::Velocity = 13.89
+relations
+  connect(iso_road.y, model.road.s_ref)
+end
