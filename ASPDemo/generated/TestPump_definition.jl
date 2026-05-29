@@ -13,13 +13,14 @@
 | ------------ | ----------------------------------- | ------ | 
 | `Q`         |                          | --  | 
 """
-@component function TestPump(; name = nothing)
+@component function TestPump(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TestPump()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -27,26 +28,57 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (Q(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_Q = pop!(__overrides, "Q", nothing); isnothing(__ovr_Q) || push!(__eqs, Q ~ __ovr_Q)
+  __ovr_Q__initial = pop!(__overrides, "Q__initial", nothing); isnothing(__ovr_Q__initial) || (__initial_conditions[Q] = __ovr_Q__initial)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named source = ASPDemo.WWSource())
-  push!(__systems, @named pump = ASPDemo.Pump())
-  push!(__systems, @named sink = ASPDemo.EffluentSink())
+  # Subcomponent source of type ASPDemo.WWSource
+  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
+  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  push!(__systems, @named source = ASPDemo.WWSource(source_overrides...))
+  # Subcomponent pump of type ASPDemo.Pump
+  pump_overrides = Dict(Symbol(replace(string(k), r"^pump__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pump__"))
+  filter!(p -> !startswith(string(first(p)), "pump__"), __overrides)
+  push!(__systems, @named pump = ASPDemo.Pump(pump_overrides...))
+  # Subcomponent sink of type ASPDemo.EffluentSink
+  sink_overrides = Dict(Symbol(replace(string(k), r"^sink__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sink__"))
+  filter!(p -> !startswith(string(first(p)), "sink__"), __overrides)
+  push!(__systems, @named sink = ASPDemo.EffluentSink(sink_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[Q] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, Q ~ 0)
 
   ### Assertions
   __assertions = []
@@ -71,6 +103,6 @@
   push!(__eqs, connect(pump.portOut, sink.port))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestPump

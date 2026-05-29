@@ -14,13 +14,14 @@ short MyMSD component description
  * `flange` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
  * `flange1` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
 """
-@component function MyMSD(; name = nothing)
+@component function MyMSD(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = MyMSD()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -28,10 +29,29 @@ short MyMSD component description
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
@@ -39,12 +59,19 @@ short MyMSD component description
   ### Components
   push!(__systems, @named flange = __Dyad__Flange())
   push!(__systems, @named flange1 = __Dyad__Flange())
-  push!(__systems, @named mass = TranslationalComponents.Mass())
-  push!(__systems, @named springdamper = TranslationalComponents.SpringDamper())
+  # Subcomponent mass of type TranslationalComponents.Components.Mass
+  mass_overrides = Dict(Symbol(replace(string(k), r"^mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mass__"))
+  filter!(p -> !startswith(string(first(p)), "mass__"), __overrides)
+  push!(__systems, @named mass = TranslationalComponents.Components.Mass(mass_overrides...))
+  # Subcomponent springdamper of type TranslationalComponents.Components.SpringDamper
+  springdamper_overrides = Dict(Symbol(replace(string(k), r"^springdamper__" => "")) => v for (k, v) in __overrides if startswith(string(k), "springdamper__"))
+  filter!(p -> !startswith(string(first(p)), "springdamper__"), __overrides)
+  push!(__systems, @named springdamper = TranslationalComponents.Components.SpringDamper(springdamper_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -57,6 +84,6 @@ short MyMSD component description
   push!(__eqs, connect(mass.flange_b, springdamper.flange_a))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export MyMSD

@@ -28,13 +28,14 @@
 | `u`         |                          | --  | 
 | `x`         |                          | --  | 
 """
-@component function PI(; name = nothing, k=1, Ti=1, x_start=0)
+@component function PI(; name = nothing, k=Float64(1), Ti=Float64(1), x_start=Float64(0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = PI()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -42,30 +43,60 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (k::Real = k))
-  append!(__params, @parameters (Ti::Real = Ti))
-  append!(__params, @parameters (x_start::Real = x_start))
+  __local__k = k
+  append!(__params, @parameters (k::Real))
+  __initial_conditions[k] = __local__k
+  __local__Ti = Ti
+  append!(__params, @parameters (Ti::Real))
+  __initial_conditions[Ti] = __local__Ti
+  __local__x_start = x_start
+  append!(__params, @parameters (x_start::Real))
+  __initial_conditions[x_start] = __local__x_start
 
-  ### Variables
+  ### Final Path Parameters
   append!(__vars, @variables (u_s(t)::Real), [input = true])
   append!(__vars, @variables (u_m(t)::Real), [input = true])
   append!(__vars, @variables (y(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (u(t)::Real))
   append!(__vars, @variables (x(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_u = pop!(__overrides, "u", nothing); isnothing(__ovr_u) || push!(__eqs, u ~ __ovr_u)
+  __ovr_u__initial = pop!(__overrides, "u__initial", nothing); isnothing(__ovr_u__initial) || (__initial_conditions[u] = __ovr_u__initial)
+  __ovr_x = pop!(__overrides, "x", nothing); isnothing(__ovr_x) || push!(__eqs, x ~ __ovr_x)
+  __ovr_x__initial = pop!(__overrides, "x__initial", nothing); isnothing(__ovr_x__initial) || (__initial_conditions[x] = __ovr_x__initial)
 
   ### Constants
   __constants = Any[]
 
   ### Components
 
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[x] = (x_start)
-
   ### Initialization Equations
+  push!(__initialization_eqs, x ~ x_start)
 
   ### Assertions
   __assertions = []
@@ -76,6 +107,6 @@
   push!(__eqs, y ~ k * (x + u))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export PI

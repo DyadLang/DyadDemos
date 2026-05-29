@@ -101,4 +101,5 @@ reactions(medium::AbstractMedium, T, states) = _reactions(medium, T, states)
 @register_array_symbolic reactions(medium::AbstractMedium, T, states::AbstractVector) begin
     size = size(states)
     eltype = eltype(states)
+    ndims = ndims(states)
 end

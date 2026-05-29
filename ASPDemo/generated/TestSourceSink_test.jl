@@ -26,7 +26,9 @@
   end
     if isfile("snapshots/TestSourceSink_case1_sig0.ref")
       ref = CSV.read("snapshots/TestSourceSink_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.source.port.m_flow) atol=9.999999999999999e-6 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.source.port.m_flow) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.source.port.m_flow])
         dfr = CSV.read("snapshots/TestSourceSink_case1_sig0.ref", DataFrame)
@@ -41,7 +43,9 @@
     end
     if isfile("snapshots/TestSourceSink_case1_sig1.ref")
       ref = CSV.read("snapshots/TestSourceSink_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.source.port.h_outflow) atol=9.999999999999999e-6 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
+      for i in 1:length(ref.expected)
+        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.source.port.h_outflow) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
+      end
       if get(ENV, "DYAD_COMPARISONS", "") !== ""
         df = DataFrame(t=sol[:t], actual=sol[model.source.port.h_outflow])
         dfr = CSV.read("snapshots/TestSourceSink_case1_sig1.ref", DataFrame)

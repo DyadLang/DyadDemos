@@ -7,13 +7,14 @@
 @doc Markdown.doc"""
    TestClarifier(; name)
 """
-@component function TestClarifier(; name = nothing)
+@component function TestClarifier(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = TestClarifier()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,21 +22,47 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named source = ASPDemo.FlowSource())
-  push!(__systems, @named settler = ASPDemo.SecondaryClarifierTakacs())
+  # Subcomponent source of type ASPDemo.FlowSource
+  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
+  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
+  # Subcomponent settler of type ASPDemo.SecondaryClarifierTakacs
+  settler_overrides = Dict(Symbol(replace(string(k), r"^settler__" => "")) => v for (k, v) in __overrides if startswith(string(k), "settler__"))
+  filter!(p -> !startswith(string(first(p)), "settler__"), __overrides)
+  push!(__systems, @named settler = ASPDemo.SecondaryClarifierTakacs(settler_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -62,6 +89,6 @@
   push!(__eqs, connect(source.port, settler.feed))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestClarifier

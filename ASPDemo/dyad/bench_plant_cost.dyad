@@ -35,9 +35,9 @@ component BenchPlantCOST
   sensor_TSS1 = CombinedSensor()
   sensor_effluent = CombinedSensor()
 
-  constant1 = BlockComponents.Constant(k=1)
-  constant2 = BlockComponents.Constant(k=1)
-  temperature = BlockComponents.Constant(k=15)
+  constant1 = BlockComponents.Sources.Constant(k=1)
+  constant2 = BlockComponents.Sources.Constant(k=1)
+  temperature = BlockComponents.Sources.Constant(k=15)
 relations                                
   connect(temperature.y, tank1.T)
   connect(temperature.y, tank2.T)  

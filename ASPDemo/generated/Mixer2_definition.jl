@@ -21,13 +21,14 @@
 | `Q2`         |                          | --  | 
 | `Q_tot`         |                          | --  | 
 """
-@component function Mixer2(; name = nothing)
+@component function Mixer2(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = Mixer2()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -35,13 +36,38 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (Q1(t)::Real))
   append!(__vars, @variables (Q2(t)::Real))
   append!(__vars, @variables (Q_tot(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_Q1 = pop!(__overrides, "Q1", nothing); isnothing(__ovr_Q1) || push!(__eqs, Q1 ~ __ovr_Q1)
+  __ovr_Q1__initial = pop!(__overrides, "Q1__initial", nothing); isnothing(__ovr_Q1__initial) || (__initial_conditions[Q1] = __ovr_Q1__initial)
+  __ovr_Q2 = pop!(__overrides, "Q2", nothing); isnothing(__ovr_Q2) || push!(__eqs, Q2 ~ __ovr_Q2)
+  __ovr_Q2__initial = pop!(__overrides, "Q2__initial", nothing); isnothing(__ovr_Q2__initial) || (__initial_conditions[Q2] = __ovr_Q2__initial)
+  __ovr_Q_tot = pop!(__overrides, "Q_tot", nothing); isnothing(__ovr_Q_tot) || push!(__eqs, Q_tot ~ __ovr_Q_tot)
+  __ovr_Q_tot__initial = pop!(__overrides, "Q_tot__initial", nothing); isnothing(__ovr_Q_tot__initial) || (__initial_conditions[Q_tot] = __ovr_Q_tot__initial)
 
   ### Constants
   __constants = Any[]
@@ -51,9 +77,10 @@
   push!(__systems, @named portIn2 = ASPDemo.FluidPortIn())
   push!(__systems, @named portOut = ASPDemo.FluidPortOut())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
 
@@ -80,6 +107,6 @@
   push!(__eqs, portOut.Salk ~ (portIn1.Salk * Q1 + portIn2.Salk * Q2) / Q_tot)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export Mixer2

@@ -34,13 +34,14 @@
 | `H`         |                          | --  | 
 | `Q`         |                          | --  | 
 """
-@component function PrimaryClarifierDynamic(; name = nothing, nS=13, V=500, states_start=[30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796])
+@component function PrimaryClarifierDynamic(; name = nothing, nS=13, V=Float64(500), states_start=[30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], kwargs...)
   isnothing(name) && throw(ArgumentError("""
         The `name` keyword must be provided. Please consider using the `@named` macro,
         like so:
 
         @named model = PrimaryClarifierDynamic()
         """))
+  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -48,12 +49,33 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Final Parameters (assignments)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (V::Real = V))
-  append!(__params, @parameters (states_start[1:nS]::Real = states_start))
+  __local__V = V
+  append!(__params, @parameters (V::Real))
+  __initial_conditions[V] = __local__V
+  __local__states_start = states_start
+  append!(__params, @parameters (states_start[1:nS]::Real))
+  __initial_conditions[states_start] = __local__states_start
 
-  ### Variables
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (states(t)[1:nS]::Real))
   append!(__vars, @variables (hrt_h(t)::Real))
   append!(__vars, @variables (n_COD(t)::Real))
@@ -64,6 +86,26 @@
   append!(__vars, @variables (H(t)::Real))
   append!(__vars, @variables (Q(t)::Real))
 
+  ### Variables (assignments)
+  __ovr_states = pop!(__overrides, "states", nothing); isnothing(__ovr_states) || push!(__eqs, states ~ __ovr_states)
+  __ovr_states__initial = pop!(__overrides, "states__initial", nothing); isnothing(__ovr_states__initial) || (__initial_conditions[states] = __ovr_states__initial)
+  __ovr_hrt_h = pop!(__overrides, "hrt_h", nothing); isnothing(__ovr_hrt_h) || push!(__eqs, hrt_h ~ __ovr_hrt_h)
+  __ovr_hrt_h__initial = pop!(__overrides, "hrt_h__initial", nothing); isnothing(__ovr_hrt_h__initial) || (__initial_conditions[hrt_h] = __ovr_hrt_h__initial)
+  __ovr_n_COD = pop!(__overrides, "n_COD", nothing); isnothing(__ovr_n_COD) || push!(__eqs, n_COD ~ __ovr_n_COD)
+  __ovr_n_COD__initial = pop!(__overrides, "n_COD__initial", nothing); isnothing(__ovr_n_COD__initial) || (__initial_conditions[n_COD] = __ovr_n_COD__initial)
+  __ovr_n_X = pop!(__overrides, "n_X", nothing); isnothing(__ovr_n_X) || push!(__eqs, n_X ~ __ovr_n_X)
+  __ovr_n_X__initial = pop!(__overrides, "n_X__initial", nothing); isnothing(__ovr_n_X__initial) || (__initial_conditions[n_X] = __ovr_n_X__initial)
+  __ovr_CODin = pop!(__overrides, "CODin", nothing); isnothing(__ovr_CODin) || push!(__eqs, CODin ~ __ovr_CODin)
+  __ovr_CODin__initial = pop!(__overrides, "CODin__initial", nothing); isnothing(__ovr_CODin__initial) || (__initial_conditions[CODin] = __ovr_CODin__initial)
+  __ovr_CODout = pop!(__overrides, "CODout", nothing); isnothing(__ovr_CODout) || push!(__eqs, CODout ~ __ovr_CODout)
+  __ovr_CODout__initial = pop!(__overrides, "CODout__initial", nothing); isnothing(__ovr_CODout__initial) || (__initial_conditions[CODout] = __ovr_CODout__initial)
+  __ovr_XCODin = pop!(__overrides, "XCODin", nothing); isnothing(__ovr_XCODin) || push!(__eqs, XCODin ~ __ovr_XCODin)
+  __ovr_XCODin__initial = pop!(__overrides, "XCODin__initial", nothing); isnothing(__ovr_XCODin__initial) || (__initial_conditions[XCODin] = __ovr_XCODin__initial)
+  __ovr_H = pop!(__overrides, "H", nothing); isnothing(__ovr_H) || push!(__eqs, H ~ __ovr_H)
+  __ovr_H__initial = pop!(__overrides, "H__initial", nothing); isnothing(__ovr_H__initial) || (__initial_conditions[H] = __ovr_H__initial)
+  __ovr_Q = pop!(__overrides, "Q", nothing); isnothing(__ovr_Q) || push!(__eqs, Q ~ __ovr_Q)
+  __ovr_Q__initial = pop!(__overrides, "Q__initial", nothing); isnothing(__ovr_Q__initial) || (__initial_conditions[Q] = __ovr_Q__initial)
+
   ### Constants
   __constants = Any[]
 
@@ -71,9 +113,10 @@
   push!(__systems, @named portIn = ASPDemo.FluidPortIn())
   push!(__systems, @named portOut = ASPDemo.FluidPortOut())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
 
@@ -119,10 +162,10 @@
 
   ### Control Structures
   for i in 1:nS
-      __initial_conditions[states[i]] = (states_start[i])
+      push!(__initialization_eqs, states[i] ~ states_start[i])
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export PrimaryClarifierDynamic

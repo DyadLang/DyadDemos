@@ -20,12 +20,12 @@ component BenchPlant
   sensor_O2 = CombinedSensor() {^sensor_O2}
   sensor_TSS1 = CombinedSensor() {^sensor_TSS1}
   sensor_effluent = CombinedSensor() {^sensor_effluent}
-  constant1 = BlockComponents.Constant(k = 1) {^constant1}
-  constant2 = BlockComponents.Constant(k = 1) {^constant2}
-  temperature = BlockComponents.Constant(k = 15) {^temperature}
-  oxygenSetpoint = BlockComponents.Step(height = 2) {^oxygenSetpoint}
+  constant1 = BlockComponents.Sources.Constant(k = 1) {^constant1}
+  constant2 = BlockComponents.Sources.Constant(k = 1) {^constant2}
+  temperature = BlockComponents.Sources.Constant(k = 15) {^temperature}
+  oxygenSetpoint = BlockComponents.Sources.Step(height = 2) {^oxygenSetpoint}
   PI1 = PI(Ti = 0.001, k = 500) {^PI1}
-  nitrogenSetpoint = BlockComponents.Constant(k = 1) {^nitrogenSetpoint}
+  nitrogenSetpoint = BlockComponents.Sources.Constant(k = 1) {^nitrogenSetpoint}
   limiter1 = Limiter(y_max = 10, y_min = 0.1) {^limiter1}
   PI2 = PI(Ti = 0.05, k = 15000) {^PI2}
   structural parameter input_file::String = "dyad://ASPDemo/../test/data/Inf_dry.csv"
