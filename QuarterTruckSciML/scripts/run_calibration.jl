@@ -1,16 +1,11 @@
-"""
+#=
 Run the parameter-calibration analysis and report recovered vs. true values.
 
-Reads `data/calibration_measurements.csv` (produced by
+Reads `assets/data/calibration_measurements.csv` (produced by
 `generate_calibration_data.jl`), invokes `QuarterTruckCalibrationAnalysis`,
 and prints a side-by-side comparison of the nominal harness defaults, the
 ground-truth perturbed values, and what the optimizer recovered.
-
-Run from the package root:
-    JULIAUP_SERVER="https://juliahub.com/juliabin" \\
-    JULIAUP_DEPOT_PATH="\$HOME/.julia/juliaup-depots/juliahub.com" \\
-    julia +dyad-3.0.0 --project scripts/run_calibration.jl
-"""
+=#
 
 using QuarterTruckSciML
 using DyadInterface
@@ -18,12 +13,15 @@ using Printf
 
 # Truth values are the same perturbations baked into
 # `generate_calibration_data.jl` — keep these in sync if you change either.
-const NOMINAL = (var"body.m" = 300.0,         var"tire_to_body.c" = 20e3,
-                 var"tire_to_body.d" = 1500.0, var"friction_tb.F_c" = 500.0)
-const TRUTH   = (var"body.m" = 315.0,         var"tire_to_body.c" = 22e3,
-                 var"tire_to_body.d" = 1800.0, var"friction_tb.F_c" = 750.0)
-const PARAMS  = ["model.body.m", "model.tire_to_body.c",
-                 "model.tire_to_body.d", "model.friction_tb.F_c"]
+# Names/order match `search_space_names` in calibration.dyad — these top-level
+# knobs are what the optimizer recovers (the sub-component params like
+# `body.m` are `final`-bound to them).
+const NOMINAL = (var"body_m" = 300.0,         var"tire_to_body_c" = 20e3,
+                 var"tire_to_body_d" = 1500.0, var"friction_Fc" = 500.0)
+const TRUTH   = (var"body_m" = 315.0,         var"tire_to_body_c" = 22e3,
+                 var"tire_to_body_d" = 1800.0, var"friction_Fc" = 750.0)
+const PARAMS  = ["model.body_m", "model.tire_to_body_c",
+                 "model.tire_to_body_d", "model.friction_Fc"]
 
 @info "Running QuarterTruckCalibrationAnalysis (LBFGS, ≤100 iters)"
 # The generated `QuarterTruckCalibrationAnalysis(; kwargs...)` shorthand already

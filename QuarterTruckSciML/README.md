@@ -24,17 +24,17 @@ End-to-end demo of two SciML workflows on a quarter-truck ride-comfort model:
 | `dyad/nn_analyses.dyad`               | Adam + LBFGS NN training analyses                        |
 | `dyad/calibration.dyad`               | Calibration harness + `CalibrationAnalysis`              |
 | `src/QuarterTruckSciML.jl`            | ISO 8608 spectrum helpers (Julia)                        |
-| `scripts/generate_training_data.jl`   | Produce `data/truck_sin_full_train.csv`                  |
+| `scripts/generate_training_data.jl`   | Produce `assets/data/truck_sin_full_train.csv`           |
 | `scripts/train.jl`                    | Run Adam + LBFGS to retrain the NN                       |
 | `scripts/validate.jl`                 | 3-panel overlay PNG (linear / NN / truth) on ISO 8608    |
 | `scripts/export_validation_csv.jl`    | Same data as `validate.jl` but as a tidy CSV             |
 | `scripts/generate_calibration_data.jl`| Simulate perturbed truth → synthetic measurements        |
 | `scripts/run_calibration.jl`          | Run `CalibrationAnalysis`, print recovered vs. truth     |
-| `data/`                               | Pre-trained NN weights + cached training/measurement CSVs|
+| `assets/data/`                        | Pre-trained NN weights + cached training/measurement CSVs|
 
 ## Running the demo
 
-Set the JuliaHub juliaup env vars once per shell, then activate this project:
+Set the JuliaHub juliaup env vars once per shell (not needed for the VS Code REPL command), then activate this project:
 
 ```bash
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
@@ -45,12 +45,12 @@ julia +dyad-3.0.0 --project -e 'using Pkg; Pkg.instantiate()'
 
 ### NN-augmented gray-box validation
 
-The pre-trained LBFGS weights are checked in at `data/nn_weights_full_sin_lbfgs.csv`,
+The pre-trained LBFGS weights are checked in at `assets/data/nn_weights_full_sin_lbfgs.csv`,
 so validation runs immediately:
 
 ```bash
-julia +dyad-3.0.0 --project scripts/validate.jl              # → validation_iso_a.png
-julia +dyad-3.0.0 --project scripts/export_validation_csv.jl # → validation_iso_a.csv
+julia +dyad-3.0.0 --project scripts/validate.jl              # → assets/validation_iso_a.png
+julia +dyad-3.0.0 --project scripts/export_validation_csv.jl # → assets/validation_iso_a.csv
 ```
 
 Expected output: 3-panel overlay (tire position, driver position, driver
@@ -74,10 +74,9 @@ julia +dyad-3.0.0 --project scripts/generate_calibration_data.jl
 julia +dyad-3.0.0 --project scripts/run_calibration.jl
 ```
 
-The calibration recovers `model.body.m` and `model.tire_to_body.c` to
-numerical precision; `model.friction_tb.F_c` to within a few percent;
-`model.tire_to_body.d` is the hardest of the four (low observability with
-the chosen measurement set, ~15% residual).
+The calibration recovers all four parameters to within ~0.1% of the perturbed
+truth: `model.body_m` and `model.tire_to_body_c` essentially exactly, and
+`model.tire_to_body_d` / `model.friction_Fc` to a fraction of a percent.
 
 ### Smoke tests
 

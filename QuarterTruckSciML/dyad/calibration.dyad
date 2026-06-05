@@ -14,7 +14,7 @@
 # which propagate to the sub-component parameters via `final` bindings in
 # QuarterTruckConfigurable.
 
-"Recover four physical parameters from ISO 8608 ride measurements (tire contact force, suspension travel, seat acceleration). Truth values are 5%/10%/20%/50% perturbations from the nominal (body_m=300, tire_to_body_c=20e3, tire_to_body_d=1500, friction_Fc=500); search bounds are ~2× the perturbation. Synthetic measurements live in `data/calibration_measurements.csv`."
+"Recover four physical parameters from ISO 8608 ride measurements (tire contact force, suspension travel, seat acceleration). Truth values are 5%/10%/20%/50% perturbations from the nominal (body_m=300, tire_to_body_c=20e3, tire_to_body_d=1500, friction_Fc=500); search bounds are ~2× the perturbation. Synthetic measurements live in `assets/data/calibration_measurements.csv`."
 analysis QuarterTruckCalibrationAnalysis
   extends DyadModelOptimizer.CalibrationAnalysis(
     stop = 10.0, saveat = 0.01,

@@ -33,7 +33,7 @@ include("../generated/tests.jl")
     end
 
     @testset "Pre-trained NN weights load and produce a smaller error than random" begin
-        weights_csv = joinpath(@__DIR__, "..", "data", "nn_weights_full_sin_lbfgs.csv")
+        weights_csv = joinpath(@__DIR__, "..", "assets", "data", "nn_weights_full_sin_lbfgs.csv")
         @test isfile(weights_csv)
         weights_flat = Vector{Float64}(collect(CSV.read(weights_csv, DataFrame)[1, :]))
         @test length(weights_flat) == 68    # matches the QuarterTruckFullNN architecture
