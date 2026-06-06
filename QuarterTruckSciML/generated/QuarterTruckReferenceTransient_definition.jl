@@ -8,8 +8,8 @@ using DyadInterface
 using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
-@kwdef mutable struct AnalysisNonlinearFullSinSpec <: AbstractTransientAnalysisSpec
-  name::Symbol = :AnalysisNonlinearFullSin
+@kwdef mutable struct QuarterTruckReferenceTransientSpec <: AbstractTransientAnalysisSpec
+  name::Symbol = :QuarterTruckReferenceTransient
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
   var"stop"::Float64 = 5
@@ -24,18 +24,32 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   var"respecialize"::Bool = false
   var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
   var"log_file"::String = ""
+  var"amplitude"::Float64 = 0.03
+  var"frequency"::Float64 = 2
+  var"tire_k3"::Float64 = 10000000
+  var"tire_compression_only"::Float64 = 1
+  var"friction_Fc"::Float64 = 500
+  var"friction_v0"::Float64 = 0.1
+  var"seat_driver_n"::Float64 = 0.5
   # Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-body Coulomb friction, AND seat-driver viscoelastic damping all active. Sin road excitation — used to generate training data.
   var"model"::Union{Nothing, System} = QuarterTruckSciML.TestQuarterTruckConfigurableFullSin(; name=:TestQuarterTruckConfigurableFullSin)
 end
 
-function DyadInterface.run_analysis(spec::AnalysisNonlinearFullSinSpec)
+function DyadInterface.run_analysis(spec::QuarterTruckReferenceTransientSpec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
+  push!(overrides, no_namespace_model.amplitude => spec.var"amplitude")
+  push!(overrides, no_namespace_model.frequency => spec.var"frequency")
+  push!(overrides, no_namespace_model.tire_k3 => spec.var"tire_k3")
+  push!(overrides, no_namespace_model.tire_compression_only => spec.var"tire_compression_only")
+  push!(overrides, no_namespace_model.friction_Fc => spec.var"friction_Fc")
+  push!(overrides, no_namespace_model.friction_v0 => spec.var"friction_v0")
+  push!(overrides, no_namespace_model.seat_driver_n => spec.var"seat_driver_n")
   base_spec = TransientAnalysisSpec(;
     name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, automatic_discontinuity_detection=spec.automatic_discontinuity_detection, optimize=spec.optimize, progress=spec.progress, respecialize=spec.respecialize, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
   )
   run_analysis(base_spec)
 end
 
-AnalysisNonlinearFullSin(;kwargs...) = run_analysis(AnalysisNonlinearFullSinSpec(;kwargs...))
-export AnalysisNonlinearFullSin, AnalysisNonlinearFullSinSpec
+QuarterTruckReferenceTransient(;kwargs...) = run_analysis(QuarterTruckReferenceTransientSpec(;kwargs...))
+export QuarterTruckReferenceTransient, QuarterTruckReferenceTransientSpec

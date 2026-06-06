@@ -1,4 +1,4 @@
-"""
+#=
 Validation: 3-way comparison on ISO 8608 Class A road excitation.
 
 Simulates three models side-by-side against the nonlinear ground truth:
@@ -6,61 +6,66 @@ Simulates three models side-by-side against the nonlinear ground truth:
   • Nonlinear truth  (tire cubic + friction + viscoelastic seat)
   • Full-NN gray-box (trained to jointly recover all 3 nonlinearities)
 
-Reports per-observable RMS errors for linear-vs-truth and NN-vs-truth, and
-renders overlay plots showing all three predictions.
-
-Run from the package root:
-    JULIAUP_SERVER="https://juliahub.com/juliabin" \\
-    JULIAUP_DEPOT_PATH="\$HOME/.julia/juliaup-depots/juliahub.com" \\
-    julia +dyad-3.0.0 --project scripts/validate.jl
-"""
+Each run is a `TransientAnalysis` over the harness, with the trained NN weights
+supplied through the analysis `overrides` (the operating point) instead of a
+hand-built `ODEProblem`. Reports per-observable RMS errors for linear-vs-truth
+and NN-vs-truth, and renders overlay plots showing all three predictions.
+=#
 
 using QuarterTruckSciML
-using ModelingToolkit
-using OrdinaryDiffEqDefault
+using DyadInterface: TransientAnalysis, artifacts, ODEAlg
+using ModelingToolkit: toggle_namespacing, SymbolicT
 using CSV, DataFrames, Statistics, Printf
 using Plots
 
-const DATA_DIR = joinpath(@__DIR__, "..", "data")
-const OUT_DIR  = joinpath(@__DIR__, "..")
+const DATA_DIR = joinpath(@__DIR__, "..", "assets", "data")
+const OUT_DIR  = joinpath(@__DIR__, "..", "assets")
 const WEIGHTS_CSV = joinpath(DATA_DIR, "nn_weights_full_sin_lbfgs.csv")
 
+# (path, axis label, unit) for each compared observable. The path doubles as the
+# DataFrame column name and the symbolic lookup key into the analysis solution.
 const OBS = [
-    (sys -> sys.model.tire.s,   "model.tire.s(t)",   "tire position [m]",          "m"),
-    (sys -> sys.model.driver.s, "model.driver.s(t)", "driver position [m]",        "m"),
-    (sys -> sys.model.driver.a, "model.driver.a(t)", "driver acceleration [m/s²]", "m/s²"),
+    ("model.tire.s(t)",   "tire position [m]",          "m"),
+    ("model.driver.s(t)", "driver position [m]",        "m"),
+    ("model.driver.a(t)", "driver acceleration [m/s²]", "m/s²"),
 ]
 
 weights_flat = Vector{Float64}(collect(CSV.read(WEIGHTS_CSV, DataFrame)[1, :]))
 @info "Loaded $(length(weights_flat)) NN weights from $(basename(WEIGHTS_CSV))"
 
-function simulate(harness; tspan=(0.0, 10.0), saveat=0.01, set_nn_weights=false)
-    sys = mtkcompile(harness)
-    overrides = set_nn_weights ? [sys.model.nn.p => weights_flat] : Pair[]
-    prob = ODEProblem(sys, overrides, tspan; fully_determined=true)
-    sol = solve(prob; saveat)
+# Run a TransientAnalysis over `harness` and collect the OBS observables.
+# When `nn_weights` is given, the trained weights are injected as an
+# operating-point override on the NN parameter vector. `toggle_namespacing`
+# strips the harness's own namespace so the key matches the flattened system's
+# `model.nn.p` — the one bit of plumbing the NN gray-box needs.
+function run_transient(harness; nn_weights=nothing, tspan=(0.0, 10.0), saveat=0.01)
+    overrides = isnothing(nn_weights) ? Dict{SymbolicT, SymbolicT}() :
+        Dict{SymbolicT, SymbolicT}(toggle_namespacing(harness, false).model.nn.p => nn_weights)
+    result = TransientAnalysis(; model=harness, overrides, alg=ODEAlg.Auto(),
+                               start=tspan[1], stop=tspan[2], saveat)
+    sol = artifacts(result, :RawSolution)
     df = DataFrame(timestamp = sol.t)
-    for (getvar, colname, _, _) in OBS
-        df[!, colname] = sol[getvar(sys)]
+    for (path, _, _) in OBS
+        df[!, path] = sol[getproperty(result, path)]
     end
-    return sys, sol, df
+    return df
 end
 
 signal_rms(x) = sqrt(mean(abs2, x .- mean(x)))
 error_rms(a, b) = sqrt(mean(abs2, a .- b))
 
 @info "Simulating linear baseline on ISO 8608 Class A"
-_, _, df_lin = simulate(QuarterTruckSciML.TestQuarterTruckLinearISOA(; name=:h); tspan=(0.0, 10.0))
+df_lin = run_transient(QuarterTruckSciML.TestQuarterTruckLinearISOA(; name=:h))
 
 @info "Simulating nonlinear ground truth on ISO 8608 Class A"
-_, _, df_gt  = simulate(QuarterTruckSciML.TestQuarterTruckNonlinearISOA(; name=:h); tspan=(0.0, 10.0))
+df_gt  = run_transient(QuarterTruckSciML.TestQuarterTruckNonlinearISOA(; name=:h))
 
 @info "Simulating full-NN gray-box on ISO 8608 Class A"
-_, _, df_nn  = simulate(QuarterTruckSciML.TestQuarterTruckFullNNISOA(; name=:h);
-                        tspan=(0.0, 10.0), set_nn_weights=true)
+df_nn  = run_transient(QuarterTruckSciML.TestQuarterTruckFullNNISOA(; name=:h);
+                       nn_weights=weights_flat)
 
 errs = Dict{String, NamedTuple}()
-for (_, col, _, _) in OBS
+for (col, _, _) in OBS
     r = signal_rms(df_gt[!, col])
     e_lin = error_rms(df_lin[!, col], df_gt[!, col])
     e_nn  = error_rms(df_nn[!,  col], df_gt[!, col])
@@ -75,7 +80,7 @@ println("   ISO 8608 Class A validation — linear vs NN vs nonlinear truth")
 println("══════════════════════════════════════════════════════════════════════")
 @printf "  %-28s  %-14s  %-14s  %-14s\n" "observable" "signal RMS" "linear err (%%)" "NN err (%%)"
 @printf "  %s\n" repeat("─", 78)
-for (_, col, label, _) in OBS
+for (col, label, _) in OBS
     e = errs[col]
     @printf "  %-28s  %-14.4g  %-14.2f  %-14.2f\n" label e.r e.pct_lin e.pct_nn
 end
@@ -95,7 +100,7 @@ plt = plot(layout=(3, 1), size=(1100, 1000), legend=:bottomright,
            plot_title="ISO 8608 Class A road — linear vs NN-augmented vs nonlinear model",
            left_margin=8Plots.mm, right_margin=4Plots.mm,
            top_margin=4Plots.mm, bottom_margin=4Plots.mm)
-for (i, (_, col, label, unit)) in enumerate(OBS)
+for (i, (col, label, unit)) in enumerate(OBS)
     e = errs[col]
     subtitle = "$label    — linear RMS err = $(fmt_rms(e.e_lin, unit)), NN RMS err = $(fmt_rms(e.e_nn, unit))"
     plot!(plt[i], df_gt.timestamp, df_gt[!, col],

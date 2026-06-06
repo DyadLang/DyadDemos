@@ -110,6 +110,18 @@ relations
   connect(sin_signal.y, model.road.s_ref)
 end
 
+analysis QuarterTruckReferenceTransient
+  extends TransientAnalysis(stop = 5.0, saveat=0.01)
+  parameter amplitude::Distance = 0.03
+  parameter frequency::Frequency = 2.0
+  parameter tire_k3::Real = 1e7
+  parameter tire_compression_only::Real = 1.0
+  parameter friction_Fc::Force = 500.0
+  parameter friction_v0::Velocity = 0.1
+  parameter seat_driver_n::Real = 0.5
+  model = TestQuarterTruckConfigurableFullSin(amplitude=amplitude, frequency=frequency, tire_k3=tire_k3, tire_compression_only = tire_compression_only, friction_Fc=friction_Fc, friction_v0=friction_v0, seat_driver_n=seat_driver_n)
+end
+
 "Training harness: full 3-nonlinearity gray-box truck driven by the same sin as the ground-truth. The NN learns all three nonlinear residual forces jointly."
 test component TestQuarterTruckFullNNSin
   model = QuarterTruckFullNN()

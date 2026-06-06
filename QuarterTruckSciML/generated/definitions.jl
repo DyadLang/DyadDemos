@@ -16,11 +16,11 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
   include(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
 end
 
-import DyadInterface
-import DyadModelOptimizer
 import BlockComponents
-import DyadModelDiscovery
 import DyadData
+import DyadInterface
+import DyadModelDiscovery
+import DyadModelOptimizer
 import TranslationalComponents
 @doc Markdown.doc"""
 This connector represents an electrical pin with voltage and current as the potential and flow variables, respectively.
@@ -148,7 +148,6 @@ ModelingToolkit.IsFrame => true,
 end
 
 include("AnalysisFullNNSin_definition.jl")
-include("AnalysisNonlinearFullSin_definition.jl")
 include("ConfigurableTireSpringDamper_definition.jl")
 include("CoulombFriction_definition.jl")
 include("DenseISO8608Road_definition.jl")
@@ -158,6 +157,7 @@ include("PureExternalForce_definition.jl")
 include("QuarterTruckCalibrationAnalysis_definition.jl")
 include("QuarterTruckConfigurable_definition.jl")
 include("QuarterTruckFullNN_definition.jl")
+include("QuarterTruckReferenceTransient_definition.jl")
 include("SpringDamperWithExternalResidual_definition.jl")
 include("TestDenseISO8608RoadTransient_definition.jl")
 include("TestDenseISO8608Road_definition.jl")
