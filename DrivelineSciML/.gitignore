@@ -1,0 +1,15 @@
+/docs/build/
+*.jl.*.cov
+*.jl.cov
+*.jl.mem
+/Manifest*.toml
+/docs/Manifest*.toml
+/agent_resources/*
+!/agent_resources/reference/
+/.migration-backups/
+
+# Regenerated artifacts (not committed; produced by scripts/).
+# The committed datasets in assets/data/ — chirp_measurements.csv and
+# slow_cycle_measurements.csv — are kept.
+/assets/validation_tipin.png
+/assets/data/calibrated_params.csv

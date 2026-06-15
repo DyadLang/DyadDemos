@@ -1,0 +1,3 @@
+/generated/** linguist-generated
+/test/snapshots/** linguist-generated
+Manifest*.toml linguist-generated
