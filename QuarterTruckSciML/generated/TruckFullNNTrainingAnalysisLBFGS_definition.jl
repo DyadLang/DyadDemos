@@ -12,12 +12,12 @@ using DyadModelDiscovery: AbstractNNTrainingAnalysisSpec, NNTrainingAnalysisSpec
   name::Symbol = :TruckFullNNTrainingAnalysisLBFGS
   var"alg"::ODEAlg.Type = ODEAlg.Tsit5()
   var"start"::Float64 = 0
-  var"stop"::Float64 = 5
+  var"stop"::Float64 = 5.0
   var"abstol"::Float64 = 1e-8
   var"reltol"::Float64 = 1e-8
   var"saveat"::Float64 = 0
   var"dtmax"::Float64 = 0
-  var"data"::DyadData.DyadTimeseries = DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/truck_sin_full_train.csv", independent_var="timestamp", dependent_vars=["model.tire.s(t)", "model.driver.s(t)", "model.driver.a(t)"])
+  var"data"::DyadData.DyadTimeseries = DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/truck_sin_full_train.csv"; independent_var="timestamp", dependent_vars=["model.tire.s(t)", "model.driver.s(t)", "model.driver.a(t)"])
   var"depvars_names"::Array{String, 1} = ["model.tire.s", "model.driver.s", "model.driver.a"]
   var"loss_func"::DyadModelOptimizer.LossFunc.Type = DyadModelOptimizer.LossFunc.L2Loss()
   var"calibration_alg"::DyadModelOptimizer.CalibrationAlg.Type = "SingleShooting"

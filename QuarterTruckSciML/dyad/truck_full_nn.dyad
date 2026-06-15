@@ -11,23 +11,23 @@
 "Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning THREE suspension nonlinearities: tire cubic residual (compression-only gated), tire-body Coulomb friction, and seat-driver viscoelastic damping residual. Physics inputs: normalized tire deflection, normalized tire-body relative velocity, normalized seat-driver relative velocity. Outputs (each × its own f_scale): tire residual force [N], friction force [N], seat damping residual force [N]."
 component QuarterTruckFullNN
   # Masses (identical to QuarterTruckConfigurable)
-  tire = TranslationalComponents.Components.Mass(m = 40.0, L = 0.0, g = 9.81, theta = 1.5708)
-  body = TranslationalComponents.Components.Mass(m = 300.0, L = 0.0, g = 9.81, theta = 1.5708)
-  seat = TranslationalComponents.Components.Mass(m = 15.0, L = 0.0, g = 9.81, theta = 1.5708)
-  driver = TranslationalComponents.Components.Mass(m = 75.0, L = 0.0, g = 9.81, theta = 1.5708)
+  tire = TranslationalComponents.Components.Mass(m = 40.0, L = 0.0, g = 9.81, theta = 1.5708) {^tire}
+  body = TranslationalComponents.Components.Mass(m = 300.0, L = 0.0, g = 9.81, theta = 1.5708) {^body}
+  seat = TranslationalComponents.Components.Mass(m = 15.0, L = 0.0, g = 9.81, theta = 1.5708) {^seat}
+  driver = TranslationalComponents.Components.Mass(m = 75.0, L = 0.0, g = 9.81, theta = 1.5708) {^driver}
   # Gray-box spring-damper elements (each carries the known linear physics;
   # the NN-learned nonlinear residual is injected via the RealInput port).
-  tire_to_road = TireWithExternalResidual(k1 = 200e3, d = 50.0, final s_rel0 = s_rel0_tire)
-  tire_to_body = TranslationalComponents.Components.SpringDamper(c = 20e3, d = 1500.0, s_rel0 = 1.0)
-  friction_tb = PureExternalForce()
-  body_to_seat = TranslationalComponents.Components.SpringDamper(c = 15e3, d = 800.0, s_rel0 = 0.2)
-  seat_to_driver = SpringDamperWithExternalResidual(k = 10e3, d = 500.0, final s_rel0 = s_rel0_seat)
-  road = TranslationalComponents.Sources.Position(f_crit = 100.0)
-  # Local RealInput / RealOutput arrays (required workaround for the Dyad
+  tire_to_road = TireWithExternalResidual(k1 = 200e3, d = 50.0, final s_rel0 = s_rel0_tire) {^tire_to_road}
+  tire_to_body = TranslationalComponents.Components.SpringDamper(c = 20e3, d = 1500.0, s_rel0 = 1.0) {^tire_to_body}
+  friction_tb = PureExternalForce() {^friction_tb}
+  body_to_seat = TranslationalComponents.Components.SpringDamper(c = 15e3, d = 800.0, s_rel0 = 0.2) {^body_to_seat}
+  seat_to_driver = SpringDamperWithExternalResidual(k = 10e3, d = 500.0, final s_rel0 = s_rel0_seat) {^seat_to_driver}
+  road = TranslationalComponents.Sources.Position(ref_type = TranslationalComponents.Sources.ReferenceType.Filtered(f_crit = 100.0)) {^road} # Local RealInput / RealOutput arrays (required workaround for the Dyad
   # compiler's indexed-connector access issue on `nn.inputs[i]`).
-  nn_inputs = [RealInput() for i in 1:n_input]
-  nn_outputs = [RealOutput() for i in 1:n_output]
-  nn = DyadModelDiscovery.NeuralNetworkBlock(n_input = n_input, n_output = n_output, chain = chain)
+  nn_inputs = [RealInput() for i in 1:n_input] {^nn_inputs}
+  nn_outputs = [RealOutput() for i in 1:n_output] {^nn_outputs}
+  nn = DyadModelDiscovery.NeuralNetworkBlock(n_input = n_input, n_output = n_output, chain = chain) {^nn}
+  fixed = TranslationalComponents.Components.Fixed() {^fixed}
   structural parameter n_input::Integer = 3
   structural parameter n_output::Integer = 3
   structural parameter nn_depth::Integer = 1
@@ -48,16 +48,16 @@ component QuarterTruckFullNN
   "Force scale for friction NN output [N] (matches true F_c magnitude)"
   parameter f_scale_friction::Force = 500.0
 relations
-  connect(road.flange, tire_to_road.flange_a)
-  connect(tire_to_road.flange_b, tire.flange_a)
-  connect(tire.flange_b, tire_to_body.flange_a)
-  connect(tire_to_body.flange_b, body.flange_a)
-  connect(tire.flange_b, friction_tb.flange_a)
-  connect(friction_tb.flange_b, body.flange_a)
-  connect(body.flange_b, body_to_seat.flange_a)
-  connect(body_to_seat.flange_b, seat.flange_a)
-  connect(seat.flange_b, seat_to_driver.flange_a)
-  connect(seat_to_driver.flange_b, driver.flange_a)
+  connect(road.flange, tire_to_road.flange_a) {^id15}
+  connect(tire_to_road.flange_b, tire.flange_a) {^id16}
+  connect(tire.flange_b, tire_to_body.flange_a) {^id17}
+  connect(tire_to_body.flange_b, body.flange_a) {^id18}
+  connect(tire.flange_b, friction_tb.flange_a) {^id19}
+  connect(friction_tb.flange_b, body.flange_a) {^id20}
+  connect(body.flange_b, body_to_seat.flange_a) {^id21}
+  connect(body_to_seat.flange_b, seat.flange_a) {^id22}
+  connect(seat.flange_b, seat_to_driver.flange_a) {^id23}
+  connect(seat_to_driver.flange_b, driver.flange_a) {^id24}
   for i in 1:n_input
     connect(nn_inputs[i], nn.inputs[i])
   end
@@ -90,6 +90,168 @@ relations
   initial driver.s = 1.128754 + 0.1 - 75.0 * 9.81 / 10e3
   initial driver.v = 0.0
   initial tire_to_road.v_rel = 0.0
+  connect(road.support, fixed.flange) {^id25}
+metadata {
+  "_links": {
+    "tire": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 275, "y1": 310, "x2": 375, "y2": 410, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 545, "y1": 310, "x2": 645, "y2": 410, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "seat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 805, "y1": 310, "x2": 905, "y2": 410, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 1055, "y1": 210, "x2": 1155, "y2": 310, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tire_to_road": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 150, "y1": 410, "x2": 250, "y2": 510, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tire_to_body": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 415, "y1": 310, "x2": 515, "y2": 410, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "friction_tb": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 415, "y1": 190, "x2": 515, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body_to_seat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 675, "y1": 310, "x2": 775, "y2": 410, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "seat_to_driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 930, "y1": 310, "x2": 1030, "y2": 410, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "road": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 25, "y1": 410, "x2": 125, "y2": 510, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "nn_inputs": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 140, "y1": 20, "x2": 240, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "nn_outputs": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 260, "y1": 20, "x2": 360, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "nn": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "fixed": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 0, "y1": 620, "x2": 100, "y2": 720, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id15": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id16": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 140, "y": 460}, {"x": 140, "y": 360}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id17": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id18": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id19": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 400, "y": 240}], "E": 2}],
+        "junctions": [{"x": 400, "y": 360}],
+        "renderStyle": "standard"
+      }
+    },
+    "id20": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 390, "y": 240}, {"x": 390, "y": 140}, {"x": 530, "y": 140}],
+            "E": -1
+          },
+          {"S": -1, "M": [], "E": 2}
+        ],
+        "junctions": [{"x": 530, "y": 360}],
+        "renderStyle": "standard"
+      }
+    },
+    "id21": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id22": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id23": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id24": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 920, "y": 360}, {"x": 920, "y": 260}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id25": {
+      "Dyad": {
+        "renderStyle": "standard",
+        "edges": [{"S": 1, "M": [{"x": 75, "y": 565}, {"x": 50, "y": 565}], "E": 2}]
+      }
+    }
+  }
+}
 end
 
 # =============================================================================
@@ -111,7 +273,8 @@ relations
 end
 
 analysis QuarterTruckReferenceTransient
-  extends TransientAnalysis(stop = 5.0, saveat=0.01)
+  extends TransientAnalysis(stop = 5.0, saveat = 0.01)
+  model = TestQuarterTruckConfigurableFullSin(amplitude = amplitude, frequency = frequency, tire_k3 = tire_k3, tire_compression_only = tire_compression_only, friction_Fc = friction_Fc, friction_v0 = friction_v0, seat_driver_n = seat_driver_n)
   parameter amplitude::Distance = 0.03
   parameter frequency::Frequency = 2.0
   parameter tire_k3::Real = 1e7
@@ -119,7 +282,7 @@ analysis QuarterTruckReferenceTransient
   parameter friction_Fc::Force = 500.0
   parameter friction_v0::Velocity = 0.1
   parameter seat_driver_n::Real = 0.5
-  model = TestQuarterTruckConfigurableFullSin(amplitude=amplitude, frequency=frequency, tire_k3=tire_k3, tire_compression_only = tire_compression_only, friction_Fc=friction_Fc, friction_v0=friction_v0, seat_driver_n=seat_driver_n)
+relations
 end
 
 "Training harness: full 3-nonlinearity gray-box truck driven by the same sin as the ground-truth. The NN learns all three nonlinear residual forces jointly."

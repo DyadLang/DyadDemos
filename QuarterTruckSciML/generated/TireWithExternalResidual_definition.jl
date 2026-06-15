@@ -4,17 +4,19 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TireWithExternalResidual(; name, k1, d, s_rel0)
 
 Tire-specific spring-damper with compression-only gate baked in: above the unstretched length the *entire* force (linear + external residual) is zero (matching the ground-truth `ConfigurableTireSpringDamper` lift-off behaviour). The NN-injected residual `f_residual` is added to the linear baseline below the cutoff.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `k1`         |                          | N/m  |   200000 |
-| `d`         |                          | N.s/m  |   50 |
+| `k1`         |                          | N/m  |   200e3 |
+| `d`         |                          | N.s/m  |   50.0 |
 | `s_rel0`         |                          | m  |   0.2 |
 
 ## Connectors
@@ -26,19 +28,20 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `s_rel`         |                          | m  | 
-| `v_rel`         |                          | m/s  | 
-| `f`         |                          | N  | 
+| ------------ | ----------------------------------- | ------ |
+| `s_rel`         |                          | m  |
+| `v_rel`         |                          | m/s  |
+| `f`         |                          | N  |
 """
-@component function TireWithExternalResidual(; name = nothing, k1=Float64(200000), d=Float64(50), s_rel0=0.2, kwargs...)
+@component function TireWithExternalResidual(; name = nothing, k1=Float64(200000.0), d=Float64(50.0), s_rel0=0.2, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TireWithExternalResidual()
+  """))
 
-        @named model = TireWithExternalResidual()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,8 +61,6 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -72,6 +73,8 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [bounds = (0, Inf)])
   __initial_conditions[s_rel0] = __local__s_rel0
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (f_residual(t)::Real), [input = true])
@@ -109,7 +112,7 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
   ### Equations
   push!(__eqs, s_rel ~ flange_b.s - flange_a.s)
   push!(__eqs, v_rel ~ ModelingToolkit.D_nounits(s_rel))
-  push!(__eqs, f ~ ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + d * v_rel + f_residual, 0))
+  push!(__eqs, f ~ ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + d * v_rel + f_residual, 0.0))
   push!(__eqs, flange_b.f ~ f)
   push!(__eqs, flange_a.f ~ -f)
 

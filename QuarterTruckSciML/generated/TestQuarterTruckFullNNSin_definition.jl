@@ -4,26 +4,29 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestQuarterTruckFullNNSin(; name, amplitude, frequency)
 
 Training harness: full 3-nonlinearity gray-box truck driven by the same sin as the ground-truth. The NN learns all three nonlinear residual forces jointly.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `amplitude`         |                          | m  |   0.03 |
-| `frequency`         |                          | Hz  |   2 |
+| `frequency`         |                          | Hz  |   2.0 |
 """
-@component function TestQuarterTruckFullNNSin(; name = nothing, amplitude=0.03, frequency=Float64(2), kwargs...)
+@component function TestQuarterTruckFullNNSin(; name = nothing, amplitude=0.03, frequency=Float64(2.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestQuarterTruckFullNNSin()
+  """))
 
-        @named model = TestQuarterTruckFullNNSin()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -43,8 +46,6 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -54,6 +55,8 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
   __local__frequency = frequency
   append!(__params, @parameters (frequency::Real))
   __initial_conditions[frequency] = __local__frequency
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -66,13 +69,11 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
 
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckFullNN
-  model_overrides = Dict(Symbol(replace(string(k), r"^model__" => "")) => v for (k, v) in __overrides if startswith(string(k), "model__"))
-  filter!(p -> !startswith(string(first(p)), "model__"), __overrides)
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckFullNN(model_overrides...))
+  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
+  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckFullNN(; model_overrides...))
   # Subcomponent sin_signal of type BlockComponents.Sources.Sine
-  sin_signal_overrides = Dict(Symbol(replace(string(k), r"^sin_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sin_signal__"))
-  filter!(p -> !startswith(string(first(p)), "sin_signal__"), __overrides)
-  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
+  sin_signal_overrides = __pop_subcomponent_overrides!(__overrides, "sin_signal")
+  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(; amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
