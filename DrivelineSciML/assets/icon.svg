@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="dl-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#263238"/>
+      <stop offset="100%" stop-color="#101820"/>
+    </linearGradient>
+    <linearGradient id="dl-disc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B0BEC5"/>
+      <stop offset="100%" stop-color="#607D8B"/>
+    </linearGradient>
+    <linearGradient id="dl-disc-motor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFB74D"/>
+      <stop offset="100%" stop-color="#EF6C00"/>
+    </linearGradient>
+    <radialGradient id="dl-glow" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#4DD0E1" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#4DD0E1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Rounded background panel -->
+  <rect x="6" y="6" width="116" height="116" rx="22" fill="url(#dl-bg)"/>
+  <rect x="6" y="6" width="116" height="116" rx="22" fill="url(#dl-glow)"/>
+
+  <!-- Shaft -->
+  <rect x="18" y="48" width="92" height="6" rx="3" fill="#78909C"/>
+
+  <!-- Motor-side flywheel -->
+  <g>
+    <ellipse cx="34" cy="51" rx="10" ry="22" fill="url(#dl-disc-motor)" stroke="#3E2723" stroke-width="1.5"/>
+    <ellipse cx="30" cy="51" rx="10" ry="22" fill="url(#dl-disc-motor)" stroke="#3E2723" stroke-width="1.5"/>
+  </g>
+
+  <!-- Isolator: coil spring between the inertias -->
+  <polyline points="46,51 50,42 56,60 62,42 68,60 74,42 78,51"
+            fill="none" stroke="#4DD0E1" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Load-side flywheel -->
+  <g>
+    <ellipse cx="98" cy="51" rx="10" ry="22" fill="url(#dl-disc)" stroke="#263238" stroke-width="1.5"/>
+    <ellipse cx="94" cy="51" rx="10" ry="22" fill="url(#dl-disc)" stroke="#263238" stroke-width="1.5"/>
+  </g>
+
+  <!-- Torque arrow on the motor side -->
+  <path d="M 20 24 A 14 14 0 0 1 44 22" fill="none" stroke="#FFB74D" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="44,16 50,24 40,27" fill="#FFB74D"/>
+
+  <!-- Hysteresis loop: the hidden physics being identified -->
+  <g stroke-linecap="round" fill="none">
+    <path d="M 44 108 C 60 108, 66 96, 84 88 C 76 92, 92 88, 84 88"
+          stroke="#4DD0E1" stroke-width="3"/>
+    <path d="M 84 88 C 68 88, 62 100, 44 108 C 52 104, 36 108, 44 108"
+          stroke="#4DD0E1" stroke-width="3"/>
+    <line x1="40" y1="110" x2="88" y2="86" stroke="#90A4AE" stroke-width="1.5" stroke-dasharray="3,3"/>
+  </g>
+</svg>
