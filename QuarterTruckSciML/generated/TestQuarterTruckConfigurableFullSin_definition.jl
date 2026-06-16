@@ -4,31 +4,34 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestQuarterTruckConfigurableFullSin(; name, amplitude, frequency, tire_k3, tire_compression_only, friction_Fc, friction_v0, seat_driver_n)
 
 Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-body Coulomb friction, AND seat-driver viscoelastic damping all active. Sin road excitation — used to generate training data.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `amplitude`         |                          | m  |   0.03 |
-| `frequency`         |                          | Hz  |   2 |
-| `tire_k3`         |                          | --  |   10000000 |
-| `tire_compression_only`         |                          | --  |   1 |
-| `friction_Fc`         |                          | N  |   500 |
+| `frequency`         |                          | Hz  |   2.0 |
+| `tire_k3`         |                          | --  |   1e7 |
+| `tire_compression_only`         |                          | --  |   1.0 |
+| `friction_Fc`         |                          | N  |   500.0 |
 | `friction_v0`         |                          | m/s  |   0.1 |
 | `seat_driver_n`         |                          | --  |   0.5 |
 """
-@component function TestQuarterTruckConfigurableFullSin(; name = nothing, amplitude=0.03, frequency=Float64(2), tire_k3=Float64(10000000), tire_compression_only=Float64(1), friction_Fc=Float64(500), friction_v0=0.1, seat_driver_n=0.5, kwargs...)
+@component function TestQuarterTruckConfigurableFullSin(; name = nothing, amplitude=0.03, frequency=Float64(2.0), tire_k3=Float64(10000000.0), tire_compression_only=Float64(1.0), friction_Fc=Float64(500.0), friction_v0=0.1, seat_driver_n=0.5, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestQuarterTruckConfigurableFullSin()
+  """))
 
-        @named model = TestQuarterTruckConfigurableFullSin()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -47,8 +50,6 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -75,6 +76,8 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
   append!(__params, @parameters (seat_driver_n::Real))
   __initial_conditions[seat_driver_n] = __local__seat_driver_n
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
 
   ### Variables (declarations)
@@ -86,13 +89,11 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
 
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckConfigurable
-  model_overrides = Dict(Symbol(replace(string(k), r"^model__" => "")) => v for (k, v) in __overrides if startswith(string(k), "model__"))
-  filter!(p -> !startswith(string(first(p)), "model__"), __overrides)
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(tire_k3=tire_k3, tire_compression_only=tire_compression_only, friction_Fc=friction_Fc, friction_v0=friction_v0, seat_driver_n=seat_driver_n, model_overrides...))
+  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
+  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(; tire_k3=tire_k3, tire_compression_only=tire_compression_only, friction_Fc=friction_Fc, friction_v0=friction_v0, seat_driver_n=seat_driver_n, model_overrides...))
   # Subcomponent sin_signal of type BlockComponents.Sources.Sine
-  sin_signal_overrides = Dict(Symbol(replace(string(k), r"^sin_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sin_signal__"))
-  filter!(p -> !startswith(string(first(p)), "sin_signal__"), __overrides)
-  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
+  sin_signal_overrides = __pop_subcomponent_overrides!(__overrides, "sin_signal")
+  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(; amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

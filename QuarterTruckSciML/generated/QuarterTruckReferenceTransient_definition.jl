@@ -12,7 +12,7 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   name::Symbol = :QuarterTruckReferenceTransient
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
-  var"stop"::Float64 = 5
+  var"stop"::Float64 = 5.0
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
   var"saveat"::Float64 = 0.01
@@ -25,10 +25,10 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
   var"log_file"::String = ""
   var"amplitude"::Float64 = 0.03
-  var"frequency"::Float64 = 2
-  var"tire_k3"::Float64 = 10000000
-  var"tire_compression_only"::Float64 = 1
-  var"friction_Fc"::Float64 = 500
+  var"frequency"::Float64 = 2.0
+  var"tire_k3"::Float64 = 10000000.0
+  var"tire_compression_only"::Float64 = 1.0
+  var"friction_Fc"::Float64 = 500.0
   var"friction_v0"::Float64 = 0.1
   var"seat_driver_n"::Float64 = 0.5
   # Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-body Coulomb friction, AND seat-driver viscoelastic damping all active. Sin road excitation — used to generate training data.

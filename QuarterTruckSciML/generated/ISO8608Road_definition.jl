@@ -4,34 +4,37 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ISO8608Road(; name, roughness, speed, lambda_min, lambda_max, start_time, offset)
 
 ISO 8608 calibrated road profile with speed-dependent frequency scaling.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `roughness`         | Road roughness G_d(n0) at n0=0.1 cycles/m [m3]                         | --  |   0.000016 |
+| `roughness`         | Road roughness G_d(n0) at n0=0.1 cycles/m [m3]                         | --  |   16e-6 |
 | `speed`         | Vehicle speed [m/s] (e.g. 13.89 = 50 km/h)                         | m/s  |   13.89 |
 | `lambda_min`         | Shortest spatial wavelength [m]                         | m  |   0.5 |
-| `lambda_max`         | Longest spatial wavelength [m]                         | m  |   30 |
-| `start_time`         | Time at which signal begins [s]                         | s  |   0 |
-| `offset`         | Baseline offset [m]                         | m  |   0 |
+| `lambda_max`         | Longest spatial wavelength [m]                         | m  |   30.0 |
+| `start_time`         | Time at which signal begins [s]                         | s  |   0.0 |
+| `offset`         | Baseline offset [m]                         | m  |   0.0 |
 
 ## Connectors
 
  * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function ISO8608Road(; name = nothing, roughness=0.000016, speed=13.89, lambda_min=0.5, lambda_max=Float64(30), start_time=Float64(0), offset=Float64(0), kwargs...)
+@component function ISO8608Road(; name = nothing, roughness=0.000016, speed=13.89, lambda_min=0.5, lambda_max=Float64(30.0), start_time=Float64(0.0), offset=Float64(0.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ISO8608Road()
+  """))
 
-        @named model = ISO8608Road()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -50,8 +53,6 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -74,6 +75,8 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
   __local__offset = offset
   append!(__params, @parameters (offset::Real), [description = "Baseline offset [m]", bounds = (0, Inf)])
   __initial_conditions[offset] = __local__offset
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (y(t)::Real), [output = true])
@@ -98,7 +101,7 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
   __assertions = []
 
   ### Equations
-  push!(__eqs, y ~ offset + ifelse(t >= start_time, sqrt(roughness * 0.16 * (lambda_max - lambda_min)) * 0.125 * (2.3488 * sin(2 * π * (speed / lambda_max) * (t - start_time) + 3.8832) + 1.3087 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (1 / 7) * (t - start_time) + 1.4833) + 0.7291 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (2 / 7) * (t - start_time) + 5.3665) + 0.4062 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (3 / 7) * (t - start_time) + 2.9665) + 0.2263 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (4 / 7) * (t - start_time) + 0.5666) + 0.1261 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (5 / 7) * (t - start_time) + 4.4498) + 0.0703 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (6 / 7) * (t - start_time) + 2.0498) + 0.0391 * sin(2 * π * (speed / lambda_min) * (t - start_time) + 5.933) + 0.742), 0))
+  push!(__eqs, y ~ offset + ifelse(t >= start_time, sqrt(roughness * 0.16 * (lambda_max - lambda_min)) * 0.125 * (2.3488 * sin(2 * π * (speed / lambda_max) * (t - start_time) + 3.8832) + 1.3087 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (1.0 / 7.0) * (t - start_time) + 1.4833) + 0.7291 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (2.0 / 7.0) * (t - start_time) + 5.3665) + 0.4062 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (3.0 / 7.0) * (t - start_time) + 2.9665) + 0.2263 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (4.0 / 7.0) * (t - start_time) + 0.5666) + 0.1261 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (5.0 / 7.0) * (t - start_time) + 4.4498) + 0.0703 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (6.0 / 7.0) * (t - start_time) + 2.0498) + 0.0391 * sin(2 * π * (speed / lambda_min) * (t - start_time) + 5.933) + 0.742), 0.0))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

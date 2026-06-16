@@ -4,6 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    PureExternalForce(; name)
 
@@ -18,18 +20,19 @@ Force element that transmits an externally supplied force (via `f_external` Real
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `s_rel`         |                          | m  | 
-| `v_rel`         |                          | m/s  | 
+| ------------ | ----------------------------------- | ------ |
+| `s_rel`         |                          | m  |
+| `v_rel`         |                          | m/s  |
 """
 @component function PureExternalForce(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = PureExternalForce()
+  """))
 
-        @named model = PureExternalForce()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -49,11 +52,11 @@ Force element that transmits an externally supplied force (via `f_external` Real
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (f_external(t)::Real), [input = true])

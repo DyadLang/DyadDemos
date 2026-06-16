@@ -4,17 +4,19 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SpringDamperWithExternalResidual(; name, k, d, s_rel0)
 
 Generic linear spring-damper whose total force includes an external residual force supplied via a RealInput port (`f_residual`). No gating — the full `k*Δs + d*v + f_residual` is always transmitted. Used by `seat_to_driver` in the gray-box truck.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `k`         |                          | N/m  |   10000 |
-| `d`         |                          | N.s/m  |   500 |
+| `k`         |                          | N/m  |   10e3 |
+| `d`         |                          | N.s/m  |   500.0 |
 | `s_rel0`         |                          | m  |   0.1 |
 
 ## Connectors
@@ -26,19 +28,20 @@ Generic linear spring-damper whose total force includes an external residual for
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `s_rel`         |                          | m  | 
-| `v_rel`         |                          | m/s  | 
-| `f`         |                          | N  | 
+| ------------ | ----------------------------------- | ------ |
+| `s_rel`         |                          | m  |
+| `v_rel`         |                          | m/s  |
+| `f`         |                          | N  |
 """
-@component function SpringDamperWithExternalResidual(; name = nothing, k=Float64(10000), d=Float64(500), s_rel0=0.1, kwargs...)
+@component function SpringDamperWithExternalResidual(; name = nothing, k=Float64(10000.0), d=Float64(500.0), s_rel0=0.1, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SpringDamperWithExternalResidual()
+  """))
 
-        @named model = SpringDamperWithExternalResidual()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,8 +61,6 @@ Generic linear spring-damper whose total force includes an external residual for
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -72,6 +73,8 @@ Generic linear spring-damper whose total force includes an external residual for
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [bounds = (0, Inf)])
   __initial_conditions[s_rel0] = __local__s_rel0
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (f_residual(t)::Real), [input = true])

@@ -4,20 +4,22 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ConfigurableTireSpringDamper(; name, k1, k3, d, s_rel0, compression_only)
 
 Configurable tire spring-damper with optional nonlinearity and compression-only behavior.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `k1`         | Linear stiffness [N/m]                         | N/m  |   200000 |
-| `k3`         | Cubic stiffness coefficient [N/m^3] - 0 disables nonlinearity                         | --  |   0 |
-| `d`         | Damping [N*s/m]                         | N.s/m  |   50 |
+| `k1`         | Linear stiffness [N/m]                         | N/m  |   200e3 |
+| `k3`         | Cubic stiffness coefficient [N/m^3] - 0 disables nonlinearity                         | --  |   0.0 |
+| `d`         | Damping [N*s/m]                         | N.s/m  |   50.0 |
 | `s_rel0`         | Unstretched (free) length [m]                         | m  |   0.2 |
-| `compression_only`         | Compression-only flag: 0.0=symmetric, 1.0=compression-only                         | --  |   0 |
+| `compression_only`         | Compression-only flag: 0.0=symmetric, 1.0=compression-only                         | --  |   0.0 |
 
 ## Connectors
 
@@ -27,19 +29,20 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `s_rel`         |                          | m  | 
-| `v_rel`         |                          | m/s  | 
-| `f`         |                          | N  | 
+| ------------ | ----------------------------------- | ------ |
+| `s_rel`         |                          | m  |
+| `v_rel`         |                          | m/s  |
+| `f`         |                          | N  |
 """
-@component function ConfigurableTireSpringDamper(; name = nothing, k1=Float64(200000), k3=Float64(0), d=Float64(50), s_rel0=0.2, compression_only=Float64(0), kwargs...)
+@component function ConfigurableTireSpringDamper(; name = nothing, k1=Float64(200000.0), k3=Float64(0.0), d=Float64(50.0), s_rel0=0.2, compression_only=Float64(0.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ConfigurableTireSpringDamper()
+  """))
 
-        @named model = ConfigurableTireSpringDamper()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -59,8 +62,6 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -79,6 +80,8 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
   __local__compression_only = compression_only
   append!(__params, @parameters (compression_only::Real), [description = "Compression-only flag: 0.0=symmetric, 1.0=compression-only"])
   __initial_conditions[compression_only] = __local__compression_only
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -117,7 +120,7 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
   push!(__eqs, v_rel ~ ModelingToolkit.D_nounits(s_rel))
   push!(__eqs, flange_b.f ~ f)
   push!(__eqs, flange_a.f ~ -f)
-  push!(__eqs, f ~ ifelse(compression_only > 0.5, ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + k3 * (s_rel - s_rel0) * abs(s_rel - s_rel0) ^ 2 + d * v_rel, 0), k1 * (s_rel - s_rel0) + k3 * (s_rel - s_rel0) * abs(s_rel - s_rel0) ^ 2 + d * v_rel))
+  push!(__eqs, f ~ ifelse(compression_only > 0.5, ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + k3 * (s_rel - s_rel0) * abs(s_rel - s_rel0) ^ 2 + d * v_rel, 0.0), k1 * (s_rel - s_rel0) + k3 * (s_rel - s_rel0) * abs(s_rel - s_rel0) ^ 2 + d * v_rel))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

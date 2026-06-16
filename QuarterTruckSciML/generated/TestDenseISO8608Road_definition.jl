@@ -4,6 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestDenseISO8608Road(; name)
 
@@ -11,12 +13,13 @@ Test harness for DenseISO8608Road.
 """
 @component function TestDenseISO8608Road(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestDenseISO8608Road()
+  """))
 
-        @named model = TestDenseISO8608Road()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -36,11 +39,11 @@ Test harness for DenseISO8608Road.
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -53,9 +56,8 @@ Test harness for DenseISO8608Road.
 
   ### Components
   # Subcomponent road of type QuarterTruckSciML.DenseISO8608Road
-  road_overrides = Dict(Symbol(replace(string(k), r"^road__" => "")) => v for (k, v) in __overrides if startswith(string(k), "road__"))
-  filter!(p -> !startswith(string(first(p)), "road__"), __overrides)
-  push!(__systems, @named road = QuarterTruckSciML.DenseISO8608Road(roughness=0.000016, speed=13.89, start_time=0, road_overrides...))
+  road_overrides = __pop_subcomponent_overrides!(__overrides, "road")
+  push!(__systems, @named road = QuarterTruckSciML.DenseISO8608Road(; roughness=0.000016, speed=13.89, start_time=0.0, road_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

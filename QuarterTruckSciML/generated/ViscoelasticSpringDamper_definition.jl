@@ -4,20 +4,22 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ViscoelasticSpringDamper(; name, k, d, s_rel0, n, v_reg)
 
 Viscoelastic spring-damper: linear spring with power-law damping for seat cushion modeling.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `k`         | Linear spring stiffness [N/m]                         | N/m  |   10000 |
-| `d`         | Damping coefficient [N*s^n/m^n]                         | --  |   500 |
+| `k`         | Linear spring stiffness [N/m]                         | N/m  |   10e3 |
+| `d`         | Damping coefficient [N*s^n/m^n]                         | --  |   500.0 |
 | `s_rel0`         | Unstretched length [m]                         | m  |   0.1 |
 | `n`         | Velocity exponent: 1.0=linear, 0.5=viscoelastic foam                         | --  |   0.5 |
-| `v_reg`         | Regularization velocity [m/s]                         | --  |   0.0001 |
+| `v_reg`         | Regularization velocity [m/s]                         | --  |   1e-4 |
 
 ## Connectors
 
@@ -27,19 +29,20 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `s_rel`         |                          | m  | 
-| `v_rel`         |                          | m/s  | 
-| `f`         |                          | N  | 
+| ------------ | ----------------------------------- | ------ |
+| `s_rel`         |                          | m  |
+| `v_rel`         |                          | m/s  |
+| `f`         |                          | N  |
 """
-@component function ViscoelasticSpringDamper(; name = nothing, k=Float64(10000), d=Float64(500), s_rel0=0.1, n=0.5, v_reg=0.0001, kwargs...)
+@component function ViscoelasticSpringDamper(; name = nothing, k=Float64(10000.0), d=Float64(500.0), s_rel0=0.1, n=0.5, v_reg=0.0001, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ViscoelasticSpringDamper()
+  """))
 
-        @named model = ViscoelasticSpringDamper()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -59,8 +62,6 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -79,6 +80,8 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
   __local__v_reg = v_reg
   append!(__params, @parameters (v_reg::Real), [description = "Regularization velocity [m/s]"])
   __initial_conditions[v_reg] = __local__v_reg
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -117,7 +120,7 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
   push!(__eqs, v_rel ~ ModelingToolkit.D_nounits(s_rel))
   push!(__eqs, flange_b.f ~ f)
   push!(__eqs, flange_a.f ~ -f)
-  push!(__eqs, f ~ k * (s_rel - s_rel0) + d * v_rel * (v_rel ^ 2 + v_reg ^ 2) ^ ((n - 1) / 2))
+  push!(__eqs, f ~ k * (s_rel - s_rel0) + d * v_rel * (v_rel ^ 2 + v_reg ^ 2) ^ ((n - 1.0) / 2.0))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
