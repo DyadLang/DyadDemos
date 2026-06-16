@@ -1,7 +1,9 @@
 name = "QuarterTruckSciML"
 uuid = "0ed75996-848d-42c9-a3d7-0d59662cd197"
-authors = ["Sebastian Micluța-Câmpeanu <sebastian.mc95@proton.me>"]
 version = "0.1.0"
+authors = [
+  "Sebastian Micluța-Câmpeanu <sebastian.mc95@proton.me>"
+]
 
 [deps]
 BlockComponents = "1ef5d832-be8e-447f-9f2c-8b5d17d15fd3"
@@ -17,30 +19,40 @@ Moshi = "2e0e35c7-a2e4-4343-998d-7ef72827ed2d"
 OrdinaryDiffEqDefault = "50262376-6c5a-4cf5-baba-aaf4f84d72d7"
 PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+RotationalComponents = "824fa3ed-d7dc-4365-8bdf-ac77a1ac2011"
 RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
+ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 TranslationalComponents = "42acc370-819b-4877-bdd6-eb3294461f5d"
 
 [compat]
-BlockComponents = "4"
+BlockComponents = "=4.0.9"
 DyadData = "2"
 DyadInterface = "7"
 DyadModelDiscovery = "0.5"
-DyadModelOptimizer = "15"
+DyadModelOptimizer = "=15.1.0"
 Lux = "1"
 Markdown = "1"
 ModelingToolkitNeuralNets = "2"
 Random = "1"
-TranslationalComponents = "2"
+RotationalComponents = "2.5.1"
+ThermalComponents = "2.0.5"
+TranslationalComponents = "=2.4.2"
+
+[dyad]
+kernel = "3.1.0"
 
 [extras]
-DyadEcosystemDependencies = "7bc808db-8006-421e-b546-062440d520b7"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+DyadEcosystemDependencies = "7bc808db-8006-421e-b546-062440d520b7"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["DyadEcosystemDependencies", "CSV", "DataFrames", "Plots", "Test"]
-
-[dyad]
-kernel = "3.0.0"
+test = [
+  "DyadEcosystemDependencies",
+  "CSV",
+  "DataFrames",
+  "Plots",
+  "Test"
+]

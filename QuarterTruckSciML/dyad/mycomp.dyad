@@ -1,0 +1,98 @@
+"short Mycomp component description"
+component Mycomp
+  realinput = Dyad.RealInput() {^realinput}
+  realinput1 = Dyad.RealInput() {^realinput1}
+  realinput2 = Dyad.RealInput() {^realinput2}
+  realoutput = Dyad.RealOutput() {^realoutput}
+  realinput3 = Dyad.RealInput() {^realinput3}
+  integerinput = Dyad.IntegerInput() {^integerinput}
+  booleaninput = Dyad.BooleanInput() {^booleaninput}
+  pin = Dyad.Pin() {^pin}
+relations
+metadata {
+  "Dyad": {
+    "experiments": {},
+    "tests": {},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1100,
+        "rot": 0,
+        "layer": "icon",
+        "attrs": {}
+      }
+    ],
+    "icons": {"default": "dyad://Dyad/Default.svg"},
+    "path": {},
+    "doc": {"behavior": true},
+    "deprecated": null
+  },
+  "_links": {
+    "realinput": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 660, "y1": 440, "x2": 740, "y2": 520, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "realinput1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 650, "y1": 270, "x2": 730, "y2": 350, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "realinput2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 580, "y1": 580, "x2": 660, "y2": 660, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "realoutput": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 520, "y1": 280, "x2": 600, "y2": 360, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "realinput3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 440, "y1": 460, "x2": 520, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "integerinput": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 410, "y1": 310, "x2": 490, "y2": 390, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "booleaninput": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 460, "y1": 630, "x2": 540, "y2": 710, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "pin": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 680, "y1": 620, "x2": 760, "y2": 700, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

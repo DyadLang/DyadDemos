@@ -11,25 +11,25 @@ using DyadModelOptimizer: AbstractCalibrationAnalysisSpec, CalibrationAnalysisSp
 @kwdef mutable struct QuarterTruckCalibrationAnalysisSpec <: AbstractCalibrationAnalysisSpec
   name::Symbol = :QuarterTruckCalibrationAnalysis
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
-  var"start"::Float64 = 0
-  var"stop"::Float64 = 10
+  var"start"::Float64 = 0.0
+  var"stop"::Float64 = 10.0
   var"abstol"::Float64 = 1e-8
   var"reltol"::Float64 = 1e-8
   var"saveat"::Float64 = 0.01
   var"dtmax"::Float64 = 0
-  var"data"::DyadData.DyadTimeseries = DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/calibration_measurements.csv", independent_var="timestamp", dependent_vars=["tire_F(t)", "suspension_travel(t)", "seat_a(t)"])
+  var"data"::DyadData.DyadTimeseries = DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/calibration_measurements.csv"; independent_var="timestamp", dependent_vars=["tire_F(t)", "suspension_travel(t)", "seat_a(t)"])
   var"depvars_names"::Array{String, 1} = ["model.tire_to_road.f", "model.tire_to_body.s_rel", "model.seat.a"]
   var"loss_func"::DyadModelOptimizer.LossFunc.Type = DyadModelOptimizer.LossFunc.L2Loss()
   var"search_space_names"::Array{String, 1} = ["model.body_m", "model.tire_to_body_c", "model.tire_to_body_d", "model.friction_Fc"]
-  var"search_space_lb"::Array{Float64, 1} = [270, 16000, 900, 0]
-  var"search_space_ub"::Array{Float64, 1} = [330, 24000, 2100, 1000]
+  var"search_space_lb"::Array{Float64, 1} = [270.0, 16000.0, 900.0, 0.0]
+  var"search_space_ub"::Array{Float64, 1} = [330.0, 24000.0, 2100.0, 1000.0]
   var"calibration_alg"::DyadModelOptimizer.CalibrationAlg.Type = "SingleShooting"
   var"multiple_shooting_trajectories"::Int = 0
-  var"pem_gain"::Float64 = 0
+  var"pem_gain"::Float64 = 0.0
   var"optimizer"::DyadModelOptimizer.OptimizerAlg.Type = "auto"
   var"optimizer_abstol"::Float64 = 0.0001
   var"optimizer_maxiters"::Int = 100
-  var"optimizer_maxtime"::Float64 = 0
+  var"optimizer_maxtime"::Float64 = 0.0
   var"optimizer_verbose"::Bool = false
   var"diagnostics"::DyadModelOptimizer.DiagnosticsLevel.Type = DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking()
   var"results_path"::String = ""

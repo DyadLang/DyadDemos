@@ -4,32 +4,35 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HalfSineBump(; name, amplitude, bump_duration, start_time, offset)
 
 Half-sine bump signal source.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `amplitude`         | Bump height [m]                         | m  |   0.05 |
 | `bump_duration`         | Duration of the bump [s] (= bump_length / vehicle_speed)                         | s  |   0.1 |
 | `start_time`         | Time at which the bump begins [s]                         | s  |   0.1 |
-| `offset`         | Baseline offset [m]                         | m  |   0 |
+| `offset`         | Baseline offset [m]                         | m  |   0.0 |
 
 ## Connectors
 
  * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function HalfSineBump(; name = nothing, amplitude=0.05, bump_duration=0.1, start_time=0.1, offset=Float64(0), kwargs...)
+@component function HalfSineBump(; name = nothing, amplitude=0.05, bump_duration=0.1, start_time=0.1, offset=Float64(0.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HalfSineBump()
+  """))
 
-        @named model = HalfSineBump()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -49,8 +52,6 @@ Half-sine bump signal source.
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -66,6 +67,8 @@ Half-sine bump signal source.
   __local__offset = offset
   append!(__params, @parameters (offset::Real), [description = "Baseline offset [m]", bounds = (0, Inf)])
   __initial_conditions[offset] = __local__offset
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (y(t)::Real), [output = true])
@@ -90,7 +93,7 @@ Half-sine bump signal source.
   __assertions = []
 
   ### Equations
-  push!(__eqs, y ~ offset + ifelse(t >= start_time, ifelse(t <= start_time + bump_duration, amplitude * sin(π * (t - start_time) / bump_duration), 0), 0))
+  push!(__eqs, y ~ offset + ifelse(t >= start_time, ifelse(t <= start_time + bump_duration, amplitude * sin(π * (t - start_time) / bump_duration), 0.0), 0.0))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

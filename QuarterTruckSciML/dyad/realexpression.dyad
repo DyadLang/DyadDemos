@@ -1,0 +1,35 @@
+"short RealExpression component description"
+component RealExpression
+  extends BlockComponents.Interfaces.SO
+  parameter y_equation::Real
+relations
+  y = y_equation
+metadata {
+  "Dyad": {
+    "experiments": {},
+    "tests": {},
+    "labels": [
+      {
+        "label": "$(y_equation)",
+        "x": 450,
+        "y": -200,
+        "rot": 0,
+        "layer": "icon",
+        "attrs": {"font-size": "200"}
+      },
+      {
+        "label": "$(instance)",
+        "x": 450,
+        "y": 1100,
+        "rot": 0,
+        "layer": "icon",
+        "attrs": {"font-size": "200"}
+      }
+    ],
+    "icons": {"default": "dyad://Dyad/Default.svg"},
+    "path": {},
+    "doc": {"behavior": true},
+    "deprecated": null
+  }
+}
+end

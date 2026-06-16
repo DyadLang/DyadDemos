@@ -1,0 +1,28 @@
+component Mux
+  u = [Dyad.RealInput() for i in 1:n] {^u}
+  y = RealOutputArray() {^y}
+  structural parameter n::Integer = 4
+relations
+  y = u
+metadata {
+  "Dyad": {"limit": "2"},
+  "_links": {
+    "u": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -100, "y1": 100, "x2": -20, "y2": 900, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "y": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 460, "x2": 1080, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

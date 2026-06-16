@@ -10,17 +10,13 @@ component TireWithExternalResidual
   variable s_rel::Distance
   variable v_rel::Velocity
   variable f::Force
-  parameter s_scale_tire::Distance
-  parameter f_scale_tire::Force
-  variable f_residual_scaled::Force
 relations
-  f_residual_scaled = f_residual * f_scale_tire
   s_rel = flange_b.s - flange_a.s
   v_rel = der(s_rel)
-  f = ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + d * v_rel + f_residual_scaled, 0.0)
+  f = ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + d * v_rel + f_residual, 0.0)
   flange_b.f = f
   flange_a.f = -f
-  s_rel_out = (s_rel - s_rel0) / s_scale_tire
+  s_rel_out = s_rel
 metadata {
   "Dyad": {"icons": {"default": "dyad://TranslationalComponents/SpringDamper.svg"}},
   "_links": {

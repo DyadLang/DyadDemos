@@ -15,6 +15,8 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "tests.jl"))
 end
 
 
+include("test_internals.jl")
+
 @testset "`QuarterTruckSciML`" begin
 include("ConfigurableTireSpringDamper_test.jl")
 include("CoulombFriction_test.jl")
@@ -23,10 +25,15 @@ include("DenseISO8608Road_test.jl")
 include("HalfSineBump_test.jl")
 include("ISO8608Road_test.jl")
 include("Mux3_test.jl")
+include("Mux_test.jl")
+include("Mycomp_test.jl")
 include("NeuralNetworkBlock_test.jl")
 include("PureExternalForce_test.jl")
 include("QuarterTruckConfigurable_test.jl")
+include("QuarterTruckFullNN1_test.jl")
 include("QuarterTruckFullNN_test.jl")
+include("RealExpression_test.jl")
+include("ScaledNeuralNetworkBlock_test.jl")
 include("SpringDamperWithExternalResidual_test.jl")
 include("TestDenseISO8608Road_test.jl")
 include("TestHalfSineBump_test.jl")

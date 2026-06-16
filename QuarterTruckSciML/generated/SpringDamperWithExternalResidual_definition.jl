@@ -4,19 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
-   SpringDamperWithExternalResidual(; name, k, d, s_rel0, v_seat_scale)
+   SpringDamperWithExternalResidual(; name, k, d, s_rel0)
 
 Generic linear spring-damper whose total force includes an external residual force supplied via a RealInput port (`f_residual`). No gating — the full `k*Δs + d*v + f_residual` is always transmitted. Used by `seat_to_driver` in the gray-box truck.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `k`         |                          | N/m  |   10000 |
-| `d`         |                          | N.s/m  |   500 |
+| `k`         |                          | N/m  |   10e3 |
+| `d`         |                          | N.s/m  |   500.0 |
 | `s_rel0`         |                          | m  |   0.1 |
-| `v_seat_scale`         |                          | --  |    |
 
 ## Connectors
 
@@ -28,20 +29,20 @@ Generic linear spring-damper whose total force includes an external residual for
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `s_rel`         |                          | m  | 
-| `v_rel`         |                          | m/s  | 
-| `f`         |                          | N  | 
-| `f_residual_scaled`         |                          | N  | 
+| ------------ | ----------------------------------- | ------ |
+| `s_rel`         |                          | m  |
+| `v_rel`         |                          | m/s  |
+| `f`         |                          | N  |
 """
-@component function SpringDamperWithExternalResidual(; name = nothing, k=Float64(10000), d=Float64(500), s_rel0=0.1, v_seat_scale=nothing, kwargs...)
+@component function SpringDamperWithExternalResidual(; name = nothing, k=Float64(10000.0), d=Float64(500.0), s_rel0=0.1, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SpringDamperWithExternalResidual()
+  """))
 
-        @named model = SpringDamperWithExternalResidual()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -61,8 +62,6 @@ Generic linear spring-damper whose total force includes an external residual for
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -75,9 +74,8 @@ Generic linear spring-damper whose total force includes an external residual for
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [bounds = (0, Inf)])
   __initial_conditions[s_rel0] = __local__s_rel0
-  __local__v_seat_scale = v_seat_scale
-  append!(__params, @parameters (v_seat_scale::Real))
-  __initial_conditions[v_seat_scale] = __local__v_seat_scale
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (f_residual(t)::Real), [input = true])
@@ -87,7 +85,6 @@ Generic linear spring-damper whose total force includes an external residual for
   append!(__vars, @variables (s_rel(t)::Real))
   append!(__vars, @variables (v_rel(t)::Real))
   append!(__vars, @variables (f(t)::Real))
-  append!(__vars, @variables (f_residual_scaled(t)::Real))
 
   ### Variables (assignments)
   __ovr_s_rel = pop!(__overrides, "s_rel", nothing); isnothing(__ovr_s_rel) || push!(__eqs, s_rel ~ __ovr_s_rel)
@@ -96,9 +93,6 @@ Generic linear spring-damper whose total force includes an external residual for
   __ovr_v_rel__initial = pop!(__overrides, "v_rel__initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
   __ovr_f = pop!(__overrides, "f", nothing); isnothing(__ovr_f) || push!(__eqs, f ~ __ovr_f)
   __ovr_f__initial = pop!(__overrides, "f__initial", nothing); isnothing(__ovr_f__initial) || (__initial_conditions[f] = __ovr_f__initial)
-  __ovr_f_residual_scaled = pop!(__overrides, "f_residual_scaled", nothing); __eq_f_residual_scaled = @something(__ovr_f_residual_scaled, d * v_rel * f_residual)
-  ismissing(__eq_f_residual_scaled) || push!(__eqs, f_residual_scaled ~ __eq_f_residual_scaled)
-  __ovr_f_residual_scaled__initial = pop!(__overrides, "f_residual_scaled__initial", nothing); isnothing(__ovr_f_residual_scaled__initial) || (__initial_conditions[f_residual_scaled] = __ovr_f_residual_scaled__initial)
 
   ### Constants
   __constants = Any[]
@@ -120,10 +114,10 @@ Generic linear spring-damper whose total force includes an external residual for
   ### Equations
   push!(__eqs, s_rel ~ flange_b.s - flange_a.s)
   push!(__eqs, v_rel ~ ModelingToolkit.D_nounits(s_rel))
-  push!(__eqs, f ~ k * (s_rel - s_rel0) + d * v_rel + f_residual_scaled)
+  push!(__eqs, f ~ k * (s_rel - s_rel0) + d * v_rel + f_residual)
   push!(__eqs, flange_b.f ~ f)
   push!(__eqs, flange_a.f ~ -f)
-  push!(__eqs, v_rel_out ~ v_rel / v_seat_scale)
+  push!(__eqs, v_rel_out ~ v_rel)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

@@ -1,0 +1,4 @@
+connector RealOutputArray
+  #structural parameter N::Integer;
+  output y::Real[3];
+end

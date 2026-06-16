@@ -4,6 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestHalfSineBump(; name)
 
@@ -11,12 +13,13 @@ Test harness for HalfSineBump signal in isolation.
 """
 @component function TestHalfSineBump(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestHalfSineBump()
+  """))
 
-        @named model = TestHalfSineBump()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -36,11 +39,11 @@ Test harness for HalfSineBump signal in isolation.
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -53,8 +56,7 @@ Test harness for HalfSineBump signal in isolation.
 
   ### Components
   # Subcomponent bump of type QuarterTruckSciML.HalfSineBump
-  bump_overrides = Dict(Symbol(replace(string(k), r"^bump__" => "")) => v for (k, v) in __overrides if startswith(string(k), "bump__"))
-  filter!(p -> !startswith(string(first(p)), "bump__"), __overrides)
+  bump_overrides = __pop_subcomponent_overrides!(__overrides, "bump")
   push!(__systems, @named bump = QuarterTruckSciML.HalfSineBump(amplitude=0.05, bump_duration=0.1, start_time=0.1, bump_overrides...))
 
   ### Check there are no unmatched overrides

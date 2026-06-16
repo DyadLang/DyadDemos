@@ -4,17 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
-   PureExternalForce(; name, v_friction_scale, f_scale_friction)
+   PureExternalForce(; name)
 
 Force element that transmits an externally supplied force (via `f_external` RealInput) between its flanges, with no internal dynamics. Used to inject the NN-learned friction force between tire and body masses.
-
-## Parameters: 
-
-| Name         | Description                         | Units  |   Default value |
-| ------------ | ----------------------------------- | ------ | --------------- |
-| `v_friction_scale`         |                          | --  |    |
-| `f_scale_friction`         |                          | --  |    |
 
 ## Connectors
 
@@ -26,19 +21,19 @@ Force element that transmits an externally supplied force (via `f_external` Real
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `s_rel`         |                          | m  | 
-| `v_rel`         |                          | m/s  | 
-| `f_external_scaled`         |                          | N  | 
+| ------------ | ----------------------------------- | ------ |
+| `s_rel`         |                          | m  |
+| `v_rel`         |                          | m/s  |
 """
-@component function PureExternalForce(; name = nothing, v_friction_scale=nothing, f_scale_friction=nothing, kwargs...)
+@component function PureExternalForce(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = PureExternalForce()
+  """))
 
-        @named model = PureExternalForce()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,17 +53,11 @@ Force element that transmits an externally supplied force (via `f_external` Real
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  __local__v_friction_scale = v_friction_scale
-  append!(__params, @parameters (v_friction_scale::Real))
-  __initial_conditions[v_friction_scale] = __local__v_friction_scale
-  __local__f_scale_friction = f_scale_friction
-  append!(__params, @parameters (f_scale_friction::Real))
-  __initial_conditions[f_scale_friction] = __local__f_scale_friction
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (f_external(t)::Real), [input = true])
@@ -77,16 +66,12 @@ Force element that transmits an externally supplied force (via `f_external` Real
   ### Variables (declarations)
   append!(__vars, @variables (s_rel(t)::Real))
   append!(__vars, @variables (v_rel(t)::Real))
-  append!(__vars, @variables (f_external_scaled(t)::Real))
 
   ### Variables (assignments)
   __ovr_s_rel = pop!(__overrides, "s_rel", nothing); isnothing(__ovr_s_rel) || push!(__eqs, s_rel ~ __ovr_s_rel)
   __ovr_s_rel__initial = pop!(__overrides, "s_rel__initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
   __ovr_v_rel = pop!(__overrides, "v_rel", nothing); isnothing(__ovr_v_rel) || push!(__eqs, v_rel ~ __ovr_v_rel)
   __ovr_v_rel__initial = pop!(__overrides, "v_rel__initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
-  __ovr_f_external_scaled = pop!(__overrides, "f_external_scaled", nothing); __eq_f_external_scaled = @something(__ovr_f_external_scaled, f_external * f_scale_friction)
-  ismissing(__eq_f_external_scaled) || push!(__eqs, f_external_scaled ~ __eq_f_external_scaled)
-  __ovr_f_external_scaled__initial = pop!(__overrides, "f_external_scaled__initial", nothing); isnothing(__ovr_f_external_scaled__initial) || (__initial_conditions[f_external_scaled] = __ovr_f_external_scaled__initial)
 
   ### Constants
   __constants = Any[]
@@ -108,9 +93,9 @@ Force element that transmits an externally supplied force (via `f_external` Real
   ### Equations
   push!(__eqs, s_rel ~ flange_b.s - flange_a.s)
   push!(__eqs, v_rel ~ ModelingToolkit.D_nounits(s_rel))
-  push!(__eqs, flange_b.f ~ f_external_scaled)
-  push!(__eqs, flange_a.f ~ -f_external_scaled)
-  push!(__eqs, v_rel_out ~ v_rel / v_friction_scale)
+  push!(__eqs, flange_b.f ~ f_external)
+  push!(__eqs, flange_a.f ~ -f_external)
+  push!(__eqs, v_rel_out ~ v_rel)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

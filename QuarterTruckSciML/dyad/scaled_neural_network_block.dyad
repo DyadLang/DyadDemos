@@ -1,0 +1,308 @@
+# Scaled neural-network block for the gray-box quarter truck.
+#
+# Wraps a single DyadModelDiscovery.NeuralNetworkBlock (3 in -> 3 out) together
+# with all of the input normalization and output force-scaling, expressed with
+# visible BlockComponents math blocks (Gain / Add / Product / Constant) so the
+# scaling is part of the component diagram rather than hidden inside equations.
+#
+#   Inputs  (raw physics):
+#     in_tire     - tire deflection s_rel [m]
+#     in_friction - tire-body relative velocity [m/s]
+#     in_seat     - seat-driver relative velocity [m/s]
+#
+#   NN input normalization:
+#     u1 = (in_tire - s_rel0_tire) / s_scale_tire
+#     u2 = in_friction / v_friction_scale
+#     u3 = in_seat / v_seat_scale
+#
+#   Outputs (forces, from NN outputs):
+#     out_tire     = f_scale_tire     * nn_out1
+#     out_friction = f_scale_friction * nn_out2
+#     out_seat     = d_seat * in_seat * nn_out3   (physics-informed d*v factorization)
+#
+#   The seat output reuses the normalized seat signal: d_seat*v_seat_scale*(v/v_seat_scale)*nn3
+#   = d_seat*v*nn3, so the d*v prefactor that forces the damping residual to vanish at v=0 is
+#   reconstructed without an extra port.
+"Wrapper around a NeuralNetworkBlock (3 in -> 3 out) that applies the gray-box truck input normalization and output force-scaling using visible BlockComponents math blocks. Inputs are raw physics signals (tire deflection, tire-body velocity, seat-driver velocity); outputs are the tire residual force, friction force, and seat damping residual force in Newtons."
+component ScaledNeuralNetworkBlock
+  "Raw tire deflection s_rel [m]"
+  in_tire = Dyad.RealInput() {^in_tire}
+  "Raw tire-body relative velocity [m/s]"
+  in_friction = Dyad.RealInput() {^in_friction}
+  "Raw seat-driver relative velocity [m/s]"
+  in_seat = Dyad.RealInput() {^in_seat}
+  "Tire residual force [N]"
+  out_tire = Dyad.RealOutput() {^out_tire}
+  "Friction force [N]"
+  out_friction = Dyad.RealOutput() {^out_friction}
+  "Seat damping residual force [N]"
+  out_seat = Dyad.RealOutput() {^out_seat}
+  # --- Neural network and signal (de)multiplexing ---
+  nn = DyadModelDiscovery.NeuralNetworkBlock(n_input = n_input, n_output = n_output, chain = chain) {^nn}
+  mux = QuarterTruckSciML.Mux3() {^mux}
+  demux = QuarterTruckSciML.Demux3() {^demux}
+  # --- Input normalization blocks ---
+  s_rel0_src = BlockComponents.Sources.Constant(k = s_rel0_tire) {^s_rel0_src}
+  norm_tire = BlockComponents.Math.Add(k1 = 1.0 / s_scale_tire, k2 = -1.0 / s_scale_tire) {^norm_tire}
+  norm_friction = BlockComponents.Math.Gain(k = 1.0 / v_friction_scale) {^norm_friction}
+  norm_seat = BlockComponents.Math.Gain(k = 1.0 / v_seat_scale) {^norm_seat}
+  # --- Output scaling blocks ---
+  scale_tire = BlockComponents.Math.Gain(k = f_scale_tire) {^scale_tire}
+  scale_friction = BlockComponents.Math.Gain(k = f_scale_friction) {^scale_friction}
+  seat_prod = BlockComponents.Math.Product() {^seat_prod}
+  scale_seat = BlockComponents.Math.Gain(k = d_seat * v_seat_scale) {^scale_seat}
+  # --- Scaling parameters (dimensionless: signals are plain Real) ---
+  "Tire unstretched length [m]"
+  parameter s_rel0_tire::Real = 0.2
+  "Tire deflection normalization [m]"
+  parameter s_scale_tire::Real = 0.05
+  "Friction velocity normalization [m/s]"
+  parameter v_friction_scale::Real = 0.1
+  "Seat-driver velocity normalization [m/s]"
+  parameter v_seat_scale::Real = 0.2
+  "Force scale for tire NN output [N]"
+  parameter f_scale_tire::Real = 1000.0
+  "Force scale for friction NN output [N]"
+  parameter f_scale_friction::Real = 500.0
+  "Seat-driver damping coefficient [N*s/m] (d*v prefactor)"
+  parameter d_seat::Real = 500.0
+  # --- NN structural parameters ---
+  structural parameter n_input::Integer = 3
+  structural parameter n_output::Integer = 3
+  structural parameter nn_depth::Integer = 1
+  structural parameter nn_width::Integer = 5
+  structural parameter chain::Native = DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output, depth = nn_depth, width = nn_width, activation = Lux.tanh)
+relations
+  # Input normalization -> mux -> NN
+  connect(in_tire, norm_tire.u1) {^id18}
+  connect(s_rel0_src.y, norm_tire.u2) {^id19}
+  connect(norm_tire.y, mux.u1) {^id20}
+  connect(in_friction, norm_friction.u) {^id21}
+  connect(norm_friction.y, mux.u2) {^id22}
+  connect(in_seat, norm_seat.u) {^id23}
+  connect(mux.y, nn.inputs) {^id24}
+  connect(nn.outputs, demux.u) {^id25}
+  # Output scaling
+  connect(demux.y1, scale_tire.u) {^id26}
+  connect(scale_tire.y, out_tire) {^id27}
+  connect(demux.y2, scale_friction.u) {^id28}
+  connect(scale_friction.y, out_friction) {^id29}
+  connect(norm_seat.y, seat_prod.u1, mux.u3) {^id30}
+  connect(demux.y3, seat_prod.u2) {^id31}
+  connect(seat_prod.y, scale_seat.u) {^id32}
+  connect(scale_seat.y, out_seat) {^id33}
+metadata {
+  "Dyad": {"icons": {"default": "dyad://DyadModelDiscovery/nn_icon.svg"}},
+  "_links": {
+    "in_tire": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "input", "x1": -80, "y1": 210, "x2": 0, "y2": 290, "rot": 0},
+          "diagram": {"iconName": "input", "x1": -80, "y1": 210, "x2": 0, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "in_friction": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "input", "x1": -80, "y1": 460, "x2": 0, "y2": 540, "rot": 0},
+          "diagram": {"iconName": "input", "x1": -80, "y1": 460, "x2": 0, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "in_seat": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "input", "x1": -80, "y1": 710, "x2": 0, "y2": 790, "rot": 0},
+          "diagram": {"iconName": "input", "x1": -80, "y1": 710, "x2": 0, "y2": 790, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "out_tire": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "output", "x1": 1000, "y1": 210, "x2": 1080, "y2": 290, "rot": 0},
+          "diagram": {"iconName": "output", "x1": 1000, "y1": 210, "x2": 1080, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "out_friction": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "output", "x1": 1000, "y1": 460, "x2": 1080, "y2": 540, "rot": 0},
+          "diagram": {"iconName": "output", "x1": 1000, "y1": 460, "x2": 1080, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "out_seat": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "output", "x1": 1000, "y1": 710, "x2": 1080, "y2": 790, "rot": 0},
+          "diagram": {"iconName": "output", "x1": 1000, "y1": 710, "x2": 1080, "y2": 790, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "nn": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 460, "y1": 450, "x2": 560, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "mux": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 320, "y1": 450, "x2": 420, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "demux": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 590, "y1": 450, "x2": 690, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "s_rel0_src": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 30, "y1": 50, "x2": 130, "y2": 150, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "norm_tire": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 170, "y1": 270, "x2": 270, "y2": 170, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "norm_friction": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 80, "y1": 450, "x2": 180, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "norm_seat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 140, "y1": 820, "x2": 240, "y2": 920, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "scale_tire": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 820, "y1": 200, "x2": 920, "y2": 300, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "scale_friction": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 820, "y1": 450, "x2": 920, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "seat_prod": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 630, "y1": 890, "x2": 730, "y2": 790, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "scale_seat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 800, "y1": 790, "x2": 900, "y2": 890, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id18": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id19": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 150, "y": 100}, {"x": 150, "y": 190}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id20": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 290, "y": 220}, {"x": 290, "y": 474}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id21": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id22": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id23": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 70, "y": 750}, {"x": 70, "y": 870}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id24": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id25": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id26": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 710, "y": 473}, {"x": 710, "y": 250}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id27": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id28": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id29": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id30": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": 3, "M": [{"x": 290, "y": 527}], "E": -1}
+        ],
+        "junctions": [{"x": 290, "y": 870}],
+        "renderStyle": "standard"
+      }
+    },
+    "id31": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 720, "y": 528},
+              {"x": 720, "y": 620},
+              {"x": 560, "y": 620},
+              {"x": 560, "y": 810}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id32": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id33": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 970, "y": 840}, {"x": 970, "y": 750}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end

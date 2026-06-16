@@ -1,0 +1,26 @@
+"short QuarterTruckFullNN1Analysis analysis description"
+analysis QuarterTruckFullNN1Analysis
+  extends Dyad.TransientAnalysis(stop = 10)
+  model = QuarterTruckSciML.QuarterTruckFullNN1()
+relations
+metadata {
+  "Dyad": {
+    "experiments": {},
+    "tests": {},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1100,
+        "rot": 0,
+        "layer": "icon",
+        "attrs": {}
+      }
+    ],
+    "icons": {"default": "dyad://Dyad/Default.svg"},
+    "path": {},
+    "doc": {"behavior": true},
+    "deprecated": null
+  }
+}
+end

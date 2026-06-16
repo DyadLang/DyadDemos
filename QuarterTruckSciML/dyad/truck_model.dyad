@@ -85,7 +85,7 @@ component QuarterTruckConfigurable
   body_to_seat = TranslationalComponents.Components.SpringDamper(c = 15e3, d = 800.0, s_rel0 = 0.2)
   seat_to_driver = ViscoelasticSpringDamper(final k = seat_driver_k, final d = seat_driver_d, s_rel0 = 0.1, final n = seat_driver_n)
   friction_tb = CoulombFriction(final F_c = friction_Fc, final v0 = friction_v0)
-  road = TranslationalComponents.Sources.Position(f_crit = 100.0)
+  road = TranslationalComponents.Sources.Position(ref_type=TranslationalComponents.Sources.ReferenceType.Filtered(f_crit = 100.0))
   "Body (sprung) mass [kg]"
   parameter body_m::Mass = 300.0
   "Tire-to-body suspension spring constant [N/m]"

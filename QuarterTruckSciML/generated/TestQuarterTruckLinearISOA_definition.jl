@@ -4,12 +4,14 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestQuarterTruckLinearISOA(; name, speed)
 
 Linear-baseline quarter truck (all three nonlinearities disabled — tire_k3=0, friction_Fc=0, seat_driver_n=1.0) driven by ISO 8608 Class A road excitation. This is the 'before' model in the demo.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -17,12 +19,13 @@ Linear-baseline quarter truck (all three nonlinearities disabled — tire_k3=0, 
 """
 @component function TestQuarterTruckLinearISOA(; name = nothing, speed=13.89, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestQuarterTruckLinearISOA()
+  """))
 
-        @named model = TestQuarterTruckLinearISOA()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -42,14 +45,14 @@ Linear-baseline quarter truck (all three nonlinearities disabled — tire_k3=0, 
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
   __local__speed = speed
   append!(__params, @parameters (speed::Real))
   __initial_conditions[speed] = __local__speed
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -62,13 +65,11 @@ Linear-baseline quarter truck (all three nonlinearities disabled — tire_k3=0, 
 
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckConfigurable
-  model_overrides = Dict(Symbol(replace(string(k), r"^model__" => "")) => v for (k, v) in __overrides if startswith(string(k), "model__"))
-  filter!(p -> !startswith(string(first(p)), "model__"), __overrides)
+  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
   push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(model_overrides...))
   # Subcomponent iso_road of type QuarterTruckSciML.DenseISO8608Road
-  iso_road_overrides = Dict(Symbol(replace(string(k), r"^iso_road__" => "")) => v for (k, v) in __overrides if startswith(string(k), "iso_road__"))
-  filter!(p -> !startswith(string(first(p)), "iso_road__"), __overrides)
-  push!(__systems, @named iso_road = QuarterTruckSciML.DenseISO8608Road(roughness=0.000001, speed=speed, start_time=0, iso_road_overrides...))
+  iso_road_overrides = __pop_subcomponent_overrides!(__overrides, "iso_road")
+  push!(__systems, @named iso_road = QuarterTruckSciML.DenseISO8608Road(roughness=0.000001, speed=speed, start_time=0.0, iso_road_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

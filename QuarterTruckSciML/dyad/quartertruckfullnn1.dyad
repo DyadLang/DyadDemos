@@ -1,0 +1,290 @@
+# Full 3-nonlinearity gray-box quarter truck.
+#
+# A single neural network recovers three distinct suspension nonlinearities
+# simultaneously from sin-input training data:
+#   1. Tire cubic stiffness with compression-only lift-off
+#   2. Tire-body Coulomb friction
+#   3. Seat-driver viscoelastic damping (power-law)
+#
+# Validation: held-out ISO 8608 Class A road, compared against linear baseline
+# and nonlinear ground truth.
+"Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning THREE suspension nonlinearities: tire cubic residual (compression-only gated), tire-body Coulomb friction, and seat-driver viscoelastic damping residual. Physics inputs: normalized tire deflection, normalized tire-body relative velocity, normalized seat-driver relative velocity. Outputs (each × its own f_scale): tire residual force [N], friction force [N], seat damping residual force [N]."
+component QuarterTruckFullNN1
+  sin_signal = BlockComponents.Sources.Sine(amplitude = amplitude, frequency = frequency, start_time = 0.1) {^sin_signal}
+  # Masses (identical to QuarterTruckConfigurable)
+  tire = TranslationalComponents.Components.Mass(m = 40.0, L = 0.0, g = 9.81, theta = 1.5708) {^tire}
+  body = TranslationalComponents.Components.Mass(m = 300.0, L = 0.0, g = 9.81, theta = 1.5708) {^body}
+  seat = TranslationalComponents.Components.Mass(m = 15.0, L = 0.0, g = 9.81, theta = 1.5708) {^seat}
+  driver = TranslationalComponents.Components.Mass(m = 75.0, L = 0.0, g = 9.81, theta = 1.5708) {^driver}
+  # Gray-box spring-damper elements (each carries the known linear physics;
+  # the NN-learned nonlinear residual is injected via the RealInput port).
+  tire_to_road = QuarterTruckSciML.TireWithExternalResidual(k1 = 200e3, d = 50.0, final s_rel0 = s_rel0_tire) {^tire_to_road}
+  tire_to_body = TranslationalComponents.Components.SpringDamper(c = 20e3, d = 1500.0, s_rel0 = 1.0) {^tire_to_body}
+  friction_tb = QuarterTruckSciML.PureExternalForce() {^friction_tb}
+  body_to_seat = TranslationalComponents.Components.SpringDamper(c = 15e3, d = 800.0, s_rel0 = 0.2) {^body_to_seat}
+  seat_to_driver = QuarterTruckSciML.SpringDamperWithExternalResidual(k = 10e3, d = 500.0, final s_rel0 = s_rel0_seat) {^seat_to_driver}
+  road = TranslationalComponents.Sources.Position(ref_type=TranslationalComponents.Sources.ReferenceType.Filtered(f_crit = 100.0))
+  nn = DyadModelDiscovery.NeuralNetworkBlock(n_input = n_input, n_output = n_output, chain = chain) {^nn}
+  demux = QuarterTruckSciML.Demux3() {^demux}
+  mux = QuarterTruckSciML.Mux3() {^mux}
+  parameter amplitude::Distance = 0.03
+  parameter frequency::Frequency = 2.0
+  structural parameter n_input::Integer = 3
+  structural parameter n_output::Integer = 3
+  structural parameter nn_depth::Integer = 1
+  structural parameter nn_width::Integer = 5
+  structural parameter chain::Native = DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output, depth = nn_depth, width = nn_width, activation = Lux.tanh)
+  "Tire unstretched length [m]"
+  parameter s_rel0_tire::Dyad.Distance = 0.2
+  "Seat-driver unstretched length [m]"
+  parameter s_rel0_seat::Dyad.Distance = 0.1
+  "Tire deflection normalization [m]"
+  parameter s_scale_tire::Dyad.Distance = 0.05
+  "Friction velocity normalization [m/s]"
+  parameter v_friction_scale::Dyad.Velocity = 0.1
+  "Seat-driver velocity normalization [m/s]"
+  parameter v_seat_scale::Dyad.Velocity = 0.2
+  "Force scale for tire NN output [N]"
+  parameter f_scale_tire::Dyad.Force = 1000.0
+  "Force scale for friction NN output [N] (matches true F_c magnitude)"
+  parameter f_scale_friction::Dyad.Force = 500.0
+relations
+  connect(road.flange, tire_to_road.flange_a) {^id15}
+  connect(tire_to_road.flange_b, tire.flange_a) {^id16}
+  connect(tire.flange_b, tire_to_body.flange_a) {^id17}
+  connect(tire.flange_b, friction_tb.flange_a) {^id18}
+  connect(friction_tb.flange_b, body.flange_a) {^id19}
+  connect(body.flange_b, body_to_seat.flange_a) {^id20}
+  connect(body_to_seat.flange_b, seat.flange_a) {^id21}
+  connect(seat.flange_b, seat_to_driver.flange_a) {^id22}
+  connect(seat_to_driver.flange_b, driver.flange_a) {^id23}
+  # NN outputs wired to gray-box force-injection ports.
+  # Tire:     direct NN residual scaled to Newtons (compression-only gate is
+  #           applied INSIDE TireWithExternalResidual).
+  # Friction: direct NN output scaled to the expected F_c magnitude.
+  # Seat:     physics-informed factorization. The viscoelastic damping residual
+  #           is d·v·[(v²+v_reg²)^((n−1)/2) − 1] — a function with a cusp-like
+  #           infinite slope at v=0 which a smooth tanh NN cannot resolve.
+  #           Factoring out `d·v` transforms the NN's learning target into the
+  #           smooth, bounded bracket modifier, and the `v` prefactor enforces
+  #           the kinematic constraint that damping force vanishes at v=0.
+  initial tire.s = 0.178908
+  initial tire.v = 0.0
+  initial body.s = 0.987613
+  initial body.v = 0.0
+  initial seat.s = 1.128754
+  initial seat.v = 0.0
+  initial driver.s = 1.128754 + 0.1 - 75.0 * 9.81 / 10e3
+  initial driver.v = 0.0
+  connect(tire_to_body.flange_b, body.flange_a) {^id24}
+  connect(mux.y, nn.inputs) {^id25}
+  connect(nn.outputs, demux.u) {^id26}
+  connect(tire_to_road.s_rel_out, mux.u1) {^id27}
+  connect(friction_tb.v_rel_out, mux.u2) {^id28}
+  connect(seat_to_driver.v_rel_out, mux.u3) {^id29}
+  connect(demux.y1, tire_to_road.f_residual) {^id30}
+  connect(demux.y2, friction_tb.f_external) {^id31}
+  connect(demux.y3, seat_to_driver.f_residual) {^id32}
+metadata {
+  "_links": {
+    "sin_signal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 1180, "y1": -50, "x2": 1280, "y2": 50, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tire": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 110, "y1": 450, "x2": 210, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 450, "x2": 550, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "seat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 780, "y1": 450, "x2": 880, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 1090, "y1": 450, "x2": 1190, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tire_to_road": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 450, "x2": 60, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tire_to_body": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 280, "y1": 610, "x2": 380, "y2": 710, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "friction_tb": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 280, "y1": 450, "x2": 380, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body_to_seat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 610, "y1": 450, "x2": 710, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "seat_to_driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 930, "y1": 450, "x2": 1030, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "road": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -200, "y1": 450, "x2": -100, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "nn": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 410, "y1": 20, "x2": 590, "y2": 200, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "demux": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 650, "y1": 220, "x2": 710, "y2": 160, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "mux": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 270, "y1": 160, "x2": 330, "y2": 220, "rot": 270}
+        },
+        "tags": []
+      }
+    },
+    "id15": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id16": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id17": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 240, "y": 500}, {"x": 240, "y": 660}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id18": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id19": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id20": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id21": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id22": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id23": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id24": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 420, "y": 660}, {"x": 420, "y": 500}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id25": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 300, "y": 110}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id26": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 680, "y": 110}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id27": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 35, "y": 290}, {"x": 284.40000000000003, "y": 290}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id28": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 356, "y": 290}, {"x": 300, "y": 290}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id29": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 1005, "y": 280}, {"x": 316.2, "y": 280}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id30": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 663.8000000000001, "y": 380}, {"x": -18, "y": 380}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id31": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 680, "y": 400}, {"x": 304, "y": 400}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id32": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 696.8000000000001, "y": 400}, {"x": 955, "y": 400}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end

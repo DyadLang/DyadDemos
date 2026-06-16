@@ -4,12 +4,14 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    QuarterTruckFullNN(; name, n_input, n_output, nn_depth, nn_width, chain, s_rel0_tire, s_rel0_seat, s_scale_tire, v_friction_scale, v_seat_scale, f_scale_tire, f_scale_friction)
 
 Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning THREE suspension nonlinearities: tire cubic residual (compression-only gated), tire-body Coulomb friction, and seat-driver viscoelastic damping residual. Physics inputs: normalized tire deflection, normalized tire-body relative velocity, normalized seat-driver relative velocity. Outputs (each × its own f_scale): tire residual force [N], friction force [N], seat damping residual force [N].
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -17,23 +19,28 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
 | `n_output`         |                          | --  |   3 |
 | `nn_depth`         |                          | --  |   1 |
 | `nn_width`         |                          | --  |   5 |
-| `chain`         |                          | --  |   DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output, depth=nn_depth, width=nn_width, activation=Lux.tanh) |
+| `chain`         |                          | --  |   DyadModelDi...n=Lux.tanh) |
 | `s_rel0_tire`         | Tire unstretched length [m]                         | m  |   0.2 |
 | `s_rel0_seat`         | Seat-driver unstretched length [m]                         | m  |   0.1 |
 | `s_scale_tire`         | Tire deflection normalization [m]                         | m  |   0.05 |
 | `v_friction_scale`         | Friction velocity normalization [m/s]                         | m/s  |   0.1 |
 | `v_seat_scale`         | Seat-driver velocity normalization [m/s]                         | m/s  |   0.2 |
-| `f_scale_tire`         | Force scale for tire NN output [N]                         | N  |   1000 |
-| `f_scale_friction`         | Force scale for friction NN output [N] (matches true F_c magnitude)                         | N  |   500 |
-"""
-@component function QuarterTruckFullNN(; name = nothing, n_input=3, n_output=3, nn_depth=1, nn_width=5, chain=DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output, depth=nn_depth, width=nn_width, activation=Lux.tanh), s_rel0_tire=0.2, s_rel0_seat=0.1, s_scale_tire=0.05, v_friction_scale=0.1, v_seat_scale=0.2, f_scale_tire=Float64(1000), f_scale_friction=Float64(500), kwargs...)
-  isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+| `f_scale_tire`         | Force scale for tire NN output [N]                         | N  |   1000.0 |
+| `f_scale_friction`         | Force scale for friction NN output [N] (matches true F_c magnitude)                         | N  |   500.0 |
 
-        @named model = QuarterTruckFullNN()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+## Connectors
+
+ * `s_rel` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
+"""
+@component function QuarterTruckFullNN(; name = nothing, n_input=3, n_output=3, nn_depth=1, nn_width=5, s_rel0_tire=0.2, s_rel0_seat=0.1, s_scale_tire=0.05, v_friction_scale=0.1, v_seat_scale=0.2, f_scale_tire=Float64(1000.0), f_scale_friction=Float64(500.0), chain=DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output; depth=nn_depth, width=nn_width, activation=Lux.tanh), kwargs...)
+  isnothing(name) && throw(ArgumentError("""
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = QuarterTruckFullNN()
+  """))
+
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -52,8 +59,6 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -80,7 +85,10 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   append!(__params, @parameters (f_scale_friction::Real), [description = "Force scale for friction NN output [N] (matches true F_c magnitude)"])
   __initial_conditions[f_scale_friction] = __local__f_scale_friction
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
+  append!(__vars, @variables (s_rel(t)::Real), [input = true])
 
   ### Variables (declarations)
 
@@ -91,50 +99,38 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
 
   ### Components
   # Subcomponent tire of type TranslationalComponents.Components.Mass
-  tire_overrides = Dict(Symbol(replace(string(k), r"^tire__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tire__"))
-  filter!(p -> !startswith(string(first(p)), "tire__"), __overrides)
-  push!(__systems, @named tire = TranslationalComponents.Components.Mass(m=40, L=0, g=9.81, theta=1.5708, tire_overrides...))
+  tire_overrides = __pop_subcomponent_overrides!(__overrides, "tire")
+  push!(__systems, @named tire = TranslationalComponents.Components.Mass(m=40.0, L=0.0, g=9.81, theta=1.5708, tire_overrides...))
   # Subcomponent body of type TranslationalComponents.Components.Mass
-  body_overrides = Dict(Symbol(replace(string(k), r"^body__" => "")) => v for (k, v) in __overrides if startswith(string(k), "body__"))
-  filter!(p -> !startswith(string(first(p)), "body__"), __overrides)
-  push!(__systems, @named body = TranslationalComponents.Components.Mass(m=300, L=0, g=9.81, theta=1.5708, body_overrides...))
+  body_overrides = __pop_subcomponent_overrides!(__overrides, "body")
+  push!(__systems, @named body = TranslationalComponents.Components.Mass(m=300.0, L=0.0, g=9.81, theta=1.5708, body_overrides...))
   # Subcomponent seat of type TranslationalComponents.Components.Mass
-  seat_overrides = Dict(Symbol(replace(string(k), r"^seat__" => "")) => v for (k, v) in __overrides if startswith(string(k), "seat__"))
-  filter!(p -> !startswith(string(first(p)), "seat__"), __overrides)
-  push!(__systems, @named seat = TranslationalComponents.Components.Mass(m=15, L=0, g=9.81, theta=1.5708, seat_overrides...))
+  seat_overrides = __pop_subcomponent_overrides!(__overrides, "seat")
+  push!(__systems, @named seat = TranslationalComponents.Components.Mass(m=15.0, L=0.0, g=9.81, theta=1.5708, seat_overrides...))
   # Subcomponent driver of type TranslationalComponents.Components.Mass
-  driver_overrides = Dict(Symbol(replace(string(k), r"^driver__" => "")) => v for (k, v) in __overrides if startswith(string(k), "driver__"))
-  filter!(p -> !startswith(string(first(p)), "driver__"), __overrides)
-  push!(__systems, @named driver = TranslationalComponents.Components.Mass(m=75, L=0, g=9.81, theta=1.5708, driver_overrides...))
+  driver_overrides = __pop_subcomponent_overrides!(__overrides, "driver")
+  push!(__systems, @named driver = TranslationalComponents.Components.Mass(m=75.0, L=0.0, g=9.81, theta=1.5708, driver_overrides...))
   # Subcomponent tire_to_road of type QuarterTruckSciML.TireWithExternalResidual
-  tire_to_road_overrides = Dict(Symbol(replace(string(k), r"^tire_to_road__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tire_to_road__"))
-  filter!(p -> !startswith(string(first(p)), "tire_to_road__"), __overrides)
-  push!(__systems, @named tire_to_road = QuarterTruckSciML.TireWithExternalResidual(k1=200000, d=50, f_scale_tire=f_scale_tire, tire_to_road_overrides...))
+  tire_to_road_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_road")
+  push!(__systems, @named tire_to_road = QuarterTruckSciML.TireWithExternalResidual(k1=200000.0, d=50.0, tire_to_road_overrides...))
   __bindings[tire_to_road.s_rel0] = s_rel0_tire
-  __bindings[tire_to_road.s_scale_tire] = s_scale_tire
   # Now remove initial conditions in tire_to_road that correspond to the bindings just added
   __tire_to_road_ics = ModelingToolkit.get_initial_conditions(tire_to_road)
   __no_namespace_tire_to_road = ModelingToolkit.toggle_namespacing(tire_to_road, false)
   __tire_to_road_s_rel0 = Symbolics.unwrap(__no_namespace_tire_to_road.s_rel0)::Symbolics.SymbolicT
   delete!(__tire_to_road_ics, __tire_to_road_s_rel0)
-  __tire_to_road_s_scale_tire = Symbolics.unwrap(__no_namespace_tire_to_road.s_scale_tire)::Symbolics.SymbolicT
-  delete!(__tire_to_road_ics, __tire_to_road_s_scale_tire)
   # Subcomponent tire_to_body of type TranslationalComponents.Components.SpringDamper
-  tire_to_body_overrides = Dict(Symbol(replace(string(k), r"^tire_to_body__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tire_to_body__"))
-  filter!(p -> !startswith(string(first(p)), "tire_to_body__"), __overrides)
-  push!(__systems, @named tire_to_body = TranslationalComponents.Components.SpringDamper(c=20000, d=1500, s_rel0=1, tire_to_body_overrides...))
+  tire_to_body_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_body")
+  push!(__systems, @named tire_to_body = TranslationalComponents.Components.SpringDamper(c=20000.0, d=1500.0, s_rel0=1.0, tire_to_body_overrides...))
   # Subcomponent friction_tb of type QuarterTruckSciML.PureExternalForce
-  friction_tb_overrides = Dict(Symbol(replace(string(k), r"^friction_tb__" => "")) => v for (k, v) in __overrides if startswith(string(k), "friction_tb__"))
-  filter!(p -> !startswith(string(first(p)), "friction_tb__"), __overrides)
-  push!(__systems, @named friction_tb = QuarterTruckSciML.PureExternalForce(v_friction_scale=v_friction_scale, f_scale_friction=f_scale_friction, friction_tb_overrides...))
+  friction_tb_overrides = __pop_subcomponent_overrides!(__overrides, "friction_tb")
+  push!(__systems, @named friction_tb = QuarterTruckSciML.PureExternalForce(friction_tb_overrides...))
   # Subcomponent body_to_seat of type TranslationalComponents.Components.SpringDamper
-  body_to_seat_overrides = Dict(Symbol(replace(string(k), r"^body_to_seat__" => "")) => v for (k, v) in __overrides if startswith(string(k), "body_to_seat__"))
-  filter!(p -> !startswith(string(first(p)), "body_to_seat__"), __overrides)
-  push!(__systems, @named body_to_seat = TranslationalComponents.Components.SpringDamper(c=15000, d=800, s_rel0=0.2, body_to_seat_overrides...))
+  body_to_seat_overrides = __pop_subcomponent_overrides!(__overrides, "body_to_seat")
+  push!(__systems, @named body_to_seat = TranslationalComponents.Components.SpringDamper(c=15000.0, d=800.0, s_rel0=0.2, body_to_seat_overrides...))
   # Subcomponent seat_to_driver of type QuarterTruckSciML.SpringDamperWithExternalResidual
-  seat_to_driver_overrides = Dict(Symbol(replace(string(k), r"^seat_to_driver__" => "")) => v for (k, v) in __overrides if startswith(string(k), "seat_to_driver__"))
-  filter!(p -> !startswith(string(first(p)), "seat_to_driver__"), __overrides)
-  push!(__systems, @named seat_to_driver = QuarterTruckSciML.SpringDamperWithExternalResidual(k=10000, d=500, seat_to_driver_overrides...))
+  seat_to_driver_overrides = __pop_subcomponent_overrides!(__overrides, "seat_to_driver")
+  push!(__systems, @named seat_to_driver = QuarterTruckSciML.SpringDamperWithExternalResidual(k=10000.0, d=500.0, seat_to_driver_overrides...))
   __bindings[seat_to_driver.s_rel0] = s_rel0_seat
   # Now remove initial conditions in seat_to_driver that correspond to the bindings just added
   __seat_to_driver_ics = ModelingToolkit.get_initial_conditions(seat_to_driver)
@@ -142,21 +138,14 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   __seat_to_driver_s_rel0 = Symbolics.unwrap(__no_namespace_seat_to_driver.s_rel0)::Symbolics.SymbolicT
   delete!(__seat_to_driver_ics, __seat_to_driver_s_rel0)
   # Subcomponent road of type TranslationalComponents.Sources.Position
-  road_overrides = Dict(Symbol(replace(string(k), r"^road__" => "")) => v for (k, v) in __overrides if startswith(string(k), "road__"))
-  filter!(p -> !startswith(string(first(p)), "road__"), __overrides)
-  push!(__systems, @named road = TranslationalComponents.Sources.Position(f_crit=100, road_overrides...))
-  # Subcomponent nn of type QuarterTruckSciML.NeuralNetworkBlock
-  nn_overrides = Dict(Symbol(replace(string(k), r"^nn__" => "")) => v for (k, v) in __overrides if startswith(string(k), "nn__"))
-  filter!(p -> !startswith(string(first(p)), "nn__"), __overrides)
-  push!(__systems, @named nn = QuarterTruckSciML.NeuralNetworkBlock(n_input=n_input, n_output=n_output, chain=chain, nn_overrides...))
-  # Subcomponent demux of type QuarterTruckSciML.Demux3
-  demux_overrides = Dict(Symbol(replace(string(k), r"^demux__" => "")) => v for (k, v) in __overrides if startswith(string(k), "demux__"))
-  filter!(p -> !startswith(string(first(p)), "demux__"), __overrides)
-  push!(__systems, @named demux = QuarterTruckSciML.Demux3(demux_overrides...))
-  # Subcomponent mux of type QuarterTruckSciML.Mux3
-  mux_overrides = Dict(Symbol(replace(string(k), r"^mux__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mux__"))
-  filter!(p -> !startswith(string(first(p)), "mux__"), __overrides)
-  push!(__systems, @named mux = QuarterTruckSciML.Mux3(mux_overrides...))
+  road_overrides = __pop_subcomponent_overrides!(__overrides, "road")
+  push!(__systems, @named road = TranslationalComponents.Sources.Position(ref_type=TranslationalComponents.Sources.ReferenceType.Filtered(; f_crit=100.0), road_overrides...))
+  # Subcomponent road_fixed of type TranslationalComponents.Components.Fixed
+  road_fixed_overrides = __pop_subcomponent_overrides!(__overrides, "road_fixed")
+  push!(__systems, @named road_fixed = TranslationalComponents.Components.Fixed(s0=0.0, road_fixed_overrides...))
+  # Subcomponent scaled_nn of type QuarterTruckSciML.ScaledNeuralNetworkBlock
+  scaled_nn_overrides = __pop_subcomponent_overrides!(__overrides, "scaled_nn")
+  push!(__systems, @named scaled_nn = QuarterTruckSciML.ScaledNeuralNetworkBlock(n_input=n_input, n_output=n_output, chain=chain, s_rel0_tire=s_rel0_tire, s_scale_tire=s_scale_tire, v_friction_scale=v_friction_scale, v_seat_scale=v_seat_scale, f_scale_tire=f_scale_tire, f_scale_friction=f_scale_friction, d_seat=500.0, scaled_nn_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -165,19 +154,21 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
 
   ### Initialization Equations
   push!(__initialization_eqs, tire.s ~ 0.178908)
-  push!(__initialization_eqs, tire.v ~ 0)
+  push!(__initialization_eqs, tire.v ~ 0.0)
   push!(__initialization_eqs, body.s ~ 0.987613)
-  push!(__initialization_eqs, body.v ~ 0)
+  push!(__initialization_eqs, body.v ~ 0.0)
   push!(__initialization_eqs, seat.s ~ 1.128754)
-  push!(__initialization_eqs, seat.v ~ 0)
-  push!(__initialization_eqs, driver.s ~ 1.128754 + 0.1 - 75 * 9.81 / 10000)
-  push!(__initialization_eqs, driver.v ~ 0)
-  push!(__initialization_eqs, tire_to_road.v_rel ~ 0)
+  push!(__initialization_eqs, seat.v ~ 0.0)
+  push!(__initialization_eqs, driver.s ~ 1.128754 + 0.1 - 75.0 * 9.81 / 10000.0)
+  push!(__initialization_eqs, driver.v ~ 0.0)
+  push!(__initialization_eqs, tire_to_road.v_rel ~ 0.0)
+  push!(__initialization_eqs, road.v ~ 0.0)
 
   ### Assertions
   __assertions = []
 
   ### Equations
+  push!(__eqs, connect(road_fixed.flange, road.support))
   push!(__eqs, connect(road.flange, tire_to_road.flange_a))
   push!(__eqs, connect(tire_to_road.flange_b, tire.flange_a))
   push!(__eqs, connect(tire.flange_b, tire_to_body.flange_a))
@@ -188,14 +179,13 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   push!(__eqs, connect(seat.flange_b, seat_to_driver.flange_a))
   push!(__eqs, connect(seat_to_driver.flange_b, driver.flange_a))
   push!(__eqs, connect(tire_to_body.flange_b, body.flange_a))
-  push!(__eqs, connect(mux.y, nn.inputs))
-  push!(__eqs, connect(nn.outputs, demux.u))
-  push!(__eqs, connect(tire_to_road.s_rel_out, mux.u1))
-  push!(__eqs, connect(friction_tb.v_rel_out, mux.u2))
-  push!(__eqs, connect(seat_to_driver.v_rel_out, mux.u3))
-  push!(__eqs, connect(demux.y1, tire_to_road.f_residual))
-  push!(__eqs, connect(demux.y2, friction_tb.f_external))
-  push!(__eqs, connect(demux.y3, seat_to_driver.f_residual))
+  push!(__eqs, connect(tire_to_road.s_rel_out, scaled_nn.in_tire))
+  push!(__eqs, connect(friction_tb.v_rel_out, scaled_nn.in_friction))
+  push!(__eqs, connect(seat_to_driver.v_rel_out, scaled_nn.in_seat))
+  push!(__eqs, connect(scaled_nn.out_tire, tire_to_road.f_residual))
+  push!(__eqs, connect(scaled_nn.out_friction, friction_tb.f_external))
+  push!(__eqs, connect(scaled_nn.out_seat, seat_to_driver.f_residual))
+  push!(__eqs, connect(s_rel, road.s_ref))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

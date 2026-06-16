@@ -4,16 +4,18 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    CoulombFriction(; name, F_c, v0)
 
 Regularized Coulomb friction element. F_c=0 disables friction.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `F_c`         | Coulomb friction force magnitude [N] - 0 disables friction                         | N  |   500 |
+| `F_c`         | Coulomb friction force magnitude [N] - 0 disables friction                         | N  |   500.0 |
 | `v0`         | Regularization velocity [m/s]                         | m/s  |   0.1 |
 
 ## Connectors
@@ -24,19 +26,20 @@ Regularized Coulomb friction element. F_c=0 disables friction.
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `s_rel`         |                          | m  | 
-| `v_rel`         |                          | m/s  | 
-| `f`         |                          | N  | 
+| ------------ | ----------------------------------- | ------ |
+| `s_rel`         |                          | m  |
+| `v_rel`         |                          | m/s  |
+| `f`         |                          | N  |
 """
-@component function CoulombFriction(; name = nothing, F_c=Float64(500), v0=0.1, kwargs...)
+@component function CoulombFriction(; name = nothing, F_c=Float64(500.0), v0=0.1, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = CoulombFriction()
+  """))
 
-        @named model = CoulombFriction()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -56,8 +59,6 @@ Regularized Coulomb friction element. F_c=0 disables friction.
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -67,6 +68,8 @@ Regularized Coulomb friction element. F_c=0 disables friction.
   __local__v0 = v0
   append!(__params, @parameters (v0::Real), [description = "Regularization velocity [m/s]"])
   __initial_conditions[v0] = __local__v0
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 

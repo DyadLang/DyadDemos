@@ -4,25 +4,27 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    DenseISO8608Road(; name, N, roughness, lambda_min, lambda_max, speed, start_time, offset, amp, freq, phase)
 
 Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `N`         | Number of harmonics                         | --  |   50 |
-| `roughness`         | Road roughness G_d(n0) at n0=0.1 cycles/m [m3] - structural: sets array defaults                         | --  |   0.000016 |
+| `roughness`         | Road roughness G_d(n0) at n0=0.1 cycles/m [m3] - structural: sets array defaults                         | --  |   16e-6 |
 | `lambda_min`         | Shortest spatial wavelength [m] - structural: sets array defaults                         | m  |   0.3 |
-| `lambda_max`         | Longest spatial wavelength [m] - structural: sets array defaults                         | m  |   30 |
+| `lambda_max`         | Longest spatial wavelength [m] - structural: sets array defaults                         | m  |   30.0 |
 | `speed`         | Vehicle speed [m/s]                         | m/s  |   13.89 |
-| `start_time`         | Time at which signal begins [s]                         | s  |   0 |
-| `offset`         | Baseline offset [m]                         | m  |   0 |
-| `amp`         | Harmonic amplitudes [m]                         | --  |   QuarterTruckSciML.iso8608_amplitudes(N, lambda_min, lambda_max, roughness) |
-| `freq`         | Spatial frequencies [cycles/m]                         | --  |   QuarterTruckSciML.iso8608_frequencies(N, lambda_min, lambda_max) |
-| `phase`         | Phase offsets [rad]                         | --  |   QuarterTruckSciML.iso8608_phases(N) |
+| `start_time`         | Time at which signal begins [s]                         | s  |   0.0 |
+| `offset`         | Baseline offset [m]                         | m  |   0.0 |
+| `amp`         | Harmonic amplitudes [m]                         | --  |   QuarterTruc... roughness) |
+| `freq`         | Spatial frequencies [cycles/m]                         | --  |   QuarterTruc...lambda_max) |
+| `phase`         | Phase offsets [rad]                         | --  |   QuarterTruc...8_phases(N) |
 
 ## Connectors
 
@@ -31,17 +33,18 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `s`         | Partial sums for harmonic accumulation                         | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `s`         | Partial sums for harmonic accumulation                         | --  |
 """
-@component function DenseISO8608Road(; name = nothing, N=50, roughness=0.000016, lambda_min=0.3, lambda_max=Float64(30), speed=13.89, start_time=Float64(0), offset=Float64(0), amp=QuarterTruckSciML.iso8608_amplitudes(N, lambda_min, lambda_max, roughness), freq=QuarterTruckSciML.iso8608_frequencies(N, lambda_min, lambda_max), phase=QuarterTruckSciML.iso8608_phases(N), kwargs...)
+@component function DenseISO8608Road(; name = nothing, N=50, roughness=0.000016, lambda_min=0.3, lambda_max=Float64(30.0), speed=13.89, start_time=Float64(0.0), offset=Float64(0.0), amp=QuarterTruckSciML.iso8608_amplitudes(N, lambda_min, lambda_max, roughness), freq=QuarterTruckSciML.iso8608_frequencies(N, lambda_min, lambda_max), phase=QuarterTruckSciML.iso8608_phases(N), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = DenseISO8608Road()
+  """))
 
-        @named model = DenseISO8608Road()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -60,8 +63,6 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -84,6 +85,8 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   __local__phase = phase
   append!(__params, @parameters (phase[1:N]::Real), [description = "Phase offsets [rad]"])
   __initial_conditions[phase] = __local__phase
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (y(t)::Real), [output = true])
@@ -111,11 +114,11 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   __assertions = []
 
   ### Equations
-  push!(__eqs, y ~ offset + ifelse(t >= start_time, s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7] + s[8] + s[9] + s[10] + s[11] + s[12] + s[13] + s[14] + s[15] + s[16] + s[17] + s[18] + s[19] + s[20] + s[21] + s[22] + s[23] + s[24] + s[25] + s[26] + s[27] + s[28] + s[29] + s[30] + s[31] + s[32] + s[33] + s[34] + s[35] + s[36] + s[37] + s[38] + s[39] + s[40] + s[41] + s[42] + s[43] + s[44] + s[45] + s[46] + s[47] + s[48] + s[49] + s[50], 0))
+  push!(__eqs, y ~ offset + ifelse(t >= start_time, s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7] + s[8] + s[9] + s[10] + s[11] + s[12] + s[13] + s[14] + s[15] + s[16] + s[17] + s[18] + s[19] + s[20] + s[21] + s[22] + s[23] + s[24] + s[25] + s[26] + s[27] + s[28] + s[29] + s[30] + s[31] + s[32] + s[33] + s[34] + s[35] + s[36] + s[37] + s[38] + s[39] + s[40] + s[41] + s[42] + s[43] + s[44] + s[45] + s[46] + s[47] + s[48] + s[49] + s[50], 0.0))
 
   ### Control Structures
   for i in 1:N
-      push!(__eqs, s[i] ~ amp[i] * sin(2 * π * freq[i] * speed * (t - start_time) + phase[i]))
+    push!(__eqs, s[i] ~ amp[i] * sin(2 * π * freq[i] * speed * (t - start_time) + phase[i]))
   end
 
   # Return completely constructed System
