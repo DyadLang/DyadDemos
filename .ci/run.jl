@@ -62,6 +62,30 @@ for folder in folders
             post_status(name = "$(basename(folder))/dyad-doc-gen", type = "failure")
         end
 
+        # If the demo ships a docs/ gallery page (consumed by DyadDocs'
+        # make_examples.jl), assert its docs/Project.toml resolves standalone.
+        # The env's [sources] dev's the demo itself from "..", so no explicit
+        # Pkg.develop is needed. This only checks the demo author's own docs env
+        # — the DyadDocs doc-tooling is seeded separately at docs-build time.
+        docs_dir = joinpath(folder, "docs")
+        if isfile(joinpath(docs_dir, "Project.toml"))
+            @info "Instantiating docs env"
+            docs_ok = try
+                withenv("JULIA_PKG_PRECOMPILE_AUTO" => "0") do
+                    Pkg.activate(docs_dir)
+                    Pkg.instantiate()    # [sources] ".." dev's the demo itself
+                end
+                true
+            catch e
+                @error "docs env failed to instantiate" error = e
+                false
+            finally
+                Pkg.activate(@__DIR__)
+            end
+            post_status(name = "$(basename(folder))/docs-instantiate",
+                        type = docs_ok ? "success" : "failure")
+        end
+
         @info "All steps succeeded"
         post_status(name = "$(basename(folder))/all", type = "success")
     end
