@@ -4,62 +4,26 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for FrictionBrakeDemo.BrakeThermalTest_Step" begin
-  using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
-  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
-
-  @named model = FrictionBrakeDemo.BrakeThermalTest_Step()
-  model = toggle_namespacing(model, false)
-  
-  model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 5e+3, abstol=1e-6, reltol=1e-6)
-  sol = rebuild_sol(result)
-  @test SciMLBase.successful_retcode(sol)
-  @test sol[model.brake_thermal.pad_mass.T][1] ≈ 293.15 atol=0.1 rtol=9.999999999999999e-6
-  @test sol[model.brake_thermal.disk_mass.T][1] ≈ 293.15 atol=0.1 rtol=9.999999999999999e-6
-# Signals selected for regression testing: ["brake_thermal.pad_mass.T","brake_thermal.disk_mass.T"]
-  ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
-  if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
-    # If asked to update snapshots, write out reference data for all signals
-    mkpath("snapshots")
-    CSV.write("snapshots/BrakeThermalTest_Step_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake_thermal.pad_mass.T) for t in ref_times]))
-    CSV.write("snapshots/BrakeThermalTest_Step_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake_thermal.disk_mass.T) for t in ref_times]))
-  end
-    if isfile("snapshots/BrakeThermalTest_Step_case1_sig0.ref")
-      ref = CSV.read("snapshots/BrakeThermalTest_Step_case1_sig0.ref", DataFrame)
-      for i in 1:length(ref.expected)
-        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.pad_mass.T) atol=0.1 rtol=9.999999999999999e-6
-      end
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.pad_mass.T])
-        dfr = CSV.read("snapshots/BrakeThermalTest_Step_case1_sig0.ref", DataFrame)
-        plot(sol, idxs=[model.brake_thermal.pad_mass.T], width=2, label="Actual value of brake_thermal.pad_mass.T")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of brake_thermal.pad_mass.T")
-        plot!([df.t[1]], [293.15], seriestype=:scatter, label="Initial Condition for brake_thermal.pad_mass.T")
-        mkpath("comparisons")
-        savefig("comparisons/BrakeThermalTest_Step_case1_sig0.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/BrakeThermalTest_Step_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake_thermal.pad_mass.T) for t in ref_times]))
-    end
-    if isfile("snapshots/BrakeThermalTest_Step_case1_sig1.ref")
-      ref = CSV.read("snapshots/BrakeThermalTest_Step_case1_sig1.ref", DataFrame)
-      for i in 1:length(ref.expected)
-        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.disk_mass.T) atol=0.1 rtol=9.999999999999999e-6
-      end
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.disk_mass.T])
-        dfr = CSV.read("snapshots/BrakeThermalTest_Step_case1_sig1.ref", DataFrame)
-        plot(sol, idxs=[model.brake_thermal.disk_mass.T], width=2, label="Actual value of brake_thermal.disk_mass.T")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of brake_thermal.disk_mass.T")
-        plot!([df.t[1]], [293.15], seriestype=:scatter, label="Initial Condition for brake_thermal.disk_mass.T")
-        mkpath("comparisons")
-        savefig("comparisons/BrakeThermalTest_Step_case1_sig1.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/BrakeThermalTest_Step_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake_thermal.disk_mass.T) for t in ref_times]))
-    end
-end
+__dyad_run_test_case!(
+  FrictionBrakeDemo.BrakeThermalTest_Step,
+  "case1 for FrictionBrakeDemo.BrakeThermalTest_Step";
+  case_name="case1",
+  component_stem="BrakeThermalTest_Step",
+  module_path=String[],
+  start=0e+0,
+  stop=5e+3,
+  abstol=1e-6,
+  reltol=1e-6,
+  solver=ODEAlg.Auto(),
+  params=(;),
+  initial_conditions=Tuple[],
+  expected_initial=Tuple[
+    (m -> m.brake_thermal.pad_mass.T, "brake_thermal.pad_mass.T", 293.15, 0.1, 1e-5),
+    (m -> m.brake_thermal.disk_mass.T, "brake_thermal.disk_mass.T", 293.15, 0.1, 1e-5),
+  ],
+  expected_final=Tuple[],
+  signals=Tuple[
+    (m -> m.brake_thermal.pad_mass.T, "brake_thermal.pad_mass.T", 0.1, 1e-5),
+    (m -> m.brake_thermal.disk_mass.T, "brake_thermal.disk_mass.T", 0.1, 1e-5),
+  ],
+)

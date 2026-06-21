@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestColdNightSizing(; name)
 """
 @component function TestColdNightSizing(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestColdNightSizing()
+  """))
 
-        @named model = TestColdNightSizing()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,28 +54,22 @@
 
   ### Components
   # Subcomponent building of type DynamicSteadyState.ThreeZoneBuilding
-  building_overrides = Dict(Symbol(replace(string(k), r"^building__" => "")) => v for (k, v) in __overrides if startswith(string(k), "building__"))
-  filter!(p -> !startswith(string(first(p)), "building__"), __overrides)
+  building_overrides = __pop_subcomponent_overrides!(__overrides, "building")
   push!(__systems, @named building = DynamicSteadyState.ThreeZoneBuilding(building_overrides...))
   # Subcomponent outdoor_signal of type BlockComponents.Sources.Constant
-  outdoor_signal_overrides = Dict(Symbol(replace(string(k), r"^outdoor_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "outdoor_signal__"))
-  filter!(p -> !startswith(string(first(p)), "outdoor_signal__"), __overrides)
+  outdoor_signal_overrides = __pop_subcomponent_overrides!(__overrides, "outdoor_signal")
   push!(__systems, @named outdoor_signal = BlockComponents.Sources.Constant(k=263.15, outdoor_signal_overrides...))
   # Subcomponent ground_signal of type BlockComponents.Sources.Constant
-  ground_signal_overrides = Dict(Symbol(replace(string(k), r"^ground_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground_signal__"))
-  filter!(p -> !startswith(string(first(p)), "ground_signal__"), __overrides)
+  ground_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ground_signal")
   push!(__systems, @named ground_signal = BlockComponents.Sources.Constant(k=283.15, ground_signal_overrides...))
   # Subcomponent zone1_setpoint of type ThermalComponents.Sources.FixedTemperature
-  zone1_setpoint_overrides = Dict(Symbol(replace(string(k), r"^zone1_setpoint__" => "")) => v for (k, v) in __overrides if startswith(string(k), "zone1_setpoint__"))
-  filter!(p -> !startswith(string(first(p)), "zone1_setpoint__"), __overrides)
+  zone1_setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "zone1_setpoint")
   push!(__systems, @named zone1_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone1_setpoint_overrides...))
   # Subcomponent zone2_setpoint of type ThermalComponents.Sources.FixedTemperature
-  zone2_setpoint_overrides = Dict(Symbol(replace(string(k), r"^zone2_setpoint__" => "")) => v for (k, v) in __overrides if startswith(string(k), "zone2_setpoint__"))
-  filter!(p -> !startswith(string(first(p)), "zone2_setpoint__"), __overrides)
+  zone2_setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "zone2_setpoint")
   push!(__systems, @named zone2_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone2_setpoint_overrides...))
   # Subcomponent zone3_setpoint of type ThermalComponents.Sources.FixedTemperature
-  zone3_setpoint_overrides = Dict(Symbol(replace(string(k), r"^zone3_setpoint__" => "")) => v for (k, v) in __overrides if startswith(string(k), "zone3_setpoint__"))
-  filter!(p -> !startswith(string(first(p)), "zone3_setpoint__"), __overrides)
+  zone3_setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "zone3_setpoint")
   push!(__systems, @named zone3_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone3_setpoint_overrides...))
 
   ### Check there are no unmatched overrides

@@ -4,23 +4,26 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestClarifierUpper(; name)
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `Xf`         |                          | kg/m3  | 
+| ------------ | ----------------------------------- | ------ |
+| `Xf`         |                          | kg/m3  |
 """
 @component function TestClarifierUpper(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestClarifierUpper()
+  """))
 
-        @named model = TestClarifierUpper()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,11 +43,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -60,9 +63,8 @@
 
   ### Components
   # Subcomponent upper_layer of type ASPDemo.SecondaryClarifierTakacs_UpperLayer
-  upper_layer_overrides = Dict(Symbol(replace(string(k), r"^upper_layer__" => "")) => v for (k, v) in __overrides if startswith(string(k), "upper_layer__"))
-  filter!(p -> !startswith(string(first(p)), "upper_layer__"), __overrides)
-  push!(__systems, @named upper_layer = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=0.4, Asc=1500, Xt=3000, X_start=370.7094910985, soluble_start=[30, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 0.4924690064049, 3.763667982244], upper_layer_overrides...))
+  upper_layer_overrides = __pop_subcomponent_overrides!(__overrides, "upper_layer")
+  push!(__systems, @named upper_layer = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=0.4, Asc=1500, Xt=3000.0, X_start=370.7094910985, soluble_start=[30.0, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 0.4924690064049, 3.763667982244], upper_layer_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -81,14 +83,14 @@
   push!(__eqs, upper_layer.Up.X ~ 370.7094910985)
   push!(__eqs, upper_layer.Dn.vS_dn ~ 5)
   push!(__eqs, upper_layer.Dn.X_dn ~ 370.7094910985)
-  push!(__eqs, upper_layer.fDn.Qe ~ 0.1 * 21477)
-  push!(__eqs, upper_layer.sDn.Si ~ 30)
+  push!(__eqs, upper_layer.fDn.Qe ~ 0.1 * 21477.0)
+  push!(__eqs, upper_layer.sDn.Si ~ 30.0)
   push!(__eqs, upper_layer.sDn.Ss ~ 63.63455)
-  push!(__eqs, upper_layer.sDn.So ~ 0)
-  push!(__eqs, upper_layer.sDn.Sno ~ 0)
+  push!(__eqs, upper_layer.sDn.So ~ 0.0)
+  push!(__eqs, upper_layer.sDn.Sno ~ 0.0)
   push!(__eqs, upper_layer.sDn.Snh ~ 30.24762)
   push!(__eqs, upper_layer.sDn.Snd ~ 6.36346)
-  push!(__eqs, upper_layer.sDn.Salk ~ 7)
+  push!(__eqs, upper_layer.sDn.Salk ~ 7.0)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

@@ -4,23 +4,26 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestClarifierLower(; name)
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `Xf`         |                          | kg/m3  | 
+| ------------ | ----------------------------------- | ------ |
+| `Xf`         |                          | kg/m3  |
 """
 @component function TestClarifierLower(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestClarifierLower()
+  """))
 
-        @named model = TestClarifierLower()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,11 +43,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -60,9 +63,8 @@
 
   ### Components
   # Subcomponent lower_layer of type ASPDemo.SecondaryClarifierTakacs_LowerLayer
-  lower_layer_overrides = Dict(Symbol(replace(string(k), r"^lower_layer__" => "")) => v for (k, v) in __overrides if startswith(string(k), "lower_layer__"))
-  filter!(p -> !startswith(string(first(p)), "lower_layer__"), __overrides)
-  push!(__systems, @named lower_layer = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=0.4, Asc=1500, X_start=370.7094910985, soluble_start=[30, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 0.4924690064049, 3.763667982244], lower_layer_overrides...))
+  lower_layer_overrides = __pop_subcomponent_overrides!(__overrides, "lower_layer")
+  push!(__systems, @named lower_layer = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=0.4, Asc=1500, X_start=370.7094910985, soluble_start=[30.0, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 0.4924690064049, 3.763667982244], lower_layer_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -81,15 +83,15 @@
   push!(__eqs, lower_layer.Up.X ~ 370.7094910985)
   push!(__eqs, lower_layer.Dn.vS_dn ~ 5)
   push!(__eqs, lower_layer.Dn.X_dn ~ 370.7094910985)
-  push!(__eqs, lower_layer.fDn.Qr ~ 0.1 * 21477)
-  push!(__eqs, lower_layer.fDn.Qw ~ 0.2 * 21477)
-  push!(__eqs, lower_layer.sUp.Si ~ 30)
+  push!(__eqs, lower_layer.fDn.Qr ~ 0.1 * 21477.0)
+  push!(__eqs, lower_layer.fDn.Qw ~ 0.2 * 21477.0)
+  push!(__eqs, lower_layer.sUp.Si ~ 30.0)
   push!(__eqs, lower_layer.sUp.Ss ~ 63.63455)
-  push!(__eqs, lower_layer.sUp.So ~ 0)
-  push!(__eqs, lower_layer.sUp.Sno ~ 0)
+  push!(__eqs, lower_layer.sUp.So ~ 0.0)
+  push!(__eqs, lower_layer.sUp.Sno ~ 0.0)
   push!(__eqs, lower_layer.sUp.Snh ~ 30.24762)
   push!(__eqs, lower_layer.sUp.Snd ~ 6.36346)
-  push!(__eqs, lower_layer.sUp.Salk ~ 7)
+  push!(__eqs, lower_layer.sUp.Salk ~ 7.0)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    PrimaryClarifierStatic(; name, V)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -21,24 +23,25 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `hrt_h`         |                          | --  | 
-| `n_COD`         |                          | --  | 
-| `n_X`         |                          | --  | 
-| `CODin`         |                          | --  | 
-| `CODout`         |                          | --  | 
-| `XCODin`         |                          | --  | 
-| `H`         |                          | --  | 
-| `Q`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `hrt_h`         |                          | --  |
+| `n_COD`         |                          | --  |
+| `n_X`         |                          | --  |
+| `CODin`         |                          | --  |
+| `CODout`         |                          | --  |
+| `XCODin`         |                          | --  |
+| `H`         |                          | --  |
+| `Q`         |                          | --  |
 """
 @component function PrimaryClarifierStatic(; name = nothing, V=Float64(500), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = PrimaryClarifierStatic()
+  """))
 
-        @named model = PrimaryClarifierStatic()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,14 +61,14 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
   __local__V = V
   append!(__params, @parameters (V::Real))
   __initial_conditions[V] = __local__V
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 

@@ -4,23 +4,26 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    BenchPlant(; name, input_file)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `input_file`         |                          | --  |   "dyad://ASPDemo/../test/data/Inf_dry.csv" |
+| `input_file`         |                          | --  |   "dyad://ASP...nf_dry.csv" |
 """
 @component function BenchPlant(; name = nothing, input_file="dyad://ASPDemo/../test/data/Inf_dry.csv", kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = BenchPlant()
+  """))
 
-        @named model = BenchPlant()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,11 +43,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -57,120 +60,91 @@
 
   ### Components
   # Subcomponent source of type ASPDemo.FlowSourceFile
-  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
-  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
   push!(__systems, @named source = ASPDemo.FlowSourceFile(input_file=input_file, source_overrides...))
   # Subcomponent mixer of type ASPDemo.Mixer3
-  mixer_overrides = Dict(Symbol(replace(string(k), r"^mixer__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mixer__"))
-  filter!(p -> !startswith(string(first(p)), "mixer__"), __overrides)
+  mixer_overrides = __pop_subcomponent_overrides!(__overrides, "mixer")
   push!(__systems, @named mixer = ASPDemo.Mixer3(mixer_overrides...))
   # Subcomponent tank1 of type ASPDemo.Denitrification
-  tank1_overrides = Dict(Symbol(replace(string(k), r"^tank1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tank1__"))
-  filter!(p -> !startswith(string(first(p)), "tank1__"), __overrides)
+  tank1_overrides = __pop_subcomponent_overrides!(__overrides, "tank1")
   push!(__systems, @named tank1 = ASPDemo.Denitrification(tank1_overrides...))
   # Subcomponent tank2 of type ASPDemo.Denitrification
-  tank2_overrides = Dict(Symbol(replace(string(k), r"^tank2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tank2__"))
-  filter!(p -> !startswith(string(first(p)), "tank2__"), __overrides)
-  push!(__systems, @named tank2 = ASPDemo.Denitrification(states_start=[30, 2.963119860782, 1115.525591261, 104.7623215724, 2560.547745833, 103.1268208361, 434.4353591719, 0.00003460669280848, 0.2374326657217, 19.43283861745, 0.3395010672094, 6.666141082522, 6.07733102206], tank2_overrides...))
+  tank2_overrides = __pop_subcomponent_overrides!(__overrides, "tank2")
+  push!(__systems, @named tank2 = ASPDemo.Denitrification(states_start=[30.0, 2.963119860782, 1115.525591261, 104.7623215724, 2560.547745833, 103.1268208361, 434.4353591719, 0.00003460669280848, 0.2374326657217, 19.43283861745, 0.3395010672094, 6.666141082522, 6.07733102206], tank2_overrides...))
   # Subcomponent tank3 of type ASPDemo.Nitrification
-  tank3_overrides = Dict(Symbol(replace(string(k), r"^tank3__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tank3__"))
-  filter!(p -> !startswith(string(first(p)), "tank3__"), __overrides)
-  push!(__systems, @named tank3 = ASPDemo.Nitrification(V=1333, states_start=[30, 3.303021229952, 1115.644789581, 45.95646450845, 2587.816054472, 104.2607977985, 436.8395184843, 2.258220736507, 6.086417053368, 13.20662231965, 0.8483247444772, 3.14736781687, 5.185981698738], tank3_overrides...))
+  tank3_overrides = __pop_subcomponent_overrides!(__overrides, "tank3")
+  push!(__systems, @named tank3 = ASPDemo.Nitrification(V=1333, states_start=[30.0, 3.303021229952, 1115.644789581, 45.95646450845, 2587.816054472, 104.2607977985, 436.8395184843, 2.258220736507, 6.086417053368, 13.20662231965, 0.8483247444772, 3.14736781687, 5.185981698738], tank3_overrides...))
   # Subcomponent tank4 of type ASPDemo.Nitrification
-  tank4_overrides = Dict(Symbol(replace(string(k), r"^tank4__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tank4__"))
-  filter!(p -> !startswith(string(first(p)), "tank4__"), __overrides)
-  push!(__systems, @named tank4 = ASPDemo.Nitrification(V=1333, states_start=[30, 1.965671861503, 1119.243168969, 19.95691428575, 2602.154360121, 105.7038911944, 440.4846296373, 3.505091698746, 12.23560863789, 7.372095764081, 0.6723187178583, 1.509911199178, 4.336906375072], tank4_overrides...))
+  tank4_overrides = __pop_subcomponent_overrides!(__overrides, "tank4")
+  push!(__systems, @named tank4 = ASPDemo.Nitrification(V=1333, states_start=[30.0, 1.965671861503, 1119.243168969, 19.95691428575, 2602.154360121, 105.7038911944, 440.4846296373, 3.505091698746, 12.23560863789, 7.372095764081, 0.6723187178583, 1.509911199178, 4.336906375072], tank4_overrides...))
   # Subcomponent tank5 of type ASPDemo.Nitrification
-  tank5_overrides = Dict(Symbol(replace(string(k), r"^tank5__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tank5__"))
-  filter!(p -> !startswith(string(first(p)), "tank5__"), __overrides)
-  push!(__systems, @named tank5 = ASPDemo.Nitrification(V=1333, states_start=[30, 1.263795984345, 1123.348086405, 11.85225923915, 2606.406877777, 106.8019744323, 443.9932752854, 1.999997685099, 16.74245866877, 3.117292580061, 0.4979610348992, 0.9817952441673, 3.735179685088], tank5_overrides...))
+  tank5_overrides = __pop_subcomponent_overrides!(__overrides, "tank5")
+  push!(__systems, @named tank5 = ASPDemo.Nitrification(V=1333, states_start=[30.0, 1.263795984345, 1123.348086405, 11.85225923915, 2606.406877777, 106.8019744323, 443.9932752854, 1.999997685099, 16.74245866877, 3.117292580061, 0.4979610348992, 0.9817952441673, 3.735179685088], tank5_overrides...))
   # Subcomponent divider of type ASPDemo.Divider2
-  divider_overrides = Dict(Symbol(replace(string(k), r"^divider__" => "")) => v for (k, v) in __overrides if startswith(string(k), "divider__"))
-  filter!(p -> !startswith(string(first(p)), "divider__"), __overrides)
+  divider_overrides = __pop_subcomponent_overrides!(__overrides, "divider")
   push!(__systems, @named divider = ASPDemo.Divider2(divider_overrides...))
   # Subcomponent settler of type ASPDemo.SecondaryClarifierTakacs
-  settler_overrides = Dict(Symbol(replace(string(k), r"^settler__" => "")) => v for (k, v) in __overrides if startswith(string(k), "settler__"))
-  filter!(p -> !startswith(string(first(p)), "settler__"), __overrides)
+  settler_overrides = __pop_subcomponent_overrides!(__overrides, "settler")
   push!(__systems, @named settler = ASPDemo.SecondaryClarifierTakacs(settler_overrides...))
   # Subcomponent recyclePump of type ASPDemo.Pump
-  recyclePump_overrides = Dict(Symbol(replace(string(k), r"^recyclePump__" => "")) => v for (k, v) in __overrides if startswith(string(k), "recyclePump__"))
-  filter!(p -> !startswith(string(first(p)), "recyclePump__"), __overrides)
+  recyclePump_overrides = __pop_subcomponent_overrides!(__overrides, "recyclePump")
   push!(__systems, @named recyclePump = ASPDemo.Pump(Q_max=92230, recyclePump_overrides...))
   # Subcomponent returnPump of type ASPDemo.Pump
-  returnPump_overrides = Dict(Symbol(replace(string(k), r"^returnPump__" => "")) => v for (k, v) in __overrides if startswith(string(k), "returnPump__"))
-  filter!(p -> !startswith(string(first(p)), "returnPump__"), __overrides)
+  returnPump_overrides = __pop_subcomponent_overrides!(__overrides, "returnPump")
   push!(__systems, @named returnPump = ASPDemo.Pump(Q_max=18446, returnPump_overrides...))
   # Subcomponent wastePump of type ASPDemo.Pump
-  wastePump_overrides = Dict(Symbol(replace(string(k), r"^wastePump__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wastePump__"))
-  filter!(p -> !startswith(string(first(p)), "wastePump__"), __overrides)
+  wastePump_overrides = __pop_subcomponent_overrides!(__overrides, "wastePump")
   push!(__systems, @named wastePump = ASPDemo.Pump(Q_max=385, wastePump_overrides...))
   # Subcomponent sinkWaste of type ASPDemo.SludgeSink
-  sinkWaste_overrides = Dict(Symbol(replace(string(k), r"^sinkWaste__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sinkWaste__"))
-  filter!(p -> !startswith(string(first(p)), "sinkWaste__"), __overrides)
+  sinkWaste_overrides = __pop_subcomponent_overrides!(__overrides, "sinkWaste")
   push!(__systems, @named sinkWaste = ASPDemo.SludgeSink(sinkWaste_overrides...))
   # Subcomponent sinkEffluent of type ASPDemo.EffluentSink
-  sinkEffluent_overrides = Dict(Symbol(replace(string(k), r"^sinkEffluent__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sinkEffluent__"))
-  filter!(p -> !startswith(string(first(p)), "sinkEffluent__"), __overrides)
+  sinkEffluent_overrides = __pop_subcomponent_overrides!(__overrides, "sinkEffluent")
   push!(__systems, @named sinkEffluent = ASPDemo.EffluentSink(sinkEffluent_overrides...))
   # Subcomponent blower1 of type ASPDemo.Blower
-  blower1_overrides = Dict(Symbol(replace(string(k), r"^blower1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "blower1__"))
-  filter!(p -> !startswith(string(first(p)), "blower1__"), __overrides)
+  blower1_overrides = __pop_subcomponent_overrides!(__overrides, "blower1")
   push!(__systems, @named blower1 = ASPDemo.Blower(Q_max=34574.2654508612, blower1_overrides...))
   # Subcomponent blower2 of type ASPDemo.Blower
-  blower2_overrides = Dict(Symbol(replace(string(k), r"^blower2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "blower2__"))
-  filter!(p -> !startswith(string(first(p)), "blower2__"), __overrides)
+  blower2_overrides = __pop_subcomponent_overrides!(__overrides, "blower2")
   push!(__systems, @named blower2 = ASPDemo.Blower(Q_max=34574.2654508612, blower2_overrides...))
   # Subcomponent blower3 of type ASPDemo.Blower
-  blower3_overrides = Dict(Symbol(replace(string(k), r"^blower3__" => "")) => v for (k, v) in __overrides if startswith(string(k), "blower3__"))
-  filter!(p -> !startswith(string(first(p)), "blower3__"), __overrides)
+  blower3_overrides = __pop_subcomponent_overrides!(__overrides, "blower3")
   push!(__systems, @named blower3 = ASPDemo.Blower(Q_max=34574.2654508612, blower3_overrides...))
   # Subcomponent sensor_NO of type ASPDemo.CombinedSensor
-  sensor_NO_overrides = Dict(Symbol(replace(string(k), r"^sensor_NO__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sensor_NO__"))
-  filter!(p -> !startswith(string(first(p)), "sensor_NO__"), __overrides)
+  sensor_NO_overrides = __pop_subcomponent_overrides!(__overrides, "sensor_NO")
   push!(__systems, @named sensor_NO = ASPDemo.CombinedSensor(sensor_NO_overrides...))
   # Subcomponent sensor_O2 of type ASPDemo.CombinedSensor
-  sensor_O2_overrides = Dict(Symbol(replace(string(k), r"^sensor_O2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sensor_O2__"))
-  filter!(p -> !startswith(string(first(p)), "sensor_O2__"), __overrides)
+  sensor_O2_overrides = __pop_subcomponent_overrides!(__overrides, "sensor_O2")
   push!(__systems, @named sensor_O2 = ASPDemo.CombinedSensor(sensor_O2_overrides...))
   # Subcomponent sensor_TSS1 of type ASPDemo.CombinedSensor
-  sensor_TSS1_overrides = Dict(Symbol(replace(string(k), r"^sensor_TSS1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sensor_TSS1__"))
-  filter!(p -> !startswith(string(first(p)), "sensor_TSS1__"), __overrides)
+  sensor_TSS1_overrides = __pop_subcomponent_overrides!(__overrides, "sensor_TSS1")
   push!(__systems, @named sensor_TSS1 = ASPDemo.CombinedSensor(sensor_TSS1_overrides...))
   # Subcomponent sensor_effluent of type ASPDemo.CombinedSensor
-  sensor_effluent_overrides = Dict(Symbol(replace(string(k), r"^sensor_effluent__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sensor_effluent__"))
-  filter!(p -> !startswith(string(first(p)), "sensor_effluent__"), __overrides)
+  sensor_effluent_overrides = __pop_subcomponent_overrides!(__overrides, "sensor_effluent")
   push!(__systems, @named sensor_effluent = ASPDemo.CombinedSensor(sensor_effluent_overrides...))
   # Subcomponent constant1 of type BlockComponents.Sources.Constant
-  constant1_overrides = Dict(Symbol(replace(string(k), r"^constant1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "constant1__"))
-  filter!(p -> !startswith(string(first(p)), "constant1__"), __overrides)
+  constant1_overrides = __pop_subcomponent_overrides!(__overrides, "constant1")
   push!(__systems, @named constant1 = BlockComponents.Sources.Constant(k=1, constant1_overrides...))
   # Subcomponent constant2 of type BlockComponents.Sources.Constant
-  constant2_overrides = Dict(Symbol(replace(string(k), r"^constant2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "constant2__"))
-  filter!(p -> !startswith(string(first(p)), "constant2__"), __overrides)
+  constant2_overrides = __pop_subcomponent_overrides!(__overrides, "constant2")
   push!(__systems, @named constant2 = BlockComponents.Sources.Constant(k=1, constant2_overrides...))
   # Subcomponent temperature of type BlockComponents.Sources.Constant
-  temperature_overrides = Dict(Symbol(replace(string(k), r"^temperature__" => "")) => v for (k, v) in __overrides if startswith(string(k), "temperature__"))
-  filter!(p -> !startswith(string(first(p)), "temperature__"), __overrides)
+  temperature_overrides = __pop_subcomponent_overrides!(__overrides, "temperature")
   push!(__systems, @named temperature = BlockComponents.Sources.Constant(k=15, temperature_overrides...))
   # Subcomponent oxygenSetpoint of type BlockComponents.Sources.Step
-  oxygenSetpoint_overrides = Dict(Symbol(replace(string(k), r"^oxygenSetpoint__" => "")) => v for (k, v) in __overrides if startswith(string(k), "oxygenSetpoint__"))
-  filter!(p -> !startswith(string(first(p)), "oxygenSetpoint__"), __overrides)
+  oxygenSetpoint_overrides = __pop_subcomponent_overrides!(__overrides, "oxygenSetpoint")
   push!(__systems, @named oxygenSetpoint = BlockComponents.Sources.Step(height=2, oxygenSetpoint_overrides...))
   # Subcomponent PI1 of type ASPDemo.PI
-  PI1_overrides = Dict(Symbol(replace(string(k), r"^PI1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "PI1__"))
-  filter!(p -> !startswith(string(first(p)), "PI1__"), __overrides)
+  PI1_overrides = __pop_subcomponent_overrides!(__overrides, "PI1")
   push!(__systems, @named PI1 = ASPDemo.PI(Ti=0.001, k=500, PI1_overrides...))
   # Subcomponent nitrogenSetpoint of type BlockComponents.Sources.Constant
-  nitrogenSetpoint_overrides = Dict(Symbol(replace(string(k), r"^nitrogenSetpoint__" => "")) => v for (k, v) in __overrides if startswith(string(k), "nitrogenSetpoint__"))
-  filter!(p -> !startswith(string(first(p)), "nitrogenSetpoint__"), __overrides)
+  nitrogenSetpoint_overrides = __pop_subcomponent_overrides!(__overrides, "nitrogenSetpoint")
   push!(__systems, @named nitrogenSetpoint = BlockComponents.Sources.Constant(k=1, nitrogenSetpoint_overrides...))
   # Subcomponent limiter1 of type ASPDemo.Limiter
-  limiter1_overrides = Dict(Symbol(replace(string(k), r"^limiter1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "limiter1__"))
-  filter!(p -> !startswith(string(first(p)), "limiter1__"), __overrides)
+  limiter1_overrides = __pop_subcomponent_overrides!(__overrides, "limiter1")
   push!(__systems, @named limiter1 = ASPDemo.Limiter(y_max=10, y_min=0.1, limiter1_overrides...))
   # Subcomponent PI2 of type ASPDemo.PI
-  PI2_overrides = Dict(Symbol(replace(string(k), r"^PI2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "PI2__"))
-  filter!(p -> !startswith(string(first(p)), "PI2__"), __overrides)
+  PI2_overrides = __pop_subcomponent_overrides!(__overrides, "PI2")
   push!(__systems, @named PI2 = ASPDemo.PI(Ti=0.05, k=15000, PI2_overrides...))
 
   ### Check there are no unmatched overrides

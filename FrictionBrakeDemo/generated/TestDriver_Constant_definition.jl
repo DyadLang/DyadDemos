@@ -4,30 +4,33 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestDriver_Constant(; name, max_accel, drag_coeff)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `max_accel`         |                          | --  |   5 |
+| `max_accel`         |                          | --  |   5.0 |
 | `drag_coeff`         |                          | --  |   0.2 |
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `vehicle_speed`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `vehicle_speed`         |                          | --  |
 """
-@component function TestDriver_Constant(; name = nothing, max_accel=Float64(5), drag_coeff=0.2, kwargs...)
+@component function TestDriver_Constant(; name = nothing, max_accel=Float64(5.0), drag_coeff=0.2, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestDriver_Constant()
+  """))
 
-        @named model = TestDriver_Constant()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -47,8 +50,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -58,6 +59,8 @@
   __local__drag_coeff = drag_coeff
   append!(__params, @parameters (drag_coeff::Real))
   __initial_conditions[drag_coeff] = __local__drag_coeff
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -73,12 +76,10 @@
 
   ### Components
   # Subcomponent speed_ref_source of type BlockComponents.Sources.Step
-  speed_ref_source_overrides = Dict(Symbol(replace(string(k), r"^speed_ref_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "speed_ref_source__"))
-  filter!(p -> !startswith(string(first(p)), "speed_ref_source__"), __overrides)
-  push!(__systems, @named speed_ref_source = BlockComponents.Sources.Step(height=20, offset=0, start_time=1, speed_ref_source_overrides...))
+  speed_ref_source_overrides = __pop_subcomponent_overrides!(__overrides, "speed_ref_source")
+  push!(__systems, @named speed_ref_source = BlockComponents.Sources.Step(height=20.0, offset=0.0, start_time=1.0, speed_ref_source_overrides...))
   # Subcomponent driver of type FrictionBrakeDemo.Driver
-  driver_overrides = Dict(Symbol(replace(string(k), r"^driver__" => "")) => v for (k, v) in __overrides if startswith(string(k), "driver__"))
-  filter!(p -> !startswith(string(first(p)), "driver__"), __overrides)
+  driver_overrides = __pop_subcomponent_overrides!(__overrides, "driver")
   push!(__systems, @named driver = FrictionBrakeDemo.Driver(driver_overrides...))
 
   ### Check there are no unmatched overrides
@@ -87,7 +88,7 @@
   ### Guesses
 
   ### Initialization Equations
-  push!(__initialization_eqs, vehicle_speed ~ 0)
+  push!(__initialization_eqs, vehicle_speed ~ 0.0)
 
   ### Assertions
   __assertions = []

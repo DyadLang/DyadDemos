@@ -6,11 +6,11 @@
 
 @connector function SedimentationVelocitySludgeOut(; name=nothing)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
-
-        @named model = SedimentationVelocitySludgeOut()
-        """))
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SedimentationVelocitySludgeOut()
+  """))
   __params = Symbolics.SymbolicT[]
   __vars = @variables begin
     (vS_dn(t)::Real), [output = true]

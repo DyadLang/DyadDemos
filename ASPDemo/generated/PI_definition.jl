@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    PI(; name, k, Ti, x_start)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -24,18 +26,19 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `u`         |                          | --  | 
-| `x`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `u`         |                          | --  |
+| `x`         |                          | --  |
 """
 @component function PI(; name = nothing, k=Float64(1), Ti=Float64(1), x_start=Float64(0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = PI()
+  """))
 
-        @named model = PI()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,8 +58,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -69,6 +70,8 @@
   __local__x_start = x_start
   append!(__params, @parameters (x_start::Real))
   __initial_conditions[x_start] = __local__x_start
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (u_s(t)::Real), [input = true])

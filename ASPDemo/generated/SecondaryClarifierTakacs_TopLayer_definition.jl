@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SecondaryClarifierTakacs_TopLayer(; name, Asc, zm, Xt, X_start, soluble_start)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -36,26 +38,27 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `X`         |                          | kg/m3  | 
-| `vS`         |                          | --  | 
-| `Jsm`         |                          | --  | 
-| `Si`         |                          | kg/m3  | 
-| `Ss`         |                          | kg/m3  | 
-| `So`         |                          | kg/m3  | 
-| `Sno`         |                          | kg/m3  | 
-| `Snh`         |                          | kg/m3  | 
-| `Snd`         |                          | kg/m3  | 
-| `Salk`         |                          | kg/m3  | 
+| ------------ | ----------------------------------- | ------ |
+| `X`         |                          | kg/m3  |
+| `vS`         |                          | --  |
+| `Jsm`         |                          | --  |
+| `Si`         |                          | kg/m3  |
+| `Ss`         |                          | kg/m3  |
+| `So`         |                          | kg/m3  |
+| `Sno`         |                          | kg/m3  |
+| `Snh`         |                          | kg/m3  |
+| `Snd`         |                          | kg/m3  |
+| `Salk`         |                          | kg/m3  |
 """
 @component function SecondaryClarifierTakacs_TopLayer(; name = nothing, Asc=nothing, zm=nothing, Xt=nothing, X_start=nothing, soluble_start=nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SecondaryClarifierTakacs_TopLayer()
+  """))
 
-        @named model = SecondaryClarifierTakacs_TopLayer()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -75,8 +78,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -95,6 +96,8 @@
   __local__soluble_start = soluble_start
   append!(__params, @parameters (soluble_start[1:7]::Real))
   __initial_conditions[soluble_start] = __local__soluble_start
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (Xf(t)::Real), [input = true])

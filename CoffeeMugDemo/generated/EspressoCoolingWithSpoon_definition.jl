@@ -12,7 +12,7 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   name::Symbol = :EspressoCoolingWithSpoon
   var"alg"::ODEAlg.Type = ODEAlg.Rodas5P()
   var"start"::Float64 = 0
-  var"stop"::Float64 = 6000
+  var"stop"::Float64 = 6000.0
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
   var"saveat"::Float64 = 0

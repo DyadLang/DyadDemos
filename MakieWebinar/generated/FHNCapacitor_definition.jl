@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    FHNCapacitor(; name, V, a, b, eps)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `V`         |                          | --  |   1 |
+| `V`         |                          | --  |   1.0 |
 | `a`         |                          | --  |   0.1 |
 | `b`         |                          | --  |   0.01 |
 | `eps`         |                          | --  |   0.01 |
@@ -37,18 +39,19 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `u`         |                          | --  | 
-| `v`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `u`         |                          | --  |
+| `v`         |                          | --  |
 """
-@component function FHNCapacitor(; name = nothing, V=Float64(1), a=0.1, b=0.01, eps=0.01, kwargs...)
+@component function FHNCapacitor(; name = nothing, V=Float64(1.0), a=0.1, b=0.01, eps=0.01, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FHNCapacitor()
+  """))
 
-        @named model = FHNCapacitor()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -68,8 +71,6 @@ Supported dynamics:
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -85,6 +86,8 @@ Supported dynamics:
   __local__eps = eps
   append!(__params, @parameters (eps::Real))
   __initial_conditions[eps] = __local__eps
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -116,7 +119,7 @@ Supported dynamics:
 
   ### Equations
   push!(__eqs, u ~ port.C)
-  push!(__eqs, V * ModelingToolkit.D_nounits(u) ~ port.J + V * (u * (u - a) * (1 - u) - v))
+  push!(__eqs, V * ModelingToolkit.D_nounits(u) ~ port.J + V * (u * (u - a) * (1.0 - u) - v))
   push!(__eqs, V * ModelingToolkit.D_nounits(v) ~ V * eps * (u - b * v))
 
   # Return completely constructed System

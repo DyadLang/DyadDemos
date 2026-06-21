@@ -4,136 +4,31 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for FrictionBrakeDemo.VehicleCycleTest" begin
-  using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
-  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
-
-  @named model = FrictionBrakeDemo.VehicleCycleTest()
-  model = toggle_namespacing(model, false)
-  
-  model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 2e+3, abstol=1e-6, reltol=1e-6)
-  sol = rebuild_sol(result)
-  @test SciMLBase.successful_retcode(sol)
-  @test sol[model.vehicle.vehicle_speed][1] ≈ 0 atol=0.001 rtol=9.999999999999999e-6
-  @test sol[model.brake_thermal.pad_mass.T][1] ≈ 293.15 atol=0.001 rtol=9.999999999999999e-6
-  @test sol[model.brake_thermal.disk_mass.T][1] ≈ 293.15 atol=0.001 rtol=9.999999999999999e-6
-# Signals selected for regression testing: ["vehicle.vehicle_speed","vehicle.wheel_speed","brake_thermal.pad_mass.T","brake_thermal.disk_mass.T","powertrain.drive.tau","brake.shaft.tau"]
-  ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
-  if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
-    # If asked to update snapshots, write out reference data for all signals
-    mkpath("snapshots")
-    CSV.write("snapshots/VehicleCycleTest_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.vehicle_speed) for t in ref_times]))
-    CSV.write("snapshots/VehicleCycleTest_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.wheel_speed) for t in ref_times]))
-    CSV.write("snapshots/VehicleCycleTest_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake_thermal.pad_mass.T) for t in ref_times]))
-    CSV.write("snapshots/VehicleCycleTest_case1_sig3.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake_thermal.disk_mass.T) for t in ref_times]))
-    CSV.write("snapshots/VehicleCycleTest_case1_sig4.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.powertrain.drive.tau) for t in ref_times]))
-    CSV.write("snapshots/VehicleCycleTest_case1_sig5.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.shaft.tau) for t in ref_times]))
-  end
-    if isfile("snapshots/VehicleCycleTest_case1_sig0.ref")
-      ref = CSV.read("snapshots/VehicleCycleTest_case1_sig0.ref", DataFrame)
-      for i in 1:length(ref.expected)
-        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.vehicle_speed) atol=0.001 rtol=9.999999999999999e-6
-      end
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.vehicle.vehicle_speed])
-        dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig0.ref", DataFrame)
-        plot(sol, idxs=[model.vehicle.vehicle_speed], width=2, label="Actual value of vehicle.vehicle_speed")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of vehicle.vehicle_speed")
-        plot!([df.t[1]], [0], seriestype=:scatter, label="Initial Condition for vehicle.vehicle_speed")
-        mkpath("comparisons")
-        savefig("comparisons/VehicleCycleTest_case1_sig0.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/VehicleCycleTest_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.vehicle_speed) for t in ref_times]))
-    end
-    if isfile("snapshots/VehicleCycleTest_case1_sig1.ref")
-      ref = CSV.read("snapshots/VehicleCycleTest_case1_sig1.ref", DataFrame)
-      for i in 1:length(ref.expected)
-        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.wheel_speed) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
-      end
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.vehicle.wheel_speed])
-        dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig1.ref", DataFrame)
-        plot(sol, idxs=[model.vehicle.wheel_speed], width=2, label="Actual value of vehicle.wheel_speed")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of vehicle.wheel_speed")
-        mkpath("comparisons")
-        savefig("comparisons/VehicleCycleTest_case1_sig1.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/VehicleCycleTest_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.wheel_speed) for t in ref_times]))
-    end
-    if isfile("snapshots/VehicleCycleTest_case1_sig2.ref")
-      ref = CSV.read("snapshots/VehicleCycleTest_case1_sig2.ref", DataFrame)
-      for i in 1:length(ref.expected)
-        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.pad_mass.T) atol=0.001 rtol=9.999999999999999e-6
-      end
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.pad_mass.T])
-        dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig2.ref", DataFrame)
-        plot(sol, idxs=[model.brake_thermal.pad_mass.T], width=2, label="Actual value of brake_thermal.pad_mass.T")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of brake_thermal.pad_mass.T")
-        plot!([df.t[1]], [293.15], seriestype=:scatter, label="Initial Condition for brake_thermal.pad_mass.T")
-        mkpath("comparisons")
-        savefig("comparisons/VehicleCycleTest_case1_sig2.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/VehicleCycleTest_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake_thermal.pad_mass.T) for t in ref_times]))
-    end
-    if isfile("snapshots/VehicleCycleTest_case1_sig3.ref")
-      ref = CSV.read("snapshots/VehicleCycleTest_case1_sig3.ref", DataFrame)
-      for i in 1:length(ref.expected)
-        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake_thermal.disk_mass.T) atol=0.001 rtol=9.999999999999999e-6
-      end
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.brake_thermal.disk_mass.T])
-        dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig3.ref", DataFrame)
-        plot(sol, idxs=[model.brake_thermal.disk_mass.T], width=2, label="Actual value of brake_thermal.disk_mass.T")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of brake_thermal.disk_mass.T")
-        plot!([df.t[1]], [293.15], seriestype=:scatter, label="Initial Condition for brake_thermal.disk_mass.T")
-        mkpath("comparisons")
-        savefig("comparisons/VehicleCycleTest_case1_sig3.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/VehicleCycleTest_case1_sig3.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake_thermal.disk_mass.T) for t in ref_times]))
-    end
-    if isfile("snapshots/VehicleCycleTest_case1_sig4.ref")
-      ref = CSV.read("snapshots/VehicleCycleTest_case1_sig4.ref", DataFrame)
-      for i in 1:length(ref.expected)
-        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.powertrain.drive.tau) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
-      end
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.powertrain.drive.tau])
-        dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig4.ref", DataFrame)
-        plot(sol, idxs=[model.powertrain.drive.tau], width=2, label="Actual value of powertrain.drive.tau")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of powertrain.drive.tau")
-        mkpath("comparisons")
-        savefig("comparisons/VehicleCycleTest_case1_sig4.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/VehicleCycleTest_case1_sig4.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.powertrain.drive.tau) for t in ref_times]))
-    end
-    if isfile("snapshots/VehicleCycleTest_case1_sig5.ref")
-      ref = CSV.read("snapshots/VehicleCycleTest_case1_sig5.ref", DataFrame)
-      for i in 1:length(ref.expected)
-        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.brake.shaft.tau) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
-      end
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.brake.shaft.tau])
-        dfr = CSV.read("snapshots/VehicleCycleTest_case1_sig5.ref", DataFrame)
-        plot(sol, idxs=[model.brake.shaft.tau], width=2, label="Actual value of brake.shaft.tau")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of brake.shaft.tau")
-        mkpath("comparisons")
-        savefig("comparisons/VehicleCycleTest_case1_sig5.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/VehicleCycleTest_case1_sig5.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.brake.shaft.tau) for t in ref_times]))
-    end
-end
+__dyad_run_test_case!(
+  FrictionBrakeDemo.VehicleCycleTest,
+  "case1 for FrictionBrakeDemo.VehicleCycleTest";
+  case_name="case1",
+  component_stem="VehicleCycleTest",
+  module_path=String[],
+  start=0e+0,
+  stop=2e+3,
+  abstol=1e-6,
+  reltol=1e-6,
+  solver=ODEAlg.Auto(),
+  params=(;),
+  initial_conditions=Tuple[],
+  expected_initial=Tuple[
+    (m -> m.vehicle.vehicle_speed, "vehicle.vehicle_speed", 0, 0.001, 1e-5),
+    (m -> m.brake_thermal.pad_mass.T, "brake_thermal.pad_mass.T", 293.15, 0.001, 1e-5),
+    (m -> m.brake_thermal.disk_mass.T, "brake_thermal.disk_mass.T", 293.15, 0.001, 1e-5),
+  ],
+  expected_final=Tuple[],
+  signals=Tuple[
+    (m -> m.vehicle.vehicle_speed, "vehicle.vehicle_speed", 0.001, 1e-5),
+    (m -> m.vehicle.wheel_speed, "vehicle.wheel_speed", 1e-5, 1e-5),
+    (m -> m.brake_thermal.pad_mass.T, "brake_thermal.pad_mass.T", 0.001, 1e-5),
+    (m -> m.brake_thermal.disk_mass.T, "brake_thermal.disk_mass.T", 0.001, 1e-5),
+    (m -> m.powertrain.drive.tau, "powertrain.drive.tau", 1e-5, 1e-5),
+    (m -> m.brake.shaft.tau, "brake.shaft.tau", 1e-5, 1e-5),
+  ],
+)

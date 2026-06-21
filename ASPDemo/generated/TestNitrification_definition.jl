@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestNitrification(; name)
 """
 @component function TestNitrification(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestNitrification()
+  """))
 
-        @named model = TestNitrification()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,16 +54,13 @@
 
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
-  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
-  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
   push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
   # Subcomponent tank of type ASPDemo.Nitrification
-  tank_overrides = Dict(Symbol(replace(string(k), r"^tank__" => "")) => v for (k, v) in __overrides if startswith(string(k), "tank__"))
-  filter!(p -> !startswith(string(first(p)), "tank__"), __overrides)
+  tank_overrides = __pop_subcomponent_overrides!(__overrides, "tank")
   push!(__systems, @named tank = ASPDemo.Nitrification(V=1333, tank_overrides...))
   # Subcomponent sink of type ASPDemo.EffluentSink
-  sink_overrides = Dict(Symbol(replace(string(k), r"^sink__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sink__"))
-  filter!(p -> !startswith(string(first(p)), "sink__"), __overrides)
+  sink_overrides = __pop_subcomponent_overrides!(__overrides, "sink")
   push!(__systems, @named sink = ASPDemo.EffluentSink(sink_overrides...))
 
   ### Check there are no unmatched overrides
@@ -74,20 +74,20 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, source.Q_in ~ 21477)
-  push!(__eqs, source.Si ~ 30)
+  push!(__eqs, source.Q_in ~ 21477.0)
+  push!(__eqs, source.Si ~ 30.0)
   push!(__eqs, source.Ss ~ 63.63455)
   push!(__eqs, source.Xi ~ 58.476)
   push!(__eqs, source.Xs ~ 224.352)
   push!(__eqs, source.Xbh ~ 31.425)
-  push!(__eqs, source.Xba ~ 0)
-  push!(__eqs, source.Xp ~ 0)
-  push!(__eqs, source.So ~ 0)
-  push!(__eqs, source.Sno ~ 0)
+  push!(__eqs, source.Xba ~ 0.0)
+  push!(__eqs, source.Xp ~ 0.0)
+  push!(__eqs, source.So ~ 0.0)
+  push!(__eqs, source.Sno ~ 0.0)
   push!(__eqs, source.Snh ~ 30.24762)
   push!(__eqs, source.Snd ~ 6.36346)
   push!(__eqs, source.Xnd ~ 11.814)
-  push!(__eqs, source.Salk ~ 7)
+  push!(__eqs, source.Salk ~ 7.0)
   push!(__eqs, tank.T ~ 15)
   push!(__eqs, tank.Q_air ~ 34574.2654508612)
   push!(__eqs, connect(source.port, tank.portIn))

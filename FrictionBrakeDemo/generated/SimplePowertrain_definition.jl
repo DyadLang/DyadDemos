@@ -4,15 +4,17 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SimplePowertrain(; name, base_torque, c_normalized_torque, tau, tau_start)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `base_torque`         |                          | N.m  |   150 |
-| `c_normalized_torque`         |                          | --  |   [12.343, -0.57128, 0.010451, -0.000062024] |
+| `base_torque`         |                          | N.m  |   150.0 |
+| `c_normalized_torque`         |                          | --  |   [1.2343E+01...6.2024E-05] |
 | `tau`         |                          | s  |   0.1 |
 | `tau_start`         |                          | N.m  |   0 |
 
@@ -25,18 +27,19 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `normalized_torque`         |                          | --  | 
-| `torque`         |                          | N.m  | 
+| ------------ | ----------------------------------- | ------ |
+| `normalized_torque`         |                          | --  |
+| `torque`         |                          | N.m  |
 """
-@component function SimplePowertrain(; name = nothing, base_torque=Float64(150), c_normalized_torque=[12.343, -0.57128, 0.010451, -0.000062024], tau=0.1, tau_start=Float64(0), kwargs...)
+@component function SimplePowertrain(; name = nothing, base_torque=Float64(150.0), c_normalized_torque=[12.343, -0.57128, 0.010451, -0.000062024], tau=0.1, tau_start=Float64(0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SimplePowertrain()
+  """))
 
-        @named model = SimplePowertrain()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -56,8 +59,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -73,6 +74,8 @@
   __local__tau_start = tau_start
   append!(__params, @parameters (tau_start::Real))
   __initial_conditions[tau_start] = __local__tau_start
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (throttle(t)::Real), [input = true])

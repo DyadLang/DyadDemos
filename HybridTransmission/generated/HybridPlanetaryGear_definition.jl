@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HybridPlanetaryGear(; name, ratio)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -21,12 +23,13 @@
 """
 @component function HybridPlanetaryGear(; name = nothing, ratio=2.6, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HybridPlanetaryGear()
+  """))
 
-        @named model = HybridPlanetaryGear()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -46,14 +49,14 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
   __local__ratio = ratio
   append!(__params, @parameters (ratio::Real), [description = "Gear ratio defined as (number of ring_teeth) / (number of sun_teeth)."])
   __initial_conditions[ratio] = __local__ratio
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 

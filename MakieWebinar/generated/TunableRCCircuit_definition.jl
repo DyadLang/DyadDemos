@@ -4,28 +4,31 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TunableRCCircuit(; name, R, C, V_supply)
 
 Simple RC charging circuit with variable time constant.
 User can adjust R and C to see different charging behaviors.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `R`         | Resistance (controls charging speed)                         | Ω  |   1000 |
-| `C`         | Capacitance (controls charge storage)                         | F  |   0.000001 |
-| `V_supply`         | Supply voltage                         | V  |   10 |
+| `R`         | Resistance (controls charging speed)                         | Ω  |   1000.0 |
+| `C`         | Capacitance (controls charge storage)                         | F  |   1e-6 |
+| `V_supply`         | Supply voltage                         | V  |   10.0 |
 """
-@component function TunableRCCircuit(; name = nothing, R=Float64(1000), C=0.000001, V_supply=Float64(10), kwargs...)
+@component function TunableRCCircuit(; name = nothing, R=Float64(1000.0), C=0.000001, V_supply=Float64(10.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TunableRCCircuit()
+  """))
 
-        @named model = TunableRCCircuit()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -45,8 +48,6 @@ User can adjust R and C to see different charging behaviors.
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -60,6 +61,8 @@ User can adjust R and C to see different charging behaviors.
   append!(__params, @parameters (V_supply::Real), [description = "Supply voltage"])
   __initial_conditions[V_supply] = __local__V_supply
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
 
   ### Variables (declarations)
@@ -71,24 +74,19 @@ User can adjust R and C to see different charging behaviors.
 
   ### Components
   # Subcomponent source of type ElectricalComponents.Analog.Sources.VoltageSource
-  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
-  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
   push!(__systems, @named source = ElectricalComponents.Analog.Sources.VoltageSource(source_overrides...))
   # Subcomponent voltage_signal of type BlockComponents.Sources.Constant
-  voltage_signal_overrides = Dict(Symbol(replace(string(k), r"^voltage_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "voltage_signal__"))
-  filter!(p -> !startswith(string(first(p)), "voltage_signal__"), __overrides)
+  voltage_signal_overrides = __pop_subcomponent_overrides!(__overrides, "voltage_signal")
   push!(__systems, @named voltage_signal = BlockComponents.Sources.Constant(k=V_supply, voltage_signal_overrides...))
   # Subcomponent resistor of type ElectricalComponents.Analog.Basic.Resistor
-  resistor_overrides = Dict(Symbol(replace(string(k), r"^resistor__" => "")) => v for (k, v) in __overrides if startswith(string(k), "resistor__"))
-  filter!(p -> !startswith(string(first(p)), "resistor__"), __overrides)
+  resistor_overrides = __pop_subcomponent_overrides!(__overrides, "resistor")
   push!(__systems, @named resistor = ElectricalComponents.Analog.Basic.Resistor(R=R, resistor_overrides...))
   # Subcomponent capacitor of type ElectricalComponents.Analog.Basic.Capacitor
-  capacitor_overrides = Dict(Symbol(replace(string(k), r"^capacitor__" => "")) => v for (k, v) in __overrides if startswith(string(k), "capacitor__"))
-  filter!(p -> !startswith(string(first(p)), "capacitor__"), __overrides)
+  capacitor_overrides = __pop_subcomponent_overrides!(__overrides, "capacitor")
   push!(__systems, @named capacitor = ElectricalComponents.Analog.Basic.Capacitor(C=C, capacitor_overrides...))
   # Subcomponent ground of type ElectricalComponents.Analog.Basic.Ground
-  ground_overrides = Dict(Symbol(replace(string(k), r"^ground__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground__"))
-  filter!(p -> !startswith(string(first(p)), "ground__"), __overrides)
+  ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
   push!(__systems, @named ground = ElectricalComponents.Analog.Basic.Ground(ground_overrides...))
 
   ### Check there are no unmatched overrides

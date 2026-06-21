@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SteamSubsystem(; name, Gc_top, Gr_top)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -21,12 +23,13 @@
 """
 @component function SteamSubsystem(; name = nothing, Gc_top=0.01, Gr_top=0.001, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SteamSubsystem()
+  """))
 
-        @named model = SteamSubsystem()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -46,8 +49,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -57,6 +58,8 @@
   __local__Gr_top = Gr_top
   append!(__params, @parameters (Gr_top::Real))
   __initial_conditions[Gr_top] = __local__Gr_top
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -71,16 +74,13 @@
   push!(__systems, @named liquidInterface = __Dyad__HeatPort())
   push!(__systems, @named ambient = __Dyad__HeatPort())
   # Subcomponent convTop of type ThermalComponents.Components.Convection
-  convTop_overrides = Dict(Symbol(replace(string(k), r"^convTop__" => "")) => v for (k, v) in __overrides if startswith(string(k), "convTop__"))
-  filter!(p -> !startswith(string(first(p)), "convTop__"), __overrides)
+  convTop_overrides = __pop_subcomponent_overrides!(__overrides, "convTop")
   push!(__systems, @named convTop = ThermalComponents.Components.Convection(convTop_overrides...))
   # Subcomponent gcTop of type BlockComponents.Sources.Constant
-  gcTop_overrides = Dict(Symbol(replace(string(k), r"^gcTop__" => "")) => v for (k, v) in __overrides if startswith(string(k), "gcTop__"))
-  filter!(p -> !startswith(string(first(p)), "gcTop__"), __overrides)
+  gcTop_overrides = __pop_subcomponent_overrides!(__overrides, "gcTop")
   push!(__systems, @named gcTop = BlockComponents.Sources.Constant(k=Gc_top, gcTop_overrides...))
   # Subcomponent radTop of type ThermalComponents.Components.BodyRadiation
-  radTop_overrides = Dict(Symbol(replace(string(k), r"^radTop__" => "")) => v for (k, v) in __overrides if startswith(string(k), "radTop__"))
-  filter!(p -> !startswith(string(first(p)), "radTop__"), __overrides)
+  radTop_overrides = __pop_subcomponent_overrides!(__overrides, "radTop")
   push!(__systems, @named radTop = ThermalComponents.Components.BodyRadiation(Gr=Gr_top, radTop_overrides...))
 
   ### Check there are no unmatched overrides

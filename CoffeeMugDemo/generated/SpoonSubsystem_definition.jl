@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SpoonSubsystem(; name, C_spoon, T0_spoon, G_liquid_contact, Gc_exposed, Gr_exposed)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `C_spoon`         |                          | J/K  |   10 |
+| `C_spoon`         |                          | J/K  |   10.0 |
 | `T0_spoon`         |                          | K  |   293.15 |
 | `G_liquid_contact`         |                          | W/K  |   0.2 |
 | `Gc_exposed`         |                          | --  |   0.02 |
@@ -22,14 +24,15 @@
  * `liquidInterface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `ambient` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function SpoonSubsystem(; name = nothing, C_spoon=Float64(10), T0_spoon=293.15, G_liquid_contact=0.2, Gc_exposed=0.02, Gr_exposed=0.0005, kwargs...)
+@component function SpoonSubsystem(; name = nothing, C_spoon=Float64(10.0), T0_spoon=293.15, G_liquid_contact=0.2, Gc_exposed=0.02, Gr_exposed=0.0005, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SpoonSubsystem()
+  """))
 
-        @named model = SpoonSubsystem()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -48,8 +51,6 @@
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -70,6 +71,8 @@
   append!(__params, @parameters (Gr_exposed::Real))
   __initial_conditions[Gr_exposed] = __local__Gr_exposed
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
 
   ### Variables (declarations)
@@ -83,24 +86,19 @@
   push!(__systems, @named liquidInterface = __Dyad__HeatPort())
   push!(__systems, @named ambient = __Dyad__HeatPort())
   # Subcomponent spoonMass of type ThermalComponents.Components.HeatCapacitor
-  spoonMass_overrides = Dict(Symbol(replace(string(k), r"^spoonMass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "spoonMass__"))
-  filter!(p -> !startswith(string(first(p)), "spoonMass__"), __overrides)
+  spoonMass_overrides = __pop_subcomponent_overrides!(__overrides, "spoonMass")
   push!(__systems, @named spoonMass = ThermalComponents.Components.HeatCapacitor(C=C_spoon, T0=T0_spoon, spoonMass_overrides...))
   # Subcomponent liquidContact of type ThermalComponents.Components.ThermalConductor
-  liquidContact_overrides = Dict(Symbol(replace(string(k), r"^liquidContact__" => "")) => v for (k, v) in __overrides if startswith(string(k), "liquidContact__"))
-  filter!(p -> !startswith(string(first(p)), "liquidContact__"), __overrides)
+  liquidContact_overrides = __pop_subcomponent_overrides!(__overrides, "liquidContact")
   push!(__systems, @named liquidContact = ThermalComponents.Components.ThermalConductor(G=G_liquid_contact, liquidContact_overrides...))
   # Subcomponent convExposed of type ThermalComponents.Components.Convection
-  convExposed_overrides = Dict(Symbol(replace(string(k), r"^convExposed__" => "")) => v for (k, v) in __overrides if startswith(string(k), "convExposed__"))
-  filter!(p -> !startswith(string(first(p)), "convExposed__"), __overrides)
+  convExposed_overrides = __pop_subcomponent_overrides!(__overrides, "convExposed")
   push!(__systems, @named convExposed = ThermalComponents.Components.Convection(convExposed_overrides...))
   # Subcomponent gcExposed of type BlockComponents.Sources.Constant
-  gcExposed_overrides = Dict(Symbol(replace(string(k), r"^gcExposed__" => "")) => v for (k, v) in __overrides if startswith(string(k), "gcExposed__"))
-  filter!(p -> !startswith(string(first(p)), "gcExposed__"), __overrides)
+  gcExposed_overrides = __pop_subcomponent_overrides!(__overrides, "gcExposed")
   push!(__systems, @named gcExposed = BlockComponents.Sources.Constant(k=Gc_exposed, gcExposed_overrides...))
   # Subcomponent radExposed of type ThermalComponents.Components.BodyRadiation
-  radExposed_overrides = Dict(Symbol(replace(string(k), r"^radExposed__" => "")) => v for (k, v) in __overrides if startswith(string(k), "radExposed__"))
-  filter!(p -> !startswith(string(first(p)), "radExposed__"), __overrides)
+  radExposed_overrides = __pop_subcomponent_overrides!(__overrides, "radExposed")
   push!(__systems, @named radExposed = ThermalComponents.Components.BodyRadiation(Gr=Gr_exposed, radExposed_overrides...))
 
   ### Check there are no unmatched overrides

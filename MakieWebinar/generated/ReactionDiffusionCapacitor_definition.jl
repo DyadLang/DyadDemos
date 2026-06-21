@@ -4,15 +4,17 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ReactionDiffusionCapacitor(; name, V, k)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `V`         | Volume                         | --  |   1 |
-| `k`         | Growth rate (positive=growth, negative=decay)                         | --  |   0 |
+| `V`         | Volume                         | --  |   1.0 |
+| `k`         | Growth rate (positive=growth, negative=decay)                         | --  |   0.0 |
 
 ## Connectors
 
@@ -35,17 +37,18 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `C`         | Concentration at this point                         | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `C`         | Concentration at this point                         | --  |
 """
-@component function ReactionDiffusionCapacitor(; name = nothing, V=Float64(1), k=Float64(0), kwargs...)
+@component function ReactionDiffusionCapacitor(; name = nothing, V=Float64(1.0), k=Float64(0.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ReactionDiffusionCapacitor()
+  """))
 
-        @named model = ReactionDiffusionCapacitor()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -65,8 +68,6 @@ Supported dynamics:
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -76,6 +77,8 @@ Supported dynamics:
   __local__k = k
   append!(__params, @parameters (k::Real), [description = "Growth rate (positive=growth, negative=decay)"])
   __initial_conditions[k] = __local__k
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 

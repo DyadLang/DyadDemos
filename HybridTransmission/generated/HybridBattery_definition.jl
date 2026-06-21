@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HybridBattery(; name, V_nom, Q_nom, SOC_init, SOC_min, SOC_max)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `V_nom`         |                          | V  |   300 |
+| `V_nom`         |                          | V  |   300.0 |
 | `Q_nom`         |                          | --  |   6.5 |
 | `SOC_init`         |                          | --  |   0.6 |
 | `SOC_min`         |                          | --  |   0.4 |
@@ -26,19 +28,20 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `SOC`         |                          | --  | 
-| `total_power`         |                          | W  | 
-| `energy_discharged`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `SOC`         |                          | --  |
+| `total_power`         |                          | W  |
+| `energy_discharged`         |                          | --  |
 """
-@component function HybridBattery(; name = nothing, V_nom=Float64(300), Q_nom=6.5, SOC_init=0.6, SOC_min=0.4, SOC_max=0.8, kwargs...)
+@component function HybridBattery(; name = nothing, V_nom=Float64(300.0), Q_nom=6.5, SOC_init=0.6, SOC_min=0.4, SOC_max=0.8, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HybridBattery()
+  """))
 
-        @named model = HybridBattery()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,8 +61,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -78,6 +79,8 @@
   __local__SOC_max = SOC_max
   append!(__params, @parameters (SOC_max::Real))
   __initial_conditions[SOC_max] = __local__SOC_max
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (mg1_power(t)::Real), [input = true])
@@ -109,15 +112,15 @@
 
   ### Initialization Equations
   push!(__initialization_eqs, SOC ~ SOC_init)
-  push!(__initialization_eqs, energy_discharged ~ 0)
+  push!(__initialization_eqs, energy_discharged ~ 0.0)
 
   ### Assertions
   __assertions = []
 
   ### Equations
   push!(__eqs, total_power ~ mg1_power + mg2_power)
-  push!(__eqs, ModelingToolkit.D_nounits(SOC) ~ -total_power / (V_nom * Q_nom * 3600))
-  push!(__eqs, ModelingToolkit.D_nounits(energy_discharged) ~ total_power / 3600)
+  push!(__eqs, ModelingToolkit.D_nounits(SOC) ~ -total_power / (V_nom * Q_nom * 3600.0))
+  push!(__eqs, ModelingToolkit.D_nounits(energy_discharged) ~ total_power / 3600.0)
   push!(__eqs, soc_output ~ SOC)
 
   # Return completely constructed System

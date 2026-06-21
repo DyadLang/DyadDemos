@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    BrakeThermalTest_Constant(; name, Q_disk, Q_pad, vehicle_speed, wheel_speed)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -18,12 +20,13 @@
 """
 @component function BrakeThermalTest_Constant(; name = nothing, Q_disk=Float64(9300), Q_pad=Float64(700), vehicle_speed=Float64(25), wheel_speed=Float64(83), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = BrakeThermalTest_Constant()
+  """))
 
-        @named model = BrakeThermalTest_Constant()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -43,8 +46,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -61,6 +62,8 @@
   append!(__params, @parameters (wheel_speed::Real))
   __initial_conditions[wheel_speed] = __local__wheel_speed
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
 
   ### Variables (declarations)
@@ -72,24 +75,19 @@
 
   ### Components
   # Subcomponent brake_thermal of type FrictionBrakeDemo.BrakeThermal
-  brake_thermal_overrides = Dict(Symbol(replace(string(k), r"^brake_thermal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "brake_thermal__"))
-  filter!(p -> !startswith(string(first(p)), "brake_thermal__"), __overrides)
+  brake_thermal_overrides = __pop_subcomponent_overrides!(__overrides, "brake_thermal")
   push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(brake_thermal_overrides...))
   # Subcomponent disk_heat_input of type ThermalComponents.Sources.FixedHeatFlow
-  disk_heat_input_overrides = Dict(Symbol(replace(string(k), r"^disk_heat_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_heat_input__"))
-  filter!(p -> !startswith(string(first(p)), "disk_heat_input__"), __overrides)
+  disk_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_input")
   push!(__systems, @named disk_heat_input = ThermalComponents.Sources.FixedHeatFlow(Q_flow=Q_disk, disk_heat_input_overrides...))
   # Subcomponent pad_heat_input of type ThermalComponents.Sources.FixedHeatFlow
-  pad_heat_input_overrides = Dict(Symbol(replace(string(k), r"^pad_heat_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_heat_input__"))
-  filter!(p -> !startswith(string(first(p)), "pad_heat_input__"), __overrides)
+  pad_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_input")
   push!(__systems, @named pad_heat_input = ThermalComponents.Sources.FixedHeatFlow(Q_flow=Q_pad, pad_heat_input_overrides...))
   # Subcomponent vehicle_speed_source of type BlockComponents.Sources.Constant
-  vehicle_speed_source_overrides = Dict(Symbol(replace(string(k), r"^vehicle_speed_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle_speed_source__"))
-  filter!(p -> !startswith(string(first(p)), "vehicle_speed_source__"), __overrides)
+  vehicle_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_speed_source")
   push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(k=vehicle_speed, vehicle_speed_source_overrides...))
   # Subcomponent wheel_speed_source of type BlockComponents.Sources.Constant
-  wheel_speed_source_overrides = Dict(Symbol(replace(string(k), r"^wheel_speed_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wheel_speed_source__"))
-  filter!(p -> !startswith(string(first(p)), "wheel_speed_source__"), __overrides)
+  wheel_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "wheel_speed_source")
   push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(k=wheel_speed, wheel_speed_source_overrides...))
 
   ### Check there are no unmatched overrides

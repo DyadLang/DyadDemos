@@ -4,41 +4,44 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    FlowSourceFile(; name, input_file, dataset_Q, dataset_Si, dataset_Ss, dataset_Xi, dataset_Xs, dataset_Xbh, dataset_Xba, dataset_Xp, dataset_So, dataset_Sno, dataset_Snh, dataset_Snd, dataset_Xnd, dataset_Salk)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `input_file`         |                          | --  |   "dyad://ASPDemo/../test/data/Inf_dry_const_benchmark.csv" |
-| `dataset_Q`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Q"], independent_var="t") |
-| `dataset_Si`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Si"], independent_var="t") |
-| `dataset_Ss`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Ss"], independent_var="t") |
-| `dataset_Xi`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Xi"], independent_var="t") |
-| `dataset_Xs`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Xs"], independent_var="t") |
-| `dataset_Xbh`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Xbh"], independent_var="t") |
-| `dataset_Xba`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Xba"], independent_var="t") |
-| `dataset_Xp`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Xp"], independent_var="t") |
-| `dataset_So`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["So"], independent_var="t") |
-| `dataset_Sno`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Sno"], independent_var="t") |
-| `dataset_Snh`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Snh"], independent_var="t") |
-| `dataset_Snd`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Snd"], independent_var="t") |
-| `dataset_Xnd`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Xnd"], independent_var="t") |
-| `dataset_Salk`         |                          | --  |   DyadData.DyadTimeseries(input_file, dependent_vars=["Salk"], independent_var="t") |
+| `input_file`         |                          | --  |   "dyad://ASP...chmark.csv" |
+| `dataset_Q`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Si`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Ss`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Xi`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Xs`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Xbh`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Xba`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Xp`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_So`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Sno`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Snh`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Snd`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Xnd`         |                          | --  |   DyadData.Dy...nt_var="t") |
+| `dataset_Salk`         |                          | --  |   DyadData.Dy...nt_var="t") |
 
 ## Connectors
 
  * `port` - ([`FluidPortOut`](@ref))
 """
-@component function FlowSourceFile(; name = nothing, input_file="dyad://ASPDemo/../test/data/Inf_dry_const_benchmark.csv", dataset_Q=DyadData.DyadTimeseries(input_file, dependent_vars=["Q"], independent_var="t"), dataset_Si=DyadData.DyadTimeseries(input_file, dependent_vars=["Si"], independent_var="t"), dataset_Ss=DyadData.DyadTimeseries(input_file, dependent_vars=["Ss"], independent_var="t"), dataset_Xi=DyadData.DyadTimeseries(input_file, dependent_vars=["Xi"], independent_var="t"), dataset_Xs=DyadData.DyadTimeseries(input_file, dependent_vars=["Xs"], independent_var="t"), dataset_Xbh=DyadData.DyadTimeseries(input_file, dependent_vars=["Xbh"], independent_var="t"), dataset_Xba=DyadData.DyadTimeseries(input_file, dependent_vars=["Xba"], independent_var="t"), dataset_Xp=DyadData.DyadTimeseries(input_file, dependent_vars=["Xp"], independent_var="t"), dataset_So=DyadData.DyadTimeseries(input_file, dependent_vars=["So"], independent_var="t"), dataset_Sno=DyadData.DyadTimeseries(input_file, dependent_vars=["Sno"], independent_var="t"), dataset_Snh=DyadData.DyadTimeseries(input_file, dependent_vars=["Snh"], independent_var="t"), dataset_Snd=DyadData.DyadTimeseries(input_file, dependent_vars=["Snd"], independent_var="t"), dataset_Xnd=DyadData.DyadTimeseries(input_file, dependent_vars=["Xnd"], independent_var="t"), dataset_Salk=DyadData.DyadTimeseries(input_file, dependent_vars=["Salk"], independent_var="t"), kwargs...)
+@component function FlowSourceFile(; name = nothing, input_file="dyad://ASPDemo/../test/data/Inf_dry_const_benchmark.csv", dataset_Q=DyadData.DyadTimeseries(input_file; dependent_vars=["Q"], independent_var="t"), dataset_Si=DyadData.DyadTimeseries(input_file; dependent_vars=["Si"], independent_var="t"), dataset_Ss=DyadData.DyadTimeseries(input_file; dependent_vars=["Ss"], independent_var="t"), dataset_Xi=DyadData.DyadTimeseries(input_file; dependent_vars=["Xi"], independent_var="t"), dataset_Xs=DyadData.DyadTimeseries(input_file; dependent_vars=["Xs"], independent_var="t"), dataset_Xbh=DyadData.DyadTimeseries(input_file; dependent_vars=["Xbh"], independent_var="t"), dataset_Xba=DyadData.DyadTimeseries(input_file; dependent_vars=["Xba"], independent_var="t"), dataset_Xp=DyadData.DyadTimeseries(input_file; dependent_vars=["Xp"], independent_var="t"), dataset_So=DyadData.DyadTimeseries(input_file; dependent_vars=["So"], independent_var="t"), dataset_Sno=DyadData.DyadTimeseries(input_file; dependent_vars=["Sno"], independent_var="t"), dataset_Snh=DyadData.DyadTimeseries(input_file; dependent_vars=["Snh"], independent_var="t"), dataset_Snd=DyadData.DyadTimeseries(input_file; dependent_vars=["Snd"], independent_var="t"), dataset_Xnd=DyadData.DyadTimeseries(input_file; dependent_vars=["Xnd"], independent_var="t"), dataset_Salk=DyadData.DyadTimeseries(input_file; dependent_vars=["Salk"], independent_var="t"), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FlowSourceFile()
+  """))
 
-        @named model = FlowSourceFile()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,11 +61,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -76,60 +79,46 @@
   ### Components
   push!(__systems, @named port = ASPDemo.FluidPortOut())
   # Subcomponent Q_interp of type BlockComponents.Tables.Interpolation
-  Q_interp_overrides = Dict(Symbol(replace(string(k), r"^Q_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Q_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Q_interp__"), __overrides)
+  Q_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Q_interp")
   push!(__systems, @named Q_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Q, Q_interp_overrides...))
   # Subcomponent Si_interp of type BlockComponents.Tables.Interpolation
-  Si_interp_overrides = Dict(Symbol(replace(string(k), r"^Si_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Si_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Si_interp__"), __overrides)
+  Si_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Si_interp")
   push!(__systems, @named Si_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Si, Si_interp_overrides...))
   # Subcomponent Ss_interp of type BlockComponents.Tables.Interpolation
-  Ss_interp_overrides = Dict(Symbol(replace(string(k), r"^Ss_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Ss_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Ss_interp__"), __overrides)
+  Ss_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Ss_interp")
   push!(__systems, @named Ss_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Ss, Ss_interp_overrides...))
   # Subcomponent Xi_interp of type BlockComponents.Tables.Interpolation
-  Xi_interp_overrides = Dict(Symbol(replace(string(k), r"^Xi_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xi_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Xi_interp__"), __overrides)
+  Xi_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xi_interp")
   push!(__systems, @named Xi_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xi, Xi_interp_overrides...))
   # Subcomponent Xs_interp of type BlockComponents.Tables.Interpolation
-  Xs_interp_overrides = Dict(Symbol(replace(string(k), r"^Xs_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xs_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Xs_interp__"), __overrides)
+  Xs_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xs_interp")
   push!(__systems, @named Xs_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xs, Xs_interp_overrides...))
   # Subcomponent Xbh_interp of type BlockComponents.Tables.Interpolation
-  Xbh_interp_overrides = Dict(Symbol(replace(string(k), r"^Xbh_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xbh_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Xbh_interp__"), __overrides)
+  Xbh_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xbh_interp")
   push!(__systems, @named Xbh_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xbh, Xbh_interp_overrides...))
   # Subcomponent Xba_interp of type BlockComponents.Tables.Interpolation
-  Xba_interp_overrides = Dict(Symbol(replace(string(k), r"^Xba_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xba_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Xba_interp__"), __overrides)
+  Xba_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xba_interp")
   push!(__systems, @named Xba_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xba, Xba_interp_overrides...))
   # Subcomponent Xp_interp of type BlockComponents.Tables.Interpolation
-  Xp_interp_overrides = Dict(Symbol(replace(string(k), r"^Xp_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xp_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Xp_interp__"), __overrides)
+  Xp_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xp_interp")
   push!(__systems, @named Xp_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xp, Xp_interp_overrides...))
   # Subcomponent So_interp of type BlockComponents.Tables.Interpolation
-  So_interp_overrides = Dict(Symbol(replace(string(k), r"^So_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "So_interp__"))
-  filter!(p -> !startswith(string(first(p)), "So_interp__"), __overrides)
+  So_interp_overrides = __pop_subcomponent_overrides!(__overrides, "So_interp")
   push!(__systems, @named So_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_So, So_interp_overrides...))
   # Subcomponent Sno_interp of type BlockComponents.Tables.Interpolation
-  Sno_interp_overrides = Dict(Symbol(replace(string(k), r"^Sno_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Sno_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Sno_interp__"), __overrides)
+  Sno_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Sno_interp")
   push!(__systems, @named Sno_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Sno, Sno_interp_overrides...))
   # Subcomponent Snh_interp of type BlockComponents.Tables.Interpolation
-  Snh_interp_overrides = Dict(Symbol(replace(string(k), r"^Snh_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Snh_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Snh_interp__"), __overrides)
+  Snh_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Snh_interp")
   push!(__systems, @named Snh_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Snh, Snh_interp_overrides...))
   # Subcomponent Snd_interp of type BlockComponents.Tables.Interpolation
-  Snd_interp_overrides = Dict(Symbol(replace(string(k), r"^Snd_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Snd_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Snd_interp__"), __overrides)
+  Snd_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Snd_interp")
   push!(__systems, @named Snd_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Snd, Snd_interp_overrides...))
   # Subcomponent Xnd_interp of type BlockComponents.Tables.Interpolation
-  Xnd_interp_overrides = Dict(Symbol(replace(string(k), r"^Xnd_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Xnd_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Xnd_interp__"), __overrides)
+  Xnd_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xnd_interp")
   push!(__systems, @named Xnd_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xnd, Xnd_interp_overrides...))
   # Subcomponent Salk_interp of type BlockComponents.Tables.Interpolation
-  Salk_interp_overrides = Dict(Symbol(replace(string(k), r"^Salk_interp__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Salk_interp__"))
-  filter!(p -> !startswith(string(first(p)), "Salk_interp__"), __overrides)
+  Salk_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Salk_interp")
   push!(__systems, @named Salk_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Salk, Salk_interp_overrides...))
 
   ### Check there are no unmatched overrides

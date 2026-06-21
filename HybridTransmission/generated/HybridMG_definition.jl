@@ -4,16 +4,18 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HybridMG(; name, Kt, b_friction, max_torque)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `Kt`         |                          | --  |   1 |
+| `Kt`         |                          | --  |   1.0 |
 | `b_friction`         |                          | --  |   0.005 |
-| `max_torque`         |                          | N.m  |   200 |
+| `max_torque`         |                          | N.m  |   200.0 |
 
 ## Connectors
 
@@ -25,17 +27,18 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `omega`         |                          | rad/s  | 
+| ------------ | ----------------------------------- | ------ |
+| `omega`         |                          | rad/s  |
 """
-@component function HybridMG(; name = nothing, Kt=Float64(1), b_friction=0.005, max_torque=Float64(200), kwargs...)
+@component function HybridMG(; name = nothing, Kt=Float64(1.0), b_friction=0.005, max_torque=Float64(200.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HybridMG()
+  """))
 
-        @named model = HybridMG()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,8 +58,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -69,6 +70,8 @@
   __local__max_torque = max_torque
   append!(__params, @parameters (max_torque::Real))
   __initial_conditions[max_torque] = __local__max_torque
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (torque_cmd(t)::Real), [input = true])

@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    Driver(; name, k, Ti, Td)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -24,12 +26,13 @@
 """
 @component function Driver(; name = nothing, k=0.5, Ti=Float64(2), Td=0.1, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = Driver()
+  """))
 
-        @named model = Driver()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -49,8 +52,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -63,6 +64,8 @@
   __local__Td = Td
   append!(__params, @parameters (Td::Real))
   __initial_conditions[Td] = __local__Td
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (speed_ref(t)::Real), [input = true])
@@ -79,13 +82,11 @@
 
   ### Components
   # Subcomponent speed_pid of type BlockComponents.Continuous.LimPID
-  speed_pid_overrides = Dict(Symbol(replace(string(k), r"^speed_pid__" => "")) => v for (k, v) in __overrides if startswith(string(k), "speed_pid__"))
-  filter!(p -> !startswith(string(first(p)), "speed_pid__"), __overrides)
-  push!(__systems, @named speed_pid = BlockComponents.Continuous.LimPID(k=k, Ti=Ti, Td=Td, y_max=1, y_min=-1, wp=1, wd=0, Ni=0.9, Nd=10, k_ff=0, speed_pid_overrides...))
+  speed_pid_overrides = __pop_subcomponent_overrides!(__overrides, "speed_pid")
+  push!(__systems, @named speed_pid = BlockComponents.Continuous.LimPID(k=k, Ti=Ti, Td=Td, y_max=1.0, y_min=-1.0, wp=1.0, wd=0.0, Ni=0.9, Nd=10.0, k_ff=0.0, speed_pid_overrides...))
   # Subcomponent ff_input of type BlockComponents.Sources.Constant
-  ff_input_overrides = Dict(Symbol(replace(string(k), r"^ff_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ff_input__"))
-  filter!(p -> !startswith(string(first(p)), "ff_input__"), __overrides)
-  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(k=0, ff_input_overrides...))
+  ff_input_overrides = __pop_subcomponent_overrides!(__overrides, "ff_input")
+  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(k=0.0, ff_input_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

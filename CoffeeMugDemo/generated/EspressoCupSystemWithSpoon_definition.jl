@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    EspressoCupSystemWithSpoon(; name)
 """
 @component function EspressoCupSystemWithSpoon(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = EspressoCupSystemWithSpoon()
+  """))
 
-        @named model = EspressoCupSystemWithSpoon()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,34 +54,29 @@
 
   ### Components
   # Subcomponent coffeeMug of type CoffeeMugDemo.CoffeeMugSubsystem
-  coffeeMug_overrides = Dict(Symbol(replace(string(k), r"^coffeeMug__" => "")) => v for (k, v) in __overrides if startswith(string(k), "coffeeMug__"))
-  filter!(p -> !startswith(string(first(p)), "coffeeMug__"), __overrides)
+  coffeeMug_overrides = __pop_subcomponent_overrides!(__overrides, "coffeeMug")
   push!(__systems, @named coffeeMug = CoffeeMugDemo.CoffeeMugSubsystem(coffeeMug_overrides...))
   # Subcomponent steam of type CoffeeMugDemo.SteamSubsystem
-  steam_overrides = Dict(Symbol(replace(string(k), r"^steam__" => "")) => v for (k, v) in __overrides if startswith(string(k), "steam__"))
-  filter!(p -> !startswith(string(first(p)), "steam__"), __overrides)
+  steam_overrides = __pop_subcomponent_overrides!(__overrides, "steam")
   push!(__systems, @named steam = CoffeeMugDemo.SteamSubsystem(steam_overrides...))
   # Subcomponent spoon of type CoffeeMugDemo.SpoonSubsystem
-  spoon_overrides = Dict(Symbol(replace(string(k), r"^spoon__" => "")) => v for (k, v) in __overrides if startswith(string(k), "spoon__"))
-  filter!(p -> !startswith(string(first(p)), "spoon__"), __overrides)
+  spoon_overrides = __pop_subcomponent_overrides!(__overrides, "spoon")
   push!(__systems, @named spoon = CoffeeMugDemo.SpoonSubsystem(spoon_overrides...))
   # Subcomponent hand of type CoffeeMugDemo.HandSubsystem
-  hand_overrides = Dict(Symbol(replace(string(k), r"^hand__" => "")) => v for (k, v) in __overrides if startswith(string(k), "hand__"))
-  filter!(p -> !startswith(string(first(p)), "hand__"), __overrides)
+  hand_overrides = __pop_subcomponent_overrides!(__overrides, "hand")
   push!(__systems, @named hand = CoffeeMugDemo.HandSubsystem(hand_overrides...))
   # Subcomponent environment of type ThermalComponents.Sources.FixedTemperature
-  environment_overrides = Dict(Symbol(replace(string(k), r"^environment__" => "")) => v for (k, v) in __overrides if startswith(string(k), "environment__"))
-  filter!(p -> !startswith(string(first(p)), "environment__"), __overrides)
+  environment_overrides = __pop_subcomponent_overrides!(__overrides, "environment")
   push!(__systems, @named environment = ThermalComponents.Sources.FixedTemperature(T=293.15, environment_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-  __guesses[coffeeMug.outerSurface.T] = (330)
-  __guesses[coffeeMug.convCup2Env.ΔT] = (37)
-  __guesses[hand.handContact.ΔT] = (-20)
-  __guesses[spoon.spoonMass.port.T] = (350)
+  __guesses[coffeeMug.outerSurface.T] = (330.0)
+  __guesses[coffeeMug.convCup2Env.ΔT] = (37.0)
+  __guesses[hand.handContact.ΔT] = (-20.0)
+  __guesses[spoon.spoonMass.port.T] = (350.0)
 
   ### Initialization Equations
 

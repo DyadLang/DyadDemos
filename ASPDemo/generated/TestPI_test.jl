@@ -4,40 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for ASPDemo.TestPI" begin
-  using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
-  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
-
-  @named model = ASPDemo.TestPI()
-  model = toggle_namespacing(model, false)
-  
-  model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 4e+0, abstol=1e-6, reltol=1e-6)
-  sol = rebuild_sol(result)
-  @test SciMLBase.successful_retcode(sol)
-# Signals selected for regression testing: ["PI.y"]
-  ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
-  if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
-    # If asked to update snapshots, write out reference data for all signals
-    mkpath("snapshots")
-    CSV.write("snapshots/TestPI_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.PI.y) for t in ref_times]))
-  end
-    if isfile("snapshots/TestPI_case1_sig0.ref")
-      ref = CSV.read("snapshots/TestPI_case1_sig0.ref", DataFrame)
-      for i in 1:length(ref.expected)
-        @test ref.expected[i] ≈ sol(ref.t[i], idxs=model.PI.y) atol=9.999999999999999e-6 rtol=9.999999999999999e-6
-      end
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.PI.y])
-        dfr = CSV.read("snapshots/TestPI_case1_sig0.ref", DataFrame)
-        plot(sol, idxs=[model.PI.y], width=2, label="Actual value of PI.y")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of PI.y")
-        mkpath("comparisons")
-        savefig("comparisons/TestPI_case1_sig0.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/TestPI_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.PI.y) for t in ref_times]))
-    end
-end
+__dyad_run_test_case!(
+  ASPDemo.TestPI,
+  "case1 for ASPDemo.TestPI";
+  case_name="case1",
+  component_stem="TestPI",
+  module_path=String[],
+  start=0e+0,
+  stop=4e+0,
+  abstol=1e-6,
+  reltol=1e-6,
+  solver=ODEAlg.Auto(),
+  params=(;),
+  initial_conditions=Tuple[],
+  expected_initial=Tuple[],
+  expected_final=Tuple[],
+  signals=Tuple[(m -> m.PI.y, "PI.y", 1e-5, 1e-5)],
+)

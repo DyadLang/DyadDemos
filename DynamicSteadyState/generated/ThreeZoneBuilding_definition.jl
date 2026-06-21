@@ -4,6 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ThreeZoneBuilding(; name)
 
@@ -17,12 +19,13 @@
 """
 @component function ThreeZoneBuilding(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ThreeZoneBuilding()
+  """))
 
-        @named model = ThreeZoneBuilding()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -42,11 +45,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (T_outdoor(t)::Real), [input = true])
@@ -64,24 +67,19 @@
   push!(__systems, @named zone2_port = __Dyad__HeatPort())
   push!(__systems, @named zone3_port = __Dyad__HeatPort())
   # Subcomponent z1 of type DynamicSteadyState.ZoneRoom
-  z1_overrides = Dict(Symbol(replace(string(k), r"^z1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "z1__"))
-  filter!(p -> !startswith(string(first(p)), "z1__"), __overrides)
-  push!(__systems, @named z1 = DynamicSteadyState.ZoneRoom(R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=400000, z1_overrides...))
+  z1_overrides = __pop_subcomponent_overrides!(__overrides, "z1")
+  push!(__systems, @named z1 = DynamicSteadyState.ZoneRoom(R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=400000.0, z1_overrides...))
   # Subcomponent z2 of type DynamicSteadyState.ZoneRoom
-  z2_overrides = Dict(Symbol(replace(string(k), r"^z2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "z2__"))
-  filter!(p -> !startswith(string(first(p)), "z2__"), __overrides)
-  push!(__systems, @named z2 = DynamicSteadyState.ZoneRoom(R_wall=1000000, R_win=1000000, R_roof=0.025, R_slab=0.05, R_infil=0.0667, C=300000, z2_overrides...))
+  z2_overrides = __pop_subcomponent_overrides!(__overrides, "z2")
+  push!(__systems, @named z2 = DynamicSteadyState.ZoneRoom(R_wall=1000000.0, R_win=1000000.0, R_roof=0.025, R_slab=0.05, R_infil=0.0667, C=300000.0, z2_overrides...))
   # Subcomponent z3 of type DynamicSteadyState.ZoneRoom
-  z3_overrides = Dict(Symbol(replace(string(k), r"^z3__" => "")) => v for (k, v) in __overrides if startswith(string(k), "z3__"))
-  filter!(p -> !startswith(string(first(p)), "z3__"), __overrides)
-  push!(__systems, @named z3 = DynamicSteadyState.ZoneRoom(R_wall=0.01, R_win=0.02, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=400000, z3_overrides...))
+  z3_overrides = __pop_subcomponent_overrides!(__overrides, "z3")
+  push!(__systems, @named z3 = DynamicSteadyState.ZoneRoom(R_wall=0.01, R_win=0.02, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=400000.0, z3_overrides...))
   # Subcomponent partition12 of type ThermalComponents.Components.ThermalResistor
-  partition12_overrides = Dict(Symbol(replace(string(k), r"^partition12__" => "")) => v for (k, v) in __overrides if startswith(string(k), "partition12__"))
-  filter!(p -> !startswith(string(first(p)), "partition12__"), __overrides)
+  partition12_overrides = __pop_subcomponent_overrides!(__overrides, "partition12")
   push!(__systems, @named partition12 = ThermalComponents.Components.ThermalResistor(R=0.01, partition12_overrides...))
   # Subcomponent partition23 of type ThermalComponents.Components.ThermalResistor
-  partition23_overrides = Dict(Symbol(replace(string(k), r"^partition23__" => "")) => v for (k, v) in __overrides if startswith(string(k), "partition23__"))
-  filter!(p -> !startswith(string(first(p)), "partition23__"), __overrides)
+  partition23_overrides = __pop_subcomponent_overrides!(__overrides, "partition23")
   push!(__systems, @named partition23 = ThermalComponents.Components.ThermalResistor(R=0.01, partition23_overrides...))
 
   ### Check there are no unmatched overrides

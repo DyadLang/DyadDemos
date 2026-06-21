@@ -4,33 +4,36 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TurkeySphereTest(; name, N, T_oven, h, epsilon, M_turkey, rho_turkey, pi, R_turkey, A_surface, Gc_conv, Gr_rad)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `N`         |                          | --  |   10 |
-| `T_oven`         |                          | K  |   450 |
-| `h`         |                          | W/(m2.K)  |   15 |
+| `T_oven`         |                          | K  |   450.0 |
+| `h`         |                          | W/(m2.K)  |   15.0 |
 | `epsilon`         |                          | --  |   0.85 |
-| `M_turkey`         |                          | kg  |   5 |
-| `rho_turkey`         |                          | kg/m3  |   1050 |
+| `M_turkey`         |                          | kg  |   5.0 |
+| `rho_turkey`         |                          | kg/m3  |   1050.0 |
 | `pi`         |                          | --  |   3.14159265359 |
-| `R_turkey`         |                          | m  |   (3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3) |
+| `R_turkey`         |                          | m  |   (3 * M_turk...) ^ (1 / 3) |
 | `A_surface`         |                          | m2  |   4 * pi * R_turkey ^ 2 |
 | `Gc_conv`         |                          | W/K  |   h * A_surface |
 | `Gr_rad`         |                          | --  |   epsilon * A_surface |
 """
-@component function TurkeySphereTest(; name = nothing, N=10, T_oven=Float64(450), h=Float64(15), epsilon=0.85, M_turkey=Float64(5), rho_turkey=Float64(1050), pi=3.14159265359, R_turkey=(3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3), A_surface=4 * pi * R_turkey ^ 2, Gc_conv=h * A_surface, Gr_rad=epsilon * A_surface, kwargs...)
+@component function TurkeySphereTest(; name = nothing, N=10, T_oven=Float64(450.0), h=Float64(15.0), epsilon=0.85, M_turkey=Float64(5.0), rho_turkey=Float64(1050.0), pi=3.14159265359, R_turkey=(3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3), A_surface=4 * pi * R_turkey ^ 2, Gc_conv=h * A_surface, Gr_rad=epsilon * A_surface, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TurkeySphereTest()
+  """))
 
-        @named model = TurkeySphereTest()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -49,8 +52,6 @@
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -86,6 +87,8 @@
   append!(__params, @parameters (Gr_rad::Real))
   __initial_conditions[Gr_rad] = __local__Gr_rad
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
 
   ### Variables (declarations)
@@ -97,24 +100,19 @@
 
   ### Components
   # Subcomponent turkey of type TurkeyDemo.TurkeyDiscretizedSphere
-  turkey_overrides = Dict(Symbol(replace(string(k), r"^turkey__" => "")) => v for (k, v) in __overrides if startswith(string(k), "turkey__"))
-  filter!(p -> !startswith(string(first(p)), "turkey__"), __overrides)
-  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(N=10, M=M_turkey, T_init=277, turkey_overrides...))
+  turkey_overrides = __pop_subcomponent_overrides!(__overrides, "turkey")
+  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(N=10, M=M_turkey, T_init=277.0, turkey_overrides...))
   # Subcomponent oven of type ThermalComponents.Sources.FixedTemperature
-  oven_overrides = Dict(Symbol(replace(string(k), r"^oven__" => "")) => v for (k, v) in __overrides if startswith(string(k), "oven__"))
-  filter!(p -> !startswith(string(first(p)), "oven__"), __overrides)
+  oven_overrides = __pop_subcomponent_overrides!(__overrides, "oven")
   push!(__systems, @named oven = ThermalComponents.Sources.FixedTemperature(T=T_oven, oven_overrides...))
   # Subcomponent convection of type ThermalComponents.Components.Convection
-  convection_overrides = Dict(Symbol(replace(string(k), r"^convection__" => "")) => v for (k, v) in __overrides if startswith(string(k), "convection__"))
-  filter!(p -> !startswith(string(first(p)), "convection__"), __overrides)
+  convection_overrides = __pop_subcomponent_overrides!(__overrides, "convection")
   push!(__systems, @named convection = ThermalComponents.Components.Convection(convection_overrides...))
   # Subcomponent Gc_signal of type BlockComponents.Sources.Constant
-  Gc_signal_overrides = Dict(Symbol(replace(string(k), r"^Gc_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "Gc_signal__"))
-  filter!(p -> !startswith(string(first(p)), "Gc_signal__"), __overrides)
+  Gc_signal_overrides = __pop_subcomponent_overrides!(__overrides, "Gc_signal")
   push!(__systems, @named Gc_signal = BlockComponents.Sources.Constant(k=Gc_conv, Gc_signal_overrides...))
   # Subcomponent radiation of type ThermalComponents.Components.BodyRadiation
-  radiation_overrides = Dict(Symbol(replace(string(k), r"^radiation__" => "")) => v for (k, v) in __overrides if startswith(string(k), "radiation__"))
-  filter!(p -> !startswith(string(first(p)), "radiation__"), __overrides)
+  radiation_overrides = __pop_subcomponent_overrides!(__overrides, "radiation")
   push!(__systems, @named radiation = ThermalComponents.Components.BodyRadiation(Gr=Gr_rad, radiation_overrides...))
 
   ### Check there are no unmatched overrides
@@ -128,11 +126,11 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(oven.node, convection.fluid))
+  push!(__eqs, connect(oven.port, convection.fluid))
   push!(__eqs, connect(convection.solid, turkey.surface))
   push!(__eqs, connect(Gc_signal.y, convection.Gc))
-  push!(__eqs, connect(oven.node, radiation.node_a))
-  push!(__eqs, connect(radiation.node_b, turkey.surface))
+  push!(__eqs, connect(oven.port, radiation.port_a))
+  push!(__eqs, connect(radiation.port_b, turkey.surface))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

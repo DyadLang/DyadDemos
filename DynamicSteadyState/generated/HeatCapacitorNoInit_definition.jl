@@ -4,6 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HeatCapacitorNoInit(; name, C)
 
@@ -23,7 +25,7 @@ supports dynamic and steady-state workflows on a single source of truth.
 The occupancy schedule is a representative weekday office profile with
   piecewise-linear interpolation between hourly breakpoints (fractions 0–1).
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -36,18 +38,19 @@ The occupancy schedule is a representative weekday office profile with
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `T`         | Temperature of the element                         | K  | 
-| `dT`         | Time derivative of temperature                         | K/s  | 
+| ------------ | ----------------------------------- | ------ |
+| `T`         | Temperature of the element                         | K  |
+| `dT`         | Time derivative of temperature                         | K/s  |
 """
 @component function HeatCapacitorNoInit(; name = nothing, C=nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HeatCapacitorNoInit()
+  """))
 
-        @named model = HeatCapacitorNoInit()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -67,14 +70,14 @@ The occupancy schedule is a representative weekday office profile with
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
   __local__C = C
   append!(__params, @parameters (C::Real), [description = "Heat capacity of the element (J/K)"])
   __initial_conditions[C] = __local__C
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
