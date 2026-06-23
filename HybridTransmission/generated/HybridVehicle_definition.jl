@@ -4,15 +4,17 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HybridVehicle(; name, J_equiv, m_vehicle, C_d, A_front, C_rr, r_wheel)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `J_equiv`         |                          | kg.m2  |   250 |
-| `m_vehicle`         |                          | --  |   1750 |
+| `J_equiv`         |                          | kg.m2  |   250.0 |
+| `m_vehicle`         |                          | --  |   1750.0 |
 | `C_d`         |                          | --  |   0.38 |
 | `A_front`         |                          | --  |   2.56 |
 | `C_rr`         |                          | --  |   0.012 |
@@ -26,22 +28,23 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `omega_wheel`         |                          | rad/s  | 
-| `speed`         |                          | --  | 
-| `F_aero`         |                          | --  | 
-| `F_rolling`         |                          | --  | 
-| `F_total`         |                          | --  | 
-| `T_load`         |                          | N.m  | 
+| ------------ | ----------------------------------- | ------ |
+| `omega_wheel`         |                          | rad/s  |
+| `speed`         |                          | --  |
+| `F_aero`         |                          | --  |
+| `F_rolling`         |                          | --  |
+| `F_total`         |                          | --  |
+| `T_load`         |                          | N.m  |
 """
-@component function HybridVehicle(; name = nothing, J_equiv=Float64(250), m_vehicle=Float64(1750), C_d=0.38, A_front=2.56, C_rr=0.012, r_wheel=0.318, kwargs...)
+@component function HybridVehicle(; name = nothing, J_equiv=Float64(250.0), m_vehicle=Float64(1750.0), C_d=0.38, A_front=2.56, C_rr=0.012, r_wheel=0.318, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HybridVehicle()
+  """))
 
-        @named model = HybridVehicle()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -60,8 +63,6 @@
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -84,6 +85,8 @@
   __local__r_wheel = r_wheel
   append!(__params, @parameters (r_wheel::Real))
   __initial_conditions[r_wheel] = __local__r_wheel
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (speed_output(t)::Real), [output = true])

@@ -4,19 +4,21 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SimpleVehicle(; name, vehicle_mass_kg, inertia_moment, wheel_radius, damping_coeff, initial_position, initial_velocity)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `vehicle_mass_kg`         |                          | kg  |   2194 |
+| `vehicle_mass_kg`         |                          | kg  |   2194.0 |
 | `inertia_moment`         |                          | kg.m2  |   3.08 |
 | `wheel_radius`         |                          | m  |   0.15 |
-| `damping_coeff`         |                          | N.s/m  |   30 |
-| `initial_position`         |                          | m  |   0 |
-| `initial_velocity`         |                          | m/s  |   0 |
+| `damping_coeff`         |                          | N.s/m  |   30.0 |
+| `initial_position`         |                          | m  |   0.0 |
+| `initial_velocity`         |                          | m/s  |   0.0 |
 
 ## Connectors
 
@@ -24,14 +26,15 @@
  * `vehicle_speed` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `wheel_speed` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function SimpleVehicle(; name = nothing, vehicle_mass_kg=Float64(2194), inertia_moment=3.08, wheel_radius=0.15, damping_coeff=Float64(30), initial_position=Float64(0), initial_velocity=Float64(0), kwargs...)
+@component function SimpleVehicle(; name = nothing, vehicle_mass_kg=Float64(2194.0), inertia_moment=3.08, wheel_radius=0.15, damping_coeff=Float64(30.0), initial_position=Float64(0.0), initial_velocity=Float64(0.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SimpleVehicle()
+  """))
 
-        @named model = SimpleVehicle()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -50,8 +53,6 @@
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -75,6 +76,8 @@
   append!(__params, @parameters (initial_velocity::Real))
   __initial_conditions[initial_velocity] = __local__initial_velocity
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
   append!(__vars, @variables (vehicle_speed(t)::Real), [output = true])
   append!(__vars, @variables (wheel_speed(t)::Real), [output = true])
@@ -89,33 +92,26 @@
   ### Components
   push!(__systems, @named shaft = __Dyad__Spline())
   # Subcomponent inertia of type RotationalComponents.Components.Inertia
-  inertia_overrides = Dict(Symbol(replace(string(k), r"^inertia__" => "")) => v for (k, v) in __overrides if startswith(string(k), "inertia__"))
-  filter!(p -> !startswith(string(first(p)), "inertia__"), __overrides)
+  inertia_overrides = __pop_subcomponent_overrides!(__overrides, "inertia")
   push!(__systems, @named inertia = RotationalComponents.Components.Inertia(J=inertia_moment, inertia_overrides...))
   # Subcomponent wheel of type RotationalComponents.Components.IdealRollingWheel
-  wheel_overrides = Dict(Symbol(replace(string(k), r"^wheel__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wheel__"))
-  filter!(p -> !startswith(string(first(p)), "wheel__"), __overrides)
+  wheel_overrides = __pop_subcomponent_overrides!(__overrides, "wheel")
   push!(__systems, @named wheel = RotationalComponents.Components.IdealRollingWheel(radius=wheel_radius, wheel_overrides...))
   # Subcomponent vehicle_mass of type TranslationalComponents.Components.Mass
-  vehicle_mass_overrides = Dict(Symbol(replace(string(k), r"^vehicle_mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle_mass__"))
-  filter!(p -> !startswith(string(first(p)), "vehicle_mass__"), __overrides)
+  vehicle_mass_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_mass")
   push!(__systems, @named vehicle_mass = TranslationalComponents.Components.Mass(m=vehicle_mass_kg, vehicle_mass_overrides...))
   # Subcomponent load_damper of type TranslationalComponents.Components.Damper
-  load_damper_overrides = Dict(Symbol(replace(string(k), r"^load_damper__" => "")) => v for (k, v) in __overrides if startswith(string(k), "load_damper__"))
-  filter!(p -> !startswith(string(first(p)), "load_damper__"), __overrides)
+  load_damper_overrides = __pop_subcomponent_overrides!(__overrides, "load_damper")
   push!(__systems, @named load_damper = TranslationalComponents.Components.Damper(d=damping_coeff, load_damper_overrides...))
   # Subcomponent ground of type TranslationalComponents.Components.Fixed
-  ground_overrides = Dict(Symbol(replace(string(k), r"^ground__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground__"))
-  filter!(p -> !startswith(string(first(p)), "ground__"), __overrides)
-  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0, ground_overrides...))
+  ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0.0, ground_overrides...))
   # Subcomponent housing of type RotationalComponents.Components.Fixed
-  housing_overrides = Dict(Symbol(replace(string(k), r"^housing__" => "")) => v for (k, v) in __overrides if startswith(string(k), "housing__"))
-  filter!(p -> !startswith(string(first(p)), "housing__"), __overrides)
-  push!(__systems, @named housing = RotationalComponents.Components.Fixed(phi0=0, housing_overrides...))
+  housing_overrides = __pop_subcomponent_overrides!(__overrides, "housing")
+  push!(__systems, @named housing = RotationalComponents.Components.Fixed(phi0=0.0, housing_overrides...))
   # Subcomponent load_anchor of type TranslationalComponents.Components.Fixed
-  load_anchor_overrides = Dict(Symbol(replace(string(k), r"^load_anchor__" => "")) => v for (k, v) in __overrides if startswith(string(k), "load_anchor__"))
-  filter!(p -> !startswith(string(first(p)), "load_anchor__"), __overrides)
-  push!(__systems, @named load_anchor = TranslationalComponents.Components.Fixed(s0=0, load_anchor_overrides...))
+  load_anchor_overrides = __pop_subcomponent_overrides!(__overrides, "load_anchor")
+  push!(__systems, @named load_anchor = TranslationalComponents.Components.Fixed(s0=0.0, load_anchor_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

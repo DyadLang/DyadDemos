@@ -6,11 +6,11 @@
 
 @connector function SedimentationFluxSludgeIn(; name=nothing)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
-
-        @named model = SedimentationFluxSludgeIn()
-        """))
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SedimentationFluxSludgeIn()
+  """))
   __params = Symbolics.SymbolicT[]
   __vars = @variables begin
     (SedFlux(t)::Real), [input = true]

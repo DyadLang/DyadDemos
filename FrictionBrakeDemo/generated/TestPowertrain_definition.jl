@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestPowertrain(; name)
 """
 @component function TestPowertrain(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestPowertrain()
+  """))
 
-        @named model = TestPowertrain()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,24 +54,19 @@
 
   ### Components
   # Subcomponent throttle_cmd of type BlockComponents.Sources.Step
-  throttle_cmd_overrides = Dict(Symbol(replace(string(k), r"^throttle_cmd__" => "")) => v for (k, v) in __overrides if startswith(string(k), "throttle_cmd__"))
-  filter!(p -> !startswith(string(first(p)), "throttle_cmd__"), __overrides)
-  push!(__systems, @named throttle_cmd = BlockComponents.Sources.Step(height=-1, offset=1, start_time=25, throttle_cmd_overrides...))
+  throttle_cmd_overrides = __pop_subcomponent_overrides!(__overrides, "throttle_cmd")
+  push!(__systems, @named throttle_cmd = BlockComponents.Sources.Step(height=-1.0, offset=1.0, start_time=25.0, throttle_cmd_overrides...))
   # Subcomponent powertrain of type FrictionBrakeDemo.SimplePowertrain
-  powertrain_overrides = Dict(Symbol(replace(string(k), r"^powertrain__" => "")) => v for (k, v) in __overrides if startswith(string(k), "powertrain__"))
-  filter!(p -> !startswith(string(first(p)), "powertrain__"), __overrides)
-  push!(__systems, @named powertrain = FrictionBrakeDemo.SimplePowertrain(base_torque=150, tau=0.1, powertrain_overrides...))
+  powertrain_overrides = __pop_subcomponent_overrides!(__overrides, "powertrain")
+  push!(__systems, @named powertrain = FrictionBrakeDemo.SimplePowertrain(base_torque=150.0, tau=0.1, powertrain_overrides...))
   # Subcomponent load of type RotationalComponents.Components.Inertia
-  load_overrides = Dict(Symbol(replace(string(k), r"^load__" => "")) => v for (k, v) in __overrides if startswith(string(k), "load__"))
-  filter!(p -> !startswith(string(first(p)), "load__"), __overrides)
-  push!(__systems, @named load = RotationalComponents.Components.Inertia(J=1, load_overrides...))
+  load_overrides = __pop_subcomponent_overrides!(__overrides, "load")
+  push!(__systems, @named load = RotationalComponents.Components.Inertia(J=1.0, load_overrides...))
   # Subcomponent damper of type RotationalComponents.Components.Damper
-  damper_overrides = Dict(Symbol(replace(string(k), r"^damper__" => "")) => v for (k, v) in __overrides if startswith(string(k), "damper__"))
-  filter!(p -> !startswith(string(first(p)), "damper__"), __overrides)
-  push!(__systems, @named damper = RotationalComponents.Components.Damper(d=5, damper_overrides...))
+  damper_overrides = __pop_subcomponent_overrides!(__overrides, "damper")
+  push!(__systems, @named damper = RotationalComponents.Components.Damper(d=5.0, damper_overrides...))
   # Subcomponent fixed of type RotationalComponents.Components.Fixed
-  fixed_overrides = Dict(Symbol(replace(string(k), r"^fixed__" => "")) => v for (k, v) in __overrides if startswith(string(k), "fixed__"))
-  filter!(p -> !startswith(string(first(p)), "fixed__"), __overrides)
+  fixed_overrides = __pop_subcomponent_overrides!(__overrides, "fixed")
   push!(__systems, @named fixed = RotationalComponents.Components.Fixed(fixed_overrides...))
 
   ### Check there are no unmatched overrides
@@ -77,8 +75,8 @@
   ### Guesses
 
   ### Initialization Equations
-  push!(__initialization_eqs, load.phi ~ 0)
-  push!(__initialization_eqs, load.w ~ 0)
+  push!(__initialization_eqs, load.phi ~ 0.0)
+  push!(__initialization_eqs, load.w ~ 0.0)
 
   ### Assertions
   __assertions = []

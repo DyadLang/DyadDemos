@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    FitzHughNagumoCapacitor(; name, V, a, b, epsilon)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `V`         | Volume                         | --  |   1 |
+| `V`         | Volume                         | --  |   1.0 |
 | `a`         | Excitation rate                         | --  |   0.1 |
 | `b`         | Recovery rate                         | --  |   0.01 |
 | `epsilon`         | Coupling strength                         | --  |   0.01 |
@@ -37,18 +39,19 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `u`         | Activator concentration (fast, excitable)                         | --  | 
-| `v`         | Inhibitor concentration (slow, recovery)                         | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `u`         | Activator concentration (fast, excitable)                         | --  |
+| `v`         | Inhibitor concentration (slow, recovery)                         | --  |
 """
-@component function FitzHughNagumoCapacitor(; name = nothing, V=Float64(1), a=0.1, b=0.01, epsilon=0.01, kwargs...)
+@component function FitzHughNagumoCapacitor(; name = nothing, V=Float64(1.0), a=0.1, b=0.01, epsilon=0.01, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FitzHughNagumoCapacitor()
+  """))
 
-        @named model = FitzHughNagumoCapacitor()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -68,8 +71,6 @@ Supported dynamics:
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -85,6 +86,8 @@ Supported dynamics:
   __local__epsilon = epsilon
   append!(__params, @parameters (epsilon::Real), [description = "Coupling strength"])
   __initial_conditions[epsilon] = __local__epsilon
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 

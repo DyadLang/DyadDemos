@@ -4,6 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ControlledOscillator(; name, pid_k, pid_Ti, pid_Td, pid_y_max, pid_y_min)
 
@@ -11,24 +13,25 @@ Undamped spring-mass oscillator with PID damping control.
 The system oscillates without natural damping, and the PID controller
 can apply damping force to suppress oscillations.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `pid_k`         | PID proportional gain                         | --  |   10 |
-| `pid_Ti`         | PID integral time                         | --  |   10 |
+| `pid_k`         | PID proportional gain                         | --  |   10.0 |
+| `pid_Ti`         | PID integral time                         | --  |   10.0 |
 | `pid_Td`         | PID derivative time                         | --  |   0.5 |
-| `pid_y_max`         | Maximum control force                         | --  |   50 |
-| `pid_y_min`         | Minimum control force                         | --  |   -50 |
+| `pid_y_max`         | Maximum control force                         | --  |   50.0 |
+| `pid_y_min`         | Minimum control force                         | --  |   -50.0 |
 """
-@component function ControlledOscillator(; name = nothing, pid_k=Float64(10), pid_Ti=Float64(10), pid_Td=0.5, pid_y_max=Float64(50), pid_y_min=-50, kwargs...)
+@component function ControlledOscillator(; name = nothing, pid_k=Float64(10.0), pid_Ti=Float64(10.0), pid_Td=0.5, pid_y_max=Float64(50.0), pid_y_min=-50.0, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ControlledOscillator()
+  """))
 
-        @named model = ControlledOscillator()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -47,8 +50,6 @@ can apply damping force to suppress oscillations.
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -69,6 +70,8 @@ can apply damping force to suppress oscillations.
   append!(__params, @parameters (pid_y_min::Real), [description = "Minimum control force"])
   __initial_conditions[pid_y_min] = __local__pid_y_min
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
 
   ### Variables (declarations)
@@ -80,41 +83,32 @@ can apply damping force to suppress oscillations.
 
   ### Components
   # Subcomponent mass of type TranslationalComponents.Components.Mass
-  mass_overrides = Dict(Symbol(replace(string(k), r"^mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mass__"))
-  filter!(p -> !startswith(string(first(p)), "mass__"), __overrides)
-  push!(__systems, @named mass = TranslationalComponents.Components.Mass(m=1, mass_overrides...))
+  mass_overrides = __pop_subcomponent_overrides!(__overrides, "mass")
+  push!(__systems, @named mass = TranslationalComponents.Components.Mass(m=1.0, mass_overrides...))
   # Subcomponent spring of type TranslationalComponents.Components.Spring
-  spring_overrides = Dict(Symbol(replace(string(k), r"^spring__" => "")) => v for (k, v) in __overrides if startswith(string(k), "spring__"))
-  filter!(p -> !startswith(string(first(p)), "spring__"), __overrides)
-  push!(__systems, @named spring = TranslationalComponents.Components.Spring(c=100, s_rel0=0, spring_overrides...))
+  spring_overrides = __pop_subcomponent_overrides!(__overrides, "spring")
+  push!(__systems, @named spring = TranslationalComponents.Components.Spring(c=100.0, s_rel0=0.0, spring_overrides...))
   # Subcomponent fixed of type TranslationalComponents.Components.Fixed
-  fixed_overrides = Dict(Symbol(replace(string(k), r"^fixed__" => "")) => v for (k, v) in __overrides if startswith(string(k), "fixed__"))
-  filter!(p -> !startswith(string(first(p)), "fixed__"), __overrides)
-  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(s0=0, fixed_overrides...))
+  fixed_overrides = __pop_subcomponent_overrides!(__overrides, "fixed")
+  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(s0=0.0, fixed_overrides...))
   # Subcomponent pid of type BlockComponents.Continuous.LimPID
-  pid_overrides = Dict(Symbol(replace(string(k), r"^pid__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pid__"))
-  filter!(p -> !startswith(string(first(p)), "pid__"), __overrides)
+  pid_overrides = __pop_subcomponent_overrides!(__overrides, "pid")
   push!(__systems, @named pid = BlockComponents.Continuous.LimPID(k=pid_k, Ti=pid_Ti, Td=pid_Td, y_max=pid_y_max, y_min=pid_y_min, pid_overrides...))
   # Subcomponent setpoint of type BlockComponents.Sources.Constant
-  setpoint_overrides = Dict(Symbol(replace(string(k), r"^setpoint__" => "")) => v for (k, v) in __overrides if startswith(string(k), "setpoint__"))
-  filter!(p -> !startswith(string(first(p)), "setpoint__"), __overrides)
-  push!(__systems, @named setpoint = BlockComponents.Sources.Constant(k=0, setpoint_overrides...))
+  setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "setpoint")
+  push!(__systems, @named setpoint = BlockComponents.Sources.Constant(k=0.0, setpoint_overrides...))
   # Subcomponent velocity_sensor of type TranslationalComponents.Sensors.SpeedSensor
-  velocity_sensor_overrides = Dict(Symbol(replace(string(k), r"^velocity_sensor__" => "")) => v for (k, v) in __overrides if startswith(string(k), "velocity_sensor__"))
-  filter!(p -> !startswith(string(first(p)), "velocity_sensor__"), __overrides)
+  velocity_sensor_overrides = __pop_subcomponent_overrides!(__overrides, "velocity_sensor")
   push!(__systems, @named velocity_sensor = TranslationalComponents.Sensors.SpeedSensor(velocity_sensor_overrides...))
   # Subcomponent control_force of type TranslationalComponents.Sources.Force
-  control_force_overrides = Dict(Symbol(replace(string(k), r"^control_force__" => "")) => v for (k, v) in __overrides if startswith(string(k), "control_force__"))
-  filter!(p -> !startswith(string(first(p)), "control_force__"), __overrides)
+  control_force_overrides = __pop_subcomponent_overrides!(__overrides, "control_force")
   push!(__systems, @named control_force = TranslationalComponents.Sources.Force(control_force_overrides...))
   # Subcomponent ground of type TranslationalComponents.Components.Fixed
-  ground_overrides = Dict(Symbol(replace(string(k), r"^ground__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground__"))
-  filter!(p -> !startswith(string(first(p)), "ground__"), __overrides)
-  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0, ground_overrides...))
+  ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0.0, ground_overrides...))
   # Subcomponent ff_input of type BlockComponents.Sources.Constant
-  ff_input_overrides = Dict(Symbol(replace(string(k), r"^ff_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ff_input__"))
-  filter!(p -> !startswith(string(first(p)), "ff_input__"), __overrides)
-  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(k=0, ff_input_overrides...))
+  ff_input_overrides = __pop_subcomponent_overrides!(__overrides, "ff_input")
+  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(k=0.0, ff_input_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -123,7 +117,7 @@ can apply damping force to suppress oscillations.
 
   ### Initialization Equations
   push!(__initialization_eqs, mass.s ~ 0.5)
-  push!(__initialization_eqs, mass.v ~ 0)
+  push!(__initialization_eqs, mass.v ~ 0.0)
 
   ### Assertions
   __assertions = []

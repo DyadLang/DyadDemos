@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestClarifier(; name)
 """
 @component function TestClarifier(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestClarifier()
+  """))
 
-        @named model = TestClarifier()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,12 +54,10 @@
 
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
-  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
-  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
   push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
   # Subcomponent settler of type ASPDemo.SecondaryClarifierTakacs
-  settler_overrides = Dict(Symbol(replace(string(k), r"^settler__" => "")) => v for (k, v) in __overrides if startswith(string(k), "settler__"))
-  filter!(p -> !startswith(string(first(p)), "settler__"), __overrides)
+  settler_overrides = __pop_subcomponent_overrides!(__overrides, "settler")
   push!(__systems, @named settler = ASPDemo.SecondaryClarifierTakacs(settler_overrides...))
 
   ### Check there are no unmatched overrides
@@ -70,20 +71,20 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, source.Q_in ~ 21477)
-  push!(__eqs, source.Si ~ 30)
+  push!(__eqs, source.Q_in ~ 21477.0)
+  push!(__eqs, source.Si ~ 30.0)
   push!(__eqs, source.Ss ~ 63.63455)
   push!(__eqs, source.Xi ~ 58.476)
   push!(__eqs, source.Xs ~ 224.352)
   push!(__eqs, source.Xbh ~ 31.425)
-  push!(__eqs, source.Xba ~ 0)
-  push!(__eqs, source.Xp ~ 0)
-  push!(__eqs, source.So ~ 0)
-  push!(__eqs, source.Sno ~ 0)
+  push!(__eqs, source.Xba ~ 0.0)
+  push!(__eqs, source.Xp ~ 0.0)
+  push!(__eqs, source.So ~ 0.0)
+  push!(__eqs, source.Sno ~ 0.0)
   push!(__eqs, source.Snh ~ 30.24762)
   push!(__eqs, source.Snd ~ 6.36346)
   push!(__eqs, source.Xnd ~ 11.814)
-  push!(__eqs, source.Salk ~ 7)
+  push!(__eqs, source.Salk ~ 7.0)
   push!(__eqs, settler.return1.Q ~ 0.1 * source.Q_in)
   push!(__eqs, settler.waste.Q ~ 0.2 * source.Q_in)
   push!(__eqs, connect(source.port, settler.feed))

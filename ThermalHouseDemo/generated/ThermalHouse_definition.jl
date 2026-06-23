@@ -4,12 +4,14 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ThermalHouse(; name, area_floor, height, ratio_L_W, Aratio_window_wall, no_doors, A_door, length, width, volume, area_walls, area_window, area_doors, area_roof, U_walls, U_roof, U_floor, U_window, U_door, SHGC, f_window, rho_air, cp_air, mass_air, C_air, t_dw, rho_dw, cp_dw, C_walls_ceiling, t_floor, rho_floor, cp_floor, C_floor, C_tot, G_wall, G_window, G_roof, G_floor, G_door, G_envelope, U_envelope, ACH_infiltration, ACH_ventilation, ACH_total, m_dot_air, G_infiltration, U_infiltration, G_total, U_total, h_conv, G_conv, Q_people, Q_lighting, Q_appliances, Q_internal, T_initial)
 
 Thermal model of a house with inputs for heat from heater and solar irradiance
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -19,11 +21,11 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
 | `Aratio_window_wall`         | Ratio of window to wall area                         | --  |   0.15 |
 | `no_doors`         | Number of doors                         | --  |   2 |
 | `A_door`         | Area of single door                         | m2  |   1.75 |
-| `length`         |                          | m  |   sqrt(area_floor * ratio_L_W) |
+| `length`         |                          | m  |   sqrt(area_f... ratio_L_W) |
 | `width`         |                          | m  |   length / ratio_L_W |
 | `volume`         |                          | m3  |   length * width * height |
-| `area_walls`         | Total wall area (m²)                         | m2  |   2 * (length * height + width * height) |
-| `area_window`         | Total window area (m²)                         | m2  |   Aratio_window_wall * area_walls |
+| `area_walls`         | Total wall area (m²)                         | m2  |   2.0 * (leng...h * height) |
+| `area_window`         | Total window area (m²)                         | m2  |   Aratio_wind... area_walls |
 | `area_doors`         | Total door area (m²)                         | m2  |   no_doors * A_door |
 | `area_roof`         | Total roof area (m²)                         | m2  |   area_floor |
 | `U_walls`         | U-value for walls W/(m²·K)                         | W/(m2.K)  |   0.47 |
@@ -34,39 +36,39 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
 | `SHGC`         | Window solar heat gain coefficient                         | --  |   0.6 |
 | `f_window`         | Window orientation factor for sun-facing windows                         | --  |   0.3 |
 | `rho_air`         | Thermal mass (air + structure)                         | kg/m3  |   1.2 |
-| `cp_air`         |                          | J/(kg.K)  |   1005 |
+| `cp_air`         |                          | J/(kg.K)  |   1005.0 |
 | `mass_air`         |                          | kg  |   rho_air * volume |
 | `C_air`         |                          | J/K  |   mass_air * cp_air |
 | `t_dw`         | Drywall thermal mass                         | m  |   0.0127 |
 | `rho_dw`         |                          | kg/m3  |   800 |
 | `cp_dw`         |                          | J/(kg.K)  |   1000 |
-| `C_walls_ceiling`         |                          | J/K  |   (area_floor + area_walls) * t_dw * rho_dw * cp_dw |
+| `C_walls_ceiling`         |                          | J/K  |   (area_floor..._dw * cp_dw |
 | `t_floor`         | Floor thermal mass                         | m  |   0.019 |
 | `rho_floor`         |                          | kg/m3  |   700 |
 | `cp_floor`         |                          | J/(kg.K)  |   1600 |
-| `C_floor`         |                          | J/K  |   area_floor * t_floor * rho_floor * cp_floor |
-| `C_tot`         | Total thermal capacitance                         | J/K  |   C_air + C_walls_ceiling + C_floor |
+| `C_floor`         |                          | J/K  |   area_floor ... * cp_floor |
+| `C_tot`         | Total thermal capacitance                         | J/K  |   C_air + C_w...g + C_floor |
 | `G_wall`         | Envelope conductances                         | W/K  |   U_walls * area_walls |
 | `G_window`         |                          | W/K  |   U_window * area_window |
 | `G_roof`         |                          | W/K  |   U_roof * area_roof |
 | `G_floor`         |                          | W/K  |   U_floor * area_floor |
 | `G_door`         |                          | W/K  |   U_door * area_doors |
-| `G_envelope`         |                          | W/K  |   G_wall + G_window + G_roof + G_door + G_floor |
+| `G_envelope`         |                          | W/K  |   G_wall + G_...r + G_floor |
 | `U_envelope`         | Envelope U-value relative to floor area W/(m²·K)                         | W/(m2.K)  |   G_envelope / area_floor |
 | `ACH_infiltration`         | Natural infiltration (ACH = air changes per hour)                         | --  |   0.35 |
 | `ACH_ventilation`         | Mechanical ventilation (ASHRAE 62.2)                         | --  |   0.15 |
-| `ACH_total`         |                          | --  |   ACH_infiltration + ACH_ventilation |
-| `m_dot_air`         | Air mass flow rate (kg/s)                         | --  |   (ACH_total * volume * rho_air) / 3600 |
+| `ACH_total`         |                          | --  |   ACH_infiltr...ventilation |
+| `m_dot_air`         | Air mass flow rate (kg/s)                         | --  |   (ACH_total ...r) / 3600.0 |
 | `G_infiltration`         |                          | W/K  |   m_dot_air * cp_air |
-| `U_infiltration`         | Infiltration U-value relative to floor area W/(m²·K)                         | W/(m2.K)  |   G_infiltration / area_floor |
-| `G_total`         | Total conductance (envelope + infiltration)                         | W/K  |   G_envelope + G_infiltration |
-| `U_total`         | Total U-value relative to floor area W/(m²·K)                         | W/(m2.K)  |   U_infiltration + U_envelope |
-| `h_conv`         | Convection at exterior surface                         | W/(m2.K)  |   10 |
+| `U_infiltration`         | Infiltration U-value relative to floor area W/(m²·K)                         | W/(m2.K)  |   G_infiltrat... area_floor |
+| `G_total`         | Total conductance (envelope + infiltration)                         | W/K  |   G_envelope ...nfiltration |
+| `U_total`         | Total U-value relative to floor area W/(m²·K)                         | W/(m2.K)  |   U_infiltrat... U_envelope |
+| `h_conv`         | Convection at exterior surface                         | W/(m2.K)  |   10.0 |
 | `G_conv`         |                          | W/K  |   h_conv * area_walls |
-| `Q_people`         | Occupant sensible heat                         | W  |   0 |
-| `Q_lighting`         | Lighting heat                         | W  |   0 |
-| `Q_appliances`         | Appliance heat                         | W  |   0 |
-| `Q_internal`         |                          | W  |   Q_people + Q_lighting + Q_appliances |
+| `Q_people`         | Occupant sensible heat                         | W  |   0.0 |
+| `Q_lighting`         | Lighting heat                         | W  |   0.0 |
+| `Q_appliances`         | Appliance heat                         | W  |   0.0 |
+| `Q_internal`         |                          | W  |   Q_people + ..._appliances |
 | `T_initial`         | Temperature references                         | K  |   293.15 |
 
 ## Connectors
@@ -81,17 +83,18 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `T_wall`         |                          | K  | 
+| ------------ | ----------------------------------- | ------ |
+| `T_wall`         |                          | K  |
 """
-@component function ThermalHouse(; name = nothing, area_floor=92.9, height=2.44, ratio_L_W=1.25, Aratio_window_wall=0.15, no_doors=Float64(2), A_door=1.75, length=sqrt(area_floor * ratio_L_W), width=length / ratio_L_W, volume=length * width * height, area_walls=2 * (length * height + width * height), area_window=Aratio_window_wall * area_walls, area_doors=no_doors * A_door, area_roof=area_floor, U_walls=0.47, U_roof=0.15, U_floor=0.35, U_window=2.2, U_door=1.2, SHGC=0.6, f_window=0.3, rho_air=1.2, cp_air=Float64(1005), mass_air=rho_air * volume, C_air=mass_air * cp_air, t_dw=0.0127, rho_dw=Float64(800), cp_dw=Float64(1000), C_walls_ceiling=(area_floor + area_walls) * t_dw * rho_dw * cp_dw, t_floor=0.019, rho_floor=Float64(700), cp_floor=Float64(1600), C_floor=area_floor * t_floor * rho_floor * cp_floor, C_tot=C_air + C_walls_ceiling + C_floor, G_wall=U_walls * area_walls, G_window=U_window * area_window, G_roof=U_roof * area_roof, G_floor=U_floor * area_floor, G_door=U_door * area_doors, G_envelope=G_wall + G_window + G_roof + G_door + G_floor, U_envelope=G_envelope / area_floor, ACH_infiltration=0.35, ACH_ventilation=0.15, ACH_total=ACH_infiltration + ACH_ventilation, m_dot_air=(ACH_total * volume * rho_air) / 3600, G_infiltration=m_dot_air * cp_air, U_infiltration=G_infiltration / area_floor, G_total=G_envelope + G_infiltration, U_total=U_infiltration + U_envelope, h_conv=Float64(10), G_conv=h_conv * area_walls, Q_people=Float64(0), Q_lighting=Float64(0), Q_appliances=Float64(0), Q_internal=Q_people + Q_lighting + Q_appliances, T_initial=293.15, kwargs...)
+@component function ThermalHouse(; name = nothing, area_floor=92.9, height=2.44, ratio_L_W=1.25, Aratio_window_wall=0.15, no_doors=Float64(2), A_door=1.75, U_walls=0.47, U_roof=0.15, U_floor=0.35, U_window=2.2, U_door=1.2, SHGC=0.6, f_window=0.3, rho_air=1.2, cp_air=Float64(1005.0), t_dw=0.0127, rho_dw=Float64(800), cp_dw=Float64(1000), t_floor=0.019, rho_floor=Float64(700), cp_floor=Float64(1600), ACH_infiltration=0.35, ACH_ventilation=0.15, h_conv=Float64(10.0), Q_people=Float64(0.0), Q_lighting=Float64(0.0), Q_appliances=Float64(0.0), T_initial=293.15, length=sqrt(area_floor * ratio_L_W), area_doors=no_doors * A_door, area_roof=area_floor, C_floor=area_floor * t_floor * rho_floor * cp_floor, G_floor=U_floor * area_floor, ACH_total=ACH_infiltration + ACH_ventilation, Q_internal=Q_people + Q_lighting + Q_appliances, width=length / ratio_L_W, G_roof=U_roof * area_roof, G_door=U_door * area_doors, volume=length * width * height, area_walls=2.0 * (length * height + width * height), area_window=Aratio_window_wall * area_walls, mass_air=rho_air * volume, C_walls_ceiling=(area_floor + area_walls) * t_dw * rho_dw * cp_dw, G_wall=U_walls * area_walls, m_dot_air=(ACH_total * volume * rho_air) / 3600.0, G_conv=h_conv * area_walls, C_air=mass_air * cp_air, G_window=U_window * area_window, G_infiltration=m_dot_air * cp_air, C_tot=C_air + C_walls_ceiling + C_floor, G_envelope=G_wall + G_window + G_roof + G_door + G_floor, U_infiltration=G_infiltration / area_floor, U_envelope=G_envelope / area_floor, G_total=G_envelope + G_infiltration, U_total=U_infiltration + U_envelope, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ThermalHouse()
+  """))
 
-        @named model = ThermalHouse()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -110,8 +113,6 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -282,6 +283,8 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   append!(__params, @parameters (T_initial::Real), [description = "Temperature references", bounds = (0, Inf)])
   __initial_conditions[T_initial] = __local__T_initial
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
   append!(__vars, @variables (Q_heater(t)::Real), [input = true])
   append!(__vars, @variables (solar_irradiance(t)::Real), [input = true])
@@ -302,52 +305,40 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   push!(__systems, @named interior = __Dyad__HeatPort())
   push!(__systems, @named wall_surface = __Dyad__HeatPort())
   # Subcomponent thermal_mass of type ThermalComponents.Components.HeatCapacitor
-  thermal_mass_overrides = Dict(Symbol(replace(string(k), r"^thermal_mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "thermal_mass__"))
-  filter!(p -> !startswith(string(first(p)), "thermal_mass__"), __overrides)
+  thermal_mass_overrides = __pop_subcomponent_overrides!(__overrides, "thermal_mass")
   push!(__systems, @named thermal_mass = ThermalComponents.Components.HeatCapacitor(C=C_tot, T0=T_initial, thermal_mass_overrides...))
   # Subcomponent solar_input of type ThermalComponents.Sources.PrescribedHeatFlow
-  solar_input_overrides = Dict(Symbol(replace(string(k), r"^solar_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar_input__"))
-  filter!(p -> !startswith(string(first(p)), "solar_input__"), __overrides)
+  solar_input_overrides = __pop_subcomponent_overrides!(__overrides, "solar_input")
   push!(__systems, @named solar_input = ThermalComponents.Sources.PrescribedHeatFlow(solar_input_overrides...))
   # Subcomponent heater of type ThermalComponents.Sources.PrescribedHeatFlow
-  heater_overrides = Dict(Symbol(replace(string(k), r"^heater__" => "")) => v for (k, v) in __overrides if startswith(string(k), "heater__"))
-  filter!(p -> !startswith(string(first(p)), "heater__"), __overrides)
+  heater_overrides = __pop_subcomponent_overrides!(__overrides, "heater")
   push!(__systems, @named heater = ThermalComponents.Sources.PrescribedHeatFlow(heater_overrides...))
   # Subcomponent internal_gains of type ThermalComponents.Sources.PrescribedHeatFlow
-  internal_gains_overrides = Dict(Symbol(replace(string(k), r"^internal_gains__" => "")) => v for (k, v) in __overrides if startswith(string(k), "internal_gains__"))
-  filter!(p -> !startswith(string(first(p)), "internal_gains__"), __overrides)
+  internal_gains_overrides = __pop_subcomponent_overrides!(__overrides, "internal_gains")
   push!(__systems, @named internal_gains = ThermalComponents.Sources.PrescribedHeatFlow(internal_gains_overrides...))
   # Subcomponent window_loss of type ThermalComponents.Components.ThermalConductor
-  window_loss_overrides = Dict(Symbol(replace(string(k), r"^window_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "window_loss__"))
-  filter!(p -> !startswith(string(first(p)), "window_loss__"), __overrides)
+  window_loss_overrides = __pop_subcomponent_overrides!(__overrides, "window_loss")
   push!(__systems, @named window_loss = ThermalComponents.Components.ThermalConductor(G=G_window, window_loss_overrides...))
   # Subcomponent door_loss of type ThermalComponents.Components.ThermalConductor
-  door_loss_overrides = Dict(Symbol(replace(string(k), r"^door_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "door_loss__"))
-  filter!(p -> !startswith(string(first(p)), "door_loss__"), __overrides)
+  door_loss_overrides = __pop_subcomponent_overrides!(__overrides, "door_loss")
   push!(__systems, @named door_loss = ThermalComponents.Components.ThermalConductor(G=G_door, door_loss_overrides...))
   # Subcomponent roof_loss of type ThermalComponents.Components.ThermalConductor
-  roof_loss_overrides = Dict(Symbol(replace(string(k), r"^roof_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "roof_loss__"))
-  filter!(p -> !startswith(string(first(p)), "roof_loss__"), __overrides)
+  roof_loss_overrides = __pop_subcomponent_overrides!(__overrides, "roof_loss")
   push!(__systems, @named roof_loss = ThermalComponents.Components.ThermalConductor(G=G_roof, roof_loss_overrides...))
   # Subcomponent floor_loss of type ThermalComponents.Components.ThermalConductor
-  floor_loss_overrides = Dict(Symbol(replace(string(k), r"^floor_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "floor_loss__"))
-  filter!(p -> !startswith(string(first(p)), "floor_loss__"), __overrides)
+  floor_loss_overrides = __pop_subcomponent_overrides!(__overrides, "floor_loss")
   push!(__systems, @named floor_loss = ThermalComponents.Components.ThermalConductor(G=G_floor, floor_loss_overrides...))
   # Subcomponent infiltration_loss of type ThermalComponents.Components.ThermalConductor
-  infiltration_loss_overrides = Dict(Symbol(replace(string(k), r"^infiltration_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "infiltration_loss__"))
-  filter!(p -> !startswith(string(first(p)), "infiltration_loss__"), __overrides)
+  infiltration_loss_overrides = __pop_subcomponent_overrides!(__overrides, "infiltration_loss")
   push!(__systems, @named infiltration_loss = ThermalComponents.Components.ThermalConductor(G=G_infiltration, infiltration_loss_overrides...))
   # Subcomponent wall_loss of type ThermalComponents.Components.ThermalConductor
-  wall_loss_overrides = Dict(Symbol(replace(string(k), r"^wall_loss__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wall_loss__"))
-  filter!(p -> !startswith(string(first(p)), "wall_loss__"), __overrides)
+  wall_loss_overrides = __pop_subcomponent_overrides!(__overrides, "wall_loss")
   push!(__systems, @named wall_loss = ThermalComponents.Components.ThermalConductor(G=G_wall, wall_loss_overrides...))
   # Subcomponent wall_convection of type ThermalComponents.Components.ThermalConductor
-  wall_convection_overrides = Dict(Symbol(replace(string(k), r"^wall_convection__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wall_convection__"))
-  filter!(p -> !startswith(string(first(p)), "wall_convection__"), __overrides)
+  wall_convection_overrides = __pop_subcomponent_overrides!(__overrides, "wall_convection")
   push!(__systems, @named wall_convection = ThermalComponents.Components.ThermalConductor(G=G_conv, wall_convection_overrides...))
   # Subcomponent ambient of type ThermalComponents.Sources.PrescribedTemperature
-  ambient_overrides = Dict(Symbol(replace(string(k), r"^ambient__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ambient__"))
-  filter!(p -> !startswith(string(first(p)), "ambient__"), __overrides)
+  ambient_overrides = __pop_subcomponent_overrides!(__overrides, "ambient")
   push!(__systems, @named ambient = ThermalComponents.Sources.PrescribedTemperature(ambient_overrides...))
 
   ### Check there are no unmatched overrides

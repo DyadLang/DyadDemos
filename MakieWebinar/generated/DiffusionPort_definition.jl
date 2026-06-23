@@ -23,11 +23,11 @@ Supported dynamics:
 """
 @connector function DiffusionPort(; name=nothing)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
-
-        @named model = DiffusionPort()
-        """))
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = DiffusionPort()
+  """))
   __params = Symbolics.SymbolicT[]
   __vars = @variables begin
     (C(t)::Real), []

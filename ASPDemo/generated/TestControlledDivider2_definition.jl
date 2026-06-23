@@ -4,24 +4,27 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestControlledDivider2(; name)
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `Q1`         |                          | --  | 
-| `Q2`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `Q1`         |                          | --  |
+| `Q2`         |                          | --  |
 """
 @component function TestControlledDivider2(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestControlledDivider2()
+  """))
 
-        @named model = TestControlledDivider2()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -41,11 +44,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -64,20 +67,16 @@
 
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
-  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
-  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
   push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
   # Subcomponent divider of type ASPDemo.ControlledDivider2
-  divider_overrides = Dict(Symbol(replace(string(k), r"^divider__" => "")) => v for (k, v) in __overrides if startswith(string(k), "divider__"))
-  filter!(p -> !startswith(string(first(p)), "divider__"), __overrides)
+  divider_overrides = __pop_subcomponent_overrides!(__overrides, "divider")
   push!(__systems, @named divider = ASPDemo.ControlledDivider2(divider_overrides...))
   # Subcomponent sink of type ASPDemo.EffluentSink
-  sink_overrides = Dict(Symbol(replace(string(k), r"^sink__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sink__"))
-  filter!(p -> !startswith(string(first(p)), "sink__"), __overrides)
+  sink_overrides = __pop_subcomponent_overrides!(__overrides, "sink")
   push!(__systems, @named sink = ASPDemo.EffluentSink(sink_overrides...))
   # Subcomponent sink2 of type ASPDemo.EffluentSink
-  sink2_overrides = Dict(Symbol(replace(string(k), r"^sink2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sink2__"))
-  filter!(p -> !startswith(string(first(p)), "sink2__"), __overrides)
+  sink2_overrides = __pop_subcomponent_overrides!(__overrides, "sink2")
   push!(__systems, @named sink2 = ASPDemo.EffluentSink(sink2_overrides...))
 
   ### Check there are no unmatched overrides
@@ -96,20 +95,20 @@
   push!(__eqs, divider.u ~ 0 + 0.25 * floor(t / 0.5))
   push!(__eqs, ModelingToolkit.D_nounits(Q1) ~ (sink.port.Q - Q1) / 0.05)
   push!(__eqs, ModelingToolkit.D_nounits(Q2) ~ (sink2.port.Q - Q2) / 0.05)
-  push!(__eqs, source.Q_in ~ 21477)
-  push!(__eqs, source.Si ~ 30)
+  push!(__eqs, source.Q_in ~ 21477.0)
+  push!(__eqs, source.Si ~ 30.0)
   push!(__eqs, source.Ss ~ 63.63455)
   push!(__eqs, source.Xi ~ 58.476)
   push!(__eqs, source.Xs ~ 224.352)
   push!(__eqs, source.Xbh ~ 31.425)
-  push!(__eqs, source.Xba ~ 0)
-  push!(__eqs, source.Xp ~ 0)
-  push!(__eqs, source.So ~ 0)
-  push!(__eqs, source.Sno ~ 0)
+  push!(__eqs, source.Xba ~ 0.0)
+  push!(__eqs, source.Xp ~ 0.0)
+  push!(__eqs, source.So ~ 0.0)
+  push!(__eqs, source.Sno ~ 0.0)
   push!(__eqs, source.Snh ~ 30.24762)
   push!(__eqs, source.Snd ~ 6.36346)
   push!(__eqs, source.Xnd ~ 11.814)
-  push!(__eqs, source.Salk ~ 7)
+  push!(__eqs, source.Salk ~ 7.0)
   push!(__eqs, connect(source.port, divider.portIn))
   push!(__eqs, connect(divider.portOut1, sink.port))
   push!(__eqs, connect(divider.portOut2, sink2.port))

@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HybridEngine(; name, max_torque, b_friction, idle_fuel_rate)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `max_torque`         |                          | N.m  |   145 |
+| `max_torque`         |                          | N.m  |   145.0 |
 | `b_friction`         |                          | --  |   0.4 |
 | `idle_fuel_rate`         |                          | --  |   0.6 |
 
@@ -24,21 +26,22 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `omega`         |                          | rad/s  | 
-| `torque`         |                          | N.m  | 
-| `power`         |                          | W  | 
-| `fuel_rate`         |                          | --  | 
-| `fuel_consumed`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `omega`         |                          | rad/s  |
+| `torque`         |                          | N.m  |
+| `power`         |                          | W  |
+| `fuel_rate`         |                          | --  |
+| `fuel_consumed`         |                          | --  |
 """
-@component function HybridEngine(; name = nothing, max_torque=Float64(145), b_friction=0.4, idle_fuel_rate=0.6, kwargs...)
+@component function HybridEngine(; name = nothing, max_torque=Float64(145.0), b_friction=0.4, idle_fuel_rate=0.6, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HybridEngine()
+  """))
 
-        @named model = HybridEngine()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,8 +61,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -72,6 +73,8 @@
   __local__idle_fuel_rate = idle_fuel_rate
   append!(__params, @parameters (idle_fuel_rate::Real))
   __initial_conditions[idle_fuel_rate] = __local__idle_fuel_rate
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (throttle(t)::Real), [input = true])
@@ -108,7 +111,7 @@
   ### Guesses
 
   ### Initialization Equations
-  push!(__initialization_eqs, fuel_consumed ~ 0)
+  push!(__initialization_eqs, fuel_consumed ~ 0.0)
 
   ### Assertions
   __assertions = []
@@ -118,7 +121,7 @@
   push!(__eqs, omega_output ~ omega)
   push!(__eqs, torque ~ throttle * max_torque)
   push!(__eqs, power ~ torque * omega)
-  push!(__eqs, fuel_rate ~ HybridTransmission.engine_bsfc_fuel_rate(torque, max(abs(omega) * 9.5493, 60)))
+  push!(__eqs, fuel_rate ~ HybridTransmission.engine_bsfc_fuel_rate(torque, max(abs(omega) * 9.5493, 60.0)))
   push!(__eqs, flange.tau ~ -torque + b_friction * omega)
   push!(__eqs, ModelingToolkit.D_nounits(fuel_consumed) ~ fuel_rate)
 

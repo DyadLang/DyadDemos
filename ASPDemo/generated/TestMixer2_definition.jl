@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestMixer2(; name)
 """
 @component function TestMixer2(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestMixer2()
+  """))
 
-        @named model = TestMixer2()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,20 +54,16 @@
 
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
-  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
-  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
   push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
   # Subcomponent source2 of type ASPDemo.FlowSource
-  source2_overrides = Dict(Symbol(replace(string(k), r"^source2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source2__"))
-  filter!(p -> !startswith(string(first(p)), "source2__"), __overrides)
+  source2_overrides = __pop_subcomponent_overrides!(__overrides, "source2")
   push!(__systems, @named source2 = ASPDemo.FlowSource(source2_overrides...))
   # Subcomponent mixer of type ASPDemo.Mixer2
-  mixer_overrides = Dict(Symbol(replace(string(k), r"^mixer__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mixer__"))
-  filter!(p -> !startswith(string(first(p)), "mixer__"), __overrides)
+  mixer_overrides = __pop_subcomponent_overrides!(__overrides, "mixer")
   push!(__systems, @named mixer = ASPDemo.Mixer2(mixer_overrides...))
   # Subcomponent sink of type ASPDemo.EffluentSink
-  sink_overrides = Dict(Symbol(replace(string(k), r"^sink__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sink__"))
-  filter!(p -> !startswith(string(first(p)), "sink__"), __overrides)
+  sink_overrides = __pop_subcomponent_overrides!(__overrides, "sink")
   push!(__systems, @named sink = ASPDemo.EffluentSink(sink_overrides...))
 
   ### Check there are no unmatched overrides
@@ -78,21 +77,21 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, source.Q_in ~ 21477)
+  push!(__eqs, source.Q_in ~ 21477.0)
   push!(__eqs, source2.Q_in ~ 2 * source.Q_in)
-  push!(__eqs, source.Si ~ 30)
+  push!(__eqs, source.Si ~ 30.0)
   push!(__eqs, source.Ss ~ 63.63455)
   push!(__eqs, source.Xi ~ 58.476)
   push!(__eqs, source.Xs ~ 224.352)
   push!(__eqs, source.Xbh ~ 31.425)
-  push!(__eqs, source.Xba ~ 0)
-  push!(__eqs, source.Xp ~ 0)
-  push!(__eqs, source.So ~ 0)
-  push!(__eqs, source.Sno ~ 0)
+  push!(__eqs, source.Xba ~ 0.0)
+  push!(__eqs, source.Xp ~ 0.0)
+  push!(__eqs, source.So ~ 0.0)
+  push!(__eqs, source.Sno ~ 0.0)
   push!(__eqs, source.Snh ~ 30.24762)
   push!(__eqs, source.Snd ~ 6.36346)
   push!(__eqs, source.Xnd ~ 11.814)
-  push!(__eqs, source.Salk ~ 7)
+  push!(__eqs, source.Salk ~ 7.0)
   push!(__eqs, source2.Si ~ source.Si)
   push!(__eqs, source2.Ss ~ source.Ss)
   push!(__eqs, source2.Xi ~ source.Xi)

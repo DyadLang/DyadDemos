@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    BrakeThermalTest_Step(; name)
 """
 @component function BrakeThermalTest_Step(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = BrakeThermalTest_Step()
+  """))
 
-        @named model = BrakeThermalTest_Step()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,32 +54,25 @@
 
   ### Components
   # Subcomponent brake_thermal of type FrictionBrakeDemo.BrakeThermal
-  brake_thermal_overrides = Dict(Symbol(replace(string(k), r"^brake_thermal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "brake_thermal__"))
-  filter!(p -> !startswith(string(first(p)), "brake_thermal__"), __overrides)
+  brake_thermal_overrides = __pop_subcomponent_overrides!(__overrides, "brake_thermal")
   push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(brake_thermal_overrides...))
   # Subcomponent disk_heat_step of type BlockComponents.Sources.Step
-  disk_heat_step_overrides = Dict(Symbol(replace(string(k), r"^disk_heat_step__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_heat_step__"))
-  filter!(p -> !startswith(string(first(p)), "disk_heat_step__"), __overrides)
-  push!(__systems, @named disk_heat_step = BlockComponents.Sources.Step(height=-9300, offset=9300, start_time=1500, disk_heat_step_overrides...))
+  disk_heat_step_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_step")
+  push!(__systems, @named disk_heat_step = BlockComponents.Sources.Step(height=-9300, offset=9300, start_time=1500.0, disk_heat_step_overrides...))
   # Subcomponent disk_heat_input of type ThermalComponents.Sources.PrescribedHeatFlow
-  disk_heat_input_overrides = Dict(Symbol(replace(string(k), r"^disk_heat_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_heat_input__"))
-  filter!(p -> !startswith(string(first(p)), "disk_heat_input__"), __overrides)
+  disk_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_input")
   push!(__systems, @named disk_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(disk_heat_input_overrides...))
   # Subcomponent pad_heat_step of type BlockComponents.Sources.Step
-  pad_heat_step_overrides = Dict(Symbol(replace(string(k), r"^pad_heat_step__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_heat_step__"))
-  filter!(p -> !startswith(string(first(p)), "pad_heat_step__"), __overrides)
-  push!(__systems, @named pad_heat_step = BlockComponents.Sources.Step(height=-700, offset=700, start_time=1500, pad_heat_step_overrides...))
+  pad_heat_step_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_step")
+  push!(__systems, @named pad_heat_step = BlockComponents.Sources.Step(height=-700, offset=700, start_time=1500.0, pad_heat_step_overrides...))
   # Subcomponent pad_heat_input of type ThermalComponents.Sources.PrescribedHeatFlow
-  pad_heat_input_overrides = Dict(Symbol(replace(string(k), r"^pad_heat_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_heat_input__"))
-  filter!(p -> !startswith(string(first(p)), "pad_heat_input__"), __overrides)
+  pad_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_input")
   push!(__systems, @named pad_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(pad_heat_input_overrides...))
   # Subcomponent vehicle_speed_source of type BlockComponents.Sources.Constant
-  vehicle_speed_source_overrides = Dict(Symbol(replace(string(k), r"^vehicle_speed_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle_speed_source__"))
-  filter!(p -> !startswith(string(first(p)), "vehicle_speed_source__"), __overrides)
+  vehicle_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_speed_source")
   push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(k=6.94, vehicle_speed_source_overrides...))
   # Subcomponent wheel_speed_source of type BlockComponents.Sources.Constant
-  wheel_speed_source_overrides = Dict(Symbol(replace(string(k), r"^wheel_speed_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wheel_speed_source__"))
-  filter!(p -> !startswith(string(first(p)), "wheel_speed_source__"), __overrides)
+  wheel_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "wheel_speed_source")
   push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(k=64.8, wheel_speed_source_overrides...))
 
   ### Check there are no unmatched overrides

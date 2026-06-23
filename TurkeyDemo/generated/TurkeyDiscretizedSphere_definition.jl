@@ -4,49 +4,52 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TurkeyDiscretizedSphere(; name, N, Np1, M, rho, cp, k, T_init, pi, R, dr)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `N`         |                          | --  |   10 |
 | `Np1`         |                          | --  |   N + 1 |
-| `M`         |                          | kg  |   5 |
-| `rho`         |                          | kg/m3  |   1050 |
-| `cp`         |                          | J/(kg.K)  |   3500 |
+| `M`         |                          | kg  |   5.0 |
+| `rho`         |                          | kg/m3  |   1050.0 |
+| `cp`         |                          | J/(kg.K)  |   3500.0 |
 | `k`         |                          | W/(m.K)  |   0.5 |
-| `T_init`         |                          | K  |   277 |
+| `T_init`         |                          | K  |   277.0 |
 | `pi`         |                          | --  |   3.14159265359 |
-| `R`         |                          | m  |   (3 * M / (4 * pi * rho)) ^ (1 / 3) |
+| `R`         |                          | m  |   (3 * M / (4...) ^ (1 / 3) |
 | `dr`         |                          | m  |   R / N |
 
 ## Connectors
 
- * `surface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `surface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `T`         |                          | K  | 
-| `Q_cond`         |                          | W  | 
-| `r`         |                          | m  | 
-| `r_mid`         |                          | m  | 
-| `A_interface`         |                          | m2  | 
-| `V_shell`         |                          | m3  | 
-| `m_shell`         |                          | kg  | 
-| `T_degF`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `T`         |                          | K  |
+| `Q_cond`         |                          | W  |
+| `r`         |                          | m  |
+| `r_mid`         |                          | m  |
+| `A_interface`         |                          | m2  |
+| `V_shell`         |                          | m3  |
+| `m_shell`         |                          | kg  |
+| `T_degF`         |                          | --  |
 """
-@component function TurkeyDiscretizedSphere(; name = nothing, N=10, Np1=N + 1, M=Float64(5), rho=Float64(1050), cp=Float64(3500), k=0.5, T_init=Float64(277), pi=3.14159265359, R=(3 * M / (4 * pi * rho)) ^ (1 / 3), dr=R / N, kwargs...)
+@component function TurkeyDiscretizedSphere(; name = nothing, N=10, M=Float64(5.0), rho=Float64(1050.0), cp=Float64(3500.0), k=0.5, T_init=Float64(277.0), pi=3.14159265359, Np1=N + 1, R=(3 * M / (4 * pi * rho)) ^ (1 / 3), dr=R / N, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TurkeyDiscretizedSphere()
+  """))
 
-        @named model = TurkeyDiscretizedSphere()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -66,9 +69,6 @@
 
   ### Final Parameters (declarations)
   append!(__params, @parameters (T_inits[1:N]::Real), [description = "Workaround for array initial conditions", bounds = (0, Inf), misc = "final"])
-
-  ### Final Parameters (assignments)
-  __bindings[T_inits] = T_init * ones(N)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -97,6 +97,9 @@
   __local__dr = dr
   append!(__params, @parameters (dr::Real))
   __initial_conditions[dr] = __local__dr
+
+  ### Final Parameters (assignments)
+  __bindings[T_inits] = T_init * ones(N)
 
   ### Final Path Parameters
 
@@ -155,22 +158,22 @@
 
   ### Control Structures
   for i in 1:Np1
-      push!(__eqs, r[i] ~ (i - 1) * dr)
+    push!(__eqs, r[i] ~ (i - 1) * dr)
   end
   for i in 1:N
-      push!(__eqs, r_mid[i] ~ (r[i] + r[i + 1]) / 2)
-      push!(__eqs, A_interface[i] ~ 4 * pi * r[i] ^ 2)
-      push!(__eqs, V_shell[i] ~ (4 / 3) * pi * (r[i + 1] ^ 3 - r[i] ^ 3))
-      push!(__eqs, m_shell[i] ~ rho * V_shell[i])
+    push!(__eqs, r_mid[i] ~ (r[i] + r[i + 1]) / 2)
+    push!(__eqs, A_interface[i] ~ 4 * pi * r[i] ^ 2)
+    push!(__eqs, V_shell[i] ~ (4 / 3) * pi * (r[i + 1] ^ 3 - r[i] ^ 3))
+    push!(__eqs, m_shell[i] ~ rho * V_shell[i])
   end
   for i in 2:N
-      push!(__eqs, Q_cond[i] ~ k * A_interface[i] * (T[i - 1] - T[i]) / dr)
+    push!(__eqs, Q_cond[i] ~ k * A_interface[i] * (T[i - 1] - T[i]) / dr)
   end
   for i in 2:(N - 1)
-      push!(__eqs, m_shell[i] * cp * ModelingToolkit.D_nounits(T[i]) ~ Q_cond[i] - Q_cond[i + 1])
+    push!(__eqs, m_shell[i] * cp * ModelingToolkit.D_nounits(T[i]) ~ Q_cond[i] - Q_cond[i + 1])
   end
   for i in 1:N
-      push!(__eqs, T_degF[i] ~ TurkeyDemo.KelvinToFahrenheit(T[i]))
+    push!(__eqs, T_degF[i] ~ TurkeyDemo.KelvinToFahrenheit(T[i]))
   end
 
   # Return completely constructed System

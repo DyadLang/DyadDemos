@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    DiffusionCapacitor(; name, V)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `V`         | Volume (capacitance for mass storage)                         | --  |   1 |
+| `V`         | Volume (capacitance for mass storage)                         | --  |   1.0 |
 
 ## Connectors
 
@@ -34,17 +36,18 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `C`         | Concentration at this point                         | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `C`         | Concentration at this point                         | --  |
 """
-@component function DiffusionCapacitor(; name = nothing, V=Float64(1), kwargs...)
+@component function DiffusionCapacitor(; name = nothing, V=Float64(1.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = DiffusionCapacitor()
+  """))
 
-        @named model = DiffusionCapacitor()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -64,14 +67,14 @@ Supported dynamics:
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
   __local__V = V
   append!(__params, @parameters (V::Real), [description = "Volume (capacitance for mass storage)"])
   __initial_conditions[V] = __local__V
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 

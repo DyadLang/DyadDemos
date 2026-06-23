@@ -4,6 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    OfficeOccupancy(; name)
 
@@ -14,17 +16,18 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `occ`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `occ`         |                          | --  |
 """
 @component function OfficeOccupancy(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = OfficeOccupancy()
+  """))
 
-        @named model = OfficeOccupancy()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -44,11 +47,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (y(t)::Real), [output = true])
@@ -76,7 +79,7 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, occ ~ ifelse(t < 18000, 0, ifelse(t < 21600, (t - 18000) * 0.000027778, ifelse(t < 25200, 0.1 + (t - 21600) * 0.000027778, ifelse(t < 28800, 0.2 + (t - 25200) * 0.00020833, ifelse(t < 39600, 0.95, ifelse(t < 43200, 0.95 - (t - 39600) * 0.000125, ifelse(t < 46800, 0.5 + (t - 43200) * 0.000125, ifelse(t < 57600, 0.95, ifelse(t < 61200, 0.95 - (t - 57600) * 0.00018056, ifelse(t < 64800, 0.3 - (t - 61200) * 0.000055556, ifelse(t < 75600, 0.1, ifelse(t < 79200, 0.1 - (t - 75600) * 0.000013889, ifelse(t < 82800, 0.05, ifelse(t < 86400, 0.05 - (t - 82800) * 0.000013889, 0)))))))))))))))
+  push!(__eqs, occ ~ ifelse(t < 18000.0, 0.0, ifelse(t < 21600.0, (t - 18000.0) * 0.000027778, ifelse(t < 25200.0, 0.1 + (t - 21600.0) * 0.000027778, ifelse(t < 28800.0, 0.2 + (t - 25200.0) * 0.00020833, ifelse(t < 39600.0, 0.95, ifelse(t < 43200.0, 0.95 - (t - 39600.0) * 0.000125, ifelse(t < 46800.0, 0.5 + (t - 43200.0) * 0.000125, ifelse(t < 57600.0, 0.95, ifelse(t < 61200.0, 0.95 - (t - 57600.0) * 0.00018056, ifelse(t < 64800.0, 0.3 - (t - 61200.0) * 0.000055556, ifelse(t < 75600.0, 0.1, ifelse(t < 79200.0, 0.1 - (t - 75600.0) * 0.000013889, ifelse(t < 82800.0, 0.05, ifelse(t < 86400.0, 0.05 - (t - 82800.0) * 0.000013889, 0.0)))))))))))))))
   push!(__eqs, y ~ occ)
 
   # Return completely constructed System

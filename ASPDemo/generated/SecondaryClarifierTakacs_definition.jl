@@ -4,18 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SecondaryClarifierTakacs(; name, n, hsc, zm, Asc, Xt)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `n`         |                          | --  |   10 |
-| `hsc`         |                          | m  |   4 |
-| `zm`         |                          | m  |   hsc / (1 * n) |
-| `Asc`         |                          | m2  |   1500 |
-| `Xt`         |                          | kg/m3  |   3000 |
+| `hsc`         |                          | m  |   4.0 |
+| `zm`         |                          | m  |   hsc / (1.0 * n) |
+| `Asc`         |                          | m2  |   1500.0 |
+| `Xt`         |                          | kg/m3  |   3000.0 |
 
 ## Connectors
 
@@ -27,23 +29,24 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `Xf`         |                          | kg/m3  | 
-| `rXi`         |                          | --  | 
-| `rXs`         |                          | --  | 
-| `rXbh`         |                          | --  | 
-| `rXba`         |                          | --  | 
-| `rXp`         |                          | --  | 
-| `rXnd`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `Xf`         |                          | kg/m3  |
+| `rXi`         |                          | --  |
+| `rXs`         |                          | --  |
+| `rXbh`         |                          | --  |
+| `rXba`         |                          | --  |
+| `rXp`         |                          | --  |
+| `rXnd`         |                          | --  |
 """
-@component function SecondaryClarifierTakacs(; name = nothing, n=10, hsc=Float64(4), zm=hsc / (1 * n), Asc=Float64(1500), Xt=Float64(3000), kwargs...)
+@component function SecondaryClarifierTakacs(; name = nothing, n=10, hsc=Float64(4.0), Asc=Float64(1500.0), Xt=Float64(3000.0), zm=hsc / (1.0 * n), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SecondaryClarifierTakacs()
+  """))
 
-        @named model = SecondaryClarifierTakacs()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -63,8 +66,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -80,6 +81,8 @@
   __local__Xt = Xt
   append!(__params, @parameters (Xt::Real))
   __initial_conditions[Xt] = __local__Xt
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -117,45 +120,35 @@
   push!(__systems, @named waste = ASPDemo.FluidPortOut())
   push!(__systems, @named effluent = ASPDemo.FluidPortOut())
   # Subcomponent S10 of type ASPDemo.SecondaryClarifierTakacs_TopLayer
-  S10_overrides = Dict(Symbol(replace(string(k), r"^S10__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S10__"))
-  filter!(p -> !startswith(string(first(p)), "S10__"), __overrides)
-  push!(__systems, @named S10 = ASPDemo.SecondaryClarifierTakacs_TopLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=12.75536445419, soluble_start=[30, 1.315923153747, 1.999997854492, 15.97856572461, 2.659914027399, 0.5157153781401, 3.865860459171], S10_overrides...))
+  S10_overrides = __pop_subcomponent_overrides!(__overrides, "S10")
+  push!(__systems, @named S10 = ASPDemo.SecondaryClarifierTakacs_TopLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=12.75536445419, soluble_start=[30.0, 1.315923153747, 1.999997854492, 15.97856572461, 2.659914027399, 0.5157153781401, 3.865860459171], S10_overrides...))
   # Subcomponent S9 of type ASPDemo.SecondaryClarifierTakacs_UpperLayer
-  S9_overrides = Dict(Symbol(replace(string(k), r"^S9__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S9__"))
-  filter!(p -> !startswith(string(first(p)), "S9__"), __overrides)
-  push!(__systems, @named S9 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=18.63693081583, soluble_start=[30, 1.326501630233, 1.99999851092, 15.75300220995, 3.014297581126, 0.5192990500291, 3.893271573616], S9_overrides...))
+  S9_overrides = __pop_subcomponent_overrides!(__overrides, "S9")
+  push!(__systems, @named S9 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=18.63693081583, soluble_start=[30.0, 1.326501630233, 1.99999851092, 15.75300220995, 3.014297581126, 0.5192990500291, 3.893271573616], S9_overrides...))
   # Subcomponent S8 of type ASPDemo.SecondaryClarifierTakacs_UpperLayer
-  S8_overrides = Dict(Symbol(replace(string(k), r"^S8__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S8__"))
-  filter!(p -> !startswith(string(first(p)), "S8__"), __overrides)
-  push!(__systems, @named S8 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=30.82070988771, soluble_start=[30, 1.31140468971, 2.000000119719, 15.73179778908, 3.309840625819, 0.5156280775302, 3.8920005823], S8_overrides...))
+  S8_overrides = __pop_subcomponent_overrides!(__overrides, "S8")
+  push!(__systems, @named S8 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=30.82070988771, soluble_start=[30.0, 1.31140468971, 2.000000119719, 15.73179778908, 3.309840625819, 0.5156280775302, 3.8920005823], S8_overrides...))
   # Subcomponent S7 of type ASPDemo.SecondaryClarifierTakacs_UpperLayer
-  S7_overrides = Dict(Symbol(replace(string(k), r"^S7__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S7__"))
-  filter!(p -> !startswith(string(first(p)), "S7__"), __overrides)
-  push!(__systems, @named S7 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=73.77320137134, soluble_start=[30, 1.269543710665, 2.000001062187, 16.03779083408, 3.350596024011, 0.5029453608766, 3.844215940355], S7_overrides...))
+  S7_overrides = __pop_subcomponent_overrides!(__overrides, "S7")
+  push!(__systems, @named S7 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=73.77320137134, soluble_start=[30.0, 1.269543710665, 2.000001062187, 16.03779083408, 3.350596024011, 0.5029453608766, 3.844215940355], S7_overrides...))
   # Subcomponent S6 of type ASPDemo.SecondaryClarifierTakacs_FeedLayer
-  S6_overrides = Dict(Symbol(replace(string(k), r"^S6__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S6__"))
-  filter!(p -> !startswith(string(first(p)), "S6__"), __overrides)
-  push!(__systems, @named S6 = ASPDemo.SecondaryClarifierTakacs_FeedLayer(zm=zm, Asc=Asc, X_start=370.7094910985, soluble_start=[30, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 4.924690064049, 3.763667982244], S6_overrides...))
+  S6_overrides = __pop_subcomponent_overrides!(__overrides, "S6")
+  push!(__systems, @named S6 = ASPDemo.SecondaryClarifierTakacs_FeedLayer(zm=zm, Asc=Asc, X_start=370.7094910985, soluble_start=[30.0, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 4.924690064049, 3.763667982244], S6_overrides...))
   # Subcomponent S5 of type ASPDemo.SecondaryClarifierTakacs_LowerLayer
-  S5_overrides = Dict(Symbol(replace(string(k), r"^S5__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S5__"))
-  filter!(p -> !startswith(string(first(p)), "S5__"), __overrides)
-  push!(__systems, @named S5 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=392.7733554733, soluble_start=[30, 1.269942550715, 2.000001082463, 16.0322558508, 3.353479657344, 0.5030845728215, 3.845018683832], S5_overrides...))
+  S5_overrides = __pop_subcomponent_overrides!(__overrides, "S5")
+  push!(__systems, @named S5 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=392.7733554733, soluble_start=[30.0, 1.269942550715, 2.000001082463, 16.0322558508, 3.353479657344, 0.5030845728215, 3.845018683832], S5_overrides...))
   # Subcomponent S4 of type ASPDemo.SecondaryClarifierTakacs_LowerLayer
-  S4_overrides = Dict(Symbol(replace(string(k), r"^S4__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S4__"))
-  filter!(p -> !startswith(string(first(p)), "S4__"), __overrides)
-  push!(__systems, @named S4 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=365.8163924836, soluble_start=[30, 1.312069378217, 2.000000137779, 15.72405217982, 3.311901710677, 0.5158389625268, 3.893033083113], S4_overrides...))
+  S4_overrides = __pop_subcomponent_overrides!(__overrides, "S4")
+  push!(__systems, @named S4 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=365.8163924836, soluble_start=[30.0, 1.312069378217, 2.000000137779, 15.72405217982, 3.311901710677, 0.5158389625268, 3.893033083113], S4_overrides...))
   # Subcomponent S3 of type ASPDemo.SecondaryClarifierTakacs_LowerLayer
-  S3_overrides = Dict(Symbol(replace(string(k), r"^S3__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S3__"))
-  filter!(p -> !startswith(string(first(p)), "S3__"), __overrides)
-  push!(__systems, @named S3 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=353.5368422348, soluble_start=[30, 1.326304062865, 1.999998505695, 15.743217636, 3.005628887378, 0.5192334322417, 3.89445662454], S3_overrides...))
+  S3_overrides = __pop_subcomponent_overrides!(__overrides, "S3")
+  push!(__systems, @named S3 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=353.5368422348, soluble_start=[30.0, 1.326304062865, 1.999998505695, 15.743217636, 3.005628887378, 0.5192334322417, 3.89445662454], S3_overrides...))
   # Subcomponent S2 of type ASPDemo.SecondaryClarifierTakacs_LowerLayer
-  S2_overrides = Dict(Symbol(replace(string(k), r"^S2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S2__"))
-  filter!(p -> !startswith(string(first(p)), "S2__"), __overrides)
-  push!(__systems, @named S2 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=385.8534185097, soluble_start=[30, 1.313469109476, 1.999997808673, 15.96796727152, 2.620688498604, 0.5149498956479, 3.866969541077], S2_overrides...))
+  S2_overrides = __pop_subcomponent_overrides!(__overrides, "S2")
+  push!(__systems, @named S2 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=385.8534185097, soluble_start=[30.0, 1.313469109476, 1.999997808673, 15.96796727152, 2.620688498604, 0.5149498956479, 3.866969541077], S2_overrides...))
   # Subcomponent S1 of type ASPDemo.SecondaryClarifierTakacs_BottomLayer
-  S1_overrides = Dict(Symbol(replace(string(k), r"^S1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "S1__"))
-  filter!(p -> !startswith(string(first(p)), "S1__"), __overrides)
-  push!(__systems, @named S1 = ASPDemo.SecondaryClarifierTakacs_BottomLayer(zm=zm, Asc=Asc, X_start=6424.263681363, soluble_start=[30, 1.295030132149, 1.999998370446, 16.2347354737, 2.356727799827, 0.5097661184448, 3.83347219006], S1_overrides...))
+  S1_overrides = __pop_subcomponent_overrides!(__overrides, "S1")
+  push!(__systems, @named S1 = ASPDemo.SecondaryClarifierTakacs_BottomLayer(zm=zm, Asc=Asc, X_start=6424.263681363, soluble_start=[30.0, 1.295030132149, 1.999998370446, 16.2347354737, 2.356727799827, 0.5097661184448, 3.83347219006], S1_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

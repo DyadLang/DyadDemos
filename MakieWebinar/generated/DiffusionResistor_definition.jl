@@ -4,16 +4,18 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    DiffusionResistor(; name, D, dx, A)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `D`         | Diffusion coefficient                         | --  |   1 |
+| `D`         | Diffusion coefficient                         | --  |   1.0 |
 | `dx`         | Distance between points                         | --  |   0.1 |
-| `A`         | Cross-sectional area                         | --  |   1 |
+| `A`         | Cross-sectional area                         | --  |   1.0 |
 
 ## Connectors
 
@@ -51,18 +53,19 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `ΔC`         | Concentration difference                         | --  | 
-| `J`         | Mass flux through resistor                         | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `ΔC`         | Concentration difference                         | --  |
+| `J`         | Mass flux through resistor                         | --  |
 """
-@component function DiffusionResistor(; name = nothing, D=Float64(1), dx=0.1, A=Float64(1), kwargs...)
+@component function DiffusionResistor(; name = nothing, D=Float64(1.0), dx=0.1, A=Float64(1.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = DiffusionResistor()
+  """))
 
-        @named model = DiffusionResistor()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -82,8 +85,6 @@ Supported dynamics:
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -96,6 +97,8 @@ Supported dynamics:
   __local__A = A
   append!(__params, @parameters (A::Real), [description = "Cross-sectional area"])
   __initial_conditions[A] = __local__A
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 

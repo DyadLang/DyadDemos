@@ -67,7 +67,8 @@ end
 # A test model for a fixed volume
 test component TestTank
   source = FlowSource()
-  tank = PartialTank_2Port()
+  # PartialTank_2Port is a partial component (free `aeration`); use the concrete no-aeration tank.
+  tank = Denitrification()
   sink = EffluentSink()
 relations
   source.Q_in = 2.1477000000000000e+04  
@@ -87,8 +88,7 @@ relations
   source.Salk = 7.0000000000000000e+00
                                  
   tank.T = 15
-  tank.aeration = 0
-  
+
   connect(source.port, tank.portIn)
   connect(tank.portOut, sink.port)
 metadata {

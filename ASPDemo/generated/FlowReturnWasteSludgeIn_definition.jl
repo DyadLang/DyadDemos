@@ -6,11 +6,11 @@
 
 @connector function FlowReturnWasteSludgeIn(; name=nothing)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
-
-        @named model = FlowReturnWasteSludgeIn()
-        """))
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FlowReturnWasteSludgeIn()
+  """))
   __params = Symbolics.SymbolicT[]
   __vars = @variables begin
     (Qr(t)::Real), [input = true]

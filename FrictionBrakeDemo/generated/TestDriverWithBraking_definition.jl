@@ -4,30 +4,33 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestDriverWithBraking(; name, max_accel, drag_coeff)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `max_accel`         |                          | --  |   5 |
+| `max_accel`         |                          | --  |   5.0 |
 | `drag_coeff`         |                          | --  |   0.2 |
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `vehicle_speed`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `vehicle_speed`         |                          | --  |
 """
-@component function TestDriverWithBraking(; name = nothing, max_accel=Float64(5), drag_coeff=0.2, kwargs...)
+@component function TestDriverWithBraking(; name = nothing, max_accel=Float64(5.0), drag_coeff=0.2, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestDriverWithBraking()
+  """))
 
-        @named model = TestDriverWithBraking()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -47,8 +50,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -58,6 +59,8 @@
   __local__drag_coeff = drag_coeff
   append!(__params, @parameters (drag_coeff::Real))
   __initial_conditions[drag_coeff] = __local__drag_coeff
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -73,20 +76,16 @@
 
   ### Components
   # Subcomponent step1 of type BlockComponents.Sources.Step
-  step1_overrides = Dict(Symbol(replace(string(k), r"^step1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "step1__"))
-  filter!(p -> !startswith(string(first(p)), "step1__"), __overrides)
-  push!(__systems, @named step1 = BlockComponents.Sources.Step(height=25, offset=0, start_time=1, step1_overrides...))
+  step1_overrides = __pop_subcomponent_overrides!(__overrides, "step1")
+  push!(__systems, @named step1 = BlockComponents.Sources.Step(height=25.0, offset=0.0, start_time=1.0, step1_overrides...))
   # Subcomponent step2 of type BlockComponents.Sources.Step
-  step2_overrides = Dict(Symbol(replace(string(k), r"^step2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "step2__"))
-  filter!(p -> !startswith(string(first(p)), "step2__"), __overrides)
-  push!(__systems, @named step2 = BlockComponents.Sources.Step(height=-15, offset=0, start_time=6, step2_overrides...))
+  step2_overrides = __pop_subcomponent_overrides!(__overrides, "step2")
+  push!(__systems, @named step2 = BlockComponents.Sources.Step(height=-15.0, offset=0.0, start_time=6.0, step2_overrides...))
   # Subcomponent sum_steps of type BlockComponents.Math.Add
-  sum_steps_overrides = Dict(Symbol(replace(string(k), r"^sum_steps__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sum_steps__"))
-  filter!(p -> !startswith(string(first(p)), "sum_steps__"), __overrides)
+  sum_steps_overrides = __pop_subcomponent_overrides!(__overrides, "sum_steps")
   push!(__systems, @named sum_steps = BlockComponents.Math.Add(sum_steps_overrides...))
   # Subcomponent driver of type FrictionBrakeDemo.Driver
-  driver_overrides = Dict(Symbol(replace(string(k), r"^driver__" => "")) => v for (k, v) in __overrides if startswith(string(k), "driver__"))
-  filter!(p -> !startswith(string(first(p)), "driver__"), __overrides)
+  driver_overrides = __pop_subcomponent_overrides!(__overrides, "driver")
   push!(__systems, @named driver = FrictionBrakeDemo.Driver(driver_overrides...))
 
   ### Check there are no unmatched overrides
@@ -95,7 +94,7 @@
   ### Guesses
 
   ### Initialization Equations
-  push!(__initialization_eqs, vehicle_speed ~ 0)
+  push!(__initialization_eqs, vehicle_speed ~ 0.0)
 
   ### Assertions
   __assertions = []

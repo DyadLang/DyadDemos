@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestDiurnalOperation(; name)
 """
 @component function TestDiurnalOperation(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestDiurnalOperation()
+  """))
 
-        @named model = TestDiurnalOperation()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,73 +54,56 @@
 
   ### Components
   # Subcomponent building of type DynamicSteadyState.ThreeZoneBuilding
-  building_overrides = Dict(Symbol(replace(string(k), r"^building__" => "")) => v for (k, v) in __overrides if startswith(string(k), "building__"))
-  filter!(p -> !startswith(string(first(p)), "building__"), __overrides)
+  building_overrides = __pop_subcomponent_overrides!(__overrides, "building")
   push!(__systems, @named building = DynamicSteadyState.ThreeZoneBuilding(building_overrides...))
   # Subcomponent outdoor_signal of type BlockComponents.Sources.Sine
-  outdoor_signal_overrides = Dict(Symbol(replace(string(k), r"^outdoor_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "outdoor_signal__"))
-  filter!(p -> !startswith(string(first(p)), "outdoor_signal__"), __overrides)
-  push!(__systems, @named outdoor_signal = BlockComponents.Sources.Sine(amplitude=5, frequency=0.000011574, phase=-1.5708, offset=268.15, outdoor_signal_overrides...))
+  outdoor_signal_overrides = __pop_subcomponent_overrides!(__overrides, "outdoor_signal")
+  push!(__systems, @named outdoor_signal = BlockComponents.Sources.Sine(amplitude=5.0, frequency=0.000011574, phase=-1.5708, offset=268.15, outdoor_signal_overrides...))
   # Subcomponent ground_signal of type BlockComponents.Sources.Constant
-  ground_signal_overrides = Dict(Symbol(replace(string(k), r"^ground_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ground_signal__"))
-  filter!(p -> !startswith(string(first(p)), "ground_signal__"), __overrides)
+  ground_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ground_signal")
   push!(__systems, @named ground_signal = BlockComponents.Sources.Constant(k=283.15, ground_signal_overrides...))
   # Subcomponent occ_schedule of type DynamicSteadyState.OfficeOccupancy
-  occ_schedule_overrides = Dict(Symbol(replace(string(k), r"^occ_schedule__" => "")) => v for (k, v) in __overrides if startswith(string(k), "occ_schedule__"))
-  filter!(p -> !startswith(string(first(p)), "occ_schedule__"), __overrides)
+  occ_schedule_overrides = __pop_subcomponent_overrides!(__overrides, "occ_schedule")
   push!(__systems, @named occ_schedule = DynamicSteadyState.OfficeOccupancy(occ_schedule_overrides...))
   # Subcomponent solar_south of type BlockComponents.Sources.Sine
-  solar_south_overrides = Dict(Symbol(replace(string(k), r"^solar_south__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar_south__"))
-  filter!(p -> !startswith(string(first(p)), "solar_south__"), __overrides)
-  push!(__systems, @named solar_south = BlockComponents.Sources.Sine(amplitude=1500, frequency=0.000011574, phase=-1.5708, offset=1500, solar_south_overrides...))
+  solar_south_overrides = __pop_subcomponent_overrides!(__overrides, "solar_south")
+  push!(__systems, @named solar_south = BlockComponents.Sources.Sine(amplitude=1500.0, frequency=0.000011574, phase=-1.5708, offset=1500.0, solar_south_overrides...))
   # Subcomponent solar_north of type BlockComponents.Sources.Sine
-  solar_north_overrides = Dict(Symbol(replace(string(k), r"^solar_north__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar_north__"))
-  filter!(p -> !startswith(string(first(p)), "solar_north__"), __overrides)
-  push!(__systems, @named solar_north = BlockComponents.Sources.Sine(amplitude=375, frequency=0.000011574, phase=-1.5708, offset=375, solar_north_overrides...))
+  solar_north_overrides = __pop_subcomponent_overrides!(__overrides, "solar_north")
+  push!(__systems, @named solar_north = BlockComponents.Sources.Sine(amplitude=375.0, frequency=0.000011574, phase=-1.5708, offset=375.0, solar_north_overrides...))
   # Subcomponent int1_scale of type BlockComponents.Math.Gain
-  int1_scale_overrides = Dict(Symbol(replace(string(k), r"^int1_scale__" => "")) => v for (k, v) in __overrides if startswith(string(k), "int1_scale__"))
-  filter!(p -> !startswith(string(first(p)), "int1_scale__"), __overrides)
-  push!(__systems, @named int1_scale = BlockComponents.Math.Gain(k=600, int1_scale_overrides...))
+  int1_scale_overrides = __pop_subcomponent_overrides!(__overrides, "int1_scale")
+  push!(__systems, @named int1_scale = BlockComponents.Math.Gain(k=600.0, int1_scale_overrides...))
   # Subcomponent int1_source of type ThermalComponents.Sources.PrescribedHeatFlow
-  int1_source_overrides = Dict(Symbol(replace(string(k), r"^int1_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "int1_source__"))
-  filter!(p -> !startswith(string(first(p)), "int1_source__"), __overrides)
+  int1_source_overrides = __pop_subcomponent_overrides!(__overrides, "int1_source")
   push!(__systems, @named int1_source = ThermalComponents.Sources.PrescribedHeatFlow(int1_source_overrides...))
   # Subcomponent int2_scale of type BlockComponents.Math.Gain
-  int2_scale_overrides = Dict(Symbol(replace(string(k), r"^int2_scale__" => "")) => v for (k, v) in __overrides if startswith(string(k), "int2_scale__"))
-  filter!(p -> !startswith(string(first(p)), "int2_scale__"), __overrides)
-  push!(__systems, @named int2_scale = BlockComponents.Math.Gain(k=500, int2_scale_overrides...))
+  int2_scale_overrides = __pop_subcomponent_overrides!(__overrides, "int2_scale")
+  push!(__systems, @named int2_scale = BlockComponents.Math.Gain(k=500.0, int2_scale_overrides...))
   # Subcomponent int2_source of type ThermalComponents.Sources.PrescribedHeatFlow
-  int2_source_overrides = Dict(Symbol(replace(string(k), r"^int2_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "int2_source__"))
-  filter!(p -> !startswith(string(first(p)), "int2_source__"), __overrides)
+  int2_source_overrides = __pop_subcomponent_overrides!(__overrides, "int2_source")
   push!(__systems, @named int2_source = ThermalComponents.Sources.PrescribedHeatFlow(int2_source_overrides...))
   # Subcomponent int3_scale of type BlockComponents.Math.Gain
-  int3_scale_overrides = Dict(Symbol(replace(string(k), r"^int3_scale__" => "")) => v for (k, v) in __overrides if startswith(string(k), "int3_scale__"))
-  filter!(p -> !startswith(string(first(p)), "int3_scale__"), __overrides)
-  push!(__systems, @named int3_scale = BlockComponents.Math.Gain(k=400, int3_scale_overrides...))
+  int3_scale_overrides = __pop_subcomponent_overrides!(__overrides, "int3_scale")
+  push!(__systems, @named int3_scale = BlockComponents.Math.Gain(k=400.0, int3_scale_overrides...))
   # Subcomponent int3_source of type ThermalComponents.Sources.PrescribedHeatFlow
-  int3_source_overrides = Dict(Symbol(replace(string(k), r"^int3_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "int3_source__"))
-  filter!(p -> !startswith(string(first(p)), "int3_source__"), __overrides)
+  int3_source_overrides = __pop_subcomponent_overrides!(__overrides, "int3_source")
   push!(__systems, @named int3_source = ThermalComponents.Sources.PrescribedHeatFlow(int3_source_overrides...))
   # Subcomponent solar1_source of type ThermalComponents.Sources.PrescribedHeatFlow
-  solar1_source_overrides = Dict(Symbol(replace(string(k), r"^solar1_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar1_source__"))
-  filter!(p -> !startswith(string(first(p)), "solar1_source__"), __overrides)
+  solar1_source_overrides = __pop_subcomponent_overrides!(__overrides, "solar1_source")
   push!(__systems, @named solar1_source = ThermalComponents.Sources.PrescribedHeatFlow(solar1_source_overrides...))
   # Subcomponent solar3_source of type ThermalComponents.Sources.PrescribedHeatFlow
-  solar3_source_overrides = Dict(Symbol(replace(string(k), r"^solar3_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar3_source__"))
-  filter!(p -> !startswith(string(first(p)), "solar3_source__"), __overrides)
+  solar3_source_overrides = __pop_subcomponent_overrides!(__overrides, "solar3_source")
   push!(__systems, @named solar3_source = ThermalComponents.Sources.PrescribedHeatFlow(solar3_source_overrides...))
   # Subcomponent hvac1 of type DynamicSteadyState.ThermostatHeater
-  hvac1_overrides = Dict(Symbol(replace(string(k), r"^hvac1__" => "")) => v for (k, v) in __overrides if startswith(string(k), "hvac1__"))
-  filter!(p -> !startswith(string(first(p)), "hvac1__"), __overrides)
-  push!(__systems, @named hvac1 = DynamicSteadyState.ThermostatHeater(K=5000, T_set=294.15, Q_max=9070, hvac1_overrides...))
+  hvac1_overrides = __pop_subcomponent_overrides!(__overrides, "hvac1")
+  push!(__systems, @named hvac1 = DynamicSteadyState.ThermostatHeater(K=5000.0, T_set=294.15, Q_max=9070.0, hvac1_overrides...))
   # Subcomponent hvac2 of type DynamicSteadyState.ThermostatHeater
-  hvac2_overrides = Dict(Symbol(replace(string(k), r"^hvac2__" => "")) => v for (k, v) in __overrides if startswith(string(k), "hvac2__"))
-  filter!(p -> !startswith(string(first(p)), "hvac2__"), __overrides)
-  push!(__systems, @named hvac2 = DynamicSteadyState.ThermostatHeater(K=5000, T_set=294.15, Q_max=2310, hvac2_overrides...))
+  hvac2_overrides = __pop_subcomponent_overrides!(__overrides, "hvac2")
+  push!(__systems, @named hvac2 = DynamicSteadyState.ThermostatHeater(K=5000.0, T_set=294.15, Q_max=2310.0, hvac2_overrides...))
   # Subcomponent hvac3 of type DynamicSteadyState.ThermostatHeater
-  hvac3_overrides = Dict(Symbol(replace(string(k), r"^hvac3__" => "")) => v for (k, v) in __overrides if startswith(string(k), "hvac3__"))
-  filter!(p -> !startswith(string(first(p)), "hvac3__"), __overrides)
-  push!(__systems, @named hvac3 = DynamicSteadyState.ThermostatHeater(K=5000, T_set=294.15, Q_max=8450, hvac3_overrides...))
+  hvac3_overrides = __pop_subcomponent_overrides!(__overrides, "hvac3")
+  push!(__systems, @named hvac3 = DynamicSteadyState.ThermostatHeater(K=5000.0, T_set=294.15, Q_max=8450.0, hvac3_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

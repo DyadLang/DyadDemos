@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    BrakeThermal(; name, C_disk, C_pad, T_disk_init, T_pad_init, T_ambient, h_disk_base, h_pad_base, k_disk_speed, k_pad_speed, A_disk, A_pad, epsilon_disk, G_rad_pad_disk)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -16,10 +18,10 @@
 | `T_disk_init`         |                          | K  |   293.15 |
 | `T_pad_init`         |                          | K  |   293.15 |
 | `T_ambient`         |                          | K  |   293.15 |
-| `h_disk_base`         |                          | W/(m2.K)  |   20 |
-| `h_pad_base`         |                          | W/(m2.K)  |   15 |
-| `k_disk_speed`         |                          | --  |   3 |
-| `k_pad_speed`         |                          | --  |   4 |
+| `h_disk_base`         |                          | W/(m2.K)  |   20.0 |
+| `h_pad_base`         |                          | W/(m2.K)  |   15.0 |
+| `k_disk_speed`         |                          | --  |   3.0 |
+| `k_pad_speed`         |                          | --  |   4.0 |
 | `A_disk`         |                          | m2  |   0.15 |
 | `A_pad`         |                          | m2  |   0.032 |
 | `epsilon_disk`         |                          | --  |   0.75 |
@@ -27,19 +29,20 @@
 
 ## Connectors
 
- * `heat_disk` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
- * `heat_pad` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `heat_disk` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `heat_pad` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `vehicle_speed` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `wheel_speed` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
 """
-@component function BrakeThermal(; name = nothing, C_disk=Float64(4000), C_pad=Float64(1000), T_disk_init=293.15, T_pad_init=293.15, T_ambient=293.15, h_disk_base=Float64(20), h_pad_base=Float64(15), k_disk_speed=Float64(3), k_pad_speed=Float64(4), A_disk=0.15, A_pad=0.032, epsilon_disk=0.75, G_rad_pad_disk=0.012, kwargs...)
+@component function BrakeThermal(; name = nothing, C_disk=Float64(4000), C_pad=Float64(1000), T_disk_init=293.15, T_pad_init=293.15, T_ambient=293.15, h_disk_base=Float64(20.0), h_pad_base=Float64(15.0), k_disk_speed=Float64(3.0), k_pad_speed=Float64(4.0), A_disk=0.15, A_pad=0.032, epsilon_disk=0.75, G_rad_pad_disk=0.012, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = BrakeThermal()
+  """))
 
-        @named model = BrakeThermal()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,8 +61,6 @@
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -104,6 +105,8 @@
   append!(__params, @parameters (G_rad_pad_disk::Real))
   __initial_conditions[G_rad_pad_disk] = __local__G_rad_pad_disk
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
   append!(__vars, @variables (vehicle_speed(t)::Real), [input = true])
   append!(__vars, @variables (wheel_speed(t)::Real), [input = true])
@@ -119,72 +122,55 @@
   push!(__systems, @named heat_disk = __Dyad__HeatPort())
   push!(__systems, @named heat_pad = __Dyad__HeatPort())
   # Subcomponent disk_mass of type ThermalComponents.Components.HeatCapacitor
-  disk_mass_overrides = Dict(Symbol(replace(string(k), r"^disk_mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_mass__"))
-  filter!(p -> !startswith(string(first(p)), "disk_mass__"), __overrides)
+  disk_mass_overrides = __pop_subcomponent_overrides!(__overrides, "disk_mass")
   push!(__systems, @named disk_mass = ThermalComponents.Components.HeatCapacitor(C=C_disk, T0=T_disk_init, disk_mass_overrides...))
   # Subcomponent pad_mass of type ThermalComponents.Components.HeatCapacitor
-  pad_mass_overrides = Dict(Symbol(replace(string(k), r"^pad_mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_mass__"))
-  filter!(p -> !startswith(string(first(p)), "pad_mass__"), __overrides)
+  pad_mass_overrides = __pop_subcomponent_overrides!(__overrides, "pad_mass")
   push!(__systems, @named pad_mass = ThermalComponents.Components.HeatCapacitor(C=C_pad, T0=T_pad_init, pad_mass_overrides...))
   # Subcomponent disk_convection of type ThermalComponents.Components.Convection
-  disk_convection_overrides = Dict(Symbol(replace(string(k), r"^disk_convection__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_convection__"))
-  filter!(p -> !startswith(string(first(p)), "disk_convection__"), __overrides)
+  disk_convection_overrides = __pop_subcomponent_overrides!(__overrides, "disk_convection")
   push!(__systems, @named disk_convection = ThermalComponents.Components.Convection(disk_convection_overrides...))
   # Subcomponent pad_convection of type ThermalComponents.Components.Convection
-  pad_convection_overrides = Dict(Symbol(replace(string(k), r"^pad_convection__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_convection__"))
-  filter!(p -> !startswith(string(first(p)), "pad_convection__"), __overrides)
+  pad_convection_overrides = __pop_subcomponent_overrides!(__overrides, "pad_convection")
   push!(__systems, @named pad_convection = ThermalComponents.Components.Convection(pad_convection_overrides...))
   # Subcomponent disk_radiation of type ThermalComponents.Components.BodyRadiation
-  disk_radiation_overrides = Dict(Symbol(replace(string(k), r"^disk_radiation__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_radiation__"))
-  filter!(p -> !startswith(string(first(p)), "disk_radiation__"), __overrides)
+  disk_radiation_overrides = __pop_subcomponent_overrides!(__overrides, "disk_radiation")
   push!(__systems, @named disk_radiation = ThermalComponents.Components.BodyRadiation(Gr=epsilon_disk * A_disk, disk_radiation_overrides...))
   # Subcomponent pad_disk_radiation of type ThermalComponents.Components.BodyRadiation
-  pad_disk_radiation_overrides = Dict(Symbol(replace(string(k), r"^pad_disk_radiation__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_disk_radiation__"))
-  filter!(p -> !startswith(string(first(p)), "pad_disk_radiation__"), __overrides)
+  pad_disk_radiation_overrides = __pop_subcomponent_overrides!(__overrides, "pad_disk_radiation")
   push!(__systems, @named pad_disk_radiation = ThermalComponents.Components.BodyRadiation(Gr=G_rad_pad_disk, pad_disk_radiation_overrides...))
   # Subcomponent ambient of type ThermalComponents.Sources.FixedTemperature
-  ambient_overrides = Dict(Symbol(replace(string(k), r"^ambient__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ambient__"))
-  filter!(p -> !startswith(string(first(p)), "ambient__"), __overrides)
+  ambient_overrides = __pop_subcomponent_overrides!(__overrides, "ambient")
   push!(__systems, @named ambient = ThermalComponents.Sources.FixedTemperature(T=T_ambient, ambient_overrides...))
   # Subcomponent wheel_speed_gain of type BlockComponents.Math.Gain
-  wheel_speed_gain_overrides = Dict(Symbol(replace(string(k), r"^wheel_speed_gain__" => "")) => v for (k, v) in __overrides if startswith(string(k), "wheel_speed_gain__"))
-  filter!(p -> !startswith(string(first(p)), "wheel_speed_gain__"), __overrides)
+  wheel_speed_gain_overrides = __pop_subcomponent_overrides!(__overrides, "wheel_speed_gain")
   push!(__systems, @named wheel_speed_gain = BlockComponents.Math.Gain(k=k_disk_speed, wheel_speed_gain_overrides...))
   # Subcomponent disk_h_base_const of type BlockComponents.Sources.Constant
-  disk_h_base_const_overrides = Dict(Symbol(replace(string(k), r"^disk_h_base_const__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_h_base_const__"))
-  filter!(p -> !startswith(string(first(p)), "disk_h_base_const__"), __overrides)
+  disk_h_base_const_overrides = __pop_subcomponent_overrides!(__overrides, "disk_h_base_const")
   push!(__systems, @named disk_h_base_const = BlockComponents.Sources.Constant(k=h_disk_base, disk_h_base_const_overrides...))
   # Subcomponent disk_h_calc of type BlockComponents.Math.Add
-  disk_h_calc_overrides = Dict(Symbol(replace(string(k), r"^disk_h_calc__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_h_calc__"))
-  filter!(p -> !startswith(string(first(p)), "disk_h_calc__"), __overrides)
-  push!(__systems, @named disk_h_calc = BlockComponents.Math.Add(k1=1, k2=1, disk_h_calc_overrides...))
+  disk_h_calc_overrides = __pop_subcomponent_overrides!(__overrides, "disk_h_calc")
+  push!(__systems, @named disk_h_calc = BlockComponents.Math.Add(k1=1.0, k2=1.0, disk_h_calc_overrides...))
   # Subcomponent vehicle_speed_gain of type BlockComponents.Math.Gain
-  vehicle_speed_gain_overrides = Dict(Symbol(replace(string(k), r"^vehicle_speed_gain__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle_speed_gain__"))
-  filter!(p -> !startswith(string(first(p)), "vehicle_speed_gain__"), __overrides)
+  vehicle_speed_gain_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_speed_gain")
   push!(__systems, @named vehicle_speed_gain = BlockComponents.Math.Gain(k=k_pad_speed, vehicle_speed_gain_overrides...))
   # Subcomponent pad_h_base_const of type BlockComponents.Sources.Constant
-  pad_h_base_const_overrides = Dict(Symbol(replace(string(k), r"^pad_h_base_const__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_h_base_const__"))
-  filter!(p -> !startswith(string(first(p)), "pad_h_base_const__"), __overrides)
+  pad_h_base_const_overrides = __pop_subcomponent_overrides!(__overrides, "pad_h_base_const")
   push!(__systems, @named pad_h_base_const = BlockComponents.Sources.Constant(k=h_pad_base, pad_h_base_const_overrides...))
   # Subcomponent pad_h_calc of type BlockComponents.Math.Add
-  pad_h_calc_overrides = Dict(Symbol(replace(string(k), r"^pad_h_calc__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_h_calc__"))
-  filter!(p -> !startswith(string(first(p)), "pad_h_calc__"), __overrides)
-  push!(__systems, @named pad_h_calc = BlockComponents.Math.Add(k1=1, k2=1, pad_h_calc_overrides...))
+  pad_h_calc_overrides = __pop_subcomponent_overrides!(__overrides, "pad_h_calc")
+  push!(__systems, @named pad_h_calc = BlockComponents.Math.Add(k1=1.0, k2=1.0, pad_h_calc_overrides...))
   # Subcomponent disk_conductance of type BlockComponents.Math.Product
-  disk_conductance_overrides = Dict(Symbol(replace(string(k), r"^disk_conductance__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_conductance__"))
-  filter!(p -> !startswith(string(first(p)), "disk_conductance__"), __overrides)
+  disk_conductance_overrides = __pop_subcomponent_overrides!(__overrides, "disk_conductance")
   push!(__systems, @named disk_conductance = BlockComponents.Math.Product(disk_conductance_overrides...))
   # Subcomponent pad_conductance of type BlockComponents.Math.Product
-  pad_conductance_overrides = Dict(Symbol(replace(string(k), r"^pad_conductance__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_conductance__"))
-  filter!(p -> !startswith(string(first(p)), "pad_conductance__"), __overrides)
+  pad_conductance_overrides = __pop_subcomponent_overrides!(__overrides, "pad_conductance")
   push!(__systems, @named pad_conductance = BlockComponents.Math.Product(pad_conductance_overrides...))
   # Subcomponent disk_area_const of type BlockComponents.Sources.Constant
-  disk_area_const_overrides = Dict(Symbol(replace(string(k), r"^disk_area_const__" => "")) => v for (k, v) in __overrides if startswith(string(k), "disk_area_const__"))
-  filter!(p -> !startswith(string(first(p)), "disk_area_const__"), __overrides)
+  disk_area_const_overrides = __pop_subcomponent_overrides!(__overrides, "disk_area_const")
   push!(__systems, @named disk_area_const = BlockComponents.Sources.Constant(k=A_disk, disk_area_const_overrides...))
   # Subcomponent pad_area_const of type BlockComponents.Sources.Constant
-  pad_area_const_overrides = Dict(Symbol(replace(string(k), r"^pad_area_const__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pad_area_const__"))
-  filter!(p -> !startswith(string(first(p)), "pad_area_const__"), __overrides)
+  pad_area_const_overrides = __pop_subcomponent_overrides!(__overrides, "pad_area_const")
   push!(__systems, @named pad_area_const = BlockComponents.Sources.Constant(k=A_pad, pad_area_const_overrides...))
 
   ### Check there are no unmatched overrides

@@ -12,7 +12,7 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   name::Symbol = :BrakeThermalAnalysis_Constant
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
-  var"stop"::Float64 = 1800
+  var"stop"::Float64 = 1800.0
   var"abstol"::Float64 = 1e-8
   var"reltol"::Float64 = 0.000001
   var"saveat"::Float64 = 0

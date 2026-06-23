@@ -4,19 +4,21 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ThermalHouseControlled(; name, T_initial, k_p, T_i, Q_max)
 
 Thermal model of a house with controlled heater and input for temperature setpoint and solar irradiance
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `T_initial`         | Initial temperature 21.1°C                         | K  |   294.26 |
-| `k_p`         | Proportional gain (W/K)                         | --  |   10000 |
-| `T_i`         | Integral time constant (s)                         | s  |   600 |
-| `Q_max`         | Maximum heater capacity (W)                         | W  |   10000 |
+| `k_p`         | Proportional gain (W/K)                         | --  |   10000.0 |
+| `T_i`         | Integral time constant (s)                         | s  |   600.0 |
+| `Q_max`         | Maximum heater capacity (W)                         | W  |   10000.0 |
 
 ## Connectors
 
@@ -26,14 +28,15 @@ Thermal model of a house with controlled heater and input for temperature setpoi
  * `solar_irradiance` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `T_ambient` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
 """
-@component function ThermalHouseControlled(; name = nothing, T_initial=294.26, k_p=Float64(10000), T_i=Float64(600), Q_max=Float64(10000), kwargs...)
+@component function ThermalHouseControlled(; name = nothing, T_initial=294.26, k_p=Float64(10000.0), T_i=Float64(600.0), Q_max=Float64(10000.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ThermalHouseControlled()
+  """))
 
-        @named model = ThermalHouseControlled()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,8 +56,6 @@ Thermal model of a house with controlled heater and input for temperature setpoi
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -70,6 +71,8 @@ Thermal model of a house with controlled heater and input for temperature setpoi
   __local__Q_max = Q_max
   append!(__params, @parameters (Q_max::Real), [description = "Maximum heater capacity (W)"])
   __initial_conditions[Q_max] = __local__Q_max
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (T_setpoint(t)::Real), [input = true])
@@ -87,17 +90,14 @@ Thermal model of a house with controlled heater and input for temperature setpoi
 
   ### Components
   # Subcomponent house of type ThermalHouseDemo.ThermalHouse
-  house_overrides = Dict(Symbol(replace(string(k), r"^house__" => "")) => v for (k, v) in __overrides if startswith(string(k), "house__"))
-  filter!(p -> !startswith(string(first(p)), "house__"), __overrides)
+  house_overrides = __pop_subcomponent_overrides!(__overrides, "house")
   push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(T_initial=T_initial, house_overrides...))
   # Subcomponent pid of type BlockComponents.Continuous.LimPID
-  pid_overrides = Dict(Symbol(replace(string(k), r"^pid__" => "")) => v for (k, v) in __overrides if startswith(string(k), "pid__"))
-  filter!(p -> !startswith(string(first(p)), "pid__"), __overrides)
-  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(k=k_p, Ti=T_i, Td=0, y_max=Q_max, y_min=0, pid_overrides...))
+  pid_overrides = __pop_subcomponent_overrides!(__overrides, "pid")
+  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(k=k_p, Ti=T_i, Td=0.0, y_max=Q_max, y_min=0.0, pid_overrides...))
   # Subcomponent zero_ff of type BlockComponents.Sources.Constant
-  zero_ff_overrides = Dict(Symbol(replace(string(k), r"^zero_ff__" => "")) => v for (k, v) in __overrides if startswith(string(k), "zero_ff__"))
-  filter!(p -> !startswith(string(first(p)), "zero_ff__"), __overrides)
-  push!(__systems, @named zero_ff = BlockComponents.Sources.Constant(k=0, zero_ff_overrides...))
+  zero_ff_overrides = __pop_subcomponent_overrides!(__overrides, "zero_ff")
+  push!(__systems, @named zero_ff = BlockComponents.Sources.Constant(k=0.0, zero_ff_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

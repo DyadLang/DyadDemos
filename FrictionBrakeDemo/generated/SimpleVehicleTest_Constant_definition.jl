@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SimpleVehicleTest_Constant(; name)
 """
 @component function SimpleVehicleTest_Constant(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SimpleVehicleTest_Constant()
+  """))
 
-        @named model = SimpleVehicleTest_Constant()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,20 +54,16 @@
 
   ### Components
   # Subcomponent vehicle of type FrictionBrakeDemo.SimpleVehicle
-  vehicle_overrides = Dict(Symbol(replace(string(k), r"^vehicle__" => "")) => v for (k, v) in __overrides if startswith(string(k), "vehicle__"))
-  filter!(p -> !startswith(string(first(p)), "vehicle__"), __overrides)
+  vehicle_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle")
   push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle(vehicle_overrides...))
   # Subcomponent torque_input of type BlockComponents.Sources.Constant
-  torque_input_overrides = Dict(Symbol(replace(string(k), r"^torque_input__" => "")) => v for (k, v) in __overrides if startswith(string(k), "torque_input__"))
-  filter!(p -> !startswith(string(first(p)), "torque_input__"), __overrides)
-  push!(__systems, @named torque_input = BlockComponents.Sources.Constant(k=250, torque_input_overrides...))
+  torque_input_overrides = __pop_subcomponent_overrides!(__overrides, "torque_input")
+  push!(__systems, @named torque_input = BlockComponents.Sources.Constant(k=250.0, torque_input_overrides...))
   # Subcomponent torque_source of type RotationalComponents.Sources.TorqueSource
-  torque_source_overrides = Dict(Symbol(replace(string(k), r"^torque_source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "torque_source__"))
-  filter!(p -> !startswith(string(first(p)), "torque_source__"), __overrides)
+  torque_source_overrides = __pop_subcomponent_overrides!(__overrides, "torque_source")
   push!(__systems, @named torque_source = RotationalComponents.Sources.TorqueSource(torque_source_overrides...))
   # Subcomponent torque_ground of type RotationalComponents.Components.Fixed
-  torque_ground_overrides = Dict(Symbol(replace(string(k), r"^torque_ground__" => "")) => v for (k, v) in __overrides if startswith(string(k), "torque_ground__"))
-  filter!(p -> !startswith(string(first(p)), "torque_ground__"), __overrides)
+  torque_ground_overrides = __pop_subcomponent_overrides!(__overrides, "torque_ground")
   push!(__systems, @named torque_ground = RotationalComponents.Components.Fixed(torque_ground_overrides...))
 
   ### Check there are no unmatched overrides

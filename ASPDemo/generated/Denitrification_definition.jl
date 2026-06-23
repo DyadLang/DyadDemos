@@ -4,16 +4,18 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    Denitrification(; name, nS, V, states_start, medium)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `nS`         |                          | --  |   13 |
 | `V`         |                          | m3  |   1000 |
-| `states_start`         |                          | 1  |   [30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796] |
+| `states_start`         |                          | 1  |   [3.00000000...593796e+00] |
 | `medium`         |                          | --  |   ASM1() |
 
 ## Connectors
@@ -25,20 +27,21 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `states`         |                          | --  | 
-| `r`         |                          | --  | 
-| `aeration`         |                          | --  | 
-| `Q`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `states`         |                          | --  |
+| `r`         |                          | --  |
+| `aeration`         |                          | --  |
+| `Q`         |                          | --  |
 """
-@component function Denitrification(; name = nothing, nS=13, V=Float64(1000), states_start=[30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], medium=ASM1(), kwargs...)
+@component function Denitrification(; name = nothing, nS=13, V=Float64(1000), states_start=[30.0, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], medium=ASM1(), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = Denitrification()
+  """))
 
-        @named model = Denitrification()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,8 +61,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -72,6 +73,8 @@
   __local__medium = medium
   append!(__params, @parameters (medium::ASPDemo.AbstractMedium))
   __initial_conditions[medium] = __local__medium
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (T(t)::Real), [input = true])
