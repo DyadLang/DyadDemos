@@ -1,6 +1,6 @@
 # HVACDemo
 
-<img src="./assets/ASPPlant.svg" width="96" align="right"/>
+<img src="./assets/image.png" width="96" align="right"/>
 
 This project is an Activated Sludge Process (ASP) wastewater treatment plant model. It implements the IWA/COST Benchmark Simulation Model No. 1 (BSM1), consisting of a 5-tank biological reactor train — 2 anoxic denitrification tanks followed by 3 aerobic nitrification tanks — feeding into a 10-layer Takacs secondary clarifier with return/waste sludge and internal recycle loops. The plant includes PI controllers for dissolved oxygen (via blower aeration) and nitrate (via internal recycle flow), along with sensors, pumps, mixers, dividers, and flow sources that read influent data from CSV files. All ~40 custom components (connectors, reactor kinetics based on ASM1, sedimentation layers, hydraulic elements, and control blocks) are implemented from scratch in Dyad with individual test harnesses. Two top-level plant configurations exist: `BenchPlant` (with default kinetics) and `BenchPlantCOST` (with COST benchmark-specific kinetic parameters).
 
