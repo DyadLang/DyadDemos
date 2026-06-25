@@ -33,6 +33,28 @@ The refrigerant ports form the loop (`compressor.port_b → condenser → LEV �
 
 ## Running the Demo
 
-**`scripts/main.jl`** loads the library and runs the `CompleteCycleFixedControls_SRP_Analysis` analysis, a `TransientAnalysis` over `t = 0 … 1400` s using the `Rodas5P` stiff solver with R32 as the working refrigerant.
+**`scripts/main.jl`** runs the `CompleteCycleFixedControls_SRP_Analysis` analysis — a `TransientAnalysis` over `t = 0 … 1400` s using the `Rodas5P` stiff solver with R32 as the working refrigerant — and plots a 2×3 overview of the cycle. The script also illustrates the basic pattern for accessing results:
+
+```julia
+result = CompleteCycleFixedControls_SRP_Analysis()
+sol   = result.sol                  # the underlying ODESolution
+model = symbolic_container(result)  # index variables by name
+sol[model.compressor.shaftPower]    # → a time series
+sol.t                               # → the time vector
+```
+
+The six panels show refrigerant pressures (high/low side), refrigerant mass flow (compressor vs. expansion valve), compressor shaft power, refrigerant temperatures (discharge/suction), air outlet temperatures (condenser air heated, evaporator air cooled), and the compressor pressure ratio. The figure is saved as `cycle_overview.png` in the prject root directory.
+
+Run it from the project root with the project environment active:
+
+```
+julia --project=. scripts/main.jl
+```
+
+or from a REPL with `include("scripts/main.jl")`.
+
+Notes:
+- The first run compiles and integrates a stiff two-phase + moist-air model, so expect it to take a few minutes.
+- During early initialization you may see `Input P=… must be in the interval … Returning NaNs` warnings from the refrigerant property library being probed at out-of-range states during startup; these clear once the solve settles (`sol.retcode == Success`).
 
 **`scripts/analysis-notebook.ipynb`** provides an interactive environment to run the analysis and plot variables of interest.
