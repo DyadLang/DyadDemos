@@ -1,6 +1,8 @@
 # MultibodyDemo
 
-This project is a collection of 2D (planar) multibody dynamics demos built with Dyad and ModelingToolkit. Each model is assembled from the `MultibodyComponents.PlanarMechanics` library — rigid bodies, joints, wheels, and a gravity field that all move and interact in a single vertical or top-down plane. Signal sources and controllers come from `BlockComponents`; rotational drivetrain parts (inertias, torque sources, gears) come from `RotationalComponents`. Results can be animated as 3D renderings via `MultibodyComponents.render` (which uses `GLMakie`).
+<img src="./assets/icon.svg" width="96" align="right"/>
+
+This project is a collection of 2D (planar) multibody dynamics demos built with Dyad. Each model is assembled from the `MultibodyComponents.PlanarMechanics` library — rigid bodies, joints, wheels, and a gravity field that all move and interact in a single vertical or top-down plane. Signal sources and controllers come from `BlockComponents`; rotational drivetrain parts (inertias, torque sources, gears) come from `RotationalComponents`. Results can be animated as 3D renderings via `MultibodyComponents.render` (which uses `GLMakie`).
 
 The demos range from a textbook single pendulum up to a feedback-controlled self-balancing robot and a four-wheel car with tire slip and a differential.
 
@@ -41,7 +43,7 @@ Analysis: `TwoTrackModelTestAnalysis` (stop = 10 s).
 
 ## Running the Demo
 
-**`scripts/main.jl`** runs all four analyses and renders each one. For every model it opens an interactive single-frame view and writes an animation (`.mp4`) of the full trajectory to the working directory. A pre-rendered example, `multibody_DyadBalans2D.mp4`, is included in the project root.
+**`scripts/main.jl`** runs all four analyses and renders each one. For every model it opens an interactive single-frame view and writes an animation (`.mp4`) of the full trajectory to the working directory.
 
 The basic pattern for running and rendering a model:
 
