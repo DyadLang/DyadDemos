@@ -1,0 +1,17 @@
+component Pendulum
+  world = MultibodyComponents.PlanarMechanics.World()
+  revolute = MultibodyComponents.PlanarMechanics.Revolute()
+  rod = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [1.0, 0.0])
+  body = MultibodyComponents.PlanarMechanics.Body(m = 1.0, I = 0.1, radius = 0.15)
+relations
+  initial revolute.phi = 0.0
+  initial revolute.w = 0.0
+  connect(world.frame_b, revolute.frame_a)
+  connect(revolute.frame_b, rod.frame_a)
+  connect(rod.frame_b, body.frame_a)
+end
+
+analysis PendulumTransient
+  extends TransientAnalysis(stop=3.0)
+  model = Pendulum()
+end

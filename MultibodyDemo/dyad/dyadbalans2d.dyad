@@ -1,0 +1,269 @@
+"""
+This example models a wheeled balancing robot with a cascade control system stabilizing the angle in the inner loop and the position in the outer loop.
+
+See also DyadBalans2DFF for a version with a feedforward generator.
+"""
+example component DyadBalans2D
+  world = MultibodyComponents.PlanarMechanics.World(g = 9.82) {^world}
+  firstorder = BlockComponents.Continuous.FirstOrder(T = 0.1) {^firstorder}
+  firstorder1 = BlockComponents.Continuous.FirstOrder(T = 0.1) {^firstorder1}
+  wheelJoint = MultibodyComponents.PlanarMechanics.OneDOFRollingWheelJoint(radius = R) {^wheelJoint}
+  constant2 = BlockComponents.Sources.Constant(k = 0) {^constant2}
+  IMU = MultibodyComponents.PlanarMechanics.AbsolutePosition(resolve_in_frame = MultibodyComponents.ResolveInFrame.World()) {^IMU}
+  square = BlockComponents.Sources.Square(amplitude = 0.05, frequency = 1 / 10) {^square}
+  wheelinertia = MultibodyComponents.PlanarMechanics.Body(I = Iw, radius = 0.01, m = m) {^wheelinertia}
+  simplemotor = MultibodyComponents.PlanarMechanics.examples.dyad_balans.SimpleMotor(d = d) {^simplemotor}
+  constant1 = BlockComponents.Sources.Constant(k = 0) {^constant1}
+  angle_controller = BlockComponents.Continuous.LimPID(k = 0.487401, Ti = 0.0587352, Td = 0.0420526, Nd = 119.368, y_max = 0.1) {^angle_controller}
+  pos_controller = BlockComponents.Continuous.LimPID(k = 0.0666576, Ti = 5.25024, Td = 4.81393, Nd = 4.76616, wd = 1, wp = 1, y_max = deg2rad(25.0)) {^pos_controller}
+  gain = BlockComponents.Math.Gain(k = -1) {^gain}
+  gain1 = BlockComponents.Math.Gain(k = -1) {^gain1}
+  body_mass = MultibodyComponents.PlanarMechanics.BodyShape(color = [0.2, 0.2, 0.2, 0.9], r = [0, 2 * L], r_cm = [0, L], m = M, I = Ib, radius = 0.03) {^body_mass}
+  "Body mass"
+  parameter M::Dyad.Mass = 0.1
+  "Wheel mass"
+  parameter m::Dyad.Mass = 0.05
+  "Wheel radius"
+  parameter R::Dyad.Length = 0.04
+  "Distance from wheel axis to body center of mass"
+  parameter L::Dyad.Length = 0.08
+  "Body moment of inertia"
+  parameter Ib::Dyad.Inertia = 2.5e-4
+  "Wheel + motor moment of inertia"
+  parameter Iw::Dyad.Inertia = 1e-4
+  "Motor viscous friction"
+  parameter d::Dyad.RotationalDampingConstant = 0.0001
+relations
+  initial body_mass.body.phi = 0.1
+  initial body_mass.body.w = 0.0
+  initial wheelinertia.phi = 0.0
+  initial wheelinertia.w = 0.0
+  #initial wheelJoint.x = 0.0
+  #initial wheelJoint.v = 0.0
+  initial firstorder.x = 0.0
+  initial firstorder1.x = 0.0
+  connect(square.y, firstorder.u) {^id16}
+  connect(firstorder.y, firstorder1.u) {^id17}
+  connect(wheelinertia.frame_a, wheelJoint.frame_a) {^id18}
+  connect(simplemotor.frame_b, wheelJoint.frame_a) {^id19}
+  connect(simplemotor.frame_a, IMU.frame_a, body_mass.frame_a) {^id20}
+  y: analysis_point(IMU.phi, angle_controller.u_m)
+  y2: analysis_point(IMU.x, pos_controller.u_m)
+  u: analysis_point(angle_controller.y, gain.u)
+  u2: analysis_point(pos_controller.y, gain1.u)
+  connect(IMU.phi, angle_controller.u_m) {^id21}
+  connect(IMU.x, pos_controller.u_m) {^id22}
+  connect(pos_controller.y, gain1.u) {^id23}
+  connect(gain1.y, angle_controller.u_s) {^id24}
+  connect(firstorder1.y, pos_controller.u_s) {^id25}
+  connect(gain.y, simplemotor.torqueinput) {^id26}
+  connect(angle_controller.y, gain.u) {^id27}
+  connect(constant1.y, pos_controller.u_ff) {^id28}
+  connect(constant2.y, angle_controller.u_ff) {^id29}
+metadata {
+  "Dyad": {"tests": {"case1": {"stop": 50}}},
+  "_links": {
+    "world": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 110, "y1": 420, "x2": 10, "y2": 320, "rot": 180}
+        },
+        "tags": []
+      }
+    },
+    "firstorder": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -570, "y1": 600, "x2": -470, "y2": 700, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "firstorder1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -430, "y1": 600, "x2": -330, "y2": 700, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wheelJoint": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 200, "y1": 700, "x2": 460, "y2": 960, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "constant2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 50, "y1": 500, "x2": 110, "y2": 560, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "IMU": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 460, "y1": 560, "x2": 560, "y2": 660, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "square": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -720, "y1": 600, "x2": -620, "y2": 700, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wheelinertia": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 390, "y1": 680, "x2": 530, "y2": 820, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "simplemotor": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 280, "y1": 620, "x2": 380, "y2": 720, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "constant1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -240, "y1": 500, "x2": -180, "y2": 560, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "angle_controller": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 30, "y1": 620, "x2": 130, "y2": 720, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "pos_controller": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -260, "y1": 620, "x2": -160, "y2": 720, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "gain": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 170, "y1": 630, "x2": 250, "y2": 710, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "gain1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -120, "y1": 630, "x2": -40, "y2": 710, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body_mass": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 180, "y1": 250, "x2": 480, "y2": 550, "rot": 270}
+        },
+        "tags": []
+      }
+    },
+    "id16": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id17": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id18": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 330, "y": 750}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id19": {"Dyad": {"renderStyle": "standard", "edges": [{"S": 1, "E": 2, "M": []}]}},
+    "id20": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [{"x": 330, "y": 610}], "E": 2},
+          {"S": 3, "M": [], "E": -1}
+        ],
+        "junctions": [{"x": 330, "y": 610}],
+        "renderStyle": "standard"
+      }
+    },
+    "id21": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 660, "y": 641},
+              {"x": 660, "y": 1040},
+              {"x": 0, "y": 1040},
+              {"x": 0, "y": 693}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id22": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 710, "y": 580},
+              {"x": 710, "y": 1090},
+              {"x": -300, "y": 1090},
+              {"x": -300, "y": 693}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id23": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": -134.25, "y": 671}, {"x": -134.25, "y": 670}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id24": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": -10, "y": 670}, {"x": -10, "y": 647}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id25": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": -295, "y": 650}, {"x": -295, "y": 647}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id26": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id27": {
+      "Dyad": {
+        "renderStyle": "standard",
+        "edges": [{"S": 1, "M": [{"x": 150.5, "y": 671}, {"x": 150.5, "y": 670}], "E": 2}]
+      }
+    },
+    "id28": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id29": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end

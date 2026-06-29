@@ -1,0 +1,54 @@
+"This example shows how to use a spring and a damper in combination. The motion of the body is not constrained."
+example component SpringDamperSystemTest
+  world = MultibodyComponents.PlanarMechanics.World() {^world}
+  fixed_translation = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [-1.0, 0.0]) {^fixed_translation}
+  spring_damper = MultibodyComponents.PlanarMechanics.SpringDamper(c_x = 5.0, c_y = 5.0, c_phi = 0.0, d_x = 1.0, d_y = 1.0, d_phi = 0.0, s_relx0 = 0.0, s_rely0 = 0.0) {^spring_damper}
+  body = MultibodyComponents.PlanarMechanics.Body(m = 0.5, I = 0.1) {^body}
+relations
+  initial body.r = [1.0, 1.0]
+  initial body.v = [0.0, 0.0]
+  initial body.phi = 0.0
+  initial body.w = 0.0
+  connect(world.frame_b, fixed_translation.frame_a) {^id5}
+  connect(fixed_translation.frame_b, spring_damper.frame_a) {^id6}
+  connect(spring_damper.frame_b, body.frame_a) {^id7}
+metadata {
+  "_links": {
+    "world": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 30, "y1": 240, "x2": 230, "y2": 440, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "fixed_translation": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 280, "y1": 240, "x2": 480, "y2": 440, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "spring_damper": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 550, "y1": 240, "x2": 750, "y2": 440, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 800, "y1": 240, "x2": 1000, "y2": 440, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id5": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id6": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id7": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end
