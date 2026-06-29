@@ -1,0 +1,126 @@
+"HL-20 plant: 6-DOF body + 1976 atmosphere + flight state + aero + force builder.
+Surface-command inputs drive the aero model; feedback outputs feed the controllers."
+component HL20Vehicle
+  # Surface command inputs (deg)
+  DWFL = RealInput()
+  DWFR = RealInput()
+  DBFUL = RealInput()
+  DBFUR = RealInput()
+  DBFLL = RealInput()
+  DBFLR = RealInput()
+  DRUD = RealInput()
+
+  # Feedback outputs
+  ALPHA_DEG = RealOutput()
+  BETADEG = RealOutput()
+  BETADOT = RealOutput()
+  MACH_out = RealOutput()
+  PDEG = RealOutput()
+  QDEG = RealOutput()
+  RDEG = RealOutput()
+  SINPHI = RealOutput()
+  COSPHI = RealOutput()
+  COSTHE = RealOutput()
+  QBAR = RealOutput()
+  EAS = RealOutput()
+  NZ = RealOutput()
+  V_FPS = RealOutput()
+
+  parameter mass::Real = 8664.1
+  parameter g::Real = 9.81
+  final parameter ft_per_m::Real = 3.280839895013123
+  final parameter rad2deg::Real = 57.29577951308232
+  final parameter BSPAN_ft::Real = 13.89
+  final parameter rho_SL::Real = 0.002378
+
+  # Subcomponents
+  body = RigidBody6DOF(mass = mass, g = g)
+  atmos = Atmosphere1976()
+  fs = FlightState()
+  aero = HL20Demo.shared.HL20Aero()
+  afb = AeroForceBuilder()
+
+  # Vehicle-level intermediates
+  variable alt_ft::Real
+  variable v_scalar::Real
+  variable vrw_fps::Real
+  variable mach::Real
+  variable qbar_psf::Real
+  variable hob::Real
+  variable alpha_rad::Real
+relations
+  # Body velocity + quaternion -> FlightState
+  fs.v1 = body.vel_1
+  fs.v2 = body.vel_2
+  fs.v3 = body.vel_3
+  fs.qw = body.qw
+  fs.qx = body.qx
+  fs.qy = body.qy
+  fs.qz = body.qz
+
+  # Atmosphere from altitude
+  alt_ft = -body.pos_3 * ft_per_m
+  atmos.alt_ft = alt_ft
+
+  # Derived flight quantities
+  v_scalar = fs.vt
+  vrw_fps = v_scalar * ft_per_m
+  mach = v_scalar / (atmos.sos + 0.01)
+  qbar_psf = 0.5 * rho_SL * atmos.sigma * vrw_fps^2
+  hob = alt_ft / (BSPAN_ft + 0.01)
+
+  # Aero model inputs
+  aero.alpha_deg = fs.alpha
+  aero.beta_deg = fs.beta
+  aero.mach = mach
+  aero.vrw_fps = vrw_fps
+  aero.hob = hob
+  aero.pb = body.omega_1
+  aero.qb = body.omega_2
+  aero.rb = body.omega_3
+  aero.DBFUL = DBFUL
+  aero.DBFUR = DBFUR
+  aero.DBFLL = DBFLL
+  aero.DBFLR = DBFLR
+  aero.DWFL = DWFL
+  aero.DWFR = DWFR
+  aero.DRUD = DRUD
+
+  # Coefficients + dynamic pressure + quaternion -> force builder
+  afb.CX = aero.CX
+  afb.CY = aero.CY
+  afb.CZ = aero.CZ
+  afb.Cl = aero.Cl
+  afb.Cm = aero.Cm
+  afb.Cn = aero.Cn
+  afb.qbar_psf = qbar_psf
+  afb.qw = body.qw
+  afb.qx = body.qx
+  afb.qy = body.qy
+  afb.qz = body.qz
+
+  # Forces (inertial NED) + torques (body) -> body
+  body.F1 = afb.F1
+  body.F2 = afb.F2
+  body.F3 = afb.F3
+  body.T1 = afb.T1
+  body.T2 = afb.T2
+  body.T3 = afb.T3
+
+  # Feedback outputs
+  ALPHA_DEG = fs.alpha
+  BETADEG = fs.beta
+  alpha_rad = fs.alpha / rad2deg
+  PDEG = body.omega_1 * rad2deg
+  QDEG = body.omega_2 * rad2deg
+  RDEG = body.omega_3 * rad2deg
+  BETADOT = PDEG * sin(alpha_rad) - RDEG * cos(alpha_rad)
+  MACH_out = mach
+  SINPHI = sin(fs.phi / rad2deg)
+  COSPHI = cos(fs.phi / rad2deg)
+  COSTHE = cos(fs.theta / rad2deg)
+  QBAR = qbar_psf
+  EAS = vrw_fps * sqrt(atmos.sigma) / 1.6878
+  NZ = -afb.Fz_body / (mass * g)
+  V_FPS = vrw_fps
+end

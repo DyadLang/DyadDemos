@@ -1,0 +1,40 @@
+"Inverse quaternion rotation of inertial NED velocity to body frame, plus aero and Euler angles.
+Velocity inputs are inertial NED; angle outputs are degrees."
+component FlightState
+  # Inputs: inertial NED velocity and body->inertial quaternion (scalar-first)
+  v1 = RealInput()
+  v2 = RealInput()
+  v3 = RealInput()
+  qw = RealInput()
+  qx = RealInput()
+  qy = RealInput()
+  qz = RealInput()
+
+  # Outputs (degrees / m/s)
+  alpha = RealOutput()
+  beta = RealOutput()
+  vt = RealOutput()
+  phi = RealOutput()
+  theta = RealOutput()
+  psi = RealOutput()
+
+  variable u_body::Real
+  variable v_body::Real
+  variable w_body::Real
+
+  final parameter rad2deg::Real = 57.29577951308232
+relations
+  # Inertial -> body (transpose of body->inertial rotation matrix)
+  u_body = (1 - 2*(qy^2 + qz^2))*v1 + 2*(qx*qy + qw*qz)*v2 + 2*(qx*qz - qw*qy)*v3
+  v_body = 2*(qx*qy - qw*qz)*v1 + (1 - 2*(qx^2 + qz^2))*v2 + 2*(qy*qz + qw*qx)*v3
+  w_body = 2*(qx*qz + qw*qy)*v1 + 2*(qy*qz - qw*qx)*v2 + (1 - 2*(qx^2 + qy^2))*v3
+
+  vt = sqrt(u_body^2 + v_body^2 + w_body^2 + 1e-6)
+
+  alpha = atan(w_body, u_body) * rad2deg
+  beta = atan(v_body, sqrt(u_body^2 + w_body^2)) * rad2deg
+
+  phi = atan(2*(qw*qx + qy*qz), 1 - 2*(qx^2 + qy^2)) * rad2deg
+  theta = asin(clamp(2*(qw*qy - qz*qx), -1, 1)) * rad2deg
+  psi = atan(2*(qw*qz + qx*qy), 1 - 2*(qy^2 + qz^2)) * rad2deg
+end

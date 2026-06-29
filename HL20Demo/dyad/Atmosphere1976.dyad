@@ -1,0 +1,34 @@
+"1976 Standard Atmosphere via CSV table lookup (linear interp, constant extrapolation).
+Input altitude in ft; outputs density ratio sigma and speed of sound (m/s)."
+component Atmosphere1976
+  alt_ft = RealInput()
+  sigma = RealOutput()
+  sos = RealOutput()
+
+  structural parameter sigma_dataset::DyadData.DyadTimeseries = DyadData.DyadTimeseries(
+    "dyad://HL20Demo/shared/atmos_sigma.csv",
+    independent_var = "alt_ft",
+    dependent_vars = ["sigma"]
+  )
+  structural parameter sos_dataset::DyadData.DyadTimeseries = DyadData.DyadTimeseries(
+    "dyad://HL20Demo/shared/atmos_sos.csv",
+    independent_var = "alt_ft",
+    dependent_vars = ["sos_mps"]
+  )
+
+  sigma_interp = BlockComponents.Tables.Interpolation(
+    interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(),
+    extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(),
+    dataset = sigma_dataset
+  )
+  sos_interp = BlockComponents.Tables.Interpolation(
+    interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(),
+    extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(),
+    dataset = sos_dataset
+  )
+relations
+  sigma_interp.u = alt_ft
+  sos_interp.u = alt_ft
+  sigma = sigma_interp.y
+  sos = sos_interp.y
+end

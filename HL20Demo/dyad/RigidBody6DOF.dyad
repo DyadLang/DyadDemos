@@ -1,0 +1,84 @@
+"Flat-earth 6-DOF rigid body with quaternion orientation (scalar-first, body->inertial).
+Forces are inertial NED; torques are body frame. Gravity is added internally on axis 3."
+component RigidBody6DOF
+  # Parameters
+  parameter mass::Real = 8664.1
+  parameter Jxx::Real = 10186.272
+  parameter Jyy::Real = 45557.464
+  parameter Jzz::Real = 48333.264
+  parameter g::Real = 9.81
+
+  # External force inputs (inertial NED, N) and torque inputs (body, N*m)
+  F1 = RealInput()
+  F2 = RealInput()
+  F3 = RealInput()
+  T1 = RealInput()
+  T2 = RealInput()
+  T3 = RealInput()
+
+  # Outputs
+  pos_1 = RealOutput()
+  pos_2 = RealOutput()
+  pos_3 = RealOutput()
+  vel_1 = RealOutput()
+  vel_2 = RealOutput()
+  vel_3 = RealOutput()
+  qw = RealOutput()
+  qx = RealOutput()
+  qy = RealOutput()
+  qz = RealOutput()
+  omega_1 = RealOutput()
+  omega_2 = RealOutput()
+  omega_3 = RealOutput()
+
+  # Internal state variables
+  variable p1::Real
+  variable p2::Real
+  variable p3::Real
+  variable v1::Real
+  variable v2::Real
+  variable v3::Real
+  variable q0::Real
+  variable q1::Real
+  variable q2::Real
+  variable q3::Real
+  variable w1::Real
+  variable w2::Real
+  variable w3::Real
+relations
+  # Position kinematics (inertial NED)
+  der(p1) = v1
+  der(p2) = v2
+  der(p3) = v3
+
+  # Translational dynamics (inertial frame, gravity added internally on axis 3)
+  mass * der(v1) = F1
+  mass * der(v2) = F2
+  mass * der(v3) = F3 + mass * g
+
+  # Quaternion kinematics (body->inertial, scalar-first q=[q0,q1,q2,q3])
+  der(q0) = 0.5 * (-q1 * w1 - q2 * w2 - q3 * w3)
+  der(q1) = 0.5 * ( q0 * w1 + q2 * w3 - q3 * w2)
+  der(q2) = 0.5 * ( q0 * w2 - q1 * w3 + q3 * w1)
+  der(q3) = 0.5 * ( q0 * w3 + q1 * w2 - q2 * w1)
+
+  # Euler's equations (body frame, diagonal inertia)
+  Jxx * der(w1) = T1 + (Jyy - Jzz) * w2 * w3
+  Jyy * der(w2) = T2 + (Jzz - Jxx) * w3 * w1
+  Jzz * der(w3) = T3 + (Jxx - Jyy) * w1 * w2
+
+  # Outputs
+  pos_1 = p1
+  pos_2 = p2
+  pos_3 = p3
+  vel_1 = v1
+  vel_2 = v2
+  vel_3 = v3
+  qw = q0
+  qx = q1
+  qy = q2
+  qz = q3
+  omega_1 = w1
+  omega_2 = w2
+  omega_3 = w3
+end

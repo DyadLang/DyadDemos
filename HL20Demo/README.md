@@ -1,40 +1,52 @@
-# HL20Demo
-  
-## Getting Started
-  
-This library was created with the Dyad Studio VS Code extension.  Your Dyad
-models should be placed in the `dyad` directory and the files should be
-given the `.dyad` extension.  Several such files have already been placed
-in there to get you started.  The Dyad compiler will compile the Dyad models
-into Julia code and place it in the `generated` folder.  Do not edit the
-files in that directory or remove/rename that directory.
+# NASA HL-20 in Dyad — Built by the Dyad Agent
 
-A complete tutorial on using Dyad Studio can be found [here](#).  But you
-can run the provided example models by doing the following:
+<img src="./assets/hl20_icon.svg" width="96" align="right"/>
 
-1. Run `Julia: Start REPL` from the command palette.
+This project shows how a 6-DOF flight simulation of the **NASA HL-20 lifting body** can be
+built *from scratch* by prompting the **Dyad Agent** — no model code written by hand.
 
-2. Type `]`.  This will take you to the package manager prompt.
+It is meant as a starting point for new users: read the two prompts, see what the agent
+produced, and try it yourself.
 
-3. At the `pkg>` prompt, type `instantiate` (this downloads all the Julia libraries
-   you will need, and the very first time you do it it might take a while).
+## How it works
 
-4. From the same `pkg>` prompt, type `test`.  This will test to make sure the models
-   are working as expected.  It may also take some time but you should eventually
-   see a result that indicates 2 of 2 tests passed.
+The whole project is generated from two prompts, both kept in `assets/shared/`:
 
-5. Use the `Backspace`/`Delete` key to return to the normal Julia REPL, it should
-   look like this: `julia>`.
+1. **`prompt.md`** — *build the models.* Asks the agent to create the plant (rigid-body
+   dynamics, atmosphere, aerodynamics), the flight-control laws, the control-surface mixer,
+   and a set of validation analyses, working from the engineering spec in
+   `assets/shared/hl20_spec.md`.
 
-6. Type `using HL20Demo`.  This will load your model library.
+2. **`prompt_pitchpulsesim.md`** — *simulate and plot.* Asks the agent to run the closed-loop
+   pitch-pulse maneuver and produce a summary plot of the signals of interest.
 
-7. Type `World()` to run a simulation of the `Hello` model.  The first time you run it,
-   this might take a few seconds, but each successive time you run it, it should be very fast.
+The agent reads the spec, writes the Dyad components into `dyad/`, compiles them, and
+validates each piece in Julia before moving on.
 
-8. To see simulation results type `using Plots` (and answer `y` if asked if you want
-   to add it as a dependency).
+## Try it
 
-9. To plot results of the `World` simulation, simply type `plot(World())`.
+1. Open this folder in VS Code with the
+   [Dyad extension](https://help.juliahub.com/dyad/dev/getting_started/).
+2. Open the Dyad Agent and paste the contents of `assets/shared/prompt.md` to build the models.
+3. Paste the contents of `assets/shared/prompt_pitchpulsesim.md` to simulate and plot.
 
-10. You can plot variations on that simulation using keyword arguments.  For example,
-    try `plot(World(stop=20, k=4))`.
+Compiling the project generates Julia code in `generated/`, after which any analysis is
+callable from Julia:
+
+```julia
+using HL20Demo
+using DyadInterface: symbolic_container
+
+result = TestHL20FullSystemSim()     # full closed-loop pitch pulse
+sol    = result.sol
+model  = symbolic_container(result)
+
+sol[model.veh.ALPHA_DEG]             # angle of attack vs. time
+```
+
+## What's in the repo
+
+- `dyad/` — Dyad source the agent writes (plant, controllers, mixer, analyses).
+- `assets/shared/` — the two prompts, the engineering spec, NASA check-case data, and the
+  scanned source diagrams from TM-107580.
+- `generated/` — Julia code produced when the project is compiled.
