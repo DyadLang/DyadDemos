@@ -8,5 +8,3 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "experiments.jl"))
   include(joinpath((@__DIR__) |> Base.dirname, "dyad", "experiments.jl"))
 end
 
-
-include("Hello_experiment.jl")

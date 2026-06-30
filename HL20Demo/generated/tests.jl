@@ -18,6 +18,5 @@ end
 include("test_internals.jl")
 
 @testset "`HL20Demo`" begin
-include("Hello_test.jl")
 end
 include("shared/tests.jl")

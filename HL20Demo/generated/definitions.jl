@@ -16,8 +16,6 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
   include(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
 end
 
-import BlockComponents
-import DyadData
 import DyadInterface
 @doc Markdown.doc"""
 This connector represents an electrical pin with voltage and current as the potential and flow variables, respectively.
@@ -188,6 +186,3 @@ component.
   )
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
-
-include("Hello_definition.jl")
-include("World_definition.jl")
