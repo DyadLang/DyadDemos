@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 190" width="300" height="190">
+  <defs>
+    <!-- Shared sphere shading: highlight toward top-left, deep indigo at the rim.
+         Uses objectBoundingBox so every sphere reuses it with its own bounds. -->
+    <radialGradient id="sphere" cx="0.5" cy="0.5" r="0.62" fx="0.34" fy="0.30">
+      <stop offset="0%"   stop-color="#b7a6f2"/>
+      <stop offset="32%"  stop-color="#7a5fe0"/>
+      <stop offset="72%"  stop-color="#4b2bb8"/>
+      <stop offset="100%" stop-color="#2f1685"/>
+    </radialGradient>
+
+    <!-- Link shading: a rounded rod with a slight sheen. -->
+    <linearGradient id="link" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#6a4ad6"/>
+      <stop offset="50%"  stop-color="#4f31bd"/>
+      <stop offset="100%" stop-color="#371f96"/>
+    </linearGradient>
+
+    <radialGradient id="specular" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="60%"  stop-color="#ffffff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Body centres:
+       A top-left, B top-right (largest), C bottom-left, D bottom-right -->
+  <!-- A (96,58) r18 | B (188,62) r30 | C (104,134) r17 | D (190,132) r23 -->
+
+  <!-- Links drawn first so the spheres sit on top of the joints -->
+  <g stroke="url(#link)" stroke-linecap="round" fill="none">
+    <line x1="96"  y1="58"  x2="188" y2="62"  stroke-width="13"/>  <!-- A–B top bar -->
+    <line x1="188" y1="62"  x2="104" y2="134" stroke-width="13"/>  <!-- B–C diagonal -->
+    <line x1="96"  y1="58"  x2="190" y2="132" stroke-width="13"/>  <!-- A–D diagonal -->
+  </g>
+
+  <!-- Bodies (spheres) -->
+  <g>
+    <!-- C bottom-left -->
+    <circle cx="104" cy="134" r="17" fill="url(#sphere)"/>
+    <ellipse cx="98" cy="127" rx="7" ry="5" fill="url(#specular)"/>
+
+    <!-- D bottom-right -->
+    <circle cx="190" cy="132" r="23" fill="url(#sphere)"/>
+    <ellipse cx="182" cy="123" rx="10" ry="7" fill="url(#specular)"/>
+
+    <!-- A top-left -->
+    <circle cx="96" cy="58" r="18" fill="url(#sphere)"/>
+    <ellipse cx="89" cy="50" rx="8" ry="5" fill="url(#specular)"/>
+
+    <!-- B top-right (largest) -->
+    <circle cx="188" cy="62" r="30" fill="url(#sphere)"/>
+    <ellipse cx="177" cy="51" rx="12" ry="8" fill="url(#specular)"/>
+  </g>
+</svg>
