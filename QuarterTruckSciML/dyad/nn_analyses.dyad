@@ -29,7 +29,7 @@ analysis TruckFullNNTrainingAnalysis
     optimizer = "Adam",
     optimizer_maxiters = 5000,
     learning_rate = 1e-3,
-    network_component = "model.nn",
+    network_component = "model.scaled_nn.nn",
     results_path = "assets/data/nn_weights_full_sin.csv")
   model = TestQuarterTruckFullNNSin()
 end
@@ -46,7 +46,7 @@ analysis TruckFullNNTrainingAnalysisLBFGS
     calibration_alg = "SingleShooting",
     optimizer = "LBFGS",
     optimizer_maxiters = 200,
-    network_component = "model.nn",
+    network_component = "model.scaled_nn.nn",
     initial_values_path = "assets/data/nn_weights_full_sin.csv",
     results_path = "assets/data/nn_weights_full_sin_lbfgs.csv")
   model = TestQuarterTruckFullNNSin()

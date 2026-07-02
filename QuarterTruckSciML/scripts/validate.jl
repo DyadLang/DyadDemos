@@ -37,10 +37,10 @@ weights_flat = Vector{Float64}(collect(CSV.read(WEIGHTS_CSV, DataFrame)[1, :]))
 # When `nn_weights` is given, the trained weights are injected as an
 # operating-point override on the NN parameter vector. `toggle_namespacing`
 # strips the harness's own namespace so the key matches the flattened system's
-# `model.nn.p` — the one bit of plumbing the NN gray-box needs.
+# `model.scaled_nn.nn.p` — the one bit of plumbing the NN gray-box needs.
 function run_transient(harness; nn_weights=nothing, tspan=(0.0, 10.0), saveat=0.01)
     overrides = isnothing(nn_weights) ? Dict{SymbolicT, SymbolicT}() :
-        Dict{SymbolicT, SymbolicT}(toggle_namespacing(harness, false).model.nn.p => nn_weights)
+        Dict{SymbolicT, SymbolicT}(toggle_namespacing(harness, false).model.scaled_nn.nn.p => nn_weights)
     result = TransientAnalysis(; model=harness, overrides, alg=ODEAlg.Auto(),
                                start=tspan[1], stop=tspan[2], saveat)
     sol = artifacts(result, :RawSolution)

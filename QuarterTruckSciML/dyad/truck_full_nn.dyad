@@ -22,12 +22,10 @@ component QuarterTruckFullNN
   friction_tb = PureExternalForce() {^friction_tb}
   body_to_seat = TranslationalComponents.Components.SpringDamper(c = 15e3, d = 800.0, s_rel0 = 0.2) {^body_to_seat}
   seat_to_driver = SpringDamperWithExternalResidual(k = 10e3, d = 500.0, final s_rel0 = s_rel0_seat) {^seat_to_driver}
-  road = TranslationalComponents.Sources.Position(ref_type = TranslationalComponents.Sources.ReferenceType.Filtered(f_crit = 100.0)) {^road} # Local RealInput / RealOutput arrays (required workaround for the Dyad
-  # compiler's indexed-connector access issue on `nn.inputs[i]`).
-  nn_inputs = [RealInput() for i in 1:n_input] {^nn_inputs}
-  nn_outputs = [RealOutput() for i in 1:n_output] {^nn_outputs}
-  nn = DyadModelDiscovery.NeuralNetworkBlock(n_input = n_input, n_output = n_output, chain = chain) {^nn}
-  fixed = TranslationalComponents.Components.Fixed() {^fixed}
+  road = TranslationalComponents.Sources.Position(ref_type = TranslationalComponents.Sources.ReferenceType.Filtered(f_crit = 100.0)) {^road}
+  road_fixed = TranslationalComponents.Components.Fixed(s0 = 0.0) {^road_fixed}
+  scaled_nn = QuarterTruckSciML.ScaledNeuralNetworkBlock(n_input = n_input, n_output = n_output, chain = chain, s_rel0_tire = s_rel0_tire, s_scale_tire = s_scale_tire, v_friction_scale = v_friction_scale, v_seat_scale = v_seat_scale, f_scale_tire = f_scale_tire, f_scale_friction = f_scale_friction, d_seat = 500.0) {^scaled_nn}
+  s_rel = Dyad.RealInput() {^s_rel}
   structural parameter n_input::Integer = 3
   structural parameter n_output::Integer = 3
   structural parameter nn_depth::Integer = 1
@@ -48,26 +46,16 @@ component QuarterTruckFullNN
   "Force scale for friction NN output [N] (matches true F_c magnitude)"
   parameter f_scale_friction::Force = 500.0
 relations
+  connect(road_fixed.flange, road.support) {^id14}
   connect(road.flange, tire_to_road.flange_a) {^id15}
   connect(tire_to_road.flange_b, tire.flange_a) {^id16}
   connect(tire.flange_b, tire_to_body.flange_a) {^id17}
-  connect(tire_to_body.flange_b, body.flange_a) {^id18}
-  connect(tire.flange_b, friction_tb.flange_a) {^id19}
-  connect(friction_tb.flange_b, body.flange_a) {^id20}
-  connect(body.flange_b, body_to_seat.flange_a) {^id21}
-  connect(body_to_seat.flange_b, seat.flange_a) {^id22}
-  connect(seat.flange_b, seat_to_driver.flange_a) {^id23}
-  connect(seat_to_driver.flange_b, driver.flange_a) {^id24}
-  for i in 1:n_input
-    connect(nn_inputs[i], nn.inputs[i])
-  end
-  for i in 1:n_output
-    connect(nn.outputs[i], nn_outputs[i])
-  end
-  # NN inputs: physics-motivated normalizations.
-  nn_inputs[1] = (tire_to_road.s_rel - s_rel0_tire) / s_scale_tire
-  nn_inputs[2] = friction_tb.v_rel / v_friction_scale
-  nn_inputs[3] = seat_to_driver.v_rel / v_seat_scale
+  connect(tire.flange_b, friction_tb.flange_a) {^id18}
+  connect(friction_tb.flange_b, body.flange_a) {^id19}
+  connect(body.flange_b, body_to_seat.flange_a) {^id20}
+  connect(body_to_seat.flange_b, seat.flange_a) {^id21}
+  connect(seat.flange_b, seat_to_driver.flange_a) {^id22}
+  connect(seat_to_driver.flange_b, driver.flange_a) {^id23}
   # NN outputs wired to gray-box force-injection ports.
   # Tire:     direct NN residual scaled to Newtons (compression-only gate is
   #           applied INSIDE TireWithExternalResidual).
@@ -78,9 +66,6 @@ relations
   #           Factoring out `d·v` transforms the NN's learning target into the
   #           smooth, bounded bracket modifier, and the `v` prefactor enforces
   #           the kinematic constraint that damping force vanishes at v=0.
-  tire_to_road.f_residual = nn_outputs[1] * f_scale_tire
-  friction_tb.f_external = nn_outputs[2] * f_scale_friction
-  seat_to_driver.f_residual = seat_to_driver.d * seat_to_driver.v_rel * nn_outputs[3]
   initial tire.s = 0.178908
   initial tire.v = 0.0
   initial body.s = 0.987613
@@ -90,13 +75,21 @@ relations
   initial driver.s = 1.128754 + 0.1 - 75.0 * 9.81 / 10e3
   initial driver.v = 0.0
   initial tire_to_road.v_rel = 0.0
-  connect(road.support, fixed.flange) {^id25}
+  initial road.v = 0.0
+  connect(tire_to_body.flange_b, body.flange_a) {^id24}
+  connect(tire_to_road.s_rel_out, scaled_nn.in_tire) {^id25}
+  connect(friction_tb.v_rel_out, scaled_nn.in_friction) {^id26}
+  connect(seat_to_driver.v_rel_out, scaled_nn.in_seat) {^id27}
+  connect(scaled_nn.out_tire, tire_to_road.f_residual) {^id28}
+  connect(scaled_nn.out_friction, friction_tb.f_external) {^id29}
+  connect(scaled_nn.out_seat, seat_to_driver.f_residual) {^id30}
+  connect(s_rel, road.s_ref) {^id31}
 metadata {
   "_links": {
     "tire": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 275, "y1": 310, "x2": 375, "y2": 410, "rot": 0}
+          "diagram": {"iconName": "default", "x1": 110, "y1": 450, "x2": 210, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -104,7 +97,7 @@ metadata {
     "body": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 545, "y1": 310, "x2": 645, "y2": 410, "rot": 0}
+          "diagram": {"iconName": "default", "x1": 450, "y1": 450, "x2": 550, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -112,7 +105,7 @@ metadata {
     "seat": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 805, "y1": 310, "x2": 905, "y2": 410, "rot": 0}
+          "diagram": {"iconName": "default", "x1": 780, "y1": 450, "x2": 880, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -120,7 +113,7 @@ metadata {
     "driver": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 1055, "y1": 210, "x2": 1155, "y2": 310, "rot": 0}
+          "diagram": {"iconName": "default", "x1": 1090, "y1": 450, "x2": 1190, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -128,7 +121,7 @@ metadata {
     "tire_to_road": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 150, "y1": 410, "x2": 250, "y2": 510, "rot": 0}
+          "diagram": {"iconName": "default", "x1": -40, "y1": 450, "x2": 60, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -136,7 +129,7 @@ metadata {
     "tire_to_body": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 415, "y1": 310, "x2": 515, "y2": 410, "rot": 0}
+          "diagram": {"iconName": "default", "x1": 280, "y1": 610, "x2": 380, "y2": 710, "rot": 0}
         },
         "tags": []
       }
@@ -144,7 +137,7 @@ metadata {
     "friction_tb": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 415, "y1": 190, "x2": 515, "y2": 290, "rot": 0}
+          "diagram": {"iconName": "default", "x1": 280, "y1": 450, "x2": 380, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -152,7 +145,7 @@ metadata {
     "body_to_seat": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 675, "y1": 310, "x2": 775, "y2": 410, "rot": 0}
+          "diagram": {"iconName": "default", "x1": 610, "y1": 450, "x2": 710, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -160,7 +153,7 @@ metadata {
     "seat_to_driver": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 930, "y1": 310, "x2": 1030, "y2": 410, "rot": 0}
+          "diagram": {"iconName": "default", "x1": 930, "y1": 450, "x2": 1030, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -168,88 +161,112 @@ metadata {
     "road": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 25, "y1": 410, "x2": 125, "y2": 510, "rot": 0}
+          "diagram": {"iconName": "default", "x1": -200, "y1": 450, "x2": -100, "y2": 550, "rot": 0}
         },
         "tags": []
       }
     },
-    "nn_inputs": {
+    "road_fixed": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 140, "y1": 20, "x2": 240, "y2": 120, "rot": 0}
+          "diagram": {"iconName": "default", "x1": -200, "y1": 620, "x2": -100, "y2": 720, "rot": 0}
         },
         "tags": []
       }
     },
-    "nn_outputs": {
+    "scaled_nn": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 260, "y1": 20, "x2": 360, "y2": 120, "rot": 0}
+          "diagram": {"iconName": "default", "x1": 410, "y1": 80, "x2": 590, "y2": 260, "rot": 0}
         },
         "tags": []
       }
     },
-    "nn": {
+    "s_rel": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+          "diagram": {"iconName": "default", "x1": -360, "y1": 460, "x2": -280, "y2": 540, "rot": 0},
+          "icon": {"iconName": "default", "x1": -80, "y1": 460, "x2": 0, "y2": 540, "rot": 0}
         },
         "tags": []
       }
     },
-    "fixed": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 0, "y1": 620, "x2": 100, "y2": 720, "rot": 0}
-        },
-        "tags": []
-      }
-    },
+    "id14": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id15": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
-    "id16": {
+    "id16": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id17": {
       "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 140, "y": 460}, {"x": 140, "y": 360}], "E": 2}],
+        "edges": [{"S": 1, "M": [{"x": 240, "y": 500}, {"x": 240, "y": 660}], "E": 2}],
         "renderStyle": "standard"
       }
     },
-    "id17": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id18": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
-    "id19": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 400, "y": 240}], "E": 2}],
-        "junctions": [{"x": 400, "y": 360}],
-        "renderStyle": "standard"
-      }
-    },
-    "id20": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [{"x": 390, "y": 240}, {"x": 390, "y": 140}, {"x": 530, "y": 140}],
-            "E": -1
-          },
-          {"S": -1, "M": [], "E": 2}
-        ],
-        "junctions": [{"x": 530, "y": 360}],
-        "renderStyle": "standard"
-      }
-    },
+    "id19": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id20": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id21": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id22": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id23": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id24": {
       "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 920, "y": 360}, {"x": 920, "y": 260}], "E": 2}],
+        "edges": [{"S": 1, "M": [{"x": 420, "y": 660}, {"x": 420, "y": 500}], "E": 2}],
         "renderStyle": "standard"
       }
     },
     "id25": {
       "Dyad": {
-        "renderStyle": "standard",
-        "edges": [{"S": 1, "M": [{"x": 75, "y": 565}, {"x": 50, "y": 565}], "E": 2}]
+        "edges": [{"S": 1, "M": [{"x": 35, "y": 125}], "E": 2}],
+        "renderStyle": "standard"
       }
-    }
+    },
+    "id26": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 356, "y": 170}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id27": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 955, "y": 320}, {"x": 380, "y": 320}, {"x": 380, "y": 215}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id28": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 690, "y": 125}, {"x": 690, "y": 40}, {"x": -18, "y": 40}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id29": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 720, "y": 170}, {"x": 720, "y": 0}, {"x": 304, "y": 0}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id30": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 1005, "y": 215}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id31": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
   }
 }
 end
@@ -287,12 +304,33 @@ end
 
 "Training harness: full 3-nonlinearity gray-box truck driven by the same sin as the ground-truth. The NN learns all three nonlinear residual forces jointly."
 test component TestQuarterTruckFullNNSin
-  model = QuarterTruckFullNN()
-  sin_signal = BlockComponents.Sources.Sine(amplitude = amplitude, frequency = frequency, start_time = 0.1)
+  model = QuarterTruckFullNN() {^model}
+  sin_signal = BlockComponents.Sources.Sine(amplitude = amplitude, frequency = frequency, start_time = 0.1) {^sin_signal}
   parameter amplitude::Distance = 0.03
   parameter frequency::Frequency = 2.0
 relations
-  connect(sin_signal.y, model.road.s_ref)
+  connect(sin_signal.y, model.s_rel) {^id3}
+metadata {
+  "_links": {
+    "model": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 500, "y1": 450, "x2": 600, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "sin_signal": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 300, "y1": 450, "x2": 400, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id3": {"Dyad": {"renderStyle": "standard", "edges": [{"S": 1, "E": 2, "M": []}]}}
+  }
+}
 end
 
 # =============================================================================
@@ -322,5 +360,5 @@ test component TestQuarterTruckFullNNISOA
   iso_road = DenseISO8608Road(roughness = 1e-6, speed = speed, start_time = 0.0)
   parameter speed::Velocity = 13.89
 relations
-  connect(iso_road.y, model.road.s_ref)
+  connect(iso_road.y, model.s_rel)
 end

@@ -70,10 +70,10 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckFullNN
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckFullNN(; model_overrides...))
+  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckFullNN(model_overrides...))
   # Subcomponent sin_signal of type BlockComponents.Sources.Sine
   sin_signal_overrides = __pop_subcomponent_overrides!(__overrides, "sin_signal")
-  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(; amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
+  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -86,7 +86,7 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(sin_signal.y, model.road.s_ref))
+  push!(__eqs, connect(sin_signal.y, model.s_rel))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

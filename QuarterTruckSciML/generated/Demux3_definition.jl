@@ -7,22 +7,23 @@
 import Moshi as __Ext__Moshi
 
 @doc Markdown.doc"""
-   TestQuarterTruckNonlinearISOA(; name, speed)
+   Demux3(; name)
 
-Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction + viscoelastic seat) driven by ISO 8608 Class A. This is the 'truth' against which linear and NN models are compared.
+short Demux3 component description
 
-## Parameters:
+## Connectors
 
-| Name         | Description                         | Units  |   Default value |
-| ------------ | ----------------------------------- | ------ | --------------- |
-| `speed`         |                          | m/s  |   13.89 |
+ * `u` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
+ * `y1` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `y2` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `y3` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function TestQuarterTruckNonlinearISOA(; name = nothing, speed=13.89, kwargs...)
+@component function Demux3(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
   
-    @named model = TestQuarterTruckNonlinearISOA()
+    @named model = Demux3()
   """))
 
   __overrides = __build_overrides(kwargs)
@@ -48,13 +49,14 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  __local__speed = speed
-  append!(__params, @parameters (speed::Real))
-  __initial_conditions[speed] = __local__speed
 
   ### Final Parameters (assignments)
 
   ### Final Path Parameters
+  append!(__vars, @variables (u(t)[1:3]::Real), [input = true])
+  append!(__vars, @variables (y1(t)::Real), [output = true])
+  append!(__vars, @variables (y2(t)::Real), [output = true])
+  append!(__vars, @variables (y3(t)::Real), [output = true])
 
   ### Variables (declarations)
 
@@ -64,12 +66,6 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
   __constants = Any[]
 
   ### Components
-  # Subcomponent model of type QuarterTruckSciML.QuarterTruckConfigurable
-  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(tire_k3=10000000.0, tire_compression_only=1.0, friction_Fc=500.0, seat_driver_n=0.5, model_overrides...))
-  # Subcomponent iso_road of type QuarterTruckSciML.DenseISO8608Road
-  iso_road_overrides = __pop_subcomponent_overrides!(__overrides, "iso_road")
-  push!(__systems, @named iso_road = QuarterTruckSciML.DenseISO8608Road(roughness=0.000001, speed=speed, start_time=0.0, iso_road_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -82,9 +78,11 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(iso_road.y, model.road.s_ref))
+  push!(__eqs, u[1] ~ y1)
+  push!(__eqs, u[2] ~ y2)
+  push!(__eqs, u[3] ~ y3)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
-export TestQuarterTruckNonlinearISOA
+export Demux3

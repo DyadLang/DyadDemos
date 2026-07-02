@@ -30,7 +30,7 @@ using DyadModelDiscovery: AbstractNNTrainingAnalysisSpec, NNTrainingAnalysisSpec
   var"optimizer_verbose"::Bool = false
   var"diagnostics"::DyadModelOptimizer.DiagnosticsLevel.Type = DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking()
   var"learning_rate"::Float64 = 0.001
-  var"network_component"::String = "model.nn"
+  var"network_component"::String = "model.scaled_nn.nn"
   var"min_weight"::Float64 = -Inf
   var"max_weight"::Float64 = Inf
   var"initial_values_path"::String = ""
