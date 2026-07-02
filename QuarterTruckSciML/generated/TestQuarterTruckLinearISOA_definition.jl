@@ -66,10 +66,10 @@ Linear-baseline quarter truck (all three nonlinearities disabled — tire_k3=0, 
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckConfigurable
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(; model_overrides...))
+  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(model_overrides...))
   # Subcomponent iso_road of type QuarterTruckSciML.DenseISO8608Road
   iso_road_overrides = __pop_subcomponent_overrides!(__overrides, "iso_road")
-  push!(__systems, @named iso_road = QuarterTruckSciML.DenseISO8608Road(; roughness=0.000001, speed=speed, start_time=0.0, iso_road_overrides...))
+  push!(__systems, @named iso_road = QuarterTruckSciML.DenseISO8608Road(roughness=0.000001, speed=speed, start_time=0.0, iso_road_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

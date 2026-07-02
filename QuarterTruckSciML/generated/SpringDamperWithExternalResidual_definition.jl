@@ -24,6 +24,7 @@ Generic linear spring-damper whose total force includes an external residual for
  * `flange_a` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
  * `flange_b` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
  * `f_residual` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
+ * `v_rel_out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 
 ## Variables
 
@@ -78,6 +79,7 @@ Generic linear spring-damper whose total force includes an external residual for
 
   ### Final Path Parameters
   append!(__vars, @variables (f_residual(t)::Real), [input = true])
+  append!(__vars, @variables (v_rel_out(t)::Real), [output = true])
 
   ### Variables (declarations)
   append!(__vars, @variables (s_rel(t)::Real))
@@ -115,6 +117,7 @@ Generic linear spring-damper whose total force includes an external residual for
   push!(__eqs, f ~ k * (s_rel - s_rel0) + d * v_rel + f_residual)
   push!(__eqs, flange_b.f ~ f)
   push!(__eqs, flange_a.f ~ -f)
+  push!(__eqs, v_rel_out ~ v_rel)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
