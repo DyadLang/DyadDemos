@@ -28,5 +28,5 @@ validates each piece in Julia before moving on.
 1. Open this folder in VS Code with the
    [Dyad extension](https://help.juliahub.com/dyad/dev/getting_started/).
 2. Open the Dyad Agent and configure the Context setting to 1M tokens
-3. Paste the contents of `assets/shared/prompt.md` to build the models.
-4. Paste the contents of `assets/shared/prompt_pitchpulsesim.md` to simulate and plot.
+3. Paste the contents of `scripts/prompt.md` to build the models.
+4. Paste the contents of `scripts/prompt_pitchpulsesim.md` to simulate and plot.
