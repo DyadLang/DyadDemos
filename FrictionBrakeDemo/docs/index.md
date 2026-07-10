@@ -3,6 +3,7 @@ Title = "Friction Brake — thermal braking dynamics"
 Description = "Vehicle friction brake converting braking energy to disk and pad heat over a drive cycle."
 Tags = ["thermal", "automotive", "components"]
 Cover = "assets/icon.svg"
+Order = 4
 ```
 
 # Friction Brake Demo

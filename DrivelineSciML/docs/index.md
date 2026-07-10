@@ -3,6 +3,7 @@ Title = "Driveline SciML — nonlinear isolator calibration"
 Description = "Two-stage parameter calibration of a nonlinear torsional isolator in an EV driveline."
 Tags = ["sciml", "parameter-calibration", "nonlinear-dynamics"]
 Cover = "assets/icon.svg"
+Order = 1
 ```
 
 # Driveline SciML Demo
