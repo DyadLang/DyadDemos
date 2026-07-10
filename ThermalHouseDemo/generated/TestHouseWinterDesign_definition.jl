@@ -12,7 +12,7 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   name::Symbol = :TestHouseWinterDesign
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
-  var"stop"::Float64 = 7200
+  var"stop"::Float64 = 7200.0
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
   var"saveat"::Float64 = 0

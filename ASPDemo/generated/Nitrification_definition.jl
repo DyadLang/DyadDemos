@@ -4,16 +4,18 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    Nitrification(; name, nS, V, states_start, medium, alpha, de, R_air)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `nS`         |                          | --  |   13 |
 | `V`         |                          | m3  |   1000 |
-| `states_start`         |                          | 1  |   [30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796] |
+| `states_start`         |                          | 1  |   [3.00000000...593796e+00] |
 | `medium`         |                          | --  |   ASM1() |
 | `alpha`         |                          | --  |   0.7 |
 | `de`         |                          | m  |   4.5 |
@@ -29,21 +31,22 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `states`         |                          | --  | 
-| `r`         |                          | --  | 
-| `aeration`         |                          | --  | 
-| `Q`         |                          | --  | 
-| `So_sat`         |                          | kg/m3  | 
+| ------------ | ----------------------------------- | ------ |
+| `states`         |                          | --  |
+| `r`         |                          | --  |
+| `aeration`         |                          | --  |
+| `Q`         |                          | --  |
+| `So_sat`         |                          | kg/m3  |
 """
-@component function Nitrification(; name = nothing, nS=13, V=Float64(1000), states_start=[30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], medium=ASM1(), alpha=0.7, de=4.5, R_air=23.5, kwargs...)
+@component function Nitrification(; name = nothing, nS=13, V=Float64(1000), states_start=[30.0, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], medium=ASM1(), alpha=0.7, de=4.5, R_air=23.5, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = Nitrification()
+  """))
 
-        @named model = Nitrification()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -62,8 +65,6 @@
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -86,6 +87,8 @@
   __local__R_air = R_air
   append!(__params, @parameters (R_air::Real))
   __initial_conditions[R_air] = __local__R_air
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (T(t)::Real), [input = true])

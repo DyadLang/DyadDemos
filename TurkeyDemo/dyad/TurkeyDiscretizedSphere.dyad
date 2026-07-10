@@ -102,12 +102,12 @@ test component TurkeySphereTest
   parameter Gr_rad::Real = epsilon * A_surface
 relations
   # Connect convection: oven (fluid) -> turkey surface (solid)
-  connect(oven.node, convection.fluid) {^id6}
+  connect(oven.port, convection.fluid) {^id6}
   connect(convection.solid, turkey.surface) {^id7}
   connect(Gc_signal.y, convection.Gc) {^id8}
   # Connect radiation: oven -> turkey surface
-  connect(oven.node, radiation.node_a) {^id9}
-  connect(radiation.node_b, turkey.surface) {^id10}
+  connect(oven.port, radiation.port_a) {^id9}
+  connect(radiation.port_b, turkey.surface) {^id10}
 metadata {
   "_links": {
     "turkey": {

@@ -15,6 +15,8 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "tests.jl"))
 end
 
 
+include("test_internals.jl")
+
 @testset "`CoffeeMugDemo`" begin
 include("CoffeeMugSubsystem_test.jl")
 include("EspressoCupSystemModular_test.jl")

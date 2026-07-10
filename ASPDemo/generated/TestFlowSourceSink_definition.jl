@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestFlowSourceSink(; name)
 """
 @component function TestFlowSourceSink(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestFlowSourceSink()
+  """))
 
-        @named model = TestFlowSourceSink()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,12 +54,10 @@
 
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
-  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
-  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
   push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
   # Subcomponent sink of type ASPDemo.EffluentSink
-  sink_overrides = Dict(Symbol(replace(string(k), r"^sink__" => "")) => v for (k, v) in __overrides if startswith(string(k), "sink__"))
-  filter!(p -> !startswith(string(first(p)), "sink__"), __overrides)
+  sink_overrides = __pop_subcomponent_overrides!(__overrides, "sink")
   push!(__systems, @named sink = ASPDemo.EffluentSink(sink_overrides...))
 
   ### Check there are no unmatched overrides

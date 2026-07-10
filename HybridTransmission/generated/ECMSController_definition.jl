@@ -4,31 +4,33 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ECMSController(; name, s_base, k_soc, soc_target, m_vehicle, C_rr, C_d, A_front, r_wheel, k_speed, k_mg1, k_soc_mg1, engine_max_torque, engine_max_power, mg1_max_torque, mg1_max_power, mg2_max_torque, omega_engine_min, omega_engine_max)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `s_base`         |                          | --  |   2.5 |
-| `k_soc`         |                          | --  |   5 |
+| `k_soc`         |                          | --  |   5.0 |
 | `soc_target`         |                          | --  |   0.6 |
-| `m_vehicle`         |                          | --  |   1750 |
+| `m_vehicle`         |                          | --  |   1750.0 |
 | `C_rr`         |                          | --  |   0.012 |
 | `C_d`         |                          | --  |   0.38 |
 | `A_front`         |                          | --  |   2.56 |
 | `r_wheel`         |                          | --  |   0.318 |
-| `k_speed`         |                          | --  |   100 |
+| `k_speed`         |                          | --  |   100.0 |
 | `k_mg1`         |                          | --  |   0.5 |
-| `k_soc_mg1`         |                          | --  |   150 |
-| `engine_max_torque`         |                          | N.m  |   145 |
-| `engine_max_power`         |                          | --  |   74000 |
-| `mg1_max_torque`         |                          | N.m  |   130 |
-| `mg1_max_power`         |                          | --  |   40000 |
-| `mg2_max_torque`         |                          | N.m  |   330 |
-| `omega_engine_min`         |                          | --  |   105 |
-| `omega_engine_max`         |                          | --  |   471 |
+| `k_soc_mg1`         |                          | --  |   150.0 |
+| `engine_max_torque`         |                          | N.m  |   145.0 |
+| `engine_max_power`         |                          | --  |   74000.0 |
+| `mg1_max_torque`         |                          | N.m  |   130.0 |
+| `mg1_max_power`         |                          | --  |   40000.0 |
+| `mg2_max_torque`         |                          | N.m  |   330.0 |
+| `omega_engine_min`         |                          | --  |   105.0 |
+| `omega_engine_max`         |                          | --  |   471.0 |
 
 ## Connectors
 
@@ -44,23 +46,24 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `speed_error`         |                          | --  | 
-| `F_load`         |                          | --  | 
-| `T_wheel_demand`         |                          | N.m  | 
-| `s_effective`         |                          | --  | 
-| `engine_fraction`         |                          | --  | 
-| `omega_engine_target`         |                          | --  | 
-| `mg1_torque_proportional`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `speed_error`         |                          | --  |
+| `F_load`         |                          | --  |
+| `T_wheel_demand`         |                          | N.m  |
+| `s_effective`         |                          | --  |
+| `engine_fraction`         |                          | --  |
+| `omega_engine_target`         |                          | --  |
+| `mg1_torque_proportional`         |                          | --  |
 """
-@component function ECMSController(; name = nothing, s_base=2.5, k_soc=Float64(5), soc_target=0.6, m_vehicle=Float64(1750), C_rr=0.012, C_d=0.38, A_front=2.56, r_wheel=0.318, k_speed=Float64(100), k_mg1=0.5, k_soc_mg1=Float64(150), engine_max_torque=Float64(145), engine_max_power=Float64(74000), mg1_max_torque=Float64(130), mg1_max_power=Float64(40000), mg2_max_torque=Float64(330), omega_engine_min=Float64(105), omega_engine_max=Float64(471), kwargs...)
+@component function ECMSController(; name = nothing, s_base=2.5, k_soc=Float64(5.0), soc_target=0.6, m_vehicle=Float64(1750.0), C_rr=0.012, C_d=0.38, A_front=2.56, r_wheel=0.318, k_speed=Float64(100.0), k_mg1=0.5, k_soc_mg1=Float64(150.0), engine_max_torque=Float64(145.0), engine_max_power=Float64(74000.0), mg1_max_torque=Float64(130.0), mg1_max_power=Float64(40000.0), mg2_max_torque=Float64(330.0), omega_engine_min=Float64(105.0), omega_engine_max=Float64(471.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ECMSController()
+  """))
 
-        @named model = ECMSController()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -79,8 +82,6 @@
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -140,6 +141,8 @@
   append!(__params, @parameters (omega_engine_max::Real))
   __initial_conditions[omega_engine_max] = __local__omega_engine_max
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
   append!(__vars, @variables (speed_ref(t)::Real), [input = true])
   append!(__vars, @variables (speed_actual(t)::Real), [input = true])
@@ -195,12 +198,12 @@
   push!(__eqs, F_load ~ C_rr * m_vehicle * 9.81 * tanh(speed_actual / 0.1) + 0.5 * 1.225 * C_d * A_front * (speed_actual * speed_actual))
   push!(__eqs, T_wheel_demand ~ F_load * r_wheel + k_speed * speed_error)
   push!(__eqs, s_effective ~ s_base + k_soc * (soc_target - soc))
-  push!(__eqs, engine_fraction ~ (s_effective + sqrt(s_effective * s_effective + 0.01)) / 2 / ((s_effective + sqrt(s_effective * s_effective + 0.01)) / 2 + s_base + 0.001) * (T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1)) / 2 / ((T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1)) / 2 + 1))
-  push!(__eqs, engine_throttle ~ (1 - ((1 - engine_fraction) + sqrt((1 - engine_fraction) * (1 - engine_fraction) + 0.0001)) / 2) * tanh(abs(T_wheel_demand) / 10))
+  push!(__eqs, engine_fraction ~ (s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 / ((s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 + s_base + 0.001) * (T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 / ((T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 + 1.0))
+  push!(__eqs, engine_throttle ~ (1.0 - ((1.0 - engine_fraction) + sqrt((1.0 - engine_fraction) * (1.0 - engine_fraction) + 0.0001)) / 2.0) * tanh(abs(T_wheel_demand) / 10.0))
   push!(__eqs, omega_engine_target ~ engine_throttle * (omega_engine_min + (omega_engine_max - omega_engine_min) * engine_throttle))
   push!(__eqs, mg1_torque_proportional ~ k_mg1 * (omega_engine_target - engine_omega) * max(0.1, soc / soc_target) + k_soc_mg1 * (soc_target - soc))
   push!(__eqs, mg1_torque_cmd ~ max(-mg1_max_torque, min(mg1_max_torque, mg1_torque_proportional)))
-  push!(__eqs, mg2_torque_cmd ~ max(-mg2_max_torque, min(mg2_max_torque, T_wheel_demand * (1 - engine_fraction))))
+  push!(__eqs, mg2_torque_cmd ~ max(-mg2_max_torque, min(mg2_max_torque, T_wheel_demand * (1.0 - engine_fraction))))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

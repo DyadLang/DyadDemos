@@ -4,26 +4,29 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestThermalHouseControlled(; name, T_outdoor, T_initial, T_setpoint, solar_irrad)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `T_outdoor`         | Outdoor temperature 0°C (32°F)                         | K  |   273.15 |
 | `T_initial`         | Initial temperature 21.1°C (70°F)                         | K  |   294.26 |
 | `T_setpoint`         | Setpoint temperature 21.1°C (70°F)                         | K  |   294.26 |
-| `solar_irrad`         | Solar irradiance (W/m²)                         | --  |   0 |
+| `solar_irrad`         | Solar irradiance (W/m²)                         | --  |   0.0 |
 """
-@component function TestThermalHouseControlled(; name = nothing, T_outdoor=273.15, T_initial=294.26, T_setpoint=294.26, solar_irrad=Float64(0), kwargs...)
+@component function TestThermalHouseControlled(; name = nothing, T_outdoor=273.15, T_initial=294.26, T_setpoint=294.26, solar_irrad=Float64(0.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestThermalHouseControlled()
+  """))
 
-        @named model = TestThermalHouseControlled()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -43,8 +46,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -61,6 +62,8 @@
   append!(__params, @parameters (solar_irrad::Real), [description = "Solar irradiance (W/m²)"])
   __initial_conditions[solar_irrad] = __local__solar_irrad
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
 
   ### Variables (declarations)
@@ -72,27 +75,23 @@
 
   ### Components
   # Subcomponent controlled_house of type ThermalHouseDemo.ThermalHouseControlled
-  controlled_house_overrides = Dict(Symbol(replace(string(k), r"^controlled_house__" => "")) => v for (k, v) in __overrides if startswith(string(k), "controlled_house__"))
-  filter!(p -> !startswith(string(first(p)), "controlled_house__"), __overrides)
-  push!(__systems, @named controlled_house = ThermalHouseDemo.ThermalHouseControlled(T_initial=T_initial, k_p=10000, T_i=600, controlled_house_overrides...))
+  controlled_house_overrides = __pop_subcomponent_overrides!(__overrides, "controlled_house")
+  push!(__systems, @named controlled_house = ThermalHouseDemo.ThermalHouseControlled(T_initial=T_initial, k_p=10000.0, T_i=600.0, controlled_house_overrides...))
   # Subcomponent setpoint_signal of type BlockComponents.Sources.Constant
-  setpoint_signal_overrides = Dict(Symbol(replace(string(k), r"^setpoint_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "setpoint_signal__"))
-  filter!(p -> !startswith(string(first(p)), "setpoint_signal__"), __overrides)
+  setpoint_signal_overrides = __pop_subcomponent_overrides!(__overrides, "setpoint_signal")
   push!(__systems, @named setpoint_signal = BlockComponents.Sources.Constant(k=T_setpoint, setpoint_signal_overrides...))
   # Subcomponent solar_irradiance_signal of type BlockComponents.Sources.Constant
-  solar_irradiance_signal_overrides = Dict(Symbol(replace(string(k), r"^solar_irradiance_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "solar_irradiance_signal__"))
-  filter!(p -> !startswith(string(first(p)), "solar_irradiance_signal__"), __overrides)
+  solar_irradiance_signal_overrides = __pop_subcomponent_overrides!(__overrides, "solar_irradiance_signal")
   push!(__systems, @named solar_irradiance_signal = BlockComponents.Sources.Constant(k=solar_irrad, solar_irradiance_signal_overrides...))
   # Subcomponent ambient_signal of type BlockComponents.Sources.Constant
-  ambient_signal_overrides = Dict(Symbol(replace(string(k), r"^ambient_signal__" => "")) => v for (k, v) in __overrides if startswith(string(k), "ambient_signal__"))
-  filter!(p -> !startswith(string(first(p)), "ambient_signal__"), __overrides)
+  ambient_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ambient_signal")
   push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(k=T_outdoor, ambient_signal_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-  __guesses[controlled_house.house.wall_loss.ΔT] = (10)
+  __guesses[controlled_house.house.wall_loss.ΔT] = (10.0)
 
   ### Initialization Equations
 

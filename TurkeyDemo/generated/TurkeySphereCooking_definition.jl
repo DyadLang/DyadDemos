@@ -12,10 +12,10 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   name::Symbol = :TurkeySphereCooking
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
-  var"stop"::Float64 = 14400
+  var"stop"::Float64 = 14400.0
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
-  var"saveat"::Float64 = 60
+  var"saveat"::Float64 = 60.0
   var"dtmax"::Float64 = 0
   var"tstops"::Array{Float64, 1} = []
   var"automatic_discontinuity_detection"::Bool = false

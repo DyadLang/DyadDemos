@@ -102,10 +102,10 @@ Configurable quarter truck model with 4 masses, gravity, and optional nonlineari
   ### Components
   # Subcomponent tire of type TranslationalComponents.Components.Mass
   tire_overrides = __pop_subcomponent_overrides!(__overrides, "tire")
-  push!(__systems, @named tire = TranslationalComponents.Components.Mass(; m=40.0, L=0.0, g=9.81, theta=1.5708, tire_overrides...))
+  push!(__systems, @named tire = TranslationalComponents.Components.Mass(m=40.0, L=0.0, g=9.81, theta=1.5708, tire_overrides...))
   # Subcomponent body of type TranslationalComponents.Components.Mass
   body_overrides = __pop_subcomponent_overrides!(__overrides, "body")
-  push!(__systems, @named body = TranslationalComponents.Components.Mass(; L=0.0, g=9.81, theta=1.5708, body_overrides...))
+  push!(__systems, @named body = TranslationalComponents.Components.Mass(L=0.0, g=9.81, theta=1.5708, body_overrides...))
   __bindings[body.m] = body_m
   # Now remove initial conditions in body that correspond to the bindings just added
   __body_ics = ModelingToolkit.get_initial_conditions(body)
@@ -114,13 +114,13 @@ Configurable quarter truck model with 4 masses, gravity, and optional nonlineari
   delete!(__body_ics, __body_m)
   # Subcomponent seat of type TranslationalComponents.Components.Mass
   seat_overrides = __pop_subcomponent_overrides!(__overrides, "seat")
-  push!(__systems, @named seat = TranslationalComponents.Components.Mass(; m=15.0, L=0.0, g=9.81, theta=1.5708, seat_overrides...))
+  push!(__systems, @named seat = TranslationalComponents.Components.Mass(m=15.0, L=0.0, g=9.81, theta=1.5708, seat_overrides...))
   # Subcomponent driver of type TranslationalComponents.Components.Mass
   driver_overrides = __pop_subcomponent_overrides!(__overrides, "driver")
-  push!(__systems, @named driver = TranslationalComponents.Components.Mass(; m=75.0, L=0.0, g=9.81, theta=1.5708, driver_overrides...))
+  push!(__systems, @named driver = TranslationalComponents.Components.Mass(m=75.0, L=0.0, g=9.81, theta=1.5708, driver_overrides...))
   # Subcomponent tire_to_road of type QuarterTruckSciML.ConfigurableTireSpringDamper
   tire_to_road_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_road")
-  push!(__systems, @named tire_to_road = QuarterTruckSciML.ConfigurableTireSpringDamper(; k1=200000.0, d=50.0, s_rel0=0.2, tire_to_road_overrides...))
+  push!(__systems, @named tire_to_road = QuarterTruckSciML.ConfigurableTireSpringDamper(k1=200000.0, d=50.0, s_rel0=0.2, tire_to_road_overrides...))
   __bindings[tire_to_road.k3] = tire_k3
   __bindings[tire_to_road.compression_only] = tire_compression_only
   # Now remove initial conditions in tire_to_road that correspond to the bindings just added
@@ -132,7 +132,7 @@ Configurable quarter truck model with 4 masses, gravity, and optional nonlineari
   delete!(__tire_to_road_ics, __tire_to_road_compression_only)
   # Subcomponent tire_to_body of type TranslationalComponents.Components.SpringDamper
   tire_to_body_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_body")
-  push!(__systems, @named tire_to_body = TranslationalComponents.Components.SpringDamper(; s_rel0=1.0, tire_to_body_overrides...))
+  push!(__systems, @named tire_to_body = TranslationalComponents.Components.SpringDamper(s_rel0=1.0, tire_to_body_overrides...))
   __bindings[tire_to_body.c] = tire_to_body_c
   __bindings[tire_to_body.d] = tire_to_body_d
   # Now remove initial conditions in tire_to_body that correspond to the bindings just added
@@ -144,10 +144,10 @@ Configurable quarter truck model with 4 masses, gravity, and optional nonlineari
   delete!(__tire_to_body_ics, __tire_to_body_d)
   # Subcomponent body_to_seat of type TranslationalComponents.Components.SpringDamper
   body_to_seat_overrides = __pop_subcomponent_overrides!(__overrides, "body_to_seat")
-  push!(__systems, @named body_to_seat = TranslationalComponents.Components.SpringDamper(; c=15000.0, d=800.0, s_rel0=0.2, body_to_seat_overrides...))
+  push!(__systems, @named body_to_seat = TranslationalComponents.Components.SpringDamper(c=15000.0, d=800.0, s_rel0=0.2, body_to_seat_overrides...))
   # Subcomponent seat_to_driver of type QuarterTruckSciML.ViscoelasticSpringDamper
   seat_to_driver_overrides = __pop_subcomponent_overrides!(__overrides, "seat_to_driver")
-  push!(__systems, @named seat_to_driver = QuarterTruckSciML.ViscoelasticSpringDamper(; s_rel0=0.1, seat_to_driver_overrides...))
+  push!(__systems, @named seat_to_driver = QuarterTruckSciML.ViscoelasticSpringDamper(s_rel0=0.1, seat_to_driver_overrides...))
   __bindings[seat_to_driver.k] = seat_driver_k
   __bindings[seat_to_driver.d] = seat_driver_d
   __bindings[seat_to_driver.n] = seat_driver_n
@@ -162,7 +162,7 @@ Configurable quarter truck model with 4 masses, gravity, and optional nonlineari
   delete!(__seat_to_driver_ics, __seat_to_driver_n)
   # Subcomponent friction_tb of type QuarterTruckSciML.CoulombFriction
   friction_tb_overrides = __pop_subcomponent_overrides!(__overrides, "friction_tb")
-  push!(__systems, @named friction_tb = QuarterTruckSciML.CoulombFriction(; friction_tb_overrides...))
+  push!(__systems, @named friction_tb = QuarterTruckSciML.CoulombFriction(friction_tb_overrides...))
   __bindings[friction_tb.F_c] = friction_Fc
   __bindings[friction_tb.v0] = friction_v0
   # Now remove initial conditions in friction_tb that correspond to the bindings just added
@@ -174,10 +174,10 @@ Configurable quarter truck model with 4 masses, gravity, and optional nonlineari
   delete!(__friction_tb_ics, __friction_tb_v0)
   # Subcomponent road of type TranslationalComponents.Sources.Position
   road_overrides = __pop_subcomponent_overrides!(__overrides, "road")
-  push!(__systems, @named road = TranslationalComponents.Sources.Position(; ref_type=TranslationalComponents.Sources.ReferenceType.Filtered(; f_crit=100.0), road_overrides...))
+  push!(__systems, @named road = TranslationalComponents.Sources.Position(ref_type=TranslationalComponents.Sources.ReferenceType.Filtered(; f_crit=100.0), road_overrides...))
   # Subcomponent fixed of type TranslationalComponents.Components.Fixed
   fixed_overrides = __pop_subcomponent_overrides!(__overrides, "fixed")
-  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(; fixed_overrides...))
+  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(fixed_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))

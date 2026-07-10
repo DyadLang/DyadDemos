@@ -24,6 +24,7 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
  * `flange_a` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
  * `flange_b` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
  * `f_residual` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
+ * `s_rel_out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 
 ## Variables
 
@@ -78,6 +79,7 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
 
   ### Final Path Parameters
   append!(__vars, @variables (f_residual(t)::Real), [input = true])
+  append!(__vars, @variables (s_rel_out(t)::Real), [output = true])
 
   ### Variables (declarations)
   append!(__vars, @variables (s_rel(t)::Real))
@@ -115,6 +117,7 @@ Tire-specific spring-damper with compression-only gate baked in: above the unstr
   push!(__eqs, f ~ ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + d * v_rel + f_residual, 0.0))
   push!(__eqs, flange_b.f ~ f)
   push!(__eqs, flange_a.f ~ -f)
+  push!(__eqs, s_rel_out ~ s_rel)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

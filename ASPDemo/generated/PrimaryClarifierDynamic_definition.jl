@@ -4,16 +4,18 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    PrimaryClarifierDynamic(; name, nS, V, states_start)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `nS`         |                          | --  |   13 |
 | `V`         |                          | m3  |   500 |
-| `states_start`         |                          | 1  |   [30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796] |
+| `states_start`         |                          | 1  |   [3.00000000...593796e+00] |
 
 ## Connectors
 
@@ -23,25 +25,26 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `states`         |                          | --  | 
-| `hrt_h`         |                          | --  | 
-| `n_COD`         |                          | --  | 
-| `n_X`         |                          | --  | 
-| `CODin`         |                          | --  | 
-| `CODout`         |                          | --  | 
-| `XCODin`         |                          | --  | 
-| `H`         |                          | --  | 
-| `Q`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `states`         |                          | --  |
+| `hrt_h`         |                          | --  |
+| `n_COD`         |                          | --  |
+| `n_X`         |                          | --  |
+| `CODin`         |                          | --  |
+| `CODout`         |                          | --  |
+| `XCODin`         |                          | --  |
+| `H`         |                          | --  |
+| `Q`         |                          | --  |
 """
-@component function PrimaryClarifierDynamic(; name = nothing, nS=13, V=Float64(500), states_start=[30, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], kwargs...)
+@component function PrimaryClarifierDynamic(; name = nothing, nS=13, V=Float64(500), states_start=[30.0, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = PrimaryClarifierDynamic()
+  """))
 
-        @named model = PrimaryClarifierDynamic()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -61,8 +64,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -72,6 +73,8 @@
   __local__states_start = states_start
   append!(__params, @parameters (states_start[1:nS]::Real))
   __initial_conditions[states_start] = __local__states_start
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -162,7 +165,7 @@
 
   ### Control Structures
   for i in 1:nS
-      push!(__initialization_eqs, states[i] ~ states_start[i])
+    push!(__initialization_eqs, states[i] ~ states_start[i])
   end
 
   # Return completely constructed System

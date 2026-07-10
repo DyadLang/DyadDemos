@@ -4,16 +4,18 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ThermostatHeater(; name, K, T_set, Q_max)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `K`         | Proportional gain (W/K)                         | --  |   500 |
+| `K`         | Proportional gain (W/K)                         | --  |   500.0 |
 | `T_set`         | Heating setpoint temperature                         | K  |   294.15 |
-| `Q_max`         | Maximum heating capacity (W)                         | W  |   5000 |
+| `Q_max`         | Maximum heating capacity (W)                         | W  |   5000.0 |
 
 ## Connectors
 
@@ -22,18 +24,19 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `Q_raw`         | Raw proportional demand (W)                         | W  | 
-| `Q_delivered`         | Delivered heating power (W, 0 ≤ Q ≤ Q_max)                         | W  | 
+| ------------ | ----------------------------------- | ------ |
+| `Q_raw`         | Raw proportional demand (W)                         | W  |
+| `Q_delivered`         | Delivered heating power (W, 0 ≤ Q ≤ Q_max)                         | W  |
 """
-@component function ThermostatHeater(; name = nothing, K=Float64(500), T_set=294.15, Q_max=Float64(5000), kwargs...)
+@component function ThermostatHeater(; name = nothing, K=Float64(500.0), T_set=294.15, Q_max=Float64(5000.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ThermostatHeater()
+  """))
 
-        @named model = ThermostatHeater()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,8 +56,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -67,6 +68,8 @@
   __local__Q_max = Q_max
   append!(__params, @parameters (Q_max::Real), [description = "Maximum heating capacity (W)"])
   __initial_conditions[Q_max] = __local__Q_max
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -98,7 +101,7 @@
 
   ### Equations
   push!(__eqs, Q_raw ~ K * (T_set - port.T))
-  push!(__eqs, Q_delivered ~ ifelse(Q_raw > Q_max, Q_max, ifelse(Q_raw < 0, 0, Q_raw)))
+  push!(__eqs, Q_delivered ~ ifelse(Q_raw > Q_max, Q_max, ifelse(Q_raw < 0.0, 0.0, Q_raw)))
   push!(__eqs, port.Q_flow ~ -Q_delivered)
 
   # Return completely constructed System

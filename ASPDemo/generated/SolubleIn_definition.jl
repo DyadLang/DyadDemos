@@ -6,11 +6,11 @@
 
 @connector function SolubleIn(; name=nothing)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
-
-        @named model = SolubleIn()
-        """))
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SolubleIn()
+  """))
   __params = Symbolics.SymbolicT[]
   __vars = @variables begin
     (Si(t)::Real), [input = true]

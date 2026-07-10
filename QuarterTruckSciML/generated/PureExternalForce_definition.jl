@@ -16,6 +16,7 @@ Force element that transmits an externally supplied force (via `f_external` Real
  * `flange_a` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
  * `flange_b` - This connector represents a mechanical flange with position and force as the potential and flow variables, respectively. ([`Flange`](@ref))
  * `f_external` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
+ * `v_rel_out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 
 ## Variables
 
@@ -60,6 +61,7 @@ Force element that transmits an externally supplied force (via `f_external` Real
 
   ### Final Path Parameters
   append!(__vars, @variables (f_external(t)::Real), [input = true])
+  append!(__vars, @variables (v_rel_out(t)::Real), [output = true])
 
   ### Variables (declarations)
   append!(__vars, @variables (s_rel(t)::Real))
@@ -93,6 +95,7 @@ Force element that transmits an externally supplied force (via `f_external` Real
   push!(__eqs, v_rel ~ ModelingToolkit.D_nounits(s_rel))
   push!(__eqs, flange_b.f ~ f_external)
   push!(__eqs, flange_a.f ~ -f_external)
+  push!(__eqs, v_rel_out ~ v_rel)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

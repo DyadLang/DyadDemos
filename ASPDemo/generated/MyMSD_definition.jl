@@ -4,6 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    MyMSD(; name)
 
@@ -16,12 +18,13 @@ short MyMSD component description
 """
 @component function MyMSD(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = MyMSD()
+  """))
 
-        @named model = MyMSD()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -41,11 +44,11 @@ short MyMSD component description
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -60,12 +63,10 @@ short MyMSD component description
   push!(__systems, @named flange = __Dyad__Flange())
   push!(__systems, @named flange1 = __Dyad__Flange())
   # Subcomponent mass of type TranslationalComponents.Components.Mass
-  mass_overrides = Dict(Symbol(replace(string(k), r"^mass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "mass__"))
-  filter!(p -> !startswith(string(first(p)), "mass__"), __overrides)
+  mass_overrides = __pop_subcomponent_overrides!(__overrides, "mass")
   push!(__systems, @named mass = TranslationalComponents.Components.Mass(mass_overrides...))
   # Subcomponent springdamper of type TranslationalComponents.Components.SpringDamper
-  springdamper_overrides = Dict(Symbol(replace(string(k), r"^springdamper__" => "")) => v for (k, v) in __overrides if startswith(string(k), "springdamper__"))
-  filter!(p -> !startswith(string(first(p)), "springdamper__"), __overrides)
+  springdamper_overrides = __pop_subcomponent_overrides!(__overrides, "springdamper")
   push!(__systems, @named springdamper = TranslationalComponents.Components.SpringDamper(springdamper_overrides...))
 
   ### Check there are no unmatched overrides

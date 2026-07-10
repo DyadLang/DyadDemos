@@ -317,6 +317,8 @@ relations
   # Differential states already initialized via T0 parameters in HeatCapacitors
   # Guess intermediate node temperature (cup outer surface ~330 K = 57°C)
   guess coffeeMug.outerSurface.T = 330.0
+  # Guess for convective ΔT at cup outer surface
+  guess coffeeMug.convCup2Env.ΔT = 37.0
   # Guess for algebraic variable to break cyclic dependency
   # ΔT = hand temp - cup surface temp ≈ 310.15 - 330 = -20 K
   guess hand.handContact.ΔT = -20.0

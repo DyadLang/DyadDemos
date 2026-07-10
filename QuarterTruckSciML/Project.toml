@@ -23,18 +23,18 @@ ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 TranslationalComponents = "42acc370-819b-4877-bdd6-eb3294461f5d"
 
 [compat]
-BlockComponents = "=4.0.9"
+BlockComponents = "4.0.9"
 DyadData = "2"
 DyadInterface = "7"
 DyadModelDiscovery = "0.5"
-DyadModelOptimizer = "=15.1.0"
+DyadModelOptimizer = "15.1.0"
 Lux = "1"
 Markdown = "1"
 ModelingToolkitNeuralNets = "2"
 Random = "1"
 RotationalComponents = "2.5.1"
 ThermalComponents = "2.0.5"
-TranslationalComponents = "=2.4.2"
+TranslationalComponents = "2.4.2"
 
 [dyad]
 kernel = "3.1.0"

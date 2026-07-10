@@ -43,9 +43,9 @@ include("../generated/tests.jl")
         sys_nn = mtkcompile(QuarterTruckSciML.TestQuarterTruckFullNNISOA(; name=:h))
 
         prob_gt   = ODEProblem(sys_gt, [], (0.0, 2.0); fully_determined=true)
-        prob_nn   = ODEProblem(sys_nn, [sys_nn.model.nn.p => weights_flat],
+        prob_nn   = ODEProblem(sys_nn, [sys_nn.model.scaled_nn.nn.p => weights_flat],
                                (0.0, 2.0); fully_determined=true)
-        prob_zero = ODEProblem(sys_nn, [sys_nn.model.nn.p => zeros(length(weights_flat))],
+        prob_zero = ODEProblem(sys_nn, [sys_nn.model.scaled_nn.nn.p => zeros(length(weights_flat))],
                                (0.0, 2.0); fully_determined=true)
 
         sol_gt   = solve(prob_gt;   saveat=0.01)

@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestFHNWave5x5(; name, N, N_caps, N_h_res, N_v_res, N_bound)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -19,12 +21,13 @@
 """
 @component function TestFHNWave5x5(; name = nothing, N=5, N_caps=25, N_h_res=20, N_v_res=20, N_bound=20, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestFHNWave5x5()
+  """))
 
-        @named model = TestFHNWave5x5()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -44,11 +47,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -61,32 +64,28 @@
 
   ### Components
   # Subcomponent caps of type MakieWebinar.FHNCapacitor
-  caps_overrides = Dict(Symbol(replace(string(k), r"^caps__" => "")) => v for (k, v) in __overrides if startswith(string(k), "caps__"))
-  filter!(p -> !startswith(string(first(p)), "caps__"), __overrides)
+  caps_overrides = __pop_subcomponent_overrides!(__overrides, "caps")
   caps = System[]
   for i in 1:N_caps
-    push!(caps, MakieWebinar.FHNCapacitor(V=0.01, a=0.1, b=0.01, eps=0.01, name=Symbol("caps", "⸺", i), caps_overrides...))
+    push!(caps, MakieWebinar.FHNCapacitor(V=ModelingToolkit.default_to_parentscope(0.01), a=ModelingToolkit.default_to_parentscope(0.1), b=ModelingToolkit.default_to_parentscope(0.01), eps=ModelingToolkit.default_to_parentscope(0.01), name=Symbol("caps", "⸺", i), caps_overrides...))
   end
   append!(__systems, caps)
   # Subcomponent r_h of type MakieWebinar.DiffusionResistor
-  r_h_overrides = Dict(Symbol(replace(string(k), r"^r_h__" => "")) => v for (k, v) in __overrides if startswith(string(k), "r_h__"))
-  filter!(p -> !startswith(string(first(p)), "r_h__"), __overrides)
+  r_h_overrides = __pop_subcomponent_overrides!(__overrides, "r_h")
   r_h = System[]
   for i in 1:N_h_res
-    push!(r_h, MakieWebinar.DiffusionResistor(D=3, dx=0.1, A=0.1, name=Symbol("r_h", "⸺", i), r_h_overrides...))
+    push!(r_h, MakieWebinar.DiffusionResistor(D=ModelingToolkit.default_to_parentscope(3.0), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_h", "⸺", i), r_h_overrides...))
   end
   append!(__systems, r_h)
   # Subcomponent r_v of type MakieWebinar.DiffusionResistor
-  r_v_overrides = Dict(Symbol(replace(string(k), r"^r_v__" => "")) => v for (k, v) in __overrides if startswith(string(k), "r_v__"))
-  filter!(p -> !startswith(string(first(p)), "r_v__"), __overrides)
+  r_v_overrides = __pop_subcomponent_overrides!(__overrides, "r_v")
   r_v = System[]
   for i in 1:N_v_res
-    push!(r_v, MakieWebinar.DiffusionResistor(D=3, dx=0.1, A=0.1, name=Symbol("r_v", "⸺", i), r_v_overrides...))
+    push!(r_v, MakieWebinar.DiffusionResistor(D=ModelingToolkit.default_to_parentscope(3.0), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_v", "⸺", i), r_v_overrides...))
   end
   append!(__systems, r_v)
   # Subcomponent bounds of type MakieWebinar.ZeroFluxBoundary
-  bounds_overrides = Dict(Symbol(replace(string(k), r"^bounds__" => "")) => v for (k, v) in __overrides if startswith(string(k), "bounds__"))
-  filter!(p -> !startswith(string(first(p)), "bounds__"), __overrides)
+  bounds_overrides = __pop_subcomponent_overrides!(__overrides, "bounds")
   bounds = System[]
   for i in 1:N_bound
     push!(bounds, MakieWebinar.ZeroFluxBoundary(name=Symbol("bounds", "⸺", i), bounds_overrides...))
@@ -100,7 +99,7 @@
 
   ### Initialization Equations
   push!(__initialization_eqs, getproperty(caps[1], :u) ~ 0.6)
-  push!(__initialization_eqs, getproperty(caps[1], :v) ~ 0)
+  push!(__initialization_eqs, getproperty(caps[1], :v) ~ 0.0)
 
   ### Assertions
   __assertions = []
@@ -109,28 +108,28 @@
 
   ### Control Structures
   for row in 0:(N - 1)
-      for col in 0:(N - 2)
-            push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_h[row * (N - 1) + col + 1], :port_a)))
-            push!(__eqs, connect(getproperty(r_h[row * (N - 1) + col + 1], :port_b), getproperty(caps[row * N + col + 2], :port)))
-      end
+    for col in 0:(N - 2)
+      push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_h[row * (N - 1) + col + 1], :port_a)))
+      push!(__eqs, connect(getproperty(r_h[row * (N - 1) + col + 1], :port_b), getproperty(caps[row * N + col + 2], :port)))
+    end
   end
   for row in 0:(N - 2)
-      for col in 0:(N - 1)
-            push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_v[row * N + col + 1], :port_a)))
-            push!(__eqs, connect(getproperty(r_v[row * N + col + 1], :port_b), getproperty(caps[(row + 1) * N + col + 1], :port)))
-      end
+    for col in 0:(N - 1)
+      push!(__eqs, connect(getproperty(caps[row * N + col + 1], :port), getproperty(r_v[row * N + col + 1], :port_a)))
+      push!(__eqs, connect(getproperty(r_v[row * N + col + 1], :port_b), getproperty(caps[(row + 1) * N + col + 1], :port)))
+    end
   end
   for i in 2:N_caps
-      push!(__initialization_eqs, getproperty(caps[i], :u) ~ 0)
-      push!(__initialization_eqs, getproperty(caps[i], :v) ~ 0)
+    push!(__initialization_eqs, getproperty(caps[i], :u) ~ 0.0)
+    push!(__initialization_eqs, getproperty(caps[i], :v) ~ 0.0)
   end
   for row in 0:(N - 1)
-      push!(__eqs, connect(getproperty(caps[row * N + 1], :port), getproperty(bounds[row + 1], :port)))
-      push!(__eqs, connect(getproperty(caps[row * N + N], :port), getproperty(bounds[N + row + 1], :port)))
+    push!(__eqs, connect(getproperty(caps[row * N + 1], :port), getproperty(bounds[row + 1], :port)))
+    push!(__eqs, connect(getproperty(caps[row * N + N], :port), getproperty(bounds[N + row + 1], :port)))
   end
   for col in 0:(N - 1)
-      push!(__eqs, connect(getproperty(caps[col + 1], :port), getproperty(bounds[2 * N + col + 1], :port)))
-      push!(__eqs, connect(getproperty(caps[(N - 1) * N + col + 1], :port), getproperty(bounds[3 * N + col + 1], :port)))
+    push!(__eqs, connect(getproperty(caps[col + 1], :port), getproperty(bounds[2 * N + col + 1], :port)))
+    push!(__eqs, connect(getproperty(caps[(N - 1) * N + col + 1], :port), getproperty(bounds[3 * N + col + 1], :port)))
   end
 
   # Return completely constructed System

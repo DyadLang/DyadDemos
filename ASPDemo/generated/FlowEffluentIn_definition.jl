@@ -6,11 +6,11 @@
 
 @connector function FlowEffluentIn(; name=nothing)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
-
-        @named model = FlowEffluentIn()
-        """))
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FlowEffluentIn()
+  """))
   __params = Symbolics.SymbolicT[]
   __vars = @variables begin
     (Qe(t)::Real), [input = true]

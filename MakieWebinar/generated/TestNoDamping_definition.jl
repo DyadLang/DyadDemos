@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestNoDamping(; name)
 """
 @component function TestNoDamping(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestNoDamping()
+  """))
 
-        @named model = TestNoDamping()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,8 +54,7 @@
 
   ### Components
   # Subcomponent system of type MakieWebinar.ControlledOscillator
-  system_overrides = Dict(Symbol(replace(string(k), r"^system__" => "")) => v for (k, v) in __overrides if startswith(string(k), "system__"))
-  filter!(p -> !startswith(string(first(p)), "system__"), __overrides)
+  system_overrides = __pop_subcomponent_overrides!(__overrides, "system")
   push!(__systems, @named system = MakieWebinar.ControlledOscillator(pid_k=1e-10, pid_Td=1e-10, pid_y_max=1e-10, pid_y_min=-1e-10, system_overrides...))
 
   ### Check there are no unmatched overrides
@@ -62,7 +64,7 @@
 
   ### Initialization Equations
   push!(__initialization_eqs, system.mass.s ~ 0.5)
-  push!(__initialization_eqs, system.mass.v ~ 0)
+  push!(__initialization_eqs, system.mass.v ~ 0.0)
 
   ### Assertions
   __assertions = []

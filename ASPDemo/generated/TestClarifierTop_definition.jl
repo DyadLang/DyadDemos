@@ -4,23 +4,26 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestClarifierTop(; name)
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `Xf`         |                          | kg/m3  | 
+| ------------ | ----------------------------------- | ------ |
+| `Xf`         |                          | kg/m3  |
 """
 @component function TestClarifierTop(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestClarifierTop()
+  """))
 
-        @named model = TestClarifierTop()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,11 +43,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -60,13 +63,11 @@
 
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
-  source_overrides = Dict(Symbol(replace(string(k), r"^source__" => "")) => v for (k, v) in __overrides if startswith(string(k), "source__"))
-  filter!(p -> !startswith(string(first(p)), "source__"), __overrides)
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
   push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
   # Subcomponent top_layer of type ASPDemo.SecondaryClarifierTakacs_TopLayer
-  top_layer_overrides = Dict(Symbol(replace(string(k), r"^top_layer__" => "")) => v for (k, v) in __overrides if startswith(string(k), "top_layer__"))
-  filter!(p -> !startswith(string(first(p)), "top_layer__"), __overrides)
-  push!(__systems, @named top_layer = ASPDemo.SecondaryClarifierTakacs_TopLayer(zm=0.4, Asc=1500, Xt=3000, X_start=370.7094910985, soluble_start=[30, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 0.4924690064049, 3.763667982244], top_layer_overrides...))
+  top_layer_overrides = __pop_subcomponent_overrides!(__overrides, "top_layer")
+  push!(__systems, @named top_layer = ASPDemo.SecondaryClarifierTakacs_TopLayer(zm=0.4, Asc=1500, Xt=3000, X_start=370.7094910985, soluble_start=[30.0, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 0.4924690064049, 3.763667982244], top_layer_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -87,30 +88,30 @@
   push!(__eqs, top_layer.rXba ~ source.Xba / Xf)
   push!(__eqs, top_layer.rXp ~ source.Xp / Xf)
   push!(__eqs, top_layer.rXnd ~ source.Xnd / Xf)
-  push!(__eqs, source.Q_in ~ 21477)
-  push!(__eqs, source.Si ~ 30)
+  push!(__eqs, source.Q_in ~ 21477.0)
+  push!(__eqs, source.Si ~ 30.0)
   push!(__eqs, source.Ss ~ 63.63455)
   push!(__eqs, source.Xi ~ 58.476)
   push!(__eqs, source.Xs ~ 224.352)
   push!(__eqs, source.Xbh ~ 31.425)
-  push!(__eqs, source.Xba ~ 0)
-  push!(__eqs, source.Xp ~ 0)
-  push!(__eqs, source.So ~ 0)
-  push!(__eqs, source.Sno ~ 0)
+  push!(__eqs, source.Xba ~ 0.0)
+  push!(__eqs, source.Xp ~ 0.0)
+  push!(__eqs, source.So ~ 0.0)
+  push!(__eqs, source.Sno ~ 0.0)
   push!(__eqs, source.Snh ~ 30.24762)
   push!(__eqs, source.Snd ~ 6.36346)
   push!(__eqs, source.Xnd ~ 11.814)
-  push!(__eqs, source.Salk ~ 7)
+  push!(__eqs, source.Salk ~ 7.0)
   push!(__eqs, top_layer.Dn.vS_dn ~ 5)
   push!(__eqs, top_layer.Dn.X_dn ~ 370.7094910985)
-  push!(__eqs, top_layer.fDn.Qe ~ 0.1 * 21477)
-  push!(__eqs, top_layer.sDn.Si ~ 30)
+  push!(__eqs, top_layer.fDn.Qe ~ 0.1 * 21477.0)
+  push!(__eqs, top_layer.sDn.Si ~ 30.0)
   push!(__eqs, top_layer.sDn.Ss ~ 63.63455)
-  push!(__eqs, top_layer.sDn.So ~ 0)
-  push!(__eqs, top_layer.sDn.Sno ~ 0)
+  push!(__eqs, top_layer.sDn.So ~ 0.0)
+  push!(__eqs, top_layer.sDn.Sno ~ 0.0)
   push!(__eqs, top_layer.sDn.Snh ~ 30.24762)
   push!(__eqs, top_layer.sDn.Snd ~ 6.36346)
-  push!(__eqs, top_layer.sDn.Salk ~ 7)
+  push!(__eqs, top_layer.sDn.Salk ~ 7.0)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

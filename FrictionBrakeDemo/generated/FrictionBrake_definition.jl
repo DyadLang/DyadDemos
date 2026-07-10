@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    FrictionBrake(; name, R_effective, N_surfaces, N_wheels, F_normal_max, μ_0, α_T, T_ref, f_partition)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -23,31 +25,32 @@
 ## Connectors
 
  * `shaft` - This connector represents a rotational spline with angle and torque as the potential and flow variables, respectively. ([`Spline`](@ref))
- * `disk` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
- * `pad` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `disk` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `pad` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `brake_command` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `F_normal`         |                          | N  | 
-| `T_interface`         |                          | K  | 
-| `μ`         |                          | --  | 
-| `T_brake_single_surface`         |                          | N.m  | 
-| `T_brake_per_wheel`         |                          | N.m  | 
-| `T_brake_magnitude`         |                          | N.m  | 
-| `P_friction_total`         |                          | W  | 
-| `ω`         |                          | rad/s  | 
+| ------------ | ----------------------------------- | ------ |
+| `F_normal`         |                          | N  |
+| `T_interface`         |                          | K  |
+| `μ`         |                          | --  |
+| `T_brake_single_surface`         |                          | N.m  |
+| `T_brake_per_wheel`         |                          | N.m  |
+| `T_brake_magnitude`         |                          | N.m  |
+| `P_friction_total`         |                          | W  |
+| `ω`         |                          | rad/s  |
 """
 @component function FrictionBrake(; name = nothing, R_effective=0.15, N_surfaces=2, N_wheels=4, F_normal_max=Float64(5000), μ_0=0.4, α_T=0.0005, T_ref=293.15, f_partition=0.6, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FrictionBrake()
+  """))
 
-        @named model = FrictionBrake()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -66,8 +69,6 @@
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-
-  ### Final Parameters (assignments)
 
   ### Deferred assignment (default values that depend on final parameters)
 
@@ -96,6 +97,8 @@
   __local__f_partition = f_partition
   append!(__params, @parameters (f_partition::Real))
   __initial_conditions[f_partition] = __local__f_partition
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
   append!(__vars, @variables (brake_command(t)::Real), [input = true])

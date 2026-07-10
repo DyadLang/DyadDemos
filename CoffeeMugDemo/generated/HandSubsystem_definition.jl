@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HandSubsystem(; name, C_hand, T0_hand, G_contact)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `C_hand`         |                          | J/K  |   500 |
+| `C_hand`         |                          | J/K  |   500.0 |
 | `T0_hand`         |                          | K  |   310.15 |
 | `G_contact`         |                          | W/K  |   0.5 |
 
@@ -19,14 +21,15 @@
 
  * `cupContact` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function HandSubsystem(; name = nothing, C_hand=Float64(500), T0_hand=310.15, G_contact=0.5, kwargs...)
+@component function HandSubsystem(; name = nothing, C_hand=Float64(500.0), T0_hand=310.15, G_contact=0.5, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HandSubsystem()
+  """))
 
-        @named model = HandSubsystem()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -46,8 +49,6 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
@@ -61,6 +62,8 @@
   append!(__params, @parameters (G_contact::Real))
   __initial_conditions[G_contact] = __local__G_contact
 
+  ### Final Parameters (assignments)
+
   ### Final Path Parameters
 
   ### Variables (declarations)
@@ -73,12 +76,10 @@
   ### Components
   push!(__systems, @named cupContact = __Dyad__HeatPort())
   # Subcomponent handMass of type ThermalComponents.Components.HeatCapacitor
-  handMass_overrides = Dict(Symbol(replace(string(k), r"^handMass__" => "")) => v for (k, v) in __overrides if startswith(string(k), "handMass__"))
-  filter!(p -> !startswith(string(first(p)), "handMass__"), __overrides)
+  handMass_overrides = __pop_subcomponent_overrides!(__overrides, "handMass")
   push!(__systems, @named handMass = ThermalComponents.Components.HeatCapacitor(C=C_hand, T0=T0_hand, handMass_overrides...))
   # Subcomponent handContact of type ThermalComponents.Components.ThermalConductor
-  handContact_overrides = Dict(Symbol(replace(string(k), r"^handContact__" => "")) => v for (k, v) in __overrides if startswith(string(k), "handContact__"))
-  filter!(p -> !startswith(string(first(p)), "handContact__"), __overrides)
+  handContact_overrides = __pop_subcomponent_overrides!(__overrides, "handContact")
   push!(__systems, @named handContact = ThermalComponents.Components.ThermalConductor(G=G_contact, handContact_overrides...))
 
   ### Check there are no unmatched overrides

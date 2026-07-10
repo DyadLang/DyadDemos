@@ -4,17 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestSpringMassSystem(; name)
 """
 @component function TestSpringMassSystem(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestSpringMassSystem()
+  """))
 
-        @named model = TestSpringMassSystem()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,11 +37,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -51,12 +54,10 @@
 
   ### Components
   # Subcomponent step_force of type BlockComponents.Sources.Step
-  step_force_overrides = Dict(Symbol(replace(string(k), r"^step_force__" => "")) => v for (k, v) in __overrides if startswith(string(k), "step_force__"))
-  filter!(p -> !startswith(string(first(p)), "step_force__"), __overrides)
-  push!(__systems, @named step_force = BlockComponents.Sources.Step(height=5, offset=0, start_time=0.1, step_force_overrides...))
+  step_force_overrides = __pop_subcomponent_overrides!(__overrides, "step_force")
+  push!(__systems, @named step_force = BlockComponents.Sources.Step(height=5.0, offset=0.0, start_time=0.1, step_force_overrides...))
   # Subcomponent system of type MakieWebinar.SpringMassSystem
-  system_overrides = Dict(Symbol(replace(string(k), r"^system__" => "")) => v for (k, v) in __overrides if startswith(string(k), "system__"))
-  filter!(p -> !startswith(string(first(p)), "system__"), __overrides)
+  system_overrides = __pop_subcomponent_overrides!(__overrides, "system")
   push!(__systems, @named system = MakieWebinar.SpringMassSystem(system_overrides...))
 
   ### Check there are no unmatched overrides
@@ -65,8 +66,8 @@
   ### Guesses
 
   ### Initialization Equations
-  push!(__initialization_eqs, system.mass.s ~ 0)
-  push!(__initialization_eqs, system.mass.v ~ 0)
+  push!(__initialization_eqs, system.mass.s ~ 0.0)
+  push!(__initialization_eqs, system.mass.v ~ 0.0)
 
   ### Assertions
   __assertions = []

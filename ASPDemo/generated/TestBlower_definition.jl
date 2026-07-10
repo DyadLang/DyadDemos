@@ -4,23 +4,26 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestBlower(; name)
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `Q_air`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `Q_air`         |                          | --  |
 """
 @component function TestBlower(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestBlower()
+  """))
 
-        @named model = TestBlower()
-        """))
-  __overrides = Dict{String, Symbolics.SymbolicT}(string(k) => v for (k, v) in kwargs)
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,11 +43,11 @@
 
   ### Final Parameters (declarations)
 
-  ### Final Parameters (assignments)
-
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
+
+  ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
@@ -60,8 +63,7 @@
 
   ### Components
   # Subcomponent blower of type ASPDemo.Blower
-  blower_overrides = Dict(Symbol(replace(string(k), r"^blower__" => "")) => v for (k, v) in __overrides if startswith(string(k), "blower__"))
-  filter!(p -> !startswith(string(first(p)), "blower__"), __overrides)
+  blower_overrides = __pop_subcomponent_overrides!(__overrides, "blower")
   push!(__systems, @named blower = ASPDemo.Blower(blower_overrides...))
 
   ### Check there are no unmatched overrides
