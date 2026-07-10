@@ -3,6 +3,7 @@ Title = "Thermal House — building heating dynamics"
 Description = "Heat transfer through a building envelope with HVAC and weather-driven control."
 Tags = ["thermal", "components", "buildings"]
 Cover = "assets/icon.svg"
+Order = 2
 ```
 
 # Thermal House Demo

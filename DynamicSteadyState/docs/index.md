@@ -3,6 +3,7 @@ Title = "Dynamic Steady State — three-zone building"
 Description = "One building model reused for steady-state HVAC sizing and 24-hour transient operation."
 Tags = ["thermal", "buildings", "steady-state"]
 Cover = "assets/icon_three_zone_building.svg"
+Order = 3
 ```
 
 # Dynamic Steady State Demo
