@@ -1,0 +1,8 @@
+[deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DyadInterface = "99806f68-afab-45ca-9d8c-ceff6bc61f54"
+MakieWebinar = "0c910606-8410-48ea-b5e6-b6a751ad3471"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
+
+[sources]
+MakieWebinar = {path = ".."}
