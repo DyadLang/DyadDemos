@@ -1,5 +1,0 @@
-connector FlowEffluentOut
-  # Effluent Flow
-  output Qe::VolumeFlowRate
-metadata {"Dyad": {"icons": {"default": "dyad://ASPDemo/GenericOutPort2.svg"}}}
-end
