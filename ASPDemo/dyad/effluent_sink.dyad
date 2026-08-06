@@ -1,4 +1,0 @@
-component EffluentSink
-  port = FluidPortIn() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 350, "x2": 50, "y2": 450}}}}]
-  metadata {"Dyad": {"icons": {"default": "dyad://ASPDemo/EffluentSink.svg"}}}
-end
