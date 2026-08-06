@@ -59,8 +59,10 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_Q1 = pop!(__overrides, "Q1", nothing); isnothing(__ovr_Q1) || push!(__eqs, Q1 ~ __ovr_Q1)
   __ovr_Q1__initial = pop!(__overrides, "Q1__initial", nothing); isnothing(__ovr_Q1__initial) || (__initial_conditions[Q1] = __ovr_Q1__initial)
+  __ovr_Q1__guess = pop!(__overrides, "Q1__guess", nothing)
   __ovr_Q2 = pop!(__overrides, "Q2", nothing); isnothing(__ovr_Q2) || push!(__eqs, Q2 ~ __ovr_Q2)
   __ovr_Q2__initial = pop!(__overrides, "Q2__initial", nothing); isnothing(__ovr_Q2__initial) || (__initial_conditions[Q2] = __ovr_Q2__initial)
+  __ovr_Q2__guess = pop!(__overrides, "Q2__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -68,24 +70,26 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
   source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
-  push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
+  push!(__systems, @named source = ASPDemo.FlowSource(; source_overrides...))
   # Subcomponent divider of type ASPDemo.Divider2
   divider_overrides = __pop_subcomponent_overrides!(__overrides, "divider")
-  push!(__systems, @named divider = ASPDemo.Divider2(divider_overrides...))
+  push!(__systems, @named divider = ASPDemo.Divider2(; divider_overrides...))
   # Subcomponent sink of type ASPDemo.EffluentSink
   sink_overrides = __pop_subcomponent_overrides!(__overrides, "sink")
-  push!(__systems, @named sink = ASPDemo.EffluentSink(sink_overrides...))
+  push!(__systems, @named sink = ASPDemo.EffluentSink(; sink_overrides...))
   # Subcomponent pump of type ASPDemo.Pump
   pump_overrides = __pop_subcomponent_overrides!(__overrides, "pump")
-  push!(__systems, @named pump = ASPDemo.Pump(pump_overrides...))
+  push!(__systems, @named pump = ASPDemo.Pump(; pump_overrides...))
   # Subcomponent sink2 of type ASPDemo.EffluentSink
   sink2_overrides = __pop_subcomponent_overrides!(__overrides, "sink2")
-  push!(__systems, @named sink2 = ASPDemo.EffluentSink(sink2_overrides...))
+  push!(__systems, @named sink2 = ASPDemo.EffluentSink(; sink2_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_Q1__guess) || (__guesses[Q1] = __ovr_Q1__guess)
+  isnothing(__ovr_Q2__guess) || (__guesses[Q2] = __ovr_Q2__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, Q1 ~ 0)

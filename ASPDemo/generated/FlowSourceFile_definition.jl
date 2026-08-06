@@ -80,49 +80,49 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named port = ASPDemo.FluidPortOut())
   # Subcomponent Q_interp of type BlockComponents.Tables.Interpolation
   Q_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Q_interp")
-  push!(__systems, @named Q_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Q, Q_interp_overrides...))
+  push!(__systems, @named Q_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Q, Q_interp_overrides...))
   # Subcomponent Si_interp of type BlockComponents.Tables.Interpolation
   Si_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Si_interp")
-  push!(__systems, @named Si_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Si, Si_interp_overrides...))
+  push!(__systems, @named Si_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Si, Si_interp_overrides...))
   # Subcomponent Ss_interp of type BlockComponents.Tables.Interpolation
   Ss_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Ss_interp")
-  push!(__systems, @named Ss_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Ss, Ss_interp_overrides...))
+  push!(__systems, @named Ss_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Ss, Ss_interp_overrides...))
   # Subcomponent Xi_interp of type BlockComponents.Tables.Interpolation
   Xi_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xi_interp")
-  push!(__systems, @named Xi_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xi, Xi_interp_overrides...))
+  push!(__systems, @named Xi_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xi, Xi_interp_overrides...))
   # Subcomponent Xs_interp of type BlockComponents.Tables.Interpolation
   Xs_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xs_interp")
-  push!(__systems, @named Xs_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xs, Xs_interp_overrides...))
+  push!(__systems, @named Xs_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xs, Xs_interp_overrides...))
   # Subcomponent Xbh_interp of type BlockComponents.Tables.Interpolation
   Xbh_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xbh_interp")
-  push!(__systems, @named Xbh_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xbh, Xbh_interp_overrides...))
+  push!(__systems, @named Xbh_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xbh, Xbh_interp_overrides...))
   # Subcomponent Xba_interp of type BlockComponents.Tables.Interpolation
   Xba_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xba_interp")
-  push!(__systems, @named Xba_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xba, Xba_interp_overrides...))
+  push!(__systems, @named Xba_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xba, Xba_interp_overrides...))
   # Subcomponent Xp_interp of type BlockComponents.Tables.Interpolation
   Xp_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xp_interp")
-  push!(__systems, @named Xp_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xp, Xp_interp_overrides...))
+  push!(__systems, @named Xp_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xp, Xp_interp_overrides...))
   # Subcomponent So_interp of type BlockComponents.Tables.Interpolation
   So_interp_overrides = __pop_subcomponent_overrides!(__overrides, "So_interp")
-  push!(__systems, @named So_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_So, So_interp_overrides...))
+  push!(__systems, @named So_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_So, So_interp_overrides...))
   # Subcomponent Sno_interp of type BlockComponents.Tables.Interpolation
   Sno_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Sno_interp")
-  push!(__systems, @named Sno_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Sno, Sno_interp_overrides...))
+  push!(__systems, @named Sno_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Sno, Sno_interp_overrides...))
   # Subcomponent Snh_interp of type BlockComponents.Tables.Interpolation
   Snh_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Snh_interp")
-  push!(__systems, @named Snh_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Snh, Snh_interp_overrides...))
+  push!(__systems, @named Snh_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Snh, Snh_interp_overrides...))
   # Subcomponent Snd_interp of type BlockComponents.Tables.Interpolation
   Snd_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Snd_interp")
-  push!(__systems, @named Snd_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Snd, Snd_interp_overrides...))
+  push!(__systems, @named Snd_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Snd, Snd_interp_overrides...))
   # Subcomponent Xnd_interp of type BlockComponents.Tables.Interpolation
   Xnd_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Xnd_interp")
-  push!(__systems, @named Xnd_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xnd, Xnd_interp_overrides...))
+  push!(__systems, @named Xnd_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Xnd, Xnd_interp_overrides...))
   # Subcomponent Salk_interp of type BlockComponents.Tables.Interpolation
   Salk_interp_overrides = __pop_subcomponent_overrides!(__overrides, "Salk_interp")
-  push!(__systems, @named Salk_interp = BlockComponents.Tables.Interpolation(interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Salk, Salk_interp_overrides...))
+  push!(__systems, @named Salk_interp = BlockComponents.Tables.Interpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=dataset_Salk, Salk_interp_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

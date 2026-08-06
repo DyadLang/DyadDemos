@@ -98,18 +98,25 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_Xf = pop!(__overrides, "Xf", nothing); isnothing(__ovr_Xf) || push!(__eqs, Xf ~ __ovr_Xf)
   __ovr_Xf__initial = pop!(__overrides, "Xf__initial", nothing); isnothing(__ovr_Xf__initial) || (__initial_conditions[Xf] = __ovr_Xf__initial)
+  __ovr_Xf__guess = pop!(__overrides, "Xf__guess", nothing)
   __ovr_rXi = pop!(__overrides, "rXi", nothing); isnothing(__ovr_rXi) || push!(__eqs, rXi ~ __ovr_rXi)
   __ovr_rXi__initial = pop!(__overrides, "rXi__initial", nothing); isnothing(__ovr_rXi__initial) || (__initial_conditions[rXi] = __ovr_rXi__initial)
+  __ovr_rXi__guess = pop!(__overrides, "rXi__guess", nothing)
   __ovr_rXs = pop!(__overrides, "rXs", nothing); isnothing(__ovr_rXs) || push!(__eqs, rXs ~ __ovr_rXs)
   __ovr_rXs__initial = pop!(__overrides, "rXs__initial", nothing); isnothing(__ovr_rXs__initial) || (__initial_conditions[rXs] = __ovr_rXs__initial)
+  __ovr_rXs__guess = pop!(__overrides, "rXs__guess", nothing)
   __ovr_rXbh = pop!(__overrides, "rXbh", nothing); isnothing(__ovr_rXbh) || push!(__eqs, rXbh ~ __ovr_rXbh)
   __ovr_rXbh__initial = pop!(__overrides, "rXbh__initial", nothing); isnothing(__ovr_rXbh__initial) || (__initial_conditions[rXbh] = __ovr_rXbh__initial)
+  __ovr_rXbh__guess = pop!(__overrides, "rXbh__guess", nothing)
   __ovr_rXba = pop!(__overrides, "rXba", nothing); isnothing(__ovr_rXba) || push!(__eqs, rXba ~ __ovr_rXba)
   __ovr_rXba__initial = pop!(__overrides, "rXba__initial", nothing); isnothing(__ovr_rXba__initial) || (__initial_conditions[rXba] = __ovr_rXba__initial)
+  __ovr_rXba__guess = pop!(__overrides, "rXba__guess", nothing)
   __ovr_rXp = pop!(__overrides, "rXp", nothing); isnothing(__ovr_rXp) || push!(__eqs, rXp ~ __ovr_rXp)
   __ovr_rXp__initial = pop!(__overrides, "rXp__initial", nothing); isnothing(__ovr_rXp__initial) || (__initial_conditions[rXp] = __ovr_rXp__initial)
+  __ovr_rXp__guess = pop!(__overrides, "rXp__guess", nothing)
   __ovr_rXnd = pop!(__overrides, "rXnd", nothing); isnothing(__ovr_rXnd) || push!(__eqs, rXnd ~ __ovr_rXnd)
   __ovr_rXnd__initial = pop!(__overrides, "rXnd__initial", nothing); isnothing(__ovr_rXnd__initial) || (__initial_conditions[rXnd] = __ovr_rXnd__initial)
+  __ovr_rXnd__guess = pop!(__overrides, "rXnd__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -121,39 +128,46 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named effluent = ASPDemo.FluidPortOut())
   # Subcomponent S10 of type ASPDemo.SecondaryClarifierTakacs_TopLayer
   S10_overrides = __pop_subcomponent_overrides!(__overrides, "S10")
-  push!(__systems, @named S10 = ASPDemo.SecondaryClarifierTakacs_TopLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=12.75536445419, soluble_start=[30.0, 1.315923153747, 1.999997854492, 15.97856572461, 2.659914027399, 0.5157153781401, 3.865860459171], S10_overrides...))
+  push!(__systems, @named S10 = ASPDemo.SecondaryClarifierTakacs_TopLayer(; zm=zm, Asc=Asc, Xt=Xt, X_start=12.75536445419, soluble_start=[Float64(30.0), 1.315923153747, 1.999997854492, 15.97856572461, 2.659914027399, 0.5157153781401, 3.865860459171], S10_overrides...))
   # Subcomponent S9 of type ASPDemo.SecondaryClarifierTakacs_UpperLayer
   S9_overrides = __pop_subcomponent_overrides!(__overrides, "S9")
-  push!(__systems, @named S9 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=18.63693081583, soluble_start=[30.0, 1.326501630233, 1.99999851092, 15.75300220995, 3.014297581126, 0.5192990500291, 3.893271573616], S9_overrides...))
+  push!(__systems, @named S9 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(; zm=zm, Asc=Asc, Xt=Xt, X_start=18.63693081583, soluble_start=[Float64(30.0), 1.326501630233, 1.99999851092, 15.75300220995, 3.014297581126, 0.5192990500291, 3.893271573616], S9_overrides...))
   # Subcomponent S8 of type ASPDemo.SecondaryClarifierTakacs_UpperLayer
   S8_overrides = __pop_subcomponent_overrides!(__overrides, "S8")
-  push!(__systems, @named S8 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=30.82070988771, soluble_start=[30.0, 1.31140468971, 2.000000119719, 15.73179778908, 3.309840625819, 0.5156280775302, 3.8920005823], S8_overrides...))
+  push!(__systems, @named S8 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(; zm=zm, Asc=Asc, Xt=Xt, X_start=30.82070988771, soluble_start=[Float64(30.0), 1.31140468971, 2.000000119719, 15.73179778908, 3.309840625819, 0.5156280775302, 3.8920005823], S8_overrides...))
   # Subcomponent S7 of type ASPDemo.SecondaryClarifierTakacs_UpperLayer
   S7_overrides = __pop_subcomponent_overrides!(__overrides, "S7")
-  push!(__systems, @named S7 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(zm=zm, Asc=Asc, Xt=Xt, X_start=73.77320137134, soluble_start=[30.0, 1.269543710665, 2.000001062187, 16.03779083408, 3.350596024011, 0.5029453608766, 3.844215940355], S7_overrides...))
+  push!(__systems, @named S7 = ASPDemo.SecondaryClarifierTakacs_UpperLayer(; zm=zm, Asc=Asc, Xt=Xt, X_start=73.77320137134, soluble_start=[Float64(30.0), 1.269543710665, 2.000001062187, 16.03779083408, 3.350596024011, 0.5029453608766, 3.844215940355], S7_overrides...))
   # Subcomponent S6 of type ASPDemo.SecondaryClarifierTakacs_FeedLayer
   S6_overrides = __pop_subcomponent_overrides!(__overrides, "S6")
-  push!(__systems, @named S6 = ASPDemo.SecondaryClarifierTakacs_FeedLayer(zm=zm, Asc=Asc, X_start=370.7094910985, soluble_start=[30.0, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 4.924690064049, 3.763667982244], S6_overrides...))
+  push!(__systems, @named S6 = ASPDemo.SecondaryClarifierTakacs_FeedLayer(; zm=zm, Asc=Asc, X_start=370.7094910985, soluble_start=[Float64(30.0), 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 4.924690064049, 3.763667982244], S6_overrides...))
   # Subcomponent S5 of type ASPDemo.SecondaryClarifierTakacs_LowerLayer
   S5_overrides = __pop_subcomponent_overrides!(__overrides, "S5")
-  push!(__systems, @named S5 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=392.7733554733, soluble_start=[30.0, 1.269942550715, 2.000001082463, 16.0322558508, 3.353479657344, 0.5030845728215, 3.845018683832], S5_overrides...))
+  push!(__systems, @named S5 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(; zm=zm, Asc=Asc, X_start=392.7733554733, soluble_start=[Float64(30.0), 1.269942550715, 2.000001082463, 16.0322558508, 3.353479657344, 0.5030845728215, 3.845018683832], S5_overrides...))
   # Subcomponent S4 of type ASPDemo.SecondaryClarifierTakacs_LowerLayer
   S4_overrides = __pop_subcomponent_overrides!(__overrides, "S4")
-  push!(__systems, @named S4 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=365.8163924836, soluble_start=[30.0, 1.312069378217, 2.000000137779, 15.72405217982, 3.311901710677, 0.5158389625268, 3.893033083113], S4_overrides...))
+  push!(__systems, @named S4 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(; zm=zm, Asc=Asc, X_start=365.8163924836, soluble_start=[Float64(30.0), 1.312069378217, 2.000000137779, 15.72405217982, 3.311901710677, 0.5158389625268, 3.893033083113], S4_overrides...))
   # Subcomponent S3 of type ASPDemo.SecondaryClarifierTakacs_LowerLayer
   S3_overrides = __pop_subcomponent_overrides!(__overrides, "S3")
-  push!(__systems, @named S3 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=353.5368422348, soluble_start=[30.0, 1.326304062865, 1.999998505695, 15.743217636, 3.005628887378, 0.5192334322417, 3.89445662454], S3_overrides...))
+  push!(__systems, @named S3 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(; zm=zm, Asc=Asc, X_start=353.5368422348, soluble_start=[Float64(30.0), 1.326304062865, 1.999998505695, 15.743217636, 3.005628887378, 0.5192334322417, 3.89445662454], S3_overrides...))
   # Subcomponent S2 of type ASPDemo.SecondaryClarifierTakacs_LowerLayer
   S2_overrides = __pop_subcomponent_overrides!(__overrides, "S2")
-  push!(__systems, @named S2 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(zm=zm, Asc=Asc, X_start=385.8534185097, soluble_start=[30.0, 1.313469109476, 1.999997808673, 15.96796727152, 2.620688498604, 0.5149498956479, 3.866969541077], S2_overrides...))
+  push!(__systems, @named S2 = ASPDemo.SecondaryClarifierTakacs_LowerLayer(; zm=zm, Asc=Asc, X_start=385.8534185097, soluble_start=[Float64(30.0), 1.313469109476, 1.999997808673, 15.96796727152, 2.620688498604, 0.5149498956479, 3.866969541077], S2_overrides...))
   # Subcomponent S1 of type ASPDemo.SecondaryClarifierTakacs_BottomLayer
   S1_overrides = __pop_subcomponent_overrides!(__overrides, "S1")
-  push!(__systems, @named S1 = ASPDemo.SecondaryClarifierTakacs_BottomLayer(zm=zm, Asc=Asc, X_start=6424.263681363, soluble_start=[30.0, 1.295030132149, 1.999998370446, 16.2347354737, 2.356727799827, 0.5097661184448, 3.83347219006], S1_overrides...))
+  push!(__systems, @named S1 = ASPDemo.SecondaryClarifierTakacs_BottomLayer(; zm=zm, Asc=Asc, X_start=6424.263681363, soluble_start=[Float64(30.0), 1.295030132149, 1.999998370446, 16.2347354737, 2.356727799827, 0.5097661184448, 3.83347219006], S1_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_Xf__guess) || (__guesses[Xf] = __ovr_Xf__guess)
+  isnothing(__ovr_rXi__guess) || (__guesses[rXi] = __ovr_rXi__guess)
+  isnothing(__ovr_rXs__guess) || (__guesses[rXs] = __ovr_rXs__guess)
+  isnothing(__ovr_rXbh__guess) || (__guesses[rXbh] = __ovr_rXbh__guess)
+  isnothing(__ovr_rXba__guess) || (__guesses[rXba] = __ovr_rXba__guess)
+  isnothing(__ovr_rXp__guess) || (__guesses[rXp] = __ovr_rXp__guess)
+  isnothing(__ovr_rXnd__guess) || (__guesses[rXnd] = __ovr_rXnd__guess)
 
   ### Initialization Equations
 

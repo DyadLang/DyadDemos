@@ -33,7 +33,7 @@ import Moshi as __Ext__Moshi
 | `aeration`         |                          | --  |
 | `Q`         |                          | --  |
 """
-@component function Denitrification(; name = nothing, nS=13, V=Float64(1000), states_start=[30.0, 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], medium=ASM1(), kwargs...)
+@component function Denitrification(; name = nothing, nS=13, V=Float64(1000), states_start=[Float64(30.0), 5.74430086502, 1114.625044801, 105.6484783737, 2563.306641801, 103.2778829295, 432.1781192137, 0.004776381995772, 1.736044358829, 18.41130239895, 1.046350972054, 6.244453916847, 5.956124593796], medium=ASM1(), kwargs...)
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -88,12 +88,16 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_states = pop!(__overrides, "states", nothing); isnothing(__ovr_states) || push!(__eqs, states ~ __ovr_states)
   __ovr_states__initial = pop!(__overrides, "states__initial", nothing); isnothing(__ovr_states__initial) || (__initial_conditions[states] = __ovr_states__initial)
+  __ovr_states__guess = pop!(__overrides, "states__guess", nothing)
   __ovr_r = pop!(__overrides, "r", nothing); isnothing(__ovr_r) || push!(__eqs, r ~ __ovr_r)
   __ovr_r__initial = pop!(__overrides, "r__initial", nothing); isnothing(__ovr_r__initial) || (__initial_conditions[r] = __ovr_r__initial)
+  __ovr_r__guess = pop!(__overrides, "r__guess", nothing)
   __ovr_aeration = pop!(__overrides, "aeration", nothing); isnothing(__ovr_aeration) || push!(__eqs, aeration ~ __ovr_aeration)
   __ovr_aeration__initial = pop!(__overrides, "aeration__initial", nothing); isnothing(__ovr_aeration__initial) || (__initial_conditions[aeration] = __ovr_aeration__initial)
+  __ovr_aeration__guess = pop!(__overrides, "aeration__guess", nothing)
   __ovr_Q = pop!(__overrides, "Q", nothing); isnothing(__ovr_Q) || push!(__eqs, Q ~ __ovr_Q)
   __ovr_Q__initial = pop!(__overrides, "Q__initial", nothing); isnothing(__ovr_Q__initial) || (__initial_conditions[Q] = __ovr_Q__initial)
+  __ovr_Q__guess = pop!(__overrides, "Q__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -103,9 +107,13 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named portOut = ASPDemo.FluidPortOut())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_states__guess) || (__guesses[states] = __ovr_states__guess)
+  isnothing(__ovr_r__guess) || (__guesses[r] = __ovr_r__guess)
+  isnothing(__ovr_aeration__guess) || (__guesses[aeration] = __ovr_aeration__guess)
+  isnothing(__ovr_Q__guess) || (__guesses[Q] = __ovr_Q__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, states ~ states_start)

@@ -57,6 +57,7 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_Q = pop!(__overrides, "Q", nothing); isnothing(__ovr_Q) || push!(__eqs, Q ~ __ovr_Q)
   __ovr_Q__initial = pop!(__overrides, "Q__initial", nothing); isnothing(__ovr_Q__initial) || (__initial_conditions[Q] = __ovr_Q__initial)
+  __ovr_Q__guess = pop!(__overrides, "Q__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -64,18 +65,19 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent source of type ASPDemo.WWSource
   source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
-  push!(__systems, @named source = ASPDemo.WWSource(source_overrides...))
+  push!(__systems, @named source = ASPDemo.WWSource(; source_overrides...))
   # Subcomponent pump of type ASPDemo.Pump
   pump_overrides = __pop_subcomponent_overrides!(__overrides, "pump")
-  push!(__systems, @named pump = ASPDemo.Pump(pump_overrides...))
+  push!(__systems, @named pump = ASPDemo.Pump(; pump_overrides...))
   # Subcomponent sink of type ASPDemo.EffluentSink
   sink_overrides = __pop_subcomponent_overrides!(__overrides, "sink")
-  push!(__systems, @named sink = ASPDemo.EffluentSink(sink_overrides...))
+  push!(__systems, @named sink = ASPDemo.EffluentSink(; sink_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_Q__guess) || (__guesses[Q] = __ovr_Q__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, Q ~ 0)

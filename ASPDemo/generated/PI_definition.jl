@@ -85,8 +85,10 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_u = pop!(__overrides, "u", nothing); isnothing(__ovr_u) || push!(__eqs, u ~ __ovr_u)
   __ovr_u__initial = pop!(__overrides, "u__initial", nothing); isnothing(__ovr_u__initial) || (__initial_conditions[u] = __ovr_u__initial)
+  __ovr_u__guess = pop!(__overrides, "u__guess", nothing)
   __ovr_x = pop!(__overrides, "x", nothing); isnothing(__ovr_x) || push!(__eqs, x ~ __ovr_x)
   __ovr_x__initial = pop!(__overrides, "x__initial", nothing); isnothing(__ovr_x__initial) || (__initial_conditions[x] = __ovr_x__initial)
+  __ovr_x__guess = pop!(__overrides, "x__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -94,9 +96,11 @@ import Moshi as __Ext__Moshi
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_u__guess) || (__guesses[u] = __ovr_u__guess)
+  isnothing(__ovr_x__guess) || (__guesses[x] = __ovr_x__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, x ~ x_start)

@@ -57,6 +57,7 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_Q_air = pop!(__overrides, "Q_air", nothing); isnothing(__ovr_Q_air) || push!(__eqs, Q_air ~ __ovr_Q_air)
   __ovr_Q_air__initial = pop!(__overrides, "Q_air__initial", nothing); isnothing(__ovr_Q_air__initial) || (__initial_conditions[Q_air] = __ovr_Q_air__initial)
+  __ovr_Q_air__guess = pop!(__overrides, "Q_air__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -64,12 +65,13 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent blower of type ASPDemo.Blower
   blower_overrides = __pop_subcomponent_overrides!(__overrides, "blower")
-  push!(__systems, @named blower = ASPDemo.Blower(blower_overrides...))
+  push!(__systems, @named blower = ASPDemo.Blower(; blower_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_Q_air__guess) || (__guesses[Q_air] = __ovr_Q_air__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, Q_air ~ 0)

@@ -57,6 +57,7 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_Xf = pop!(__overrides, "Xf", nothing); isnothing(__ovr_Xf) || push!(__eqs, Xf ~ __ovr_Xf)
   __ovr_Xf__initial = pop!(__overrides, "Xf__initial", nothing); isnothing(__ovr_Xf__initial) || (__initial_conditions[Xf] = __ovr_Xf__initial)
+  __ovr_Xf__guess = pop!(__overrides, "Xf__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -64,15 +65,16 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
   source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
-  push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
+  push!(__systems, @named source = ASPDemo.FlowSource(; source_overrides...))
   # Subcomponent bottom_layer of type ASPDemo.SecondaryClarifierTakacs_BottomLayer
   bottom_layer_overrides = __pop_subcomponent_overrides!(__overrides, "bottom_layer")
-  push!(__systems, @named bottom_layer = ASPDemo.SecondaryClarifierTakacs_BottomLayer(zm=0.4, Asc=1500, X_start=370.7094910985, soluble_start=[30.0, 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 0.4924690064049, 3.763667982244], bottom_layer_overrides...))
+  push!(__systems, @named bottom_layer = ASPDemo.SecondaryClarifierTakacs_BottomLayer(; zm=0.4, Asc=Float64(1500), X_start=370.7094910985, soluble_start=[Float64(30.0), 1.241568688152, 1.999999828995, 16.56542580977, 3.157645899664, 0.4924690064049, 3.763667982244], bottom_layer_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_Xf__guess) || (__guesses[Xf] = __ovr_Xf__guess)
 
   ### Initialization Equations
 

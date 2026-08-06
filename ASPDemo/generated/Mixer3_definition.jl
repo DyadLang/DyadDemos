@@ -70,12 +70,16 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_Q1 = pop!(__overrides, "Q1", nothing); isnothing(__ovr_Q1) || push!(__eqs, Q1 ~ __ovr_Q1)
   __ovr_Q1__initial = pop!(__overrides, "Q1__initial", nothing); isnothing(__ovr_Q1__initial) || (__initial_conditions[Q1] = __ovr_Q1__initial)
+  __ovr_Q1__guess = pop!(__overrides, "Q1__guess", nothing)
   __ovr_Q2 = pop!(__overrides, "Q2", nothing); isnothing(__ovr_Q2) || push!(__eqs, Q2 ~ __ovr_Q2)
   __ovr_Q2__initial = pop!(__overrides, "Q2__initial", nothing); isnothing(__ovr_Q2__initial) || (__initial_conditions[Q2] = __ovr_Q2__initial)
+  __ovr_Q2__guess = pop!(__overrides, "Q2__guess", nothing)
   __ovr_Q3 = pop!(__overrides, "Q3", nothing); isnothing(__ovr_Q3) || push!(__eqs, Q3 ~ __ovr_Q3)
   __ovr_Q3__initial = pop!(__overrides, "Q3__initial", nothing); isnothing(__ovr_Q3__initial) || (__initial_conditions[Q3] = __ovr_Q3__initial)
+  __ovr_Q3__guess = pop!(__overrides, "Q3__guess", nothing)
   __ovr_Q_tot = pop!(__overrides, "Q_tot", nothing); isnothing(__ovr_Q_tot) || push!(__eqs, Q_tot ~ __ovr_Q_tot)
   __ovr_Q_tot__initial = pop!(__overrides, "Q_tot__initial", nothing); isnothing(__ovr_Q_tot__initial) || (__initial_conditions[Q_tot] = __ovr_Q_tot__initial)
+  __ovr_Q_tot__guess = pop!(__overrides, "Q_tot__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -87,9 +91,13 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named portOut = ASPDemo.FluidPortOut())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_Q1__guess) || (__guesses[Q1] = __ovr_Q1__guess)
+  isnothing(__ovr_Q2__guess) || (__guesses[Q2] = __ovr_Q2__guess)
+  isnothing(__ovr_Q3__guess) || (__guesses[Q3] = __ovr_Q3__guess)
+  isnothing(__ovr_Q_tot__guess) || (__guesses[Q_tot] = __ovr_Q_tot__guess)
 
   ### Initialization Equations
 

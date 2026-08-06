@@ -55,22 +55,22 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
   source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
-  push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
+  push!(__systems, @named source = ASPDemo.FlowSource(; source_overrides...))
   # Subcomponent source2 of type ASPDemo.FlowSource
   source2_overrides = __pop_subcomponent_overrides!(__overrides, "source2")
-  push!(__systems, @named source2 = ASPDemo.FlowSource(source2_overrides...))
+  push!(__systems, @named source2 = ASPDemo.FlowSource(; source2_overrides...))
   # Subcomponent source3 of type ASPDemo.FlowSource
   source3_overrides = __pop_subcomponent_overrides!(__overrides, "source3")
-  push!(__systems, @named source3 = ASPDemo.FlowSource(source3_overrides...))
+  push!(__systems, @named source3 = ASPDemo.FlowSource(; source3_overrides...))
   # Subcomponent mixer of type ASPDemo.Mixer3
   mixer_overrides = __pop_subcomponent_overrides!(__overrides, "mixer")
-  push!(__systems, @named mixer = ASPDemo.Mixer3(mixer_overrides...))
+  push!(__systems, @named mixer = ASPDemo.Mixer3(; mixer_overrides...))
   # Subcomponent sink of type ASPDemo.EffluentSink
   sink_overrides = __pop_subcomponent_overrides!(__overrides, "sink")
-  push!(__systems, @named sink = ASPDemo.EffluentSink(sink_overrides...))
+  push!(__systems, @named sink = ASPDemo.EffluentSink(; sink_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

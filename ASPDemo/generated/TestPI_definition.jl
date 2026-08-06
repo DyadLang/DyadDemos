@@ -55,10 +55,10 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent PI of type ASPDemo.PI
   PI_overrides = __pop_subcomponent_overrides!(__overrides, "PI")
-  push!(__systems, @named PI = ASPDemo.PI(PI_overrides...))
+  push!(__systems, @named PI = ASPDemo.PI(; PI_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

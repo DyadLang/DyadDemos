@@ -55,16 +55,16 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent source of type ASPDemo.FlowSource
   source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
-  push!(__systems, @named source = ASPDemo.FlowSource(source_overrides...))
+  push!(__systems, @named source = ASPDemo.FlowSource(; source_overrides...))
   # Subcomponent preclar of type ASPDemo.PrimaryClarifierStatic
   preclar_overrides = __pop_subcomponent_overrides!(__overrides, "preclar")
-  push!(__systems, @named preclar = ASPDemo.PrimaryClarifierStatic(preclar_overrides...))
+  push!(__systems, @named preclar = ASPDemo.PrimaryClarifierStatic(; preclar_overrides...))
   # Subcomponent sink of type ASPDemo.EffluentSink
   sink_overrides = __pop_subcomponent_overrides!(__overrides, "sink")
-  push!(__systems, @named sink = ASPDemo.EffluentSink(sink_overrides...))
+  push!(__systems, @named sink = ASPDemo.EffluentSink(; sink_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

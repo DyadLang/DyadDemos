@@ -123,24 +123,34 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_X = pop!(__overrides, "X", nothing); isnothing(__ovr_X) || push!(__eqs, X ~ __ovr_X)
   __ovr_X__initial = pop!(__overrides, "X__initial", nothing); isnothing(__ovr_X__initial) || (__initial_conditions[X] = __ovr_X__initial)
+  __ovr_X__guess = pop!(__overrides, "X__guess", nothing)
   __ovr_vS = pop!(__overrides, "vS", nothing); isnothing(__ovr_vS) || push!(__eqs, vS ~ __ovr_vS)
   __ovr_vS__initial = pop!(__overrides, "vS__initial", nothing); isnothing(__ovr_vS__initial) || (__initial_conditions[vS] = __ovr_vS__initial)
+  __ovr_vS__guess = pop!(__overrides, "vS__guess", nothing)
   __ovr_Jsm = pop!(__overrides, "Jsm", nothing); isnothing(__ovr_Jsm) || push!(__eqs, Jsm ~ __ovr_Jsm)
   __ovr_Jsm__initial = pop!(__overrides, "Jsm__initial", nothing); isnothing(__ovr_Jsm__initial) || (__initial_conditions[Jsm] = __ovr_Jsm__initial)
+  __ovr_Jsm__guess = pop!(__overrides, "Jsm__guess", nothing)
   __ovr_Si = pop!(__overrides, "Si", nothing); isnothing(__ovr_Si) || push!(__eqs, Si ~ __ovr_Si)
   __ovr_Si__initial = pop!(__overrides, "Si__initial", nothing); isnothing(__ovr_Si__initial) || (__initial_conditions[Si] = __ovr_Si__initial)
+  __ovr_Si__guess = pop!(__overrides, "Si__guess", nothing)
   __ovr_Ss = pop!(__overrides, "Ss", nothing); isnothing(__ovr_Ss) || push!(__eqs, Ss ~ __ovr_Ss)
   __ovr_Ss__initial = pop!(__overrides, "Ss__initial", nothing); isnothing(__ovr_Ss__initial) || (__initial_conditions[Ss] = __ovr_Ss__initial)
+  __ovr_Ss__guess = pop!(__overrides, "Ss__guess", nothing)
   __ovr_So = pop!(__overrides, "So", nothing); isnothing(__ovr_So) || push!(__eqs, So ~ __ovr_So)
   __ovr_So__initial = pop!(__overrides, "So__initial", nothing); isnothing(__ovr_So__initial) || (__initial_conditions[So] = __ovr_So__initial)
+  __ovr_So__guess = pop!(__overrides, "So__guess", nothing)
   __ovr_Sno = pop!(__overrides, "Sno", nothing); isnothing(__ovr_Sno) || push!(__eqs, Sno ~ __ovr_Sno)
   __ovr_Sno__initial = pop!(__overrides, "Sno__initial", nothing); isnothing(__ovr_Sno__initial) || (__initial_conditions[Sno] = __ovr_Sno__initial)
+  __ovr_Sno__guess = pop!(__overrides, "Sno__guess", nothing)
   __ovr_Snh = pop!(__overrides, "Snh", nothing); isnothing(__ovr_Snh) || push!(__eqs, Snh ~ __ovr_Snh)
   __ovr_Snh__initial = pop!(__overrides, "Snh__initial", nothing); isnothing(__ovr_Snh__initial) || (__initial_conditions[Snh] = __ovr_Snh__initial)
+  __ovr_Snh__guess = pop!(__overrides, "Snh__guess", nothing)
   __ovr_Snd = pop!(__overrides, "Snd", nothing); isnothing(__ovr_Snd) || push!(__eqs, Snd ~ __ovr_Snd)
   __ovr_Snd__initial = pop!(__overrides, "Snd__initial", nothing); isnothing(__ovr_Snd__initial) || (__initial_conditions[Snd] = __ovr_Snd__initial)
+  __ovr_Snd__guess = pop!(__overrides, "Snd__guess", nothing)
   __ovr_Salk = pop!(__overrides, "Salk", nothing); isnothing(__ovr_Salk) || push!(__eqs, Salk ~ __ovr_Salk)
   __ovr_Salk__initial = pop!(__overrides, "Salk__initial", nothing); isnothing(__ovr_Salk__initial) || (__initial_conditions[Salk] = __ovr_Salk__initial)
+  __ovr_Salk__guess = pop!(__overrides, "Salk__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -154,9 +164,19 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named soluble = ASPDemo.SolubleOut())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_X__guess) || (__guesses[X] = __ovr_X__guess)
+  isnothing(__ovr_vS__guess) || (__guesses[vS] = __ovr_vS__guess)
+  isnothing(__ovr_Jsm__guess) || (__guesses[Jsm] = __ovr_Jsm__guess)
+  isnothing(__ovr_Si__guess) || (__guesses[Si] = __ovr_Si__guess)
+  isnothing(__ovr_Ss__guess) || (__guesses[Ss] = __ovr_Ss__guess)
+  isnothing(__ovr_So__guess) || (__guesses[So] = __ovr_So__guess)
+  isnothing(__ovr_Sno__guess) || (__guesses[Sno] = __ovr_Sno__guess)
+  isnothing(__ovr_Snh__guess) || (__guesses[Snh] = __ovr_Snh__guess)
+  isnothing(__ovr_Snd__guess) || (__guesses[Snd] = __ovr_Snd__guess)
+  isnothing(__ovr_Salk__guess) || (__guesses[Salk] = __ovr_Salk__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, X ~ X_start)

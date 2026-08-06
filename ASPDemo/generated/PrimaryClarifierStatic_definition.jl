@@ -85,20 +85,28 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_hrt_h = pop!(__overrides, "hrt_h", nothing); isnothing(__ovr_hrt_h) || push!(__eqs, hrt_h ~ __ovr_hrt_h)
   __ovr_hrt_h__initial = pop!(__overrides, "hrt_h__initial", nothing); isnothing(__ovr_hrt_h__initial) || (__initial_conditions[hrt_h] = __ovr_hrt_h__initial)
+  __ovr_hrt_h__guess = pop!(__overrides, "hrt_h__guess", nothing)
   __ovr_n_COD = pop!(__overrides, "n_COD", nothing); isnothing(__ovr_n_COD) || push!(__eqs, n_COD ~ __ovr_n_COD)
   __ovr_n_COD__initial = pop!(__overrides, "n_COD__initial", nothing); isnothing(__ovr_n_COD__initial) || (__initial_conditions[n_COD] = __ovr_n_COD__initial)
+  __ovr_n_COD__guess = pop!(__overrides, "n_COD__guess", nothing)
   __ovr_n_X = pop!(__overrides, "n_X", nothing); isnothing(__ovr_n_X) || push!(__eqs, n_X ~ __ovr_n_X)
   __ovr_n_X__initial = pop!(__overrides, "n_X__initial", nothing); isnothing(__ovr_n_X__initial) || (__initial_conditions[n_X] = __ovr_n_X__initial)
+  __ovr_n_X__guess = pop!(__overrides, "n_X__guess", nothing)
   __ovr_CODin = pop!(__overrides, "CODin", nothing); isnothing(__ovr_CODin) || push!(__eqs, CODin ~ __ovr_CODin)
   __ovr_CODin__initial = pop!(__overrides, "CODin__initial", nothing); isnothing(__ovr_CODin__initial) || (__initial_conditions[CODin] = __ovr_CODin__initial)
+  __ovr_CODin__guess = pop!(__overrides, "CODin__guess", nothing)
   __ovr_CODout = pop!(__overrides, "CODout", nothing); isnothing(__ovr_CODout) || push!(__eqs, CODout ~ __ovr_CODout)
   __ovr_CODout__initial = pop!(__overrides, "CODout__initial", nothing); isnothing(__ovr_CODout__initial) || (__initial_conditions[CODout] = __ovr_CODout__initial)
+  __ovr_CODout__guess = pop!(__overrides, "CODout__guess", nothing)
   __ovr_XCODin = pop!(__overrides, "XCODin", nothing); isnothing(__ovr_XCODin) || push!(__eqs, XCODin ~ __ovr_XCODin)
   __ovr_XCODin__initial = pop!(__overrides, "XCODin__initial", nothing); isnothing(__ovr_XCODin__initial) || (__initial_conditions[XCODin] = __ovr_XCODin__initial)
+  __ovr_XCODin__guess = pop!(__overrides, "XCODin__guess", nothing)
   __ovr_H = pop!(__overrides, "H", nothing); isnothing(__ovr_H) || push!(__eqs, H ~ __ovr_H)
   __ovr_H__initial = pop!(__overrides, "H__initial", nothing); isnothing(__ovr_H__initial) || (__initial_conditions[H] = __ovr_H__initial)
+  __ovr_H__guess = pop!(__overrides, "H__guess", nothing)
   __ovr_Q = pop!(__overrides, "Q", nothing); isnothing(__ovr_Q) || push!(__eqs, Q ~ __ovr_Q)
   __ovr_Q__initial = pop!(__overrides, "Q__initial", nothing); isnothing(__ovr_Q__initial) || (__initial_conditions[Q] = __ovr_Q__initial)
+  __ovr_Q__guess = pop!(__overrides, "Q__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -108,9 +116,17 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named portOut = ASPDemo.FluidPortOut())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_hrt_h__guess) || (__guesses[hrt_h] = __ovr_hrt_h__guess)
+  isnothing(__ovr_n_COD__guess) || (__guesses[n_COD] = __ovr_n_COD__guess)
+  isnothing(__ovr_n_X__guess) || (__guesses[n_X] = __ovr_n_X__guess)
+  isnothing(__ovr_CODin__guess) || (__guesses[CODin] = __ovr_CODin__guess)
+  isnothing(__ovr_CODout__guess) || (__guesses[CODout] = __ovr_CODout__guess)
+  isnothing(__ovr_XCODin__guess) || (__guesses[XCODin] = __ovr_XCODin__guess)
+  isnothing(__ovr_H__guess) || (__guesses[H] = __ovr_H__guess)
+  isnothing(__ovr_Q__guess) || (__guesses[Q] = __ovr_Q__guess)
 
   ### Initialization Equations
 
