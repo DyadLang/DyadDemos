@@ -90,14 +90,19 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_omega = pop!(__overrides, "omega", nothing); isnothing(__ovr_omega) || push!(__eqs, omega ~ __ovr_omega)
   __ovr_omega__initial = pop!(__overrides, "omega__initial", nothing); isnothing(__ovr_omega__initial) || (__initial_conditions[omega] = __ovr_omega__initial)
+  __ovr_omega__guess = pop!(__overrides, "omega__guess", nothing)
   __ovr_torque = pop!(__overrides, "torque", nothing); isnothing(__ovr_torque) || push!(__eqs, torque ~ __ovr_torque)
   __ovr_torque__initial = pop!(__overrides, "torque__initial", nothing); isnothing(__ovr_torque__initial) || (__initial_conditions[torque] = __ovr_torque__initial)
+  __ovr_torque__guess = pop!(__overrides, "torque__guess", nothing)
   __ovr_power = pop!(__overrides, "power", nothing); isnothing(__ovr_power) || push!(__eqs, power ~ __ovr_power)
   __ovr_power__initial = pop!(__overrides, "power__initial", nothing); isnothing(__ovr_power__initial) || (__initial_conditions[power] = __ovr_power__initial)
+  __ovr_power__guess = pop!(__overrides, "power__guess", nothing)
   __ovr_fuel_rate = pop!(__overrides, "fuel_rate", nothing); isnothing(__ovr_fuel_rate) || push!(__eqs, fuel_rate ~ __ovr_fuel_rate)
   __ovr_fuel_rate__initial = pop!(__overrides, "fuel_rate__initial", nothing); isnothing(__ovr_fuel_rate__initial) || (__initial_conditions[fuel_rate] = __ovr_fuel_rate__initial)
+  __ovr_fuel_rate__guess = pop!(__overrides, "fuel_rate__guess", nothing)
   __ovr_fuel_consumed = pop!(__overrides, "fuel_consumed", nothing); isnothing(__ovr_fuel_consumed) || push!(__eqs, fuel_consumed ~ __ovr_fuel_consumed)
   __ovr_fuel_consumed__initial = pop!(__overrides, "fuel_consumed__initial", nothing); isnothing(__ovr_fuel_consumed__initial) || (__initial_conditions[fuel_consumed] = __ovr_fuel_consumed__initial)
+  __ovr_fuel_consumed__guess = pop!(__overrides, "fuel_consumed__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -106,9 +111,14 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named flange = __Dyad__Spline())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_omega__guess) || (__guesses[omega] = __ovr_omega__guess)
+  isnothing(__ovr_torque__guess) || (__guesses[torque] = __ovr_torque__guess)
+  isnothing(__ovr_power__guess) || (__guesses[power] = __ovr_power__guess)
+  isnothing(__ovr_fuel_rate__guess) || (__guesses[fuel_rate] = __ovr_fuel_rate__guess)
+  isnothing(__ovr_fuel_consumed__guess) || (__guesses[fuel_consumed] = __ovr_fuel_consumed__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, fuel_consumed ~ 0.0)

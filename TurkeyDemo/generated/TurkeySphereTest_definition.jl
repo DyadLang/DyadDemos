@@ -101,22 +101,22 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent turkey of type TurkeyDemo.TurkeyDiscretizedSphere
   turkey_overrides = __pop_subcomponent_overrides!(__overrides, "turkey")
-  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(N=10, M=M_turkey, T_init=277.0, turkey_overrides...))
+  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(; N=10, M=M_turkey, T_init=Float64(277.0), turkey_overrides...))
   # Subcomponent oven of type ThermalComponents.Sources.FixedTemperature
   oven_overrides = __pop_subcomponent_overrides!(__overrides, "oven")
-  push!(__systems, @named oven = ThermalComponents.Sources.FixedTemperature(T=T_oven, oven_overrides...))
+  push!(__systems, @named oven = ThermalComponents.Sources.FixedTemperature(; T=T_oven, oven_overrides...))
   # Subcomponent convection of type ThermalComponents.Components.Convection
   convection_overrides = __pop_subcomponent_overrides!(__overrides, "convection")
-  push!(__systems, @named convection = ThermalComponents.Components.Convection(convection_overrides...))
+  push!(__systems, @named convection = ThermalComponents.Components.Convection(; convection_overrides...))
   # Subcomponent Gc_signal of type BlockComponents.Sources.Constant
   Gc_signal_overrides = __pop_subcomponent_overrides!(__overrides, "Gc_signal")
-  push!(__systems, @named Gc_signal = BlockComponents.Sources.Constant(k=Gc_conv, Gc_signal_overrides...))
+  push!(__systems, @named Gc_signal = BlockComponents.Sources.Constant(; k=Gc_conv, Gc_signal_overrides...))
   # Subcomponent radiation of type ThermalComponents.Components.BodyRadiation
   radiation_overrides = __pop_subcomponent_overrides!(__overrides, "radiation")
-  push!(__systems, @named radiation = ThermalComponents.Components.BodyRadiation(Gr=Gr_rad, radiation_overrides...))
+  push!(__systems, @named radiation = ThermalComponents.Components.BodyRadiation(; Gr=Gr_rad, radiation_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

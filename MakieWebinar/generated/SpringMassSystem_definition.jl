@@ -62,22 +62,22 @@ Spring-mass system with external force input.
   ### Components
   # Subcomponent mass of type TranslationalComponents.Components.Mass
   mass_overrides = __pop_subcomponent_overrides!(__overrides, "mass")
-  push!(__systems, @named mass = TranslationalComponents.Components.Mass(m=1.0, mass_overrides...))
+  push!(__systems, @named mass = TranslationalComponents.Components.Mass(; m=Float64(1.0), mass_overrides...))
   # Subcomponent spring of type TranslationalComponents.Components.Spring
   spring_overrides = __pop_subcomponent_overrides!(__overrides, "spring")
-  push!(__systems, @named spring = TranslationalComponents.Components.Spring(c=10.0, s_rel0=0.0, spring_overrides...))
+  push!(__systems, @named spring = TranslationalComponents.Components.Spring(; c=Float64(10.0), s_rel0=Float64(0.0), spring_overrides...))
   # Subcomponent fixed of type TranslationalComponents.Components.Fixed
   fixed_overrides = __pop_subcomponent_overrides!(__overrides, "fixed")
-  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(s0=0.0, fixed_overrides...))
+  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), fixed_overrides...))
   # Subcomponent force_source of type TranslationalComponents.Sources.Force
   force_source_overrides = __pop_subcomponent_overrides!(__overrides, "force_source")
-  push!(__systems, @named force_source = TranslationalComponents.Sources.Force(force_source_overrides...))
+  push!(__systems, @named force_source = TranslationalComponents.Sources.Force(; force_source_overrides...))
   # Subcomponent ground of type TranslationalComponents.Components.Fixed
   ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
-  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0.0, ground_overrides...))
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), ground_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

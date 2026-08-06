@@ -93,31 +93,31 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named zone_port = __Dyad__HeatPort())
   # Subcomponent outdoor_src of type ThermalComponents.Sources.PrescribedTemperature
   outdoor_src_overrides = __pop_subcomponent_overrides!(__overrides, "outdoor_src")
-  push!(__systems, @named outdoor_src = ThermalComponents.Sources.PrescribedTemperature(outdoor_src_overrides...))
+  push!(__systems, @named outdoor_src = ThermalComponents.Sources.PrescribedTemperature(; outdoor_src_overrides...))
   # Subcomponent ground_src of type ThermalComponents.Sources.PrescribedTemperature
   ground_src_overrides = __pop_subcomponent_overrides!(__overrides, "ground_src")
-  push!(__systems, @named ground_src = ThermalComponents.Sources.PrescribedTemperature(ground_src_overrides...))
+  push!(__systems, @named ground_src = ThermalComponents.Sources.PrescribedTemperature(; ground_src_overrides...))
   # Subcomponent wall of type ThermalComponents.Components.ThermalResistor
   wall_overrides = __pop_subcomponent_overrides!(__overrides, "wall")
-  push!(__systems, @named wall = ThermalComponents.Components.ThermalResistor(R=R_wall, wall_overrides...))
+  push!(__systems, @named wall = ThermalComponents.Components.ThermalResistor(; R=R_wall, wall_overrides...))
   # Subcomponent win of type ThermalComponents.Components.ThermalResistor
   win_overrides = __pop_subcomponent_overrides!(__overrides, "win")
-  push!(__systems, @named win = ThermalComponents.Components.ThermalResistor(R=R_win, win_overrides...))
+  push!(__systems, @named win = ThermalComponents.Components.ThermalResistor(; R=R_win, win_overrides...))
   # Subcomponent roof of type ThermalComponents.Components.ThermalResistor
   roof_overrides = __pop_subcomponent_overrides!(__overrides, "roof")
-  push!(__systems, @named roof = ThermalComponents.Components.ThermalResistor(R=R_roof, roof_overrides...))
+  push!(__systems, @named roof = ThermalComponents.Components.ThermalResistor(; R=R_roof, roof_overrides...))
   # Subcomponent slab of type ThermalComponents.Components.ThermalResistor
   slab_overrides = __pop_subcomponent_overrides!(__overrides, "slab")
-  push!(__systems, @named slab = ThermalComponents.Components.ThermalResistor(R=R_slab, slab_overrides...))
+  push!(__systems, @named slab = ThermalComponents.Components.ThermalResistor(; R=R_slab, slab_overrides...))
   # Subcomponent infil of type ThermalComponents.Components.ThermalResistor
   infil_overrides = __pop_subcomponent_overrides!(__overrides, "infil")
-  push!(__systems, @named infil = ThermalComponents.Components.ThermalResistor(R=R_infil, infil_overrides...))
+  push!(__systems, @named infil = ThermalComponents.Components.ThermalResistor(; R=R_infil, infil_overrides...))
   # Subcomponent cap of type DynamicSteadyState.HeatCapacitorNoInit
   cap_overrides = __pop_subcomponent_overrides!(__overrides, "cap")
-  push!(__systems, @named cap = DynamicSteadyState.HeatCapacitorNoInit(C=C, cap_overrides...))
+  push!(__systems, @named cap = DynamicSteadyState.HeatCapacitorNoInit(; C=C, cap_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

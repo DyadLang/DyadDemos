@@ -10,6 +10,28 @@ on:
 
 env:
   JULIA_PKG_SERVER: internal.juliahub.com
+  JULIAUP_SERVER: "https://juliahub.com/juliabin"
+  # Single source of truth for the Dyad toolchain these demos target. Every
+  # demo's `[dyad].kernel` and `.vscode/settings.json` channel is kept in sync
+  # with this by hand -- when you bump it, bump those too.
+  #
+  # The old `1.10`/`1.11` matrix can no longer resolve this stack at all:
+  # DyadInterface 7.2 requires `julia = "1.12.0-1"` and
+  # DyadEcosystemDependencies 0.11.6+ requires `julia = "1.12.5-1"`.
+  #
+  # KNOWN BLOCKER on this channel: the Dyad musl builds set
+  # `Base.USE_GPL_LIBS = false`, so `SuiteSparse.UMFPACK` does not exist.
+  # Hypatia declares a field of type `SuiteSparse.UMFPACK.UmfpackLU` at
+  # `src/linearalgebra/sparse.jl:23`, evaluated at precompile time, which takes
+  # down Hypatia -> DyadControlSystems -> MakieWebinar. Expected fixed in
+  # `dyad-3.3.0-rc3`; until then MakieWebinar only precompiles on stock
+  # `release` (which has `USE_GPL_LIBS = true`). Set this to `release` if you
+  # need a fully green run before rc3 lands.
+  JULIA_CHANNEL: dyad-3.3.0-rc2
+  # dyad-lang's `getEnv()` honours `JULIA_EXECUTABLE` ahead of each package's
+  # `.vscode/settings.json`, so this makes codegen use one toolchain across all
+  # demos regardless of the per-demo editor pins.
+  JULIA_EXECUTABLE: julia +dyad-3.3.0-rc2
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,28 +39,18 @@ concurrency:
 
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    # NB: the `env` context is not available in `jobs.<id>.name`, so the channel
+    # is spelled out here; keep it in step with `JULIA_CHANNEL` above.
+    name: Julia dyad-3.3.0-rc2 - self-hosted - x64 - ${{ github.event_name }}
 
     runs-on: self-hosted
-
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          - "1.10"
-          - "1.11"
-        os:
-          - self-hosted
-        arch:
-          - x64
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - uses: julia-actions/setup-julia@5c9647d97b78a5debe5164e9eec09d653d29bd71 # v2.6.1
+      - uses: julia-actions/install-juliaup@v3
         with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
+          channel: ${{ env.JULIA_CHANNEL }}
 
       - name: "Set up private JuliaHub registries"
         uses: "JuliaComputing/set-up-private-juliahub-registries@93a57d352d8435399461ffe68df41d193e4619b3" # v1.3.0

@@ -23,7 +23,7 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
 | `A_bw`         | Bouc-Wen flow gain                         | --  |   1.0 |
 | `beta_bw`         | Bouc-Wen saturation coefficient (z_sat = A_bw/beta_bw)                         | --  |   3.0 |
 | `gamma_bw`         | Bouc-Wen shape coefficient                         | --  |   0.3 |
-| `eps_bw`         | Smoothing epsilon for |x| ~ sqrt(x^2 + eps_bw)                         | --  |   1e-10 |
+| `eps_bw`         | Smoothing epsilon for \|x\| ~ sqrt(x^2 + eps_bw)                         | --  |   1e-10 |
 
 ## Connectors
 
@@ -115,16 +115,22 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
   ### Variables (assignments)
   __ovr_phi_rel = pop!(__overrides, "phi_rel", nothing); isnothing(__ovr_phi_rel) || push!(__eqs, phi_rel ~ __ovr_phi_rel)
   __ovr_phi_rel__initial = pop!(__overrides, "phi_rel__initial", nothing); isnothing(__ovr_phi_rel__initial) || (__initial_conditions[phi_rel] = __ovr_phi_rel__initial)
+  __ovr_phi_rel__guess = pop!(__overrides, "phi_rel__guess", nothing)
   __ovr_tau = pop!(__overrides, "tau", nothing); isnothing(__ovr_tau) || push!(__eqs, tau ~ __ovr_tau)
   __ovr_tau__initial = pop!(__overrides, "tau__initial", nothing); isnothing(__ovr_tau__initial) || (__initial_conditions[tau] = __ovr_tau__initial)
+  __ovr_tau__guess = pop!(__overrides, "tau__guess", nothing)
   __ovr_w_rel = pop!(__overrides, "w_rel", nothing); isnothing(__ovr_w_rel) || push!(__eqs, w_rel ~ __ovr_w_rel)
   __ovr_w_rel__initial = pop!(__overrides, "w_rel__initial", nothing); isnothing(__ovr_w_rel__initial) || (__initial_conditions[w_rel] = __ovr_w_rel__initial)
+  __ovr_w_rel__guess = pop!(__overrides, "w_rel__guess", nothing)
   __ovr_a_rel = pop!(__overrides, "a_rel", nothing); isnothing(__ovr_a_rel) || push!(__eqs, a_rel ~ __ovr_a_rel)
   __ovr_a_rel__initial = pop!(__overrides, "a_rel__initial", nothing); isnothing(__ovr_a_rel__initial) || (__initial_conditions[a_rel] = __ovr_a_rel__initial)
+  __ovr_a_rel__guess = pop!(__overrides, "a_rel__guess", nothing)
   __ovr_theta_m = pop!(__overrides, "theta_m", nothing); isnothing(__ovr_theta_m) || push!(__eqs, theta_m ~ __ovr_theta_m)
   __ovr_theta_m__initial = pop!(__overrides, "theta_m__initial", nothing); isnothing(__ovr_theta_m__initial) || (__initial_conditions[theta_m] = __ovr_theta_m__initial)
+  __ovr_theta_m__guess = pop!(__overrides, "theta_m__guess", nothing)
   __ovr_z = pop!(__overrides, "z", nothing); isnothing(__ovr_z) || push!(__eqs, z ~ __ovr_z)
   __ovr_z__initial = pop!(__overrides, "z__initial", nothing); isnothing(__ovr_z__initial) || (__initial_conditions[z] = __ovr_z__initial)
+  __ovr_z__guess = pop!(__overrides, "z__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -134,9 +140,15 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
   push!(__systems, @named spline_b = __Dyad__Spline())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_phi_rel__guess) || (__guesses[phi_rel] = __ovr_phi_rel__guess)
+  isnothing(__ovr_tau__guess) || (__guesses[tau] = __ovr_tau__guess)
+  isnothing(__ovr_w_rel__guess) || (__guesses[w_rel] = __ovr_w_rel__guess)
+  isnothing(__ovr_a_rel__guess) || (__guesses[a_rel] = __ovr_a_rel__guess)
+  isnothing(__ovr_theta_m__guess) || (__guesses[theta_m] = __ovr_theta_m__guess)
+  isnothing(__ovr_z__guess) || (__guesses[z] = __ovr_z__guess)
 
   ### Initialization Equations
 

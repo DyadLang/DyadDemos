@@ -55,28 +55,28 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent brake_thermal of type FrictionBrakeDemo.BrakeThermal
   brake_thermal_overrides = __pop_subcomponent_overrides!(__overrides, "brake_thermal")
-  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(brake_thermal_overrides...))
+  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(; brake_thermal_overrides...))
   # Subcomponent disk_heat_step of type BlockComponents.Sources.Step
   disk_heat_step_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_step")
-  push!(__systems, @named disk_heat_step = BlockComponents.Sources.Step(height=-9300, offset=9300, start_time=1500.0, disk_heat_step_overrides...))
+  push!(__systems, @named disk_heat_step = BlockComponents.Sources.Step(; height=Float64(-9300), offset=Float64(9300), start_time=Float64(1500.0), disk_heat_step_overrides...))
   # Subcomponent disk_heat_input of type ThermalComponents.Sources.PrescribedHeatFlow
   disk_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_input")
-  push!(__systems, @named disk_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(disk_heat_input_overrides...))
+  push!(__systems, @named disk_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(; disk_heat_input_overrides...))
   # Subcomponent pad_heat_step of type BlockComponents.Sources.Step
   pad_heat_step_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_step")
-  push!(__systems, @named pad_heat_step = BlockComponents.Sources.Step(height=-700, offset=700, start_time=1500.0, pad_heat_step_overrides...))
+  push!(__systems, @named pad_heat_step = BlockComponents.Sources.Step(; height=Float64(-700), offset=Float64(700), start_time=Float64(1500.0), pad_heat_step_overrides...))
   # Subcomponent pad_heat_input of type ThermalComponents.Sources.PrescribedHeatFlow
   pad_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_input")
-  push!(__systems, @named pad_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(pad_heat_input_overrides...))
+  push!(__systems, @named pad_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(; pad_heat_input_overrides...))
   # Subcomponent vehicle_speed_source of type BlockComponents.Sources.Constant
   vehicle_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_speed_source")
-  push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(k=6.94, vehicle_speed_source_overrides...))
+  push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(; k=6.94, vehicle_speed_source_overrides...))
   # Subcomponent wheel_speed_source of type BlockComponents.Sources.Constant
   wheel_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "wheel_speed_source")
-  push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(k=64.8, wheel_speed_source_overrides...))
+  push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(; k=64.8, wheel_speed_source_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

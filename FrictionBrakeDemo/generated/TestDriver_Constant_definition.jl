@@ -70,6 +70,7 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_vehicle_speed = pop!(__overrides, "vehicle_speed", nothing); isnothing(__ovr_vehicle_speed) || push!(__eqs, vehicle_speed ~ __ovr_vehicle_speed)
   __ovr_vehicle_speed__initial = pop!(__overrides, "vehicle_speed__initial", nothing); isnothing(__ovr_vehicle_speed__initial) || (__initial_conditions[vehicle_speed] = __ovr_vehicle_speed__initial)
+  __ovr_vehicle_speed__guess = pop!(__overrides, "vehicle_speed__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -77,15 +78,16 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent speed_ref_source of type BlockComponents.Sources.Step
   speed_ref_source_overrides = __pop_subcomponent_overrides!(__overrides, "speed_ref_source")
-  push!(__systems, @named speed_ref_source = BlockComponents.Sources.Step(height=20.0, offset=0.0, start_time=1.0, speed_ref_source_overrides...))
+  push!(__systems, @named speed_ref_source = BlockComponents.Sources.Step(; height=Float64(20.0), offset=Float64(0.0), start_time=Float64(1.0), speed_ref_source_overrides...))
   # Subcomponent driver of type FrictionBrakeDemo.Driver
   driver_overrides = __pop_subcomponent_overrides!(__overrides, "driver")
-  push!(__systems, @named driver = FrictionBrakeDemo.Driver(driver_overrides...))
+  push!(__systems, @named driver = FrictionBrakeDemo.Driver(; driver_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_vehicle_speed__guess) || (__guesses[vehicle_speed] = __ovr_vehicle_speed__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, vehicle_speed ~ 0.0)

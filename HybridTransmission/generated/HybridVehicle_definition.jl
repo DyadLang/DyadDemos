@@ -102,16 +102,22 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_omega_wheel = pop!(__overrides, "omega_wheel", nothing); isnothing(__ovr_omega_wheel) || push!(__eqs, omega_wheel ~ __ovr_omega_wheel)
   __ovr_omega_wheel__initial = pop!(__overrides, "omega_wheel__initial", nothing); isnothing(__ovr_omega_wheel__initial) || (__initial_conditions[omega_wheel] = __ovr_omega_wheel__initial)
+  __ovr_omega_wheel__guess = pop!(__overrides, "omega_wheel__guess", nothing)
   __ovr_speed = pop!(__overrides, "speed", nothing); isnothing(__ovr_speed) || push!(__eqs, speed ~ __ovr_speed)
   __ovr_speed__initial = pop!(__overrides, "speed__initial", nothing); isnothing(__ovr_speed__initial) || (__initial_conditions[speed] = __ovr_speed__initial)
+  __ovr_speed__guess = pop!(__overrides, "speed__guess", nothing)
   __ovr_F_aero = pop!(__overrides, "F_aero", nothing); isnothing(__ovr_F_aero) || push!(__eqs, F_aero ~ __ovr_F_aero)
   __ovr_F_aero__initial = pop!(__overrides, "F_aero__initial", nothing); isnothing(__ovr_F_aero__initial) || (__initial_conditions[F_aero] = __ovr_F_aero__initial)
+  __ovr_F_aero__guess = pop!(__overrides, "F_aero__guess", nothing)
   __ovr_F_rolling = pop!(__overrides, "F_rolling", nothing); isnothing(__ovr_F_rolling) || push!(__eqs, F_rolling ~ __ovr_F_rolling)
   __ovr_F_rolling__initial = pop!(__overrides, "F_rolling__initial", nothing); isnothing(__ovr_F_rolling__initial) || (__initial_conditions[F_rolling] = __ovr_F_rolling__initial)
+  __ovr_F_rolling__guess = pop!(__overrides, "F_rolling__guess", nothing)
   __ovr_F_total = pop!(__overrides, "F_total", nothing); isnothing(__ovr_F_total) || push!(__eqs, F_total ~ __ovr_F_total)
   __ovr_F_total__initial = pop!(__overrides, "F_total__initial", nothing); isnothing(__ovr_F_total__initial) || (__initial_conditions[F_total] = __ovr_F_total__initial)
+  __ovr_F_total__guess = pop!(__overrides, "F_total__guess", nothing)
   __ovr_T_load = pop!(__overrides, "T_load", nothing); isnothing(__ovr_T_load) || push!(__eqs, T_load ~ __ovr_T_load)
   __ovr_T_load__initial = pop!(__overrides, "T_load__initial", nothing); isnothing(__ovr_T_load__initial) || (__initial_conditions[T_load] = __ovr_T_load__initial)
+  __ovr_T_load__guess = pop!(__overrides, "T_load__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -120,9 +126,15 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named flange = __Dyad__Spline())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_omega_wheel__guess) || (__guesses[omega_wheel] = __ovr_omega_wheel__guess)
+  isnothing(__ovr_speed__guess) || (__guesses[speed] = __ovr_speed__guess)
+  isnothing(__ovr_F_aero__guess) || (__guesses[F_aero] = __ovr_F_aero__guess)
+  isnothing(__ovr_F_rolling__guess) || (__guesses[F_rolling] = __ovr_F_rolling__guess)
+  isnothing(__ovr_F_total__guess) || (__guesses[F_total] = __ovr_F_total__guess)
+  isnothing(__ovr_T_load__guess) || (__guesses[T_load] = __ovr_T_load__guess)
 
   ### Initialization Equations
 

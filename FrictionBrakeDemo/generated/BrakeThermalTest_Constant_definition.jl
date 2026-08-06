@@ -76,22 +76,22 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent brake_thermal of type FrictionBrakeDemo.BrakeThermal
   brake_thermal_overrides = __pop_subcomponent_overrides!(__overrides, "brake_thermal")
-  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(brake_thermal_overrides...))
+  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(; brake_thermal_overrides...))
   # Subcomponent disk_heat_input of type ThermalComponents.Sources.FixedHeatFlow
   disk_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_input")
-  push!(__systems, @named disk_heat_input = ThermalComponents.Sources.FixedHeatFlow(Q_flow=Q_disk, disk_heat_input_overrides...))
+  push!(__systems, @named disk_heat_input = ThermalComponents.Sources.FixedHeatFlow(; Q_flow=Q_disk, disk_heat_input_overrides...))
   # Subcomponent pad_heat_input of type ThermalComponents.Sources.FixedHeatFlow
   pad_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_input")
-  push!(__systems, @named pad_heat_input = ThermalComponents.Sources.FixedHeatFlow(Q_flow=Q_pad, pad_heat_input_overrides...))
+  push!(__systems, @named pad_heat_input = ThermalComponents.Sources.FixedHeatFlow(; Q_flow=Q_pad, pad_heat_input_overrides...))
   # Subcomponent vehicle_speed_source of type BlockComponents.Sources.Constant
   vehicle_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_speed_source")
-  push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(k=vehicle_speed, vehicle_speed_source_overrides...))
+  push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(; k=vehicle_speed, vehicle_speed_source_overrides...))
   # Subcomponent wheel_speed_source of type BlockComponents.Sources.Constant
   wheel_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "wheel_speed_source")
-  push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(k=wheel_speed, wheel_speed_source_overrides...))
+  push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(; k=wheel_speed, wheel_speed_source_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

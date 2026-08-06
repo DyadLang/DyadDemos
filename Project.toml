@@ -4,3 +4,7 @@ projects = ["CoffeeMugDemo", "FrictionBrakeDemo", "HybridTransmission", "MakieWe
 [deps]
 ElectricalComponents = "3fc4c519-469d-4ff5-98c9-d4d06b1514a2"
 ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
+
+[compat]
+ElectricalComponents = "2.2"
+ThermalComponents = "2.0.5"

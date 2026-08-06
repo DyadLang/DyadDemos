@@ -87,22 +87,22 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named ambient = __Dyad__HeatPort())
   # Subcomponent spoonMass of type ThermalComponents.Components.HeatCapacitor
   spoonMass_overrides = __pop_subcomponent_overrides!(__overrides, "spoonMass")
-  push!(__systems, @named spoonMass = ThermalComponents.Components.HeatCapacitor(C=C_spoon, T0=T0_spoon, spoonMass_overrides...))
+  push!(__systems, @named spoonMass = ThermalComponents.Components.HeatCapacitor(; C=C_spoon, T0=T0_spoon, spoonMass_overrides...))
   # Subcomponent liquidContact of type ThermalComponents.Components.ThermalConductor
   liquidContact_overrides = __pop_subcomponent_overrides!(__overrides, "liquidContact")
-  push!(__systems, @named liquidContact = ThermalComponents.Components.ThermalConductor(G=G_liquid_contact, liquidContact_overrides...))
+  push!(__systems, @named liquidContact = ThermalComponents.Components.ThermalConductor(; G=G_liquid_contact, liquidContact_overrides...))
   # Subcomponent convExposed of type ThermalComponents.Components.Convection
   convExposed_overrides = __pop_subcomponent_overrides!(__overrides, "convExposed")
-  push!(__systems, @named convExposed = ThermalComponents.Components.Convection(convExposed_overrides...))
+  push!(__systems, @named convExposed = ThermalComponents.Components.Convection(; convExposed_overrides...))
   # Subcomponent gcExposed of type BlockComponents.Sources.Constant
   gcExposed_overrides = __pop_subcomponent_overrides!(__overrides, "gcExposed")
-  push!(__systems, @named gcExposed = BlockComponents.Sources.Constant(k=Gc_exposed, gcExposed_overrides...))
+  push!(__systems, @named gcExposed = BlockComponents.Sources.Constant(; k=Gc_exposed, gcExposed_overrides...))
   # Subcomponent radExposed of type ThermalComponents.Components.BodyRadiation
   radExposed_overrides = __pop_subcomponent_overrides!(__overrides, "radExposed")
-  push!(__systems, @named radExposed = ThermalComponents.Components.BodyRadiation(Gr=Gr_exposed, radExposed_overrides...))
+  push!(__systems, @named radExposed = ThermalComponents.Components.BodyRadiation(; Gr=Gr_exposed, radExposed_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

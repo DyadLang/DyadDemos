@@ -76,19 +76,19 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent controlled_house of type ThermalHouseDemo.ThermalHouseControlled
   controlled_house_overrides = __pop_subcomponent_overrides!(__overrides, "controlled_house")
-  push!(__systems, @named controlled_house = ThermalHouseDemo.ThermalHouseControlled(T_initial=T_initial, k_p=10000.0, T_i=600.0, controlled_house_overrides...))
+  push!(__systems, @named controlled_house = ThermalHouseDemo.ThermalHouseControlled(; T_initial=T_initial, k_p=Float64(10000.0), T_i=Float64(600.0), controlled_house_overrides...))
   # Subcomponent setpoint_signal of type BlockComponents.Sources.Constant
   setpoint_signal_overrides = __pop_subcomponent_overrides!(__overrides, "setpoint_signal")
-  push!(__systems, @named setpoint_signal = BlockComponents.Sources.Constant(k=T_setpoint, setpoint_signal_overrides...))
+  push!(__systems, @named setpoint_signal = BlockComponents.Sources.Constant(; k=T_setpoint, setpoint_signal_overrides...))
   # Subcomponent solar_irradiance_signal of type BlockComponents.Sources.Constant
   solar_irradiance_signal_overrides = __pop_subcomponent_overrides!(__overrides, "solar_irradiance_signal")
-  push!(__systems, @named solar_irradiance_signal = BlockComponents.Sources.Constant(k=solar_irrad, solar_irradiance_signal_overrides...))
+  push!(__systems, @named solar_irradiance_signal = BlockComponents.Sources.Constant(; k=solar_irrad, solar_irradiance_signal_overrides...))
   # Subcomponent ambient_signal of type BlockComponents.Sources.Constant
   ambient_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ambient_signal")
-  push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(k=T_outdoor, ambient_signal_overrides...))
+  push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(; k=T_outdoor, ambient_signal_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
   __guesses[controlled_house.house.wall_loss.ΔT] = (10.0)

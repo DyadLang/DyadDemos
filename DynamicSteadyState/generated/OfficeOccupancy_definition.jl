@@ -62,6 +62,7 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_occ = pop!(__overrides, "occ", nothing); isnothing(__ovr_occ) || push!(__eqs, occ ~ __ovr_occ)
   __ovr_occ__initial = pop!(__overrides, "occ__initial", nothing); isnothing(__ovr_occ__initial) || (__initial_conditions[occ] = __ovr_occ__initial)
+  __ovr_occ__guess = pop!(__overrides, "occ__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -69,9 +70,10 @@ import Moshi as __Ext__Moshi
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_occ__guess) || (__guesses[occ] = __ovr_occ__guess)
 
   ### Initialization Equations
 

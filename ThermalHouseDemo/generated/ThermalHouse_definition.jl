@@ -86,7 +86,7 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
 | ------------ | ----------------------------------- | ------ |
 | `T_wall`         |                          | K  |
 """
-@component function ThermalHouse(; name = nothing, area_floor=92.9, height=2.44, ratio_L_W=1.25, Aratio_window_wall=0.15, no_doors=Float64(2), A_door=1.75, U_walls=0.47, U_roof=0.15, U_floor=0.35, U_window=2.2, U_door=1.2, SHGC=0.6, f_window=0.3, rho_air=1.2, cp_air=Float64(1005.0), t_dw=0.0127, rho_dw=Float64(800), cp_dw=Float64(1000), t_floor=0.019, rho_floor=Float64(700), cp_floor=Float64(1600), ACH_infiltration=0.35, ACH_ventilation=0.15, h_conv=Float64(10.0), Q_people=Float64(0.0), Q_lighting=Float64(0.0), Q_appliances=Float64(0.0), T_initial=293.15, length=sqrt(area_floor * ratio_L_W), area_doors=no_doors * A_door, area_roof=area_floor, C_floor=area_floor * t_floor * rho_floor * cp_floor, G_floor=U_floor * area_floor, ACH_total=ACH_infiltration + ACH_ventilation, Q_internal=Q_people + Q_lighting + Q_appliances, width=length / ratio_L_W, G_roof=U_roof * area_roof, G_door=U_door * area_doors, volume=length * width * height, area_walls=2.0 * (length * height + width * height), area_window=Aratio_window_wall * area_walls, mass_air=rho_air * volume, C_walls_ceiling=(area_floor + area_walls) * t_dw * rho_dw * cp_dw, G_wall=U_walls * area_walls, m_dot_air=(ACH_total * volume * rho_air) / 3600.0, G_conv=h_conv * area_walls, C_air=mass_air * cp_air, G_window=U_window * area_window, G_infiltration=m_dot_air * cp_air, C_tot=C_air + C_walls_ceiling + C_floor, G_envelope=G_wall + G_window + G_roof + G_door + G_floor, U_infiltration=G_infiltration / area_floor, U_envelope=G_envelope / area_floor, G_total=G_envelope + G_infiltration, U_total=U_infiltration + U_envelope, kwargs...)
+@component function ThermalHouse(; name = nothing, area_floor=92.9, height=2.44, ratio_L_W=1.25, Aratio_window_wall=0.15, no_doors=Float64(2), A_door=1.75, U_walls=0.47, U_roof=0.15, U_floor=0.35, U_window=2.2, U_door=1.2, SHGC=0.6, f_window=0.3, rho_air=1.2, cp_air=Float64(1005.0), t_dw=0.0127, rho_dw=Float64(800), cp_dw=Float64(1000), t_floor=0.019, rho_floor=Float64(700), cp_floor=Float64(1600), ACH_infiltration=0.35, ACH_ventilation=0.15, h_conv=Float64(10.0), Q_people=Float64(0.0), Q_lighting=Float64(0.0), Q_appliances=Float64(0.0), T_initial=293.15, area_roof=area_floor, length=sqrt(area_floor * ratio_L_W), area_doors=no_doors * A_door, G_floor=U_floor * area_floor, C_floor=area_floor * t_floor * rho_floor * cp_floor, ACH_total=ACH_infiltration + ACH_ventilation, Q_internal=Q_people + Q_lighting + Q_appliances, G_roof=U_roof * area_roof, width=length / ratio_L_W, G_door=U_door * area_doors, volume=length * width * height, area_walls=2.0 * (length * height + width * height), mass_air=rho_air * volume, m_dot_air=(ACH_total * volume * rho_air) / 3600.0, area_window=Aratio_window_wall * area_walls, C_walls_ceiling=(area_floor + area_walls) * t_dw * rho_dw * cp_dw, G_wall=U_walls * area_walls, G_conv=h_conv * area_walls, C_air=mass_air * cp_air, G_infiltration=m_dot_air * cp_air, G_window=U_window * area_window, C_tot=C_air + C_walls_ceiling + C_floor, U_infiltration=G_infiltration / area_floor, G_envelope=G_wall + G_window + G_roof + G_door + G_floor, U_envelope=G_envelope / area_floor, G_total=G_envelope + G_infiltration, U_total=U_infiltration + U_envelope, kwargs...)
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -297,6 +297,7 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   ### Variables (assignments)
   __ovr_T_wall = pop!(__overrides, "T_wall", nothing); isnothing(__ovr_T_wall) || push!(__eqs, T_wall ~ __ovr_T_wall)
   __ovr_T_wall__initial = pop!(__overrides, "T_wall__initial", nothing); isnothing(__ovr_T_wall__initial) || (__initial_conditions[T_wall] = __ovr_T_wall__initial)
+  __ovr_T_wall__guess = pop!(__overrides, "T_wall__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -306,45 +307,46 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   push!(__systems, @named wall_surface = __Dyad__HeatPort())
   # Subcomponent thermal_mass of type ThermalComponents.Components.HeatCapacitor
   thermal_mass_overrides = __pop_subcomponent_overrides!(__overrides, "thermal_mass")
-  push!(__systems, @named thermal_mass = ThermalComponents.Components.HeatCapacitor(C=C_tot, T0=T_initial, thermal_mass_overrides...))
+  push!(__systems, @named thermal_mass = ThermalComponents.Components.HeatCapacitor(; C=C_tot, T0=T_initial, thermal_mass_overrides...))
   # Subcomponent solar_input of type ThermalComponents.Sources.PrescribedHeatFlow
   solar_input_overrides = __pop_subcomponent_overrides!(__overrides, "solar_input")
-  push!(__systems, @named solar_input = ThermalComponents.Sources.PrescribedHeatFlow(solar_input_overrides...))
+  push!(__systems, @named solar_input = ThermalComponents.Sources.PrescribedHeatFlow(; solar_input_overrides...))
   # Subcomponent heater of type ThermalComponents.Sources.PrescribedHeatFlow
   heater_overrides = __pop_subcomponent_overrides!(__overrides, "heater")
-  push!(__systems, @named heater = ThermalComponents.Sources.PrescribedHeatFlow(heater_overrides...))
+  push!(__systems, @named heater = ThermalComponents.Sources.PrescribedHeatFlow(; heater_overrides...))
   # Subcomponent internal_gains of type ThermalComponents.Sources.PrescribedHeatFlow
   internal_gains_overrides = __pop_subcomponent_overrides!(__overrides, "internal_gains")
-  push!(__systems, @named internal_gains = ThermalComponents.Sources.PrescribedHeatFlow(internal_gains_overrides...))
+  push!(__systems, @named internal_gains = ThermalComponents.Sources.PrescribedHeatFlow(; internal_gains_overrides...))
   # Subcomponent window_loss of type ThermalComponents.Components.ThermalConductor
   window_loss_overrides = __pop_subcomponent_overrides!(__overrides, "window_loss")
-  push!(__systems, @named window_loss = ThermalComponents.Components.ThermalConductor(G=G_window, window_loss_overrides...))
+  push!(__systems, @named window_loss = ThermalComponents.Components.ThermalConductor(; G=G_window, window_loss_overrides...))
   # Subcomponent door_loss of type ThermalComponents.Components.ThermalConductor
   door_loss_overrides = __pop_subcomponent_overrides!(__overrides, "door_loss")
-  push!(__systems, @named door_loss = ThermalComponents.Components.ThermalConductor(G=G_door, door_loss_overrides...))
+  push!(__systems, @named door_loss = ThermalComponents.Components.ThermalConductor(; G=G_door, door_loss_overrides...))
   # Subcomponent roof_loss of type ThermalComponents.Components.ThermalConductor
   roof_loss_overrides = __pop_subcomponent_overrides!(__overrides, "roof_loss")
-  push!(__systems, @named roof_loss = ThermalComponents.Components.ThermalConductor(G=G_roof, roof_loss_overrides...))
+  push!(__systems, @named roof_loss = ThermalComponents.Components.ThermalConductor(; G=G_roof, roof_loss_overrides...))
   # Subcomponent floor_loss of type ThermalComponents.Components.ThermalConductor
   floor_loss_overrides = __pop_subcomponent_overrides!(__overrides, "floor_loss")
-  push!(__systems, @named floor_loss = ThermalComponents.Components.ThermalConductor(G=G_floor, floor_loss_overrides...))
+  push!(__systems, @named floor_loss = ThermalComponents.Components.ThermalConductor(; G=G_floor, floor_loss_overrides...))
   # Subcomponent infiltration_loss of type ThermalComponents.Components.ThermalConductor
   infiltration_loss_overrides = __pop_subcomponent_overrides!(__overrides, "infiltration_loss")
-  push!(__systems, @named infiltration_loss = ThermalComponents.Components.ThermalConductor(G=G_infiltration, infiltration_loss_overrides...))
+  push!(__systems, @named infiltration_loss = ThermalComponents.Components.ThermalConductor(; G=G_infiltration, infiltration_loss_overrides...))
   # Subcomponent wall_loss of type ThermalComponents.Components.ThermalConductor
   wall_loss_overrides = __pop_subcomponent_overrides!(__overrides, "wall_loss")
-  push!(__systems, @named wall_loss = ThermalComponents.Components.ThermalConductor(G=G_wall, wall_loss_overrides...))
+  push!(__systems, @named wall_loss = ThermalComponents.Components.ThermalConductor(; G=G_wall, wall_loss_overrides...))
   # Subcomponent wall_convection of type ThermalComponents.Components.ThermalConductor
   wall_convection_overrides = __pop_subcomponent_overrides!(__overrides, "wall_convection")
-  push!(__systems, @named wall_convection = ThermalComponents.Components.ThermalConductor(G=G_conv, wall_convection_overrides...))
+  push!(__systems, @named wall_convection = ThermalComponents.Components.ThermalConductor(; G=G_conv, wall_convection_overrides...))
   # Subcomponent ambient of type ThermalComponents.Sources.PrescribedTemperature
   ambient_overrides = __pop_subcomponent_overrides!(__overrides, "ambient")
-  push!(__systems, @named ambient = ThermalComponents.Sources.PrescribedTemperature(ambient_overrides...))
+  push!(__systems, @named ambient = ThermalComponents.Sources.PrescribedTemperature(; ambient_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_T_wall__guess) || (__guesses[T_wall] = __ovr_T_wall__guess)
 
   ### Initialization Equations
 

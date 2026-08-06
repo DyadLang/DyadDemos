@@ -88,8 +88,10 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_normalized_torque = pop!(__overrides, "normalized_torque", nothing); isnothing(__ovr_normalized_torque) || push!(__eqs, normalized_torque ~ __ovr_normalized_torque)
   __ovr_normalized_torque__initial = pop!(__overrides, "normalized_torque__initial", nothing); isnothing(__ovr_normalized_torque__initial) || (__initial_conditions[normalized_torque] = __ovr_normalized_torque__initial)
+  __ovr_normalized_torque__guess = pop!(__overrides, "normalized_torque__guess", nothing)
   __ovr_torque = pop!(__overrides, "torque", nothing); isnothing(__ovr_torque) || push!(__eqs, torque ~ __ovr_torque)
   __ovr_torque__initial = pop!(__overrides, "torque__initial", nothing); isnothing(__ovr_torque__initial) || (__initial_conditions[torque] = __ovr_torque__initial)
+  __ovr_torque__guess = pop!(__overrides, "torque__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -98,9 +100,11 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named drive = __Dyad__Spline())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_normalized_torque__guess) || (__guesses[normalized_torque] = __ovr_normalized_torque__guess)
+  isnothing(__ovr_torque__guess) || (__guesses[torque] = __ovr_torque__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, torque ~ tau_start)

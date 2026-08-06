@@ -62,20 +62,20 @@ REPL command), then activate this project:
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd DrivelineSciML
-julia +dyad-3.1.0 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 The measurement CSVs are committed, so calibration runs immediately:
 
 ```bash
-julia +dyad-3.1.0 --project scripts/run_calibration.jl   # both stages, ~2 min
-julia +dyad-3.1.0 --project scripts/validate.jl          # → assets/validation_tipin.png
+julia +dyad-3.3.0-rc2 --project scripts/run_calibration.jl   # both stages, ~2 min
+julia +dyad-3.3.0-rc2 --project scripts/validate.jl          # → assets/validation_tipin.png
 ```
 
 To regenerate the synthetic measurements from the truth model:
 
 ```bash
-julia +dyad-3.1.0 --project scripts/generate_calibration_data.jl
+julia +dyad-3.3.0-rc2 --project scripts/generate_calibration_data.jl
 ```
 
 After editing any `.dyad` file, regenerate `generated/` with the Dyad CLI:
@@ -117,7 +117,7 @@ minimizer — separating optimizer failure from structural/identifiability bias.
 ### Smoke tests
 
 ```bash
-julia +dyad-3.1.0 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.test()'
 ```
 
 Verifies that the dyad library compiles, all harnesses simulate, the Bouc-Wen

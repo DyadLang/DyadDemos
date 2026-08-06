@@ -116,20 +116,28 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
   __ovr_T__initial = pop!(__overrides, "T__initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
+  __ovr_T__guess = pop!(__overrides, "T__guess", nothing)
   __ovr_Q_cond = pop!(__overrides, "Q_cond", nothing); isnothing(__ovr_Q_cond) || push!(__eqs, Q_cond ~ __ovr_Q_cond)
   __ovr_Q_cond__initial = pop!(__overrides, "Q_cond__initial", nothing); isnothing(__ovr_Q_cond__initial) || (__initial_conditions[Q_cond] = __ovr_Q_cond__initial)
+  __ovr_Q_cond__guess = pop!(__overrides, "Q_cond__guess", nothing)
   __ovr_r = pop!(__overrides, "r", nothing); isnothing(__ovr_r) || push!(__eqs, r ~ __ovr_r)
   __ovr_r__initial = pop!(__overrides, "r__initial", nothing); isnothing(__ovr_r__initial) || (__initial_conditions[r] = __ovr_r__initial)
+  __ovr_r__guess = pop!(__overrides, "r__guess", nothing)
   __ovr_r_mid = pop!(__overrides, "r_mid", nothing); isnothing(__ovr_r_mid) || push!(__eqs, r_mid ~ __ovr_r_mid)
   __ovr_r_mid__initial = pop!(__overrides, "r_mid__initial", nothing); isnothing(__ovr_r_mid__initial) || (__initial_conditions[r_mid] = __ovr_r_mid__initial)
+  __ovr_r_mid__guess = pop!(__overrides, "r_mid__guess", nothing)
   __ovr_A_interface = pop!(__overrides, "A_interface", nothing); isnothing(__ovr_A_interface) || push!(__eqs, A_interface ~ __ovr_A_interface)
   __ovr_A_interface__initial = pop!(__overrides, "A_interface__initial", nothing); isnothing(__ovr_A_interface__initial) || (__initial_conditions[A_interface] = __ovr_A_interface__initial)
+  __ovr_A_interface__guess = pop!(__overrides, "A_interface__guess", nothing)
   __ovr_V_shell = pop!(__overrides, "V_shell", nothing); isnothing(__ovr_V_shell) || push!(__eqs, V_shell ~ __ovr_V_shell)
   __ovr_V_shell__initial = pop!(__overrides, "V_shell__initial", nothing); isnothing(__ovr_V_shell__initial) || (__initial_conditions[V_shell] = __ovr_V_shell__initial)
+  __ovr_V_shell__guess = pop!(__overrides, "V_shell__guess", nothing)
   __ovr_m_shell = pop!(__overrides, "m_shell", nothing); isnothing(__ovr_m_shell) || push!(__eqs, m_shell ~ __ovr_m_shell)
   __ovr_m_shell__initial = pop!(__overrides, "m_shell__initial", nothing); isnothing(__ovr_m_shell__initial) || (__initial_conditions[m_shell] = __ovr_m_shell__initial)
+  __ovr_m_shell__guess = pop!(__overrides, "m_shell__guess", nothing)
   __ovr_T_degF = pop!(__overrides, "T_degF", nothing); isnothing(__ovr_T_degF) || push!(__eqs, T_degF ~ __ovr_T_degF)
   __ovr_T_degF__initial = pop!(__overrides, "T_degF__initial", nothing); isnothing(__ovr_T_degF__initial) || (__initial_conditions[T_degF] = __ovr_T_degF__initial)
+  __ovr_T_degF__guess = pop!(__overrides, "T_degF__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -138,9 +146,17 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named surface = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_T__guess) || (__guesses[T] = __ovr_T__guess)
+  isnothing(__ovr_Q_cond__guess) || (__guesses[Q_cond] = __ovr_Q_cond__guess)
+  isnothing(__ovr_r__guess) || (__guesses[r] = __ovr_r__guess)
+  isnothing(__ovr_r_mid__guess) || (__guesses[r_mid] = __ovr_r_mid__guess)
+  isnothing(__ovr_A_interface__guess) || (__guesses[A_interface] = __ovr_A_interface__guess)
+  isnothing(__ovr_V_shell__guess) || (__guesses[V_shell] = __ovr_V_shell__guess)
+  isnothing(__ovr_m_shell__guess) || (__guesses[m_shell] = __ovr_m_shell__guess)
+  isnothing(__ovr_T_degF__guess) || (__guesses[T_degF] = __ovr_T_degF__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, T ~ T_inits)

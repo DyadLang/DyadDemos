@@ -55,25 +55,25 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent building of type DynamicSteadyState.ThreeZoneBuilding
   building_overrides = __pop_subcomponent_overrides!(__overrides, "building")
-  push!(__systems, @named building = DynamicSteadyState.ThreeZoneBuilding(building_overrides...))
+  push!(__systems, @named building = DynamicSteadyState.ThreeZoneBuilding(; building_overrides...))
   # Subcomponent outdoor_signal of type BlockComponents.Sources.Constant
   outdoor_signal_overrides = __pop_subcomponent_overrides!(__overrides, "outdoor_signal")
-  push!(__systems, @named outdoor_signal = BlockComponents.Sources.Constant(k=263.15, outdoor_signal_overrides...))
+  push!(__systems, @named outdoor_signal = BlockComponents.Sources.Constant(; k=263.15, outdoor_signal_overrides...))
   # Subcomponent ground_signal of type BlockComponents.Sources.Constant
   ground_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ground_signal")
-  push!(__systems, @named ground_signal = BlockComponents.Sources.Constant(k=283.15, ground_signal_overrides...))
+  push!(__systems, @named ground_signal = BlockComponents.Sources.Constant(; k=283.15, ground_signal_overrides...))
   # Subcomponent zone1_setpoint of type ThermalComponents.Sources.FixedTemperature
   zone1_setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "zone1_setpoint")
-  push!(__systems, @named zone1_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone1_setpoint_overrides...))
+  push!(__systems, @named zone1_setpoint = ThermalComponents.Sources.FixedTemperature(; T=294.15, zone1_setpoint_overrides...))
   # Subcomponent zone2_setpoint of type ThermalComponents.Sources.FixedTemperature
   zone2_setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "zone2_setpoint")
-  push!(__systems, @named zone2_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone2_setpoint_overrides...))
+  push!(__systems, @named zone2_setpoint = ThermalComponents.Sources.FixedTemperature(; T=294.15, zone2_setpoint_overrides...))
   # Subcomponent zone3_setpoint of type ThermalComponents.Sources.FixedTemperature
   zone3_setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "zone3_setpoint")
-  push!(__systems, @named zone3_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone3_setpoint_overrides...))
+  push!(__systems, @named zone3_setpoint = ThermalComponents.Sources.FixedTemperature(; T=294.15, zone3_setpoint_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

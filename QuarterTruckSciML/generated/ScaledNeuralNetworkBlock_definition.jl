@@ -110,40 +110,40 @@ Wrapper around a NeuralNetworkBlock (3 in -> 3 out) that applies the gray-box tr
   ### Components
   # Subcomponent nn of type DyadModelDiscovery.NeuralNetworkBlock
   nn_overrides = __pop_subcomponent_overrides!(__overrides, "nn")
-  push!(__systems, @named nn = DyadModelDiscovery.NeuralNetworkBlock(n_input=n_input, n_output=n_output, chain=chain, nn_overrides...))
+  push!(__systems, @named nn = DyadModelDiscovery.NeuralNetworkBlock(; n_input=n_input, n_output=n_output, chain=chain, nn_overrides...))
   # Subcomponent mux of type QuarterTruckSciML.Mux3
   mux_overrides = __pop_subcomponent_overrides!(__overrides, "mux")
-  push!(__systems, @named mux = QuarterTruckSciML.Mux3(mux_overrides...))
+  push!(__systems, @named mux = QuarterTruckSciML.Mux3(; mux_overrides...))
   # Subcomponent demux of type QuarterTruckSciML.Demux3
   demux_overrides = __pop_subcomponent_overrides!(__overrides, "demux")
-  push!(__systems, @named demux = QuarterTruckSciML.Demux3(demux_overrides...))
+  push!(__systems, @named demux = QuarterTruckSciML.Demux3(; demux_overrides...))
   # Subcomponent s_rel0_src of type BlockComponents.Sources.Constant
   s_rel0_src_overrides = __pop_subcomponent_overrides!(__overrides, "s_rel0_src")
-  push!(__systems, @named s_rel0_src = BlockComponents.Sources.Constant(k=s_rel0_tire, s_rel0_src_overrides...))
+  push!(__systems, @named s_rel0_src = BlockComponents.Sources.Constant(; k=s_rel0_tire, s_rel0_src_overrides...))
   # Subcomponent norm_tire of type BlockComponents.Math.Add
   norm_tire_overrides = __pop_subcomponent_overrides!(__overrides, "norm_tire")
-  push!(__systems, @named norm_tire = BlockComponents.Math.Add(k1=1.0 / s_scale_tire, k2=-1.0 / s_scale_tire, norm_tire_overrides...))
+  push!(__systems, @named norm_tire = BlockComponents.Math.Add(; k1=1.0 / s_scale_tire, k2=-1.0 / s_scale_tire, norm_tire_overrides...))
   # Subcomponent norm_friction of type BlockComponents.Math.Gain
   norm_friction_overrides = __pop_subcomponent_overrides!(__overrides, "norm_friction")
-  push!(__systems, @named norm_friction = BlockComponents.Math.Gain(k=1.0 / v_friction_scale, norm_friction_overrides...))
+  push!(__systems, @named norm_friction = BlockComponents.Math.Gain(; k=1.0 / v_friction_scale, norm_friction_overrides...))
   # Subcomponent norm_seat of type BlockComponents.Math.Gain
   norm_seat_overrides = __pop_subcomponent_overrides!(__overrides, "norm_seat")
-  push!(__systems, @named norm_seat = BlockComponents.Math.Gain(k=1.0 / v_seat_scale, norm_seat_overrides...))
+  push!(__systems, @named norm_seat = BlockComponents.Math.Gain(; k=1.0 / v_seat_scale, norm_seat_overrides...))
   # Subcomponent scale_tire of type BlockComponents.Math.Gain
   scale_tire_overrides = __pop_subcomponent_overrides!(__overrides, "scale_tire")
-  push!(__systems, @named scale_tire = BlockComponents.Math.Gain(k=f_scale_tire, scale_tire_overrides...))
+  push!(__systems, @named scale_tire = BlockComponents.Math.Gain(; k=f_scale_tire, scale_tire_overrides...))
   # Subcomponent scale_friction of type BlockComponents.Math.Gain
   scale_friction_overrides = __pop_subcomponent_overrides!(__overrides, "scale_friction")
-  push!(__systems, @named scale_friction = BlockComponents.Math.Gain(k=f_scale_friction, scale_friction_overrides...))
+  push!(__systems, @named scale_friction = BlockComponents.Math.Gain(; k=f_scale_friction, scale_friction_overrides...))
   # Subcomponent seat_prod of type BlockComponents.Math.Product
   seat_prod_overrides = __pop_subcomponent_overrides!(__overrides, "seat_prod")
-  push!(__systems, @named seat_prod = BlockComponents.Math.Product(seat_prod_overrides...))
+  push!(__systems, @named seat_prod = BlockComponents.Math.Product(; seat_prod_overrides...))
   # Subcomponent scale_seat of type BlockComponents.Math.Gain
   scale_seat_overrides = __pop_subcomponent_overrides!(__overrides, "scale_seat")
-  push!(__systems, @named scale_seat = BlockComponents.Math.Gain(k=d_seat * v_seat_scale, scale_seat_overrides...))
+  push!(__systems, @named scale_seat = BlockComponents.Math.Gain(; k=d_seat * v_seat_scale, scale_seat_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
