@@ -57,19 +57,19 @@ Event 1 harness: low-amplitude linear chirp (1 -> 500 Hz, +/-2 Nm) on a 30 Nm me
   ### Components
   # Subcomponent model of type DrivelineSciML.DrivelineSystem
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(model_overrides...))
+  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; model_overrides...))
   # Subcomponent chirp of type BlockComponents.Sources.Chirp
   chirp_overrides = __pop_subcomponent_overrides!(__overrides, "chirp")
-  push!(__systems, @named chirp = BlockComponents.Sources.Chirp(fmin=1.0, fmax=500.0, T=5.0, amplitude=2.0, law=BlockComponents.Sources.ChirpLaw.Linear(), chirp_overrides...))
+  push!(__systems, @named chirp = BlockComponents.Sources.Chirp(; fmin=Float64(1.0), fmax=Float64(500.0), T=Float64(5.0), amplitude=Float64(2.0), law=BlockComponents.Sources.ChirpLaw.Linear(), chirp_overrides...))
   # Subcomponent mean_torque of type BlockComponents.Sources.Constant
   mean_torque_overrides = __pop_subcomponent_overrides!(__overrides, "mean_torque")
-  push!(__systems, @named mean_torque = BlockComponents.Sources.Constant(k=30.0, mean_torque_overrides...))
+  push!(__systems, @named mean_torque = BlockComponents.Sources.Constant(; k=Float64(30.0), mean_torque_overrides...))
   # Subcomponent torque_sum of type BlockComponents.Math.Add
   torque_sum_overrides = __pop_subcomponent_overrides!(__overrides, "torque_sum")
-  push!(__systems, @named torque_sum = BlockComponents.Math.Add(torque_sum_overrides...))
+  push!(__systems, @named torque_sum = BlockComponents.Math.Add(; torque_sum_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

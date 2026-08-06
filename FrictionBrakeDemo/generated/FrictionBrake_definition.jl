@@ -116,20 +116,28 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_F_normal = pop!(__overrides, "F_normal", nothing); isnothing(__ovr_F_normal) || push!(__eqs, F_normal ~ __ovr_F_normal)
   __ovr_F_normal__initial = pop!(__overrides, "F_normal__initial", nothing); isnothing(__ovr_F_normal__initial) || (__initial_conditions[F_normal] = __ovr_F_normal__initial)
+  __ovr_F_normal__guess = pop!(__overrides, "F_normal__guess", nothing)
   __ovr_T_interface = pop!(__overrides, "T_interface", nothing); isnothing(__ovr_T_interface) || push!(__eqs, T_interface ~ __ovr_T_interface)
   __ovr_T_interface__initial = pop!(__overrides, "T_interface__initial", nothing); isnothing(__ovr_T_interface__initial) || (__initial_conditions[T_interface] = __ovr_T_interface__initial)
+  __ovr_T_interface__guess = pop!(__overrides, "T_interface__guess", nothing)
   __ovr_μ = pop!(__overrides, "μ", nothing); isnothing(__ovr_μ) || push!(__eqs, μ ~ __ovr_μ)
   __ovr_μ__initial = pop!(__overrides, "μ__initial", nothing); isnothing(__ovr_μ__initial) || (__initial_conditions[μ] = __ovr_μ__initial)
+  __ovr_μ__guess = pop!(__overrides, "μ__guess", nothing)
   __ovr_T_brake_single_surface = pop!(__overrides, "T_brake_single_surface", nothing); isnothing(__ovr_T_brake_single_surface) || push!(__eqs, T_brake_single_surface ~ __ovr_T_brake_single_surface)
   __ovr_T_brake_single_surface__initial = pop!(__overrides, "T_brake_single_surface__initial", nothing); isnothing(__ovr_T_brake_single_surface__initial) || (__initial_conditions[T_brake_single_surface] = __ovr_T_brake_single_surface__initial)
+  __ovr_T_brake_single_surface__guess = pop!(__overrides, "T_brake_single_surface__guess", nothing)
   __ovr_T_brake_per_wheel = pop!(__overrides, "T_brake_per_wheel", nothing); isnothing(__ovr_T_brake_per_wheel) || push!(__eqs, T_brake_per_wheel ~ __ovr_T_brake_per_wheel)
   __ovr_T_brake_per_wheel__initial = pop!(__overrides, "T_brake_per_wheel__initial", nothing); isnothing(__ovr_T_brake_per_wheel__initial) || (__initial_conditions[T_brake_per_wheel] = __ovr_T_brake_per_wheel__initial)
+  __ovr_T_brake_per_wheel__guess = pop!(__overrides, "T_brake_per_wheel__guess", nothing)
   __ovr_T_brake_magnitude = pop!(__overrides, "T_brake_magnitude", nothing); isnothing(__ovr_T_brake_magnitude) || push!(__eqs, T_brake_magnitude ~ __ovr_T_brake_magnitude)
   __ovr_T_brake_magnitude__initial = pop!(__overrides, "T_brake_magnitude__initial", nothing); isnothing(__ovr_T_brake_magnitude__initial) || (__initial_conditions[T_brake_magnitude] = __ovr_T_brake_magnitude__initial)
+  __ovr_T_brake_magnitude__guess = pop!(__overrides, "T_brake_magnitude__guess", nothing)
   __ovr_P_friction_total = pop!(__overrides, "P_friction_total", nothing); isnothing(__ovr_P_friction_total) || push!(__eqs, P_friction_total ~ __ovr_P_friction_total)
   __ovr_P_friction_total__initial = pop!(__overrides, "P_friction_total__initial", nothing); isnothing(__ovr_P_friction_total__initial) || (__initial_conditions[P_friction_total] = __ovr_P_friction_total__initial)
+  __ovr_P_friction_total__guess = pop!(__overrides, "P_friction_total__guess", nothing)
   __ovr_ω = pop!(__overrides, "ω", nothing); isnothing(__ovr_ω) || push!(__eqs, ω ~ __ovr_ω)
   __ovr_ω__initial = pop!(__overrides, "ω__initial", nothing); isnothing(__ovr_ω__initial) || (__initial_conditions[ω] = __ovr_ω__initial)
+  __ovr_ω__guess = pop!(__overrides, "ω__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -140,9 +148,17 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named pad = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_F_normal__guess) || (__guesses[F_normal] = __ovr_F_normal__guess)
+  isnothing(__ovr_T_interface__guess) || (__guesses[T_interface] = __ovr_T_interface__guess)
+  isnothing(__ovr_μ__guess) || (__guesses[μ] = __ovr_μ__guess)
+  isnothing(__ovr_T_brake_single_surface__guess) || (__guesses[T_brake_single_surface] = __ovr_T_brake_single_surface__guess)
+  isnothing(__ovr_T_brake_per_wheel__guess) || (__guesses[T_brake_per_wheel] = __ovr_T_brake_per_wheel__guess)
+  isnothing(__ovr_T_brake_magnitude__guess) || (__guesses[T_brake_magnitude] = __ovr_T_brake_magnitude__guess)
+  isnothing(__ovr_P_friction_total__guess) || (__guesses[P_friction_total] = __ovr_P_friction_total__guess)
+  isnothing(__ovr_ω__guess) || (__guesses[ω] = __ovr_ω__guess)
 
   ### Initialization Equations
 

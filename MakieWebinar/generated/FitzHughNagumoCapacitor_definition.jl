@@ -98,8 +98,10 @@ Supported dynamics:
   ### Variables (assignments)
   __ovr_u = pop!(__overrides, "u", nothing); isnothing(__ovr_u) || push!(__eqs, u ~ __ovr_u)
   __ovr_u__initial = pop!(__overrides, "u__initial", nothing); isnothing(__ovr_u__initial) || (__initial_conditions[u] = __ovr_u__initial)
+  __ovr_u__guess = pop!(__overrides, "u__guess", nothing)
   __ovr_v = pop!(__overrides, "v", nothing); isnothing(__ovr_v) || push!(__eqs, v ~ __ovr_v)
   __ovr_v__initial = pop!(__overrides, "v__initial", nothing); isnothing(__ovr_v__initial) || (__initial_conditions[v] = __ovr_v__initial)
+  __ovr_v__guess = pop!(__overrides, "v__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -108,9 +110,11 @@ Supported dynamics:
   push!(__systems, @named port = MakieWebinar.DiffusionPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_u__guess) || (__guesses[u] = __ovr_u__guess)
+  isnothing(__ovr_v__guess) || (__guesses[v] = __ovr_v__guess)
 
   ### Initialization Equations
 

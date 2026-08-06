@@ -103,43 +103,43 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named ambient = __Dyad__HeatPort())
   # Subcomponent hotEspresso of type ThermalComponents.Components.HeatCapacitor
   hotEspresso_overrides = __pop_subcomponent_overrides!(__overrides, "hotEspresso")
-  push!(__systems, @named hotEspresso = ThermalComponents.Components.HeatCapacitor(C=C_espresso, T0=T0_espresso, hotEspresso_overrides...))
+  push!(__systems, @named hotEspresso = ThermalComponents.Components.HeatCapacitor(; C=C_espresso, T0=T0_espresso, hotEspresso_overrides...))
   # Subcomponent cupMass of type ThermalComponents.Components.HeatCapacitor
   cupMass_overrides = __pop_subcomponent_overrides!(__overrides, "cupMass")
-  push!(__systems, @named cupMass = ThermalComponents.Components.HeatCapacitor(C=C_cup, T0=T0_cup, cupMass_overrides...))
+  push!(__systems, @named cupMass = ThermalComponents.Components.HeatCapacitor(; C=C_cup, T0=T0_cup, cupMass_overrides...))
   # Subcomponent convEspresso2Cup of type ThermalComponents.Components.Convection
   convEspresso2Cup_overrides = __pop_subcomponent_overrides!(__overrides, "convEspresso2Cup")
-  push!(__systems, @named convEspresso2Cup = ThermalComponents.Components.Convection(convEspresso2Cup_overrides...))
+  push!(__systems, @named convEspresso2Cup = ThermalComponents.Components.Convection(; convEspresso2Cup_overrides...))
   # Subcomponent gcEsp2Cup of type BlockComponents.Sources.Constant
   gcEsp2Cup_overrides = __pop_subcomponent_overrides!(__overrides, "gcEsp2Cup")
-  push!(__systems, @named gcEsp2Cup = BlockComponents.Sources.Constant(k=Gc_internal, gcEsp2Cup_overrides...))
+  push!(__systems, @named gcEsp2Cup = BlockComponents.Sources.Constant(; k=Gc_internal, gcEsp2Cup_overrides...))
   # Subcomponent condCup of type ThermalComponents.Components.ThermalConductor
   condCup_overrides = __pop_subcomponent_overrides!(__overrides, "condCup")
-  push!(__systems, @named condCup = ThermalComponents.Components.ThermalConductor(G=G_wall, condCup_overrides...))
+  push!(__systems, @named condCup = ThermalComponents.Components.ThermalConductor(; G=G_wall, condCup_overrides...))
   # Subcomponent convCup2Env of type ThermalComponents.Components.Convection
   convCup2Env_overrides = __pop_subcomponent_overrides!(__overrides, "convCup2Env")
-  push!(__systems, @named convCup2Env = ThermalComponents.Components.Convection(convCup2Env_overrides...))
+  push!(__systems, @named convCup2Env = ThermalComponents.Components.Convection(; convCup2Env_overrides...))
   # Subcomponent gcCup2Env of type BlockComponents.Sources.Constant
   gcCup2Env_overrides = __pop_subcomponent_overrides!(__overrides, "gcCup2Env")
-  push!(__systems, @named gcCup2Env = BlockComponents.Sources.Constant(k=Gc_external, gcCup2Env_overrides...))
+  push!(__systems, @named gcCup2Env = BlockComponents.Sources.Constant(; k=Gc_external, gcCup2Env_overrides...))
   # Subcomponent radCup2Env of type ThermalComponents.Components.BodyRadiation
   radCup2Env_overrides = __pop_subcomponent_overrides!(__overrides, "radCup2Env")
-  push!(__systems, @named radCup2Env = ThermalComponents.Components.BodyRadiation(Gr=Gr_external, radCup2Env_overrides...))
+  push!(__systems, @named radCup2Env = ThermalComponents.Components.BodyRadiation(; Gr=Gr_external, radCup2Env_overrides...))
   # Subcomponent tempSensor of type ThermalComponents.Sensors.TemperatureSensor
   tempSensor_overrides = __pop_subcomponent_overrides!(__overrides, "tempSensor")
-  push!(__systems, @named tempSensor = ThermalComponents.Sensors.TemperatureSensor(tempSensor_overrides...))
+  push!(__systems, @named tempSensor = ThermalComponents.Sensors.TemperatureSensor(; tempSensor_overrides...))
   # Subcomponent to_degC of type BlockComponents.Math.Gain
   to_degC_overrides = __pop_subcomponent_overrides!(__overrides, "to_degC")
-  push!(__systems, @named to_degC = BlockComponents.Math.Gain(k=1.0, to_degC_overrides...))
+  push!(__systems, @named to_degC = BlockComponents.Math.Gain(; k=Float64(1.0), to_degC_overrides...))
   # Subcomponent offset_degC of type BlockComponents.Sources.Constant
   offset_degC_overrides = __pop_subcomponent_overrides!(__overrides, "offset_degC")
-  push!(__systems, @named offset_degC = BlockComponents.Sources.Constant(k=-273.15, offset_degC_overrides...))
+  push!(__systems, @named offset_degC = BlockComponents.Sources.Constant(; k=-273.15, offset_degC_overrides...))
   # Subcomponent add_offset of type BlockComponents.Math.Add
   add_offset_overrides = __pop_subcomponent_overrides!(__overrides, "add_offset")
-  push!(__systems, @named add_offset = BlockComponents.Math.Add(add_offset_overrides...))
+  push!(__systems, @named add_offset = BlockComponents.Math.Add(; add_offset_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

@@ -75,16 +75,16 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named ambient = __Dyad__HeatPort())
   # Subcomponent convTop of type ThermalComponents.Components.Convection
   convTop_overrides = __pop_subcomponent_overrides!(__overrides, "convTop")
-  push!(__systems, @named convTop = ThermalComponents.Components.Convection(convTop_overrides...))
+  push!(__systems, @named convTop = ThermalComponents.Components.Convection(; convTop_overrides...))
   # Subcomponent gcTop of type BlockComponents.Sources.Constant
   gcTop_overrides = __pop_subcomponent_overrides!(__overrides, "gcTop")
-  push!(__systems, @named gcTop = BlockComponents.Sources.Constant(k=Gc_top, gcTop_overrides...))
+  push!(__systems, @named gcTop = BlockComponents.Sources.Constant(; k=Gc_top, gcTop_overrides...))
   # Subcomponent radTop of type ThermalComponents.Components.BodyRadiation
   radTop_overrides = __pop_subcomponent_overrides!(__overrides, "radTop")
-  push!(__systems, @named radTop = ThermalComponents.Components.BodyRadiation(Gr=Gr_top, radTop_overrides...))
+  push!(__systems, @named radTop = ThermalComponents.Components.BodyRadiation(; Gr=Gr_top, radTop_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

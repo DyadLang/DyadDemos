@@ -55,40 +55,40 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent building of type DynamicSteadyState.ThreeZoneBuilding
   building_overrides = __pop_subcomponent_overrides!(__overrides, "building")
-  push!(__systems, @named building = DynamicSteadyState.ThreeZoneBuilding(building_overrides...))
+  push!(__systems, @named building = DynamicSteadyState.ThreeZoneBuilding(; building_overrides...))
   # Subcomponent outdoor_signal of type BlockComponents.Sources.Constant
   outdoor_signal_overrides = __pop_subcomponent_overrides!(__overrides, "outdoor_signal")
-  push!(__systems, @named outdoor_signal = BlockComponents.Sources.Constant(k=268.15, outdoor_signal_overrides...))
+  push!(__systems, @named outdoor_signal = BlockComponents.Sources.Constant(; k=268.15, outdoor_signal_overrides...))
   # Subcomponent ground_signal of type BlockComponents.Sources.Constant
   ground_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ground_signal")
-  push!(__systems, @named ground_signal = BlockComponents.Sources.Constant(k=283.15, ground_signal_overrides...))
+  push!(__systems, @named ground_signal = BlockComponents.Sources.Constant(; k=283.15, ground_signal_overrides...))
   # Subcomponent int1 of type ThermalComponents.Sources.FixedHeatFlow
   int1_overrides = __pop_subcomponent_overrides!(__overrides, "int1")
-  push!(__systems, @named int1 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=600.0, int1_overrides...))
+  push!(__systems, @named int1 = ThermalComponents.Sources.FixedHeatFlow(; Q_flow=Float64(600.0), int1_overrides...))
   # Subcomponent int2 of type ThermalComponents.Sources.FixedHeatFlow
   int2_overrides = __pop_subcomponent_overrides!(__overrides, "int2")
-  push!(__systems, @named int2 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=500.0, int2_overrides...))
+  push!(__systems, @named int2 = ThermalComponents.Sources.FixedHeatFlow(; Q_flow=Float64(500.0), int2_overrides...))
   # Subcomponent int3 of type ThermalComponents.Sources.FixedHeatFlow
   int3_overrides = __pop_subcomponent_overrides!(__overrides, "int3")
-  push!(__systems, @named int3 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=400.0, int3_overrides...))
+  push!(__systems, @named int3 = ThermalComponents.Sources.FixedHeatFlow(; Q_flow=Float64(400.0), int3_overrides...))
   # Subcomponent solar1 of type ThermalComponents.Sources.FixedHeatFlow
   solar1_overrides = __pop_subcomponent_overrides!(__overrides, "solar1")
-  push!(__systems, @named solar1 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=1500.0, solar1_overrides...))
+  push!(__systems, @named solar1 = ThermalComponents.Sources.FixedHeatFlow(; Q_flow=Float64(1500.0), solar1_overrides...))
   # Subcomponent solar3 of type ThermalComponents.Sources.FixedHeatFlow
   solar3_overrides = __pop_subcomponent_overrides!(__overrides, "solar3")
-  push!(__systems, @named solar3 = ThermalComponents.Sources.FixedHeatFlow(Q_flow=375.0, solar3_overrides...))
+  push!(__systems, @named solar3 = ThermalComponents.Sources.FixedHeatFlow(; Q_flow=Float64(375.0), solar3_overrides...))
   # Subcomponent zone1_setpoint of type ThermalComponents.Sources.FixedTemperature
   zone1_setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "zone1_setpoint")
-  push!(__systems, @named zone1_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone1_setpoint_overrides...))
+  push!(__systems, @named zone1_setpoint = ThermalComponents.Sources.FixedTemperature(; T=294.15, zone1_setpoint_overrides...))
   # Subcomponent zone2_setpoint of type ThermalComponents.Sources.FixedTemperature
   zone2_setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "zone2_setpoint")
-  push!(__systems, @named zone2_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone2_setpoint_overrides...))
+  push!(__systems, @named zone2_setpoint = ThermalComponents.Sources.FixedTemperature(; T=294.15, zone2_setpoint_overrides...))
   # Subcomponent zone3_setpoint of type ThermalComponents.Sources.FixedTemperature
   zone3_setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "zone3_setpoint")
-  push!(__systems, @named zone3_setpoint = ThermalComponents.Sources.FixedTemperature(T=294.15, zone3_setpoint_overrides...))
+  push!(__systems, @named zone3_setpoint = ThermalComponents.Sources.FixedTemperature(; T=294.15, zone3_setpoint_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

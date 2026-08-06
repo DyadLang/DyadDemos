@@ -100,19 +100,19 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   ### Components
   # Subcomponent tire of type TranslationalComponents.Components.Mass
   tire_overrides = __pop_subcomponent_overrides!(__overrides, "tire")
-  push!(__systems, @named tire = TranslationalComponents.Components.Mass(m=40.0, L=0.0, g=9.81, theta=1.5708, tire_overrides...))
+  push!(__systems, @named tire = TranslationalComponents.Components.Mass(; m=Float64(40.0), L=Float64(0.0), g=9.81, theta=1.5708, tire_overrides...))
   # Subcomponent body of type TranslationalComponents.Components.Mass
   body_overrides = __pop_subcomponent_overrides!(__overrides, "body")
-  push!(__systems, @named body = TranslationalComponents.Components.Mass(m=300.0, L=0.0, g=9.81, theta=1.5708, body_overrides...))
+  push!(__systems, @named body = TranslationalComponents.Components.Mass(; m=Float64(300.0), L=Float64(0.0), g=9.81, theta=1.5708, body_overrides...))
   # Subcomponent seat of type TranslationalComponents.Components.Mass
   seat_overrides = __pop_subcomponent_overrides!(__overrides, "seat")
-  push!(__systems, @named seat = TranslationalComponents.Components.Mass(m=15.0, L=0.0, g=9.81, theta=1.5708, seat_overrides...))
+  push!(__systems, @named seat = TranslationalComponents.Components.Mass(; m=Float64(15.0), L=Float64(0.0), g=9.81, theta=1.5708, seat_overrides...))
   # Subcomponent driver of type TranslationalComponents.Components.Mass
   driver_overrides = __pop_subcomponent_overrides!(__overrides, "driver")
-  push!(__systems, @named driver = TranslationalComponents.Components.Mass(m=75.0, L=0.0, g=9.81, theta=1.5708, driver_overrides...))
+  push!(__systems, @named driver = TranslationalComponents.Components.Mass(; m=Float64(75.0), L=Float64(0.0), g=9.81, theta=1.5708, driver_overrides...))
   # Subcomponent tire_to_road of type QuarterTruckSciML.TireWithExternalResidual
   tire_to_road_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_road")
-  push!(__systems, @named tire_to_road = QuarterTruckSciML.TireWithExternalResidual(k1=200000.0, d=50.0, tire_to_road_overrides...))
+  push!(__systems, @named tire_to_road = QuarterTruckSciML.TireWithExternalResidual(; k1=Float64(200000.0), d=Float64(50.0), tire_to_road_overrides...))
   __bindings[tire_to_road.s_rel0] = s_rel0_tire
   # Now remove initial conditions in tire_to_road that correspond to the bindings just added
   __tire_to_road_ics = ModelingToolkit.get_initial_conditions(tire_to_road)
@@ -121,16 +121,16 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   delete!(__tire_to_road_ics, __tire_to_road_s_rel0)
   # Subcomponent tire_to_body of type TranslationalComponents.Components.SpringDamper
   tire_to_body_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_body")
-  push!(__systems, @named tire_to_body = TranslationalComponents.Components.SpringDamper(c=20000.0, d=1500.0, s_rel0=1.0, tire_to_body_overrides...))
+  push!(__systems, @named tire_to_body = TranslationalComponents.Components.SpringDamper(; c=Float64(20000.0), d=Float64(1500.0), s_rel0=Float64(1.0), tire_to_body_overrides...))
   # Subcomponent friction_tb of type QuarterTruckSciML.PureExternalForce
   friction_tb_overrides = __pop_subcomponent_overrides!(__overrides, "friction_tb")
-  push!(__systems, @named friction_tb = QuarterTruckSciML.PureExternalForce(friction_tb_overrides...))
+  push!(__systems, @named friction_tb = QuarterTruckSciML.PureExternalForce(; friction_tb_overrides...))
   # Subcomponent body_to_seat of type TranslationalComponents.Components.SpringDamper
   body_to_seat_overrides = __pop_subcomponent_overrides!(__overrides, "body_to_seat")
-  push!(__systems, @named body_to_seat = TranslationalComponents.Components.SpringDamper(c=15000.0, d=800.0, s_rel0=0.2, body_to_seat_overrides...))
+  push!(__systems, @named body_to_seat = TranslationalComponents.Components.SpringDamper(; c=Float64(15000.0), d=Float64(800.0), s_rel0=0.2, body_to_seat_overrides...))
   # Subcomponent seat_to_driver of type QuarterTruckSciML.SpringDamperWithExternalResidual
   seat_to_driver_overrides = __pop_subcomponent_overrides!(__overrides, "seat_to_driver")
-  push!(__systems, @named seat_to_driver = QuarterTruckSciML.SpringDamperWithExternalResidual(k=10000.0, d=500.0, seat_to_driver_overrides...))
+  push!(__systems, @named seat_to_driver = QuarterTruckSciML.SpringDamperWithExternalResidual(; k=Float64(10000.0), d=Float64(500.0), seat_to_driver_overrides...))
   __bindings[seat_to_driver.s_rel0] = s_rel0_seat
   # Now remove initial conditions in seat_to_driver that correspond to the bindings just added
   __seat_to_driver_ics = ModelingToolkit.get_initial_conditions(seat_to_driver)
@@ -139,16 +139,16 @@ Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning
   delete!(__seat_to_driver_ics, __seat_to_driver_s_rel0)
   # Subcomponent road of type TranslationalComponents.Sources.Position
   road_overrides = __pop_subcomponent_overrides!(__overrides, "road")
-  push!(__systems, @named road = TranslationalComponents.Sources.Position(ref_type=TranslationalComponents.Sources.ReferenceType.Filtered(; f_crit=100.0), road_overrides...))
+  push!(__systems, @named road = TranslationalComponents.Sources.Position(; ref_type=TranslationalComponents.Sources.ReferenceType.Filtered(; f_crit=Float64(100.0)), road_overrides...))
   # Subcomponent road_fixed of type TranslationalComponents.Components.Fixed
   road_fixed_overrides = __pop_subcomponent_overrides!(__overrides, "road_fixed")
-  push!(__systems, @named road_fixed = TranslationalComponents.Components.Fixed(s0=0.0, road_fixed_overrides...))
+  push!(__systems, @named road_fixed = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), road_fixed_overrides...))
   # Subcomponent scaled_nn of type QuarterTruckSciML.ScaledNeuralNetworkBlock
   scaled_nn_overrides = __pop_subcomponent_overrides!(__overrides, "scaled_nn")
-  push!(__systems, @named scaled_nn = QuarterTruckSciML.ScaledNeuralNetworkBlock(n_input=n_input, n_output=n_output, chain=chain, s_rel0_tire=s_rel0_tire, s_scale_tire=s_scale_tire, v_friction_scale=v_friction_scale, v_seat_scale=v_seat_scale, f_scale_tire=f_scale_tire, f_scale_friction=f_scale_friction, d_seat=500.0, scaled_nn_overrides...))
+  push!(__systems, @named scaled_nn = QuarterTruckSciML.ScaledNeuralNetworkBlock(; n_input=n_input, n_output=n_output, chain=chain, s_rel0_tire=s_rel0_tire, s_scale_tire=s_scale_tire, v_friction_scale=v_friction_scale, v_seat_scale=v_seat_scale, f_scale_tire=f_scale_tire, f_scale_friction=f_scale_friction, d_seat=Float64(500.0), scaled_nn_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

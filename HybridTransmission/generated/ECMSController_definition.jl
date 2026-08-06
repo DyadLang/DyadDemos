@@ -165,18 +165,25 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_speed_error = pop!(__overrides, "speed_error", nothing); isnothing(__ovr_speed_error) || push!(__eqs, speed_error ~ __ovr_speed_error)
   __ovr_speed_error__initial = pop!(__overrides, "speed_error__initial", nothing); isnothing(__ovr_speed_error__initial) || (__initial_conditions[speed_error] = __ovr_speed_error__initial)
+  __ovr_speed_error__guess = pop!(__overrides, "speed_error__guess", nothing)
   __ovr_F_load = pop!(__overrides, "F_load", nothing); isnothing(__ovr_F_load) || push!(__eqs, F_load ~ __ovr_F_load)
   __ovr_F_load__initial = pop!(__overrides, "F_load__initial", nothing); isnothing(__ovr_F_load__initial) || (__initial_conditions[F_load] = __ovr_F_load__initial)
+  __ovr_F_load__guess = pop!(__overrides, "F_load__guess", nothing)
   __ovr_T_wheel_demand = pop!(__overrides, "T_wheel_demand", nothing); isnothing(__ovr_T_wheel_demand) || push!(__eqs, T_wheel_demand ~ __ovr_T_wheel_demand)
   __ovr_T_wheel_demand__initial = pop!(__overrides, "T_wheel_demand__initial", nothing); isnothing(__ovr_T_wheel_demand__initial) || (__initial_conditions[T_wheel_demand] = __ovr_T_wheel_demand__initial)
+  __ovr_T_wheel_demand__guess = pop!(__overrides, "T_wheel_demand__guess", nothing)
   __ovr_s_effective = pop!(__overrides, "s_effective", nothing); isnothing(__ovr_s_effective) || push!(__eqs, s_effective ~ __ovr_s_effective)
   __ovr_s_effective__initial = pop!(__overrides, "s_effective__initial", nothing); isnothing(__ovr_s_effective__initial) || (__initial_conditions[s_effective] = __ovr_s_effective__initial)
+  __ovr_s_effective__guess = pop!(__overrides, "s_effective__guess", nothing)
   __ovr_engine_fraction = pop!(__overrides, "engine_fraction", nothing); isnothing(__ovr_engine_fraction) || push!(__eqs, engine_fraction ~ __ovr_engine_fraction)
   __ovr_engine_fraction__initial = pop!(__overrides, "engine_fraction__initial", nothing); isnothing(__ovr_engine_fraction__initial) || (__initial_conditions[engine_fraction] = __ovr_engine_fraction__initial)
+  __ovr_engine_fraction__guess = pop!(__overrides, "engine_fraction__guess", nothing)
   __ovr_omega_engine_target = pop!(__overrides, "omega_engine_target", nothing); isnothing(__ovr_omega_engine_target) || push!(__eqs, omega_engine_target ~ __ovr_omega_engine_target)
   __ovr_omega_engine_target__initial = pop!(__overrides, "omega_engine_target__initial", nothing); isnothing(__ovr_omega_engine_target__initial) || (__initial_conditions[omega_engine_target] = __ovr_omega_engine_target__initial)
+  __ovr_omega_engine_target__guess = pop!(__overrides, "omega_engine_target__guess", nothing)
   __ovr_mg1_torque_proportional = pop!(__overrides, "mg1_torque_proportional", nothing); isnothing(__ovr_mg1_torque_proportional) || push!(__eqs, mg1_torque_proportional ~ __ovr_mg1_torque_proportional)
   __ovr_mg1_torque_proportional__initial = pop!(__overrides, "mg1_torque_proportional__initial", nothing); isnothing(__ovr_mg1_torque_proportional__initial) || (__initial_conditions[mg1_torque_proportional] = __ovr_mg1_torque_proportional__initial)
+  __ovr_mg1_torque_proportional__guess = pop!(__overrides, "mg1_torque_proportional__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -184,9 +191,16 @@ import Moshi as __Ext__Moshi
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_speed_error__guess) || (__guesses[speed_error] = __ovr_speed_error__guess)
+  isnothing(__ovr_F_load__guess) || (__guesses[F_load] = __ovr_F_load__guess)
+  isnothing(__ovr_T_wheel_demand__guess) || (__guesses[T_wheel_demand] = __ovr_T_wheel_demand__guess)
+  isnothing(__ovr_s_effective__guess) || (__guesses[s_effective] = __ovr_s_effective__guess)
+  isnothing(__ovr_engine_fraction__guess) || (__guesses[engine_fraction] = __ovr_engine_fraction__guess)
+  isnothing(__ovr_omega_engine_target__guess) || (__guesses[omega_engine_target] = __ovr_omega_engine_target__guess)
+  isnothing(__ovr_mg1_torque_proportional__guess) || (__guesses[mg1_torque_proportional] = __ovr_mg1_torque_proportional__guess)
 
   ### Initialization Equations
 

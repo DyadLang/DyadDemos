@@ -83,13 +83,13 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent speed_pid of type BlockComponents.Continuous.LimPID
   speed_pid_overrides = __pop_subcomponent_overrides!(__overrides, "speed_pid")
-  push!(__systems, @named speed_pid = BlockComponents.Continuous.LimPID(k=k, Ti=Ti, Td=Td, y_max=1.0, y_min=-1.0, wp=1.0, wd=0.0, Ni=0.9, Nd=10.0, k_ff=0.0, speed_pid_overrides...))
+  push!(__systems, @named speed_pid = BlockComponents.Continuous.LimPID(; k=k, Ti=Ti, Td=Td, y_max=Float64(1.0), y_min=-1.0, wp=Float64(1.0), wd=Float64(0.0), Ni=0.9, Nd=Float64(10.0), k_ff=Float64(0.0), speed_pid_overrides...))
   # Subcomponent ff_input of type BlockComponents.Sources.Constant
   ff_input_overrides = __pop_subcomponent_overrides!(__overrides, "ff_input")
-  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(k=0.0, ff_input_overrides...))
+  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(; k=Float64(0.0), ff_input_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

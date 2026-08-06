@@ -68,22 +68,22 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named zone3_port = __Dyad__HeatPort())
   # Subcomponent z1 of type DynamicSteadyState.ZoneRoom
   z1_overrides = __pop_subcomponent_overrides!(__overrides, "z1")
-  push!(__systems, @named z1 = DynamicSteadyState.ZoneRoom(R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=400000.0, z1_overrides...))
+  push!(__systems, @named z1 = DynamicSteadyState.ZoneRoom(; R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000.0), z1_overrides...))
   # Subcomponent z2 of type DynamicSteadyState.ZoneRoom
   z2_overrides = __pop_subcomponent_overrides!(__overrides, "z2")
-  push!(__systems, @named z2 = DynamicSteadyState.ZoneRoom(R_wall=1000000.0, R_win=1000000.0, R_roof=0.025, R_slab=0.05, R_infil=0.0667, C=300000.0, z2_overrides...))
+  push!(__systems, @named z2 = DynamicSteadyState.ZoneRoom(; R_wall=Float64(1000000.0), R_win=Float64(1000000.0), R_roof=0.025, R_slab=0.05, R_infil=0.0667, C=Float64(300000.0), z2_overrides...))
   # Subcomponent z3 of type DynamicSteadyState.ZoneRoom
   z3_overrides = __pop_subcomponent_overrides!(__overrides, "z3")
-  push!(__systems, @named z3 = DynamicSteadyState.ZoneRoom(R_wall=0.01, R_win=0.02, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=400000.0, z3_overrides...))
+  push!(__systems, @named z3 = DynamicSteadyState.ZoneRoom(; R_wall=0.01, R_win=0.02, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000.0), z3_overrides...))
   # Subcomponent partition12 of type ThermalComponents.Components.ThermalResistor
   partition12_overrides = __pop_subcomponent_overrides!(__overrides, "partition12")
-  push!(__systems, @named partition12 = ThermalComponents.Components.ThermalResistor(R=0.01, partition12_overrides...))
+  push!(__systems, @named partition12 = ThermalComponents.Components.ThermalResistor(; R=0.01, partition12_overrides...))
   # Subcomponent partition23 of type ThermalComponents.Components.ThermalResistor
   partition23_overrides = __pop_subcomponent_overrides!(__overrides, "partition23")
-  push!(__systems, @named partition23 = ThermalComponents.Components.ThermalResistor(R=0.01, partition23_overrides...))
+  push!(__systems, @named partition23 = ThermalComponents.Components.ThermalResistor(; R=0.01, partition23_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

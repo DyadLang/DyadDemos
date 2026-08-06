@@ -40,6 +40,7 @@ end
 function DyadInterface.run_analysis(spec::DrivelineStage1CalibrationAnalysisSpec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
+  
   base_spec = CalibrationAnalysisSpec(;
     name=:CalibrationAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, data=spec.data, depvars_names=spec.depvars_names, loss_func=spec.loss_func, search_space_names=spec.search_space_names, search_space_lb=spec.search_space_lb, search_space_ub=spec.search_space_ub, calibration_alg=spec.calibration_alg, multiple_shooting_trajectories=spec.multiple_shooting_trajectories, pem_gain=spec.pem_gain, optimizer=spec.optimizer, optimizer_abstol=spec.optimizer_abstol, optimizer_maxiters=spec.optimizer_maxiters, optimizer_maxtime=spec.optimizer_maxtime, optimizer_verbose=spec.optimizer_verbose, diagnostics=spec.diagnostics, results_path=spec.results_path, model=spec.model
   )

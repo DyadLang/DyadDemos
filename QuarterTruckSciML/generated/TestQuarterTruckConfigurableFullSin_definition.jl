@@ -90,13 +90,13 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckConfigurable
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(tire_k3=tire_k3, tire_compression_only=tire_compression_only, friction_Fc=friction_Fc, friction_v0=friction_v0, seat_driver_n=seat_driver_n, model_overrides...))
+  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(; tire_k3=tire_k3, tire_compression_only=tire_compression_only, friction_Fc=friction_Fc, friction_v0=friction_v0, seat_driver_n=seat_driver_n, model_overrides...))
   # Subcomponent sin_signal of type BlockComponents.Sources.Sine
   sin_signal_overrides = __pop_subcomponent_overrides!(__overrides, "sin_signal")
-  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
+  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(; amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

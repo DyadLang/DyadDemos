@@ -84,34 +84,34 @@ can apply damping force to suppress oscillations.
   ### Components
   # Subcomponent mass of type TranslationalComponents.Components.Mass
   mass_overrides = __pop_subcomponent_overrides!(__overrides, "mass")
-  push!(__systems, @named mass = TranslationalComponents.Components.Mass(m=1.0, mass_overrides...))
+  push!(__systems, @named mass = TranslationalComponents.Components.Mass(; m=Float64(1.0), mass_overrides...))
   # Subcomponent spring of type TranslationalComponents.Components.Spring
   spring_overrides = __pop_subcomponent_overrides!(__overrides, "spring")
-  push!(__systems, @named spring = TranslationalComponents.Components.Spring(c=100.0, s_rel0=0.0, spring_overrides...))
+  push!(__systems, @named spring = TranslationalComponents.Components.Spring(; c=Float64(100.0), s_rel0=Float64(0.0), spring_overrides...))
   # Subcomponent fixed of type TranslationalComponents.Components.Fixed
   fixed_overrides = __pop_subcomponent_overrides!(__overrides, "fixed")
-  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(s0=0.0, fixed_overrides...))
+  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), fixed_overrides...))
   # Subcomponent pid of type BlockComponents.Continuous.LimPID
   pid_overrides = __pop_subcomponent_overrides!(__overrides, "pid")
-  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(k=pid_k, Ti=pid_Ti, Td=pid_Td, y_max=pid_y_max, y_min=pid_y_min, pid_overrides...))
+  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(; k=pid_k, Ti=pid_Ti, Td=pid_Td, y_max=pid_y_max, y_min=pid_y_min, pid_overrides...))
   # Subcomponent setpoint of type BlockComponents.Sources.Constant
   setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "setpoint")
-  push!(__systems, @named setpoint = BlockComponents.Sources.Constant(k=0.0, setpoint_overrides...))
+  push!(__systems, @named setpoint = BlockComponents.Sources.Constant(; k=Float64(0.0), setpoint_overrides...))
   # Subcomponent velocity_sensor of type TranslationalComponents.Sensors.SpeedSensor
   velocity_sensor_overrides = __pop_subcomponent_overrides!(__overrides, "velocity_sensor")
-  push!(__systems, @named velocity_sensor = TranslationalComponents.Sensors.SpeedSensor(velocity_sensor_overrides...))
+  push!(__systems, @named velocity_sensor = TranslationalComponents.Sensors.SpeedSensor(; velocity_sensor_overrides...))
   # Subcomponent control_force of type TranslationalComponents.Sources.Force
   control_force_overrides = __pop_subcomponent_overrides!(__overrides, "control_force")
-  push!(__systems, @named control_force = TranslationalComponents.Sources.Force(control_force_overrides...))
+  push!(__systems, @named control_force = TranslationalComponents.Sources.Force(; control_force_overrides...))
   # Subcomponent ground of type TranslationalComponents.Components.Fixed
   ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
-  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0.0, ground_overrides...))
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), ground_overrides...))
   # Subcomponent ff_input of type BlockComponents.Sources.Constant
   ff_input_overrides = __pop_subcomponent_overrides!(__overrides, "ff_input")
-  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(k=0.0, ff_input_overrides...))
+  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(; k=Float64(0.0), ff_input_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

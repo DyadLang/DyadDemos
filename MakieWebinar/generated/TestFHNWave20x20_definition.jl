@@ -67,33 +67,33 @@ import Moshi as __Ext__Moshi
   caps_overrides = __pop_subcomponent_overrides!(__overrides, "caps")
   caps = System[]
   for i in 1:N_caps
-    push!(caps, MakieWebinar.FHNCapacitor(V=ModelingToolkit.default_to_parentscope(0.01), a=ModelingToolkit.default_to_parentscope(0.1), b=ModelingToolkit.default_to_parentscope(0.01), eps=ModelingToolkit.default_to_parentscope(0.01), name=Symbol("caps", "⸺", i), caps_overrides...))
+    push!(caps, MakieWebinar.FHNCapacitor(V=ModelingToolkit.default_to_parentscope(0.01), a=ModelingToolkit.default_to_parentscope(0.1), b=ModelingToolkit.default_to_parentscope(0.01), eps=ModelingToolkit.default_to_parentscope(0.01), name=Symbol("caps", "⸺", i); caps_overrides...))
   end
   append!(__systems, caps)
   # Subcomponent r_h of type MakieWebinar.DiffusionResistor
   r_h_overrides = __pop_subcomponent_overrides!(__overrides, "r_h")
   r_h = System[]
   for i in 1:N_h_res
-    push!(r_h, MakieWebinar.DiffusionResistor(D=ModelingToolkit.default_to_parentscope(3.0), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_h", "⸺", i), r_h_overrides...))
+    push!(r_h, MakieWebinar.DiffusionResistor(D=ModelingToolkit.default_to_parentscope(Float64(3.0)), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_h", "⸺", i); r_h_overrides...))
   end
   append!(__systems, r_h)
   # Subcomponent r_v of type MakieWebinar.DiffusionResistor
   r_v_overrides = __pop_subcomponent_overrides!(__overrides, "r_v")
   r_v = System[]
   for i in 1:N_v_res
-    push!(r_v, MakieWebinar.DiffusionResistor(D=ModelingToolkit.default_to_parentscope(3.0), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_v", "⸺", i), r_v_overrides...))
+    push!(r_v, MakieWebinar.DiffusionResistor(D=ModelingToolkit.default_to_parentscope(Float64(3.0)), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_v", "⸺", i); r_v_overrides...))
   end
   append!(__systems, r_v)
   # Subcomponent bounds of type MakieWebinar.ZeroFluxBoundary
   bounds_overrides = __pop_subcomponent_overrides!(__overrides, "bounds")
   bounds = System[]
   for i in 1:N_bound
-    push!(bounds, MakieWebinar.ZeroFluxBoundary(name=Symbol("bounds", "⸺", i), bounds_overrides...))
+    push!(bounds, MakieWebinar.ZeroFluxBoundary(name=Symbol("bounds", "⸺", i); bounds_overrides...))
   end
   append!(__systems, bounds)
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
