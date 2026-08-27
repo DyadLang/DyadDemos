@@ -4,10 +4,10 @@ component MyActiveSuspension
   seat = DyadExampleComponents.MassSpringDamper(m = human_and_seat_mass, d = seat_damping, c = seat_stiffness, g = -10, theta = pi / 2) {^seat}
   road_data = DyadExampleComponents.RoadData() {^road_data}
   road = DyadExampleComponents.SimplePosition() {^road}
-  force = TranslationalComponents.Force() {^force}
-  pid = BlockComponents.LimPID(k = Kp, Ti = Ti, Td = Td) {^pid}
-  set_point = BlockComponents.Constant(k = 1.5) {^set_point}
-  seat_pos = TranslationalComponents.PositionSensor() {^seat_pos}
+  force = TranslationalComponents.Sources.Force() {^force}
+  pid = BlockComponents.Continuous.LimPID(k = Kp, Ti = Ti, Td = Td) {^pid}
+  set_point = BlockComponents.Sources.Constant(k = 1.5) {^set_point}
+  seat_pos = TranslationalComponents.Sensors.PositionSensor() {^seat_pos}
   parameter wheel_mass::Dyad.Mass = 25
   parameter wheel_stiffness::Dyad.TranslationalSpringConstant = 1e2
   parameter wheel_damping::Dyad.DampingCoefficient = 1e4
@@ -154,4 +154,10 @@ metadata {
     "id17": {"Dyad": {"renderStyle": "standard", "edges": [{"S": 1, "E": 2, "M": []}]}}
   }
 }
+end
+
+analysis ActiveSuspensionTransient
+  extends TransientAnalysis(stop = 10, dtmax = 0.01)
+  model = MyActiveSuspension()
+relations
 end

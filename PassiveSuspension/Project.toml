@@ -1,7 +1,7 @@
 name = "PassiveSuspension"
 uuid = "319979a8-4c04-4e42-b14e-77fd939a769e"
-authors = [" <>"]
 version = "0.1.0"
+authors = [" <>"]
 
 [deps]
 BlockComponents = "1ef5d832-be8e-447f-9f2c-8b5d17d15fd3"
@@ -17,20 +17,22 @@ OrdinaryDiffEqDefault = "50262376-6c5a-4cf5-baba-aaf4f84d72d7"
 PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 RotationalComponents = "824fa3ed-d7dc-4365-8bdf-ac77a1ac2011"
 RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
+ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 TranslationalComponents = "42acc370-819b-4877-bdd6-eb3294461f5d"
 
 [compat]
-BlockComponents = "3.1.8"
+BlockComponents = "=4.5.1"
 DyadData = "2.0.1"
-DyadEcosystemDependencies = "=0.11.4"
-DyadExampleComponents = "1.2.7"
-ElectricalComponents = "1.1.13"
+DyadEcosystemDependencies = "=0.11.17"
+DyadExampleComponents = "=1.4.2"
+ElectricalComponents = "=2.2.1"
 Markdown = "1"
-RotationalComponents = "1.2.4"
-TranslationalComponents = "1.1.8"
+RotationalComponents = "=2.5.4"
+ThermalComponents = "2.0.5"
+TranslationalComponents = "=2.5.0"
 
 [dyad]
-kernel = "2.3.0"
+kernel = "3.3.0"
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
