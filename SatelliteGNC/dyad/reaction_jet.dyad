@@ -1,0 +1,79 @@
+"""
+Single bipropellant reaction jet (thruster) model.
+
+A thruster mounted at position (rx, ry, rz) from the center of mass,
+with thrust direction (dx, dy, dz) in the body frame. Produces both
+force and torque: F = cmd * F_max * d_hat, τ = r × F.
+
+The command input is normalized [-1, 1] where -1 = full reverse,
+0 = off, +1 = full forward thrust (bipropellant/bidirectional).
+
+Parameters define the thruster geometry; instantiate multiple jets
+with different positions/directions for a full thruster configuration.
+"""
+component ReactionJet
+  "Thrust command input (-1 to 1, normalized)"
+  cmd = RealInput()
+  "Body-frame force outputs (N)"
+  fx_out = RealOutput()
+  fy_out = RealOutput()
+  fz_out = RealOutput()
+  "Body-frame torque outputs (N·m)"
+  tx_out = RealOutput()
+  ty_out = RealOutput()
+  tz_out = RealOutput()
+  "Thruster mounting position from CoM (body frame, m)"
+  parameter rx::Real = 0.0
+  parameter ry::Real = 0.0
+  parameter rz::Real = 0.0
+  "Thrust direction (body frame, unit vector)"
+  parameter dx::Real = 1.0
+  parameter dy::Real = 0.0
+  parameter dz::Real = 0.0
+  "Maximum thrust (N)"
+  parameter F_max::Real = 0.1
+  "Clamped command (-1 to 1)"
+  variable cmd_clamped::Real
+  "Force components (N)"
+  variable force_x::Real
+  variable force_y::Real
+  variable force_z::Real
+relations
+  # Clamp command to [-1, 1]
+  cmd_clamped = ifelse(cmd < -1.0, -1.0, ifelse(cmd > 1.0, 1.0, cmd))
+  # Force = clamped_cmd * F_max * direction
+  force_x = cmd_clamped * F_max * dx
+  force_y = cmd_clamped * F_max * dy
+  force_z = cmd_clamped * F_max * dz
+  # Torque = position × force (cross product)
+  tx_out = SatelliteGNC.cross_x(rx, ry, rz, force_x, force_y, force_z)
+  ty_out = SatelliteGNC.cross_y(rx, ry, rz, force_x, force_y, force_z)
+  tz_out = SatelliteGNC.cross_z(rx, ry, rz, force_x, force_y, force_z)
+  # Wire force outputs
+  fx_out = force_x
+  fy_out = force_y
+  fz_out = force_z
+end
+
+# =====================================================
+# TEST: Single jet at offset position
+#
+# Jet at position [0.15, 0.10, 0] m, thrust direction [0, 0, 1],
+# F_max = 1.0 N, command = 0.5
+#
+# Expected:
+#   Force = 0.5 * 1.0 * [0, 0, 1] = [0, 0, 0.5] N
+#   Torque = [0.15, 0.10, 0] × [0, 0, 0.5]
+#         = [0.10*0.5 - 0*0, 0*0 - 0.15*0.5, 0.15*0 - 0.10*0]
+#         = [0.05, -0.075, 0] N·m
+# =====================================================
+test component TestSingleJet
+  jet = ReactionJet(rx = 0.15, ry = 0.10, rz = 0.0, dx = 0.0, dy = 0.0, dz = 1.0, F_max = 1.0)
+relations
+  jet.cmd = 0.5
+end
+
+analysis TestSingleJetSim
+  extends TransientAnalysis(stop = 0.1)
+  model = TestSingleJet()
+end
