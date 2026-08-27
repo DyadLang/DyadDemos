@@ -4,16 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestFullGNC(; name)
 """
-@component function TestFullGNC(; name = nothing)
+@component function TestFullGNC(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestFullGNC()
+  """))
 
-        @named model = TestFullGNC()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,39 +25,71 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(Ixx=10, Iyy=8, Izz=6))
-  push!(__systems, @named traj_phi = SatelliteGNC.TrapezoidalProfile(target_angle=0.3491, w_max=0.0349, a_max=0.00873))
-  push!(__systems, @named traj_theta = SatelliteGNC.TrapezoidalProfile(target_angle=0.1745, w_max=0.0349, a_max=0.00873))
-  push!(__systems, @named traj_psi = SatelliteGNC.TrapezoidalProfile(target_angle=0.5236, w_max=0.0349, a_max=0.00873))
-  push!(__systems, @named obs = SatelliteGNC.LuenbergerObserver(Ixx=10, Iyy=8, Izz=6, p=2, La_x=4, La_y=4, La_z=4, Lw_x=40, Lw_y=32, Lw_z=24))
-  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(Kp_x=5, Kd_x=20, Kp_y=4, Kd_y=16, Kp_z=3, Kd_z=12, Ixx_ff=10, Iyy_ff=8, Izz_ff=6))
+  # Subcomponent sat of type SatelliteGNC.SatelliteBody
+  sat_overrides = __pop_subcomponent_overrides!(__overrides, "sat")
+  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), sat_overrides...))
+  # Subcomponent traj_phi of type SatelliteGNC.TrapezoidalProfile
+  traj_phi_overrides = __pop_subcomponent_overrides!(__overrides, "traj_phi")
+  push!(__systems, @named traj_phi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.3491, w_max=0.0349, a_max=0.00873, traj_phi_overrides...))
+  # Subcomponent traj_theta of type SatelliteGNC.TrapezoidalProfile
+  traj_theta_overrides = __pop_subcomponent_overrides!(__overrides, "traj_theta")
+  push!(__systems, @named traj_theta = SatelliteGNC.TrapezoidalProfile(; target_angle=0.1745, w_max=0.0349, a_max=0.00873, traj_theta_overrides...))
+  # Subcomponent traj_psi of type SatelliteGNC.TrapezoidalProfile
+  traj_psi_overrides = __pop_subcomponent_overrides!(__overrides, "traj_psi")
+  push!(__systems, @named traj_psi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.5236, w_max=0.0349, a_max=0.00873, traj_psi_overrides...))
+  # Subcomponent obs of type SatelliteGNC.LuenbergerObserver
+  obs_overrides = __pop_subcomponent_overrides!(__overrides, "obs")
+  push!(__systems, @named obs = SatelliteGNC.LuenbergerObserver(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), p=Float64(2.0), La_x=Float64(4.0), La_y=Float64(4.0), La_z=Float64(4.0), Lw_x=Float64(40.0), Lw_y=Float64(32.0), Lw_z=Float64(24.0), obs_overrides...))
+  # Subcomponent ctrl of type SatelliteGNC.AttitudeController
+  ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "ctrl")
+  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(; Kp_x=Float64(5.0), Kd_x=Float64(20.0), Kp_y=Float64(4.0), Kd_y=Float64(16.0), Kp_z=Float64(3.0), Kd_z=Float64(12.0), Ixx_ff=Float64(10.0), Iyy_ff=Float64(8.0), Izz_ff=Float64(6.0), ctrl_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[sat.wx] = (0)
-  __initial_conditions[sat.wy] = (0)
-  __initial_conditions[sat.wz] = (0)
-  __initial_conditions[sat.phi] = (0)
-  __initial_conditions[sat.theta] = (0)
-  __initial_conditions[sat.psi] = (0)
-  __initial_conditions[obs.phi_est] = (0)
-  __initial_conditions[obs.theta_est] = (0)
-  __initial_conditions[obs.psi_est] = (0)
-  __initial_conditions[obs.wx_est] = (0)
-  __initial_conditions[obs.wy_est] = (0)
-  __initial_conditions[obs.wz_est] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, sat.wx ~ 0.0)
+  push!(__initialization_eqs, sat.wy ~ 0.0)
+  push!(__initialization_eqs, sat.wz ~ 0.0)
+  push!(__initialization_eqs, sat.phi ~ 0.0)
+  push!(__initialization_eqs, sat.theta ~ 0.0)
+  push!(__initialization_eqs, sat.psi ~ 0.0)
+  push!(__initialization_eqs, obs.phi_est ~ 0.0)
+  push!(__initialization_eqs, obs.theta_est ~ 0.0)
+  push!(__initialization_eqs, obs.psi_est ~ 0.0)
+  push!(__initialization_eqs, obs.wx_est ~ 0.0)
+  push!(__initialization_eqs, obs.wy_est ~ 0.0)
+  push!(__initialization_eqs, obs.wz_est ~ 0.0)
 
   ### Assertions
   __assertions = []
@@ -85,6 +121,6 @@
   push!(__eqs, connect(ctrl.tau_z, obs.tau_z))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestFullGNC

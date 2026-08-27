@@ -4,22 +4,26 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestSatelliteOpenLoop(; name, tau_x_val)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `tau_x_val`         | Constant torque about X axis                         | --  |   0.1 |
 """
-@component function TestSatelliteOpenLoop(; name = nothing, tau_x_val=0.1)
+@component function TestSatelliteOpenLoop(; name = nothing, tau_x_val=0.1, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestSatelliteOpenLoop()
+  """))
 
-        @named model = TestSatelliteOpenLoop()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -27,39 +31,63 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (tau_x_val::Real = tau_x_val), [description = "Constant torque about X axis"])
+  __local__tau_x_val = tau_x_val
+  append!(__params, @parameters (tau_x_val::Real), [description = "Constant torque about X axis"])
+  __initial_conditions[tau_x_val] = __local__tau_x_val
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(Ixx=10, Iyy=8, Izz=6))
+  # Subcomponent sat of type SatelliteGNC.SatelliteBody
+  sat_overrides = __pop_subcomponent_overrides!(__overrides, "sat")
+  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), sat_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[sat.wx] = (0)
-  __initial_conditions[sat.wy] = (0)
-  __initial_conditions[sat.wz] = (0)
-  __initial_conditions[sat.phi] = (0)
-  __initial_conditions[sat.theta] = (0)
-  __initial_conditions[sat.psi] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, sat.wx ~ 0.0)
+  push!(__initialization_eqs, sat.wy ~ 0.0)
+  push!(__initialization_eqs, sat.wz ~ 0.0)
+  push!(__initialization_eqs, sat.phi ~ 0.0)
+  push!(__initialization_eqs, sat.theta ~ 0.0)
+  push!(__initialization_eqs, sat.psi ~ 0.0)
 
   ### Assertions
   __assertions = []
 
   ### Equations
   push!(__eqs, sat.tau_x ~ tau_x_val)
-  push!(__eqs, sat.tau_y ~ 0)
-  push!(__eqs, sat.tau_z ~ 0)
+  push!(__eqs, sat.tau_y ~ 0.0)
+  push!(__eqs, sat.tau_z ~ 0.0)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestSatelliteOpenLoop

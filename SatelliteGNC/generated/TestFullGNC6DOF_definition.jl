@@ -4,16 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestFullGNC6DOF(; name)
 """
-@component function TestFullGNC6DOF(; name = nothing)
+@component function TestFullGNC6DOF(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestFullGNC6DOF()
+  """))
 
-        @named model = TestFullGNC6DOF()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,62 +25,112 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named sat = SatelliteGNC.SatelliteBody6DOF(Ixx=10, Iyy=8, Izz=6, m=4))
-  push!(__systems, @named traj_phi = SatelliteGNC.TrapezoidalProfile(target_angle=0.3491, w_max=0.0349, a_max=0.00873))
-  push!(__systems, @named traj_theta = SatelliteGNC.TrapezoidalProfile(target_angle=0.1745, w_max=0.0349, a_max=0.00873))
-  push!(__systems, @named traj_psi = SatelliteGNC.TrapezoidalProfile(target_angle=0.5236, w_max=0.0349, a_max=0.00873))
-  push!(__systems, @named obs = SatelliteGNC.LuenbergerObserver(Ixx=10, Iyy=8, Izz=6, p=2, La_x=4, La_y=4, La_z=4, Lw_x=40, Lw_y=32, Lw_z=24))
-  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(Kp_x=5, Kd_x=20, Kp_y=4, Kd_y=16, Kp_z=3, Kd_z=12, Ixx_ff=10, Iyy_ff=8, Izz_ff=6))
-  push!(__systems, @named alloc = SatelliteGNC.ThrusterAllocator(F_max=0.5))
-  push!(__systems, @named jet1 = SatelliteGNC.ReactionJet(rx=0.15, ry=0.1, rz=0, dx=0, dy=0, dz=1, F_max=0.5))
-  push!(__systems, @named jet2 = SatelliteGNC.ReactionJet(rx=0.15, ry=-0.1, rz=0, dx=0, dy=0, dz=1, F_max=0.5))
-  push!(__systems, @named jet3 = SatelliteGNC.ReactionJet(rx=-0.15, ry=0.1, rz=0, dx=0, dy=0, dz=1, F_max=0.5))
-  push!(__systems, @named jet4 = SatelliteGNC.ReactionJet(rx=-0.15, ry=-0.1, rz=0, dx=0, dy=0, dz=1, F_max=0.5))
-  push!(__systems, @named jet5 = SatelliteGNC.ReactionJet(rx=0.15, ry=0, rz=0.05, dx=0, dy=1, dz=0, F_max=0.5))
-  push!(__systems, @named jet6 = SatelliteGNC.ReactionJet(rx=-0.15, ry=0, rz=0.05, dx=0, dy=1, dz=0, F_max=0.5))
-  push!(__systems, @named jet7 = SatelliteGNC.ReactionJet(rx=0, ry=0.1, rz=0.05, dx=1, dy=0, dz=0, F_max=0.5))
-  push!(__systems, @named jet8 = SatelliteGNC.ReactionJet(rx=0, ry=-0.1, rz=0.05, dx=1, dy=0, dz=0, F_max=0.5))
+  # Subcomponent sat of type SatelliteGNC.SatelliteBody6DOF
+  sat_overrides = __pop_subcomponent_overrides!(__overrides, "sat")
+  push!(__systems, @named sat = SatelliteGNC.SatelliteBody6DOF(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), m=Float64(4.0), sat_overrides...))
+  # Subcomponent traj_phi of type SatelliteGNC.TrapezoidalProfile
+  traj_phi_overrides = __pop_subcomponent_overrides!(__overrides, "traj_phi")
+  push!(__systems, @named traj_phi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.3491, w_max=0.0349, a_max=0.00873, traj_phi_overrides...))
+  # Subcomponent traj_theta of type SatelliteGNC.TrapezoidalProfile
+  traj_theta_overrides = __pop_subcomponent_overrides!(__overrides, "traj_theta")
+  push!(__systems, @named traj_theta = SatelliteGNC.TrapezoidalProfile(; target_angle=0.1745, w_max=0.0349, a_max=0.00873, traj_theta_overrides...))
+  # Subcomponent traj_psi of type SatelliteGNC.TrapezoidalProfile
+  traj_psi_overrides = __pop_subcomponent_overrides!(__overrides, "traj_psi")
+  push!(__systems, @named traj_psi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.5236, w_max=0.0349, a_max=0.00873, traj_psi_overrides...))
+  # Subcomponent obs of type SatelliteGNC.LuenbergerObserver
+  obs_overrides = __pop_subcomponent_overrides!(__overrides, "obs")
+  push!(__systems, @named obs = SatelliteGNC.LuenbergerObserver(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), p=Float64(2.0), La_x=Float64(4.0), La_y=Float64(4.0), La_z=Float64(4.0), Lw_x=Float64(40.0), Lw_y=Float64(32.0), Lw_z=Float64(24.0), obs_overrides...))
+  # Subcomponent ctrl of type SatelliteGNC.AttitudeController
+  ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "ctrl")
+  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(; Kp_x=Float64(5.0), Kd_x=Float64(20.0), Kp_y=Float64(4.0), Kd_y=Float64(16.0), Kp_z=Float64(3.0), Kd_z=Float64(12.0), Ixx_ff=Float64(10.0), Iyy_ff=Float64(8.0), Izz_ff=Float64(6.0), ctrl_overrides...))
+  # Subcomponent alloc of type SatelliteGNC.ThrusterAllocator
+  alloc_overrides = __pop_subcomponent_overrides!(__overrides, "alloc")
+  push!(__systems, @named alloc = SatelliteGNC.ThrusterAllocator(; F_max=0.5, alloc_overrides...))
+  # Subcomponent jet1 of type SatelliteGNC.ReactionJet
+  jet1_overrides = __pop_subcomponent_overrides!(__overrides, "jet1")
+  push!(__systems, @named jet1 = SatelliteGNC.ReactionJet(; rx=0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, jet1_overrides...))
+  # Subcomponent jet2 of type SatelliteGNC.ReactionJet
+  jet2_overrides = __pop_subcomponent_overrides!(__overrides, "jet2")
+  push!(__systems, @named jet2 = SatelliteGNC.ReactionJet(; rx=0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, jet2_overrides...))
+  # Subcomponent jet3 of type SatelliteGNC.ReactionJet
+  jet3_overrides = __pop_subcomponent_overrides!(__overrides, "jet3")
+  push!(__systems, @named jet3 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, jet3_overrides...))
+  # Subcomponent jet4 of type SatelliteGNC.ReactionJet
+  jet4_overrides = __pop_subcomponent_overrides!(__overrides, "jet4")
+  push!(__systems, @named jet4 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, jet4_overrides...))
+  # Subcomponent jet5 of type SatelliteGNC.ReactionJet
+  jet5_overrides = __pop_subcomponent_overrides!(__overrides, "jet5")
+  push!(__systems, @named jet5 = SatelliteGNC.ReactionJet(; rx=0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.5, jet5_overrides...))
+  # Subcomponent jet6 of type SatelliteGNC.ReactionJet
+  jet6_overrides = __pop_subcomponent_overrides!(__overrides, "jet6")
+  push!(__systems, @named jet6 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.5, jet6_overrides...))
+  # Subcomponent jet7 of type SatelliteGNC.ReactionJet
+  jet7_overrides = __pop_subcomponent_overrides!(__overrides, "jet7")
+  push!(__systems, @named jet7 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.5, jet7_overrides...))
+  # Subcomponent jet8 of type SatelliteGNC.ReactionJet
+  jet8_overrides = __pop_subcomponent_overrides!(__overrides, "jet8")
+  push!(__systems, @named jet8 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=-0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.5, jet8_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[sat.pos_x] = (6771000)
-  __initial_conditions[sat.pos_y] = (0)
-  __initial_conditions[sat.pos_z] = (0)
-  __initial_conditions[sat.vel_x] = (0)
-  __initial_conditions[sat.vel_y] = (7672.6)
-  __initial_conditions[sat.vel_z] = (0)
-  __initial_conditions[sat.wx] = (0)
-  __initial_conditions[sat.wy] = (0)
-  __initial_conditions[sat.wz] = (0)
-  __initial_conditions[sat.phi] = (0)
-  __initial_conditions[sat.theta] = (0)
-  __initial_conditions[sat.psi] = (0)
-  __initial_conditions[obs.phi_est] = (0)
-  __initial_conditions[obs.theta_est] = (0)
-  __initial_conditions[obs.psi_est] = (0)
-  __initial_conditions[obs.wx_est] = (0)
-  __initial_conditions[obs.wy_est] = (0)
-  __initial_conditions[obs.wz_est] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, sat.pos_x ~ 6771000.0)
+  push!(__initialization_eqs, sat.pos_y ~ 0.0)
+  push!(__initialization_eqs, sat.pos_z ~ 0.0)
+  push!(__initialization_eqs, sat.vel_x ~ 0.0)
+  push!(__initialization_eqs, sat.vel_y ~ 7672.6)
+  push!(__initialization_eqs, sat.vel_z ~ 0.0)
+  push!(__initialization_eqs, sat.wx ~ 0.0)
+  push!(__initialization_eqs, sat.wy ~ 0.0)
+  push!(__initialization_eqs, sat.wz ~ 0.0)
+  push!(__initialization_eqs, sat.phi ~ 0.0)
+  push!(__initialization_eqs, sat.theta ~ 0.0)
+  push!(__initialization_eqs, sat.psi ~ 0.0)
+  push!(__initialization_eqs, obs.phi_est ~ 0.0)
+  push!(__initialization_eqs, obs.theta_est ~ 0.0)
+  push!(__initialization_eqs, obs.psi_est ~ 0.0)
+  push!(__initialization_eqs, obs.wx_est ~ 0.0)
+  push!(__initialization_eqs, obs.wy_est ~ 0.0)
+  push!(__initialization_eqs, obs.wz_est ~ 0.0)
 
   ### Assertions
   __assertions = []
 
   ### Equations
-  push!(__eqs, alloc.Fx_cmd ~ 0)
-  push!(__eqs, alloc.Fy_cmd ~ 0)
-  push!(__eqs, alloc.Fz_cmd ~ 0)
+  push!(__eqs, alloc.Fx_cmd ~ 0.0)
+  push!(__eqs, alloc.Fy_cmd ~ 0.0)
+  push!(__eqs, alloc.Fz_cmd ~ 0.0)
   push!(__eqs, sat.tau_x ~ jet1.tx_out + jet2.tx_out + jet3.tx_out + jet4.tx_out + jet5.tx_out + jet6.tx_out + jet7.tx_out + jet8.tx_out)
   push!(__eqs, sat.tau_y ~ jet1.ty_out + jet2.ty_out + jet3.ty_out + jet4.ty_out + jet5.ty_out + jet6.ty_out + jet7.ty_out + jet8.ty_out)
   push!(__eqs, sat.tau_z ~ jet1.tz_out + jet2.tz_out + jet3.tz_out + jet4.tz_out + jet5.tz_out + jet6.tz_out + jet7.tz_out + jet8.tz_out)
@@ -117,6 +171,6 @@
   push!(__eqs, connect(ctrl.tau_z, obs.tau_z))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestFullGNC6DOF

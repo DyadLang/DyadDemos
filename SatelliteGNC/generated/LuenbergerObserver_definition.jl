@@ -4,8 +4,11 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    LuenbergerObserver(; name, Ixx, Iyy, Izz, p, La_x, La_y, La_z, Lw_x, Lw_y, Lw_z)
+
 
 3-axis Luenberger observer for satellite attitude estimation.
 
@@ -22,20 +25,20 @@ Observer poles placed at -p (double pole per axis):
 
 Typical design: p ≈ 3× controller bandwidth for separation principle.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `Ixx`         | Principal moments of inertia (must match plant)                         | --  |   10 |
-| `Iyy`         |                          | --  |   8 |
-| `Izz`         |                          | --  |   6 |
-| `p`         | Observer pole location (rad/s) — sets estimation bandwidth                         | --  |   2 |
-| `La_x`         | Angle correction gains (L_a = 2p)                         | --  |   4 |
-| `La_y`         |                          | --  |   4 |
-| `La_z`         |                          | --  |   4 |
-| `Lw_x`         | Rate correction gains (L_w = p^2 * I)                         | --  |   40 |
-| `Lw_y`         |                          | --  |   32 |
-| `Lw_z`         |                          | --  |   24 |
+| `Ixx`         | Principal moments of inertia (must match plant)                         | --  |   10.0 |
+| `Iyy`         |                          | --  |   8.0 |
+| `Izz`         |                          | --  |   6.0 |
+| `p`         | Observer pole location (rad/s) — sets estimation bandwidth                         | --  |   2.0 |
+| `La_x`         | Angle correction gains (L_a = 2p)                         | --  |   4.0 |
+| `La_y`         |                          | --  |   4.0 |
+| `La_z`         |                          | --  |   4.0 |
+| `Lw_x`         | Rate correction gains (L_w = p^2 * I)                         | --  |   40.0 |
+| `Lw_y`         |                          | --  |   32.0 |
+| `Lw_z`         |                          | --  |   24.0 |
 
 ## Connectors
 
@@ -55,21 +58,23 @@ Typical design: p ≈ 3× controller bandwidth for separation principle.
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `phi_est`         | Estimated states                         | --  | 
-| `theta_est`         |                          | --  | 
-| `psi_est`         |                          | --  | 
-| `wx_est`         |                          | --  | 
-| `wy_est`         |                          | --  | 
-| `wz_est`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `phi_est`         | Estimated states                         | --  |
+| `theta_est`         |                          | --  |
+| `psi_est`         |                          | --  |
+| `wx_est`         |                          | --  |
+| `wy_est`         |                          | --  |
+| `wz_est`         |                          | --  |
 """
-@component function LuenbergerObserver(; name = nothing, Ixx=10, Iyy=8, Izz=6, p=2, La_x=4, La_y=4, La_z=4, Lw_x=40, Lw_y=32, Lw_z=24)
+@component function LuenbergerObserver(; name = nothing, Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), p=Float64(2.0), La_x=Float64(4.0), La_y=Float64(4.0), La_z=Float64(4.0), Lw_x=Float64(40.0), Lw_y=Float64(32.0), Lw_z=Float64(24.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = LuenbergerObserver()
+  """))
 
-        @named model = LuenbergerObserver()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -77,20 +82,55 @@ Typical design: p ≈ 3× controller bandwidth for separation principle.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (Ixx::Real = Ixx), [description = "Principal moments of inertia (must match plant)"])
-  append!(__params, @parameters (Iyy::Real = Iyy))
-  append!(__params, @parameters (Izz::Real = Izz))
-  append!(__params, @parameters (p::Real = p), [description = "Observer pole location (rad/s) — sets estimation bandwidth"])
-  append!(__params, @parameters (La_x::Real = La_x), [description = "Angle correction gains (L_a = 2p)"])
-  append!(__params, @parameters (La_y::Real = La_y))
-  append!(__params, @parameters (La_z::Real = La_z))
-  append!(__params, @parameters (Lw_x::Real = Lw_x), [description = "Rate correction gains (L_w = p^2 * I)"])
-  append!(__params, @parameters (Lw_y::Real = Lw_y))
-  append!(__params, @parameters (Lw_z::Real = Lw_z))
+  __local__Ixx = Ixx
+  append!(__params, @parameters (Ixx::Real), [description = "Principal moments of inertia (must match plant)"])
+  __initial_conditions[Ixx] = __local__Ixx
+  __local__Iyy = Iyy
+  append!(__params, @parameters (Iyy::Real))
+  __initial_conditions[Iyy] = __local__Iyy
+  __local__Izz = Izz
+  append!(__params, @parameters (Izz::Real))
+  __initial_conditions[Izz] = __local__Izz
+  __local__p = p
+  append!(__params, @parameters (p::Real), [description = "Observer pole location (rad/s) — sets estimation bandwidth"])
+  __initial_conditions[p] = __local__p
+  __local__La_x = La_x
+  append!(__params, @parameters (La_x::Real), [description = "Angle correction gains (L_a = 2p)"])
+  __initial_conditions[La_x] = __local__La_x
+  __local__La_y = La_y
+  append!(__params, @parameters (La_y::Real))
+  __initial_conditions[La_y] = __local__La_y
+  __local__La_z = La_z
+  append!(__params, @parameters (La_z::Real))
+  __initial_conditions[La_z] = __local__La_z
+  __local__Lw_x = Lw_x
+  append!(__params, @parameters (Lw_x::Real), [description = "Rate correction gains (L_w = p^2 * I)"])
+  __initial_conditions[Lw_x] = __local__Lw_x
+  __local__Lw_y = Lw_y
+  append!(__params, @parameters (Lw_y::Real))
+  __initial_conditions[Lw_y] = __local__Lw_y
+  __local__Lw_z = Lw_z
+  append!(__params, @parameters (Lw_z::Real))
+  __initial_conditions[Lw_z] = __local__Lw_z
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (phi_meas(t)::Real), [input = true])
   append!(__vars, @variables (theta_meas(t)::Real), [input = true])
   append!(__vars, @variables (psi_meas(t)::Real), [input = true])
@@ -103,6 +143,8 @@ Typical design: p ≈ 3× controller bandwidth for separation principle.
   append!(__vars, @variables (wx_hat(t)::Real), [output = true])
   append!(__vars, @variables (wy_hat(t)::Real), [output = true])
   append!(__vars, @variables (wz_hat(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (phi_est(t)::Real), [description = "Estimated states"])
   append!(__vars, @variables (theta_est(t)::Real))
   append!(__vars, @variables (psi_est(t)::Real))
@@ -110,14 +152,41 @@ Typical design: p ≈ 3× controller bandwidth for separation principle.
   append!(__vars, @variables (wy_est(t)::Real))
   append!(__vars, @variables (wz_est(t)::Real))
 
+  ### Variables (assignments)
+  __ovr_phi_est = pop!(__overrides, "phi_est", nothing); isnothing(__ovr_phi_est) || push!(__eqs, phi_est ~ __ovr_phi_est)
+  __ovr_phi_est__initial = pop!(__overrides, "phi_est__initial", nothing); isnothing(__ovr_phi_est__initial) || (__initial_conditions[phi_est] = __ovr_phi_est__initial)
+  __ovr_phi_est__guess = pop!(__overrides, "phi_est__guess", nothing)
+  __ovr_theta_est = pop!(__overrides, "theta_est", nothing); isnothing(__ovr_theta_est) || push!(__eqs, theta_est ~ __ovr_theta_est)
+  __ovr_theta_est__initial = pop!(__overrides, "theta_est__initial", nothing); isnothing(__ovr_theta_est__initial) || (__initial_conditions[theta_est] = __ovr_theta_est__initial)
+  __ovr_theta_est__guess = pop!(__overrides, "theta_est__guess", nothing)
+  __ovr_psi_est = pop!(__overrides, "psi_est", nothing); isnothing(__ovr_psi_est) || push!(__eqs, psi_est ~ __ovr_psi_est)
+  __ovr_psi_est__initial = pop!(__overrides, "psi_est__initial", nothing); isnothing(__ovr_psi_est__initial) || (__initial_conditions[psi_est] = __ovr_psi_est__initial)
+  __ovr_psi_est__guess = pop!(__overrides, "psi_est__guess", nothing)
+  __ovr_wx_est = pop!(__overrides, "wx_est", nothing); isnothing(__ovr_wx_est) || push!(__eqs, wx_est ~ __ovr_wx_est)
+  __ovr_wx_est__initial = pop!(__overrides, "wx_est__initial", nothing); isnothing(__ovr_wx_est__initial) || (__initial_conditions[wx_est] = __ovr_wx_est__initial)
+  __ovr_wx_est__guess = pop!(__overrides, "wx_est__guess", nothing)
+  __ovr_wy_est = pop!(__overrides, "wy_est", nothing); isnothing(__ovr_wy_est) || push!(__eqs, wy_est ~ __ovr_wy_est)
+  __ovr_wy_est__initial = pop!(__overrides, "wy_est__initial", nothing); isnothing(__ovr_wy_est__initial) || (__initial_conditions[wy_est] = __ovr_wy_est__initial)
+  __ovr_wy_est__guess = pop!(__overrides, "wy_est__guess", nothing)
+  __ovr_wz_est = pop!(__overrides, "wz_est", nothing); isnothing(__ovr_wz_est) || push!(__eqs, wz_est ~ __ovr_wz_est)
+  __ovr_wz_est__initial = pop!(__overrides, "wz_est__initial", nothing); isnothing(__ovr_wz_est__initial) || (__initial_conditions[wz_est] = __ovr_wz_est__initial)
+  __ovr_wz_est__guess = pop!(__overrides, "wz_est__guess", nothing)
+
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_phi_est__guess) || (__guesses[phi_est] = __ovr_phi_est__guess)
+  isnothing(__ovr_theta_est__guess) || (__guesses[theta_est] = __ovr_theta_est__guess)
+  isnothing(__ovr_psi_est__guess) || (__guesses[psi_est] = __ovr_psi_est__guess)
+  isnothing(__ovr_wx_est__guess) || (__guesses[wx_est] = __ovr_wx_est__guess)
+  isnothing(__ovr_wy_est__guess) || (__guesses[wy_est] = __ovr_wy_est__guess)
+  isnothing(__ovr_wz_est__guess) || (__guesses[wz_est] = __ovr_wz_est__guess)
 
   ### Initialization Equations
 
@@ -139,6 +208,6 @@ Typical design: p ≈ 3× controller bandwidth for separation principle.
   push!(__eqs, wz_hat ~ wz_est)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export LuenbergerObserver

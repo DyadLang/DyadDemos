@@ -4,8 +4,11 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SatelliteBody6DOF(; name, Ixx, Iyy, Izz, m, mu)
+
 
 6-DOF rigid body satellite dynamics.
 
@@ -20,15 +23,15 @@ Coupling:
   - Body-frame thrust forces rotated to ECI for translational acceleration
   - Gravity gradient torque from orbital position acting on attitude
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `Ixx`         | Principal moments of inertia (kg·m²)                         | --  |   10 |
-| `Iyy`         |                          | --  |   8 |
-| `Izz`         |                          | --  |   6 |
-| `m`         | Satellite mass (kg)                         | --  |   4 |
-| `mu`         | Earth gravitational parameter (m³/s²)                         | --  |   398600441800000 |
+| `Ixx`         | Principal moments of inertia (kg·m²)                         | --  |   10.0 |
+| `Iyy`         |                          | --  |   8.0 |
+| `Izz`         |                          | --  |   6.0 |
+| `m`         | Satellite mass (kg)                         | --  |   4.0 |
+| `mu`         | Earth gravitational parameter (m³/s²)                         | --  |   3.986004418e14 |
 
 ## Connectors
 
@@ -54,27 +57,29 @@ Coupling:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `wx`         | Angular velocities in body frame (rad/s)                         | --  | 
-| `wy`         |                          | --  | 
-| `wz`         |                          | --  | 
-| `phi`         | Euler angles: roll, pitch, yaw (rad)                         | --  | 
-| `theta`         |                          | --  | 
-| `psi`         |                          | --  | 
-| `pos_x`         | ECI position (m)                         | --  | 
-| `pos_y`         |                          | --  | 
-| `pos_z`         |                          | --  | 
-| `vel_x`         | ECI velocity (m/s)                         | --  | 
-| `vel_y`         |                          | --  | 
-| `vel_z`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `wx`         | Angular velocities in body frame (rad/s)                         | --  |
+| `wy`         |                          | --  |
+| `wz`         |                          | --  |
+| `phi`         | Euler angles: roll, pitch, yaw (rad)                         | --  |
+| `theta`         |                          | --  |
+| `psi`         |                          | --  |
+| `pos_x`         | ECI position (m)                         | --  |
+| `pos_y`         |                          | --  |
+| `pos_z`         |                          | --  |
+| `vel_x`         | ECI velocity (m/s)                         | --  |
+| `vel_y`         |                          | --  |
+| `vel_z`         |                          | --  |
 """
-@component function SatelliteBody6DOF(; name = nothing, Ixx=10, Iyy=8, Izz=6, m=4, mu=398600441800000)
+@component function SatelliteBody6DOF(; name = nothing, Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), m=Float64(4.0), mu=Float64(398600441800000.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SatelliteBody6DOF()
+  """))
 
-        @named model = SatelliteBody6DOF()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -82,15 +87,40 @@ Coupling:
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (Ixx::Real = Ixx), [description = "Principal moments of inertia (kg·m²)"])
-  append!(__params, @parameters (Iyy::Real = Iyy))
-  append!(__params, @parameters (Izz::Real = Izz))
-  append!(__params, @parameters (m::Real = m), [description = "Satellite mass (kg)"])
-  append!(__params, @parameters (mu::Real = mu), [description = "Earth gravitational parameter (m³/s²)"])
+  __local__Ixx = Ixx
+  append!(__params, @parameters (Ixx::Real), [description = "Principal moments of inertia (kg·m²)"])
+  __initial_conditions[Ixx] = __local__Ixx
+  __local__Iyy = Iyy
+  append!(__params, @parameters (Iyy::Real))
+  __initial_conditions[Iyy] = __local__Iyy
+  __local__Izz = Izz
+  append!(__params, @parameters (Izz::Real))
+  __initial_conditions[Izz] = __local__Izz
+  __local__m = m
+  append!(__params, @parameters (m::Real), [description = "Satellite mass (kg)"])
+  __initial_conditions[m] = __local__m
+  __local__mu = mu
+  append!(__params, @parameters (mu::Real), [description = "Earth gravitational parameter (m³/s²)"])
+  __initial_conditions[mu] = __local__mu
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (tau_x(t)::Real), [input = true])
   append!(__vars, @variables (tau_y(t)::Real), [input = true])
   append!(__vars, @variables (tau_z(t)::Real), [input = true])
@@ -109,6 +139,8 @@ Coupling:
   append!(__vars, @variables (vx_out(t)::Real), [output = true])
   append!(__vars, @variables (vy_out(t)::Real), [output = true])
   append!(__vars, @variables (vz_out(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (wx(t)::Real), [description = "Angular velocities in body frame (rad/s)"])
   append!(__vars, @variables (wy(t)::Real))
   append!(__vars, @variables (wz(t)::Real))
@@ -122,14 +154,65 @@ Coupling:
   append!(__vars, @variables (vel_y(t)::Real))
   append!(__vars, @variables (vel_z(t)::Real))
 
+  ### Variables (assignments)
+  __ovr_wx = pop!(__overrides, "wx", nothing); isnothing(__ovr_wx) || push!(__eqs, wx ~ __ovr_wx)
+  __ovr_wx__initial = pop!(__overrides, "wx__initial", nothing); isnothing(__ovr_wx__initial) || (__initial_conditions[wx] = __ovr_wx__initial)
+  __ovr_wx__guess = pop!(__overrides, "wx__guess", nothing)
+  __ovr_wy = pop!(__overrides, "wy", nothing); isnothing(__ovr_wy) || push!(__eqs, wy ~ __ovr_wy)
+  __ovr_wy__initial = pop!(__overrides, "wy__initial", nothing); isnothing(__ovr_wy__initial) || (__initial_conditions[wy] = __ovr_wy__initial)
+  __ovr_wy__guess = pop!(__overrides, "wy__guess", nothing)
+  __ovr_wz = pop!(__overrides, "wz", nothing); isnothing(__ovr_wz) || push!(__eqs, wz ~ __ovr_wz)
+  __ovr_wz__initial = pop!(__overrides, "wz__initial", nothing); isnothing(__ovr_wz__initial) || (__initial_conditions[wz] = __ovr_wz__initial)
+  __ovr_wz__guess = pop!(__overrides, "wz__guess", nothing)
+  __ovr_phi = pop!(__overrides, "phi", nothing); isnothing(__ovr_phi) || push!(__eqs, phi ~ __ovr_phi)
+  __ovr_phi__initial = pop!(__overrides, "phi__initial", nothing); isnothing(__ovr_phi__initial) || (__initial_conditions[phi] = __ovr_phi__initial)
+  __ovr_phi__guess = pop!(__overrides, "phi__guess", nothing)
+  __ovr_theta = pop!(__overrides, "theta", nothing); isnothing(__ovr_theta) || push!(__eqs, theta ~ __ovr_theta)
+  __ovr_theta__initial = pop!(__overrides, "theta__initial", nothing); isnothing(__ovr_theta__initial) || (__initial_conditions[theta] = __ovr_theta__initial)
+  __ovr_theta__guess = pop!(__overrides, "theta__guess", nothing)
+  __ovr_psi = pop!(__overrides, "psi", nothing); isnothing(__ovr_psi) || push!(__eqs, psi ~ __ovr_psi)
+  __ovr_psi__initial = pop!(__overrides, "psi__initial", nothing); isnothing(__ovr_psi__initial) || (__initial_conditions[psi] = __ovr_psi__initial)
+  __ovr_psi__guess = pop!(__overrides, "psi__guess", nothing)
+  __ovr_pos_x = pop!(__overrides, "pos_x", nothing); isnothing(__ovr_pos_x) || push!(__eqs, pos_x ~ __ovr_pos_x)
+  __ovr_pos_x__initial = pop!(__overrides, "pos_x__initial", nothing); isnothing(__ovr_pos_x__initial) || (__initial_conditions[pos_x] = __ovr_pos_x__initial)
+  __ovr_pos_x__guess = pop!(__overrides, "pos_x__guess", nothing)
+  __ovr_pos_y = pop!(__overrides, "pos_y", nothing); isnothing(__ovr_pos_y) || push!(__eqs, pos_y ~ __ovr_pos_y)
+  __ovr_pos_y__initial = pop!(__overrides, "pos_y__initial", nothing); isnothing(__ovr_pos_y__initial) || (__initial_conditions[pos_y] = __ovr_pos_y__initial)
+  __ovr_pos_y__guess = pop!(__overrides, "pos_y__guess", nothing)
+  __ovr_pos_z = pop!(__overrides, "pos_z", nothing); isnothing(__ovr_pos_z) || push!(__eqs, pos_z ~ __ovr_pos_z)
+  __ovr_pos_z__initial = pop!(__overrides, "pos_z__initial", nothing); isnothing(__ovr_pos_z__initial) || (__initial_conditions[pos_z] = __ovr_pos_z__initial)
+  __ovr_pos_z__guess = pop!(__overrides, "pos_z__guess", nothing)
+  __ovr_vel_x = pop!(__overrides, "vel_x", nothing); isnothing(__ovr_vel_x) || push!(__eqs, vel_x ~ __ovr_vel_x)
+  __ovr_vel_x__initial = pop!(__overrides, "vel_x__initial", nothing); isnothing(__ovr_vel_x__initial) || (__initial_conditions[vel_x] = __ovr_vel_x__initial)
+  __ovr_vel_x__guess = pop!(__overrides, "vel_x__guess", nothing)
+  __ovr_vel_y = pop!(__overrides, "vel_y", nothing); isnothing(__ovr_vel_y) || push!(__eqs, vel_y ~ __ovr_vel_y)
+  __ovr_vel_y__initial = pop!(__overrides, "vel_y__initial", nothing); isnothing(__ovr_vel_y__initial) || (__initial_conditions[vel_y] = __ovr_vel_y__initial)
+  __ovr_vel_y__guess = pop!(__overrides, "vel_y__guess", nothing)
+  __ovr_vel_z = pop!(__overrides, "vel_z", nothing); isnothing(__ovr_vel_z) || push!(__eqs, vel_z ~ __ovr_vel_z)
+  __ovr_vel_z__initial = pop!(__overrides, "vel_z__initial", nothing); isnothing(__ovr_vel_z__initial) || (__initial_conditions[vel_z] = __ovr_vel_z__initial)
+  __ovr_vel_z__guess = pop!(__overrides, "vel_z__guess", nothing)
+
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_wx__guess) || (__guesses[wx] = __ovr_wx__guess)
+  isnothing(__ovr_wy__guess) || (__guesses[wy] = __ovr_wy__guess)
+  isnothing(__ovr_wz__guess) || (__guesses[wz] = __ovr_wz__guess)
+  isnothing(__ovr_phi__guess) || (__guesses[phi] = __ovr_phi__guess)
+  isnothing(__ovr_theta__guess) || (__guesses[theta] = __ovr_theta__guess)
+  isnothing(__ovr_psi__guess) || (__guesses[psi] = __ovr_psi__guess)
+  isnothing(__ovr_pos_x__guess) || (__guesses[pos_x] = __ovr_pos_x__guess)
+  isnothing(__ovr_pos_y__guess) || (__guesses[pos_y] = __ovr_pos_y__guess)
+  isnothing(__ovr_pos_z__guess) || (__guesses[pos_z] = __ovr_pos_z__guess)
+  isnothing(__ovr_vel_x__guess) || (__guesses[vel_x] = __ovr_vel_x__guess)
+  isnothing(__ovr_vel_y__guess) || (__guesses[vel_y] = __ovr_vel_y__guess)
+  isnothing(__ovr_vel_z__guess) || (__guesses[vel_z] = __ovr_vel_z__guess)
 
   ### Initialization Equations
 
@@ -163,6 +246,6 @@ Coupling:
   push!(__eqs, vz_out ~ vel_z)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SatelliteBody6DOF

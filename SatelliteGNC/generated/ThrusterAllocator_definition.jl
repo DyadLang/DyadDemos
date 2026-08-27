@@ -4,8 +4,11 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ThrusterAllocator(; name, F_max)
+
 
 Thruster allocator for an 8-jet CubeSat configuration.
 
@@ -27,7 +30,7 @@ Thruster configuration (body frame, CubeSat 0.3×0.2×0.1 m):
 The B matrix is 6×8 (rank 6), providing full 6-DOF controllability
 with 2 degrees of redundancy.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -53,23 +56,25 @@ with 2 degrees of redundancy.
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `t1`         | Unnormalized thrust commands (N)                         | --  | 
-| `t2`         |                          | --  | 
-| `t3`         |                          | --  | 
-| `t4`         |                          | --  | 
-| `t5`         |                          | --  | 
-| `t6`         |                          | --  | 
-| `t7`         |                          | --  | 
-| `t8`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `t1`         | Unnormalized thrust commands (N)                         | --  |
+| `t2`         |                          | --  |
+| `t3`         |                          | --  |
+| `t4`         |                          | --  |
+| `t5`         |                          | --  |
+| `t6`         |                          | --  |
+| `t7`         |                          | --  |
+| `t8`         |                          | --  |
 """
-@component function ThrusterAllocator(; name = nothing, F_max=0.1)
+@component function ThrusterAllocator(; name = nothing, F_max=0.1, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ThrusterAllocator()
+  """))
 
-        @named model = ThrusterAllocator()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -77,11 +82,28 @@ with 2 degrees of redundancy.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (F_max::Real = F_max), [description = "Maximum thrust per jet (N) — used for normalization"])
+  __local__F_max = F_max
+  append!(__params, @parameters (F_max::Real), [description = "Maximum thrust per jet (N) — used for normalization"])
+  __initial_conditions[F_max] = __local__F_max
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (Fx_cmd(t)::Real), [input = true])
   append!(__vars, @variables (Fy_cmd(t)::Real), [input = true])
   append!(__vars, @variables (Fz_cmd(t)::Real), [input = true])
@@ -96,6 +118,8 @@ with 2 degrees of redundancy.
   append!(__vars, @variables (cmd6(t)::Real), [output = true])
   append!(__vars, @variables (cmd7(t)::Real), [output = true])
   append!(__vars, @variables (cmd8(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (t1(t)::Real), [description = "Unnormalized thrust commands (N)"])
   append!(__vars, @variables (t2(t)::Real))
   append!(__vars, @variables (t3(t)::Real))
@@ -105,14 +129,49 @@ with 2 degrees of redundancy.
   append!(__vars, @variables (t7(t)::Real))
   append!(__vars, @variables (t8(t)::Real))
 
+  ### Variables (assignments)
+  __ovr_t1 = pop!(__overrides, "t1", nothing); isnothing(__ovr_t1) || push!(__eqs, t1 ~ __ovr_t1)
+  __ovr_t1__initial = pop!(__overrides, "t1__initial", nothing); isnothing(__ovr_t1__initial) || (__initial_conditions[t1] = __ovr_t1__initial)
+  __ovr_t1__guess = pop!(__overrides, "t1__guess", nothing)
+  __ovr_t2 = pop!(__overrides, "t2", nothing); isnothing(__ovr_t2) || push!(__eqs, t2 ~ __ovr_t2)
+  __ovr_t2__initial = pop!(__overrides, "t2__initial", nothing); isnothing(__ovr_t2__initial) || (__initial_conditions[t2] = __ovr_t2__initial)
+  __ovr_t2__guess = pop!(__overrides, "t2__guess", nothing)
+  __ovr_t3 = pop!(__overrides, "t3", nothing); isnothing(__ovr_t3) || push!(__eqs, t3 ~ __ovr_t3)
+  __ovr_t3__initial = pop!(__overrides, "t3__initial", nothing); isnothing(__ovr_t3__initial) || (__initial_conditions[t3] = __ovr_t3__initial)
+  __ovr_t3__guess = pop!(__overrides, "t3__guess", nothing)
+  __ovr_t4 = pop!(__overrides, "t4", nothing); isnothing(__ovr_t4) || push!(__eqs, t4 ~ __ovr_t4)
+  __ovr_t4__initial = pop!(__overrides, "t4__initial", nothing); isnothing(__ovr_t4__initial) || (__initial_conditions[t4] = __ovr_t4__initial)
+  __ovr_t4__guess = pop!(__overrides, "t4__guess", nothing)
+  __ovr_t5 = pop!(__overrides, "t5", nothing); isnothing(__ovr_t5) || push!(__eqs, t5 ~ __ovr_t5)
+  __ovr_t5__initial = pop!(__overrides, "t5__initial", nothing); isnothing(__ovr_t5__initial) || (__initial_conditions[t5] = __ovr_t5__initial)
+  __ovr_t5__guess = pop!(__overrides, "t5__guess", nothing)
+  __ovr_t6 = pop!(__overrides, "t6", nothing); isnothing(__ovr_t6) || push!(__eqs, t6 ~ __ovr_t6)
+  __ovr_t6__initial = pop!(__overrides, "t6__initial", nothing); isnothing(__ovr_t6__initial) || (__initial_conditions[t6] = __ovr_t6__initial)
+  __ovr_t6__guess = pop!(__overrides, "t6__guess", nothing)
+  __ovr_t7 = pop!(__overrides, "t7", nothing); isnothing(__ovr_t7) || push!(__eqs, t7 ~ __ovr_t7)
+  __ovr_t7__initial = pop!(__overrides, "t7__initial", nothing); isnothing(__ovr_t7__initial) || (__initial_conditions[t7] = __ovr_t7__initial)
+  __ovr_t7__guess = pop!(__overrides, "t7__guess", nothing)
+  __ovr_t8 = pop!(__overrides, "t8", nothing); isnothing(__ovr_t8) || push!(__eqs, t8 ~ __ovr_t8)
+  __ovr_t8__initial = pop!(__overrides, "t8__initial", nothing); isnothing(__ovr_t8__initial) || (__initial_conditions[t8] = __ovr_t8__initial)
+  __ovr_t8__guess = pop!(__overrides, "t8__guess", nothing)
+
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_t1__guess) || (__guesses[t1] = __ovr_t1__guess)
+  isnothing(__ovr_t2__guess) || (__guesses[t2] = __ovr_t2__guess)
+  isnothing(__ovr_t3__guess) || (__guesses[t3] = __ovr_t3__guess)
+  isnothing(__ovr_t4__guess) || (__guesses[t4] = __ovr_t4__guess)
+  isnothing(__ovr_t5__guess) || (__guesses[t5] = __ovr_t5__guess)
+  isnothing(__ovr_t6__guess) || (__guesses[t6] = __ovr_t6__guess)
+  isnothing(__ovr_t7__guess) || (__guesses[t7] = __ovr_t7__guess)
+  isnothing(__ovr_t8__guess) || (__guesses[t8] = __ovr_t8__guess)
 
   ### Initialization Equations
 
@@ -138,6 +197,6 @@ with 2 degrees of redundancy.
   push!(__eqs, cmd8 ~ t8 / F_max)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ThrusterAllocator

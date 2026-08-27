@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestSatelliteClosedLoop(; name, phi_cmd, theta_cmd, psi_cmd)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -15,13 +17,15 @@
 | `theta_cmd`         |                          | --  |   0.0873 |
 | `psi_cmd`         |                          | --  |   0.2618 |
 """
-@component function TestSatelliteClosedLoop(; name = nothing, phi_cmd=0.1745, theta_cmd=0.0873, psi_cmd=0.2618)
+@component function TestSatelliteClosedLoop(; name = nothing, phi_cmd=0.1745, theta_cmd=0.0873, psi_cmd=0.2618, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestSatelliteClosedLoop()
+  """))
 
-        @named model = TestSatelliteClosedLoop()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -29,32 +33,62 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (phi_cmd::Real = phi_cmd), [description = "Reference angles (rad)"])
-  append!(__params, @parameters (theta_cmd::Real = theta_cmd))
-  append!(__params, @parameters (psi_cmd::Real = psi_cmd))
+  __local__phi_cmd = phi_cmd
+  append!(__params, @parameters (phi_cmd::Real), [description = "Reference angles (rad)"])
+  __initial_conditions[phi_cmd] = __local__phi_cmd
+  __local__theta_cmd = theta_cmd
+  append!(__params, @parameters (theta_cmd::Real))
+  __initial_conditions[theta_cmd] = __local__theta_cmd
+  __local__psi_cmd = psi_cmd
+  append!(__params, @parameters (psi_cmd::Real))
+  __initial_conditions[psi_cmd] = __local__psi_cmd
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(Ixx=10, Iyy=8, Izz=6))
-  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(Kp_x=5, Kd_x=20, Kp_y=4, Kd_y=16, Kp_z=3, Kd_z=12))
+  # Subcomponent sat of type SatelliteGNC.SatelliteBody
+  sat_overrides = __pop_subcomponent_overrides!(__overrides, "sat")
+  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), sat_overrides...))
+  # Subcomponent ctrl of type SatelliteGNC.AttitudeController
+  ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "ctrl")
+  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(; Kp_x=Float64(5.0), Kd_x=Float64(20.0), Kp_y=Float64(4.0), Kd_y=Float64(16.0), Kp_z=Float64(3.0), Kd_z=Float64(12.0), ctrl_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[sat.wx] = (0)
-  __initial_conditions[sat.wy] = (0)
-  __initial_conditions[sat.wz] = (0)
-  __initial_conditions[sat.phi] = (0)
-  __initial_conditions[sat.theta] = (0)
-  __initial_conditions[sat.psi] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, sat.wx ~ 0.0)
+  push!(__initialization_eqs, sat.wy ~ 0.0)
+  push!(__initialization_eqs, sat.wz ~ 0.0)
+  push!(__initialization_eqs, sat.phi ~ 0.0)
+  push!(__initialization_eqs, sat.theta ~ 0.0)
+  push!(__initialization_eqs, sat.psi ~ 0.0)
 
   ### Assertions
   __assertions = []
@@ -63,12 +97,12 @@
   push!(__eqs, ctrl.phi_ref ~ phi_cmd)
   push!(__eqs, ctrl.theta_ref ~ theta_cmd)
   push!(__eqs, ctrl.psi_ref ~ psi_cmd)
-  push!(__eqs, ctrl.wx_ref ~ 0)
-  push!(__eqs, ctrl.wy_ref ~ 0)
-  push!(__eqs, ctrl.wz_ref ~ 0)
-  push!(__eqs, ctrl.ax_ff ~ 0)
-  push!(__eqs, ctrl.ay_ff ~ 0)
-  push!(__eqs, ctrl.az_ff ~ 0)
+  push!(__eqs, ctrl.wx_ref ~ 0.0)
+  push!(__eqs, ctrl.wy_ref ~ 0.0)
+  push!(__eqs, ctrl.wz_ref ~ 0.0)
+  push!(__eqs, ctrl.ax_ff ~ 0.0)
+  push!(__eqs, ctrl.ay_ff ~ 0.0)
+  push!(__eqs, ctrl.az_ff ~ 0.0)
   push!(__eqs, connect(sat.phi_out, ctrl.phi_meas))
   push!(__eqs, connect(sat.theta_out, ctrl.theta_meas))
   push!(__eqs, connect(sat.psi_out, ctrl.psi_meas))
@@ -80,6 +114,6 @@
   push!(__eqs, connect(ctrl.tau_z, sat.tau_z))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestSatelliteClosedLoop

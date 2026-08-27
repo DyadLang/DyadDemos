@@ -4,8 +4,11 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TrapezoidalProfile(; name, target_angle, w_max, a_max)
+
 
 Single-axis trapezoidal velocity profile for rest-to-rest slew maneuvers.
 
@@ -21,7 +24,7 @@ Profile phases:
 Outputs both the reference angle and reference angular rate for use
 by a tracking controller.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -35,13 +38,15 @@ by a tracking controller.
  * `rate_ref` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `accel_ref` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function TrapezoidalProfile(; name = nothing, target_angle=0.35, w_max=0.035, a_max=0.0087)
+@component function TrapezoidalProfile(; name = nothing, target_angle=0.35, w_max=0.035, a_max=0.0087, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TrapezoidalProfile()
+  """))
 
-        @named model = TrapezoidalProfile()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -49,25 +54,51 @@ by a tracking controller.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (target_angle::Real = target_angle), [description = "Target slew angle (rad)"])
-  append!(__params, @parameters (w_max::Real = w_max), [description = "Maximum angular rate (rad/s)"])
-  append!(__params, @parameters (a_max::Real = a_max), [description = "Maximum angular acceleration (rad/s^2)"])
+  __local__target_angle = target_angle
+  append!(__params, @parameters (target_angle::Real), [description = "Target slew angle (rad)"])
+  __initial_conditions[target_angle] = __local__target_angle
+  __local__w_max = w_max
+  append!(__params, @parameters (w_max::Real), [description = "Maximum angular rate (rad/s)"])
+  __initial_conditions[w_max] = __local__w_max
+  __local__a_max = a_max
+  append!(__params, @parameters (a_max::Real), [description = "Maximum angular acceleration (rad/s^2)"])
+  __initial_conditions[a_max] = __local__a_max
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (angle_ref(t)::Real), [output = true])
   append!(__vars, @variables (rate_ref(t)::Real), [output = true])
   append!(__vars, @variables (accel_ref(t)::Real), [output = true])
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
 
@@ -80,6 +111,6 @@ by a tracking controller.
   push!(__eqs, accel_ref ~ SatelliteGNC.trapz_accel_ref(t, target_angle, w_max, a_max))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TrapezoidalProfile

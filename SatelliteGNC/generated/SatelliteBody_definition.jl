@@ -4,8 +4,11 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SatelliteBody(; name, Ixx, Iyy, Izz)
+
 
 3-axis rigid body satellite dynamics.
 
@@ -16,13 +19,13 @@ inertia (Ixx, Iyy, Izz), coupled with 3-2-1 Euler angle kinematics
 Inputs: 3 torque components in the body frame.
 Outputs: 3 Euler angles (roll φ, pitch θ, yaw ψ) and 3 angular velocities.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `Ixx`         | Principal moments of inertia                         | --  |   10 |
-| `Iyy`         |                          | --  |   8 |
-| `Izz`         |                          | --  |   6 |
+| `Ixx`         | Principal moments of inertia                         | --  |   10.0 |
+| `Iyy`         |                          | --  |   8.0 |
+| `Izz`         |                          | --  |   6.0 |
 
 ## Connectors
 
@@ -39,21 +42,23 @@ Outputs: 3 Euler angles (roll φ, pitch θ, yaw ψ) and 3 angular velocities.
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `wx`         | Angular velocities in body frame (rad/s)                         | --  | 
-| `wy`         |                          | --  | 
-| `wz`         |                          | --  | 
-| `phi`         | Euler angles: roll, pitch, yaw (rad)                         | --  | 
-| `theta`         |                          | --  | 
-| `psi`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `wx`         | Angular velocities in body frame (rad/s)                         | --  |
+| `wy`         |                          | --  |
+| `wz`         |                          | --  |
+| `phi`         | Euler angles: roll, pitch, yaw (rad)                         | --  |
+| `theta`         |                          | --  |
+| `psi`         |                          | --  |
 """
-@component function SatelliteBody(; name = nothing, Ixx=10, Iyy=8, Izz=6)
+@component function SatelliteBody(; name = nothing, Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SatelliteBody()
+  """))
 
-        @named model = SatelliteBody()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -61,13 +66,34 @@ Outputs: 3 Euler angles (roll φ, pitch θ, yaw ψ) and 3 angular velocities.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (Ixx::Real = Ixx), [description = "Principal moments of inertia"])
-  append!(__params, @parameters (Iyy::Real = Iyy))
-  append!(__params, @parameters (Izz::Real = Izz))
+  __local__Ixx = Ixx
+  append!(__params, @parameters (Ixx::Real), [description = "Principal moments of inertia"])
+  __initial_conditions[Ixx] = __local__Ixx
+  __local__Iyy = Iyy
+  append!(__params, @parameters (Iyy::Real))
+  __initial_conditions[Iyy] = __local__Iyy
+  __local__Izz = Izz
+  append!(__params, @parameters (Izz::Real))
+  __initial_conditions[Izz] = __local__Izz
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (tau_x(t)::Real), [input = true])
   append!(__vars, @variables (tau_y(t)::Real), [input = true])
   append!(__vars, @variables (tau_z(t)::Real), [input = true])
@@ -77,6 +103,8 @@ Outputs: 3 Euler angles (roll φ, pitch θ, yaw ψ) and 3 angular velocities.
   append!(__vars, @variables (wx_out(t)::Real), [output = true])
   append!(__vars, @variables (wy_out(t)::Real), [output = true])
   append!(__vars, @variables (wz_out(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (wx(t)::Real), [description = "Angular velocities in body frame (rad/s)"])
   append!(__vars, @variables (wy(t)::Real))
   append!(__vars, @variables (wz(t)::Real))
@@ -84,14 +112,41 @@ Outputs: 3 Euler angles (roll φ, pitch θ, yaw ψ) and 3 angular velocities.
   append!(__vars, @variables (theta(t)::Real))
   append!(__vars, @variables (psi(t)::Real))
 
+  ### Variables (assignments)
+  __ovr_wx = pop!(__overrides, "wx", nothing); isnothing(__ovr_wx) || push!(__eqs, wx ~ __ovr_wx)
+  __ovr_wx__initial = pop!(__overrides, "wx__initial", nothing); isnothing(__ovr_wx__initial) || (__initial_conditions[wx] = __ovr_wx__initial)
+  __ovr_wx__guess = pop!(__overrides, "wx__guess", nothing)
+  __ovr_wy = pop!(__overrides, "wy", nothing); isnothing(__ovr_wy) || push!(__eqs, wy ~ __ovr_wy)
+  __ovr_wy__initial = pop!(__overrides, "wy__initial", nothing); isnothing(__ovr_wy__initial) || (__initial_conditions[wy] = __ovr_wy__initial)
+  __ovr_wy__guess = pop!(__overrides, "wy__guess", nothing)
+  __ovr_wz = pop!(__overrides, "wz", nothing); isnothing(__ovr_wz) || push!(__eqs, wz ~ __ovr_wz)
+  __ovr_wz__initial = pop!(__overrides, "wz__initial", nothing); isnothing(__ovr_wz__initial) || (__initial_conditions[wz] = __ovr_wz__initial)
+  __ovr_wz__guess = pop!(__overrides, "wz__guess", nothing)
+  __ovr_phi = pop!(__overrides, "phi", nothing); isnothing(__ovr_phi) || push!(__eqs, phi ~ __ovr_phi)
+  __ovr_phi__initial = pop!(__overrides, "phi__initial", nothing); isnothing(__ovr_phi__initial) || (__initial_conditions[phi] = __ovr_phi__initial)
+  __ovr_phi__guess = pop!(__overrides, "phi__guess", nothing)
+  __ovr_theta = pop!(__overrides, "theta", nothing); isnothing(__ovr_theta) || push!(__eqs, theta ~ __ovr_theta)
+  __ovr_theta__initial = pop!(__overrides, "theta__initial", nothing); isnothing(__ovr_theta__initial) || (__initial_conditions[theta] = __ovr_theta__initial)
+  __ovr_theta__guess = pop!(__overrides, "theta__guess", nothing)
+  __ovr_psi = pop!(__overrides, "psi", nothing); isnothing(__ovr_psi) || push!(__eqs, psi ~ __ovr_psi)
+  __ovr_psi__initial = pop!(__overrides, "psi__initial", nothing); isnothing(__ovr_psi__initial) || (__initial_conditions[psi] = __ovr_psi__initial)
+  __ovr_psi__guess = pop!(__overrides, "psi__guess", nothing)
+
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_wx__guess) || (__guesses[wx] = __ovr_wx__guess)
+  isnothing(__ovr_wy__guess) || (__guesses[wy] = __ovr_wy__guess)
+  isnothing(__ovr_wz__guess) || (__guesses[wz] = __ovr_wz__guess)
+  isnothing(__ovr_phi__guess) || (__guesses[phi] = __ovr_phi__guess)
+  isnothing(__ovr_theta__guess) || (__guesses[theta] = __ovr_theta__guess)
+  isnothing(__ovr_psi__guess) || (__guesses[psi] = __ovr_psi__guess)
 
   ### Initialization Equations
 
@@ -113,6 +168,6 @@ Outputs: 3 Euler angles (roll φ, pitch θ, yaw ψ) and 3 angular velocities.
   push!(__eqs, wz_out ~ wz)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SatelliteBody

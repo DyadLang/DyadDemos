@@ -4,8 +4,11 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ReactionJet(; name, rx, ry, rz, dx, dy, dz, F_max)
+
 
 Single bipropellant reaction jet (thruster) model.
 
@@ -19,16 +22,16 @@ The command input is normalized [-1, 1] where -1 = full reverse,
 Parameters define the thruster geometry; instantiate multiple jets
 with different positions/directions for a full thruster configuration.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `rx`         | Thruster mounting position from CoM (body frame, m)                         | --  |   0 |
-| `ry`         |                          | --  |   0 |
-| `rz`         |                          | --  |   0 |
-| `dx`         | Thrust direction (body frame, unit vector)                         | --  |   1 |
-| `dy`         |                          | --  |   0 |
-| `dz`         |                          | --  |   0 |
+| `rx`         | Thruster mounting position from CoM (body frame, m)                         | --  |   0.0 |
+| `ry`         |                          | --  |   0.0 |
+| `rz`         |                          | --  |   0.0 |
+| `dx`         | Thrust direction (body frame, unit vector)                         | --  |   1.0 |
+| `dy`         |                          | --  |   0.0 |
+| `dz`         |                          | --  |   0.0 |
 | `F_max`         | Maximum thrust (N)                         | --  |   0.1 |
 
 ## Connectors
@@ -44,19 +47,21 @@ with different positions/directions for a full thruster configuration.
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `cmd_clamped`         | Clamped command (-1 to 1)                         | --  | 
-| `force_x`         | Force components (N)                         | --  | 
-| `force_y`         |                          | --  | 
-| `force_z`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `cmd_clamped`         | Clamped command (-1 to 1)                         | --  |
+| `force_x`         | Force components (N)                         | --  |
+| `force_y`         |                          | --  |
+| `force_z`         |                          | --  |
 """
-@component function ReactionJet(; name = nothing, rx=0, ry=0, rz=0, dx=1, dy=0, dz=0, F_max=0.1)
+@component function ReactionJet(; name = nothing, rx=Float64(0.0), ry=Float64(0.0), rz=Float64(0.0), dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.1, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ReactionJet()
+  """))
 
-        @named model = ReactionJet()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -64,17 +69,46 @@ with different positions/directions for a full thruster configuration.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (rx::Real = rx), [description = "Thruster mounting position from CoM (body frame, m)"])
-  append!(__params, @parameters (ry::Real = ry))
-  append!(__params, @parameters (rz::Real = rz))
-  append!(__params, @parameters (dx::Real = dx), [description = "Thrust direction (body frame, unit vector)"])
-  append!(__params, @parameters (dy::Real = dy))
-  append!(__params, @parameters (dz::Real = dz))
-  append!(__params, @parameters (F_max::Real = F_max), [description = "Maximum thrust (N)"])
+  __local__rx = rx
+  append!(__params, @parameters (rx::Real), [description = "Thruster mounting position from CoM (body frame, m)"])
+  __initial_conditions[rx] = __local__rx
+  __local__ry = ry
+  append!(__params, @parameters (ry::Real))
+  __initial_conditions[ry] = __local__ry
+  __local__rz = rz
+  append!(__params, @parameters (rz::Real))
+  __initial_conditions[rz] = __local__rz
+  __local__dx = dx
+  append!(__params, @parameters (dx::Real), [description = "Thrust direction (body frame, unit vector)"])
+  __initial_conditions[dx] = __local__dx
+  __local__dy = dy
+  append!(__params, @parameters (dy::Real))
+  __initial_conditions[dy] = __local__dy
+  __local__dz = dz
+  append!(__params, @parameters (dz::Real))
+  __initial_conditions[dz] = __local__dz
+  __local__F_max = F_max
+  append!(__params, @parameters (F_max::Real), [description = "Maximum thrust (N)"])
+  __initial_conditions[F_max] = __local__F_max
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (cmd(t)::Real), [input = true])
   append!(__vars, @variables (fx_out(t)::Real), [output = true])
   append!(__vars, @variables (fy_out(t)::Real), [output = true])
@@ -82,19 +116,40 @@ with different positions/directions for a full thruster configuration.
   append!(__vars, @variables (tx_out(t)::Real), [output = true])
   append!(__vars, @variables (ty_out(t)::Real), [output = true])
   append!(__vars, @variables (tz_out(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (cmd_clamped(t)::Real), [description = "Clamped command (-1 to 1)"])
   append!(__vars, @variables (force_x(t)::Real), [description = "Force components (N)"])
   append!(__vars, @variables (force_y(t)::Real))
   append!(__vars, @variables (force_z(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_cmd_clamped = pop!(__overrides, "cmd_clamped", nothing); isnothing(__ovr_cmd_clamped) || push!(__eqs, cmd_clamped ~ __ovr_cmd_clamped)
+  __ovr_cmd_clamped__initial = pop!(__overrides, "cmd_clamped__initial", nothing); isnothing(__ovr_cmd_clamped__initial) || (__initial_conditions[cmd_clamped] = __ovr_cmd_clamped__initial)
+  __ovr_cmd_clamped__guess = pop!(__overrides, "cmd_clamped__guess", nothing)
+  __ovr_force_x = pop!(__overrides, "force_x", nothing); isnothing(__ovr_force_x) || push!(__eqs, force_x ~ __ovr_force_x)
+  __ovr_force_x__initial = pop!(__overrides, "force_x__initial", nothing); isnothing(__ovr_force_x__initial) || (__initial_conditions[force_x] = __ovr_force_x__initial)
+  __ovr_force_x__guess = pop!(__overrides, "force_x__guess", nothing)
+  __ovr_force_y = pop!(__overrides, "force_y", nothing); isnothing(__ovr_force_y) || push!(__eqs, force_y ~ __ovr_force_y)
+  __ovr_force_y__initial = pop!(__overrides, "force_y__initial", nothing); isnothing(__ovr_force_y__initial) || (__initial_conditions[force_y] = __ovr_force_y__initial)
+  __ovr_force_y__guess = pop!(__overrides, "force_y__guess", nothing)
+  __ovr_force_z = pop!(__overrides, "force_z", nothing); isnothing(__ovr_force_z) || push!(__eqs, force_z ~ __ovr_force_z)
+  __ovr_force_z__initial = pop!(__overrides, "force_z__initial", nothing); isnothing(__ovr_force_z__initial) || (__initial_conditions[force_z] = __ovr_force_z__initial)
+  __ovr_force_z__guess = pop!(__overrides, "force_z__guess", nothing)
 
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_cmd_clamped__guess) || (__guesses[cmd_clamped] = __ovr_cmd_clamped__guess)
+  isnothing(__ovr_force_x__guess) || (__guesses[force_x] = __ovr_force_x__guess)
+  isnothing(__ovr_force_y__guess) || (__guesses[force_y] = __ovr_force_y__guess)
+  isnothing(__ovr_force_z__guess) || (__guesses[force_z] = __ovr_force_z__guess)
 
   ### Initialization Equations
 
@@ -102,7 +157,7 @@ with different positions/directions for a full thruster configuration.
   __assertions = []
 
   ### Equations
-  push!(__eqs, cmd_clamped ~ ifelse(cmd < -1, -1, ifelse(cmd > 1, 1, cmd)))
+  push!(__eqs, cmd_clamped ~ ifelse(cmd < -1.0, -1.0, ifelse(cmd > 1.0, 1.0, cmd)))
   push!(__eqs, force_x ~ cmd_clamped * F_max * dx)
   push!(__eqs, force_y ~ cmd_clamped * F_max * dy)
   push!(__eqs, force_z ~ cmd_clamped * F_max * dz)
@@ -114,6 +169,6 @@ with different positions/directions for a full thruster configuration.
   push!(__eqs, fz_out ~ force_z)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ReactionJet

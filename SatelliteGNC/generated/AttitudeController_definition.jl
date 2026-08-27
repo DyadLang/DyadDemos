@@ -4,8 +4,11 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    AttitudeController(; name, Kp_x, Kp_y, Kp_z, Kd_x, Kd_y, Kd_z, Ixx_ff, Iyy_ff, Izz_ff)
+
 
 3-axis PD attitude controller with feedforward.
 
@@ -19,19 +22,19 @@ Inputs: reference angles, reference rates, feedforward accelerations,
         measured angles, measured angular velocities.
 Outputs: commanded torques in the body frame.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `Kp_x`         | Proportional gains                         | --  |   5 |
-| `Kp_y`         |                          | --  |   4 |
-| `Kp_z`         |                          | --  |   3 |
-| `Kd_x`         | Derivative gains                         | --  |   20 |
-| `Kd_y`         |                          | --  |   16 |
-| `Kd_z`         |                          | --  |   12 |
-| `Ixx_ff`         | Feedforward inertias (must match plant)                         | --  |   10 |
-| `Iyy_ff`         |                          | --  |   8 |
-| `Izz_ff`         |                          | --  |   6 |
+| `Kp_x`         | Proportional gains                         | --  |   5.0 |
+| `Kp_y`         |                          | --  |   4.0 |
+| `Kp_z`         |                          | --  |   3.0 |
+| `Kd_x`         | Derivative gains                         | --  |   20.0 |
+| `Kd_y`         |                          | --  |   16.0 |
+| `Kd_z`         |                          | --  |   12.0 |
+| `Ixx_ff`         | Feedforward inertias (must match plant)                         | --  |   10.0 |
+| `Iyy_ff`         |                          | --  |   8.0 |
+| `Izz_ff`         |                          | --  |   6.0 |
 
 ## Connectors
 
@@ -54,13 +57,15 @@ Outputs: commanded torques in the body frame.
  * `tau_y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `tau_z` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function AttitudeController(; name = nothing, Kp_x=5, Kp_y=4, Kp_z=3, Kd_x=20, Kd_y=16, Kd_z=12, Ixx_ff=10, Iyy_ff=8, Izz_ff=6)
+@component function AttitudeController(; name = nothing, Kp_x=Float64(5.0), Kp_y=Float64(4.0), Kp_z=Float64(3.0), Kd_x=Float64(20.0), Kd_y=Float64(16.0), Kd_z=Float64(12.0), Ixx_ff=Float64(10.0), Iyy_ff=Float64(8.0), Izz_ff=Float64(6.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = AttitudeController()
+  """))
 
-        @named model = AttitudeController()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -68,19 +73,52 @@ Outputs: commanded torques in the body frame.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (Kp_x::Real = Kp_x), [description = "Proportional gains"])
-  append!(__params, @parameters (Kp_y::Real = Kp_y))
-  append!(__params, @parameters (Kp_z::Real = Kp_z))
-  append!(__params, @parameters (Kd_x::Real = Kd_x), [description = "Derivative gains"])
-  append!(__params, @parameters (Kd_y::Real = Kd_y))
-  append!(__params, @parameters (Kd_z::Real = Kd_z))
-  append!(__params, @parameters (Ixx_ff::Real = Ixx_ff), [description = "Feedforward inertias (must match plant)"])
-  append!(__params, @parameters (Iyy_ff::Real = Iyy_ff))
-  append!(__params, @parameters (Izz_ff::Real = Izz_ff))
+  __local__Kp_x = Kp_x
+  append!(__params, @parameters (Kp_x::Real), [description = "Proportional gains"])
+  __initial_conditions[Kp_x] = __local__Kp_x
+  __local__Kp_y = Kp_y
+  append!(__params, @parameters (Kp_y::Real))
+  __initial_conditions[Kp_y] = __local__Kp_y
+  __local__Kp_z = Kp_z
+  append!(__params, @parameters (Kp_z::Real))
+  __initial_conditions[Kp_z] = __local__Kp_z
+  __local__Kd_x = Kd_x
+  append!(__params, @parameters (Kd_x::Real), [description = "Derivative gains"])
+  __initial_conditions[Kd_x] = __local__Kd_x
+  __local__Kd_y = Kd_y
+  append!(__params, @parameters (Kd_y::Real))
+  __initial_conditions[Kd_y] = __local__Kd_y
+  __local__Kd_z = Kd_z
+  append!(__params, @parameters (Kd_z::Real))
+  __initial_conditions[Kd_z] = __local__Kd_z
+  __local__Ixx_ff = Ixx_ff
+  append!(__params, @parameters (Ixx_ff::Real), [description = "Feedforward inertias (must match plant)"])
+  __initial_conditions[Ixx_ff] = __local__Ixx_ff
+  __local__Iyy_ff = Iyy_ff
+  append!(__params, @parameters (Iyy_ff::Real))
+  __initial_conditions[Iyy_ff] = __local__Iyy_ff
+  __local__Izz_ff = Izz_ff
+  append!(__params, @parameters (Izz_ff::Real))
+  __initial_conditions[Izz_ff] = __local__Izz_ff
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (phi_ref(t)::Real), [input = true])
   append!(__vars, @variables (theta_ref(t)::Real), [input = true])
   append!(__vars, @variables (psi_ref(t)::Real), [input = true])
@@ -100,14 +138,19 @@ Outputs: commanded torques in the body frame.
   append!(__vars, @variables (tau_y(t)::Real), [output = true])
   append!(__vars, @variables (tau_z(t)::Real), [output = true])
 
+  ### Variables (declarations)
+
+  ### Variables (assignments)
+
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
 
@@ -120,6 +163,6 @@ Outputs: commanded torques in the body frame.
   push!(__eqs, tau_z ~ -Kp_z * (psi_meas - psi_ref) - Kd_z * (wz_meas - wz_ref) + Izz_ff * az_ff)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export AttitudeController
