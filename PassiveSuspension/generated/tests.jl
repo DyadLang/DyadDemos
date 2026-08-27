@@ -15,8 +15,9 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "tests.jl"))
 end
 
 
+include("test_internals.jl")
+
 @testset "`PassiveSuspension`" begin
-include("Hello_test.jl")
 include("ISO8608RoadC_test.jl")
 include("MyActiveSuspension_test.jl")
 include("MyPassiveSuspension_test.jl")

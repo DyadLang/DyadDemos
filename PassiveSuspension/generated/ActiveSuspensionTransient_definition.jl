@@ -8,8 +8,8 @@ using DyadInterface
 using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
-@kwdef mutable struct PassiveSuspensionTransientSpec <: AbstractTransientAnalysisSpec
-  name::Symbol = :PassiveSuspensionTransient
+@kwdef mutable struct ActiveSuspensionTransientSpec <: AbstractTransientAnalysisSpec
+  name::Symbol = :ActiveSuspensionTransient
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
   var"stop"::Float64 = 10
@@ -24,10 +24,10 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   var"respecialize"::Bool = false
   var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
   var"log_file"::String = ""
-  var"model"::Union{Nothing, System} = PassiveSuspension.MyPassiveSuspension(; name=:MyPassiveSuspension)
+  var"model"::Union{Nothing, System} = PassiveSuspension.MyActiveSuspension(; name=:MyActiveSuspension)
 end
 
-function DyadInterface.run_analysis(spec::PassiveSuspensionTransientSpec)
+function DyadInterface.run_analysis(spec::ActiveSuspensionTransientSpec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
   
@@ -37,5 +37,5 @@ function DyadInterface.run_analysis(spec::PassiveSuspensionTransientSpec)
   run_analysis(base_spec)
 end
 
-PassiveSuspensionTransient(;kwargs...) = run_analysis(PassiveSuspensionTransientSpec(;kwargs...))
-export PassiveSuspensionTransient, PassiveSuspensionTransientSpec
+ActiveSuspensionTransient(;kwargs...) = run_analysis(ActiveSuspensionTransientSpec(;kwargs...))
+export ActiveSuspensionTransient, ActiveSuspensionTransientSpec
