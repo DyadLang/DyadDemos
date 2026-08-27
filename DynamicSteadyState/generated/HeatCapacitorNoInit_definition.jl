@@ -88,8 +88,10 @@ The occupancy schedule is a representative weekday office profile with
   ### Variables (assignments)
   __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
   __ovr_T__initial = pop!(__overrides, "T__initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
+  __ovr_T__guess = pop!(__overrides, "T__guess", nothing)
   __ovr_dT = pop!(__overrides, "dT", nothing); isnothing(__ovr_dT) || push!(__eqs, dT ~ __ovr_dT)
   __ovr_dT__initial = pop!(__overrides, "dT__initial", nothing); isnothing(__ovr_dT__initial) || (__initial_conditions[dT] = __ovr_dT__initial)
+  __ovr_dT__guess = pop!(__overrides, "dT__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -98,9 +100,11 @@ The occupancy schedule is a representative weekday office profile with
   push!(__systems, @named port = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_T__guess) || (__guesses[T] = __ovr_T__guess)
+  isnothing(__ovr_dT__guess) || (__guesses[dT] = __ovr_dT__guess)
 
   ### Initialization Equations
 

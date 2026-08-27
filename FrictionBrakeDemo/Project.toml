@@ -19,12 +19,12 @@ ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 TranslationalComponents = "42acc370-819b-4877-bdd6-eb3294461f5d"
 
 [compat]
-BlockComponents = "4"
-DyadInterface = "7"
+BlockComponents = "4.5"
+DyadInterface = "7.2"
 Markdown = "1"
-RotationalComponents = "2"
-ThermalComponents = "2"
-TranslationalComponents = "2"
+RotationalComponents = "2.5.2"
+ThermalComponents = "2.0.5"
+TranslationalComponents = "2.5"
 
 [workspace]
 projects = [
@@ -48,4 +48,4 @@ test = [
 ]
 
 [dyad]
-kernel = "3.1.0"
+kernel = "3.3.0-rc2"

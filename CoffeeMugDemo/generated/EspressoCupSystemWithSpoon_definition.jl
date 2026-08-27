@@ -55,22 +55,22 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent coffeeMug of type CoffeeMugDemo.CoffeeMugSubsystem
   coffeeMug_overrides = __pop_subcomponent_overrides!(__overrides, "coffeeMug")
-  push!(__systems, @named coffeeMug = CoffeeMugDemo.CoffeeMugSubsystem(coffeeMug_overrides...))
+  push!(__systems, @named coffeeMug = CoffeeMugDemo.CoffeeMugSubsystem(; coffeeMug_overrides...))
   # Subcomponent steam of type CoffeeMugDemo.SteamSubsystem
   steam_overrides = __pop_subcomponent_overrides!(__overrides, "steam")
-  push!(__systems, @named steam = CoffeeMugDemo.SteamSubsystem(steam_overrides...))
+  push!(__systems, @named steam = CoffeeMugDemo.SteamSubsystem(; steam_overrides...))
   # Subcomponent spoon of type CoffeeMugDemo.SpoonSubsystem
   spoon_overrides = __pop_subcomponent_overrides!(__overrides, "spoon")
-  push!(__systems, @named spoon = CoffeeMugDemo.SpoonSubsystem(spoon_overrides...))
+  push!(__systems, @named spoon = CoffeeMugDemo.SpoonSubsystem(; spoon_overrides...))
   # Subcomponent hand of type CoffeeMugDemo.HandSubsystem
   hand_overrides = __pop_subcomponent_overrides!(__overrides, "hand")
-  push!(__systems, @named hand = CoffeeMugDemo.HandSubsystem(hand_overrides...))
+  push!(__systems, @named hand = CoffeeMugDemo.HandSubsystem(; hand_overrides...))
   # Subcomponent environment of type ThermalComponents.Sources.FixedTemperature
   environment_overrides = __pop_subcomponent_overrides!(__overrides, "environment")
-  push!(__systems, @named environment = ThermalComponents.Sources.FixedTemperature(T=293.15, environment_overrides...))
+  push!(__systems, @named environment = ThermalComponents.Sources.FixedTemperature(; T=293.15, environment_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
   __guesses[coffeeMug.outerSurface.T] = (330.0)

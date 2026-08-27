@@ -95,10 +95,13 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_SOC = pop!(__overrides, "SOC", nothing); isnothing(__ovr_SOC) || push!(__eqs, SOC ~ __ovr_SOC)
   __ovr_SOC__initial = pop!(__overrides, "SOC__initial", nothing); isnothing(__ovr_SOC__initial) || (__initial_conditions[SOC] = __ovr_SOC__initial)
+  __ovr_SOC__guess = pop!(__overrides, "SOC__guess", nothing)
   __ovr_total_power = pop!(__overrides, "total_power", nothing); isnothing(__ovr_total_power) || push!(__eqs, total_power ~ __ovr_total_power)
   __ovr_total_power__initial = pop!(__overrides, "total_power__initial", nothing); isnothing(__ovr_total_power__initial) || (__initial_conditions[total_power] = __ovr_total_power__initial)
+  __ovr_total_power__guess = pop!(__overrides, "total_power__guess", nothing)
   __ovr_energy_discharged = pop!(__overrides, "energy_discharged", nothing); isnothing(__ovr_energy_discharged) || push!(__eqs, energy_discharged ~ __ovr_energy_discharged)
   __ovr_energy_discharged__initial = pop!(__overrides, "energy_discharged__initial", nothing); isnothing(__ovr_energy_discharged__initial) || (__initial_conditions[energy_discharged] = __ovr_energy_discharged__initial)
+  __ovr_energy_discharged__guess = pop!(__overrides, "energy_discharged__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -106,9 +109,12 @@ import Moshi as __Ext__Moshi
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_SOC__guess) || (__guesses[SOC] = __ovr_SOC__guess)
+  isnothing(__ovr_total_power__guess) || (__guesses[total_power] = __ovr_total_power__guess)
+  isnothing(__ovr_energy_discharged__guess) || (__guesses[energy_discharged] = __ovr_energy_discharged__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, SOC ~ SOC_init)

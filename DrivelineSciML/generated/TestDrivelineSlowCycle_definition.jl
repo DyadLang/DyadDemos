@@ -70,7 +70,7 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   ### Components
   # Subcomponent model of type DrivelineSciML.DrivelineSystem
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(model_overrides...))
+  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; model_overrides...))
   __bindings[model.k1] = k1
   __bindings[model.c1] = c1
   # Now remove initial conditions in model that correspond to the bindings just added
@@ -82,10 +82,10 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   delete!(__model_ics, __model_c1)
   # Subcomponent sine of type BlockComponents.Sources.Sine
   sine_overrides = __pop_subcomponent_overrides!(__overrides, "sine")
-  push!(__systems, @named sine = BlockComponents.Sources.Sine(amplitude=100.0, frequency=1.0, sine_overrides...))
+  push!(__systems, @named sine = BlockComponents.Sources.Sine(; amplitude=Float64(100.0), frequency=Float64(1.0), sine_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

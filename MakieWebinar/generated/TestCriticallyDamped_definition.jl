@@ -55,10 +55,10 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent circuit of type MakieWebinar.TunableRLCResonance
   circuit_overrides = __pop_subcomponent_overrides!(__overrides, "circuit")
-  push!(__systems, @named circuit = MakieWebinar.TunableRLCResonance(R=63.2, L=0.001, C=0.000001, V_init=10.0, circuit_overrides...))
+  push!(__systems, @named circuit = MakieWebinar.TunableRLCResonance(; R=63.2, L=0.001, C=0.000001, V_init=Float64(10.0), circuit_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

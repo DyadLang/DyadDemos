@@ -40,7 +40,7 @@ Set the JuliaHub juliaup env vars once per shell (not needed for the VS Code REP
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd QuarterTruckSciML
-julia +dyad-3.0.0 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 ### NN-augmented gray-box validation
@@ -49,8 +49,8 @@ The pre-trained LBFGS weights are checked in at `assets/data/nn_weights_full_sin
 so validation runs immediately:
 
 ```bash
-julia +dyad-3.0.0 --project scripts/validate.jl              # → assets/validation_iso_a.png
-julia +dyad-3.0.0 --project scripts/export_validation_csv.jl # → assets/validation_iso_a.csv
+julia +dyad-3.3.0-rc2 --project scripts/validate.jl              # → assets/validation_iso_a.png
+julia +dyad-3.3.0-rc2 --project scripts/export_validation_csv.jl # → assets/validation_iso_a.csv
 ```
 
 Expected output: 3-panel overlay (tire position, driver position, driver
@@ -60,8 +60,8 @@ several times more accurately than the linear baseline.
 To retrain from scratch (~5 min):
 
 ```bash
-julia +dyad-3.0.0 --project scripts/generate_training_data.jl  # regenerate sin training set
-julia +dyad-3.0.0 --project scripts/train.jl                   # Adam → LBFGS
+julia +dyad-3.3.0-rc2 --project scripts/generate_training_data.jl  # regenerate sin training set
+julia +dyad-3.3.0-rc2 --project scripts/train.jl                   # Adam → LBFGS
 ```
 
 ### Parameter calibration
@@ -70,8 +70,8 @@ Generate synthetic measurements from the perturbed nonlinear truth (mass +5%,
 stiffness +10%, damping +20%, friction +50%) and run the calibrator:
 
 ```bash
-julia +dyad-3.0.0 --project scripts/generate_calibration_data.jl
-julia +dyad-3.0.0 --project scripts/run_calibration.jl
+julia +dyad-3.3.0-rc2 --project scripts/generate_calibration_data.jl
+julia +dyad-3.3.0-rc2 --project scripts/run_calibration.jl
 ```
 
 The calibration recovers all four parameters to within ~0.1% of the perturbed
@@ -81,7 +81,7 @@ truth: `model.body_m` and `model.tire_to_body_c` essentially exactly, and
 ### Smoke tests
 
 ```bash
-julia +dyad-3.0.0 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.test()'
 ```
 
 Verifies that the dyad library compiles, ISO 8608 helpers work, all three

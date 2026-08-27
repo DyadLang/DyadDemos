@@ -70,31 +70,31 @@ Reference:
   ### Components
   # Subcomponent drive_cycle of type HybridTransmission.HighwayDriveCycle
   drive_cycle_overrides = __pop_subcomponent_overrides!(__overrides, "drive_cycle")
-  push!(__systems, @named drive_cycle = HybridTransmission.HighwayDriveCycle(drive_cycle_overrides...))
+  push!(__systems, @named drive_cycle = HybridTransmission.HighwayDriveCycle(; drive_cycle_overrides...))
   # Subcomponent controller of type HybridTransmission.ECMSController
   controller_overrides = __pop_subcomponent_overrides!(__overrides, "controller")
-  push!(__systems, @named controller = HybridTransmission.ECMSController(controller_overrides...))
+  push!(__systems, @named controller = HybridTransmission.ECMSController(; controller_overrides...))
   # Subcomponent engine of type HybridTransmission.HybridEngine
   engine_overrides = __pop_subcomponent_overrides!(__overrides, "engine")
-  push!(__systems, @named engine = HybridTransmission.HybridEngine(engine_overrides...))
+  push!(__systems, @named engine = HybridTransmission.HybridEngine(; engine_overrides...))
   # Subcomponent mg1 of type HybridTransmission.HybridMG
   mg1_overrides = __pop_subcomponent_overrides!(__overrides, "mg1")
-  push!(__systems, @named mg1 = HybridTransmission.HybridMG(Kt=1.0, max_torque=130.0, mg1_overrides...))
+  push!(__systems, @named mg1 = HybridTransmission.HybridMG(; Kt=Float64(1.0), max_torque=Float64(130.0), mg1_overrides...))
   # Subcomponent mg2 of type HybridTransmission.HybridMG
   mg2_overrides = __pop_subcomponent_overrides!(__overrides, "mg2")
-  push!(__systems, @named mg2 = HybridTransmission.HybridMG(Kt=1.0, max_torque=330.0, mg2_overrides...))
+  push!(__systems, @named mg2 = HybridTransmission.HybridMG(; Kt=Float64(1.0), max_torque=Float64(330.0), mg2_overrides...))
   # Subcomponent transmission of type HybridTransmission.HybridPlanetaryGear
   transmission_overrides = __pop_subcomponent_overrides!(__overrides, "transmission")
-  push!(__systems, @named transmission = HybridTransmission.HybridPlanetaryGear(transmission_overrides...))
+  push!(__systems, @named transmission = HybridTransmission.HybridPlanetaryGear(; transmission_overrides...))
   # Subcomponent vehicle of type HybridTransmission.HybridVehicle
   vehicle_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle")
-  push!(__systems, @named vehicle = HybridTransmission.HybridVehicle(vehicle_overrides...))
+  push!(__systems, @named vehicle = HybridTransmission.HybridVehicle(; vehicle_overrides...))
   # Subcomponent battery of type HybridTransmission.HybridBattery
   battery_overrides = __pop_subcomponent_overrides!(__overrides, "battery")
-  push!(__systems, @named battery = HybridTransmission.HybridBattery(battery_overrides...))
+  push!(__systems, @named battery = HybridTransmission.HybridBattery(; battery_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
   __guesses[engine.omega] = (0.0)

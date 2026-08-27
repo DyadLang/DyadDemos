@@ -93,28 +93,28 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named shaft = __Dyad__Spline())
   # Subcomponent inertia of type RotationalComponents.Components.Inertia
   inertia_overrides = __pop_subcomponent_overrides!(__overrides, "inertia")
-  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(J=inertia_moment, inertia_overrides...))
+  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(; J=inertia_moment, inertia_overrides...))
   # Subcomponent wheel of type RotationalComponents.Components.IdealRollingWheel
   wheel_overrides = __pop_subcomponent_overrides!(__overrides, "wheel")
-  push!(__systems, @named wheel = RotationalComponents.Components.IdealRollingWheel(radius=wheel_radius, wheel_overrides...))
+  push!(__systems, @named wheel = RotationalComponents.Components.IdealRollingWheel(; radius=wheel_radius, wheel_overrides...))
   # Subcomponent vehicle_mass of type TranslationalComponents.Components.Mass
   vehicle_mass_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_mass")
-  push!(__systems, @named vehicle_mass = TranslationalComponents.Components.Mass(m=vehicle_mass_kg, vehicle_mass_overrides...))
+  push!(__systems, @named vehicle_mass = TranslationalComponents.Components.Mass(; m=vehicle_mass_kg, vehicle_mass_overrides...))
   # Subcomponent load_damper of type TranslationalComponents.Components.Damper
   load_damper_overrides = __pop_subcomponent_overrides!(__overrides, "load_damper")
-  push!(__systems, @named load_damper = TranslationalComponents.Components.Damper(d=damping_coeff, load_damper_overrides...))
+  push!(__systems, @named load_damper = TranslationalComponents.Components.Damper(; d=damping_coeff, load_damper_overrides...))
   # Subcomponent ground of type TranslationalComponents.Components.Fixed
   ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
-  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0.0, ground_overrides...))
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), ground_overrides...))
   # Subcomponent housing of type RotationalComponents.Components.Fixed
   housing_overrides = __pop_subcomponent_overrides!(__overrides, "housing")
-  push!(__systems, @named housing = RotationalComponents.Components.Fixed(phi0=0.0, housing_overrides...))
+  push!(__systems, @named housing = RotationalComponents.Components.Fixed(; phi0=Float64(0.0), housing_overrides...))
   # Subcomponent load_anchor of type TranslationalComponents.Components.Fixed
   load_anchor_overrides = __pop_subcomponent_overrides!(__overrides, "load_anchor")
-  push!(__systems, @named load_anchor = TranslationalComponents.Components.Fixed(s0=0.0, load_anchor_overrides...))
+  push!(__systems, @named load_anchor = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), load_anchor_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

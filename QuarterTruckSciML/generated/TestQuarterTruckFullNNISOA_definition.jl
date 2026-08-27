@@ -66,13 +66,13 @@ Full-NN gray-box quarter truck driven by ISO 8608 Class A — trained weights ar
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckFullNN
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckFullNN(model_overrides...))
+  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckFullNN(; model_overrides...))
   # Subcomponent iso_road of type QuarterTruckSciML.DenseISO8608Road
   iso_road_overrides = __pop_subcomponent_overrides!(__overrides, "iso_road")
-  push!(__systems, @named iso_road = QuarterTruckSciML.DenseISO8608Road(roughness=0.000001, speed=speed, start_time=0.0, iso_road_overrides...))
+  push!(__systems, @named iso_road = QuarterTruckSciML.DenseISO8608Road(; roughness=0.000001, speed=speed, start_time=Float64(0.0), iso_road_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

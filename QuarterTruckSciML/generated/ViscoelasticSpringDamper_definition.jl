@@ -93,10 +93,13 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
   ### Variables (assignments)
   __ovr_s_rel = pop!(__overrides, "s_rel", nothing); isnothing(__ovr_s_rel) || push!(__eqs, s_rel ~ __ovr_s_rel)
   __ovr_s_rel__initial = pop!(__overrides, "s_rel__initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
+  __ovr_s_rel__guess = pop!(__overrides, "s_rel__guess", nothing)
   __ovr_v_rel = pop!(__overrides, "v_rel", nothing); isnothing(__ovr_v_rel) || push!(__eqs, v_rel ~ __ovr_v_rel)
   __ovr_v_rel__initial = pop!(__overrides, "v_rel__initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
+  __ovr_v_rel__guess = pop!(__overrides, "v_rel__guess", nothing)
   __ovr_f = pop!(__overrides, "f", nothing); isnothing(__ovr_f) || push!(__eqs, f ~ __ovr_f)
   __ovr_f__initial = pop!(__overrides, "f__initial", nothing); isnothing(__ovr_f__initial) || (__initial_conditions[f] = __ovr_f__initial)
+  __ovr_f__guess = pop!(__overrides, "f__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -106,9 +109,12 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
   push!(__systems, @named flange_b = __Dyad__Flange())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_s_rel__guess) || (__guesses[s_rel] = __ovr_s_rel__guess)
+  isnothing(__ovr_v_rel__guess) || (__guesses[v_rel] = __ovr_v_rel__guess)
+  isnothing(__ovr_f__guess) || (__guesses[f] = __ovr_f__guess)
 
   ### Initialization Equations
 

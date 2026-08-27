@@ -88,6 +88,7 @@ Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-
   ### Variables (assignments)
   __ovr_delta_w = pop!(__overrides, "delta_w", nothing); isnothing(__ovr_delta_w) || push!(__eqs, delta_w ~ __ovr_delta_w)
   __ovr_delta_w__initial = pop!(__overrides, "delta_w__initial", nothing); isnothing(__ovr_delta_w__initial) || (__initial_conditions[delta_w] = __ovr_delta_w__initial)
+  __ovr_delta_w__guess = pop!(__overrides, "delta_w__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -95,16 +96,16 @@ Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-
   ### Components
   # Subcomponent torque of type RotationalComponents.Sources.TorqueSource
   torque_overrides = __pop_subcomponent_overrides!(__overrides, "torque")
-  push!(__systems, @named torque = RotationalComponents.Sources.TorqueSource(torque_overrides...))
+  push!(__systems, @named torque = RotationalComponents.Sources.TorqueSource(; torque_overrides...))
   # Subcomponent torque_support of type RotationalComponents.Components.Fixed
   torque_support_overrides = __pop_subcomponent_overrides!(__overrides, "torque_support")
-  push!(__systems, @named torque_support = RotationalComponents.Components.Fixed(torque_support_overrides...))
+  push!(__systems, @named torque_support = RotationalComponents.Components.Fixed(; torque_support_overrides...))
   # Subcomponent J_eng of type RotationalComponents.Components.Inertia
   J_eng_overrides = __pop_subcomponent_overrides!(__overrides, "J_eng")
-  push!(__systems, @named J_eng = RotationalComponents.Components.Inertia(J=0.05, J_eng_overrides...))
+  push!(__systems, @named J_eng = RotationalComponents.Components.Inertia(; J=0.05, J_eng_overrides...))
   # Subcomponent isolator of type DrivelineSciML.MaxwellBoucWenIsolator
   isolator_overrides = __pop_subcomponent_overrides!(__overrides, "isolator")
-  push!(__systems, @named isolator = DrivelineSciML.MaxwellBoucWenIsolator(k0=500.0, c0=0.5, isolator_overrides...))
+  push!(__systems, @named isolator = DrivelineSciML.MaxwellBoucWenIsolator(; k0=Float64(500.0), c0=0.5, isolator_overrides...))
   __bindings[isolator.k1] = k1
   __bindings[isolator.c1] = c1
   __bindings[isolator.alpha] = alpha
@@ -128,18 +129,19 @@ Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-
   delete!(__isolator_ics, __isolator_gamma_bw)
   # Subcomponent J_load of type RotationalComponents.Components.Inertia
   J_load_overrides = __pop_subcomponent_overrides!(__overrides, "J_load")
-  push!(__systems, @named J_load = RotationalComponents.Components.Inertia(J=0.2, J_load_overrides...))
+  push!(__systems, @named J_load = RotationalComponents.Components.Inertia(; J=0.2, J_load_overrides...))
   # Subcomponent load_damper of type RotationalComponents.Components.Damper
   load_damper_overrides = __pop_subcomponent_overrides!(__overrides, "load_damper")
-  push!(__systems, @named load_damper = RotationalComponents.Components.Damper(d=0.2, load_damper_overrides...))
+  push!(__systems, @named load_damper = RotationalComponents.Components.Damper(; d=0.2, load_damper_overrides...))
   # Subcomponent ground of type RotationalComponents.Components.Fixed
   ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
-  push!(__systems, @named ground = RotationalComponents.Components.Fixed(ground_overrides...))
+  push!(__systems, @named ground = RotationalComponents.Components.Fixed(; ground_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_delta_w__guess) || (__guesses[delta_w] = __ovr_delta_w__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, J_eng.phi ~ 0.0)

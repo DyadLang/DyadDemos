@@ -55,13 +55,13 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent step_force of type BlockComponents.Sources.Step
   step_force_overrides = __pop_subcomponent_overrides!(__overrides, "step_force")
-  push!(__systems, @named step_force = BlockComponents.Sources.Step(height=5.0, offset=0.0, start_time=0.1, step_force_overrides...))
+  push!(__systems, @named step_force = BlockComponents.Sources.Step(; height=Float64(5.0), offset=Float64(0.0), start_time=0.1, step_force_overrides...))
   # Subcomponent system of type MakieWebinar.SpringMassSystem
   system_overrides = __pop_subcomponent_overrides!(__overrides, "system")
-  push!(__systems, @named system = MakieWebinar.SpringMassSystem(system_overrides...))
+  push!(__systems, @named system = MakieWebinar.SpringMassSystem(; system_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
