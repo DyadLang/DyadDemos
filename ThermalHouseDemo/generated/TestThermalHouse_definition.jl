@@ -76,19 +76,19 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent house of type ThermalHouseDemo.ThermalHouse
   house_overrides = __pop_subcomponent_overrides!(__overrides, "house")
-  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(T_initial=T_indoor, Q_people=100.0, Q_lighting=200.0, Q_appliances=200.0, house_overrides...))
+  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(; T_initial=T_indoor, Q_people=Float64(100.0), Q_lighting=Float64(200.0), Q_appliances=Float64(200.0), house_overrides...))
   # Subcomponent heater_signal of type BlockComponents.Sources.Constant
   heater_signal_overrides = __pop_subcomponent_overrides!(__overrides, "heater_signal")
-  push!(__systems, @named heater_signal = BlockComponents.Sources.Constant(k=Q_heater, heater_signal_overrides...))
+  push!(__systems, @named heater_signal = BlockComponents.Sources.Constant(; k=Q_heater, heater_signal_overrides...))
   # Subcomponent solar_signal of type BlockComponents.Sources.Constant
   solar_signal_overrides = __pop_subcomponent_overrides!(__overrides, "solar_signal")
-  push!(__systems, @named solar_signal = BlockComponents.Sources.Constant(k=solar_irrad, solar_signal_overrides...))
+  push!(__systems, @named solar_signal = BlockComponents.Sources.Constant(; k=solar_irrad, solar_signal_overrides...))
   # Subcomponent ambient_signal of type BlockComponents.Sources.Constant
   ambient_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ambient_signal")
-  push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(k=T_outdoor, ambient_signal_overrides...))
+  push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(; k=T_outdoor, ambient_signal_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
   __guesses[house.wall_loss.ΔT] = (10.0)

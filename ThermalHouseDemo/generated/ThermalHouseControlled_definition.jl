@@ -91,16 +91,16 @@ Thermal model of a house with controlled heater and input for temperature setpoi
   ### Components
   # Subcomponent house of type ThermalHouseDemo.ThermalHouse
   house_overrides = __pop_subcomponent_overrides!(__overrides, "house")
-  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(T_initial=T_initial, house_overrides...))
+  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(; T_initial=T_initial, house_overrides...))
   # Subcomponent pid of type BlockComponents.Continuous.LimPID
   pid_overrides = __pop_subcomponent_overrides!(__overrides, "pid")
-  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(k=k_p, Ti=T_i, Td=0.0, y_max=Q_max, y_min=0.0, pid_overrides...))
+  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(; k=k_p, Ti=T_i, Td=Float64(0.0), y_max=Q_max, y_min=Float64(0.0), pid_overrides...))
   # Subcomponent zero_ff of type BlockComponents.Sources.Constant
   zero_ff_overrides = __pop_subcomponent_overrides!(__overrides, "zero_ff")
-  push!(__systems, @named zero_ff = BlockComponents.Sources.Constant(k=0.0, zero_ff_overrides...))
+  push!(__systems, @named zero_ff = BlockComponents.Sources.Constant(; k=Float64(0.0), zero_ff_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

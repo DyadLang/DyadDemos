@@ -80,8 +80,10 @@ import Moshi as __Ext__Moshi
   ### Variables (assignments)
   __ovr_Q_raw = pop!(__overrides, "Q_raw", nothing); isnothing(__ovr_Q_raw) || push!(__eqs, Q_raw ~ __ovr_Q_raw)
   __ovr_Q_raw__initial = pop!(__overrides, "Q_raw__initial", nothing); isnothing(__ovr_Q_raw__initial) || (__initial_conditions[Q_raw] = __ovr_Q_raw__initial)
+  __ovr_Q_raw__guess = pop!(__overrides, "Q_raw__guess", nothing)
   __ovr_Q_delivered = pop!(__overrides, "Q_delivered", nothing); isnothing(__ovr_Q_delivered) || push!(__eqs, Q_delivered ~ __ovr_Q_delivered)
   __ovr_Q_delivered__initial = pop!(__overrides, "Q_delivered__initial", nothing); isnothing(__ovr_Q_delivered__initial) || (__initial_conditions[Q_delivered] = __ovr_Q_delivered__initial)
+  __ovr_Q_delivered__guess = pop!(__overrides, "Q_delivered__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -90,9 +92,11 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named port = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_Q_raw__guess) || (__guesses[Q_raw] = __ovr_Q_raw__guess)
+  isnothing(__ovr_Q_delivered__guess) || (__guesses[Q_delivered] = __ovr_Q_delivered__guess)
 
   ### Initialization Equations
 

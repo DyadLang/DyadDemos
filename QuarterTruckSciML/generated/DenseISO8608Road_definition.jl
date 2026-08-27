@@ -36,7 +36,7 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
 | ------------ | ----------------------------------- | ------ |
 | `s`         | Partial sums for harmonic accumulation                         | --  |
 """
-@component function DenseISO8608Road(; name = nothing, N=50, roughness=0.000016, lambda_min=0.3, lambda_max=Float64(30.0), speed=13.89, start_time=Float64(0.0), offset=Float64(0.0), amp=QuarterTruckSciML.iso8608_amplitudes(N, lambda_min, lambda_max, roughness), freq=QuarterTruckSciML.iso8608_frequencies(N, lambda_min, lambda_max), phase=QuarterTruckSciML.iso8608_phases(N), kwargs...)
+@component function DenseISO8608Road(; name = nothing, N=50, roughness=0.000016, lambda_min=0.3, lambda_max=Float64(30.0), speed=13.89, start_time=Float64(0.0), offset=Float64(0.0), phase=QuarterTruckSciML.iso8608_phases(N), amp=QuarterTruckSciML.iso8608_amplitudes(N, lambda_min, lambda_max, roughness), freq=QuarterTruckSciML.iso8608_frequencies(N, lambda_min, lambda_max), kwargs...)
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -97,6 +97,7 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   ### Variables (assignments)
   __ovr_s = pop!(__overrides, "s", nothing); isnothing(__ovr_s) || push!(__eqs, s ~ __ovr_s)
   __ovr_s__initial = pop!(__overrides, "s__initial", nothing); isnothing(__ovr_s__initial) || (__initial_conditions[s] = __ovr_s__initial)
+  __ovr_s__guess = pop!(__overrides, "s__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -104,9 +105,10 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
+  isnothing(__ovr_s__guess) || (__guesses[s] = __ovr_s__guess)
 
   ### Initialization Equations
 

@@ -57,13 +57,13 @@ Event 3 harness: tip-in with motor ripple (30 -> 150 Nm at t = 0.5 s plus 3 Nm a
   ### Components
   # Subcomponent model of type DrivelineSciML.DrivelineSystem
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(model_overrides...))
+  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; model_overrides...))
   # Subcomponent tipin of type DrivelineSciML.TipInTorque
   tipin_overrides = __pop_subcomponent_overrides!(__overrides, "tipin")
-  push!(__systems, @named tipin = DrivelineSciML.TipInTorque(tipin_overrides...))
+  push!(__systems, @named tipin = DrivelineSciML.TipInTorque(; tipin_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

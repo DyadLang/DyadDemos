@@ -75,22 +75,22 @@ User can adjust R and C to see different charging behaviors.
   ### Components
   # Subcomponent source of type ElectricalComponents.Analog.Sources.VoltageSource
   source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
-  push!(__systems, @named source = ElectricalComponents.Analog.Sources.VoltageSource(source_overrides...))
+  push!(__systems, @named source = ElectricalComponents.Analog.Sources.VoltageSource(; source_overrides...))
   # Subcomponent voltage_signal of type BlockComponents.Sources.Constant
   voltage_signal_overrides = __pop_subcomponent_overrides!(__overrides, "voltage_signal")
-  push!(__systems, @named voltage_signal = BlockComponents.Sources.Constant(k=V_supply, voltage_signal_overrides...))
+  push!(__systems, @named voltage_signal = BlockComponents.Sources.Constant(; k=V_supply, voltage_signal_overrides...))
   # Subcomponent resistor of type ElectricalComponents.Analog.Basic.Resistor
   resistor_overrides = __pop_subcomponent_overrides!(__overrides, "resistor")
-  push!(__systems, @named resistor = ElectricalComponents.Analog.Basic.Resistor(R=R, resistor_overrides...))
+  push!(__systems, @named resistor = ElectricalComponents.Analog.Basic.Resistor(; R=R, resistor_overrides...))
   # Subcomponent capacitor of type ElectricalComponents.Analog.Basic.Capacitor
   capacitor_overrides = __pop_subcomponent_overrides!(__overrides, "capacitor")
-  push!(__systems, @named capacitor = ElectricalComponents.Analog.Basic.Capacitor(C=C, capacitor_overrides...))
+  push!(__systems, @named capacitor = ElectricalComponents.Analog.Basic.Capacitor(; C=C, capacitor_overrides...))
   # Subcomponent ground of type ElectricalComponents.Analog.Basic.Ground
   ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
-  push!(__systems, @named ground = ElectricalComponents.Analog.Basic.Ground(ground_overrides...))
+  push!(__systems, @named ground = ElectricalComponents.Analog.Basic.Ground(; ground_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

@@ -1,4 +1,0 @@
-component SludgeSink
-  port = FluidPortIn() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 510, "x2": 50, "y2": 610}}}}]
-  metadata {"Dyad": {"icons": {"default": "dyad://ASPDemo/SludgeSink.svg"}}}
-end

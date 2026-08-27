@@ -55,10 +55,10 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent system of type MakieWebinar.ControlledOscillator
   system_overrides = __pop_subcomponent_overrides!(__overrides, "system")
-  push!(__systems, @named system = MakieWebinar.ControlledOscillator(system_overrides...))
+  push!(__systems, @named system = MakieWebinar.ControlledOscillator(; system_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

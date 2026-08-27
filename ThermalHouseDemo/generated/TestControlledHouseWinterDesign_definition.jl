@@ -19,7 +19,7 @@ using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
   var"dtmax"::Float64 = 0
   var"tstops"::Array{Float64, 1} = []
   var"automatic_discontinuity_detection"::Bool = false
-  var"optimize"::OptimizationLevel.Type = OptimizationLevel.None()
+  var"optimize"::OptimizationLevel.Type = OptimizationLevel.Aggressive()
   var"progress"::Bool = true
   var"respecialize"::Bool = false
   var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()

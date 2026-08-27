@@ -57,10 +57,10 @@ Test harness for HalfSineBump signal in isolation.
   ### Components
   # Subcomponent bump of type QuarterTruckSciML.HalfSineBump
   bump_overrides = __pop_subcomponent_overrides!(__overrides, "bump")
-  push!(__systems, @named bump = QuarterTruckSciML.HalfSineBump(amplitude=0.05, bump_duration=0.1, start_time=0.1, bump_overrides...))
+  push!(__systems, @named bump = QuarterTruckSciML.HalfSineBump(; amplitude=0.05, bump_duration=0.1, start_time=0.1, bump_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 

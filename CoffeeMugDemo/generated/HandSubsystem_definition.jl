@@ -77,13 +77,13 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named cupContact = __Dyad__HeatPort())
   # Subcomponent handMass of type ThermalComponents.Components.HeatCapacitor
   handMass_overrides = __pop_subcomponent_overrides!(__overrides, "handMass")
-  push!(__systems, @named handMass = ThermalComponents.Components.HeatCapacitor(C=C_hand, T0=T0_hand, handMass_overrides...))
+  push!(__systems, @named handMass = ThermalComponents.Components.HeatCapacitor(; C=C_hand, T0=T0_hand, handMass_overrides...))
   # Subcomponent handContact of type ThermalComponents.Components.ThermalConductor
   handContact_overrides = __pop_subcomponent_overrides!(__overrides, "handContact")
-  push!(__systems, @named handContact = ThermalComponents.Components.ThermalConductor(G=G_contact, handContact_overrides...))
+  push!(__systems, @named handContact = ThermalComponents.Components.ThermalConductor(; G=G_contact, handContact_overrides...))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
