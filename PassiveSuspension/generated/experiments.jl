@@ -9,7 +9,6 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "experiments.jl"))
 end
 
 
-include("Hello_experiment.jl")
 include("ISO8608RoadC_experiment.jl")
 include("MyActiveSuspension_experiment.jl")
 include("MyPassiveSuspension_experiment.jl")

@@ -4,134 +4,28 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for PassiveSuspension.MyActiveSuspension" begin
-  using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
-  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
-
-  @named model = PassiveSuspension.MyActiveSuspension()
-  model = toggle_namespacing(model, false)
-  
-  model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 1e+1, abstol=1e-6, reltol=1e-6)
-  sol = rebuild_sol(result)
-  @test SciMLBase.successful_retcode(sol)
-# Signals selected for regression testing: ["wheel.mass.s","seat.mass.s","car_and_suspension.mass.s","wheel.mass.v","car_and_suspension.mass.v","seat.mass.v","pid.y"]
-  ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
-  if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
-    # If asked to update snapshots, write out reference data for all signals
-    mkpath("snapshots")
-    CSV.write("snapshots/MyActiveSuspension_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.wheel.mass.s) for t in ref_times]))
-    CSV.write("snapshots/MyActiveSuspension_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.seat.mass.s) for t in ref_times]))
-    CSV.write("snapshots/MyActiveSuspension_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.car_and_suspension.mass.s) for t in ref_times]))
-    CSV.write("snapshots/MyActiveSuspension_case1_sig3.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.wheel.mass.v) for t in ref_times]))
-    CSV.write("snapshots/MyActiveSuspension_case1_sig4.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.car_and_suspension.mass.v) for t in ref_times]))
-    CSV.write("snapshots/MyActiveSuspension_case1_sig5.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.seat.mass.v) for t in ref_times]))
-    CSV.write("snapshots/MyActiveSuspension_case1_sig6.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.pid.y) for t in ref_times]))
-  end
-    if isfile("snapshots/MyActiveSuspension_case1_sig0.ref")
-      ref = CSV.read("snapshots/MyActiveSuspension_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.wheel.mass.s) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.wheel.mass.s])
-        dfr = CSV.read("snapshots/MyActiveSuspension_case1_sig0.ref", DataFrame)
-        plot(sol, idxs=[model.wheel.mass.s], width=2, label="Actual value of wheel.mass.s")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of wheel.mass.s")
-        mkpath("comparisons")
-        savefig("comparisons/MyActiveSuspension_case1_sig0.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/MyActiveSuspension_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.wheel.mass.s) for t in ref_times]))
-    end
-    if isfile("snapshots/MyActiveSuspension_case1_sig1.ref")
-      ref = CSV.read("snapshots/MyActiveSuspension_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.seat.mass.s) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.seat.mass.s])
-        dfr = CSV.read("snapshots/MyActiveSuspension_case1_sig1.ref", DataFrame)
-        plot(sol, idxs=[model.seat.mass.s], width=2, label="Actual value of seat.mass.s")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of seat.mass.s")
-        mkpath("comparisons")
-        savefig("comparisons/MyActiveSuspension_case1_sig1.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/MyActiveSuspension_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.seat.mass.s) for t in ref_times]))
-    end
-    if isfile("snapshots/MyActiveSuspension_case1_sig2.ref")
-      ref = CSV.read("snapshots/MyActiveSuspension_case1_sig2.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.car_and_suspension.mass.s) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.car_and_suspension.mass.s])
-        dfr = CSV.read("snapshots/MyActiveSuspension_case1_sig2.ref", DataFrame)
-        plot(sol, idxs=[model.car_and_suspension.mass.s], width=2, label="Actual value of car_and_suspension.mass.s")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of car_and_suspension.mass.s")
-        mkpath("comparisons")
-        savefig("comparisons/MyActiveSuspension_case1_sig2.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/MyActiveSuspension_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.car_and_suspension.mass.s) for t in ref_times]))
-    end
-    if isfile("snapshots/MyActiveSuspension_case1_sig3.ref")
-      ref = CSV.read("snapshots/MyActiveSuspension_case1_sig3.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.wheel.mass.v) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.wheel.mass.v])
-        dfr = CSV.read("snapshots/MyActiveSuspension_case1_sig3.ref", DataFrame)
-        plot(sol, idxs=[model.wheel.mass.v], width=2, label="Actual value of wheel.mass.v")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of wheel.mass.v")
-        mkpath("comparisons")
-        savefig("comparisons/MyActiveSuspension_case1_sig3.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/MyActiveSuspension_case1_sig3.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.wheel.mass.v) for t in ref_times]))
-    end
-    if isfile("snapshots/MyActiveSuspension_case1_sig4.ref")
-      ref = CSV.read("snapshots/MyActiveSuspension_case1_sig4.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.car_and_suspension.mass.v) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.car_and_suspension.mass.v])
-        dfr = CSV.read("snapshots/MyActiveSuspension_case1_sig4.ref", DataFrame)
-        plot(sol, idxs=[model.car_and_suspension.mass.v], width=2, label="Actual value of car_and_suspension.mass.v")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of car_and_suspension.mass.v")
-        mkpath("comparisons")
-        savefig("comparisons/MyActiveSuspension_case1_sig4.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/MyActiveSuspension_case1_sig4.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.car_and_suspension.mass.v) for t in ref_times]))
-    end
-    if isfile("snapshots/MyActiveSuspension_case1_sig5.ref")
-      ref = CSV.read("snapshots/MyActiveSuspension_case1_sig5.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.seat.mass.v) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.seat.mass.v])
-        dfr = CSV.read("snapshots/MyActiveSuspension_case1_sig5.ref", DataFrame)
-        plot(sol, idxs=[model.seat.mass.v], width=2, label="Actual value of seat.mass.v")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of seat.mass.v")
-        mkpath("comparisons")
-        savefig("comparisons/MyActiveSuspension_case1_sig5.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/MyActiveSuspension_case1_sig5.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.seat.mass.v) for t in ref_times]))
-    end
-    if isfile("snapshots/MyActiveSuspension_case1_sig6.ref")
-      ref = CSV.read("snapshots/MyActiveSuspension_case1_sig6.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.pid.y) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.pid.y])
-        dfr = CSV.read("snapshots/MyActiveSuspension_case1_sig6.ref", DataFrame)
-        plot(sol, idxs=[model.pid.y], width=2, label="Actual value of pid.y")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of pid.y")
-        mkpath("comparisons")
-        savefig("comparisons/MyActiveSuspension_case1_sig6.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/MyActiveSuspension_case1_sig6.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.pid.y) for t in ref_times]))
-    end
-end
+__dyad_run_test_case!(
+  PassiveSuspension.MyActiveSuspension,
+  "case1 for PassiveSuspension.MyActiveSuspension";
+  case_name="case1",
+  component_stem="MyActiveSuspension",
+  module_path=String[],
+  start=0e+0,
+  stop=1e+1,
+  abstol=1e-6,
+  reltol=1e-6,
+  solver=ODEAlg.Auto(),
+  params=(;),
+  initial_conditions=Tuple[],
+  expected_initial=Tuple[],
+  expected_final=Tuple[],
+  signals=Tuple[
+    (m -> m.wheel.mass.s, "wheel.mass.s", 0.001, 1e-5),
+    (m -> m.seat.mass.s, "seat.mass.s", 0.001, 1e-5),
+    (m -> m.car_and_suspension.mass.s, "car_and_suspension.mass.s", 0.001, 1e-5),
+    (m -> m.wheel.mass.v, "wheel.mass.v", 0.001, 1e-5),
+    (m -> m.car_and_suspension.mass.v, "car_and_suspension.mass.v", 0.001, 1e-5),
+    (m -> m.seat.mass.v, "seat.mass.v", 0.001, 1e-5),
+    (m -> m.pid.y, "pid.y", 0.001, 1e-5),
+  ],
+)

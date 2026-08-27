@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    MyPassiveSuspension(; name, wheel_mass, wheel_stiffness, wheel_damping, car_mass, suspension_stiffness, suspension_damping, human_and_seat_mass, seat_stiffness, seat_damping, wheel_initial_position, suspension_initial_position, seat_initial_position, speed)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -23,15 +25,17 @@
 | `wheel_initial_position`         |                          | m  |   0.5 |
 | `suspension_initial_position`         |                          | m  |   1 |
 | `seat_initial_position`         |                          | m  |   1.5 |
-| `speed`         | Vehicle speed (m/s)                         | m/s  |   20 |
+| `speed`         | Vehicle speed (m/s)                         | m/s  |   20.0 |
 """
-@component function MyPassiveSuspension(; name = nothing, wheel_mass=45, wheel_stiffness=200000, wheel_damping=100, car_mass=400, suspension_stiffness=25000, suspension_damping=209, human_and_seat_mass=80, seat_stiffness=10000, seat_damping=59, wheel_initial_position=0.5, suspension_initial_position=1, seat_initial_position=1.5, speed=20)
+@component function MyPassiveSuspension(; name = nothing, wheel_mass=Float64(45), wheel_stiffness=Float64(200000), wheel_damping=Float64(100), car_mass=Float64(400), suspension_stiffness=Float64(25000), suspension_damping=Float64(209), human_and_seat_mass=Float64(80), seat_stiffness=Float64(10000), seat_damping=Float64(59), wheel_initial_position=0.5, suspension_initial_position=Float64(1), seat_initial_position=1.5, speed=Float64(20.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = MyPassiveSuspension()
+  """))
 
-        @named model = MyPassiveSuspension()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -39,48 +43,104 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (wheel_mass::Real = wheel_mass), [bounds = (0, Inf)])
-  append!(__params, @parameters (wheel_stiffness::Real = wheel_stiffness))
-  append!(__params, @parameters (wheel_damping::Real = wheel_damping))
-  append!(__params, @parameters (car_mass::Real = car_mass), [bounds = (0, Inf)])
-  append!(__params, @parameters (suspension_stiffness::Real = suspension_stiffness))
-  append!(__params, @parameters (suspension_damping::Real = suspension_damping))
-  append!(__params, @parameters (human_and_seat_mass::Real = human_and_seat_mass), [bounds = (0, Inf)])
-  append!(__params, @parameters (seat_stiffness::Real = seat_stiffness))
-  append!(__params, @parameters (seat_damping::Real = seat_damping))
-  append!(__params, @parameters (wheel_initial_position::Real = wheel_initial_position))
-  append!(__params, @parameters (suspension_initial_position::Real = suspension_initial_position))
-  append!(__params, @parameters (seat_initial_position::Real = seat_initial_position))
-  append!(__params, @parameters (speed::Real = speed), [description = "Vehicle speed (m/s)"])
+  __local__wheel_mass = wheel_mass
+  append!(__params, @parameters (wheel_mass::Real), [bounds = (0, Inf)])
+  __initial_conditions[wheel_mass] = __local__wheel_mass
+  __local__wheel_stiffness = wheel_stiffness
+  append!(__params, @parameters (wheel_stiffness::Real))
+  __initial_conditions[wheel_stiffness] = __local__wheel_stiffness
+  __local__wheel_damping = wheel_damping
+  append!(__params, @parameters (wheel_damping::Real))
+  __initial_conditions[wheel_damping] = __local__wheel_damping
+  __local__car_mass = car_mass
+  append!(__params, @parameters (car_mass::Real), [bounds = (0, Inf)])
+  __initial_conditions[car_mass] = __local__car_mass
+  __local__suspension_stiffness = suspension_stiffness
+  append!(__params, @parameters (suspension_stiffness::Real))
+  __initial_conditions[suspension_stiffness] = __local__suspension_stiffness
+  __local__suspension_damping = suspension_damping
+  append!(__params, @parameters (suspension_damping::Real))
+  __initial_conditions[suspension_damping] = __local__suspension_damping
+  __local__human_and_seat_mass = human_and_seat_mass
+  append!(__params, @parameters (human_and_seat_mass::Real), [bounds = (0, Inf)])
+  __initial_conditions[human_and_seat_mass] = __local__human_and_seat_mass
+  __local__seat_stiffness = seat_stiffness
+  append!(__params, @parameters (seat_stiffness::Real))
+  __initial_conditions[seat_stiffness] = __local__seat_stiffness
+  __local__seat_damping = seat_damping
+  append!(__params, @parameters (seat_damping::Real))
+  __initial_conditions[seat_damping] = __local__seat_damping
+  __local__wheel_initial_position = wheel_initial_position
+  append!(__params, @parameters (wheel_initial_position::Real))
+  __initial_conditions[wheel_initial_position] = __local__wheel_initial_position
+  __local__suspension_initial_position = suspension_initial_position
+  append!(__params, @parameters (suspension_initial_position::Real))
+  __initial_conditions[suspension_initial_position] = __local__suspension_initial_position
+  __local__seat_initial_position = seat_initial_position
+  append!(__params, @parameters (seat_initial_position::Real))
+  __initial_conditions[seat_initial_position] = __local__seat_initial_position
+  __local__speed = speed
+  append!(__params, @parameters (speed::Real), [description = "Vehicle speed (m/s)"])
+  __initial_conditions[speed] = __local__speed
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named wheel = DyadExampleComponents.MassSpringDamper(m=wheel_mass, d=wheel_damping, c=wheel_stiffness, g=-10, theta=pi / 2))
-  push!(__systems, @named car_and_suspension = DyadExampleComponents.MassSpringDamper(m=car_mass, d=suspension_damping, c=suspension_stiffness, g=-10, theta=pi / 2))
-  push!(__systems, @named seat = DyadExampleComponents.MassSpringDamper(m=human_and_seat_mass, d=seat_damping, c=seat_stiffness, g=-10, theta=pi / 2))
-  push!(__systems, @named road_profile = PassiveSuspension.ISO8608RoadC(v=speed))
-  push!(__systems, @named road = DyadExampleComponents.SimplePosition())
+  # Subcomponent wheel of type DyadExampleComponents.MassSpringDamper
+  wheel_overrides = __pop_subcomponent_overrides!(__overrides, "wheel")
+  push!(__systems, @named wheel = DyadExampleComponents.MassSpringDamper(; m=wheel_mass, d=wheel_damping, c=wheel_stiffness, g=Float64(-10), theta=pi / 2, wheel_overrides...))
+  # Subcomponent car_and_suspension of type DyadExampleComponents.MassSpringDamper
+  car_and_suspension_overrides = __pop_subcomponent_overrides!(__overrides, "car_and_suspension")
+  push!(__systems, @named car_and_suspension = DyadExampleComponents.MassSpringDamper(; m=car_mass, d=suspension_damping, c=suspension_stiffness, g=Float64(-10), theta=pi / 2, car_and_suspension_overrides...))
+  # Subcomponent seat of type DyadExampleComponents.MassSpringDamper
+  seat_overrides = __pop_subcomponent_overrides!(__overrides, "seat")
+  push!(__systems, @named seat = DyadExampleComponents.MassSpringDamper(; m=human_and_seat_mass, d=seat_damping, c=seat_stiffness, g=Float64(-10), theta=pi / 2, seat_overrides...))
+  # Subcomponent road_profile of type PassiveSuspension.ISO8608RoadC
+  road_profile_overrides = __pop_subcomponent_overrides!(__overrides, "road_profile")
+  push!(__systems, @named road_profile = PassiveSuspension.ISO8608RoadC(; v=speed, road_profile_overrides...))
+  # Subcomponent road of type DyadExampleComponents.SimplePosition
+  road_overrides = __pop_subcomponent_overrides!(__overrides, "road")
+  push!(__systems, @named road = DyadExampleComponents.SimplePosition(; road_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
 
-  ### Defaults
-  __initial_conditions[wheel.mass.s] = (wheel_initial_position)
-  __initial_conditions[car_and_suspension.mass.s] = (suspension_initial_position)
-  __initial_conditions[seat.mass.s] = (seat_initial_position)
-  __initial_conditions[wheel.mass.v] = (0)
-  __initial_conditions[car_and_suspension.mass.v] = (0)
-  __initial_conditions[seat.mass.v] = (0)
-  __initial_conditions[wheel.mass.a] = (0)
-  __initial_conditions[car_and_suspension.mass.a] = (0)
-  __initial_conditions[seat.mass.a] = (0)
-
   ### Initialization Equations
+  push!(__initialization_eqs, wheel.mass.s ~ wheel_initial_position)
+  push!(__initialization_eqs, car_and_suspension.mass.s ~ suspension_initial_position)
+  push!(__initialization_eqs, seat.mass.s ~ seat_initial_position)
+  push!(__initialization_eqs, wheel.mass.v ~ 0)
+  push!(__initialization_eqs, car_and_suspension.mass.v ~ 0)
+  push!(__initialization_eqs, seat.mass.v ~ 0)
+  push!(__initialization_eqs, wheel.mass.a ~ 0)
+  push!(__initialization_eqs, car_and_suspension.mass.a ~ 0)
+  push!(__initialization_eqs, seat.mass.a ~ 0)
 
   ### Assertions
   __assertions = []
@@ -92,6 +152,6 @@
   push!(__eqs, connect(road_profile.y, road.s))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export MyPassiveSuspension
