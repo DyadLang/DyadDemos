@@ -4,16 +4,18 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    DiffusionResistor(; name, D, dx, A)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `D`         | Diffusion coefficient                         | --  |   1 |
+| `D`         | Diffusion coefficient                         | --  |   1.0 |
 | `dx`         | Distance between points                         | --  |   0.1 |
-| `A`         | Cross-sectional area                         | --  |   1 |
+| `A`         | Cross-sectional area                         | --  |   1.0 |
 
 ## Connectors
 
@@ -51,17 +53,19 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `ΔC`         | Concentration difference                         | --  | 
-| `J`         | Mass flux through resistor                         | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `ΔC`         | Concentration difference                         | --  |
+| `J`         | Mass flux through resistor                         | --  |
 """
-@component function DiffusionResistor(; name = nothing, D=1, dx=0.1, A=1)
+@component function DiffusionResistor(; name = nothing, D=Float64(1.0), dx=0.1, A=Float64(1.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = DiffusionResistor()
+  """))
 
-        @named model = DiffusionResistor()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -69,15 +73,46 @@ Supported dynamics:
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (D::Real = D), [description = "Diffusion coefficient"])
-  append!(__params, @parameters (dx::Real = dx), [description = "Distance between points"])
-  append!(__params, @parameters (A::Real = A), [description = "Cross-sectional area"])
+  __local__D = D
+  append!(__params, @parameters (D::Real), [description = "Diffusion coefficient"])
+  __initial_conditions[D] = __local__D
+  __local__dx = dx
+  append!(__params, @parameters (dx::Real), [description = "Distance between points"])
+  __initial_conditions[dx] = __local__dx
+  __local__A = A
+  append!(__params, @parameters (A::Real), [description = "Cross-sectional area"])
+  __initial_conditions[A] = __local__A
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (ΔC(t)::Real), [description = "Concentration difference"])
   append!(__vars, @variables (J(t)::Real), [description = "Mass flux through resistor"])
+
+  ### Variables (assignments)
+  __ovr_ΔC = pop!(__overrides, "ΔC", nothing); isnothing(__ovr_ΔC) || push!(__eqs, ΔC ~ __ovr_ΔC)
+  __ovr_ΔC__initial = pop!(__overrides, "ΔC__initial", nothing); isnothing(__ovr_ΔC__initial) || (__initial_conditions[ΔC] = __ovr_ΔC__initial)
+  __ovr_ΔC__guess = pop!(__overrides, "ΔC__guess", nothing)
+  __ovr_J = pop!(__overrides, "J", nothing); isnothing(__ovr_J) || push!(__eqs, J ~ __ovr_J)
+  __ovr_J__initial = pop!(__overrides, "J__initial", nothing); isnothing(__ovr_J__initial) || (__initial_conditions[J] = __ovr_J__initial)
+  __ovr_J__guess = pop!(__overrides, "J__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -86,9 +121,12 @@ Supported dynamics:
   push!(__systems, @named port_a = MakieWebinar.DiffusionPort())
   push!(__systems, @named port_b = MakieWebinar.DiffusionPort())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_ΔC__guess) || (__guesses[ΔC] = __ovr_ΔC__guess)
+  isnothing(__ovr_J__guess) || (__guesses[J] = __ovr_J__guess)
 
   ### Initialization Equations
 
@@ -102,6 +140,6 @@ Supported dynamics:
   push!(__eqs, port_a.J + port_b.J ~ 0)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export DiffusionResistor

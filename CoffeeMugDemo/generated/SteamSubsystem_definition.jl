@@ -4,10 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SteamSubsystem(; name, Gc_top, Gr_top)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -16,16 +18,18 @@
 
 ## Connectors
 
- * `liquidInterface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
- * `ambient` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `liquidInterface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `ambient` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function SteamSubsystem(; name = nothing, Gc_top=0.01, Gr_top=0.001)
+@component function SteamSubsystem(; name = nothing, Gc_top=0.01, Gr_top=0.001, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SteamSubsystem()
+  """))
 
-        @named model = SteamSubsystem()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -33,26 +37,56 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (Gc_top::Real = Gc_top))
-  append!(__params, @parameters (Gr_top::Real = Gr_top))
+  __local__Gc_top = Gc_top
+  append!(__params, @parameters (Gc_top::Real))
+  __initial_conditions[Gc_top] = __local__Gc_top
+  __local__Gr_top = Gr_top
+  append!(__params, @parameters (Gr_top::Real))
+  __initial_conditions[Gr_top] = __local__Gr_top
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named liquidInterface = __Dyad__Node())
-  push!(__systems, @named ambient = __Dyad__Node())
-  push!(__systems, @named convTop = ThermalComponents.Convection())
-  push!(__systems, @named gcTop = BlockComponents.Constant(k=Gc_top))
-  push!(__systems, @named radTop = ThermalComponents.BodyRadiation(Gr=Gr_top))
+  push!(__systems, @named liquidInterface = __Dyad__HeatPort())
+  push!(__systems, @named ambient = __Dyad__HeatPort())
+  # Subcomponent convTop of type ThermalComponents.Components.Convection
+  convTop_overrides = __pop_subcomponent_overrides!(__overrides, "convTop")
+  push!(__systems, @named convTop = ThermalComponents.Components.Convection(; convTop_overrides...))
+  # Subcomponent gcTop of type BlockComponents.Sources.Constant
+  gcTop_overrides = __pop_subcomponent_overrides!(__overrides, "gcTop")
+  push!(__systems, @named gcTop = BlockComponents.Sources.Constant(; k=Gc_top, gcTop_overrides...))
+  # Subcomponent radTop of type ThermalComponents.Components.BodyRadiation
+  radTop_overrides = __pop_subcomponent_overrides!(__overrides, "radTop")
+  push!(__systems, @named radTop = ThermalComponents.Components.BodyRadiation(; Gr=Gr_top, radTop_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -63,10 +97,10 @@
   push!(__eqs, connect(liquidInterface, convTop.solid))
   push!(__eqs, connect(convTop.fluid, ambient))
   push!(__eqs, connect(gcTop.y, convTop.Gc))
-  push!(__eqs, connect(liquidInterface, radTop.node_a))
-  push!(__eqs, connect(radTop.node_b, ambient))
+  push!(__eqs, connect(liquidInterface, radTop.port_a))
+  push!(__eqs, connect(radTop.port_b, ambient))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SteamSubsystem

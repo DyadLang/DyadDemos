@@ -2,7 +2,7 @@
 # Implementation with array variables with thermal connector at surface
 component TurkeyDiscretizedSphere
   # Thermal connector for outermost element
-  surface = Node() {^surface}
+  surface = HeatPort() {^surface}
   # Structural parameter for discretization
   structural parameter N::Integer = 10
   structural parameter Np1::Integer = N+1
@@ -60,13 +60,13 @@ relations
   # Surface shell - heat enters from interior and from surface connector
   # Note: In thermal connector convention, positive surface.Q means heat entering
   # So we ADD surface.Q 
-  m_shell[N] * cp * der(T[N]) = Q_cond[N] + surface.Q
+  m_shell[N] * cp * der(T[N]) = Q_cond[N] + surface.Q_flow
   # Surface connector relations
   surface.T = T[N]
   # Initial conditions
   initial T = T_inits
   for i in 1:N
-    T_degF[i] = KelvinToFahrenheit(T[i])
+    T_degF[i] = TurkeyDemo.KelvinToFahrenheit(T[i])
   end
 metadata {
   "Dyad": {"icons": {"default": "dyad://TurkeyDemo/turkey.svg"}},
@@ -81,12 +81,12 @@ test component TurkeySphereTest
   # Turkey body
   turkey = TurkeyDiscretizedSphere(N = 10, M = M_turkey, T_init = 277.0) {^turkey}
   # Oven environment
-  oven = ThermalComponents.FixedTemperature(T = T_oven) {^oven}
+  oven = ThermalComponents.Sources.FixedTemperature(T = T_oven) {^oven}
   # Convection heat transfer with signal input
-  convection = ThermalComponents.Convection() {^convection}
-  Gc_signal = BlockComponents.Constant(k = Gc_conv) {^Gc_signal}
+  convection = ThermalComponents.Components.Convection() {^convection}
+  Gc_signal = BlockComponents.Sources.Constant(k = Gc_conv) {^Gc_signal}
   # Radiation heat transfer
-  radiation = ThermalComponents.BodyRadiation(Gr = Gr_rad) {^radiation}
+  radiation = ThermalComponents.Components.BodyRadiation(Gr = Gr_rad) {^radiation}
   structural parameter N::Integer = 10
   # Parameters
   parameter T_oven::Temperature = 450.0
@@ -102,12 +102,12 @@ test component TurkeySphereTest
   parameter Gr_rad::Real = epsilon * A_surface
 relations
   # Connect convection: oven (fluid) -> turkey surface (solid)
-  connect(oven.node, convection.fluid) {^id6}
+  connect(oven.port, convection.fluid) {^id6}
   connect(convection.solid, turkey.surface) {^id7}
   connect(Gc_signal.y, convection.Gc) {^id8}
   # Connect radiation: oven -> turkey surface
-  connect(oven.node, radiation.node_a) {^id9}
-  connect(radiation.node_b, turkey.surface) {^id10}
+  connect(oven.port, radiation.port_a) {^id9}
+  connect(radiation.port_b, turkey.surface) {^id10}
 metadata {
   "_links": {
     "turkey": {

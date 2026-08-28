@@ -4,98 +4,33 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for HybridTransmission.PowerSplitHybrid" begin
-  using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
-  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
-
-  @named model = HybridTransmission.PowerSplitHybrid()
-  model = toggle_namespacing(model, false)
-  
-  model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 7.65e+2, abstol=1e-6, reltol=1e-6)
-  sol = rebuild_sol(result)
-  @test SciMLBase.successful_retcode(sol)
-  @test sol[model.vehicle.speed][1] ≈ 0 atol=2 rtol=9.999999999999999e-6
-  @test sol[model.battery.SOC][1] ≈ 0.6 atol=0.02 rtol=9.999999999999999e-6
-  @test sol[model.engine.fuel_consumed][1] ≈ 0 atol=50 rtol=9.999999999999999e-6
-  @test sol[model.battery.SOC][end] ≈ 0.4 atol=0.02 rtol=9.999999999999999e-6
-  @test sol[model.engine.fuel_consumed][end] ≈ 1292 atol=50 rtol=9.999999999999999e-6
-  @test sol[model.vehicle.speed][end] ≈ 20 atol=2 rtol=9.999999999999999e-6
-# Signals selected for regression testing: ["vehicle.speed","battery.SOC","engine.fuel_consumed","controller.engine_throttle"]
-  ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
-  if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
-    # If asked to update snapshots, write out reference data for all signals
-    mkpath("snapshots")
-    CSV.write("snapshots/PowerSplitHybrid_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.speed) for t in ref_times]))
-    CSV.write("snapshots/PowerSplitHybrid_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.battery.SOC) for t in ref_times]))
-    CSV.write("snapshots/PowerSplitHybrid_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.engine.fuel_consumed) for t in ref_times]))
-    CSV.write("snapshots/PowerSplitHybrid_case1_sig3.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.controller.engine_throttle) for t in ref_times]))
-  end
-    if isfile("snapshots/PowerSplitHybrid_case1_sig0.ref")
-      ref = CSV.read("snapshots/PowerSplitHybrid_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.speed) atol=2 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.vehicle.speed])
-        dfr = CSV.read("snapshots/PowerSplitHybrid_case1_sig0.ref", DataFrame)
-        plot(sol, idxs=[model.vehicle.speed], width=2, label="Actual value of vehicle.speed")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of vehicle.speed")
-        plot!([df.t[1]], [0], seriestype=:scatter, label="Initial Condition for vehicle.speed")
-        plot!([df.t[end]], [20], seriestype=:scatter, label="Final Condition for vehicle.speed")
-        mkpath("comparisons")
-        savefig("comparisons/PowerSplitHybrid_case1_sig0.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/PowerSplitHybrid_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.speed) for t in ref_times]))
-    end
-    if isfile("snapshots/PowerSplitHybrid_case1_sig1.ref")
-      ref = CSV.read("snapshots/PowerSplitHybrid_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.battery.SOC) atol=0.02 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.battery.SOC])
-        dfr = CSV.read("snapshots/PowerSplitHybrid_case1_sig1.ref", DataFrame)
-        plot(sol, idxs=[model.battery.SOC], width=2, label="Actual value of battery.SOC")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of battery.SOC")
-        plot!([df.t[1]], [0.6], seriestype=:scatter, label="Initial Condition for battery.SOC")
-        plot!([df.t[end]], [0.4], seriestype=:scatter, label="Final Condition for battery.SOC")
-        mkpath("comparisons")
-        savefig("comparisons/PowerSplitHybrid_case1_sig1.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/PowerSplitHybrid_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.battery.SOC) for t in ref_times]))
-    end
-    if isfile("snapshots/PowerSplitHybrid_case1_sig2.ref")
-      ref = CSV.read("snapshots/PowerSplitHybrid_case1_sig2.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.engine.fuel_consumed) atol=50 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.engine.fuel_consumed])
-        dfr = CSV.read("snapshots/PowerSplitHybrid_case1_sig2.ref", DataFrame)
-        plot(sol, idxs=[model.engine.fuel_consumed], width=2, label="Actual value of engine.fuel_consumed")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of engine.fuel_consumed")
-        plot!([df.t[1]], [0], seriestype=:scatter, label="Initial Condition for engine.fuel_consumed")
-        plot!([df.t[end]], [1292], seriestype=:scatter, label="Final Condition for engine.fuel_consumed")
-        mkpath("comparisons")
-        savefig("comparisons/PowerSplitHybrid_case1_sig2.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/PowerSplitHybrid_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.engine.fuel_consumed) for t in ref_times]))
-    end
-    if isfile("snapshots/PowerSplitHybrid_case1_sig3.ref")
-      ref = CSV.read("snapshots/PowerSplitHybrid_case1_sig3.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.controller.engine_throttle) atol=9.999999999999999e-6 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.controller.engine_throttle])
-        dfr = CSV.read("snapshots/PowerSplitHybrid_case1_sig3.ref", DataFrame)
-        plot(sol, idxs=[model.controller.engine_throttle], width=2, label="Actual value of controller.engine_throttle")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of controller.engine_throttle")
-        mkpath("comparisons")
-        savefig("comparisons/PowerSplitHybrid_case1_sig3.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/PowerSplitHybrid_case1_sig3.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.controller.engine_throttle) for t in ref_times]))
-    end
-end
+__dyad_run_test_case!(
+  HybridTransmission.PowerSplitHybrid,
+  "case1 for HybridTransmission.PowerSplitHybrid";
+  case_name="case1",
+  component_stem="PowerSplitHybrid",
+  module_path=String[],
+  start=0e+0,
+  stop=7.65e+2,
+  abstol=1e-6,
+  reltol=1e-6,
+  solver=ODEAlg.Auto(),
+  params=(;),
+  initial_conditions=Tuple[],
+  expected_initial=Tuple[
+    (m -> m.vehicle.speed, "vehicle.speed", 0, 2, 1e-5),
+    (m -> m.battery.SOC, "battery.SOC", 0.6, 0.02, 1e-5),
+    (m -> m.engine.fuel_consumed, "engine.fuel_consumed", 0, 50, 1e-5),
+  ],
+  expected_final=Tuple[
+    (m -> m.battery.SOC, "battery.SOC", 0.4, 0.02, 1e-5),
+    (m -> m.engine.fuel_consumed, "engine.fuel_consumed", 1292, 50, 1e-5),
+    (m -> m.vehicle.speed, "vehicle.speed", 20, 2, 1e-5),
+  ],
+  signals=Tuple[
+    (m -> m.vehicle.speed, "vehicle.speed", 2, 1e-5),
+    (m -> m.battery.SOC, "battery.SOC", 0.02, 1e-5),
+    (m -> m.engine.fuel_consumed, "engine.fuel_consumed", 50, 1e-5),
+    (m -> m.controller.engine_throttle, "controller.engine_throttle", 1e-5, 1e-5),
+  ],
+)

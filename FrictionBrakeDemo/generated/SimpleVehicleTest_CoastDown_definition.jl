@@ -4,16 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SimpleVehicleTest_CoastDown(; name)
 """
-@component function SimpleVehicleTest_CoastDown(; name = nothing)
+@component function SimpleVehicleTest_CoastDown(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SimpleVehicleTest_CoastDown()
+  """))
 
-        @named model = SimpleVehicleTest_CoastDown()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,23 +25,51 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle(initial_velocity=108 * 1000 / 3600))
-  push!(__systems, @named torque_input = BlockComponents.Constant(k=0))
-  push!(__systems, @named torque_source = RotationalComponents.TorqueSource())
-  push!(__systems, @named torque_ground = RotationalComponents.Fixed())
+  # Subcomponent vehicle of type FrictionBrakeDemo.SimpleVehicle
+  vehicle_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle")
+  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle(; initial_velocity=Float64(108 * 1000 / 3600), vehicle_overrides...))
+  # Subcomponent torque_input of type BlockComponents.Sources.Constant
+  torque_input_overrides = __pop_subcomponent_overrides!(__overrides, "torque_input")
+  push!(__systems, @named torque_input = BlockComponents.Sources.Constant(; k=Float64(0), torque_input_overrides...))
+  # Subcomponent torque_source of type RotationalComponents.Sources.TorqueSource
+  torque_source_overrides = __pop_subcomponent_overrides!(__overrides, "torque_source")
+  push!(__systems, @named torque_source = RotationalComponents.Sources.TorqueSource(; torque_source_overrides...))
+  # Subcomponent torque_ground of type RotationalComponents.Components.Fixed
+  torque_ground_overrides = __pop_subcomponent_overrides!(__overrides, "torque_ground")
+  push!(__systems, @named torque_ground = RotationalComponents.Components.Fixed(; torque_ground_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -50,6 +82,6 @@
   push!(__eqs, connect(torque_source.support, torque_ground.spline))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SimpleVehicleTest_CoastDown

@@ -1,0 +1,248 @@
+"HL-20 aerodynamic model. TM-4302 coefficient buildup via registered symbolic functions."
+component HL20Aero
+  # Inputs
+  alpha_deg = RealInput()
+  beta_deg = RealInput()
+  mach = RealInput()
+  vrw_fps = RealInput()
+  hob = RealInput()
+  pb = RealInput()
+  qb = RealInput()
+  rb = RealInput()
+  DBFUL = RealInput()
+  DBFUR = RealInput()
+  DBFLL = RealInput()
+  DBFLR = RealInput()
+  DWFL = RealInput()
+  DWFR = RealInput()
+  DRUD = RealInput()
+
+  parameter DLG::Real = 0.0
+  parameter CBAR_ft::Real = 28.24
+  parameter BSPAN_ft::Real = 13.89
+  parameter Cm_bias::Real = 0.006449
+
+  # Dynamic derivative polynomial coefficients (from DML)
+  parameter CMQ0::Real = -0.22364
+  parameter CMQ1::Real = 0.020457
+  parameter CMQ2::Real = -0.0016741
+  parameter CMQ3::Real = 0.000031618
+  parameter CNP0::Real = 0.40031
+  parameter CNP1::Real = -0.015518
+  parameter CNP2::Real = -0.00012143
+  parameter CNP3::Real = 0.000018240
+  parameter CNR0::Real = -0.79533
+  parameter CNR1::Real = -0.012647
+  parameter CNR2::Real = 0.00032696
+  parameter CNR3::Real = -0.0000065929
+  parameter CLP0::Real = -0.55242
+  parameter CLP1::Real = 0.014478
+  parameter CLP2::Real = -0.0011545
+  parameter CLP3::Real = 0.000017706
+  parameter CLR0::Real = 0.44685
+  parameter CLR1::Real = 0.067411
+  parameter CLR2::Real = -0.0051866
+  parameter CLR3::Real = 0.00012659
+
+  # Outputs
+  CX = RealOutput()
+  CY = RealOutput()
+  CZ = RealOutput()
+  Cl = RealOutput()
+  Cm = RealOutput()
+  Cn = RealOutput()
+
+  # Group indices
+  final parameter iCL0A::Integer = ChallengeComponent.idx1d("CL0A")
+  final parameter iCD0A::Integer = ChallengeComponent.idx1d("CD0A")
+  final parameter iCM0A::Integer = ChallengeComponent.idx1d("CM0A")
+  final parameter iCY0A::Integer = ChallengeComponent.idx1d("CY0A")
+  final parameter iCN0A::Integer = ChallengeComponent.idx1d("CN0A")
+  final parameter iCR0A::Integer = ChallengeComponent.idx1d("CR0A")
+  final parameter iCLGE::Integer = ChallengeComponent.idx1d("CLGE")
+  final parameter iCDGE::Integer = ChallengeComponent.idx1d("CDGE")
+  final parameter iCMGE::Integer = ChallengeComponent.idx1d("CMGE")
+  final parameter iCYGE::Integer = ChallengeComponent.idx1d("CYGE")
+  final parameter iCNGE::Integer = ChallengeComponent.idx1d("CNGE")
+  final parameter iCRGE::Integer = ChallengeComponent.idx1d("CRGE")
+  final parameter iCLLG::Integer = ChallengeComponent.idx1d("CLLG")
+  final parameter iCDLG::Integer = ChallengeComponent.idx1d("CDLG")
+  final parameter iCMLG::Integer = ChallengeComponent.idx1d("CMLG")
+  final parameter iCYLG::Integer = ChallengeComponent.idx1d("CYLG")
+  final parameter iCNLG::Integer = ChallengeComponent.idx1d("CNLG")
+  final parameter iCRLG::Integer = ChallengeComponent.idx1d("CRLG")
+  final parameter iCLBFLL::Integer = ChallengeComponent.grp2dr("CLBFLL")
+  final parameter iCDBFLL::Integer = ChallengeComponent.grp2dr("CDBFLL")
+  final parameter iCMBFLL::Integer = ChallengeComponent.grp2dr("CMBFLL")
+  final parameter iCYBFLL::Integer = ChallengeComponent.grp2dr("CYBFLL")
+  final parameter iCNBFLL::Integer = ChallengeComponent.grp2dr("CNBFLL")
+  final parameter iCRBFLL::Integer = ChallengeComponent.grp2dr("CRBFLL")
+  final parameter iCLBFLR::Integer = ChallengeComponent.grp2dr("CLBFLR")
+  final parameter iCDBFLR::Integer = ChallengeComponent.grp2dr("CDBFLR")
+  final parameter iCMBFLR::Integer = ChallengeComponent.grp2dr("CMBFLR")
+  final parameter iCYBFLR::Integer = ChallengeComponent.grp2dr("CYBFLR")
+  final parameter iCNBFLR::Integer = ChallengeComponent.grp2dr("CNBFLR")
+  final parameter iCRBFLR::Integer = ChallengeComponent.grp2dr("CRBFLR")
+  final parameter iCLBFUL::Integer = ChallengeComponent.grp2dr("CLBFUL")
+  final parameter iCDBFUL::Integer = ChallengeComponent.grp2dr("CDBFUL")
+  final parameter iCMBFUL::Integer = ChallengeComponent.grp2dr("CMBFUL")
+  final parameter iCYBFUL::Integer = ChallengeComponent.grp2dr("CYBFUL")
+  final parameter iCNBFUL::Integer = ChallengeComponent.grp2dr("CNBFUL")
+  final parameter iCRBFUL::Integer = ChallengeComponent.grp2dr("CRBFUL")
+  final parameter iCLBFUR::Integer = ChallengeComponent.grp2dr("CLBFUR")
+  final parameter iCDBFUR::Integer = ChallengeComponent.grp2dr("CDBFUR")
+  final parameter iCMBFUR::Integer = ChallengeComponent.grp2dr("CMBFUR")
+  final parameter iCYBFUR::Integer = ChallengeComponent.grp2dr("CYBFUR")
+  final parameter iCNBFUR::Integer = ChallengeComponent.grp2dr("CNBFUR")
+  final parameter iCRBFUR::Integer = ChallengeComponent.grp2dr("CRBFUR")
+  final parameter iCLWFL::Integer = ChallengeComponent.grp2dr("CLWFL")
+  final parameter iCDWFL::Integer = ChallengeComponent.grp2dr("CDWFL")
+  final parameter iCMWFL::Integer = ChallengeComponent.grp2dr("CMWFL")
+  final parameter iCYWFL::Integer = ChallengeComponent.grp2dr("CYWFL")
+  final parameter iCNWFL::Integer = ChallengeComponent.grp2dr("CNWFL")
+  final parameter iCRWFL::Integer = ChallengeComponent.grp2dr("CRWFL")
+  final parameter iCLWFR::Integer = ChallengeComponent.grp2dr("CLWFR")
+  final parameter iCDWFR::Integer = ChallengeComponent.grp2dr("CDWFR")
+  final parameter iCMWFR::Integer = ChallengeComponent.grp2dr("CMWFR")
+  final parameter iCYWFR::Integer = ChallengeComponent.grp2dr("CYWFR")
+  final parameter iCNWFR::Integer = ChallengeComponent.grp2dr("CNWFR")
+  final parameter iCRWFR::Integer = ChallengeComponent.grp2dr("CRWFR")
+  final parameter iCLRUD::Integer = ChallengeComponent.grp2de("CLRUD")
+  final parameter iCDRUD::Integer = ChallengeComponent.grp2de("CDRUD")
+  final parameter iCMRUD::Integer = ChallengeComponent.grp2de("CMRUD")
+  final parameter iCYRUD::Integer = ChallengeComponent.grp2de("CYRUD")
+  final parameter iCNRUD::Integer = ChallengeComponent.grp2de("CNRUD")
+  final parameter iCRRUD::Integer = ChallengeComponent.grp2de("CRRUD")
+
+  # Intermediate variables - broken into pieces to avoid long expressions
+  variable alpha_r::Real
+  variable cos_alpha::Real
+  variable sin_alpha::Real
+  variable abs_drud::Real
+  variable damp_b2v::Real
+  variable damp_c2v::Real
+
+  # Lift intermediates
+  variable CL_base::Real
+  variable CL_bfl::Real
+  variable CL_bfu::Real
+  variable CL_wf::Real
+  variable CL_rud::Real
+  variable CL_total::Real
+
+  # Drag intermediates
+  variable CD_base::Real
+  variable CD_bfl::Real
+  variable CD_bfu::Real
+  variable CD_wf::Real
+  variable CD_rud::Real
+  variable CD_total::Real
+
+  # Pitch intermediates
+  variable CM_base::Real
+  variable CM_bfl::Real
+  variable CM_bfu::Real
+  variable CM_wf::Real
+  variable CM_rud::Real
+  variable CM_damp::Real
+  variable CM_total::Real
+
+  # Side force intermediates
+  variable CY_base::Real
+  variable CY_bfl::Real
+  variable CY_bfu::Real
+  variable CY_wf::Real
+  variable CY_rud::Real
+  variable CY_total::Real
+
+  # Yaw intermediates
+  variable CN_base::Real
+  variable CN_bfl::Real
+  variable CN_bfu::Real
+  variable CN_wf::Real
+  variable CN_rud::Real
+  variable CN_damp::Real
+  variable CN_total::Real
+
+  # Roll intermediates
+  variable CR_base::Real
+  variable CR_bfl::Real
+  variable CR_bfu::Real
+  variable CR_wf::Real
+  variable CR_rud::Real
+  variable CR_damp::Real
+  variable CR_total::Real
+
+relations
+  alpha_r = alpha_deg * 0.017453292519943295
+  cos_alpha = cos(alpha_r)
+  sin_alpha = sin(alpha_r)
+  abs_drud = abs(DRUD)
+  damp_b2v = BSPAN_ft / (2.0 * (vrw_fps + 0.1))
+  damp_c2v = CBAR_ft / (2.0 * (vrw_fps + 0.1))
+
+  # === LIFT ===
+  CL_base = ChallengeComponent.hl20_poly1d(iCL0A, alpha_deg, mach) + ChallengeComponent.hl20_poly1d(iCLGE, alpha_deg, hob) + ChallengeComponent.hl20_poly1d(iCLLG, alpha_deg, DLG)
+  CL_bfl = ChallengeComponent.hl20_poly2dr(iCLBFLL, alpha_deg, DBFLL, mach) + ChallengeComponent.hl20_poly2dr(iCLBFLR, alpha_deg, DBFLR, mach)
+  CL_bfu = ChallengeComponent.hl20_poly2dr(iCLBFUL, alpha_deg, DBFUL, mach) + ChallengeComponent.hl20_poly2dr(iCLBFUR, alpha_deg, DBFUR, mach)
+  CL_wf = ChallengeComponent.hl20_poly2dr(iCLWFL, alpha_deg, DWFL, mach) + ChallengeComponent.hl20_poly2dr(iCLWFR, alpha_deg, DWFR, mach)
+  CL_rud = ChallengeComponent.hl20_poly2de(iCLRUD, alpha_deg, abs_drud, mach)
+  CL_total = CL_base + CL_bfl + CL_bfu + CL_wf + CL_rud
+
+  # === DRAG ===
+  CD_base = ChallengeComponent.hl20_poly1d(iCD0A, alpha_deg, mach) + ChallengeComponent.hl20_poly1d(iCDGE, alpha_deg, hob) + ChallengeComponent.hl20_poly1d(iCDLG, alpha_deg, DLG)
+  CD_bfl = ChallengeComponent.hl20_poly2dr(iCDBFLL, alpha_deg, DBFLL, mach) + ChallengeComponent.hl20_poly2dr(iCDBFLR, alpha_deg, DBFLR, mach)
+  CD_bfu = ChallengeComponent.hl20_poly2dr(iCDBFUL, alpha_deg, DBFUL, mach) + ChallengeComponent.hl20_poly2dr(iCDBFUR, alpha_deg, DBFUR, mach)
+  CD_wf = ChallengeComponent.hl20_poly2dr(iCDWFL, alpha_deg, DWFL, mach) + ChallengeComponent.hl20_poly2dr(iCDWFR, alpha_deg, DWFR, mach)
+  CD_rud = ChallengeComponent.hl20_poly2de(iCDRUD, alpha_deg, abs_drud, mach)
+  CD_total = CD_base + CD_bfl + CD_bfu + CD_wf + CD_rud
+
+  # === PITCH ===
+  CM_base = ChallengeComponent.hl20_poly1d(iCM0A, alpha_deg, mach) + ChallengeComponent.hl20_poly1d(iCMGE, alpha_deg, hob) + ChallengeComponent.hl20_poly1d(iCMLG, alpha_deg, DLG)
+  CM_bfl = ChallengeComponent.hl20_poly2dr(iCMBFLL, alpha_deg, DBFLL, mach) + ChallengeComponent.hl20_poly2dr(iCMBFLR, alpha_deg, DBFLR, mach)
+  CM_bfu = ChallengeComponent.hl20_poly2dr(iCMBFUL, alpha_deg, DBFUL, mach) + ChallengeComponent.hl20_poly2dr(iCMBFUR, alpha_deg, DBFUR, mach)
+  CM_wf = ChallengeComponent.hl20_poly2dr(iCMWFL, alpha_deg, DWFL, mach) + ChallengeComponent.hl20_poly2dr(iCMWFR, alpha_deg, DWFR, mach)
+  CM_rud = ChallengeComponent.hl20_poly2de(iCMRUD, alpha_deg, abs_drud, mach)
+  CM_damp = (CMQ0 + CMQ1*alpha_deg + CMQ2*alpha_deg^2 + CMQ3*alpha_deg^3) * qb * damp_c2v
+  CM_total = CM_base + CM_bfl + CM_bfu + CM_wf + CM_rud + CM_damp + Cm_bias
+
+  # === SIDE FORCE ===
+  # Right-side surface lateral tables are identical to left-side (DAVE-ML parsing artifact).
+  # Physical convention: right-side surface lateral effects are antisymmetric to left-side,
+  # so right-side CY/CN/CR contributions are subtracted (not added).
+  # CY0A, CYGE, CYLG are per-degree beta derivatives (lateral coefficients scale with sideslip)
+  CY_base = (ChallengeComponent.hl20_poly1d(iCY0A, alpha_deg, mach) + ChallengeComponent.hl20_poly1d(iCYGE, alpha_deg, hob) + ChallengeComponent.hl20_poly1d(iCYLG, alpha_deg, DLG)) * beta_deg
+  CY_bfl = ChallengeComponent.hl20_poly2dr(iCYBFLL, alpha_deg, DBFLL, mach) - ChallengeComponent.hl20_poly2dr(iCYBFLR, alpha_deg, DBFLR, mach)
+  CY_bfu = ChallengeComponent.hl20_poly2dr(iCYBFUL, alpha_deg, DBFUL, mach) - ChallengeComponent.hl20_poly2dr(iCYBFUR, alpha_deg, DBFUR, mach)
+  CY_wf = ChallengeComponent.hl20_poly2dr(iCYWFL, alpha_deg, DWFL, mach) - ChallengeComponent.hl20_poly2dr(iCYWFR, alpha_deg, DWFR, mach)
+  CY_rud = ChallengeComponent.hl20_poly2de(iCYRUD, alpha_deg, abs_drud, mach)
+  CY_total = CY_base + CY_bfl + CY_bfu + CY_wf + CY_rud
+
+  # === YAW ===
+  # CN0A, CNGE, CNLG are per-degree beta derivatives
+  CN_base = (ChallengeComponent.hl20_poly1d(iCN0A, alpha_deg, mach) + ChallengeComponent.hl20_poly1d(iCNGE, alpha_deg, hob) + ChallengeComponent.hl20_poly1d(iCNLG, alpha_deg, DLG)) * beta_deg
+  CN_bfl = ChallengeComponent.hl20_poly2dr(iCNBFLL, alpha_deg, DBFLL, mach) - ChallengeComponent.hl20_poly2dr(iCNBFLR, alpha_deg, DBFLR, mach)
+  CN_bfu = ChallengeComponent.hl20_poly2dr(iCNBFUL, alpha_deg, DBFUL, mach) - ChallengeComponent.hl20_poly2dr(iCNBFUR, alpha_deg, DBFUR, mach)
+  CN_wf = ChallengeComponent.hl20_poly2dr(iCNWFL, alpha_deg, DWFL, mach) - ChallengeComponent.hl20_poly2dr(iCNWFR, alpha_deg, DWFR, mach)
+  CN_rud = ChallengeComponent.hl20_poly2de(iCNRUD, alpha_deg, abs_drud, mach)
+  CN_damp = (CNP0 + CNP1*alpha_deg + CNP2*alpha_deg^2 + CNP3*alpha_deg^3) * pb * damp_b2v + (CNR0 + CNR1*alpha_deg + CNR2*alpha_deg^2 + CNR3*alpha_deg^3) * rb * damp_b2v
+  CN_total = CN_base + CN_bfl + CN_bfu + CN_wf + CN_rud + CN_damp
+
+  # === ROLL ===
+  # CR0A, CRGE, CRLG are per-degree beta derivatives
+  CR_base = (ChallengeComponent.hl20_poly1d(iCR0A, alpha_deg, mach) + ChallengeComponent.hl20_poly1d(iCRGE, alpha_deg, hob) + ChallengeComponent.hl20_poly1d(iCRLG, alpha_deg, DLG)) * beta_deg
+  CR_bfl = ChallengeComponent.hl20_poly2dr(iCRBFLL, alpha_deg, DBFLL, mach) - ChallengeComponent.hl20_poly2dr(iCRBFLR, alpha_deg, DBFLR, mach)
+  CR_bfu = ChallengeComponent.hl20_poly2dr(iCRBFUL, alpha_deg, DBFUL, mach) - ChallengeComponent.hl20_poly2dr(iCRBFUR, alpha_deg, DBFUR, mach)
+  CR_wf = ChallengeComponent.hl20_poly2dr(iCRWFL, alpha_deg, DWFL, mach) - ChallengeComponent.hl20_poly2dr(iCRWFR, alpha_deg, DWFR, mach)
+  CR_rud = ChallengeComponent.hl20_poly2de(iCRRUD, alpha_deg, abs_drud, mach)
+  CR_damp = (CLP0 + CLP1*alpha_deg + CLP2*alpha_deg^2 + CLP3*alpha_deg^3) * pb * damp_b2v + (CLR0 + CLR1*alpha_deg + CLR2*alpha_deg^2 + CLR3*alpha_deg^3) * rb * damp_b2v
+  CR_total = CR_base + CR_bfl + CR_bfu + CR_wf + CR_rud + CR_damp
+
+  # Convert stability to body axes
+  CX = CL_total * sin_alpha - CD_total * cos_alpha
+  CZ = -CL_total * cos_alpha - CD_total * sin_alpha
+  CY = CY_total
+  Cl = CR_total
+  Cm = CM_total
+  Cn = CN_total
+end

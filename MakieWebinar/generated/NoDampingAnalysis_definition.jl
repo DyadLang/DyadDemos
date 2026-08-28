@@ -5,21 +5,23 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct NoDampingAnalysisSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :NoDampingAnalysis
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
-  var"stop"::Float64 = 10
+  var"stop"::Float64 = 10.0
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
   var"saveat"::Float64 = 0
   var"dtmax"::Float64 = 0
   var"tstops"::Array{Float64, 1} = []
-  var"IfLifting"::Bool = false
+  var"automatic_discontinuity_detection"::Bool = false
+  var"optimize"::OptimizationLevel.Type = OptimizationLevel.Aggressive()
   var"progress"::Bool = true
+  var"respecialize"::Bool = false
   var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
   var"log_file"::String = ""
   var"model"::Union{Nothing, System} = MakieWebinar.TestNoDamping(; name=:TestNoDamping)
@@ -28,12 +30,12 @@ end
 function DyadInterface.run_analysis(spec::NoDampingAnalysisSpec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
+  
   base_spec = TransientAnalysisSpec(;
-    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, IfLifting=spec.IfLifting, progress=spec.progress, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
+    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, automatic_discontinuity_detection=spec.automatic_discontinuity_detection, optimize=spec.optimize, progress=spec.progress, respecialize=spec.respecialize, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
   )
   run_analysis(base_spec)
 end
 
 NoDampingAnalysis(;kwargs...) = run_analysis(NoDampingAnalysisSpec(;kwargs...))
 export NoDampingAnalysis, NoDampingAnalysisSpec
-export NoDampingAnalysisSpec, NoDampingAnalysis

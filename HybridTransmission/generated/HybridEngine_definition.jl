@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HybridEngine(; name, max_torque, b_friction, idle_fuel_rate)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `max_torque`         |                          | N.m  |   145 |
+| `max_torque`         |                          | N.m  |   145.0 |
 | `b_friction`         |                          | --  |   0.4 |
 | `idle_fuel_rate`         |                          | --  |   0.6 |
 
@@ -24,20 +26,22 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `omega`         |                          | rad/s  | 
-| `torque`         |                          | N.m  | 
-| `power`         |                          | W  | 
-| `fuel_rate`         |                          | --  | 
-| `fuel_consumed`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `omega`         |                          | rad/s  |
+| `torque`         |                          | N.m  |
+| `power`         |                          | W  |
+| `fuel_rate`         |                          | --  |
+| `fuel_consumed`         |                          | --  |
 """
-@component function HybridEngine(; name = nothing, max_torque=145, b_friction=0.4, idle_fuel_rate=0.6)
+@component function HybridEngine(; name = nothing, max_torque=Float64(145.0), b_friction=0.4, idle_fuel_rate=0.6, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HybridEngine()
+  """))
 
-        @named model = HybridEngine()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -45,20 +49,60 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (max_torque::Real = max_torque))
-  append!(__params, @parameters (b_friction::Real = b_friction))
-  append!(__params, @parameters (idle_fuel_rate::Real = idle_fuel_rate))
+  __local__max_torque = max_torque
+  append!(__params, @parameters (max_torque::Real))
+  __initial_conditions[max_torque] = __local__max_torque
+  __local__b_friction = b_friction
+  append!(__params, @parameters (b_friction::Real))
+  __initial_conditions[b_friction] = __local__b_friction
+  __local__idle_fuel_rate = idle_fuel_rate
+  append!(__params, @parameters (idle_fuel_rate::Real))
+  __initial_conditions[idle_fuel_rate] = __local__idle_fuel_rate
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (throttle(t)::Real), [input = true])
   append!(__vars, @variables (omega_output(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (omega(t)::Real))
   append!(__vars, @variables (torque(t)::Real))
   append!(__vars, @variables (power(t)::Real))
   append!(__vars, @variables (fuel_rate(t)::Real))
   append!(__vars, @variables (fuel_consumed(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_omega = pop!(__overrides, "omega", nothing); isnothing(__ovr_omega) || push!(__eqs, omega ~ __ovr_omega)
+  __ovr_omega__initial = pop!(__overrides, "omega__initial", nothing); isnothing(__ovr_omega__initial) || (__initial_conditions[omega] = __ovr_omega__initial)
+  __ovr_omega__guess = pop!(__overrides, "omega__guess", nothing)
+  __ovr_torque = pop!(__overrides, "torque", nothing); isnothing(__ovr_torque) || push!(__eqs, torque ~ __ovr_torque)
+  __ovr_torque__initial = pop!(__overrides, "torque__initial", nothing); isnothing(__ovr_torque__initial) || (__initial_conditions[torque] = __ovr_torque__initial)
+  __ovr_torque__guess = pop!(__overrides, "torque__guess", nothing)
+  __ovr_power = pop!(__overrides, "power", nothing); isnothing(__ovr_power) || push!(__eqs, power ~ __ovr_power)
+  __ovr_power__initial = pop!(__overrides, "power__initial", nothing); isnothing(__ovr_power__initial) || (__initial_conditions[power] = __ovr_power__initial)
+  __ovr_power__guess = pop!(__overrides, "power__guess", nothing)
+  __ovr_fuel_rate = pop!(__overrides, "fuel_rate", nothing); isnothing(__ovr_fuel_rate) || push!(__eqs, fuel_rate ~ __ovr_fuel_rate)
+  __ovr_fuel_rate__initial = pop!(__overrides, "fuel_rate__initial", nothing); isnothing(__ovr_fuel_rate__initial) || (__initial_conditions[fuel_rate] = __ovr_fuel_rate__initial)
+  __ovr_fuel_rate__guess = pop!(__overrides, "fuel_rate__guess", nothing)
+  __ovr_fuel_consumed = pop!(__overrides, "fuel_consumed", nothing); isnothing(__ovr_fuel_consumed) || push!(__eqs, fuel_consumed ~ __ovr_fuel_consumed)
+  __ovr_fuel_consumed__initial = pop!(__overrides, "fuel_consumed__initial", nothing); isnothing(__ovr_fuel_consumed__initial) || (__initial_conditions[fuel_consumed] = __ovr_fuel_consumed__initial)
+  __ovr_fuel_consumed__guess = pop!(__overrides, "fuel_consumed__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -66,12 +110,18 @@
   ### Components
   push!(__systems, @named flange = __Dyad__Spline())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
-  __initial_conditions[fuel_consumed] = (0)
+  ### Guesses
+  isnothing(__ovr_omega__guess) || (__guesses[omega] = __ovr_omega__guess)
+  isnothing(__ovr_torque__guess) || (__guesses[torque] = __ovr_torque__guess)
+  isnothing(__ovr_power__guess) || (__guesses[power] = __ovr_power__guess)
+  isnothing(__ovr_fuel_rate__guess) || (__guesses[fuel_rate] = __ovr_fuel_rate__guess)
+  isnothing(__ovr_fuel_consumed__guess) || (__guesses[fuel_consumed] = __ovr_fuel_consumed__guess)
 
   ### Initialization Equations
+  push!(__initialization_eqs, fuel_consumed ~ 0.0)
 
   ### Assertions
   __assertions = []
@@ -81,11 +131,11 @@
   push!(__eqs, omega_output ~ omega)
   push!(__eqs, torque ~ throttle * max_torque)
   push!(__eqs, power ~ torque * omega)
-  push!(__eqs, fuel_rate ~ HybridTransmission.engine_bsfc_fuel_rate(torque, max(abs(omega) * 9.5493, 60)))
+  push!(__eqs, fuel_rate ~ HybridTransmission.engine_bsfc_fuel_rate(torque, max(abs(omega) * 9.5493, 60.0)))
   push!(__eqs, flange.tau ~ -torque + b_friction * omega)
   push!(__eqs, ModelingToolkit.D_nounits(fuel_consumed) ~ fuel_rate)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HybridEngine

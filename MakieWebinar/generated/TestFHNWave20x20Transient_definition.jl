@@ -5,21 +5,23 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
 @kwdef mutable struct TestFHNWave20x20TransientSpec <: AbstractTransientAnalysisSpec
   name::Symbol = :TestFHNWave20x20Transient
   var"alg"::ODEAlg.Type = ODEAlg.Auto()
   var"start"::Float64 = 0
-  var"stop"::Float64 = 15
+  var"stop"::Float64 = 15.0
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
   var"saveat"::Float64 = 0.15
   var"dtmax"::Float64 = 0
   var"tstops"::Array{Float64, 1} = []
-  var"IfLifting"::Bool = false
+  var"automatic_discontinuity_detection"::Bool = false
+  var"optimize"::OptimizationLevel.Type = OptimizationLevel.Aggressive()
   var"progress"::Bool = true
+  var"respecialize"::Bool = false
   var"verbose"::DEVerbosity.Type = DEVerbosity.Standard()
   var"log_file"::String = ""
   var"model"::Union{Nothing, System} = MakieWebinar.TestFHNWave20x20(; name=:TestFHNWave20x20)
@@ -28,12 +30,12 @@ end
 function DyadInterface.run_analysis(spec::TestFHNWave20x20TransientSpec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
+  
   base_spec = TransientAnalysisSpec(;
-    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, IfLifting=spec.IfLifting, progress=spec.progress, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
+    name=:TransientAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, tstops=spec.tstops, automatic_discontinuity_detection=spec.automatic_discontinuity_detection, optimize=spec.optimize, progress=spec.progress, respecialize=spec.respecialize, verbose=spec.verbose, log_file=spec.log_file, model=spec.model
   )
   run_analysis(base_spec)
 end
 
 TestFHNWave20x20Transient(;kwargs...) = run_analysis(TestFHNWave20x20TransientSpec(;kwargs...))
 export TestFHNWave20x20Transient, TestFHNWave20x20TransientSpec
-export TestFHNWave20x20TransientSpec, TestFHNWave20x20Transient

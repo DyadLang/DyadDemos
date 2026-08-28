@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    FHNCapacitor(; name, V, a, b, eps)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `V`         |                          | --  |   1 |
+| `V`         |                          | --  |   1.0 |
 | `a`         |                          | --  |   0.1 |
 | `b`         |                          | --  |   0.01 |
 | `eps`         |                          | --  |   0.01 |
@@ -37,17 +39,19 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `u`         |                          | --  | 
-| `v`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `u`         |                          | --  |
+| `v`         |                          | --  |
 """
-@component function FHNCapacitor(; name = nothing, V=1, a=0.1, b=0.01, eps=0.01)
+@component function FHNCapacitor(; name = nothing, V=Float64(1.0), a=0.1, b=0.01, eps=0.01, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FHNCapacitor()
+  """))
 
-        @named model = FHNCapacitor()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,16 +59,49 @@ Supported dynamics:
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (V::Real = V))
-  append!(__params, @parameters (a::Real = a))
-  append!(__params, @parameters (b::Real = b))
-  append!(__params, @parameters (eps::Real = eps))
+  __local__V = V
+  append!(__params, @parameters (V::Real))
+  __initial_conditions[V] = __local__V
+  __local__a = a
+  append!(__params, @parameters (a::Real))
+  __initial_conditions[a] = __local__a
+  __local__b = b
+  append!(__params, @parameters (b::Real))
+  __initial_conditions[b] = __local__b
+  __local__eps = eps
+  append!(__params, @parameters (eps::Real))
+  __initial_conditions[eps] = __local__eps
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (u(t)::Real))
   append!(__vars, @variables (v(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_u = pop!(__overrides, "u", nothing); isnothing(__ovr_u) || push!(__eqs, u ~ __ovr_u)
+  __ovr_u__initial = pop!(__overrides, "u__initial", nothing); isnothing(__ovr_u__initial) || (__initial_conditions[u] = __ovr_u__initial)
+  __ovr_u__guess = pop!(__overrides, "u__guess", nothing)
+  __ovr_v = pop!(__overrides, "v", nothing); isnothing(__ovr_v) || push!(__eqs, v ~ __ovr_v)
+  __ovr_v__initial = pop!(__overrides, "v__initial", nothing); isnothing(__ovr_v__initial) || (__initial_conditions[v] = __ovr_v__initial)
+  __ovr_v__guess = pop!(__overrides, "v__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -72,9 +109,12 @@ Supported dynamics:
   ### Components
   push!(__systems, @named port = MakieWebinar.DiffusionPort())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_u__guess) || (__guesses[u] = __ovr_u__guess)
+  isnothing(__ovr_v__guess) || (__guesses[v] = __ovr_v__guess)
 
   ### Initialization Equations
 
@@ -83,10 +123,10 @@ Supported dynamics:
 
   ### Equations
   push!(__eqs, u ~ port.C)
-  push!(__eqs, V * ModelingToolkit.D_nounits(u) ~ port.J + V * (u * (u - a) * (1 - u) - v))
+  push!(__eqs, V * ModelingToolkit.D_nounits(u) ~ port.J + V * (u * (u - a) * (1.0 - u) - v))
   push!(__eqs, V * ModelingToolkit.D_nounits(v) ~ V * eps * (u - b * v))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FHNCapacitor

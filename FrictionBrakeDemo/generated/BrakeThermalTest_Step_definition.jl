@@ -4,16 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    BrakeThermalTest_Step(; name)
 """
-@component function BrakeThermalTest_Step(; name = nothing)
+@component function BrakeThermalTest_Step(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = BrakeThermalTest_Step()
+  """))
 
-        @named model = BrakeThermalTest_Step()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,26 +25,60 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal())
-  push!(__systems, @named disk_heat_step = BlockComponents.Step(height=-9300, offset=9300, start_time=1500))
-  push!(__systems, @named disk_heat_input = ThermalComponents.PrescribedHeatFlow())
-  push!(__systems, @named pad_heat_step = BlockComponents.Step(height=-700, offset=700, start_time=1500))
-  push!(__systems, @named pad_heat_input = ThermalComponents.PrescribedHeatFlow())
-  push!(__systems, @named vehicle_speed_source = BlockComponents.Constant(k=6.94))
-  push!(__systems, @named wheel_speed_source = BlockComponents.Constant(k=64.8))
+  # Subcomponent brake_thermal of type FrictionBrakeDemo.BrakeThermal
+  brake_thermal_overrides = __pop_subcomponent_overrides!(__overrides, "brake_thermal")
+  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(; brake_thermal_overrides...))
+  # Subcomponent disk_heat_step of type BlockComponents.Sources.Step
+  disk_heat_step_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_step")
+  push!(__systems, @named disk_heat_step = BlockComponents.Sources.Step(; height=Float64(-9300), offset=Float64(9300), start_time=Float64(1500.0), disk_heat_step_overrides...))
+  # Subcomponent disk_heat_input of type ThermalComponents.Sources.PrescribedHeatFlow
+  disk_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_input")
+  push!(__systems, @named disk_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(; disk_heat_input_overrides...))
+  # Subcomponent pad_heat_step of type BlockComponents.Sources.Step
+  pad_heat_step_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_step")
+  push!(__systems, @named pad_heat_step = BlockComponents.Sources.Step(; height=Float64(-700), offset=Float64(700), start_time=Float64(1500.0), pad_heat_step_overrides...))
+  # Subcomponent pad_heat_input of type ThermalComponents.Sources.PrescribedHeatFlow
+  pad_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_input")
+  push!(__systems, @named pad_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(; pad_heat_input_overrides...))
+  # Subcomponent vehicle_speed_source of type BlockComponents.Sources.Constant
+  vehicle_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_speed_source")
+  push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(; k=6.94, vehicle_speed_source_overrides...))
+  # Subcomponent wheel_speed_source of type BlockComponents.Sources.Constant
+  wheel_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "wheel_speed_source")
+  push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(; k=64.8, wheel_speed_source_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -48,14 +86,14 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(disk_heat_step.y, disk_heat_input.Q))
-  push!(__eqs, connect(pad_heat_step.y, pad_heat_input.Q))
-  push!(__eqs, connect(disk_heat_input.node, brake_thermal.heat_disk))
-  push!(__eqs, connect(pad_heat_input.node, brake_thermal.heat_pad))
+  push!(__eqs, connect(disk_heat_step.y, disk_heat_input.Q_flow))
+  push!(__eqs, connect(pad_heat_step.y, pad_heat_input.Q_flow))
+  push!(__eqs, connect(disk_heat_input.port, brake_thermal.heat_disk))
+  push!(__eqs, connect(pad_heat_input.port, brake_thermal.heat_pad))
   push!(__eqs, connect(vehicle_speed_source.y, brake_thermal.vehicle_speed))
   push!(__eqs, connect(wheel_speed_source.y, brake_thermal.wheel_speed))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export BrakeThermalTest_Step

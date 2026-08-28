@@ -1,0 +1,163 @@
+component MyActiveSuspension
+  wheel = DyadExampleComponents.MassSpringDamper(m = wheel_mass, d = wheel_damping, c = wheel_stiffness, g = -10, theta = pi / 2) {^wheel}
+  car_and_suspension = DyadExampleComponents.MassSpringDamper(m = car_mass, d = suspension_damping, c = suspension_stiffness, g = -10, theta = pi / 2) {^car_and_suspension}
+  seat = DyadExampleComponents.MassSpringDamper(m = human_and_seat_mass, d = seat_damping, c = seat_stiffness, g = -10, theta = pi / 2) {^seat}
+  road_data = DyadExampleComponents.RoadData() {^road_data}
+  road = DyadExampleComponents.SimplePosition() {^road}
+  force = TranslationalComponents.Sources.Force() {^force}
+  pid = BlockComponents.Continuous.LimPID(k = Kp, Ti = Ti, Td = Td) {^pid}
+  set_point = BlockComponents.Sources.Constant(k = 1.5) {^set_point}
+  seat_pos = TranslationalComponents.Sensors.PositionSensor() {^seat_pos}
+  parameter wheel_mass::Dyad.Mass = 25
+  parameter wheel_stiffness::Dyad.TranslationalSpringConstant = 1e2
+  parameter wheel_damping::Dyad.DampingCoefficient = 1e4
+  parameter car_mass::Dyad.Mass = 1000
+  parameter suspension_stiffness::Dyad.TranslationalSpringConstant = 1e4
+  parameter suspension_damping::Dyad.DampingCoefficient = 10
+  parameter human_and_seat_mass::Dyad.Mass = 100
+  parameter seat_stiffness::Dyad.TranslationalSpringConstant = 1000
+  parameter seat_damping::Dyad.DampingCoefficient = 1
+  parameter wheel_initial_position::Dyad.Position = 0.5
+  parameter suspension_initial_position::Dyad.Position = 1
+  parameter seat_initial_position::Dyad.Position = 1.5
+  parameter Kp::Real = 20
+  parameter Ti::Real = 5
+  parameter Td::Real = 1
+relations
+  initial wheel.mass.s = wheel_initial_position
+  initial car_and_suspension.mass.s = suspension_initial_position
+  initial seat.mass.s = seat_initial_position
+  initial wheel.mass.v = 0
+  initial car_and_suspension.mass.v = 0
+  initial seat.mass.v = 0
+  initial wheel.mass.a = 0
+  initial car_and_suspension.mass.a = 0
+  initial seat.mass.a = 0
+  u: analysis_point(pid.y, force.f)
+  y: analysis_point(seat_pos.s, pid.u_m)
+  pid.u_ff = 0
+  connect(wheel.flange_sd, road.flange) {^id10}
+  connect(car_and_suspension.flange_sd, wheel.flange_m) {^id11}
+  connect(car_and_suspension.flange_m, seat.flange_sd, force.flange_a) {^id12}
+  connect(seat.flange_m, force.flange_b, seat_pos.flange) {^id13}
+  connect(pid.y, force.f) {^id14}
+  connect(pid.u_s, set_point.y) {^id15}
+  connect(seat_pos.s, pid.u_m) {^id16}
+  connect(road_data.y, road.s) {^id17}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://DyadExampleComponents/Example.svg"},
+    "tests": {
+      "case1": {
+        "stop": 10,
+        "atol": {
+          "wheel.mass.s": 0.001,
+          "seat.mass.s": 0.001,
+          "car_and_suspension.mass.s": 0.001,
+          "wheel.mass.v": 0.001,
+          "car_and_suspension.mass.v": 0.001,
+          "seat.mass.v": 0.001,
+          "pid.y": 0.001
+        },
+        "expect": {
+          "signals": [
+            "wheel.mass.s",
+            "seat.mass.s",
+            "car_and_suspension.mass.s",
+            "wheel.mass.v",
+            "car_and_suspension.mass.v",
+            "seat.mass.v",
+            "pid.y"
+          ]
+        }
+      }
+    }
+  },
+  "_links": {
+    "wheel": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 830, "x2": 930, "y1": 650, "y2": 750, "rot": 90}}
+      }
+    },
+    "car_and_suspension": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 830, "x2": 930, "y1": 500, "y2": 600, "rot": 90}}
+      }
+    },
+    "seat": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 830, "x2": 930, "y1": 330, "y2": 430, "rot": 90}}
+      }
+    },
+    "road_data": {
+      "Dyad": {"placement": {"diagram": {"x1": 500, "y1": 730, "x2": 600, "y2": 830}}}
+    },
+    "road": {
+      "Dyad": {"placement": {"diagram": {"x1": 650, "y1": 730, "x2": 750, "y2": 830}}}
+    },
+    "force": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 640, "x2": 740, "y1": 330, "y2": 430, "rot": 270}}
+      }
+    },
+    "pid": {
+      "Dyad": {"placement": {"diagram": {"x1": 480, "y1": 430, "x2": 580, "y2": 330}}}
+    },
+    "set_point": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 310, "y1": 360, "x2": 410, "y2": 460, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "seat_pos": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 690, "x2": 790, "y1": 160, "y2": 260, "rot": 180}}
+      }
+    },
+    "id10": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 880, "y": 780}]}]}},
+    "id11": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id12": {
+      "Dyad": {
+        "edges": [
+          {"S": -1, "E": 1},
+          {"S": -1, "E": 2},
+          {"S": -1, "E": 3, "M": [{"x": 690, "y": 450}]}
+        ],
+        "junctions": [{"x": 880, "y": 450}]
+      }
+    },
+    "id13": {
+      "Dyad": {
+        "edges": [
+          {"S": -1, "E": 1},
+          {"S": -1, "E": 2, "M": [{"x": 690, "y": 310}]},
+          {"S": -1, "E": 3, "M": [{"x": 880, "y": 210}]}
+        ],
+        "junctions": [{"x": 880, "y": 310}]
+      }
+    },
+    "id14": {"Dyad": {"edges": [{"S": 1, "E": 2}]}},
+    "id15": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 445, "y": 403}, {"x": 445, "y": 410}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id16": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 440, "y": 210}, {"x": 440, "y": 357}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id17": {"Dyad": {"renderStyle": "standard", "edges": [{"S": 1, "E": 2, "M": []}]}}
+  }
+}
+end
+
+analysis ActiveSuspensionTransient
+  extends TransientAnalysis(stop = 10, dtmax = 0.01)
+  model = MyActiveSuspension()
+relations
+end

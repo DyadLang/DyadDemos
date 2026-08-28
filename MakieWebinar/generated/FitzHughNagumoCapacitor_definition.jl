@@ -4,14 +4,16 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    FitzHughNagumoCapacitor(; name, V, a, b, epsilon)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `V`         | Volume                         | --  |   1 |
+| `V`         | Volume                         | --  |   1.0 |
 | `a`         | Excitation rate                         | --  |   0.1 |
 | `b`         | Recovery rate                         | --  |   0.01 |
 | `epsilon`         | Coupling strength                         | --  |   0.01 |
@@ -37,17 +39,19 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `u`         | Activator concentration (fast, excitable)                         | --  | 
-| `v`         | Inhibitor concentration (slow, recovery)                         | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `u`         | Activator concentration (fast, excitable)                         | --  |
+| `v`         | Inhibitor concentration (slow, recovery)                         | --  |
 """
-@component function FitzHughNagumoCapacitor(; name = nothing, V=1, a=0.1, b=0.01, epsilon=0.01)
+@component function FitzHughNagumoCapacitor(; name = nothing, V=Float64(1.0), a=0.1, b=0.01, epsilon=0.01, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FitzHughNagumoCapacitor()
+  """))
 
-        @named model = FitzHughNagumoCapacitor()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,16 +59,49 @@ Supported dynamics:
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (V::Real = V), [description = "Volume"])
-  append!(__params, @parameters (a::Real = a), [description = "Excitation rate"])
-  append!(__params, @parameters (b::Real = b), [description = "Recovery rate"])
-  append!(__params, @parameters (epsilon::Real = epsilon), [description = "Coupling strength"])
+  __local__V = V
+  append!(__params, @parameters (V::Real), [description = "Volume"])
+  __initial_conditions[V] = __local__V
+  __local__a = a
+  append!(__params, @parameters (a::Real), [description = "Excitation rate"])
+  __initial_conditions[a] = __local__a
+  __local__b = b
+  append!(__params, @parameters (b::Real), [description = "Recovery rate"])
+  __initial_conditions[b] = __local__b
+  __local__epsilon = epsilon
+  append!(__params, @parameters (epsilon::Real), [description = "Coupling strength"])
+  __initial_conditions[epsilon] = __local__epsilon
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (u(t)::Real), [description = "Activator concentration (fast, excitable)"])
   append!(__vars, @variables (v(t)::Real), [description = "Inhibitor concentration (slow, recovery)"])
+
+  ### Variables (assignments)
+  __ovr_u = pop!(__overrides, "u", nothing); isnothing(__ovr_u) || push!(__eqs, u ~ __ovr_u)
+  __ovr_u__initial = pop!(__overrides, "u__initial", nothing); isnothing(__ovr_u__initial) || (__initial_conditions[u] = __ovr_u__initial)
+  __ovr_u__guess = pop!(__overrides, "u__guess", nothing)
+  __ovr_v = pop!(__overrides, "v", nothing); isnothing(__ovr_v) || push!(__eqs, v ~ __ovr_v)
+  __ovr_v__initial = pop!(__overrides, "v__initial", nothing); isnothing(__ovr_v__initial) || (__initial_conditions[v] = __ovr_v__initial)
+  __ovr_v__guess = pop!(__overrides, "v__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -72,9 +109,12 @@ Supported dynamics:
   ### Components
   push!(__systems, @named port = MakieWebinar.DiffusionPort())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_u__guess) || (__guesses[u] = __ovr_u__guess)
+  isnothing(__ovr_v__guess) || (__guesses[v] = __ovr_v__guess)
 
   ### Initialization Equations
 
@@ -87,6 +127,6 @@ Supported dynamics:
   push!(__eqs, V * ModelingToolkit.D_nounits(v) ~ V * epsilon * (u - b * v))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FitzHughNagumoCapacitor

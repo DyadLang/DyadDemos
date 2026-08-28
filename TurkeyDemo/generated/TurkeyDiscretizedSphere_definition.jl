@@ -4,48 +4,52 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TurkeyDiscretizedSphere(; name, N, Np1, M, rho, cp, k, T_init, pi, R, dr)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `N`         |                          | --  |   10 |
 | `Np1`         |                          | --  |   N + 1 |
-| `M`         |                          | kg  |   5 |
-| `rho`         |                          | kg/m3  |   1050 |
-| `cp`         |                          | J/(kg.K)  |   3500 |
+| `M`         |                          | kg  |   5.0 |
+| `rho`         |                          | kg/m3  |   1050.0 |
+| `cp`         |                          | J/(kg.K)  |   3500.0 |
 | `k`         |                          | W/(m.K)  |   0.5 |
-| `T_init`         |                          | K  |   277 |
+| `T_init`         |                          | K  |   277.0 |
 | `pi`         |                          | --  |   3.14159265359 |
-| `R`         |                          | m  |   (3 * M / (4 * pi * rho)) ^ (1 / 3) |
+| `R`         |                          | m  |   (3 * M / (4...) ^ (1 / 3) |
 | `dr`         |                          | m  |   R / N |
 
 ## Connectors
 
- * `surface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `surface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `T`         |                          | K  | 
-| `Q_cond`         |                          | W  | 
-| `r`         |                          | m  | 
-| `r_mid`         |                          | m  | 
-| `A_interface`         |                          | m2  | 
-| `V_shell`         |                          | m3  | 
-| `m_shell`         |                          | kg  | 
-| `T_degF`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `T`         |                          | K  |
+| `Q_cond`         |                          | W  |
+| `r`         |                          | m  |
+| `r_mid`         |                          | m  |
+| `A_interface`         |                          | m2  |
+| `V_shell`         |                          | m3  |
+| `m_shell`         |                          | kg  |
+| `T_degF`         |                          | --  |
 """
-@component function TurkeyDiscretizedSphere(; name = nothing, N=10, Np1=N + 1, M=5, rho=1050, cp=3500, k=0.5, T_init=277, pi=3.14159265359, R=(3 * M / (4 * pi * rho)) ^ (1 / 3), dr=R / N)
+@component function TurkeyDiscretizedSphere(; name = nothing, N=10, M=Float64(5.0), rho=Float64(1050.0), cp=Float64(3500.0), k=0.5, T_init=Float64(277.0), pi=3.14159265359, Np1=N + 1, R=(3 * M / (4 * pi * rho)) ^ (1 / 3), dr=R / N, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TurkeyDiscretizedSphere()
+  """))
 
-        @named model = TurkeyDiscretizedSphere()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,19 +57,53 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+  append!(__params, @parameters (T_inits[1:N]::Real), [description = "Workaround for array initial conditions", bounds = (0, Inf), misc = "final"])
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (M::Real = M), [bounds = (0, Inf)])
-  append!(__params, @parameters (rho::Real = rho), [bounds = (0, Inf)])
-  append!(__params, @parameters (cp::Real = cp))
-  append!(__params, @parameters (k::Real = k))
-  append!(__params, @parameters (T_init::Real = T_init), [bounds = (0, Inf)])
-  append!(__params, @parameters (T_inits[1:N]::Real = T_init * ones(N)), [description = "Workaround for array initial conditions", bounds = (0, Inf)])
-  append!(__params, @parameters (pi::Real = pi))
-  append!(__params, @parameters (R::Real = R))
-  append!(__params, @parameters (dr::Real = dr))
+  __local__M = M
+  append!(__params, @parameters (M::Real), [bounds = (0, Inf)])
+  __initial_conditions[M] = __local__M
+  __local__rho = rho
+  append!(__params, @parameters (rho::Real), [bounds = (0, Inf)])
+  __initial_conditions[rho] = __local__rho
+  __local__cp = cp
+  append!(__params, @parameters (cp::Real))
+  __initial_conditions[cp] = __local__cp
+  __local__k = k
+  append!(__params, @parameters (k::Real))
+  __initial_conditions[k] = __local__k
+  __local__T_init = T_init
+  append!(__params, @parameters (T_init::Real), [bounds = (0, Inf)])
+  __initial_conditions[T_init] = __local__T_init
+  __local__pi = pi
+  append!(__params, @parameters (pi::Real))
+  __initial_conditions[pi] = __local__pi
+  __local__R = R
+  append!(__params, @parameters (R::Real))
+  __initial_conditions[R] = __local__R
+  __local__dr = dr
+  append!(__params, @parameters (dr::Real))
+  __initial_conditions[dr] = __local__dr
 
-  ### Variables
+  ### Final Parameters (assignments)
+  __bindings[T_inits] = T_init * ones(N)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (T(t)[1:N]::Real))
   append!(__vars, @variables (Q_cond(t)[1:Np1]::Real))
   append!(__vars, @variables (r(t)[1:Np1]::Real))
@@ -75,18 +113,53 @@
   append!(__vars, @variables (m_shell(t)[1:N]::Real))
   append!(__vars, @variables (T_degF(t)[1:N]::Real))
 
+  ### Variables (assignments)
+  __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
+  __ovr_T__initial = pop!(__overrides, "T__initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
+  __ovr_T__guess = pop!(__overrides, "T__guess", nothing)
+  __ovr_Q_cond = pop!(__overrides, "Q_cond", nothing); isnothing(__ovr_Q_cond) || push!(__eqs, Q_cond ~ __ovr_Q_cond)
+  __ovr_Q_cond__initial = pop!(__overrides, "Q_cond__initial", nothing); isnothing(__ovr_Q_cond__initial) || (__initial_conditions[Q_cond] = __ovr_Q_cond__initial)
+  __ovr_Q_cond__guess = pop!(__overrides, "Q_cond__guess", nothing)
+  __ovr_r = pop!(__overrides, "r", nothing); isnothing(__ovr_r) || push!(__eqs, r ~ __ovr_r)
+  __ovr_r__initial = pop!(__overrides, "r__initial", nothing); isnothing(__ovr_r__initial) || (__initial_conditions[r] = __ovr_r__initial)
+  __ovr_r__guess = pop!(__overrides, "r__guess", nothing)
+  __ovr_r_mid = pop!(__overrides, "r_mid", nothing); isnothing(__ovr_r_mid) || push!(__eqs, r_mid ~ __ovr_r_mid)
+  __ovr_r_mid__initial = pop!(__overrides, "r_mid__initial", nothing); isnothing(__ovr_r_mid__initial) || (__initial_conditions[r_mid] = __ovr_r_mid__initial)
+  __ovr_r_mid__guess = pop!(__overrides, "r_mid__guess", nothing)
+  __ovr_A_interface = pop!(__overrides, "A_interface", nothing); isnothing(__ovr_A_interface) || push!(__eqs, A_interface ~ __ovr_A_interface)
+  __ovr_A_interface__initial = pop!(__overrides, "A_interface__initial", nothing); isnothing(__ovr_A_interface__initial) || (__initial_conditions[A_interface] = __ovr_A_interface__initial)
+  __ovr_A_interface__guess = pop!(__overrides, "A_interface__guess", nothing)
+  __ovr_V_shell = pop!(__overrides, "V_shell", nothing); isnothing(__ovr_V_shell) || push!(__eqs, V_shell ~ __ovr_V_shell)
+  __ovr_V_shell__initial = pop!(__overrides, "V_shell__initial", nothing); isnothing(__ovr_V_shell__initial) || (__initial_conditions[V_shell] = __ovr_V_shell__initial)
+  __ovr_V_shell__guess = pop!(__overrides, "V_shell__guess", nothing)
+  __ovr_m_shell = pop!(__overrides, "m_shell", nothing); isnothing(__ovr_m_shell) || push!(__eqs, m_shell ~ __ovr_m_shell)
+  __ovr_m_shell__initial = pop!(__overrides, "m_shell__initial", nothing); isnothing(__ovr_m_shell__initial) || (__initial_conditions[m_shell] = __ovr_m_shell__initial)
+  __ovr_m_shell__guess = pop!(__overrides, "m_shell__guess", nothing)
+  __ovr_T_degF = pop!(__overrides, "T_degF", nothing); isnothing(__ovr_T_degF) || push!(__eqs, T_degF ~ __ovr_T_degF)
+  __ovr_T_degF__initial = pop!(__overrides, "T_degF__initial", nothing); isnothing(__ovr_T_degF__initial) || (__initial_conditions[T_degF] = __ovr_T_degF__initial)
+  __ovr_T_degF__guess = pop!(__overrides, "T_degF__guess", nothing)
+
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named surface = __Dyad__Node())
+  push!(__systems, @named surface = __Dyad__HeatPort())
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
-  __initial_conditions[T] = (T_inits)
+  isnothing(__ovr_T__guess) || (__guesses[T] = __ovr_T__guess)
+  isnothing(__ovr_Q_cond__guess) || (__guesses[Q_cond] = __ovr_Q_cond__guess)
+  isnothing(__ovr_r__guess) || (__guesses[r] = __ovr_r__guess)
+  isnothing(__ovr_r_mid__guess) || (__guesses[r_mid] = __ovr_r_mid__guess)
+  isnothing(__ovr_A_interface__guess) || (__guesses[A_interface] = __ovr_A_interface__guess)
+  isnothing(__ovr_V_shell__guess) || (__guesses[V_shell] = __ovr_V_shell__guess)
+  isnothing(__ovr_m_shell__guess) || (__guesses[m_shell] = __ovr_m_shell__guess)
+  isnothing(__ovr_T_degF__guess) || (__guesses[T_degF] = __ovr_T_degF__guess)
 
   ### Initialization Equations
+  push!(__initialization_eqs, T ~ T_inits)
 
   ### Assertions
   __assertions = []
@@ -96,30 +169,30 @@
   push!(__eqs, Q_cond[1] ~ 0)
   push!(__eqs, Q_cond[Np1] ~ k * A_interface[Np1] * (T[N - 1] - T[N]) / dr)
   push!(__eqs, m_shell[1] * cp * ModelingToolkit.D_nounits(T[1]) ~ Q_cond[1] - Q_cond[2])
-  push!(__eqs, m_shell[N] * cp * ModelingToolkit.D_nounits(T[N]) ~ Q_cond[N] + surface.Q)
+  push!(__eqs, m_shell[N] * cp * ModelingToolkit.D_nounits(T[N]) ~ Q_cond[N] + surface.Q_flow)
   push!(__eqs, surface.T ~ T[N])
 
   ### Control Structures
   for i in 1:Np1
-      push!(__eqs, r[i] ~ (i - 1) * dr)
+    push!(__eqs, r[i] ~ (i - 1) * dr)
   end
   for i in 1:N
-      push!(__eqs, r_mid[i] ~ (r[i] + r[i + 1]) / 2)
-      push!(__eqs, A_interface[i] ~ 4 * pi * r[i] ^ 2)
-      push!(__eqs, V_shell[i] ~ (4 / 3) * pi * (r[i + 1] ^ 3 - r[i] ^ 3))
-      push!(__eqs, m_shell[i] ~ rho * V_shell[i])
+    push!(__eqs, r_mid[i] ~ (r[i] + r[i + 1]) / 2)
+    push!(__eqs, A_interface[i] ~ 4 * pi * r[i] ^ 2)
+    push!(__eqs, V_shell[i] ~ (4 / 3) * pi * (r[i + 1] ^ 3 - r[i] ^ 3))
+    push!(__eqs, m_shell[i] ~ rho * V_shell[i])
   end
   for i in 2:N
-      push!(__eqs, Q_cond[i] ~ k * A_interface[i] * (T[i - 1] - T[i]) / dr)
+    push!(__eqs, Q_cond[i] ~ k * A_interface[i] * (T[i - 1] - T[i]) / dr)
   end
   for i in 2:(N - 1)
-      push!(__eqs, m_shell[i] * cp * ModelingToolkit.D_nounits(T[i]) ~ Q_cond[i] - Q_cond[i + 1])
+    push!(__eqs, m_shell[i] * cp * ModelingToolkit.D_nounits(T[i]) ~ Q_cond[i] - Q_cond[i + 1])
   end
   for i in 1:N
-      push!(__eqs, T_degF[i] ~ KelvinToFahrenheit(T[i]))
+    push!(__eqs, T_degF[i] ~ TurkeyDemo.KelvinToFahrenheit(T[i]))
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TurkeyDiscretizedSphere

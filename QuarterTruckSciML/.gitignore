@@ -1,0 +1,16 @@
+/docs/build/
+*.jl.*.cov
+*.jl.cov
+*.jl.mem
+/Manifest*.toml
+/docs/Manifest*.toml
+/agent_resources/
+/.migration-backups/
+
+# Regenerated artifacts (not committed; produced by scripts/).
+# The committed datasets in assets/data/ — truck_sin_full_train.csv,
+# nn_weights_full_sin_lbfgs.csv, calibration_measurements.csv — are kept.
+# nn_weights_full_sin.csv is only the intermediate Adam stage of training.
+/assets/validation_iso_a.png
+/assets/validation_iso_a.csv
+/assets/data/nn_weights_full_sin.csv

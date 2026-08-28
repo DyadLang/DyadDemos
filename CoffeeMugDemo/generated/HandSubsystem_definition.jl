@@ -4,28 +4,32 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HandSubsystem(; name, C_hand, T0_hand, G_contact)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `C_hand`         |                          | J/K  |   500 |
+| `C_hand`         |                          | J/K  |   500.0 |
 | `T0_hand`         |                          | K  |   310.15 |
 | `G_contact`         |                          | W/K  |   0.5 |
 
 ## Connectors
 
- * `cupContact` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `cupContact` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function HandSubsystem(; name = nothing, C_hand=500, T0_hand=310.15, G_contact=0.5)
+@component function HandSubsystem(; name = nothing, C_hand=Float64(500.0), T0_hand=310.15, G_contact=0.5, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HandSubsystem()
+  """))
 
-        @named model = HandSubsystem()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -33,25 +37,55 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (C_hand::Real = C_hand))
-  append!(__params, @parameters (T0_hand::Real = T0_hand), [bounds = (0, Inf)])
-  append!(__params, @parameters (G_contact::Real = G_contact))
+  __local__C_hand = C_hand
+  append!(__params, @parameters (C_hand::Real))
+  __initial_conditions[C_hand] = __local__C_hand
+  __local__T0_hand = T0_hand
+  append!(__params, @parameters (T0_hand::Real), [bounds = (0, Inf)])
+  __initial_conditions[T0_hand] = __local__T0_hand
+  __local__G_contact = G_contact
+  append!(__params, @parameters (G_contact::Real))
+  __initial_conditions[G_contact] = __local__G_contact
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named cupContact = __Dyad__Node())
-  push!(__systems, @named handMass = ThermalComponents.HeatCapacitor(C=C_hand, T0=T0_hand))
-  push!(__systems, @named handContact = ThermalComponents.ThermalConductor(G=G_contact))
+  push!(__systems, @named cupContact = __Dyad__HeatPort())
+  # Subcomponent handMass of type ThermalComponents.Components.HeatCapacitor
+  handMass_overrides = __pop_subcomponent_overrides!(__overrides, "handMass")
+  push!(__systems, @named handMass = ThermalComponents.Components.HeatCapacitor(; C=C_hand, T0=T0_hand, handMass_overrides...))
+  # Subcomponent handContact of type ThermalComponents.Components.ThermalConductor
+  handContact_overrides = __pop_subcomponent_overrides!(__overrides, "handContact")
+  push!(__systems, @named handContact = ThermalComponents.Components.ThermalConductor(; G=G_contact, handContact_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -59,10 +93,10 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(handMass.node, handContact.node_a))
-  push!(__eqs, connect(handContact.node_b, cupContact))
+  push!(__eqs, connect(handMass.port, handContact.port_a))
+  push!(__eqs, connect(handContact.port_b, cupContact))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HandSubsystem

@@ -1,0 +1,113 @@
+"Half-sine bump signal source."
+component HalfSineBump
+  y = RealOutput()
+  "Bump height [m]"
+  parameter amplitude::Distance = 0.05
+  "Duration of the bump [s] (= bump_length / vehicle_speed)"
+  parameter bump_duration::Time = 0.1
+  "Time at which the bump begins [s]"
+  parameter start_time::Time = 0.1
+  "Baseline offset [m]"
+  parameter offset::Distance = 0.0
+relations
+  y = offset + ifelse(time >= start_time, ifelse(time <= start_time + bump_duration, amplitude * sin(π * (time - start_time) / bump_duration), 0.0), 0.0)
+end
+
+"Test harness for HalfSineBump signal in isolation."
+test component TestHalfSineBump
+  bump = HalfSineBump(amplitude = 0.05, bump_duration = 0.1, start_time = 0.1)
+relations
+end
+
+analysis TestHalfSineBumpTransient
+  extends TransientAnalysis(stop = 0.5, saveat = 0.001)
+  model = TestHalfSineBump()
+relations
+end
+
+"ISO 8608 calibrated road profile with speed-dependent frequency scaling."
+component ISO8608Road
+  y = RealOutput()
+  "Road roughness G_d(n0) at n0=0.1 cycles/m [m3]"
+  parameter roughness::Real = 16e-6
+  "Vehicle speed [m/s] (e.g. 13.89 = 50 km/h)"
+  parameter speed::Velocity = 13.89
+  "Shortest spatial wavelength [m]"
+  parameter lambda_min::Distance = 0.5
+  "Longest spatial wavelength [m]"
+  parameter lambda_max::Distance = 30.0
+  "Time at which signal begins [s]"
+  parameter start_time::Time = 0.0
+  "Baseline offset [m]"
+  parameter offset::Distance = 0.0
+relations
+  y = offset + ifelse(time >= start_time, sqrt(roughness * 0.16 * (lambda_max - lambda_min)) * 0.125 * (2.3488 * sin(2 * π * (speed / lambda_max) * (time - start_time) + 3.8832) + 1.3087 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (1.0 / 7.0) * (time - start_time) + 1.4833) + 0.7291 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (2.0 / 7.0) * (time - start_time) + 5.3665) + 0.4062 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (3.0 / 7.0) * (time - start_time) + 2.9665) + 0.2263 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (4.0 / 7.0) * (time - start_time) + 0.5666) + 0.1261 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (5.0 / 7.0) * (time - start_time) + 4.4498) + 0.0703 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (6.0 / 7.0) * (time - start_time) + 2.0498) + 0.0391 * sin(2 * π * (speed / lambda_min) * (time - start_time) + 5.9330) + 0.7420), 0.0)
+end
+
+"Test harness for ISO8608Road."
+test component TestISO8608Road
+  road = ISO8608Road(roughness = 16e-6, speed = 13.89, start_time = 0.0)
+relations
+end
+
+analysis TestISO8608RoadTransient
+  extends TransientAnalysis(stop = 10.0, saveat = 0.001)
+  model = TestISO8608Road()
+relations
+end
+
+"Dense ISO 8608 road profile with N harmonics for broadband spectral excitation."
+component DenseISO8608Road
+  y = RealOutput() {^y}
+  "Number of harmonics"
+  structural parameter N::Integer = 50
+  "Road roughness G_d(n0) at n0=0.1 cycles/m [m3] - structural: sets array defaults"
+  structural parameter roughness::Real = 16e-6
+  "Vehicle speed [m/s]"
+  parameter speed::Velocity = 13.89
+  "Shortest spatial wavelength [m] - structural: sets array defaults"
+  structural parameter lambda_min::Distance = 0.3
+  "Longest spatial wavelength [m] - structural: sets array defaults"
+  structural parameter lambda_max::Distance = 30.0
+  "Time at which signal begins [s]"
+  parameter start_time::Time = 0.0
+  "Baseline offset [m]"
+  parameter offset::Distance = 0.0
+  "Harmonic amplitudes [m]"
+  parameter amp::Real[N] = QuarterTruckSciML.iso8608_amplitudes(N, lambda_min, lambda_max, roughness)
+  "Spatial frequencies [cycles/m]"
+  parameter freq::Real[N] = QuarterTruckSciML.iso8608_frequencies(N, lambda_min, lambda_max)
+  "Phase offsets [rad]"
+  parameter phase::Real[N] = QuarterTruckSciML.iso8608_phases(N)
+  "Partial sums for harmonic accumulation"
+  variable s::Real[N]
+relations
+  for i in 1:N
+    s[i] = amp[i] * sin(2 * π * freq[i] * speed * (time - start_time) + phase[i])
+  end
+  y = offset + ifelse(time >= start_time, s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7] + s[8] + s[9] + s[10] + s[11] + s[12] + s[13] + s[14] + s[15] + s[16] + s[17] + s[18] + s[19] + s[20] + s[21] + s[22] + s[23] + s[24] + s[25] + s[26] + s[27] + s[28] + s[29] + s[30] + s[31] + s[32] + s[33] + s[34] + s[35] + s[36] + s[37] + s[38] + s[39] + s[40] + s[41] + s[42] + s[43] + s[44] + s[45] + s[46] + s[47] + s[48] + s[49] + s[50], 0.0)
+metadata {
+  "_links": {
+    "y": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+"Test harness for DenseISO8608Road."
+test component TestDenseISO8608Road
+  road = DenseISO8608Road(roughness = 16e-6, speed = 13.89, start_time = 0.0)
+relations
+end
+
+analysis TestDenseISO8608RoadTransient
+  extends TransientAnalysis(stop = 10.0, saveat = 0.001)
+  model = TestDenseISO8608Road()
+relations
+end

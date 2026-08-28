@@ -31,7 +31,7 @@ end
 # Test harness with inertial load and damper
 test component TestPowertrain
   # Step input for throttle: starts at 1, drops to 0 at t=25s
-  throttle_cmd = BlockComponents.Step(height = -1.0, offset = 1.0, start_time = 25.0) [{
+  throttle_cmd = BlockComponents.Sources.Step(height = -1.0, offset = 1.0, start_time = 25.0) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
@@ -47,7 +47,7 @@ test component TestPowertrain
     }
   }]
   # Inertial load
-  load = RotationalComponents.Inertia(J = 1.0) [{
+  load = RotationalComponents.Components.Inertia(J = 1.0) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 285, "y1": 45, "x2": 385, "y2": 145, "rot": 0}
@@ -55,7 +55,7 @@ test component TestPowertrain
     }
   }]
   # Damper representing resistive load
-  damper = RotationalComponents.Damper(d = 5.0) [{
+  damper = RotationalComponents.Components.Damper(d = 5.0) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 415, "y1": 45, "x2": 515, "y2": 145, "rot": 0}
@@ -63,7 +63,7 @@ test component TestPowertrain
     }
   }]
   # Fixed reference for damper
-  fixed = RotationalComponents.Fixed() [{
+  fixed = RotationalComponents.Components.Fixed() [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 540, "y1": 150, "x2": 640, "y2": 250, "rot": 0}
@@ -84,7 +84,6 @@ relations
     }
   }]
   # Initial conditions
-  initial powertrain.torque = 0.0
   initial load.phi = 0.0
   initial load.w = 0.0
   powertrain.vehicle_speed = load.w * 0.15

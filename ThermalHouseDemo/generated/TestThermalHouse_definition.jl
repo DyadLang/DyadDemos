@@ -4,25 +4,29 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    TestThermalHouse(; name, T_outdoor, T_indoor, Q_heater, solar_irrad)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `T_outdoor`         | Outdoor temperature 0°C (32°F)                         | K  |   273.15 |
 | `T_indoor`         | Indoor temperature 21.1°C (70°F)                         | K  |   294.26 |
-| `Q_heater`         | HVAC system heat                         | W  |   7500 |
-| `solar_irrad`         | Solar irradiance for summer conditions (W/m²)                         | --  |   0 |
+| `Q_heater`         | HVAC system heat                         | W  |   7500.0 |
+| `solar_irrad`         | Solar irradiance for summer conditions (W/m²)                         | --  |   0.0 |
 """
-@component function TestThermalHouse(; name = nothing, T_outdoor=273.15, T_indoor=294.26, Q_heater=7500, solar_irrad=0)
+@component function TestThermalHouse(; name = nothing, T_outdoor=273.15, T_indoor=294.26, Q_heater=Float64(7500.0), solar_irrad=Float64(0.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestThermalHouse()
+  """))
 
-        @named model = TestThermalHouse()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -30,28 +34,64 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (T_outdoor::Real = T_outdoor), [description = "Outdoor temperature 0°C (32°F)", bounds = (0, Inf)])
-  append!(__params, @parameters (T_indoor::Real = T_indoor), [description = "Indoor temperature 21.1°C (70°F)", bounds = (0, Inf)])
-  append!(__params, @parameters (Q_heater::Real = Q_heater), [description = "HVAC system heat"])
-  append!(__params, @parameters (solar_irrad::Real = solar_irrad), [description = "Solar irradiance for summer conditions (W/m²)"])
+  __local__T_outdoor = T_outdoor
+  append!(__params, @parameters (T_outdoor::Real), [description = "Outdoor temperature 0°C (32°F)", bounds = (0, Inf)])
+  __initial_conditions[T_outdoor] = __local__T_outdoor
+  __local__T_indoor = T_indoor
+  append!(__params, @parameters (T_indoor::Real), [description = "Indoor temperature 21.1°C (70°F)", bounds = (0, Inf)])
+  __initial_conditions[T_indoor] = __local__T_indoor
+  __local__Q_heater = Q_heater
+  append!(__params, @parameters (Q_heater::Real), [description = "HVAC system heat"])
+  __initial_conditions[Q_heater] = __local__Q_heater
+  __local__solar_irrad = solar_irrad
+  append!(__params, @parameters (solar_irrad::Real), [description = "Solar irradiance for summer conditions (W/m²)"])
+  __initial_conditions[solar_irrad] = __local__solar_irrad
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(T_initial=T_indoor, Q_people=100, Q_lighting=200, Q_appliances=200))
-  push!(__systems, @named heater_signal = BlockComponents.Constant(k=Q_heater))
-  push!(__systems, @named solar_signal = BlockComponents.Constant(k=solar_irrad))
-  push!(__systems, @named ambient_signal = BlockComponents.Constant(k=T_outdoor))
+  # Subcomponent house of type ThermalHouseDemo.ThermalHouse
+  house_overrides = __pop_subcomponent_overrides!(__overrides, "house")
+  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(; T_initial=T_indoor, Q_people=Float64(100.0), Q_lighting=Float64(200.0), Q_appliances=Float64(200.0), house_overrides...))
+  # Subcomponent heater_signal of type BlockComponents.Sources.Constant
+  heater_signal_overrides = __pop_subcomponent_overrides!(__overrides, "heater_signal")
+  push!(__systems, @named heater_signal = BlockComponents.Sources.Constant(; k=Q_heater, heater_signal_overrides...))
+  # Subcomponent solar_signal of type BlockComponents.Sources.Constant
+  solar_signal_overrides = __pop_subcomponent_overrides!(__overrides, "solar_signal")
+  push!(__systems, @named solar_signal = BlockComponents.Sources.Constant(; k=solar_irrad, solar_signal_overrides...))
+  # Subcomponent ambient_signal of type BlockComponents.Sources.Constant
+  ambient_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ambient_signal")
+  push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(; k=T_outdoor, ambient_signal_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-  __guesses[house.wall_loss.ΔT] = (10)
-
-  ### Defaults
+  __guesses[house.wall_loss.ΔT] = (10.0)
 
   ### Initialization Equations
 
@@ -64,6 +104,6 @@
   push!(__eqs, connect(ambient_signal.y, house.T_ambient))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestThermalHouse

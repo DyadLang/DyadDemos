@@ -4,15 +4,17 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    SimplePowertrain(; name, base_torque, c_normalized_torque, tau, tau_start)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `base_torque`         |                          | N.m  |   150 |
-| `c_normalized_torque`         |                          | --  |   [12.343, -0.57128, 0.010451, -0.000062024] |
+| `base_torque`         |                          | N.m  |   150.0 |
+| `c_normalized_torque`         |                          | --  |   [1.2343E+01...6.2024E-05] |
 | `tau`         |                          | s  |   0.1 |
 | `tau_start`         |                          | N.m  |   0 |
 
@@ -25,17 +27,19 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `normalized_torque`         |                          | --  | 
-| `torque`         |                          | N.m  | 
+| ------------ | ----------------------------------- | ------ |
+| `normalized_torque`         |                          | --  |
+| `torque`         |                          | N.m  |
 """
-@component function SimplePowertrain(; name = nothing, base_torque=150, c_normalized_torque=[12.343, -0.57128, 0.010451, -0.000062024], tau=0.1, tau_start=0)
+@component function SimplePowertrain(; name = nothing, base_torque=Float64(150.0), c_normalized_torque=[12.343, -0.57128, 0.010451, -0.000062024], tau=0.1, tau_start=Float64(0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = SimplePowertrain()
+  """))
 
-        @named model = SimplePowertrain()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -43,18 +47,51 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (base_torque::Real = base_torque))
-  append!(__params, @parameters (c_normalized_torque[1:4]::Real = c_normalized_torque))
-  append!(__params, @parameters (tau::Real = tau))
-  append!(__params, @parameters (tau_start::Real = tau_start))
+  __local__base_torque = base_torque
+  append!(__params, @parameters (base_torque::Real))
+  __initial_conditions[base_torque] = __local__base_torque
+  __local__c_normalized_torque = c_normalized_torque
+  append!(__params, @parameters (c_normalized_torque[1:4]::Real))
+  __initial_conditions[c_normalized_torque] = __local__c_normalized_torque
+  __local__tau = tau
+  append!(__params, @parameters (tau::Real))
+  __initial_conditions[tau] = __local__tau
+  __local__tau_start = tau_start
+  append!(__params, @parameters (tau_start::Real))
+  __initial_conditions[tau_start] = __local__tau_start
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (throttle(t)::Real), [input = true])
   append!(__vars, @variables (vehicle_speed(t)::Real), [input = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (normalized_torque(t)::Real))
   append!(__vars, @variables (torque(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_normalized_torque = pop!(__overrides, "normalized_torque", nothing); isnothing(__ovr_normalized_torque) || push!(__eqs, normalized_torque ~ __ovr_normalized_torque)
+  __ovr_normalized_torque__initial = pop!(__overrides, "normalized_torque__initial", nothing); isnothing(__ovr_normalized_torque__initial) || (__initial_conditions[normalized_torque] = __ovr_normalized_torque__initial)
+  __ovr_normalized_torque__guess = pop!(__overrides, "normalized_torque__guess", nothing)
+  __ovr_torque = pop!(__overrides, "torque", nothing); isnothing(__ovr_torque) || push!(__eqs, torque ~ __ovr_torque)
+  __ovr_torque__initial = pop!(__overrides, "torque__initial", nothing); isnothing(__ovr_torque__initial) || (__initial_conditions[torque] = __ovr_torque__initial)
+  __ovr_torque__guess = pop!(__overrides, "torque__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -62,12 +99,15 @@
   ### Components
   push!(__systems, @named drive = __Dyad__Spline())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
-  __initial_conditions[torque] = (tau_start)
+  ### Guesses
+  isnothing(__ovr_normalized_torque__guess) || (__guesses[normalized_torque] = __ovr_normalized_torque__guess)
+  isnothing(__ovr_torque__guess) || (__guesses[torque] = __ovr_torque__guess)
 
   ### Initialization Equations
+  push!(__initialization_eqs, torque ~ tau_start)
 
   ### Assertions
   __assertions = []
@@ -78,6 +118,6 @@
   push!(__eqs, drive.tau ~ -torque)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SimplePowertrain

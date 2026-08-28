@@ -1,0 +1,6 @@
+[deps]
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+ThermalHouseDemo = "cc625cb1-519f-4735-a3fa-810aa2cd8f53"
+
+[sources]
+ThermalHouseDemo = {path = ".."}

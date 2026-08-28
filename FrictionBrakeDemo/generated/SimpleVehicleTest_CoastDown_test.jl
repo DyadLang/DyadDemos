@@ -4,72 +4,24 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for FrictionBrakeDemo.SimpleVehicleTest_CoastDown" begin
-  using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
-  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
-
-  @named model = FrictionBrakeDemo.SimpleVehicleTest_CoastDown()
-  model = toggle_namespacing(model, false)
-  
-  model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 1e+2, abstol=1e-6, reltol=1e-6)
-  sol = rebuild_sol(result)
-  @test SciMLBase.successful_retcode(sol)
-  @test sol[model.vehicle.vehicle_speed][1] ≈ 30 atol=0.001 rtol=9.999999999999999e-6
-# Signals selected for regression testing: ["vehicle.vehicle_speed","vehicle.wheel_speed","vehicle.inertia.w"]
-  ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
-  if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
-    # If asked to update snapshots, write out reference data for all signals
-    mkpath("snapshots")
-    CSV.write("snapshots/SimpleVehicleTest_CoastDown_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.vehicle_speed) for t in ref_times]))
-    CSV.write("snapshots/SimpleVehicleTest_CoastDown_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.wheel_speed) for t in ref_times]))
-    CSV.write("snapshots/SimpleVehicleTest_CoastDown_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.inertia.w) for t in ref_times]))
-  end
-    if isfile("snapshots/SimpleVehicleTest_CoastDown_case1_sig0.ref")
-      ref = CSV.read("snapshots/SimpleVehicleTest_CoastDown_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.vehicle_speed) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.vehicle.vehicle_speed])
-        dfr = CSV.read("snapshots/SimpleVehicleTest_CoastDown_case1_sig0.ref", DataFrame)
-        plot(sol, idxs=[model.vehicle.vehicle_speed], width=2, label="Actual value of vehicle.vehicle_speed")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of vehicle.vehicle_speed")
-        plot!([df.t[1]], [30], seriestype=:scatter, label="Initial Condition for vehicle.vehicle_speed")
-        mkpath("comparisons")
-        savefig("comparisons/SimpleVehicleTest_CoastDown_case1_sig0.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/SimpleVehicleTest_CoastDown_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.vehicle_speed) for t in ref_times]))
-    end
-    if isfile("snapshots/SimpleVehicleTest_CoastDown_case1_sig1.ref")
-      ref = CSV.read("snapshots/SimpleVehicleTest_CoastDown_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.wheel_speed) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.vehicle.wheel_speed])
-        dfr = CSV.read("snapshots/SimpleVehicleTest_CoastDown_case1_sig1.ref", DataFrame)
-        plot(sol, idxs=[model.vehicle.wheel_speed], width=2, label="Actual value of vehicle.wheel_speed")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of vehicle.wheel_speed")
-        mkpath("comparisons")
-        savefig("comparisons/SimpleVehicleTest_CoastDown_case1_sig1.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/SimpleVehicleTest_CoastDown_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.wheel_speed) for t in ref_times]))
-    end
-    if isfile("snapshots/SimpleVehicleTest_CoastDown_case1_sig2.ref")
-      ref = CSV.read("snapshots/SimpleVehicleTest_CoastDown_case1_sig2.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.vehicle.inertia.w) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.vehicle.inertia.w])
-        dfr = CSV.read("snapshots/SimpleVehicleTest_CoastDown_case1_sig2.ref", DataFrame)
-        plot(sol, idxs=[model.vehicle.inertia.w], width=2, label="Actual value of vehicle.inertia.w")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of vehicle.inertia.w")
-        mkpath("comparisons")
-        savefig("comparisons/SimpleVehicleTest_CoastDown_case1_sig2.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/SimpleVehicleTest_CoastDown_case1_sig2.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.vehicle.inertia.w) for t in ref_times]))
-    end
-end
+__dyad_run_test_case!(
+  FrictionBrakeDemo.SimpleVehicleTest_CoastDown,
+  "case1 for FrictionBrakeDemo.SimpleVehicleTest_CoastDown";
+  case_name="case1",
+  component_stem="SimpleVehicleTest_CoastDown",
+  module_path=String[],
+  start=0e+0,
+  stop=1e+2,
+  abstol=1e-6,
+  reltol=1e-6,
+  solver=ODEAlg.Auto(),
+  params=(;),
+  initial_conditions=Tuple[],
+  expected_initial=Tuple[(m -> m.vehicle.vehicle_speed, "vehicle.vehicle_speed", 30, 0.001, 1e-5)],
+  expected_final=Tuple[],
+  signals=Tuple[
+    (m -> m.vehicle.vehicle_speed, "vehicle.vehicle_speed", 0.001, 1e-5),
+    (m -> m.vehicle.wheel_speed, "vehicle.wheel_speed", 0.001, 1e-5),
+    (m -> m.vehicle.inertia.w, "vehicle.inertia.w", 0.001, 1e-5),
+  ],
+)

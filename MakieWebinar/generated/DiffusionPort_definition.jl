@@ -21,13 +21,20 @@ Supported dynamics:
 - FitzHugh-Nagumo (excitable media, waves)
 - Exponential growth/decay with diffusion
 """
-@connector function DiffusionPort(; name)
-  vars = @variables begin
+@connector function DiffusionPort(; name=nothing)
+  isnothing(name) && throw(ArgumentError("""
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = DiffusionPort()
+  """))
+  __params = Symbolics.SymbolicT[]
+  __vars = @variables begin
     (C(t)::Real), []
     (J(t)::Real), [connect = Flow]
   end
   __metadata = Dict{DataType, Any}(
   )
-  return System(Equation[], t, vars, []; name, metadata = __metadata)
+  return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
 export DiffusionPort

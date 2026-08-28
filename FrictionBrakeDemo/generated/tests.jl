@@ -15,6 +15,8 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "tests.jl"))
 end
 
 
+include("test_internals.jl")
+
 @testset "`FrictionBrakeDemo`" begin
 include("BrakeThermalTest_Constant_test.jl")
 include("BrakeThermalTest_Step_test.jl")

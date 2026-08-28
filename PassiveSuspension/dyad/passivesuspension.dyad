@@ -1,0 +1,154 @@
+"ISO 8608 Class C road profile via sum-of-sinusoids approximation"
+component ISO8608RoadC
+  y = RealOutput() {^y}
+  structural parameter N::Integer = 30
+  "Vehicle speed (m/s)"
+  parameter v::Dyad.Velocity = 20.0
+  "Roughness coefficient at n0 (m^3), Class C = 256e-6"
+  parameter Gd_n0::Real = 256e-6
+  "Reference spatial frequency (cycles/m)"
+  parameter n0::Real = 0.1
+  "Minimum temporal frequency (Hz)"
+  parameter f_min::Real = 0.5
+  "Maximum temporal frequency (Hz)"
+  parameter f_max::Real = 30.0
+  "Velocity-independent amplitude base: multiply by sqrt(v) for final amplitude"
+  parameter amp_base::Real[N] = PassiveSuspension.iso8608_amplitudes_base(Gd_n0, n0, f_min, f_max, N)
+  parameter frequencies::Real[N] = PassiveSuspension.iso8608_frequencies(f_min, f_max, N)
+  parameter phases::Real[N] = PassiveSuspension.iso8608_phases(N)
+  variable partial_sum::Real[N]
+relations
+  partial_sum[1] = amp_base[1] * sqrt(v) * sin(2 * π * frequencies[1] * time + phases[1])
+  for i in 2:N
+    partial_sum[i] = partial_sum[i - 1] + amp_base[i] * sqrt(v) * sin(2 * π * frequencies[i] * time + phases[i])
+  end
+  y = partial_sum[N]
+metadata {
+  "_links": {
+    "y": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+component MyPassiveSuspension
+  wheel = DyadExampleComponents.MassSpringDamper(m = wheel_mass, d = wheel_damping, c = wheel_stiffness, g = -10, theta = pi / 2) {^wheel}
+  car_and_suspension = DyadExampleComponents.MassSpringDamper(m = car_mass, d = suspension_damping, c = suspension_stiffness, g = -10, theta = pi / 2) {^car_and_suspension}
+  seat = DyadExampleComponents.MassSpringDamper(m = human_and_seat_mass, d = seat_damping, c = seat_stiffness, g = -10, theta = pi / 2) {^seat}
+  road_profile = ISO8608RoadC(v = speed) {^road_profile}
+  road = DyadExampleComponents.SimplePosition() {^road}
+  parameter wheel_mass::Dyad.Mass = 45
+  parameter wheel_stiffness::Dyad.TranslationalSpringConstant = 200000
+  parameter wheel_damping::Dyad.DampingCoefficient = 100
+  parameter car_mass::Dyad.Mass = 400
+  parameter suspension_stiffness::Dyad.TranslationalSpringConstant = 25000
+  parameter suspension_damping::Dyad.DampingCoefficient = 209
+  parameter human_and_seat_mass::Dyad.Mass = 80
+  parameter seat_stiffness::Dyad.TranslationalSpringConstant = 10000
+  parameter seat_damping::Dyad.DampingCoefficient = 59
+  parameter wheel_initial_position::Dyad.Position = 0.5
+  parameter suspension_initial_position::Dyad.Position = 1
+  parameter seat_initial_position::Dyad.Position = 1.5
+  "Vehicle speed (m/s)"
+  parameter speed::Dyad.Velocity = 20.0
+relations
+  initial wheel.mass.s = wheel_initial_position
+  initial car_and_suspension.mass.s = suspension_initial_position
+  initial seat.mass.s = seat_initial_position
+  initial wheel.mass.v = 0
+  initial car_and_suspension.mass.v = 0
+  initial seat.mass.v = 0
+  initial wheel.mass.a = 0
+  initial car_and_suspension.mass.a = 0
+  initial seat.mass.a = 0
+  connect(wheel.flange_sd, road.flange) {^id6}
+  connect(car_and_suspension.flange_sd, wheel.flange_m) {^id7}
+  connect(car_and_suspension.flange_m, seat.flange_sd) {^id8}
+  connect(road_profile.y, road.s) {^id9}
+metadata {
+  "_links": {
+    "wheel": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 165, "y1": 190, "x2": 265, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "car_and_suspension": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 35, "y1": 190, "x2": 135, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "seat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 165, "y1": 70, "x2": 265, "y2": 170, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "road_profile": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 70, "y1": 450, "x2": 170, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "road": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 295, "y1": 290, "x2": 395, "y2": 390, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id6": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 410, "y": 240}, {"x": 410, "y": 340}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id7": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id8": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 20, "y": 240},
+              {"x": 20, "y": 20},
+              {"x": 280, "y": 20},
+              {"x": 280, "y": 120}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id9": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 280, "y": 500}, {"x": 280, "y": 340}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+analysis PassiveSuspensionTransient
+  extends TransientAnalysis(stop = 10, dtmax = 0.01)
+  model = MyPassiveSuspension()
+relations
+end

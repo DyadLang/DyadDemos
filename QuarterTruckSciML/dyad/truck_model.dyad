@@ -1,0 +1,265 @@
+# Quarter-truck physical components and the configurable master model used as
+# ground truth in both the NN-discovery demo and the calibration demo.
+#
+# The four "calibration knobs" (body_m, tire_to_body_c, tire_to_body_d,
+# friction_Fc) are also the parameters recovered by the calibration analysis.
+# The nonlinearity knobs (tire_k3, tire_compression_only, seat_driver_n)
+# control the three nonlinearities the NN discovers.
+"Configurable tire spring-damper with optional nonlinearity and compression-only behavior."
+component ConfigurableTireSpringDamper
+  flange_a = Flange()
+  flange_b = Flange()
+  variable s_rel::Distance
+  variable v_rel::Velocity
+  variable f::Force
+  "Linear stiffness [N/m]"
+  parameter k1::TranslationalSpringConstant = 200e3
+  "Cubic stiffness coefficient [N/m^3] - 0 disables nonlinearity"
+  parameter k3::Real = 0.0
+  "Damping [N*s/m]"
+  parameter d::TranslationalDampingConstant = 50.0
+  "Unstretched (free) length [m]"
+  parameter s_rel0::Distance = 0.2
+  "Compression-only flag: 0.0=symmetric, 1.0=compression-only"
+  parameter compression_only::Real = 0.0
+relations
+  s_rel = flange_b.s - flange_a.s
+  v_rel = der(s_rel)
+  flange_b.f = f
+  flange_a.f = -f
+  f = ifelse(compression_only > 0.5, ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + k3 * (s_rel - s_rel0) * abs(s_rel - s_rel0) ^ 2 + d * v_rel, 0.0), k1 * (s_rel - s_rel0) + k3 * (s_rel - s_rel0) * abs(s_rel - s_rel0) ^ 2 + d * v_rel)
+end
+
+"Viscoelastic spring-damper: linear spring with power-law damping for seat cushion modeling."
+component ViscoelasticSpringDamper
+  flange_a = Flange()
+  flange_b = Flange()
+  variable s_rel::Distance
+  variable v_rel::Velocity
+  variable f::Force
+  "Linear spring stiffness [N/m]"
+  parameter k::TranslationalSpringConstant = 10e3
+  "Damping coefficient [N*s^n/m^n]"
+  parameter d::Real = 500.0
+  "Unstretched length [m]"
+  parameter s_rel0::Distance = 0.1
+  "Velocity exponent: 1.0=linear, 0.5=viscoelastic foam"
+  parameter n::Real = 0.5
+  "Regularization velocity [m/s]"
+  parameter v_reg::Real = 1e-4
+relations
+  s_rel = flange_b.s - flange_a.s
+  v_rel = der(s_rel)
+  flange_b.f = f
+  flange_a.f = -f
+  f = k * (s_rel - s_rel0) + d * v_rel * (v_rel ^ 2 + v_reg ^ 2) ^ ((n - 1.0) / 2.0)
+end
+
+"Regularized Coulomb friction element. F_c=0 disables friction."
+component CoulombFriction
+  flange_a = Flange()
+  flange_b = Flange()
+  variable s_rel::Distance
+  variable v_rel::Velocity
+  variable f::Force
+  "Coulomb friction force magnitude [N] - 0 disables friction"
+  parameter F_c::Force = 500.0
+  "Regularization velocity [m/s]"
+  parameter v0::Velocity = 0.1
+relations
+  s_rel = flange_b.s - flange_a.s
+  v_rel = der(s_rel)
+  flange_b.f = f
+  flange_a.f = -f
+  f = F_c * tanh(v_rel / v0)
+end
+
+"Configurable quarter truck model with 4 masses, gravity, and optional nonlinearities. The four calibration knobs (body_m, tire_to_body_c, tire_to_body_d, friction_Fc) and the three nonlinearity knobs (tire_k3, tire_compression_only, seat_driver_n) are exposed as top-level parameters and propagated to sub-components via `final` bindings. The calibration search space targets these top-level parameters (model.body_m, model.tire_to_body_c, etc.) — see calibration.dyad."
+component QuarterTruckConfigurable
+  tire = TranslationalComponents.Components.Mass(m = 40.0, L = 0.0, g = 9.81, theta = 1.5708) {^tire}
+  body = TranslationalComponents.Components.Mass(final m = body_m, L = 0.0, g = 9.81, theta = 1.5708) {^body}
+  seat = TranslationalComponents.Components.Mass(m = 15.0, L = 0.0, g = 9.81, theta = 1.5708) {^seat}
+  driver = TranslationalComponents.Components.Mass(m = 75.0, L = 0.0, g = 9.81, theta = 1.5708) {^driver}
+  tire_to_road = ConfigurableTireSpringDamper(k1 = 200e3, final k3 = tire_k3, d = 50.0, s_rel0 = 0.2, final compression_only = tire_compression_only) {^tire_to_road}
+  tire_to_body = TranslationalComponents.Components.SpringDamper(final c = tire_to_body_c, final d = tire_to_body_d, s_rel0 = 1.0) {^tire_to_body}
+  body_to_seat = TranslationalComponents.Components.SpringDamper(c = 15e3, d = 800.0, s_rel0 = 0.2) {^body_to_seat}
+  seat_to_driver = ViscoelasticSpringDamper(final k = seat_driver_k, final d = seat_driver_d, s_rel0 = 0.1, final n = seat_driver_n) {^seat_to_driver}
+  friction_tb = CoulombFriction(final F_c = friction_Fc, final v0 = friction_v0) {^friction_tb}
+  road = TranslationalComponents.Sources.Position(ref_type = TranslationalComponents.Sources.ReferenceType.Filtered(f_crit = 100.0)) {^road}
+  fixed = TranslationalComponents.Components.Fixed() {^fixed}
+  "Body (sprung) mass [kg]"
+  parameter body_m::Mass = 300.0
+  "Tire-to-body suspension spring constant [N/m]"
+  parameter tire_to_body_c::TranslationalSpringConstant = 20e3
+  "Tire-to-body suspension damping [N*s/m]"
+  parameter tire_to_body_d::TranslationalDampingConstant = 1500.0
+  "Tire cubic stiffness [N/m^3] - 0 for linear"
+  parameter tire_k3::Real = 0.0
+  "Tire compression-only flag: 0=symmetric, 1=compression-only"
+  parameter tire_compression_only::Real = 0.0
+  "Coulomb friction force [N] - 0 disables friction"
+  parameter friction_Fc::Force = 0.0
+  "Friction regularization velocity [m/s]"
+  parameter friction_v0::Velocity = 0.1
+  "Seat-driver spring stiffness [N/m] (1e8 for rigid seat)"
+  parameter seat_driver_k::TranslationalSpringConstant = 10e3
+  "Seat-driver damping coefficient [N*s^n/m^n]"
+  parameter seat_driver_d::Real = 500.0
+  "Seat-driver velocity exponent: 1.0=linear, 0.5=viscoelastic"
+  parameter seat_driver_n::Real = 1.0
+relations
+  connect(road.flange, tire_to_road.flange_a) {^id12}
+  connect(tire_to_road.flange_b, tire.flange_a) {^id13}
+  connect(tire.flange_b, tire_to_body.flange_a) {^id14}
+  connect(tire_to_body.flange_b, body.flange_a) {^id15}
+  connect(tire.flange_b, friction_tb.flange_a) {^id16}
+  connect(friction_tb.flange_b, body.flange_a) {^id17}
+  connect(body.flange_b, body_to_seat.flange_a) {^id18}
+  connect(body_to_seat.flange_b, seat.flange_a) {^id19}
+  connect(seat.flange_b, seat_to_driver.flange_a) {^id20}
+  connect(seat_to_driver.flange_b, driver.flange_a) {^id21}
+  initial tire.s = 0.178908
+  initial tire.v = 0.0
+  initial body.s = 0.987613
+  initial body.v = 0.0
+  initial seat.s = 1.128754
+  initial seat.v = 0.0
+  initial driver.s = 1.128754 + 0.1 - 75.0 * 9.81 / 10e3
+  initial driver.v = 0.0
+  initial tire_to_road.v_rel = 0.0
+  connect(fixed.flange, road.support) {^id22}
+metadata {
+  "_links": {
+    "tire": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 275, "y1": 190, "x2": 375, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 545, "y1": 190, "x2": 645, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "seat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 805, "y1": 190, "x2": 905, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 1055, "y1": 90, "x2": 1155, "y2": 190, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tire_to_road": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 150, "y1": 290, "x2": 250, "y2": 390, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tire_to_body": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 415, "y1": 190, "x2": 515, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body_to_seat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 675, "y1": 190, "x2": 775, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "seat_to_driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 930, "y1": 190, "x2": 1030, "y2": 290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "friction_tb": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 415, "y1": 70, "x2": 515, "y2": 170, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "road": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 290, "x2": 120, "y2": 390, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "fixed": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 500, "x2": 120, "y2": 600, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id12": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id13": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 140, "y": 340}, {"x": 140, "y": 240}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id14": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id15": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id16": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 400, "y": 240}, {"x": 400, "y": 120}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id17": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 390, "y": 120},
+              {"x": 390, "y": 20},
+              {"x": 530, "y": 20},
+              {"x": 530, "y": 240}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id18": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id19": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id20": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id21": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 920, "y": 240}, {"x": 920, "y": 140}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id22": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end

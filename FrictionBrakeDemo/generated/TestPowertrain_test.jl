@@ -4,56 +4,23 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for FrictionBrakeDemo.TestPowertrain" begin
-  using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
-  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
-
-  @named model = FrictionBrakeDemo.TestPowertrain()
-  model = toggle_namespacing(model, false)
-  
-  model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 4.75e+0, abstol=1e-6, reltol=1e-6)
-  sol = rebuild_sol(result)
-  @test SciMLBase.successful_retcode(sol)
-  @test sol[model.load.w][1] ≈ 0 atol=0.001 rtol=9.999999999999999e-6
-# Signals selected for regression testing: ["load.w","powertrain.drive.tau"]
-  ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
-  if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
-    # If asked to update snapshots, write out reference data for all signals
-    mkpath("snapshots")
-    CSV.write("snapshots/TestPowertrain_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.load.w) for t in ref_times]))
-    CSV.write("snapshots/TestPowertrain_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.powertrain.drive.tau) for t in ref_times]))
-  end
-    if isfile("snapshots/TestPowertrain_case1_sig0.ref")
-      ref = CSV.read("snapshots/TestPowertrain_case1_sig0.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.load.w) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.load.w])
-        dfr = CSV.read("snapshots/TestPowertrain_case1_sig0.ref", DataFrame)
-        plot(sol, idxs=[model.load.w], width=2, label="Actual value of load.w")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of load.w")
-        plot!([df.t[1]], [0], seriestype=:scatter, label="Initial Condition for load.w")
-        mkpath("comparisons")
-        savefig("comparisons/TestPowertrain_case1_sig0.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/TestPowertrain_case1_sig0.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.load.w) for t in ref_times]))
-    end
-    if isfile("snapshots/TestPowertrain_case1_sig1.ref")
-      ref = CSV.read("snapshots/TestPowertrain_case1_sig1.ref", DataFrame)
-      [@test ref.expected[i] ≈ sol(ref.t[i], idxs=model.powertrain.drive.tau) atol=0.001 rtol=9.999999999999999e-6 for i in 1:length(ref.expected)]
-      if get(ENV, "DYAD_COMPARISONS", "") !== ""
-        df = DataFrame(t=sol[:t], actual=sol[model.powertrain.drive.tau])
-        dfr = CSV.read("snapshots/TestPowertrain_case1_sig1.ref", DataFrame)
-        plot(sol, idxs=[model.powertrain.drive.tau], width=2, label="Actual value of powertrain.drive.tau")
-        scatter!(dfr.t, dfr.expected, mc=:red, ms=3, label="Expected value of powertrain.drive.tau")
-        mkpath("comparisons")
-        savefig("comparisons/TestPowertrain_case1_sig1.png")
-      end
-    else
-      mkpath("snapshots")
-      CSV.write("snapshots/TestPowertrain_case1_sig1.ref", DataFrame(t=ref_times, expected=[sol(t, idxs=model.powertrain.drive.tau) for t in ref_times]))
-    end
-end
+__dyad_run_test_case!(
+  FrictionBrakeDemo.TestPowertrain,
+  "case1 for FrictionBrakeDemo.TestPowertrain";
+  case_name="case1",
+  component_stem="TestPowertrain",
+  module_path=String[],
+  start=0e+0,
+  stop=4.75e+0,
+  abstol=1e-6,
+  reltol=1e-6,
+  solver=ODEAlg.Auto(),
+  params=(;),
+  initial_conditions=Tuple[],
+  expected_initial=Tuple[(m -> m.load.w, "load.w", 0, 0.001, 1e-5)],
+  expected_final=Tuple[],
+  signals=Tuple[
+    (m -> m.load.w, "load.w", 0.001, 1e-5),
+    (m -> m.powertrain.drive.tau, "powertrain.drive.tau", 0.001, 1e-5),
+  ],
+)

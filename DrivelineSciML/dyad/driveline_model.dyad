@@ -1,0 +1,91 @@
+# Two-inertia EV driveline with a Maxwell-Bouc-Wen torsional isolator.
+#
+# The isolator is the ground-truth component for both calibration stages:
+# its six "hidden" knobs (k1, c1, alpha, A_bw, beta_bw, gamma_bw) are exposed
+# as top-level parameters on DrivelineSystem and propagated via `final`
+# bindings, so the calibration search space can target model.k1, model.c1, …
+# (see calibration.dyad). Component defaults are the *nominal* initial
+# guesses; truth values are applied as overrides by
+# scripts/generate_calibration_data.jl.
+
+"Torsional isolator with three parallel torque paths: a quasi-static spring-damper baseline (k0, c0), a Maxwell branch (spring k1 in series with damper c1) giving frequency-dependent stiffness with relaxation time c1/k1, and a Bouc-Wen element (alpha*z) giving rate-independent hysteresis. |x| is smoothed as sqrt(x^2 + eps_bw) to keep the Bouc-Wen flow rule differentiable."
+component MaxwellBoucWenIsolator
+  extends RotationalComponents.Interfaces.PartialCompliantWithRelativeStates
+  "Baseline (quasi-static) stiffness [N*m/rad]"
+  parameter k0::RotationalSpringConstant = 500.0
+  "Baseline viscous damping [N*m*s/rad]"
+  parameter c0::RotationalDampingConstant = 0.5
+  "Maxwell branch stiffness [N*m/rad]"
+  parameter k1::RotationalSpringConstant = 200.0
+  "Maxwell branch damping [N*m*s/rad]"
+  parameter c1::RotationalDampingConstant = 2.0
+  "Bouc-Wen hysteretic torque scale [N*m]"
+  parameter alpha::Real = 30.0
+  "Bouc-Wen flow gain"
+  parameter A_bw::Real = 1.0
+  "Bouc-Wen saturation coefficient (z_sat = A_bw/beta_bw)"
+  parameter beta_bw::Real = 3.0
+  "Bouc-Wen shape coefficient"
+  parameter gamma_bw::Real = 0.3
+  "Smoothing epsilon for |x| ~ sqrt(x^2 + eps_bw)"
+  parameter eps_bw::Real = 1e-10
+  "Maxwell internal (series-element) angle [rad]"
+  variable theta_m::Angle
+  "Bouc-Wen dimensionless hysteretic state"
+  variable z::Real
+relations
+  der(theta_m) = (k1 / c1) * (phi_rel - theta_m)
+  der(z) = A_bw * w_rel - beta_bw * sqrt(w_rel^2 + eps_bw) * z - gamma_bw * w_rel * sqrt(z^2 + eps_bw)
+  tau = k0 * phi_rel + c0 * w_rel + k1 * (phi_rel - theta_m) + alpha * z
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://DrivelineSciML/MaxwellBoucWenIsolator.svg"}
+  }
+}
+end
+
+"Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are exposed as top-level parameters (defaults = nominal calibration starting guesses; truth: k1=300, c1=1.0, alpha=50, A_bw=1.0, beta_bw=5.0, gamma_bw=0.5) and propagated via `final` bindings. The applied torque enters through the `torque.tau` RealInput of the embedded TorqueSource."
+component DrivelineSystem
+  torque = RotationalComponents.Sources.TorqueSource()
+  torque_support = RotationalComponents.Components.Fixed()
+  J_eng = RotationalComponents.Components.Inertia(J = 0.05)
+  isolator = MaxwellBoucWenIsolator(k0 = 500.0, c0 = 0.5, final k1 = k1, final c1 = c1, final alpha = alpha, final A_bw = A_bw, final beta_bw = beta_bw, final gamma_bw = gamma_bw)
+  J_load = RotationalComponents.Components.Inertia(J = 0.2)
+  load_damper = RotationalComponents.Components.Damper(d = 0.2)
+  ground = RotationalComponents.Components.Fixed()
+  "Maxwell branch stiffness [N*m/rad] (truth: 300)"
+  parameter k1::RotationalSpringConstant = 200.0
+  "Maxwell branch damping [N*m*s/rad] (truth: 1.0)"
+  parameter c1::RotationalDampingConstant = 2.0
+  "Bouc-Wen hysteretic torque scale [N*m] (truth: 50)"
+  parameter alpha::Real = 30.0
+  "Bouc-Wen flow gain (truth: 1.0)"
+  parameter A_bw::Real = 1.0
+  "Bouc-Wen saturation coefficient (truth: 5.0)"
+  parameter beta_bw::Real = 3.0
+  "Bouc-Wen shape coefficient (truth: 0.5)"
+  parameter gamma_bw::Real = 0.3
+  "Speed difference across the isolator (engine minus load) [rad/s]"
+  variable delta_w::AngularVelocity
+relations
+  connect(torque.support, torque_support.spline)
+  connect(torque.spline, J_eng.spline_a)
+  connect(J_eng.spline_b, isolator.spline_a)
+  connect(isolator.spline_b, J_load.spline_a)
+  connect(J_load.spline_b, load_damper.spline_a)
+  connect(load_damper.spline_b, ground.spline)
+  delta_w = J_eng.w - J_load.w
+  initial J_eng.phi = 0.0
+  initial J_eng.w = 0.0
+  initial J_load.phi = 0.0
+  initial J_load.w = 0.0
+  initial isolator.theta_m = 0.0
+  initial isolator.z = 0.0
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://DrivelineSciML/DrivelineSystem.svg"}
+  }
+}
+end

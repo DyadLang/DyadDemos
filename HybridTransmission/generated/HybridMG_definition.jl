@@ -4,16 +4,18 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    HybridMG(; name, Kt, b_friction, max_torque)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `Kt`         |                          | --  |   1 |
+| `Kt`         |                          | --  |   1.0 |
 | `b_friction`         |                          | --  |   0.005 |
-| `max_torque`         |                          | N.m  |   200 |
+| `max_torque`         |                          | N.m  |   200.0 |
 
 ## Connectors
 
@@ -25,16 +27,18 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `omega`         |                          | rad/s  | 
+| ------------ | ----------------------------------- | ------ |
+| `omega`         |                          | rad/s  |
 """
-@component function HybridMG(; name = nothing, Kt=1, b_friction=0.005, max_torque=200)
+@component function HybridMG(; name = nothing, Kt=Float64(1.0), b_friction=0.005, max_torque=Float64(200.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HybridMG()
+  """))
 
-        @named model = HybridMG()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -42,17 +46,45 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (Kt::Real = Kt))
-  append!(__params, @parameters (b_friction::Real = b_friction))
-  append!(__params, @parameters (max_torque::Real = max_torque))
+  __local__Kt = Kt
+  append!(__params, @parameters (Kt::Real))
+  __initial_conditions[Kt] = __local__Kt
+  __local__b_friction = b_friction
+  append!(__params, @parameters (b_friction::Real))
+  __initial_conditions[b_friction] = __local__b_friction
+  __local__max_torque = max_torque
+  append!(__params, @parameters (max_torque::Real))
+  __initial_conditions[max_torque] = __local__max_torque
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (torque_cmd(t)::Real), [input = true])
   append!(__vars, @variables (power_elec(t)::Real), [output = true])
   append!(__vars, @variables (omega_output(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (omega(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_omega = pop!(__overrides, "omega", nothing); isnothing(__ovr_omega) || push!(__eqs, omega ~ __ovr_omega)
+  __ovr_omega__initial = pop!(__overrides, "omega__initial", nothing); isnothing(__ovr_omega__initial) || (__initial_conditions[omega] = __ovr_omega__initial)
+  __ovr_omega__guess = pop!(__overrides, "omega__guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -60,9 +92,11 @@
   ### Components
   push!(__systems, @named flange = __Dyad__Spline())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_omega__guess) || (__guesses[omega] = __ovr_omega__guess)
 
   ### Initialization Equations
 
@@ -76,6 +110,6 @@
   push!(__eqs, power_elec ~ flange.tau * omega)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HybridMG

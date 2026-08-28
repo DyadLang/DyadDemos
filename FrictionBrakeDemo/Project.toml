@@ -7,7 +7,6 @@ version = "0.1.0"
 
 [deps]
 BlockComponents = "1ef5d832-be8e-447f-9f2c-8b5d17d15fd3"
-DyadEcosystemDependencies = "7bc808db-8006-421e-b546-062440d520b7"
 DyadInterface = "99806f68-afab-45ca-9d8c-ceff6bc61f54"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
@@ -20,12 +19,19 @@ ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 TranslationalComponents = "42acc370-819b-4877-bdd6-eb3294461f5d"
 
 [compat]
-BlockComponents = "=3.1.8"
-DyadEcosystemDependencies = "=0.11.4"
+BlockComponents = "4.5"
+DyadInterface = "7.2"
 Markdown = "1"
-RotationalComponents = "=1.2.4"
-ThermalComponents = "=1.0.7"
-TranslationalComponents = "=1.1.8"
+RotationalComponents = "2.5.2"
+ThermalComponents = "2.0.5"
+TranslationalComponents = "2.5"
+
+[workspace]
+projects = [
+  # "test",
+  "scripts",
+  "docs",
+]
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
@@ -42,4 +48,4 @@ test = [
 ]
 
 [dyad]
-kernel = "2.3.0"
+kernel = "3.3.0-rc2"

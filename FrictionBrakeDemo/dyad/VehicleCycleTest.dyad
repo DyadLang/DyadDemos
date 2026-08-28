@@ -35,7 +35,7 @@ test component VehicleCycleTest
       }
     }
   }]
-  vehicle_speed_ref = BlockComponents.Sine(start_time = 0.0, offset = 15.2, amplitude = 15, frequency = 0.02) [{
+  vehicle_speed_ref = BlockComponents.Sources.Sine(start_time = 0.0, offset = 15.2, amplitude = 15, frequency = 0.02) [{
     "Dyad": {
       "placement": {
         "diagram": {"iconName": "default", "x1": 30, "y1": 320, "x2": 130, "y2": 420, "rot": 0}
