@@ -4,6 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ThreeZoneBuilding(; name)
 
@@ -11,17 +13,19 @@
 
  * `T_outdoor` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `T_ground` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
- * `zone1_port` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
- * `zone2_port` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
- * `zone3_port` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `zone1_port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `zone2_port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `zone3_port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function ThreeZoneBuilding(; name = nothing)
+@component function ThreeZoneBuilding(; name = nothing, kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ThreeZoneBuilding()
+  """))
 
-        @named model = ThreeZoneBuilding()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -29,29 +33,59 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (T_outdoor(t)::Real), [input = true])
   append!(__vars, @variables (T_ground(t)::Real), [input = true])
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named zone1_port = __Dyad__Node())
-  push!(__systems, @named zone2_port = __Dyad__Node())
-  push!(__systems, @named zone3_port = __Dyad__Node())
-  push!(__systems, @named z1 = DynamicSteadyState.ZoneRoom(R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=400000))
-  push!(__systems, @named z2 = DynamicSteadyState.ZoneRoom(R_wall=1000000, R_win=1000000, R_roof=0.025, R_slab=0.05, R_infil=0.0667, C=300000))
-  push!(__systems, @named z3 = DynamicSteadyState.ZoneRoom(R_wall=0.01, R_win=0.02, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=400000))
-  push!(__systems, @named partition12 = ThermalComponents.ThermalResistor(R=0.01))
-  push!(__systems, @named partition23 = ThermalComponents.ThermalResistor(R=0.01))
+  push!(__systems, @named zone1_port = __Dyad__HeatPort())
+  push!(__systems, @named zone2_port = __Dyad__HeatPort())
+  push!(__systems, @named zone3_port = __Dyad__HeatPort())
+  # Subcomponent z1 of type DynamicSteadyState.ZoneRoom
+  z1_overrides = __pop_subcomponent_overrides!(__overrides, "z1")
+  push!(__systems, @named z1 = DynamicSteadyState.ZoneRoom(; R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000.0), z1_overrides...))
+  # Subcomponent z2 of type DynamicSteadyState.ZoneRoom
+  z2_overrides = __pop_subcomponent_overrides!(__overrides, "z2")
+  push!(__systems, @named z2 = DynamicSteadyState.ZoneRoom(; R_wall=Float64(1000000.0), R_win=Float64(1000000.0), R_roof=0.025, R_slab=0.05, R_infil=0.0667, C=Float64(300000.0), z2_overrides...))
+  # Subcomponent z3 of type DynamicSteadyState.ZoneRoom
+  z3_overrides = __pop_subcomponent_overrides!(__overrides, "z3")
+  push!(__systems, @named z3 = DynamicSteadyState.ZoneRoom(; R_wall=0.01, R_win=0.02, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000.0), z3_overrides...))
+  # Subcomponent partition12 of type ThermalComponents.Components.ThermalResistor
+  partition12_overrides = __pop_subcomponent_overrides!(__overrides, "partition12")
+  push!(__systems, @named partition12 = ThermalComponents.Components.ThermalResistor(; R=0.01, partition12_overrides...))
+  # Subcomponent partition23 of type ThermalComponents.Components.ThermalResistor
+  partition23_overrides = __pop_subcomponent_overrides!(__overrides, "partition23")
+  push!(__systems, @named partition23 = ThermalComponents.Components.ThermalResistor(; R=0.01, partition23_overrides...))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -60,12 +94,12 @@
 
   ### Equations
   push!(__eqs, connect(T_ground, z1.T_ground, z2.T_ground, z3.T_ground))
-  push!(__eqs, connect(z2.zone_port, zone2_port, partition23.node_a, partition12.node_b))
+  push!(__eqs, connect(z2.zone_port, zone2_port, partition23.port_a, partition12.port_b))
   push!(__eqs, connect(T_outdoor, z1.T_outdoor, z2.T_outdoor, z3.T_outdoor))
-  push!(__eqs, connect(z1.zone_port, zone1_port, partition12.node_a))
-  push!(__eqs, connect(z3.zone_port, zone3_port, partition23.node_b))
+  push!(__eqs, connect(z1.zone_port, zone1_port, partition12.port_a))
+  push!(__eqs, connect(z3.zone_port, zone3_port, partition23.port_b))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ThreeZoneBuilding

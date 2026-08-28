@@ -4,35 +4,39 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
+import Moshi as __Ext__Moshi
+
 @doc Markdown.doc"""
    ThermostatHeater(; name, K, T_set, Q_max)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `K`         | Proportional gain (W/K)                         | --  |   500 |
+| `K`         | Proportional gain (W/K)                         | --  |   500.0 |
 | `T_set`         | Heating setpoint temperature                         | K  |   294.15 |
-| `Q_max`         | Maximum heating capacity (W)                         | W  |   5000 |
+| `Q_max`         | Maximum heating capacity (W)                         | W  |   5000.0 |
 
 ## Connectors
 
- * `node` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `node` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `Q_raw`         | Raw proportional demand (W)                         | W  | 
-| `Q_delivered`         | Delivered heating power (W, 0 ≤ Q ≤ Q_max)                         | W  | 
+| ------------ | ----------------------------------- | ------ |
+| `Q_raw`         | Raw proportional demand (W)                         | W  |
+| `Q_delivered`         | Delivered heating power (W, 0 ≤ Q ≤ Q_max)                         | W  |
 """
-@component function ThermostatHeater(; name = nothing, K=500, T_set=294.15, Q_max=5000)
+@component function ThermostatHeater(; name = nothing, K=Float64(500.0), T_set=294.15, Q_max=Float64(5000.0), kwargs...)
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = ThermostatHeater()
+  """))
 
-        @named model = ThermostatHeater()
-        """))
+  __overrides = __build_overrides(kwargs)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,25 +44,59 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (K::Real = K), [description = "Proportional gain (W/K)"])
-  append!(__params, @parameters (T_set::Real = T_set), [description = "Heating setpoint temperature", bounds = (0, Inf)])
-  append!(__params, @parameters (Q_max::Real = Q_max), [description = "Maximum heating capacity (W)"])
+  __local__K = K
+  append!(__params, @parameters (K::Real), [description = "Proportional gain (W/K)"])
+  __initial_conditions[K] = __local__K
+  __local__T_set = T_set
+  append!(__params, @parameters (T_set::Real), [description = "Heating setpoint temperature", bounds = (0, Inf)])
+  __initial_conditions[T_set] = __local__T_set
+  __local__Q_max = Q_max
+  append!(__params, @parameters (Q_max::Real), [description = "Maximum heating capacity (W)"])
+  __initial_conditions[Q_max] = __local__Q_max
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (Q_raw(t)::Real), [description = "Raw proportional demand (W)"])
   append!(__vars, @variables (Q_delivered(t)::Real), [description = "Delivered heating power (W, 0 ≤ Q ≤ Q_max)"])
+
+  ### Variables (assignments)
+  __ovr_Q_raw = pop!(__overrides, "Q_raw", nothing); isnothing(__ovr_Q_raw) || push!(__eqs, Q_raw ~ __ovr_Q_raw)
+  __ovr_Q_raw__initial = pop!(__overrides, "Q_raw__initial", nothing); isnothing(__ovr_Q_raw__initial) || (__initial_conditions[Q_raw] = __ovr_Q_raw__initial)
+  __ovr_Q_raw__guess = pop!(__overrides, "Q_raw__guess", nothing)
+  __ovr_Q_delivered = pop!(__overrides, "Q_delivered", nothing); isnothing(__ovr_Q_delivered) || push!(__eqs, Q_delivered ~ __ovr_Q_delivered)
+  __ovr_Q_delivered__initial = pop!(__overrides, "Q_delivered__initial", nothing); isnothing(__ovr_Q_delivered__initial) || (__initial_conditions[Q_delivered] = __ovr_Q_delivered__initial)
+  __ovr_Q_delivered__guess = pop!(__overrides, "Q_delivered__guess", nothing)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named node = __Dyad__Node())
+  push!(__systems, @named node = __Dyad__HeatPort())
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
-
-  ### Defaults
+  isnothing(__ovr_Q_raw__guess) || (__guesses[Q_raw] = __ovr_Q_raw__guess)
+  isnothing(__ovr_Q_delivered__guess) || (__guesses[Q_delivered] = __ovr_Q_delivered__guess)
 
   ### Initialization Equations
 
@@ -67,10 +105,10 @@
 
   ### Equations
   push!(__eqs, Q_raw ~ K * (T_set - node.T))
-  push!(__eqs, Q_delivered ~ ifelse(Q_raw > Q_max, Q_max, ifelse(Q_raw < 0, 0, Q_raw)))
-  push!(__eqs, node.Q ~ -Q_delivered)
+  push!(__eqs, Q_delivered ~ ifelse(Q_raw > Q_max, Q_max, ifelse(Q_raw < 0.0, 0.0, Q_raw)))
+  push!(__eqs, node.Q_flow ~ -Q_delivered)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ThermostatHeater

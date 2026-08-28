@@ -15,6 +15,8 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "tests.jl"))
 end
 
 
+include("test_internals.jl")
+
 @testset "`DynamicSteadyState`" begin
 include("HeatCapacitorNoInit_test.jl")
 include("Hello_test.jl")

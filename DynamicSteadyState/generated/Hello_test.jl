@@ -4,23 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-@testset "Running test case1 for DynamicSteadyState.Hello" begin
-  using CSV, DataFrames, Plots
-  using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
-  using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
-
-  @named model = DynamicSteadyState.Hello()
-  model = toggle_namespacing(model, false)
-  
-  model = toggle_namespacing(model, true)
-  result = TransientAnalysis(; model = model, alg = ODEAlg.Auto(), start = 0e+0, stop = 1e+1, abstol=1e-6, reltol=1e-6)
-  sol = rebuild_sol(result)
-  @test SciMLBase.successful_retcode(sol)
-  @test sol[model.T][1] ≈ 320 atol=9.999999999999999e-6 rtol=9.999999999999999e-6
-# Signals selected for regression testing: []
-  ref_times = [sol(t, idxs=:t) for t in LinRange(sol[:t][1], sol[:t][end], 100)]
-  if get(ENV, "DYAD_UPDATE_REFS", "") !== ""
-    # If asked to update snapshots, write out reference data for all signals
-    mkpath("snapshots")
-  end
-end
+__dyad_run_test_case!(
+  DynamicSteadyState.Hello,
+  "case1 for DynamicSteadyState.Hello";
+  case_name="case1",
+  component_stem="Hello",
+  module_path=String[],
+  start=0e+0,
+  stop=1e+1,
+  abstol=1e-6,
+  reltol=1e-6,
+  solver=ODEAlg.Auto(),
+  params=(;),
+  initial_conditions=Tuple[],
+  expected_initial=Tuple[(m -> m.T, "T", 320, 1e-5, 1e-5)],
+  expected_final=Tuple[],
+  signals=Tuple[],
+)
