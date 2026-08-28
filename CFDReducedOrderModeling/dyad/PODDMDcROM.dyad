@@ -1,0 +1,49 @@
+"""
+POD/DMDc reduced-order model discovered from CFD snapshot data.
+
+States are abstract POD coordinates (projections onto SVD mode shapes),
+not physical temperatures. The output matrix C maps POD coordinates
+to zone-averaged temperature deviations.
+
+  dz/dt = A·z + B·u    (k=2 latent states, 1 input)
+  θ_zone = C·z          (3 zone deviation outputs)
+
+Zone assignments (data-driven, energy-weighted k-means):
+  Zone 1: nodes [1,2,3,4]                    — 4 nodes
+  Zone 2: nodes [5,6,7,8,9,10,11]            — 7 nodes
+  Zone 3: nodes [12,13,14,15,16,17,18,19,20] — 9 nodes
+"""
+component PODDMDcROM
+  "Heat input [W]"
+  Q_in = RealInput()
+  "Dynamics matrix coefficients"
+  parameter A11::Real = -0.007367
+  parameter A12::Real = -0.01624
+  parameter A21::Real = -0.01467
+  parameter A22::Real = -0.08904
+  "Input matrix coefficients"
+  parameter B1::Real = -0.003862
+  parameter B2::Real = -0.003955
+  "Output matrix coefficients (3 zones × 2 states)"
+  parameter C11::Real = -0.3123
+  parameter C12::Real = -0.3177
+  parameter C21::Real = -0.2354
+  parameter C22::Real = 0.06803
+  parameter C31::Real = -0.1535
+  parameter C32::Real = 0.2240
+  "Latent POD coordinates"
+  variable z1::Real
+  variable z2::Real
+  "Zone temperature deviations [K]"
+  variable theta1::Real
+  variable theta2::Real
+  variable theta3::Real
+relations
+  initial z1 = 0.0
+  initial z2 = 0.0
+  der(z1) = A11 * z1 + A12 * z2 + B1 * Q_in
+  der(z2) = A21 * z1 + A22 * z2 + B2 * Q_in
+  theta1 = C11 * z1 + C12 * z2
+  theta2 = C21 * z1 + C22 * z2
+  theta3 = C31 * z1 + C32 * z2
+end

@@ -1,0 +1,22 @@
+"Step + Sine source: outputs height + amplitude*sin(2π*f*(t-t0)) for t >= t0, else 0."
+component StepSineSource
+  y = RealOutput() {^y}
+  parameter height::Real = 300.0
+  parameter amplitude::Real = 200.0
+  parameter frequency::Real = 0.02
+  parameter start_time::Real = 5.0
+relations
+  y = ifelse(time >= start_time, height + amplitude * sin(2.0 * π * frequency * (time - start_time)), 0.0)
+metadata {
+  "_links": {
+    "y": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

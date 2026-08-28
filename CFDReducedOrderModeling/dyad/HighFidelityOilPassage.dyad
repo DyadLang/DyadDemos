@@ -1,0 +1,71 @@
+"""
+High-fidelity 1D thermal model of a hydraulic oil passage wall.
+
+Represents a 20-node finite-difference discretization through the wall
+of a hydraulic manifold block. Heat enters from the oil side (node 1)
+and is removed by convection to coolant on the cold side (node N).
+
+This serves as the synthetic "CFD" truth model for ROM comparison.
+
+Physics:
+  C_node * dT[i]/dt = G_cond * (T[i-1] - 2*T[i] + T[i+1])  (interior)
+  C_node * dT[1]/dt = Q_in - G_cond * (T[1] - T[2])          (hot side)
+  C_node * dT[N]/dt = G_cond * (T[N-1] - T[N]) - Gc_cool * (T[N] - T_cool)  (cold side)
+
+Material: Cast iron manifold block
+  k  = 50 W/(m·K), ρ = 7200 kg/m³, cp = 460 J/(kg·K)
+  L  = 50 mm wall thickness, A = 100 cm² cross-section
+"""
+component HighFidelityOilPassage
+  "Heat input at oil side [W]"
+  Q_in = RealInput() {^Q_in}
+  "Number of nodes through the wall"
+  structural parameter N::Integer = 20
+  "Wall thermal conductivity [W/(m·K)]"
+  parameter k_wall::Real = 50.0
+  "Wall density [kg/m³]"
+  parameter rho_wall::Real = 7200.0
+  "Wall specific heat [J/(kg·K)]"
+  parameter cp_wall::Real = 460.0
+  "Wall thickness [m]"
+  parameter L_wall::Real = 0.05
+  "Cross-sectional area [m²]"
+  parameter A_wall::Real = 0.01
+  "Coolant-side convective conductance [W/K]"
+  parameter Gc_cool::Real = 10.0
+  "Coolant temperature [K]"
+  parameter T_cool::Real = 300.0
+  "Node spacing [m]"
+  final parameter dx::Real = L_wall / N
+  "Thermal capacitance per node [J/K]"
+  final parameter C_node::Real = rho_wall * cp_wall * A_wall * dx
+  "Thermal conductance between adjacent nodes [W/K]"
+  final parameter G_cond::Real = k_wall * A_wall / dx
+  "Temperature at each node [K]"
+  variable T::Real[N]
+  "Initial temperature array [K]"
+  parameter T0_arr::Real[N] = fill(300.0, N)
+relations
+  # Initial conditions: uniform at coolant temperature
+  initial T = T0_arr
+  # Node 1 (oil side): heat input + conduction to node 2
+  C_node * der(T[1]) = Q_in - G_cond * (T[1] - T[2])
+  # Interior nodes: conduction from both neighbors
+  for i in 2:(N - 1)
+    C_node * der(T[i]) = G_cond * (T[i - 1] - 2.0 * T[i] + T[i + 1])
+  end
+  # Node N (coolant side): conduction from node N-1 + convection to coolant
+  C_node * der(T[N]) = G_cond * (T[N - 1] - T[N]) - Gc_cool * (T[N] - T_cool)
+metadata {
+  "_links": {
+    "Q_in": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 450, "x2": 60, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

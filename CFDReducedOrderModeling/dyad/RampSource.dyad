@@ -1,0 +1,21 @@
+"Ramp source: ramps from 0 to height over [start_time, start_time+duration], then holds."
+component RampSource
+  y = RealOutput() {^y}
+  parameter height::Real = 400.0
+  parameter duration::Real = 50.0
+  parameter start_time::Real = 5.0
+relations
+  y = ifelse(time < start_time, 0.0, ifelse(time < start_time + duration, (time - start_time) * height / duration, height))
+metadata {
+  "_links": {
+    "y": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
