@@ -129,9 +129,9 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(int3_scale.y, int3_source.Q_flow))
   push!(__eqs, connect(solar_south.y, solar1_source.Q_flow))
   push!(__eqs, connect(solar_north.y, solar3_source.Q_flow))
-  push!(__eqs, connect(int1_source.port, solar1_source.port, hvac1.port, building.zone1_port))
-  push!(__eqs, connect(int2_source.port, hvac2.port, building.zone2_port))
-  push!(__eqs, connect(int3_source.port, solar3_source.port, hvac3.port, building.zone3_port))
+  push!(__eqs, connect(int1_source.port, solar1_source.port, hvac1.node, building.zone1_port))
+  push!(__eqs, connect(int2_source.port, hvac2.node, building.zone2_port))
+  push!(__eqs, connect(int3_source.port, solar3_source.port, hvac3.node, building.zone3_port))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

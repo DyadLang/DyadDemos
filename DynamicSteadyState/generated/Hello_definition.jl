@@ -7,48 +7,33 @@
 import Moshi as __Ext__Moshi
 
 @doc Markdown.doc"""
-   HeatCapacitorNoInit(; name, C)
+   Hello(; name, T_inf, T0, h, A, m, c_p)
 
-
-Three-Zone Commercial Office Building — Single Source of Truth
-
-This file defines ONE building model (ThreeZoneBuilding) and applies
-TWO different analyses to it:
-
-  1. SteadyStateAnalysis  →  HVAC equipment sizing at design-day conditions
-  2. TransientAnalysis    →  24-hour diurnal operation with thermostat control
-
-Both analyses share the exact same thermal network, zone capacitances,
-envelope resistances, and HVAC controller logic. Only the boundary
-conditions differ (fixed vs. time-varying), demonstrating that Dyad
-supports dynamic and steady-state workflows on a single source of truth.
-
-The occupancy schedule is a representative weekday office profile with
-  piecewise-linear interpolation between hourly breakpoints (fractions 0–1).
+A simple lumped thermal model
 
 ## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `C`         | Heat capacity of the element (J/K)                         | J/K  |    |
-
-## Connectors
-
- * `node` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+| `T_inf`         | Ambient temperature                         | K  |   300 |
+| `T0`         | Initial temperature                         | K  |   320 |
+| `h`         | Convective heat transfer coefficient                         | W/(m2.K)  |   0.7 |
+| `A`         | Surface area                         | m2  |   1.0 |
+| `m`         | Mass of thermal capacitance                         | kg  |   0.1 |
+| `c_p`         | Specific Heat                         | J/(kg.K)  |   1.2 |
 
 ## Variables
 
 | Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ |
-| `T`         | Temperature of the element                         | K  |
-| `dT`         | Time derivative of temperature                         | K/s  |
+| `T`         |                          | K  |
 """
-@component function HeatCapacitorNoInit(; name = nothing, C=nothing, kwargs...)
+@component function Hello(; name = nothing, T_inf=Float64(300), T0=Float64(320), h=0.7, A=Float64(1.0), m=0.1, c_p=1.2, kwargs...)
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
   
-    @named model = HeatCapacitorNoInit()
+    @named model = Hello()
   """))
 
   __overrides = __build_overrides(kwargs)
@@ -74,50 +59,60 @@ The occupancy schedule is a representative weekday office profile with
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  __local__C = C
-  append!(__params, @parameters (C::Real), [description = "Heat capacity of the element (J/K)"])
-  __initial_conditions[C] = __local__C
+  __local__T_inf = T_inf
+  append!(__params, @parameters (T_inf::Real), [description = "Ambient temperature", bounds = (0, Inf)])
+  __initial_conditions[T_inf] = __local__T_inf
+  __local__T0 = T0
+  append!(__params, @parameters (T0::Real), [description = "Initial temperature", bounds = (0, Inf)])
+  __initial_conditions[T0] = __local__T0
+  __local__h = h
+  append!(__params, @parameters (h::Real), [description = "Convective heat transfer coefficient"])
+  __initial_conditions[h] = __local__h
+  __local__A = A
+  append!(__params, @parameters (A::Real), [description = "Surface area"])
+  __initial_conditions[A] = __local__A
+  __local__m = m
+  append!(__params, @parameters (m::Real), [description = "Mass of thermal capacitance", bounds = (0, Inf)])
+  __initial_conditions[m] = __local__m
+  __local__c_p = c_p
+  append!(__params, @parameters (c_p::Real), [description = "Specific Heat"])
+  __initial_conditions[c_p] = __local__c_p
 
   ### Final Parameters (assignments)
 
   ### Final Path Parameters
 
   ### Variables (declarations)
-  append!(__vars, @variables (T(t)::Real), [description = "Temperature of the element"])
-  append!(__vars, @variables (dT(t)::Real), [description = "Time derivative of temperature"])
+  append!(__vars, @variables (T(t)::Real))
 
   ### Variables (assignments)
   __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
   __ovr_T__initial = pop!(__overrides, "T__initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
   __ovr_T__guess = pop!(__overrides, "T__guess", nothing)
-  __ovr_dT = pop!(__overrides, "dT", nothing); isnothing(__ovr_dT) || push!(__eqs, dT ~ __ovr_dT)
-  __ovr_dT__initial = pop!(__overrides, "dT__initial", nothing); isnothing(__ovr_dT__initial) || (__initial_conditions[dT] = __ovr_dT__initial)
-  __ovr_dT__guess = pop!(__overrides, "dT__guess", nothing)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named node = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
 
   ### Guesses
   isnothing(__ovr_T__guess) || (__guesses[T] = __ovr_T__guess)
-  isnothing(__ovr_dT__guess) || (__guesses[dT] = __ovr_dT__guess)
 
   ### Initialization Equations
+  # Specify initial conditions
+  push!(__initialization_eqs, T ~ T0)
 
   ### Assertions
   __assertions = []
 
   ### Equations
-  push!(__eqs, T ~ node.T)
-  push!(__eqs, ModelingToolkit.D_nounits(T) ~ dT)
-  push!(__eqs, dT ~ node.Q_flow / C)
+  # Newton's law of cooling/heating
+  push!(__eqs, m * c_p * ModelingToolkit.D_nounits(T) ~ h * A * (T_inf - T))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
-export HeatCapacitorNoInit
+export Hello

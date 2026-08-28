@@ -131,7 +131,7 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(T_ground, ground_src.T))
   push!(__eqs, connect(outdoor_src.port, wall.port_a, win.port_a, roof.port_a, infil.port_a))
   push!(__eqs, connect(ground_src.port, slab.port_a))
-  push!(__eqs, connect(wall.port_b, win.port_b, roof.port_b, slab.port_b, infil.port_b, cap.port, zone_port))
+  push!(__eqs, connect(wall.port_b, win.port_b, roof.port_b, slab.port_b, infil.port_b, cap.node, zone_port))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

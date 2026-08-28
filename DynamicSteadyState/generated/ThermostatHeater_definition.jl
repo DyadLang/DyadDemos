@@ -19,7 +19,7 @@ import Moshi as __Ext__Moshi
 
 ## Connectors
 
- * `port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `node` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 
 ## Variables
 
@@ -89,7 +89,7 @@ import Moshi as __Ext__Moshi
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named port = __Dyad__HeatPort())
+  push!(__systems, @named node = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -104,9 +104,9 @@ import Moshi as __Ext__Moshi
   __assertions = []
 
   ### Equations
-  push!(__eqs, Q_raw ~ K * (T_set - port.T))
+  push!(__eqs, Q_raw ~ K * (T_set - node.T))
   push!(__eqs, Q_delivered ~ ifelse(Q_raw > Q_max, Q_max, ifelse(Q_raw < 0.0, 0.0, Q_raw)))
-  push!(__eqs, port.Q_flow ~ -Q_delivered)
+  push!(__eqs, node.Q_flow ~ -Q_delivered)
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

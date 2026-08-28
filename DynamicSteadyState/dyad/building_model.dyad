@@ -25,7 +25,7 @@ component HeatCapacitorNoInit
   # analysis free of over-determined initialization constraints.
   # ================================================================
   "Thermal port for heat exchange"
-  port = HeatPort() {^port}
+  node = HeatPort() {^node}
   "Heat capacity of the element (J/K)"
   parameter C::HeatCapacity
   "Temperature of the element"
@@ -33,16 +33,16 @@ component HeatCapacitorNoInit
   "Time derivative of temperature"
   variable dT::TemperatureSlope
 relations
-  T = port.T
+  T = node.T
   der(T) = dT
-  dT = port.Q_flow / C
+  dT = node.Q_flow / C
 metadata {
   "Dyad": {
     "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
     "icons": {"default": "dyad://ThermalComponents/HeatCapacitor.svg"}
   },
   "_links": {
-    "port": {"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}}}}
+    "node": {"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}}}}
   }
 }
 end
@@ -51,8 +51,8 @@ component ThermostatHeater
   # ================================================================
   # Proportional thermostat heater (reusable subcomponent)
   # ================================================================
-  "Thermal port — connects to the zone port"
-  port = HeatPort() {^port}
+  "Thermal port — connects to the zone node"
+  node = HeatPort() {^node}
   "Proportional gain (W/K)"
   parameter K::Real = 500.0
   "Heating setpoint temperature"
@@ -64,13 +64,13 @@ component ThermostatHeater
   "Delivered heating power (W, 0 ≤ Q ≤ Q_max)"
   variable Q_delivered::HeatFlowRate
 relations
-  Q_raw = K * (T_set - port.T)
+  Q_raw = K * (T_set - node.T)
   Q_delivered = ifelse(Q_raw > Q_max, Q_max, ifelse(Q_raw < 0.0, 0.0, Q_raw))
-  port.Q_flow = -Q_delivered
+  node.Q_flow = -Q_delivered
 metadata {
   "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_thermostat_heater.svg"}},
   "_links": {
-    "port": {
+    "node": {
       "Dyad": {
         "placement": {
           "diagram": {"iconName": "default", "x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 0}
@@ -128,8 +128,8 @@ relations
   connect(outdoor_src.port, wall.port_a, win.port_a, roof.port_a, infil.port_a) {^id14}
   # Ground source → slab
   connect(ground_src.port, slab.port_a) {^id15}
-  # Zone port: all resistor b-sides, capacitor, zone port
-  connect(wall.port_b, win.port_b, roof.port_b, slab.port_b, infil.port_b, cap.port, zone_port) {^id16}
+  # Zone node: all resistor b-sides, capacitor, zone port
+  connect(wall.port_b, win.port_b, roof.port_b, slab.port_b, infil.port_b, cap.node, zone_port) {^id16}
 metadata {
   "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_zone_room.svg"}},
   "_links": {
@@ -880,9 +880,9 @@ relations
   connect(solar_south.y, solar1_source.Q_flow) {^id26}
   connect(solar_north.y, solar3_source.Q_flow) {^id27}
   # Heat sources + HVAC controllers → building zone ports
-  connect(int1_source.port, solar1_source.port, hvac1.port, building.zone1_port) {^id28}
-  connect(int2_source.port, hvac2.port, building.zone2_port) {^id29}
-  connect(int3_source.port, solar3_source.port, hvac3.port, building.zone3_port) {^id30}
+  connect(int1_source.port, solar1_source.port, hvac1.node, building.zone1_port) {^id28}
+  connect(int2_source.port, hvac2.node, building.zone2_port) {^id29}
+  connect(int3_source.port, solar3_source.port, hvac3.node, building.zone3_port) {^id30}
   # Initial zone temperatures (cold-start at 12°C)
   initial building.z1.cap.T = 285.15
   initial building.z2.cap.T = 285.15

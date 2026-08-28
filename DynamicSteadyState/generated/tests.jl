@@ -19,6 +19,7 @@ include("test_internals.jl")
 
 @testset "`DynamicSteadyState`" begin
 include("HeatCapacitorNoInit_test.jl")
+include("Hello_test.jl")
 include("OfficeOccupancy_test.jl")
 include("TestColdNightSizing_test.jl")
 include("TestDiurnalOperation_test.jl")

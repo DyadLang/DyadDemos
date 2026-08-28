@@ -10,6 +10,7 @@ end
 
 
 include("HeatCapacitorNoInit_experiment.jl")
+include("Hello_experiment.jl")
 include("OfficeOccupancy_experiment.jl")
 include("TestColdNightSizing_experiment.jl")
 include("TestDiurnalOperation_experiment.jl")
