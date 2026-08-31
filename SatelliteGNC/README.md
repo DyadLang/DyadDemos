@@ -57,8 +57,9 @@ The two closed-loop assemblies each define a 40 s transient analysis:
 | `TestFullGNC` (`full_gnc.dyad`) | `TestFullGNCSim` | 3 profiles → controller → `SatelliteBody`, observer closing the rate loop, ideal torque actuation |
 | `TestFullGNC6DOF` (`full_gnc_6dof.dyad`) | `TestFullGNC6DOFSim` | Same guidance, navigation, and control, with `ThrusterAllocator` → 8 × `ReactionJet` (`F_max = 0.5 N`) actuating `SatelliteBody6DOF` on a 400 km circular orbit |
 
-Each component file also carries its own unit test and analysis — open-loop and closed-loop plant
-checks, one-orbit propagation, a single jet, the allocator-plus-jets cluster — all run by `Pkg.test()`.
+Each component file also defines its own standalone analysis — open-loop and closed-loop plant
+checks, one-orbit propagation, a single jet, the allocator-plus-jets cluster — runnable the same way.
+Note that none of them declare `tests` metadata, so `Pkg.test()` currently asserts nothing.
 
 ## Running Experiments
 
