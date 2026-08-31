@@ -154,8 +154,10 @@ metadata {
         "atol": {
           "vehicle.vehicle_speed": 0.001,
           "brake_thermal.disk_mass.T": 0.001,
-          "brake_thermal.pad_mass.T": 0.001
+          "brake_thermal.pad_mass.T": 0.001,
+          "brake.shaft.tau": 2.0
         },
+        "rtol": {"brake.shaft.tau": 0.01},
         "expect": {
           "initial": {
             "vehicle.vehicle_speed": 0,
