@@ -4,11 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ThrusterAllocator(; name, F_max)
-
 
 Thruster allocator for an 8-jet CubeSat configuration.
 

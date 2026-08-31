@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ECMSController(; name, s_base, k_soc, soc_target, m_vehicle, C_rr, C_d, A_front, r_wheel, k_speed, k_mg1, k_soc_mg1, engine_max_torque, engine_max_power, mg1_max_torque, mg1_max_power, mg2_max_torque, omega_engine_min, omega_engine_max)
 

@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ThermalHouse(; name, area_floor, height, ratio_L_W, Aratio_window_wall, no_doors, A_door, length, width, volume, area_walls, area_window, area_doors, area_roof, U_walls, U_roof, U_floor, U_window, U_door, SHGC, f_window, rho_air, cp_air, mass_air, C_air, t_dw, rho_dw, cp_dw, C_walls_ceiling, t_floor, rho_floor, cp_floor, C_floor, C_tot, G_wall, G_window, G_roof, G_floor, G_door, G_envelope, U_envelope, ACH_infiltration, ACH_ventilation, ACH_total, m_dot_air, G_infiltration, U_infiltration, G_total, U_total, h_conv, G_conv, Q_people, Q_lighting, Q_appliances, Q_internal, T_initial)
 

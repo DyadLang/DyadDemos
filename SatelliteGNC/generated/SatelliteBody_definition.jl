@@ -4,11 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    SatelliteBody(; name, Ixx, Iyy, Izz)
-
 
 3-axis rigid body satellite dynamics.
 

@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    SimplePowertrain(; name, base_torque, c_normalized_torque, tau, tau_start)
 

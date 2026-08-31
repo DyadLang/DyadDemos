@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    TestFitzHughNagumo5x5(; name, N, N_caps, N_h_res, N_v_res, N_boundary)
 

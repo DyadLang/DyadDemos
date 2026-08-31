@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    CoffeeMugSubsystem(; name, C_espresso, T0_espresso, C_cup, T0_cup, Gc_internal, G_wall, Gc_external, Gr_external)
 

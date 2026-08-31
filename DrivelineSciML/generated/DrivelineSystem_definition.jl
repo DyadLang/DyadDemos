@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    DrivelineSystem(; name, k1, c1, alpha, A_bw, beta_bw, gamma_bw)
 
