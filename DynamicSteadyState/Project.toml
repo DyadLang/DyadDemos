@@ -23,20 +23,20 @@ SteadyStateDiffEq = "9672c7b4-1e72-59bd-8a11-6ac3964bc41f"
 ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 
 [compat]
-BlockComponents = "=4.5.1"
+BlockComponents = "4.6.0"
 Cairo = "1.1.1"
 CairoMakie = "0.15.13"
 DyadData = "2.0.1"
-DyadEcosystemDependencies = "=0.11.17"
+DyadEcosystemDependencies = "0.11.18"
 FileIO = "1.18.0"
 ImageMagick = "1.4.2"
 Markdown = "1"
 Rsvg = "1.1.0"
 SteadyStateDiffEq = "2.9.0"
-ThermalComponents = "=2.0.5"
+ThermalComponents = "2.0.6"
 
 [dyad]
-kernel = "3.3.0"
+kernel = "3.4.0"
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"

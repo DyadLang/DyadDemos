@@ -17,15 +17,15 @@ RotationalComponents = "824fa3ed-d7dc-4365-8bdf-ac77a1ac2011"
 RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
 
 [compat]
-BlockComponents = "4.5"
+BlockComponents = "4.6.0"
 DyadData = "2.0.1"
-DyadInterface = "7.2"
-DyadModelOptimizer = "15.3"
+DyadInterface = "7.3.0"
+DyadModelOptimizer = "15.4.0"
 Markdown = "1"
-RotationalComponents = "2.5.2"
+RotationalComponents = "2.5.5"
 
 [dyad]
-kernel = "3.3.0-rc2"
+kernel = "3.4.0"
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
