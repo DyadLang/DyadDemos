@@ -15,7 +15,7 @@ component ControlledOscillator
   "Setpoint for PID (zero velocity = rest)"
   setpoint = BlockComponents.Sources.Constant(k = 0.0) {^setpoint}
   "Velocity sensor for feedback"
-  velocity_sensor = TranslationalComponents.Sensors.SpeedSensor() {^velocity_sensor}
+  velocity_sensor = TranslationalComponents.Sensors.VelocitySensor() {^velocity_sensor}
   "Control force actuator"
   control_force = TranslationalComponents.Sources.Force() {^control_force}
   "Ground for force actuator"
