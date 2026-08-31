@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="sg-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#131A33"/>
+      <stop offset="100%" stop-color="#05070F"/>
+    </linearGradient>
+    <linearGradient id="sg-panel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4FC3F7"/>
+      <stop offset="100%" stop-color="#1565C0"/>
+    </linearGradient>
+    <linearGradient id="sg-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ECEFF1"/>
+      <stop offset="100%" stop-color="#90A4AE"/>
+    </linearGradient>
+    <linearGradient id="sg-earth" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#29B6F6"/>
+      <stop offset="100%" stop-color="#1B5E20"/>
+    </linearGradient>
+    <radialGradient id="sg-glow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#5C6BC0" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#5C6BC0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Rounded background panel -->
+  <rect x="6" y="6" width="116" height="116" rx="22" fill="url(#sg-bg)"/>
+  <rect x="6" y="6" width="116" height="116" rx="22" fill="url(#sg-glow)"/>
+
+  <!-- Starfield -->
+  <g fill="#E3F2FD">
+    <circle cx="24" cy="24" r="1.4"/>
+    <circle cx="102" cy="20" r="1.2"/>
+    <circle cx="42" cy="16" r="1"/>
+    <circle cx="112" cy="46" r="1.3"/>
+    <circle cx="18" cy="52" r="1"/>
+  </g>
+
+  <!-- Earth limb below -->
+  <path d="M 6 122 A 74 74 0 0 1 122 122 Z" fill="url(#sg-earth)" opacity="0.9"/>
+  <path d="M 6 122 A 74 74 0 0 1 122 122" fill="none" stroke="#81D4FA" stroke-width="2" opacity="0.8"/>
+
+  <!-- Commanded slew arc: guidance profile -->
+  <path d="M 30 40 A 40 40 0 0 1 98 34" fill="none" stroke="#FFB74D" stroke-width="3"
+        stroke-linecap="round" stroke-dasharray="7,5"/>
+  <polygon points="98,26 106,36 94,40" fill="#FFB74D"/>
+
+  <!-- Satellite: solar arrays -->
+  <g stroke="#0D47A1" stroke-width="1.2">
+    <rect x="14" y="60" width="30" height="18" rx="2" fill="url(#sg-panel)"/>
+    <rect x="84" y="60" width="30" height="18" rx="2" fill="url(#sg-panel)"/>
+  </g>
+  <g stroke="#0D47A1" stroke-width="1" opacity="0.7">
+    <line x1="24" y1="60" x2="24" y2="78"/>
+    <line x1="34" y1="60" x2="34" y2="78"/>
+    <line x1="94" y1="60" x2="94" y2="78"/>
+    <line x1="104" y1="60" x2="104" y2="78"/>
+  </g>
+  <g stroke="#B0BEC5" stroke-width="3">
+    <line x1="44" y1="69" x2="52" y2="69"/>
+    <line x1="76" y1="69" x2="84" y2="69"/>
+  </g>
+
+  <!-- Satellite: bus -->
+  <rect x="52" y="55" width="24" height="28" rx="3" fill="url(#sg-body)" stroke="#37474F" stroke-width="1.5"/>
+  <rect x="57" y="60" width="14" height="8" rx="1.5" fill="#26C6DA"/>
+
+  <!-- Reaction jets firing: the actuation being allocated -->
+  <g fill="#FFD54F">
+    <polygon points="52,85 44,95 56,89"/>
+    <polygon points="76,85 84,95 72,89"/>
+  </g>
+</svg>

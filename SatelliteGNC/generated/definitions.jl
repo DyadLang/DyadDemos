@@ -196,7 +196,6 @@ end
 
 
 include("AttitudeController_definition.jl")
-include("Hello_definition.jl")
 include("LuenbergerObserver_definition.jl")
 include("ReactionJet_definition.jl")
 include("SatelliteBody6DOF_definition.jl")
@@ -217,4 +216,3 @@ include("TestSingleJetSim_definition.jl")
 include("TestSingleJet_definition.jl")
 include("ThrusterAllocator_definition.jl")
 include("TrapezoidalProfile_definition.jl")
-include("World_definition.jl")

@@ -24,10 +24,12 @@ relations
   end
   y = partial_sum[N]
 metadata {
+  "Dyad": {"icons": {"default": "dyad://PassiveSuspension/ISO8608RoadC.svg"}},
   "_links": {
     "y": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
         },
         "tags": []
@@ -72,6 +74,7 @@ relations
   connect(car_and_suspension.flange_m, seat.flange_sd) {^id8}
   connect(road_profile.y, road.s) {^id9}
 metadata {
+  "Dyad": {"icons": {"default": "dyad://PassiveSuspension/MyPassiveSuspension.svg"}},
   "_links": {
     "wheel": {
       "Dyad": {

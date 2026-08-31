@@ -19,7 +19,6 @@ include("test_internals.jl")
 
 @testset "`SatelliteGNC`" begin
 include("AttitudeController_test.jl")
-include("Hello_test.jl")
 include("LuenbergerObserver_test.jl")
 include("ReactionJet_test.jl")
 include("SatelliteBody6DOF_test.jl")
