@@ -1,6 +1,6 @@
 # NASA HL-20 in Dyad — Built by the Dyad Agent
 
-<img src="./assets/hl20_icon.svg" width="96" align="right"/>
+<img src="./assets/icon.svg" width="96" align="right"/>
 
 This project shows how a 6-DOF flight simulation of the **NASA HL-20 lifting body** can be
 built *from scratch* by prompting the **Dyad Agent** — no model code written by hand.
