@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ConfigurableTireSpringDamper(; name, k1, k3, d, s_rel0, compression_only)
 

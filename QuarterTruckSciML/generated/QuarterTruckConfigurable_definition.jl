@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    QuarterTruckConfigurable(; name, body_m, tire_to_body_c, tire_to_body_d, tire_k3, tire_compression_only, friction_Fc, friction_v0, seat_driver_k, seat_driver_d, seat_driver_n)
 

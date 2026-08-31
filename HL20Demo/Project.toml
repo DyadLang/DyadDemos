@@ -15,7 +15,7 @@ PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
 
 [compat]
-DyadInterface = "7.2"
+DyadInterface = "7.3.0"
 Markdown = "1"
 
 [extras]
@@ -35,4 +35,4 @@ test = [
 ]
 
 [dyad]
-kernel = "3.3.0-rc2"
+kernel = "3.4.0"

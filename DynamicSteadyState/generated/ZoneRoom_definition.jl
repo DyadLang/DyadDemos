@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ZoneRoom(; name, R_wall, R_win, R_roof, R_slab, R_infil, C)
 

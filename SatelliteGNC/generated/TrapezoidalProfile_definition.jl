@@ -4,11 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    TrapezoidalProfile(; name, target_angle, w_max, a_max)
-
 
 Single-axis trapezoidal velocity profile for rest-to-rest slew maneuvers.
 

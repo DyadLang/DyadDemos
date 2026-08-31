@@ -4,11 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ReactionJet(; name, rx, ry, rz, dx, dy, dz, F_max)
-
 
 Single bipropellant reaction jet (thruster) model.
 

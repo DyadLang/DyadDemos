@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ScaledNeuralNetworkBlock(; name, n_input, n_output, nn_depth, nn_width, chain, s_rel0_tire, s_scale_tire, v_friction_scale, v_seat_scale, f_scale_tire, f_scale_friction, d_seat)
 

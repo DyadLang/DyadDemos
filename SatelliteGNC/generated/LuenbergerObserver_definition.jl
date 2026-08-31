@@ -4,11 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    LuenbergerObserver(; name, Ixx, Iyy, Izz, p, La_x, La_y, La_z, Lw_x, Lw_y, Lw_z)
-
 
 3-axis Luenberger observer for satellite attitude estimation.
 
