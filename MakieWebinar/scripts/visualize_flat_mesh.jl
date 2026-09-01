@@ -9,10 +9,6 @@ using GLMakie
 using GeometryBasics
 using Statistics
 
-# =============================================================================
-# Mesh Creation Function
-# =============================================================================
-
 """
     create_flat_mesh_for_frame(concentration_grid, N)
 
@@ -61,9 +57,7 @@ function create_flat_mesh_for_frame(concentration_grid, N)
     return GeometryBasics.Mesh(vertices, faces), colors
 end
 
-# =============================================================================
-# Reaction-Diffusion Animation
-# =============================================================================
+# Reaction-diffusion animation
 
 println("Running reaction-diffusion analysis...")
 result_rd = TestReactionGrowth20x20Transient()
@@ -140,9 +134,7 @@ end
 
 println("✓ Animation saved: reaction_diffusion_flat.mp4")
 
-# =============================================================================
-# FitzHugh-Nagumo Animation
-# =============================================================================
+# FitzHugh-Nagumo animation
 
 println("\nRunning FitzHugh-Nagumo analysis...")
 result_fhn = TestFHNWave20x20Transient()

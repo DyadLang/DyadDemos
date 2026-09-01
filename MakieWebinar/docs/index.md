@@ -12,7 +12,8 @@ high-performance plotting library, together with Dyad acausal models: run a Dyad
 analysis and visualize the results with Makie. It accompanies a webinar
 presented in January 2026, which covers everything from basic Makie concepts
 (figures, axes, observables) to live parameter sweeps and animations. Here we
-show the static-plotting basics using the [CairoMakie](https://docs.makie.org/stable/explanations/backends/cairomakie)
+show the static-plotting basics using the
+[CairoMakie](https://docs.makie.org/stable/explanations/backends/cairomakie)
 backend.
 
 ## Plotting a Dyad simulation with Makie

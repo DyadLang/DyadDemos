@@ -8,7 +8,8 @@ Order = 4
 
 # Friction Brake Demo
 
-An acausal, equation-based model of a vehicle friction brake with coupled thermal
+An acausal, equation-based model of a vehicle friction brake with coupled
+thermal
 effects. It shows how braking energy is converted to heat and how disk and pad
 temperatures evolve under a realistic driving cycle.
 

@@ -8,7 +8,8 @@ Cover = "assets/icon.svg"
 # Turkey Demo
 
 A discretized thermal model of cooking a turkey approximated as a sphere divided
-into concentric shells. Heat reaches the surface from the oven by both convection
+into concentric shells. Heat reaches the surface from the oven by both
+convection
 and radiation, then conducts inward shell by shell, so you can track when the
 center reaches a safe internal temperature.
 

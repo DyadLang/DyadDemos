@@ -12,9 +12,6 @@ component HighwayDriveCycle
   """
   speed_ref = RealOutput() {^speed_ref}
 relations
-  # EPA HWFET profile (simplified piecewise approximation)
-  # Using nested ifelse for symbolic-safe evaluation
-  # 1 mph = 0.44704 m/s
   speed_ref = HybridTransmission.epa_highway_speed(time)
 metadata {
   "Dyad": {"icons": {"default": "dyad://HybridTransmission/vehicle.svg"}},
