@@ -1,6 +1,12 @@
 # DyadDemos
 
-Complex, in-depth demos of the capabilities of Dyad, the new platform for modeling and simulation.
+Dyad is a modeling and simulation platform. You describe a physical system — a
+brake, a car suspension, a house losing heat — as a diagram of connected parts.
+Dyad turns that diagram into equations it can simulate, tune, and fit to real
+measurements.
+
+This repository holds full-sized demos of that workflow. Each one is a
+standalone project: open the folder, run it, and read its own README.
 
 | | Demo | Description |
 |---|---|---|
@@ -12,7 +18,7 @@ Complex, in-depth demos of the capabilities of Dyad, the new platform for modeli
 | <img src="./ThermalHouseDemo/assets/icon.svg" width="48"/> | [**ThermalHouseDemo**](./ThermalHouseDemo/) | A residential house thermal model covering envelope heat loss, infiltration, solar gains, and HVAC control. |
 | <img src="./DynamicSteadyState/assets/icon.svg" width="48"/> | [**DynamicSteadyState**](./DynamicSteadyState/) | A three-zone office building thermal model with steady-state HVAC sizing and 24-hour diurnal transient operation. |
 | <img src="./QuarterTruckSciML/assets/icon.svg" width="48"/> | [**QuarterTruckSciML**](./QuarterTruckSciML/) | A quarter-truck ride-comfort model showcasing two SciML workflows: training a neural network to recover suspension nonlinearities, and calibrating physical parameters from measurements. |
-| <img src="./PassiveSuspension/assets/icon.svg" width="48"/> | [**PassiveSuspension**](./PassiveSuspension/) | A quarter-car suspension on an ISO 8608 Class C road profile, used to tune dampers for ISO 2631-1 rider comfort against an actively controlled reference. |
-| <img src="./DrivelineSciML/assets/icon.svg" width="48"/> | [**DrivelineSciML**](./DrivelineSciML/) | An EV driveline with a nonlinear torsional isolator: two-stage calibration recovering the hidden Maxwell-branch and Bouc-Wen hysteresis parameters from designed chirp and slow-cycle excitations, validated on an unseen tip-in event. |
-| <img src="./HL20Demo/assets/icon.svg" width="48"/> | [**HL20Demo**](./HL20Demo/) | This project shows how a 6-DOF flight simulation of the NASA HL-20 lifting body can be built from scratch by prompting the Dyad Agent — no model code written by hand. |
-| <img src="./SatelliteGNC/assets/icon.svg" width="48"/> | [**SatelliteGNC**](./SatelliteGNC/) | A CubeSat-class attitude GNC stack — trapezoidal slew guidance, a Luenberger observer for rate estimation, and a PD-plus-feedforward controller — flown in both 3-DOF and 6-DOF orbiting variants with thruster allocation across eight reaction jets. |
+| <img src="./PassiveSuspension/assets/icon.svg" width="48"/> | [**PassiveSuspension**](./PassiveSuspension/) | A quarter of a car driving over a rough road, where the shock absorbers are tuned until the ride is comfortable enough for the person in the seat. |
+| <img src="./DrivelineSciML/assets/icon.svg" width="48"/> | [**DrivelineSciML**](./DrivelineSciML/) | An electric car's driveline with a rubbery coupling nobody has measured: the demo works out how that coupling behaves from two shake tests, then checks the answer against a hard acceleration it never saw. |
+| <img src="./HL20Demo/assets/icon.svg" width="48"/> | [**HL20Demo**](./HL20Demo/) | A flight simulation of NASA's HL-20 spaceplane, built from scratch by prompting the Dyad Agent — no model code written by hand. |
+| <img src="./SatelliteGNC/assets/icon.svg" width="48"/> | [**SatelliteGNC**](./SatelliteGNC/) | A shoebox-sized satellite turning to point at a new target: it works out how fast it is already spinning, then fires eight small thrusters to swing around and hold still, both on its own and while orbiting. |
