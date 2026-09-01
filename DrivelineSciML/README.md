@@ -1,22 +1,37 @@
 # DrivelineSciML
 
-Two-stage parameter calibration of a nonlinear torsional isolator in an EV
-driveline, built on `DyadModelOptimizer.CalibrationAnalysis`.
+An electric car's driveline has a rubbery coupling between motor and wheels
+that soaks up shock. Its behaviour is messy, and nobody can measure it
+directly.
 
-The plant is a two-inertia driveline — torque source → motor inertia →
-**torsional hub isolator** → load inertia → damper to ground. The isolator
-combines three torque paths:
+The demo shakes the coupling in two controlled ways and fits a model to what
+comes back. It then checks that model against a manoeuvre the fit never saw.
 
-- a known quasi-static baseline `k0·Δθ + c0·Δω` (from quasi-static tests),
-- a hidden **Maxwell branch** (`k1` in series with `c1`): stiffness increases
-  above the corner frequency `1/(2π·c1/k1)` ≈ 48 Hz,
-- a hidden **Bouc-Wen element** (`α·z` with a nonlinear flow rule):
-  rate-independent hysteresis that a viscous damper cannot reproduce.
+Mechanically the coupling is a **nonlinear torsional isolator** — a twisting
+spring and damper whose stiffness changes with how fast and how far you twist
+it. Recovering its parameters is a two-stage calibration built on
+`DyadModelOptimizer.CalibrationAnalysis`.
 
-The demo recovers the hidden parameters from clean "encoder" measurements
-(`ω_eng`, `ω_load`) using **designed excitations** — each calibration stage
-uses an experiment whose frequency/amplitude content makes a different
-mechanism identifiable:
+The plant is a spinning motor and a spinning load joined by that coupling:
+torque source → motor inertia → **isolator** → load inertia → damper to ground.
+
+The isolator combines three torque paths:
+
+- a known baseline `k0·Δθ + c0·Δω`, measured beforehand by twisting the
+  coupling slowly and steadily;
+- a hidden **[Maxwell branch](https://en.wikipedia.org/wiki/Maxwell_material)** (`k1` in series with `c1`) — extra stiffness that
+  only appears when you shake it fast, above the corner frequency
+  `1/(2π·c1/k1)` ≈ 48 Hz;
+- a hidden **[Bouc-Wen element](https://en.wikipedia.org/wiki/Bouc%E2%80%93Wen_model_of_hysteresis)** (`α·z` with a nonlinear flow rule) —
+  hysteresis: the torque depends on where the twist has been, not just where it
+  is now, and it behaves the same at any speed. No ordinary damper does that.
+
+The demo recovers the hidden parameters from clean "encoder" measurements of
+the two shaft speeds (`ω_eng`, `ω_load`).
+
+Each stage uses a **designed excitation**: a torque input whose frequency and
+amplitude are chosen so that one mechanism, and not the others, shows up in the
+response.
 
 | Stage | Event | Excitation | What it exploits | Recovers |
 |-------|-------|-----------|------------------|----------|
@@ -24,19 +39,27 @@ mechanism identifiable:
 | 2 | slow cycle | 1 Hz sine, ±100 Nm | full-amplitude hysteresis loop, Maxwell branch frozen (relaxed) | `α`, `β`, `γ` |
 | — | tip-in | 30→150 Nm ramp + 600 Hz ripple | both active — **validation only** | — |
 
-Stage 1 fits the **full** model (Bouc-Wen active), not a Maxwell-only model:
-the Bouc-Wen element has a tangent stiffness `α·A` at the origin — a
-frequency-flat linear spring that a Maxwell-only fit would lump into `k1`/`c1`,
-biasing `k1` ~28 % low at *any* chirp amplitude. Freeing `α` lets the chirp's
-frequency sweep separate the two (the Maxwell branch stiffens above its corner;
-the tangent does not).
+A *tip-in* is the everyday manoeuvre of pressing the accelerator from light
+load. It stays out of the fit and tests whether the fitted model predicts
+something it has never seen.
 
-Each `CalibrationAnalysis` takes one dataset and one model, so the stages are
-two analyses (`dyad/calibration.dyad`) chained by `scripts/run_calibration.jl`:
-the Stage 2 harness is constructed with the de-biased Stage 1 `k1`/`c1` frozen
-via constructor keywords. The Bouc-Wen gain `A` is fixed at 1 by convention —
-the flow rule is exactly invariant under `(A → s·A, α → α/s)`, so fitting both
-is structurally non-identifiable.
+Stage 1 fits the **full** model, with the Bouc-Wen element active. For small
+twists that element behaves like a plain spring of stiffness `α·A`, and such a
+spring looks the same at every frequency.
+
+A Maxwell-only fit has nowhere to put that spring, so it absorbs it into
+`k1`/`c1` and lands ~28 % low on `k1` at *any* chirp amplitude. Freeing `α`
+lets the frequency sweep tell the two apart: the Maxwell branch stiffens above
+its corner frequency, and the small-twist spring does not.
+
+Each `CalibrationAnalysis` takes one dataset and one model, so the two stages
+are two analyses (`dyad/calibration.dyad`), chained by
+`scripts/run_calibration.jl`. Stage 2's harness is built with the de-biased
+Stage 1 `k1`/`c1` frozen via constructor keywords.
+
+The Bouc-Wen gain `A` is fixed at 1 by convention. Scaling `A` up and `α` down
+by the same factor leaves the behaviour identical, so fitting both at once has
+no unique answer.
 
 ## Layout
 
@@ -86,17 +109,33 @@ dyad compile .
 
 ### Expected results
 
-Stage 1 recovers the Maxwell branch to a few percent (`k1` ≈ 294 vs. truth 300,
-`c1` ≈ 1.02 vs. 1.0, τ ≈ 3.5 ms vs. 3.3 ms) plus a first estimate of the
-Bouc-Wen scale (`α` ≈ 47 vs. 50). Fitting the *full* model is what makes this
-work: a Maxwell-only fit is biased ~28 % low on `k1` at **any** chirp amplitude,
-because the Bouc-Wen tangent stiffness `α·A` is a frequency-flat spring the
-Maxwell parameters would otherwise absorb. Stage 2 then sharpens the Bouc-Wen
-element on the full-amplitude slow cycle with the de-biased Maxwell frozen:
-`α` ≈ 49.6, `β` ≈ 4.97, `γ` ≈ 0.44 (max hysteresis torque `α·A/β` ≈ 9.98 Nm vs.
-truth 10.0). De-biasing the Maxwell branch is also what makes `γ` identifiable:
-with a biased Maxwell frozen in, the Bouc-Wen parameters waste their freedom
-compensating for the mismatch and `γ` goes flat.
+Stage 1 recovers the Maxwell branch to a few percent, plus a first estimate of
+the Bouc-Wen scale:
+
+| Quantity | Fitted | Truth |
+|----------|--------|-------|
+| `k1` [N·m/rad] | 294 | 300 |
+| `c1` [N·m·s/rad] | 1.02 | 1.0 |
+| `α` [N·m] | 47 | 50 |
+| relaxation time τ = `c1/k1` | 3.5 ms | 3.3 ms |
+
+Stage 2 then sharpens the Bouc-Wen element on the full-amplitude slow cycle,
+with the de-biased Maxwell branch frozen:
+
+| Quantity | Fitted | Truth |
+|----------|--------|-------|
+| `α` [N·m] | 49.6 | 50 |
+| `β` | 4.97 | 5.0 |
+| `γ` | 0.44 | 0.5 |
+| max hysteresis torque `α·A/β` | 9.98 N·m | 10.0 N·m |
+
+Two choices earn those numbers:
+
+1. **Stage 1 fits the full model**, keeping the Bouc-Wen small-twist spring out
+   of the Maxwell parameters.
+2. **Stage 2 freezes the de-biased Maxwell branch**, which is what makes `γ`
+   identifiable. Freeze a biased branch in, and the Bouc-Wen parameters spend
+   their freedom compensating for the mismatch, which flattens `γ`.
 
 The point the demo makes: **a designed experiment plus the right search space
 recovers both the parameters and the prediction**. On the unseen tip-in event
@@ -110,9 +149,10 @@ baseline:
 | `φ_rel` [rad] | 0.0107 | 9.1e-5 | +99% |
 
 `scripts/diagnose_calibration.jl` shows the reasoning behind the search-space
-choice: it reports optimizer health (`assess_health`) and rebuilds the exact
-objective (`objective(prob, alg)`) to test whether ground truth is even the loss
-minimizer — separating optimizer failure from structural/identifiability bias.
+choice. It reports optimizer health (`assess_health`) and rebuilds the exact
+objective (`objective(prob, alg)`), then checks whether the true parameters are
+actually the lowest point of that objective. When they are not, the model's
+structure is at fault rather than the optimizer.
 
 ### Smoke tests
 
@@ -120,16 +160,21 @@ minimizer — separating optimizer failure from structural/identifiability bias.
 julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.test()'
 ```
 
-Verifies that the dyad library compiles, all harnesses simulate, the Bouc-Wen
-state is active in the truth model and inert in the Maxwell-only chirp harness
-(`TestDrivelineChirpMaxwellOnly`, retained for this check), and the committed
-measurement CSVs have the expected shape.
+Verifies four things:
+
+- the Dyad library compiles;
+- every harness simulates;
+- the Bouc-Wen state moves in the truth model and stays inert in the
+  Maxwell-only chirp harness (`TestDrivelineChirpMaxwellOnly`, kept for this
+  check);
+- the committed measurement CSVs have the expected shape.
 
 ## Possible extensions
 
 The original study (see `agent_resources/reference/`) also trains a neural
-network in place of the parametric Bouc-Wen flow rule (UDE). The natural Dyad
-port adds a gray-box `DrivelineSystem` variant with a
-`DyadModelDiscovery.NeuralNetworkBlock` for `der(z)` and an
-`NNTrainingAnalysis` on the slow-cycle data — mirroring the
+network in place of the parametric Bouc-Wen flow rule (a UDE).
+
+The natural Dyad port adds a gray-box `DrivelineSystem` variant — known physics for most of the model, a neural network only where the physics is unknown: a
+`DyadModelDiscovery.NeuralNetworkBlock` for `der(z)`, plus an
+`NNTrainingAnalysis` on the slow-cycle data. That mirrors the
 `QuarterTruckSciML` NN-discovery demo.

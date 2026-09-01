@@ -7,7 +7,7 @@
 @doc Markdown.doc"""
    TireWithExternalResidual(; name, k1, d, s_rel0)
 
-Tire-specific spring-damper with compression-only gate baked in: above the unstretched length the *entire* force (linear + external residual) is zero (matching the ground-truth `ConfigurableTireSpringDamper` lift-off behaviour). The NN-injected residual `f_residual` is added to the linear baseline below the cutoff.
+Tire spring-damper that pushes only while squashed. Stretched past `s_rel0` the wheel has left the road, so the total force drops to zero — the same lift-off behaviour as `ConfigurableTireSpringDamper`. While in contact the force is the linear spring-damper plus whatever the neural network feeds into `f_residual`.
 
 ## Parameters:
 

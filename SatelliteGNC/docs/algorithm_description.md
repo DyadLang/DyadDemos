@@ -2,7 +2,10 @@
 
 ## 1. System Overview
 
-A 6-DOF satellite attitude guidance, navigation, and control (GNC) system for a CubeSat-class platform on low Earth orbit. The system performs 3-axis rest-to-rest slew maneuvers using bipropellant reaction jets, with angular velocity estimation from angle measurements only.
+A 6-DOF satellite attitude guidance, navigation, and control (GNC) system for a
+CubeSat-class platform on low Earth orbit. The system performs 3-axis
+rest-to-rest slew maneuvers using bipropellant reaction jets, with angular
+velocity estimation from angle measurements only.
 
 ### Architecture
 
@@ -81,7 +84,8 @@ A 6-DOF satellite attitude guidance, navigation, and control (GNC) system for a 
 
 ### 2.2 Algorithm Description
 
-The satellite is modeled as a rigid body with coupled translational and rotational dynamics.
+The satellite is modeled as a rigid body with coupled translational and
+rotational dynamics.
 
 **Translational dynamics** (ECI frame):
 
@@ -89,7 +93,8 @@ $$\dot{\mathbf{r}} = \mathbf{v}$$
 
 $$\dot{\mathbf{v}} = -\frac{\mu}{|\mathbf{r}|^3}\mathbf{r} + \frac{1}{m} R(\phi,\theta,\psi) \mathbf{F}_{body}$$
 
-where R(φ,θ,ψ) is the 3-2-1 (yaw-pitch-roll) rotation matrix from body frame to ECI:
+where R(φ,θ,ψ) is the 3-2-1 (yaw-pitch-roll) rotation matrix from body frame to
+ECI:
 
 $$R = R_z(\psi) \cdot R_y(\theta) \cdot R_x(\phi)$$
 
@@ -105,7 +110,8 @@ $$I_{zz} \dot{\omega}_z = \tau_z + (I_{xx} - I_{yy})\omega_x\omega_y + \tau_{gg,
 
 $$\boldsymbol{\tau}_{gg} = \frac{3\mu}{|\mathbf{r}|^5} (\mathbf{r}_{body} \times I \cdot \mathbf{r}_{body})$$
 
-where r_body = R^T · r is the satellite position expressed in body frame, and I is the diagonal inertia tensor.
+where r_body = R^T · r is the satellite position expressed in body frame, and I
+is the diagonal inertia tensor.
 
 **3-2-1 Euler angle kinematics:**
 
@@ -119,9 +125,12 @@ Note: singular at θ = ±90°. Valid for maneuvers with |θ| < 80°.
 
 ### 2.3 References
 
-- Wertz, J.R., *Space Mission Engineering: The New SMAD*, Microcosm Press, 2011, Ch. 19 (Attitude Dynamics).
-- Sidi, M.J., *Spacecraft Dynamics and Control*, Cambridge University Press, 1997, Ch. 4.
-- Markley, F.L. and Crassidis, J.L., *Fundamentals of Spacecraft Attitude Determination and Control*, Springer, 2014, Ch. 3.
+- Wertz, J.R., *Space Mission Engineering: The New SMAD*, Microcosm Press, 2011,
+  Ch. 19 (Attitude Dynamics).
+- Sidi, M.J., *Spacecraft Dynamics and Control*, Cambridge University Press,
+  1997, Ch. 4.
+- Markley, F.L. and Crassidis, J.L., *Fundamentals of Spacecraft Attitude
+  Determination and Control*, Springer, 2014, Ch. 3.
 
 ### 2.4 Proposed Test Plan
 
@@ -185,12 +194,15 @@ where t_loc = t − t_ramp − t_coast.
 **Phase 4 — Hold** (t ≥ t_total):
 - α_ref = 0, ω_ref = 0, θ_ref = θ_target
 
-Assumes trapezoidal regime: θ_target > ω_max²/α_max (sufficient angle for full coast phase).
+Assumes trapezoidal regime: θ_target > ω_max²/α_max (sufficient angle for full
+coast phase).
 
 ### 3.3 References
 
-- ESA ECSS-E-ST-60-30C, *Space Engineering: Spacecraft Attitude and Orbit Control System (AOCS) Performance*, 2013.
-- Wie, B., *Space Vehicle Dynamics and Control*, 2nd ed., AIAA, 2008, Ch. 7.4 (Rest-to-Rest Slew Maneuvers).
+- ESA ECSS-E-ST-60-30C, *Space Engineering: Spacecraft Attitude and Orbit
+  Control System (AOCS) Performance*, 2013.
+- Wie, B., *Space Vehicle Dynamics and Control*, 2nd ed., AIAA, 2008, Ch. 7.4
+  (Rest-to-Rest Slew Maneuvers).
 
 ### 3.4 Proposed Test Plan
 
@@ -251,10 +263,14 @@ $$\tau_i = -K_{p,i}(\theta_{meas,i} - \theta_{ref,i}) - K_{d,i}(\hat{\omega}_i -
 
 The three terms serve distinct roles:
 - **Proportional** (−K_p · e_θ): drives angle error to zero.
-- **Derivative** (−K_d · e_ω): damps rate error. Uses observer-estimated rates, not measured rates directly.
-- **Feedforward** (+I_ff · α_ref): applies the known inertia × commanded acceleration. Eliminates steady-state tracking lag during the coast phase of trapezoidal profiles.
+- **Derivative** (−K_d · e_ω): damps rate error. Uses observer-estimated rates,
+  not measured rates directly.
+- **Feedforward** (+I_ff · α_ref): applies the known inertia × commanded
+  acceleration. Eliminates steady-state tracking lag during the coast phase of
+  trapezoidal profiles.
 
-**Closed-loop characteristic equation** (per axis, without feedforward, linearized):
+**Closed-loop characteristic equation** (per axis, without feedforward,
+linearized):
 
 $$I \ddot{e} + K_d \dot{e} + K_p e = 0$$
 
@@ -263,12 +279,16 @@ $$I \ddot{e} + K_d \dot{e} + K_p e = 0$$
 
 Default gains give ω_n = 0.707 rad/s and ζ = 1.41 (overdamped) on all axes.
 
-Without feedforward, tracking a ramp rate reference produces steady-state error e_ss = K_d · ω_max / K_p. The feedforward term reduces this by providing the expected torque directly.
+Without feedforward, tracking a ramp rate reference produces steady-state error
+e_ss = K_d · ω_max / K_p. The feedforward term reduces this by providing the
+expected torque directly.
 
 ### 4.3 References
 
-- Franklin, G.F., Powell, J.D., and Emami-Naeini, A., *Feedback Control of Dynamic Systems*, 8th ed., Pearson, 2019, Ch. 7 (PD Control).
-- Wie, B., *Space Vehicle Dynamics and Control*, 2nd ed., AIAA, 2008, Ch. 7.3 (PD Attitude Control).
+- Franklin, G.F., Powell, J.D., and Emami-Naeini, A., *Feedback Control of
+  Dynamic Systems*, 8th ed., Pearson, 2019, Ch. 7 (PD Control).
+- Wie, B., *Space Vehicle Dynamics and Control*, 2nd ed., AIAA, 2008, Ch. 7.3
+  (PD Attitude Control).
 
 ### 4.4 Proposed Test Plan
 
@@ -317,13 +337,15 @@ Without feedforward, tracking a ramp rate reference produces steady-state error 
 
 ### 5.2 Algorithm Description
 
-Per-axis Luenberger observer using a linearized copy of the single-axis dynamics with correction terms driven by angle measurement error:
+Per-axis Luenberger observer using a linearized copy of the single-axis dynamics
+with correction terms driven by angle measurement error:
 
 $$\dot{\hat{\theta}}_i = \hat{\omega}_i + L_{a,i}(\theta_{meas,i} - \hat{\theta}_i)$$
 
 $$I_i \dot{\hat{\omega}}_i = \tau_i + L_{\omega,i}(\theta_{meas,i} - \hat{\theta}_i)$$
 
-The observer is a dynamic system with 6 differential states (3 estimated angles + 3 estimated rates).
+The observer is a dynamic system with 6 differential states (3 estimated angles
++ 3 estimated rates).
 
 **Gain selection:** For double observer poles at s = −p, the gains are:
 
@@ -331,16 +353,25 @@ $$L_{a,i} = 2p$$
 
 $$L_{\omega,i} = p^2 \cdot I_i$$
 
-This places the observer error dynamics at eigenvalues s = −p (repeated), giving a time constant of 1/p. At p = 2 rad/s, convergence occurs within approximately 3 seconds (3/p ≈ 1.5 s to 95%).
+This places the observer error dynamics at eigenvalues s = −p (repeated), giving
+a time constant of 1/p. At p = 2 rad/s, convergence occurs within approximately
+3 seconds (3/p ≈ 1.5 s to 95%).
 
-**Separation principle:** The observer pole p should be placed at 3–5× the controller closed-loop bandwidth to ensure the estimation error decays before the controller responds. With controller ω_n = 0.707 rad/s, the observer at p = 2.0 rad/s provides approximately 3× separation.
+**Separation principle:** The observer pole p should be placed at 3–5× the
+controller closed-loop bandwidth to ensure the estimation error decays before
+the controller responds. With controller ω_n = 0.707 rad/s, the observer at p =
+2.0 rad/s provides approximately 3× separation.
 
-The observer uses a linearized model (no gyroscopic cross-coupling terms). This is valid for small angular velocities typical of the maneuver envelope (ω < 0.035 rad/s).
+The observer uses a linearized model (no gyroscopic cross-coupling terms). This
+is valid for small angular velocities typical of the maneuver envelope (ω <
+0.035 rad/s).
 
 ### 5.3 References
 
-- Luenberger, D.G., "Observing the State of a Linear System," *IEEE Transactions on Military Electronics*, Vol. 8, No. 2, 1964, pp. 74–80.
-- Sidi, M.J., *Spacecraft Dynamics and Control*, Cambridge University Press, 1997, Ch. 9.3 (State Estimation).
+- Luenberger, D.G., "Observing the State of a Linear System," *IEEE Transactions
+  on Military Electronics*, Vol. 8, No. 2, 1964, pp. 74–80.
+- Sidi, M.J., *Spacecraft Dynamics and Control*, Cambridge University Press,
+  1997, Ch. 9.3 (State Estimation).
 
 ### 5.4 Proposed Test Plan
 
@@ -399,18 +430,22 @@ where d̂ = (d_x, d_y, d_z) is the thrust direction vector.
 
 $$\boldsymbol{\tau} = \mathbf{r} \times \mathbf{F}$$
 
-where r = (r_x, r_y, r_z) is the thruster position relative to the center of mass. Expanded:
+where r = (r_x, r_y, r_z) is the thruster position relative to the center of
+mass. Expanded:
 
 $$\tau_x = r_y F_z - r_z F_y$$
 $$\tau_y = r_z F_x - r_x F_z$$
 $$\tau_z = r_x F_y - r_y F_x$$
 
-A thruster at the center of mass (r = 0) produces force but no torque. A thruster offset from the CoM produces both force and torque simultaneously.
+A thruster at the center of mass (r = 0) produces force but no torque. A
+thruster offset from the CoM produces both force and torque simultaneously.
 
 ### 6.3 References
 
-- Wertz, J.R., *Space Mission Engineering: The New SMAD*, Microcosm Press, 2011, Ch. 17 (Propulsion).
-- Sutton, G.P. and Biblarz, O., *Rocket Propulsion Elements*, 9th ed., Wiley, 2017, Ch. 4.
+- Wertz, J.R., *Space Mission Engineering: The New SMAD*, Microcosm Press, 2011,
+  Ch. 17 (Propulsion).
+- Sutton, G.P. and Biblarz, O., *Rocket Propulsion Elements*, 9th ed., Wiley,
+  2017, Ch. 4.
 
 ### 6.4 Proposed Test Plan
 
@@ -452,11 +487,13 @@ A thruster at the center of mass (r = 0) produces force but no torque. A thruste
 
 ### 7.2 Algorithm Description
 
-Maps a 6-DOF force/torque command vector to 8 individual jet thrust commands using the Moore-Penrose pseudoinverse of the thruster configuration matrix.
+Maps a 6-DOF force/torque command vector to 8 individual jet thrust commands
+using the Moore-Penrose pseudoinverse of the thruster configuration matrix.
 
 **Configuration matrix B** (6×8):
 
-The B matrix maps the thrust vector T = [T_1, ..., T_8]^T to the net force/torque vector w = [F_x, F_y, F_z, τ_x, τ_y, τ_z]^T:
+The B matrix maps the thrust vector T = [T_1, ..., T_8]^T to the net
+force/torque vector w = [F_x, F_y, F_z, τ_x, τ_y, τ_z]^T:
 
 $$\mathbf{w} = B \cdot \mathbf{T}$$
 
@@ -468,20 +505,28 @@ $$B_{1:3,j} = \mathbf{d}_j, \quad B_{4:6,j} = \mathbf{r}_j \times \mathbf{d}_j$$
 
 $$\mathbf{T} = B^+ \cdot \mathbf{w}_{cmd}$$
 
-where B⁺ = B^T(BB^T)⁻¹ is the Moore-Penrose pseudoinverse. This minimizes ||T||₂ (minimum-energy allocation) among all solutions that achieve the commanded force/torque.
+where B⁺ = B^T(BB^T)⁻¹ is the Moore-Penrose pseudoinverse. This minimizes ||T||₂
+(minimum-energy allocation) among all solutions that achieve the commanded
+force/torque.
 
 **Normalization:**
 
 $$u_j = T_j / F_{max}$$
 
-The 8-jet configuration (4 z-firing + 2 y-firing + 2 x-firing on edges of a 0.3×0.2×0.1 m body) yields rank(B) = 6, confirming full 6-DOF controllability with 2 degrees of redundancy.
+The 8-jet configuration (4 z-firing + 2 y-firing + 2 x-firing on edges of a
+0.3×0.2×0.1 m body) yields rank(B) = 6, confirming full 6-DOF controllability
+with 2 degrees of redundancy.
 
-Note: The pseudoinverse may produce commands |u_j| > 1 if the commanded force/torque exceeds actuator capacity. The individual ReactionJet components clamp to [−1, 1], which introduces allocation error under saturation.
+Note: The pseudoinverse may produce commands |u_j| > 1 if the commanded
+force/torque exceeds actuator capacity. The individual ReactionJet components
+clamp to [−1, 1], which introduces allocation error under saturation.
 
 ### 7.3 References
 
-- Durham, W.C., "Constrained Control Allocation," *Journal of Guidance, Control, and Dynamics*, Vol. 16, No. 4, 1993, pp. 717–725.
-- Wie, B., *Space Vehicle Dynamics and Control*, 2nd ed., AIAA, 2008, Ch. 7.6 (Thruster Control Allocation).
+- Durham, W.C., "Constrained Control Allocation," *Journal of Guidance, Control,
+  and Dynamics*, Vol. 16, No. 4, 1993, pp. 717–725.
+- Wie, B., *Space Vehicle Dynamics and Control*, 2nd ed., AIAA, 2008, Ch. 7.6
+  (Thruster Control Allocation).
 
 ### 7.4 Proposed Test Plan
 
@@ -532,29 +577,42 @@ Note: The pseudoinverse may produce commands |u_j| > 1 if the commanded force/to
 
 ### 8.2 Algorithm Description
 
-The integrated system executes a 3-axis attitude repointing maneuver on a CubeSat in 400 km LEO. The signal flow is:
+The integrated system executes a 3-axis attitude repointing maneuver on a
+CubeSat in 400 km LEO. The signal flow is:
 
-1. **Guidance:** Three independent TrapezoidalProfile instances generate per-axis angle, rate, and acceleration references.
+1. **Guidance:** Three independent TrapezoidalProfile instances generate
+   per-axis angle, rate, and acceleration references.
 
-2. **Navigation:** The LuenbergerObserver estimates angular velocities from measured angles (star tracker) and known applied torques. Convergence within ~3 s.
+2. **Navigation:** The LuenbergerObserver estimates angular velocities from
+   measured angles (star tracker) and known applied torques. Convergence within
+   ~3 s.
 
-3. **Control:** The AttitudeController computes torque commands from angle error (measured), rate error (estimated), and acceleration feedforward.
+3. **Control:** The AttitudeController computes torque commands from angle error
+   (measured), rate error (estimated), and acceleration feedforward.
 
-4. **Allocation:** The ThrusterAllocator maps the 3-axis torque command (plus zero force command) to 8 jet commands via pseudoinverse.
+4. **Allocation:** The ThrusterAllocator maps the 3-axis torque command (plus
+   zero force command) to 8 jet commands via pseudoinverse.
 
-5. **Actuation:** Eight ReactionJet instances produce body-frame forces and torques from the allocated commands, with saturation at ±F_max.
+5. **Actuation:** Eight ReactionJet instances produce body-frame forces and
+   torques from the allocated commands, with saturation at ±F_max.
 
-6. **Plant:** The SatelliteBody6DOF integrates the net forces and torques, propagating both the orbit (Keplerian + thrust) and attitude (Euler's equations + gravity gradient).
+6. **Plant:** The SatelliteBody6DOF integrates the net forces and torques,
+   propagating both the orbit (Keplerian + thrust) and attitude (Euler's
+   equations + gravity gradient).
 
-7. **Feedback:** Satellite angle measurements feed back to both the controller and observer. Applied torques feed to the observer.
+7. **Feedback:** Satellite angle measurements feed back to both the controller
+   and observer. Applied torques feed to the observer.
 
-The maneuver completes in ~19 s (longest axis: ψ = 30°) with all axes settling by t = 30 s. The orbit radius remains constant to km-level precision over the 40 s simulation.
+The maneuver completes in ~19 s (longest axis: ψ = 30°) with all axes settling
+by t = 30 s. The orbit radius remains constant to km-level precision over the 40
+s simulation.
 
 ### 8.3 References
 
 All references from individual component sections apply. Additionally:
 
-- Fortescue, P., Swinerd, G., and Stark, J., *Spacecraft Systems Engineering*, 4th ed., Wiley, 2011, Ch. 9 (Attitude and Orbit Control).
+- Fortescue, P., Swinerd, G., and Stark, J., *Spacecraft Systems Engineering*,
+  4th ed., Wiley, 2011, Ch. 9 (Attitude and Orbit Control).
 - ESA ECSS-E-ST-60-30C, *Space Engineering: AOCS Performance*, 2013.
 
 ### 8.4 Proposed Test Plan

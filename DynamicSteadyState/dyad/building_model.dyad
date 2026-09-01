@@ -16,14 +16,8 @@ The occupancy schedule is a representative weekday office profile with
   piecewise-linear interpolation between hourly breakpoints (fractions 0–1).
 """
 component HeatCapacitorNoInit
-  # ================================================================
-  # HeatCapacitorNoInit — HeatCapacitor without built-in initial condition
-  #
-  # Identical to ThermalComponents.HeatCapacitor but omits
-  # "initial T = T0", allowing the test harness to supply initial
-  # conditions for transient analysis while leaving the steady-state
-  # analysis free of over-determined initialization constraints.
-  # ================================================================
+  # Omits HeatCapacitor's `initial T = T0`, which would over-determine the steady-state solve.
+  # The transient harness supplies its own starting temperature.
   "Thermal port for heat exchange"
   node = HeatPort() {^node}
   "Heat capacity of the element (J/K)"
@@ -48,9 +42,6 @@ metadata {
 end
 
 component ThermostatHeater
-  # ================================================================
-  # Proportional thermostat heater (reusable subcomponent)
-  # ================================================================
   "Thermal port — connects to the zone node"
   node = HeatPort() {^node}
   "Proportional gain (W/K)"
@@ -82,19 +73,7 @@ metadata {
 }
 end
 
-# ================================================================
-# ZoneRoom — Lumped single-zone thermal model
-#
-# Encapsulates per-zone envelope (wall, window, roof, slab,
-# infiltration) and thermal mass into one reusable passive block.
-# Set R_wall or R_win to a large value (e.g. 1e6) for interior
-# zones with no exterior wall/window.
-#
-# Outdoor and ground temperatures enter as causal signal inputs
-# (RealInput), converted internally via PrescribedTemperature.
-# The zone_port is the single acausal Node port for HVAC,
-# gains, and inter-zone connections.
-# ================================================================
+# Set R_wall or R_win to 1e6 for an interior zone; that removes the exterior path.
 component ZoneRoom
   "Outdoor temperature signal (K)"
   T_outdoor = RealInput() {^T_outdoor}
@@ -278,14 +257,10 @@ metadata {
 }
 end
 
-# ================================================================
-# THE SOURCE OF TRUTH: Three-Zone Building Envelope
-#
-# Three ZoneRoom blocks connected by partition resistors.
-# Outdoor and ground temperatures enter as causal RealInput
-# signals, eliminating two acausal Node ports and reducing
-# diagram wiring. HVAC strategy is external to this model.
-# ================================================================
+"""
+The building: three zones joined by partition resistors, and the single source of truth every
+analysis reuses. HVAC strategy lives outside this model, which is what makes that reuse possible.
+"""
 component ThreeZoneBuilding
   "Outdoor temperature signal (K)"
   T_outdoor = RealInput() {^T_outdoor}
@@ -457,19 +432,8 @@ metadata {
 }
 end
 
-# ================================================================
-# ANALYSIS 1a: Design-Day HVAC Sizing
-#
-# Occupied design-day winter conditions:
-#   Outdoor = −5°C, Ground = 10°C
-#   Internal gains = peak occupancy values (600, 500, 400 W)
-#   Solar gains = design average (1500 W south, 375 W north)
-#
-# FixedTemperature boundary conditions at 21°C (294.15 K) on each
-# HVAC port impose the desired zone temperature directly. The solver
-# determines the heat flow Q through each port — this IS the
-# required HVAC capacity. No controller or equipment model is needed.
-# ================================================================
+# Pinning every zone port at the 21 °C setpoint and reading back the port heat flow gives the
+# required HVAC capacity directly, with no controller or equipment model in the loop.
 test component TestSteadySizing
   building = ThreeZoneBuilding() {^building}
   # ---- Boundary condition signals ----
@@ -662,17 +626,8 @@ analysis HVACSizing
 relations
 end
 
-# ================================================================
-# ANALYSIS 1b: Cold-Night HVAC Sizing
-#
-# Unoccupied cold-night conditions (worst-case heating demand):
-#   Outdoor = −10°C, Ground = 10°C
-#   No internal gains, no solar gains (nighttime)
-#
-# Same building, same setpoint — only boundary conditions differ.
-# Equipment must be sized to the maximum of design-day and cold-night
-# demand per zone: Q_max = max(design-day, cold-night) × safety factor.
-# ================================================================
+# Worst case for heating: an unoccupied cold night, with no internal or solar gains to help.
+# Each zone's equipment is sized to whichever of the two sizing solves demands more.
 test component TestColdNightSizing
   building = ThreeZoneBuilding() {^building}
   # ---- Boundary condition signals ----
@@ -800,16 +755,32 @@ analysis ColdNightSizing
 relations
 end
 
-# ================================================================
-# Representative Weekday Office Occupancy Schedule
-# Piecewise linear interpolation of hourly fractions (0–1)
-# ================================================================
+"""
+Occupancy fraction for a representative weekday office, 0 (empty) to 1 (full).
+"""
 component OfficeOccupancy
   "Occupancy fraction output (0–1)"
   y = RealOutput() {^y}
   variable occ::Real
 relations
-  occ = ifelse(time < 18000.0, 0.0, ifelse(time < 21600.0, (time - 18000.0) * 2.7778e-5, ifelse(time < 25200.0, 0.10 + (time - 21600.0) * 2.7778e-5, ifelse(time < 28800.0, 0.20 + (time - 25200.0) * 2.0833e-4, ifelse(time < 39600.0, 0.95, ifelse(time < 43200.0, 0.95 - (time - 39600.0) * 1.25e-4, ifelse(time < 46800.0, 0.50 + (time - 43200.0) * 1.25e-4, ifelse(time < 57600.0, 0.95, ifelse(time < 61200.0, 0.95 - (time - 57600.0) * 1.8056e-4, ifelse(time < 64800.0, 0.30 - (time - 61200.0) * 5.5556e-5, ifelse(time < 75600.0, 0.10, ifelse(time < 79200.0, 0.10 - (time - 75600.0) * 1.3889e-5, ifelse(time < 82800.0, 0.05, ifelse(time < 86400.0, 0.05 - (time - 82800.0) * 1.3889e-5, 0.0))))))))))))))
+  # Weekday office profile, `time` in seconds from midnight. One segment per line; each ramps
+  # linearly from the previous segment's end value to the fraction named beside it.
+  occ =
+    ifelse(time < 18000.0, 0.0,                                            # to 05:00, empty
+    ifelse(time < 21600.0, (time - 18000.0) * 2.7778e-5,                   # to 06:00, ramp to 0.10
+    ifelse(time < 25200.0, 0.10 + (time - 21600.0) * 2.7778e-5,            # to 07:00, ramp to 0.20
+    ifelse(time < 28800.0, 0.20 + (time - 25200.0) * 2.0833e-4,            # to 08:00, ramp to 0.95
+    ifelse(time < 39600.0, 0.95,                                           # to 11:00, full
+    ifelse(time < 43200.0, 0.95 - (time - 39600.0) * 1.25e-4,              # to 12:00, ramp to 0.50
+    ifelse(time < 46800.0, 0.50 + (time - 43200.0) * 1.25e-4,              # to 13:00, back to 0.95
+    ifelse(time < 57600.0, 0.95,                                           # to 16:00, full
+    ifelse(time < 61200.0, 0.95 - (time - 57600.0) * 1.8056e-4,            # to 17:00, ramp to 0.30
+    ifelse(time < 64800.0, 0.30 - (time - 61200.0) * 5.5556e-5,            # to 18:00, ramp to 0.10
+    ifelse(time < 75600.0, 0.10,                                           # to 21:00, evening shift
+    ifelse(time < 79200.0, 0.10 - (time - 75600.0) * 1.3889e-5,            # to 22:00, ramp to 0.05
+    ifelse(time < 82800.0, 0.05,                                           # to 23:00, skeleton crew
+    ifelse(time < 86400.0, 0.05 - (time - 82800.0) * 1.3889e-5,            # to 24:00, ramp to 0.00
+    0.0))))))))))))))
   y = occ
 metadata {
   "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_office_occupancy.svg"}},
@@ -826,20 +797,11 @@ metadata {
 }
 end
 
-# ================================================================
-# ANALYSIS 2: 24-Hour Diurnal Operation
-#
-# Same ThreeZoneBuilding, now with time-varying boundary conditions:
-#   Outdoor = sinusoidal diurnal cycle (−10°C to 0°C)
-#   Solar = sinusoidal, peaks at noon (south 0–3000 W, north 0–750 W)
-#   Internal gains = occupancy fraction × peak watts
-#
-# ThermostatHeater controllers are attached at the test harness
-# level. Q_max = max(design-day, cold-night) × 1.2 safety factor:
-#   Z1 = max(4274, 7558) × 1.2 = 7558 × 1.2 ≈ 9070 W  (cold night governs)
-#   Z2 = max(1150, 1925) × 1.2 = 1925 × 1.2 ≈ 2310 W  (cold night governs)
-#   Z3 = max(5166, 7041) × 1.2 = 7041 × 1.2 ≈ 8450 W  (cold night governs)
-# ================================================================
+# Heater capacity carries a 1.2 safety factor over the larger of the two sizing solves. The cold
+# night governs every zone:
+#   Z1 = 7558 × 1.2 ≈ 9070 W   (design day asked 4274 W)
+#   Z2 = 1925 × 1.2 ≈ 2310 W   (design day asked 1150 W)
+#   Z3 = 7041 × 1.2 ≈ 8450 W   (design day asked 5166 W)
 test component TestDiurnalOperation
   building = ThreeZoneBuilding() {^building}
   # ---- Outdoor temperature (diurnal sine) — connects directly as signal ----

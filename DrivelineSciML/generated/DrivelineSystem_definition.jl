@@ -7,7 +7,7 @@
 @doc Markdown.doc"""
    DrivelineSystem(; name, k1, c1, alpha, A_bw, beta_bw, gamma_bw)
 
-Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are exposed as top-level parameters (defaults = nominal calibration starting guesses; truth: k1=300, c1=1.0, alpha=50, A_bw=1.0, beta_bw=5.0, gamma_bw=0.5) and propagated via `final` bindings. The applied torque enters through the `torque.tau` RealInput of the embedded TorqueSource.
+Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are re-exposed here as top-level parameters and bound into the isolator with `final`, so a calibration search space can target model.k1, model.c1, and so on. The applied torque enters through the `torque.tau` RealInput of the embedded TorqueSource.
 
 ## Parameters:
 
