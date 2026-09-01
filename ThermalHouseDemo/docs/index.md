@@ -8,10 +8,12 @@ Order = 2
 
 # Thermal House Demo
 
-A Dyad thermal model of a residential house. It captures heat transfer through
-the building envelope — walls, roof, floor, windows, and doors — together with
-air infiltration, solar and internal gains, and HVAC heating, so you can study
-how indoor temperature responds to weather and control strategy.
+A Dyad thermal model of a residential house, for studying how indoor temperature
+responds to the weather outside and the heating strategy inside.
+
+The house loses heat through its envelope — walls, roof, floor, windows, and
+doors — and through air leaking in and out. It gains heat from the sun, from
+whatever is running indoors, and from the HVAC.
 
 ## The model
 

@@ -7,6 +7,9 @@
 @doc Markdown.doc"""
    ThreeZoneBuilding(; name)
 
+The building: three zones joined by partition resistors, and the single source of truth every
+analysis reuses. HVAC strategy lives outside this model, which is what makes that reuse possible.
+
 ## Connectors
 
  * `T_outdoor` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))

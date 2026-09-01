@@ -7,7 +7,7 @@
 @doc Markdown.doc"""
    QuarterTruckConfigurable(; name, body_m, tire_to_body_c, tire_to_body_d, tire_k3, tire_compression_only, friction_Fc, friction_v0, seat_driver_k, seat_driver_d, seat_driver_n)
 
-Configurable quarter truck model with 4 masses, gravity, and optional nonlinearities. The four calibration knobs (body_m, tire_to_body_c, tire_to_body_d, friction_Fc) and the three nonlinearity knobs (tire_k3, tire_compression_only, seat_driver_n) are exposed as top-level parameters and propagated to sub-components via `final` bindings. The calibration search space targets these top-level parameters (model.body_m, model.tire_to_body_c, etc.) — see calibration.dyad.
+Quarter truck: tire, body, seat, and driver masses stacked on springs and dampers, under gravity. Both demos treat this as the truth they are aiming at. Every knob they touch is a top-level parameter here, pushed down into the sub-components by `final` bindings, so an analysis can set it from the outside.
 
 ## Parameters:
 

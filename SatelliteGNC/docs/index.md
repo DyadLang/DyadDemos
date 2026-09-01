@@ -8,12 +8,18 @@ Cover = "assets/icon.svg"
 # Satellite GNC Demo
 
 A CubeSat-class spacecraft flies a rest-to-rest three-axis repointing maneuver —
-roll 20°, pitch 10°, yaw 30° simultaneously — tracking a trapezoidal slew profile
-on each axis. Rate feedback comes from a Luenberger observer driven by star-tracker
-angles alone, so the controller damps rates it never measures. The loop ships
-twice: a 3-DOF version with ideal torque actuation, and a 6-DOF version in a 400 km
-orbit where the same controller acts through eight discrete thrusters and a
-pseudoinverse allocator.
+roll 20°, pitch 10°, yaw 30° simultaneously — tracking a trapezoidal slew
+profile on each axis.
+
+To arrive on target without overshooting, the controller has to know how fast
+the craft is already turning, and the one sensor aboard reports only which way
+it is pointing. A Luenberger observer supplies the missing turn rate: it runs a
+small model of the spacecraft alongside the real one and nudges that model into
+agreement with each new star-tracker angle.
+
+The loop ships twice. The 3-DOF version uses ideal torque actuation. The 6-DOF
+version flies a 400 km orbit, where the same controller acts through eight
+discrete thrusters and a pseudoinverse allocator.
 
 ## The model
 

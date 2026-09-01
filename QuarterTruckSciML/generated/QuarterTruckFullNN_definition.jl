@@ -7,7 +7,16 @@
 @doc Markdown.doc"""
    QuarterTruckFullNN(; name, n_input, n_output, nn_depth, nn_width, chain, s_rel0_tire, s_rel0_seat, s_scale_tire, v_friction_scale, v_seat_scale, f_scale_tire, f_scale_friction)
 
-Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning THREE suspension nonlinearities: tire cubic residual (compression-only gated), tire-body Coulomb friction, and seat-driver viscoelastic damping residual. Physics inputs: normalized tire deflection, normalized tire-body relative velocity, normalized seat-driver relative velocity. Outputs (each × its own f_scale): tire residual force [N], friction force [N], seat damping residual force [N].
+Quarter truck whose three missing nonlinear forces come from a single neural
+network, trained rather than hand-derived.
+
+| the network reads            | it returns                   |
+|------------------------------|------------------------------|
+| how far the tire is squashed | extra tire force [N]         |
+| tire-body sliding speed      | friction force [N]           |
+| seat-driver closing speed    | extra seat damping force [N] |
+
+Each input is normalized and each output scaled by its own `f_scale`.
 
 ## Parameters:
 

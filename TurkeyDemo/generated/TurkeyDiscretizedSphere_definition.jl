@@ -66,7 +66,7 @@
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-  append!(__params, @parameters (T_inits[1:N]::Real), [description = "Workaround for array initial conditions", bounds = (0, Inf), misc = "final"])
+  append!(__params, @parameters (T_inits[1:N]::Real), [description = "Starting temperature of every shell, expanded from T_init", bounds = (0, Inf), misc = "final"])
 
   ### Deferred assignment (default values that depend on final parameters)
 

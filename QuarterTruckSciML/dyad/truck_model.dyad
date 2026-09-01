@@ -74,7 +74,7 @@ relations
   f = F_c * tanh(v_rel / v0)
 end
 
-"Configurable quarter truck model with 4 masses, gravity, and optional nonlinearities. The four calibration knobs (body_m, tire_to_body_c, tire_to_body_d, friction_Fc) and the three nonlinearity knobs (tire_k3, tire_compression_only, seat_driver_n) are exposed as top-level parameters and propagated to sub-components via `final` bindings. The calibration search space targets these top-level parameters (model.body_m, model.tire_to_body_c, etc.) — see calibration.dyad."
+"Quarter truck: tire, body, seat, and driver masses stacked on springs and dampers, under gravity. Both demos treat this as the truth they are aiming at. Every knob they touch is a top-level parameter here, pushed down into the sub-components by `final` bindings, so an analysis can set it from the outside."
 component QuarterTruckConfigurable
   tire = TranslationalComponents.Components.Mass(m = 40.0, L = 0.0, g = 9.81, theta = 1.5708) {^tire}
   body = TranslationalComponents.Components.Mass(final m = body_m, L = 0.0, g = 9.81, theta = 1.5708) {^body}
