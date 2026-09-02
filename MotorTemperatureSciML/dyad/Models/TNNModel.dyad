@@ -5,59 +5,56 @@ Wires together `Normalizer`, `ConductanceNet`, `PowerLossNet`, `CapacitanceBlock
 and `ThermalDynamics`.
 
 Block diagram:
-  raw inputs → [Normalizer] → norm(10) → [ConductanceNet] → conducts(15) ─┐
-                             → norm(10) → [PowerLossNet]   → ploss(4) ────┤
-                                                                           ▼
-              [CapacitanceBlock] → inv_cap(4) → [ThermalDynamics] ← coolant,ambient
-                                                       │
-                                              T(4) feedback → NN inputs[11:14]
-                                                       │
-                                        T(4) → [Gain(MAX_TEMP)] → outputs [degC]
+  raw inputs → [Normalizer] → out(10) ─┬→ [ConductanceNet.x] → out(15) → [ThermalDynamics.conducts]
+                                       └→ [PowerLossNet.x]   → out(4)  → [ThermalDynamics.ploss]
+              [CapacitanceBlock] → out(4) → [ThermalDynamics.inv_cap];  out[2], out[7] → coolant, ambient
+              [ThermalDynamics.T](4) ─┬→ [ConductanceNet.T], [PowerLossNet.T]   (feedback)
+                                      └→ [Gain(MAX_TEMP)] ×4 → outputs [degC]
+
+Vector signals are connected as whole arrays (`connect(normalizer.out, cond_net.x)`),
+which is one wire in the schematic and the same set of equations as an element-wise
+`for` loop.
 """
 component TNNModel
   "Quadrature voltage [V]"
-  u_q_raw = RealInput()
+  u_q_raw = RealInput() {^u_q_raw}
   "Coolant temperature [degC]"
-  coolant_raw = RealInput()
+  coolant_raw = RealInput() {^coolant_raw}
   "Direct voltage [V]"
-  u_d_raw = RealInput()
+  u_d_raw = RealInput() {^u_d_raw}
   "Motor speed [rpm]"
-  motor_speed_raw = RealInput()
+  motor_speed_raw = RealInput() {^motor_speed_raw}
   "Direct current [A]"
-  i_d_raw = RealInput()
+  i_d_raw = RealInput() {^i_d_raw}
   "Quadrature current [A]"
-  i_q_raw = RealInput()
+  i_q_raw = RealInput() {^i_q_raw}
   "Ambient temperature [degC]"
-  ambient_raw = RealInput()
+  ambient_raw = RealInput() {^ambient_raw}
   "Torque [Nm]"
-  torque_raw = RealInput()
+  torque_raw = RealInput() {^torque_raw}
   "Precomputed |i| (normalised, from data prep)"
-  i_s_raw = RealInput()
+  i_s_raw = RealInput() {^i_s_raw}
   "Precomputed |u| (normalised, from data prep)"
-  u_s_raw = RealInput()
-
+  u_s_raw = RealInput() {^u_s_raw}
   "Estimated permanent-magnet temperature [degC]"
-  T_pm = RealOutput()
+  T_pm = RealOutput() {^T_pm}
   "Estimated stator-yoke temperature [degC]"
-  T_stator_yoke = RealOutput()
+  T_stator_yoke = RealOutput() {^T_stator_yoke}
   "Estimated stator-tooth temperature [degC]"
-  T_stator_tooth = RealOutput()
+  T_stator_tooth = RealOutput() {^T_stator_tooth}
   "Estimated stator-winding temperature [degC]"
-  T_stator_winding = RealOutput()
-
+  T_stator_winding = RealOutput() {^T_stator_winding}
+  normalizer = MotorTemperatureSciML.Thermal.Normalizer() {^normalizer}
+  cond_net = MotorTemperatureSciML.Networks.ConductanceNet() {^cond_net}
+  ploss_net = MotorTemperatureSciML.Networks.PowerLossNet() {^ploss_net}
+  cap_block = MotorTemperatureSciML.Thermal.CapacitanceBlock() {^cap_block}
+  thermal = MotorTemperatureSciML.Thermal.ThermalDynamics() {^thermal}
+  gain_pm = BlockComponents.Math.Gain(k = MAX_TEMP) {^gain_pm}
+  gain_sy = BlockComponents.Math.Gain(k = MAX_TEMP) {^gain_sy}
+  gain_st = BlockComponents.Math.Gain(k = MAX_TEMP) {^gain_st}
+  gain_sw = BlockComponents.Math.Gain(k = MAX_TEMP) {^gain_sw}
   "Maximum temperature for de-normalisation [degC]"
   structural parameter MAX_TEMP::Real = 200.0
-
-  normalizer = MotorTemperatureSciML.Thermal.Normalizer()
-  cond_net = MotorTemperatureSciML.Networks.ConductanceNet()
-  ploss_net = MotorTemperatureSciML.Networks.PowerLossNet()
-  cap_block = MotorTemperatureSciML.Thermal.CapacitanceBlock()
-  thermal = MotorTemperatureSciML.Thermal.ThermalDynamics()
-
-  gain_pm = BlockComponents.Math.Gain(k = MAX_TEMP)
-  gain_sy = BlockComponents.Math.Gain(k = MAX_TEMP)
-  gain_st = BlockComponents.Math.Gain(k = MAX_TEMP)
-  gain_sw = BlockComponents.Math.Gain(k = MAX_TEMP)
 relations
   connect(u_q_raw, normalizer.u_q_raw)
   connect(coolant_raw, normalizer.coolant_raw)
@@ -69,31 +66,15 @@ relations
   connect(torque_raw, normalizer.torque_raw)
   connect(i_s_raw, normalizer.i_s_raw)
   connect(u_s_raw, normalizer.u_s_raw)
-
-  for i in 1:10
-    connect(normalizer.out[i], cond_net.inp[i])
-  end
-  for i in 1:10
-    connect(normalizer.out[i], ploss_net.inp[i])
-  end
-  for i in 1:4
-    connect(thermal.T[i], cond_net.inp[10 + i])
-  end
-  for i in 1:4
-    connect(thermal.T[i], ploss_net.inp[10 + i])
-  end
-  for i in 1:15
-    connect(cond_net.out[i], thermal.conducts[i])
-  end
-  for i in 1:4
-    connect(ploss_net.out[i], thermal.ploss[i])
-  end
-  for i in 1:4
-    connect(cap_block.out[i], thermal.inv_cap[i])
-  end
-  connect(normalizer.out[2], thermal.coolant_norm)
-  connect(normalizer.out[7], thermal.ambient_norm)
-
+  connect(normalizer.out, cond_net.x) {^norm_to_cond}
+  connect(normalizer.out, ploss_net.x) {^norm_to_ploss}
+  connect(thermal.T, cond_net.T) {^T_to_cond}
+  connect(thermal.T, ploss_net.T) {^T_to_ploss}
+  connect(cond_net.out, thermal.conducts) {^cond_to_thermal}
+  connect(ploss_net.out, thermal.ploss)
+  connect(cap_block.out, thermal.inv_cap) {^cap_to_thermal}
+  connect(normalizer.out[2], thermal.coolant_norm) {^coolant}
+  connect(normalizer.out[7], thermal.ambient_norm) {^ambient}
   connect(thermal.T[1], gain_pm.u)
   connect(gain_pm.y, T_pm)
   connect(thermal.T[2], gain_sy.u)
@@ -102,4 +83,43 @@ relations
   connect(gain_st.y, T_stator_tooth)
   connect(thermal.T[4], gain_sw.u)
   connect(gain_sw.y, T_stator_winding)
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://MotorTemperatureSciML/TNNModel.svg"}
+  },
+  "_links": {
+    "u_q_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 0, "x2": 50, "y2": 100}, "diagram": {"iconName": "default", "x1": -50, "y1": 90, "x2": 50, "y2": 190}}}},
+    "coolant_raw":      {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 100, "x2": 50, "y2": 200}, "diagram": {"iconName": "default", "x1": -50, "y1": 170, "x2": 50, "y2": 270}}}},
+    "u_d_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 200, "x2": 50, "y2": 300}, "diagram": {"iconName": "default", "x1": -50, "y1": 250, "x2": 50, "y2": 350}}}},
+    "motor_speed_raw":  {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 300, "x2": 50, "y2": 400}, "diagram": {"iconName": "default", "x1": -50, "y1": 330, "x2": 50, "y2": 430}}}},
+    "i_d_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 400, "x2": 50, "y2": 500}, "diagram": {"iconName": "default", "x1": -50, "y1": 410, "x2": 50, "y2": 510}}}},
+    "i_q_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"iconName": "default", "x1": -50, "y1": 490, "x2": 50, "y2": 590}}}},
+    "ambient_raw":      {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 600, "x2": 50, "y2": 700}, "diagram": {"iconName": "default", "x1": -50, "y1": 570, "x2": 50, "y2": 670}}}},
+    "torque_raw":       {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"iconName": "default", "x1": -50, "y1": 650, "x2": 50, "y2": 750}}}},
+    "i_s_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 800, "x2": 50, "y2": 900}, "diagram": {"iconName": "default", "x1": -50, "y1": 730, "x2": 50, "y2": 830}}}},
+    "u_s_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 900, "x2": 50, "y2": 1000}, "diagram": {"iconName": "default", "x1": -50, "y1": 810, "x2": 50, "y2": 910}}}},
+    "T_pm":             {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 950, "y1": 150, "x2": 1050, "y2": 250}, "diagram": {"iconName": "default", "x1": 1350, "y1": 150, "x2": 1450, "y2": 250}}}},
+    "T_stator_yoke":    {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 950, "y1": 350, "x2": 1050, "y2": 450}, "diagram": {"iconName": "default", "x1": 1350, "y1": 310, "x2": 1450, "y2": 410}}}},
+    "T_stator_tooth":   {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 950, "y1": 550, "x2": 1050, "y2": 650}, "diagram": {"iconName": "default", "x1": 1350, "y1": 490, "x2": 1450, "y2": 590}}}},
+    "T_stator_winding": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 950, "y1": 750, "x2": 1050, "y2": 850}, "diagram": {"iconName": "default", "x1": 1350, "y1": 650, "x2": 1450, "y2": 750}}}},
+    "normalizer":       {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 150, "y1": 400, "x2": 350, "y2": 600}}}},
+    "cond_net":         {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500, "y1": 80, "x2": 700, "y2": 280}}}},
+    "ploss_net":        {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500, "y1": 380, "x2": 700, "y2": 580}}}},
+    "cap_block":        {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 850, "y1": 700, "x2": 1050, "y2": 900}}}},
+    "thermal":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 850, "y1": 350, "x2": 1050, "y2": 550}}}},
+    "gain_pm":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1180, "y1": 150, "x2": 1280, "y2": 250}}}},
+    "gain_sy":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1180, "y1": 310, "x2": 1280, "y2": 410}}}},
+    "gain_st":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1180, "y1": 490, "x2": 1280, "y2": 590}}}},
+    "gain_sw":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1180, "y1": 650, "x2": 1280, "y2": 750}}}},
+    "norm_to_cond":     {"Dyad": {"edges": [{"S": 1, "M": [{"x": 470, "y": 500}, {"x": 470, "y": 154}], "E": 2}]}},
+    "norm_to_ploss":    {"Dyad": {"edges": [{"S": 1, "M": [{"x": 430, "y": 500}, {"x": 430, "y": 454}], "E": 2}]}},
+    "T_to_cond":        {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 450}, {"x": 1500, "y": -40}, {"x": 440, "y": -40}, {"x": 440, "y": 244}], "E": 2}]}},
+    "T_to_ploss":       {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 450}, {"x": 1500, "y": 1000}, {"x": 440, "y": 1000}, {"x": 440, "y": 544}], "E": 2}]}},
+    "cond_to_thermal":  {"Dyad": {"edges": [{"S": 1, "M": [{"x": 950, "y": 180}], "E": 2}]}},
+    "cap_to_thermal":   {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1100, "y": 800}, {"x": 1100, "y": 640}, {"x": 800, "y": 640}, {"x": 800, "y": 498}], "E": 2}]}},
+    "coolant":          {"Dyad": {"edges": [{"S": 1, "M": [{"x": 380, "y": 442}, {"x": 380, "y": 362}], "E": 2}]}},
+    "ambient":          {"Dyad": {"edges": [{"S": 1, "M": [{"x": 400, "y": 525}, {"x": 400, "y": 384}], "E": 2}]}}
+  }
+}
 end

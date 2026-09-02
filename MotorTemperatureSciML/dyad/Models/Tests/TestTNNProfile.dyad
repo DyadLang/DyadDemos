@@ -11,7 +11,7 @@ the model — one shared time search per RHS call, no FunctionWrapper boxing on
 the parameter slot.
 """
 test component TestTNNProfile
-  model = MotorTemperatureSciML.Models.TNNModel()
+  model = MotorTemperatureSciML.Models.TNNModel() {^model}
 
   "CSV with the profile's inputs and measured temperatures (see scripts/prepare_data.jl)"
   structural parameter data_file::String = "dyad://MotorTemperatureSciML/data/profile_17.csv"
@@ -23,11 +23,11 @@ test component TestTNNProfile
   # per `t`, vector return, `interpolator(t)[i]` CSE'd across the 10 reads.
   # See dyad/FastVectorInterpolation.dyad for why this beats stacked
   # `BlockComponents.Tables.Interpolation` instances under ForwardDiff.
-  interp_inputs = MotorTemperatureSciML.FastVectorInterpolation(interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset = ds_inputs, extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs = 10)
+  interp_inputs = MotorTemperatureSciML.FastVectorInterpolation(interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset = ds_inputs, extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs = 10) {^interp_inputs}
 
   # Single multi-channel interpolator for the 4 measured temperatures.
   # Order: 1=pm, 2=stator_yoke, 3=stator_tooth, 4=stator_winding.
-  interp_meas = MotorTemperatureSciML.FastVectorInterpolation(interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset = ds_meas, extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs = 4)
+  interp_meas = MotorTemperatureSciML.FastVectorInterpolation(interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset = ds_meas, extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs = 4) {^interp_meas}
 
   # Component-level array connectors that mediate between the interpolators'
   # sub-component vector outputs and the consumers downstream. Sub-component
@@ -35,9 +35,8 @@ test component TestTNNProfile
   # — they can't appear in regular equations like `T_pm_meas = ...`. Routing
   # through these own-component arrays sidesteps that restriction (see
   # `Networks/PowerLossNet.dyad` for the same pattern with `nn.outputs[j]`).
-  raw_inputs = [RealOutput() for i in 1:10]
-  raw_meas = [RealOutput() for i in 1:4]
-
+  raw_inputs = [RealOutput() for i in 1:10] {^raw_inputs}
+  raw_meas = [RealOutput() for i in 1:4] {^raw_meas}
   "Measured temperatures [degC], for plotting against the model outputs"
   variable T_pm_meas::Real
   variable T_sy_meas::Real
@@ -47,15 +46,11 @@ relations
   interp_inputs.u = time
   interp_meas.u = time
 
-  # Wire interp outputs into component-level array connectors via for loops
-  # — both sides array-indexed, the only shape `connect` accepts for vector
-  # ports of sub-components.
-  for i in 1:10
-    connect(interp_inputs.y[i], raw_inputs[i])
-  end
-  for i in 1:4
-    connect(interp_meas.y[i], raw_meas[i])
-  end
+  # Wire the interpolators' vector outputs into the component-level array
+  # connectors as whole arrays: one `connect` per bundle (one wire in the
+  # schematic), equivalent to the element-wise `for` loop.
+  connect(interp_inputs.y, raw_inputs) {^interp_to_raw}
+  connect(interp_meas.y, raw_meas) {^meas_to_raw}
 
   # `dependent_vars` order on `ds_inputs` determines `raw_inputs[i]`:
   # 1=u_q, 2=coolant, 3=u_d, 4=motor_speed, 5=i_d, 6=i_q, 7=ambient,
@@ -77,6 +72,15 @@ relations
   T_sy_meas = raw_meas[2]
   T_st_meas = raw_meas[3]
   T_sw_meas = raw_meas[4]
+metadata {
+  "_links": {
+    "interp_inputs": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 100, "y1": 150, "x2": 300, "y2": 350, "rot": 0}}}},
+    "interp_meas":   {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 100, "y1": 560, "x2": 300, "y2": 760, "rot": 0}}}},
+    "raw_inputs":    {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 100, "x2": 1025, "y2": 500, "show": 10}, "diagram": {"iconName": "default", "x1": 400, "y1": 100, "x2": 450, "y2": 400, "show": 10}}}},
+    "raw_meas":      {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 600, "x2": 1025, "y2": 800, "show": 4}, "diagram": {"iconName": "default", "x1": 400, "y1": 600, "x2": 450, "y2": 720, "show": 4}}}},
+    "model":         {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 600, "y1": 100, "x2": 900, "y2": 400, "rot": 0}}}}
+  }
+}
 end
 
 analysis TestTNNProfileAnalysis

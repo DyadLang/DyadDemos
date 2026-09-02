@@ -1,8 +1,9 @@
 """
 Power-loss sub-network for the Thermal Neural Network (TNN).
 
-Maps a 14-element input vector (normalised operating conditions + estimated
-temperatures) to 4 non-negative power-loss values via
+Maps a 14-element input vector — 10 normalised operating conditions (`x`, in
+`Normalizer.out` order) followed by the 4 estimated normalised temperatures
+(`T`, in `ThermalDynamics.T` order) — to 4 non-negative power-loss values via
 `Dense(14 → 16, tanh) → Dense(16 → 4, abs)`. Each output is the heat-generation
 rate at one of the 4 target thermal nodes.
 
@@ -14,42 +15,54 @@ boundary, because a sub-component's indexed vector port (`nn.outputs[j]`) can
 appear only inside `connect(...)`, not in a general expression.
 """
 component PowerLossNet
+  "Number of operating-condition inputs (first block of the NN input vector)"
+  structural parameter n_x::Integer = 10
+  "Number of temperature feedback inputs (second block of the NN input vector)"
+  structural parameter n_T::Integer = 4
+  "NN input width, must equal n_x + n_T"
   structural parameter n_in::Integer = 14
   structural parameter n_hidden::Integer = 16
   structural parameter n_out::Integer = 4
 
-  "Input vector (normalised operating conditions + estimated temperatures)"
-  inp = [RealInput() for i in 1:n_in]
+  "Normalised operating conditions (Normalizer.out ordering)"
+  x = [RealInput() for i in 1:n_x] {^x}
+  "Estimated normalised temperatures fed back from ThermalDynamics.T"
+  T = [RealInput() for i in 1:n_T] {^T}
   "Output power-loss values (non-negative)"
-  out = [RealOutput() for j in 1:n_out]
+  out = [RealOutput() for j in 1:n_out] {^out}
 
   nn = DyadModelDiscovery.NeuralNetworkBlock(
     n_input = n_in,
     n_output = n_out,
-    chain = MotorTemperatureSciML.power_loss_chain())
+    chain = MotorTemperatureSciML.power_loss_chain()) {^nn}
 relations
-  for i in 1:n_in
-    connect(inp[i], nn.inputs[i])
-  end
-  for j in 1:n_out
-    connect(nn.outputs[j], out[j])
-  end
+  # NN input vector = [x; T]. Written out per index (not as a `for` loop) so the
+  # wiring is drawn in the schematic; the equations are the same.
+  connect(x[1], nn.inputs[1])
+  connect(x[2], nn.inputs[2])
+  connect(x[3], nn.inputs[3])
+  connect(x[4], nn.inputs[4])
+  connect(x[5], nn.inputs[5])
+  connect(x[6], nn.inputs[6])
+  connect(x[7], nn.inputs[7])
+  connect(x[8], nn.inputs[8])
+  connect(x[9], nn.inputs[9])
+  connect(x[10], nn.inputs[10])
+  connect(T[1], nn.inputs[11])
+  connect(T[2], nn.inputs[12])
+  connect(T[3], nn.inputs[13])
+  connect(T[4], nn.inputs[14])
+  connect(nn.outputs, out)
 metadata {
   "Dyad": {
     "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
     "icons": {"default": "dyad://MotorTemperatureSciML/PowerLossNet.svg"}
   },
   "_links": {
-    "inp": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "input", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
-      }
-    },
-    "out": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
-      }
-    }
+    "x":   {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25, "y1": 100, "x2": 25, "y2": 640, "show": 10}}}},
+    "T":   {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25, "y1": 700, "x2": 25, "y2": 940, "show": 4}}}},
+    "out": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 380, "x2": 1025, "y2": 620, "show": 4}}}},
+    "nn":  {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 250, "y1": 250, "x2": 750, "y2": 750, "rot": 0}}}}
   }
 }
 end

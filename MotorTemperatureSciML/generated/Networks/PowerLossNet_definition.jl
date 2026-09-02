@@ -7,12 +7,13 @@
 import Moshi as __Ext__Moshi
 
 @doc Markdown.doc"""
-   PowerLossNet(; name, n_in, n_hidden, n_out)
+   PowerLossNet(; name, n_x, n_T, n_in, n_hidden, n_out)
 
 Power-loss sub-network for the Thermal Neural Network (TNN).
 
-Maps a 14-element input vector (normalised operating conditions + estimated
-temperatures) to 4 non-negative power-loss values via
+Maps a 14-element input vector — 10 normalised operating conditions (`x`, in
+`Normalizer.out` order) followed by the 4 estimated normalised temperatures
+(`T`, in `ThermalDynamics.T` order) — to 4 non-negative power-loss values via
 `Dense(14 → 16, tanh) → Dense(16 → 4, abs)`. Each output is the heat-generation
 rate at one of the 4 target thermal nodes.
 
@@ -27,16 +28,19 @@ appear only inside `connect(...)`, not in a general expression.
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `n_in`         |                          | --  |   14 |
+| `n_x`         | Number of operating-condition inputs (first block of the NN input vector)                         | --  |   10 |
+| `n_T`         | Number of temperature feedback inputs (second block of the NN input vector)                         | --  |   4 |
+| `n_in`         | NN input width, must equal n_x + n_T                         | --  |   14 |
 | `n_hidden`         |                          | --  |   16 |
 | `n_out`         |                          | --  |   4 |
 
 ## Connectors
 
- * `inp` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
+ * `x` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
+ * `T` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function PowerLossNet(; name = nothing, n_in=14, n_hidden=16, n_out=4, kwargs...)
+@component function PowerLossNet(; name = nothing, n_x=10, n_T=4, n_in=14, n_hidden=16, n_out=4, kwargs...)
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -71,7 +75,8 @@ appear only inside `connect(...)`, not in a general expression.
   ### Final Parameters (assignments)
 
   ### Final Path Parameters
-  append!(__vars, @variables (inp(t)[1:n_in]::Real), [input = true])
+  append!(__vars, @variables (x(t)[1:n_x]::Real), [input = true])
+  append!(__vars, @variables (T(t)[1:n_T]::Real), [input = true])
   append!(__vars, @variables (out(t)[1:n_out]::Real), [output = true])
 
   ### Variables (declarations)
@@ -97,14 +102,21 @@ appear only inside `connect(...)`, not in a general expression.
   __assertions = []
 
   ### Equations
-
-  ### Control Structures
-  for i in 1:n_in
-    push!(__eqs, connect(inp[i], nn.inputs[i]))
-  end
-  for j in 1:n_out
-    push!(__eqs, connect(nn.outputs[j], out[j]))
-  end
+  push!(__eqs, connect(x[1], nn.inputs[1]))
+  push!(__eqs, connect(x[2], nn.inputs[2]))
+  push!(__eqs, connect(x[3], nn.inputs[3]))
+  push!(__eqs, connect(x[4], nn.inputs[4]))
+  push!(__eqs, connect(x[5], nn.inputs[5]))
+  push!(__eqs, connect(x[6], nn.inputs[6]))
+  push!(__eqs, connect(x[7], nn.inputs[7]))
+  push!(__eqs, connect(x[8], nn.inputs[8]))
+  push!(__eqs, connect(x[9], nn.inputs[9]))
+  push!(__eqs, connect(x[10], nn.inputs[10]))
+  push!(__eqs, connect(T[1], nn.inputs[11]))
+  push!(__eqs, connect(T[2], nn.inputs[12]))
+  push!(__eqs, connect(T[3], nn.inputs[13]))
+  push!(__eqs, connect(T[4], nn.inputs[14]))
+  push!(__eqs, connect(nn.outputs, out))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

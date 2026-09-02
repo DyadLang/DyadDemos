@@ -20,8 +20,8 @@ external component FastVectorInterpolation
   structural parameter extrapolation_type::BlockComponents.Tables.ExtrapolationType = BlockComponents.Tables.ExtrapolationType.None()
   "Number of output channels — must equal the number of dependent_vars in `dataset`"
   structural parameter n_outputs::Integer
-  u = RealInput()
-  y = [RealOutput() for i in 1:n_outputs]
+  u = RealInput() {^u}
+  y = [RealOutput() for i in 1:n_outputs] {^y}
 relations
 metadata {
   "Dyad": {
@@ -30,16 +30,8 @@ metadata {
     "doc": {"behavior": false}
   },
   "_links": {
-    "u": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "input", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
-      }
-    },
-    "y": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
-      }
-    }
+    "u": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}}},
+    "y": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 475, "x2": 1025, "y2": 525, "show": 16}}}}
   }
 }
 end

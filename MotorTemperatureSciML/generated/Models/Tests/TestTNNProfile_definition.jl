@@ -135,6 +135,8 @@ the parameter slot.
   push!(__eqs, T_sy_meas ~ raw_meas[2])
   push!(__eqs, T_st_meas ~ raw_meas[3])
   push!(__eqs, T_sw_meas ~ raw_meas[4])
+  push!(__eqs, connect(interp_inputs.y, raw_inputs))
+  push!(__eqs, connect(interp_meas.y, raw_meas))
   push!(__eqs, connect(raw_inputs[1], model.u_q_raw))
   push!(__eqs, connect(raw_inputs[2], model.coolant_raw))
   push!(__eqs, connect(raw_inputs[3], model.u_d_raw))
@@ -145,14 +147,6 @@ the parameter slot.
   push!(__eqs, connect(raw_inputs[8], model.torque_raw))
   push!(__eqs, connect(raw_inputs[9], model.i_s_raw))
   push!(__eqs, connect(raw_inputs[10], model.u_s_raw))
-
-  ### Control Structures
-  for i in 1:10
-    push!(__eqs, connect(interp_inputs.y[i], raw_inputs[i]))
-  end
-  for i in 1:4
-    push!(__eqs, connect(interp_meas.y[i], raw_meas[i]))
-  end
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

@@ -18,17 +18,17 @@ Adjacency (1-indexed conductance indices for each target node):
 """
 component ThermalDynamics
   "Thermal conductance inputs from ConductanceNet"
-  conducts = [RealInput() for i in 1:15]
+  conducts = [RealInput() for i in 1:15] {^conducts}
   "Power loss inputs from PowerLossNet"
-  ploss = [RealInput() for i in 1:4]
+  ploss = [RealInput() for i in 1:4] {^ploss}
   "Inverse thermal capacitance inputs from CapacitanceBlock"
-  inv_cap = [RealInput() for i in 1:4]
+  inv_cap = [RealInput() for i in 1:4] {^inv_cap}
   "Normalised coolant temperature input"
-  coolant_norm = RealInput()
+  coolant_norm = RealInput() {^coolant_norm}
   "Normalised ambient temperature input"
-  ambient_norm = RealInput()
+  ambient_norm = RealInput() {^ambient_norm}
   "Estimated temperature states (normalised): pm, stator_yoke, stator_tooth, stator_winding"
-  T = [RealOutput() for i in 1:4]
+  T = [RealOutput() for i in 1:4] {^T}
 
   structural parameter n_states::Integer = 4
   structural parameter n_conds::Integer = 15
@@ -56,16 +56,12 @@ metadata {
     "icons": {"default": "dyad://MotorTemperatureSciML/ThermalDynamics.svg"}
   },
   "_links": {
-    "conducts":     {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 100, "x2": 50, "y2": 200}}}},
-    "ploss":        {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}}},
-    "inv_cap":      {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 800, "x2": 50, "y2": 900}}}},
-    "coolant_norm": {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": 200, "y1": 950, "x2": 300, "y2": 1050}}}},
-    "ambient_norm": {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": 700, "y1": 950, "x2": 800, "y2": 1050}}}},
-    "T": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
-      }
-    }
+    "conducts":     {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 275, "y1": -15, "x2": 725, "y2": 15, "show": 15}}}},
+    "coolant_norm": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 10, "x2": 50, "y2": 110}}}},
+    "ambient_norm": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 120, "x2": 50, "y2": 220}}}},
+    "ploss":        {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -20, "y1": 300, "x2": 20, "y2": 460, "show": 4}}}},
+    "inv_cap":      {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -20, "y1": 660, "x2": 20, "y2": 820, "show": 4}}}},
+    "T":            {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 350, "x2": 1025, "y2": 650, "show": 4}}}}
   }
 }
 end
