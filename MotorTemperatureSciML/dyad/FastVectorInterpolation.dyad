@@ -1,0 +1,45 @@
+"""
+Multi-channel data interpolation block. One interpolator over a
+multi-channel `DyadTimeseries`: a single time search per call, vector
+return, and the interpolator object lives as a concretely-typed,
+non-tunable callable parameter slot, so the RHS calls it directly with
+no `FunctionWrapper` boxing.
+
+Use this in place of N stacked `BlockComponents.Tables.Interpolation`
+blocks when N channels share the same independent variable: MTK's CSE
+collapses repeated `interpolator(t)` references at the same `t` into one
+search × N indexings, and the search warm-start is shared across channels.
+Both effects matter under ForwardDiff, where per-call boxing and repeated
+searches turn into measurable overhead.
+
+Implementation in `dyad/definitions.jl` (external component).
+"""
+external component FastVectorInterpolation
+  structural parameter dataset::DyadData.DyadTimeseries
+  structural parameter interpolation_type::BlockComponents.Tables.InterpolationType
+  structural parameter extrapolation_type::BlockComponents.Tables.ExtrapolationType = BlockComponents.Tables.ExtrapolationType.None()
+  "Number of output channels — must equal the number of dependent_vars in `dataset`"
+  structural parameter n_outputs::Integer
+  u = RealInput()
+  y = [RealOutput() for i in 1:n_outputs]
+relations
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://BlockComponents/Interpolation.svg"},
+    "doc": {"behavior": false}
+  },
+  "_links": {
+    "u": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "input", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
+      }
+    },
+    "y": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end

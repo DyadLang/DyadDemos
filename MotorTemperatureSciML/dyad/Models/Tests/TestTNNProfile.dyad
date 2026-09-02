@@ -1,0 +1,85 @@
+"""
+Data-driven harness for `TNNModel`: one drive profile of the Paderborn PMSM
+temperature dataset ("Electric Motor Temperature" on Kaggle) feeds the model.
+The default `data_file` is `profile_id = 17`, the training profile; the
+validation script re-instantiates this harness with the held-out profiles
+(60, 62, 74) by overriding `data_file`.
+
+Two `MotorTemperatureSciML.FastVectorInterpolation` instances feed the 10
+time-varying operating-condition inputs and the 4 measured temperatures into
+the model — one shared time search per RHS call, no FunctionWrapper boxing on
+the parameter slot.
+"""
+test component TestTNNProfile
+  model = MotorTemperatureSciML.Models.TNNModel()
+
+  "CSV with the profile's inputs and measured temperatures (see scripts/prepare_data.jl)"
+  structural parameter data_file::String = "dyad://MotorTemperatureSciML/data/profile_17.csv"
+
+  structural parameter ds_inputs::DyadData.DyadTimeseries = DyadData.DyadTimeseries(data_file, independent_var = "time", dependent_vars = ["u_q", "coolant", "u_d", "motor_speed", "i_d", "i_q", "ambient", "torque", "i_s", "u_s"])
+  structural parameter ds_meas::DyadData.DyadTimeseries = DyadData.DyadTimeseries(data_file, independent_var = "time", dependent_vars = ["pm", "stator_yoke", "stator_tooth", "stator_winding"])
+
+  # Single multi-channel interpolator for all 10 input signals — one search
+  # per `t`, vector return, `interpolator(t)[i]` CSE'd across the 10 reads.
+  # See dyad/FastVectorInterpolation.dyad for why this beats stacked
+  # `BlockComponents.Tables.Interpolation` instances under ForwardDiff.
+  interp_inputs = MotorTemperatureSciML.FastVectorInterpolation(interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset = ds_inputs, extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs = 10)
+
+  # Single multi-channel interpolator for the 4 measured temperatures.
+  # Order: 1=pm, 2=stator_yoke, 3=stator_tooth, 4=stator_winding.
+  interp_meas = MotorTemperatureSciML.FastVectorInterpolation(interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset = ds_meas, extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs = 4)
+
+  # Component-level array connectors that mediate between the interpolators'
+  # sub-component vector outputs and the consumers downstream. Sub-component
+  # indexed vector ports (`interp_*.y[i]`) are only legal inside `connect(...)`
+  # — they can't appear in regular equations like `T_pm_meas = ...`. Routing
+  # through these own-component arrays sidesteps that restriction (see
+  # `Networks/PowerLossNet.dyad` for the same pattern with `nn.outputs[j]`).
+  raw_inputs = [RealOutput() for i in 1:10]
+  raw_meas = [RealOutput() for i in 1:4]
+
+  "Measured temperatures [degC], for plotting against the model outputs"
+  variable T_pm_meas::Real
+  variable T_sy_meas::Real
+  variable T_st_meas::Real
+  variable T_sw_meas::Real
+relations
+  interp_inputs.u = time
+  interp_meas.u = time
+
+  # Wire interp outputs into component-level array connectors via for loops
+  # — both sides array-indexed, the only shape `connect` accepts for vector
+  # ports of sub-components.
+  for i in 1:10
+    connect(interp_inputs.y[i], raw_inputs[i])
+  end
+  for i in 1:4
+    connect(interp_meas.y[i], raw_meas[i])
+  end
+
+  # `dependent_vars` order on `ds_inputs` determines `raw_inputs[i]`:
+  # 1=u_q, 2=coolant, 3=u_d, 4=motor_speed, 5=i_d, 6=i_q, 7=ambient,
+  # 8=torque, 9=i_s, 10=u_s.
+  connect(raw_inputs[1], model.u_q_raw)
+  connect(raw_inputs[2], model.coolant_raw)
+  connect(raw_inputs[3], model.u_d_raw)
+  connect(raw_inputs[4], model.motor_speed_raw)
+  connect(raw_inputs[5], model.i_d_raw)
+  connect(raw_inputs[6], model.i_q_raw)
+  connect(raw_inputs[7], model.ambient_raw)
+  connect(raw_inputs[8], model.torque_raw)
+  connect(raw_inputs[9], model.i_s_raw)
+  connect(raw_inputs[10], model.u_s_raw)
+
+  # Own-component vector port indexing IS allowed in regular equations
+  # (cf. `T[i] = T_state[i]` in `Thermal/ThermalDynamics.dyad`).
+  T_pm_meas = raw_meas[1]
+  T_sy_meas = raw_meas[2]
+  T_st_meas = raw_meas[3]
+  T_sw_meas = raw_meas[4]
+end
+
+analysis TestTNNProfileAnalysis
+  extends TransientAnalysis(stop = 2201.0)
+  model = TestTNNProfile()
+end

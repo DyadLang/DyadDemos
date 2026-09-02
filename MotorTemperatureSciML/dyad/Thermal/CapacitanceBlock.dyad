@@ -1,0 +1,30 @@
+"""
+Thermal capacitance block for the Thermal Neural Network (TNN).
+
+Outputs 4 inverse thermal capacitance values computed as `exp(caps[i])`.
+The log-space parameterisation ensures positivity.
+"""
+component CapacitanceBlock
+  "Inverse thermal capacitance outputs (always positive)"
+  out = [RealOutput() for i in 1:4]
+  structural parameter n_out::Integer = 4
+  "Log-space thermal capacitance parameters"
+  parameter caps::Real[4] = fill(-5.0, 4)
+relations
+  for i in 1:4
+    out[i] = exp(caps[i])
+  end
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://MotorTemperatureSciML/CapacitanceBlock.svg"}
+  },
+  "_links": {
+    "out": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end

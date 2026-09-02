@@ -1,0 +1,41 @@
+"""
+Test harness for the full `TNNModel` driven with constant inputs.
+
+With small random weights (the default `scaled_kaiming(1e-8)` init in the Lux
+chains), `ConductanceNet.out ≈ sigmoid(0) = 0.5` and `PowerLossNet.out ≈ 0`,
+so the temperature states drift toward the mean of the coolant and ambient
+inputs.
+"""
+test component TestTNNModel
+  model = MotorTemperatureSciML.Models.TNNModel()
+
+  "Typical operating point inputs"
+  src_u_q = BlockComponents.Sources.Constant(k = 50.0)
+  src_coolant = BlockComponents.Sources.Constant(k = 60.0)
+  src_u_d = BlockComponents.Sources.Constant(k = -30.0)
+  src_motor_speed = BlockComponents.Sources.Constant(k = 500.0)
+  src_i_d = BlockComponents.Sources.Constant(k = -100.0)
+  src_i_q = BlockComponents.Sources.Constant(k = 150.0)
+  src_ambient = BlockComponents.Sources.Constant(k = 25.0)
+  src_torque = BlockComponents.Sources.Constant(k = 100.0)
+  "Precomputed |i| ≈ sqrt((-100/399.72)² + (150/369.96)²) ≈ 0.4764"
+  src_i_s = BlockComponents.Sources.Constant(k = 0.4764)
+  "Precomputed |u| ≈ sqrt((-30/164.79)² + (50/162.27)²)  ≈ 0.3580"
+  src_u_s = BlockComponents.Sources.Constant(k = 0.3580)
+relations
+  connect(src_u_q.y, model.u_q_raw)
+  connect(src_coolant.y, model.coolant_raw)
+  connect(src_u_d.y, model.u_d_raw)
+  connect(src_motor_speed.y, model.motor_speed_raw)
+  connect(src_i_d.y, model.i_d_raw)
+  connect(src_i_q.y, model.i_q_raw)
+  connect(src_ambient.y, model.ambient_raw)
+  connect(src_torque.y, model.torque_raw)
+  connect(src_i_s.y, model.i_s_raw)
+  connect(src_u_s.y, model.u_s_raw)
+end
+
+analysis TestTNNModelAnalysis
+  extends TransientAnalysis(stop = 500.0)
+  model = TestTNNModel()
+end

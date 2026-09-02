@@ -1,0 +1,82 @@
+"""
+Input normalisation block for the TNN.
+
+Takes 8 raw data signals plus the *precomputed* `i_s` and `u_s` derived
+features and outputs 10 normalised features in the training-time ordering:
+`[u_q, coolant, u_d, motor_speed, i_d, i_q, ambient, torque, i_s, u_s]`.
+
+Temperatures are divided by `MAX_TEMP`; non-temperature signals by their
+column-wise max absolute value from the training data. `i_s_raw` and
+`u_s_raw` are expected to already be in the normalised range — the data-prep
+pipeline computes them from the already-normalised currents and voltages,
+exactly mirroring the upstream PyTorch reference. Computing them here from
+`sqrt(...)` of the in-model normalised values would introduce two algebraic
+equations that turn the system into a DAE — precomputing them avoids that.
+"""
+component Normalizer
+  "Quadrature voltage [V]"
+  u_q_raw = RealInput()
+  "Coolant temperature [degC]"
+  coolant_raw = RealInput()
+  "Direct voltage [V]"
+  u_d_raw = RealInput()
+  "Motor speed [rpm]"
+  motor_speed_raw = RealInput()
+  "Direct current [A]"
+  i_d_raw = RealInput()
+  "Quadrature current [A]"
+  i_q_raw = RealInput()
+  "Ambient temperature [degC]"
+  ambient_raw = RealInput()
+  "Torque [Nm]"
+  torque_raw = RealInput()
+  "Precomputed |i| (normalised, sqrt(i_d_norm² + i_q_norm²) from data prep)"
+  i_s_raw = RealInput()
+  "Precomputed |u| (normalised, sqrt(u_d_norm² + u_q_norm²) from data prep)"
+  u_s_raw = RealInput()
+  "Normalised feature vector matching training-time input_cols ordering"
+  out = [RealOutput() for i in 1:10]
+
+  "Maximum temperature for normalisation [degC]"
+  structural parameter MAX_TEMP::Real = 200.0
+  structural parameter max_abs_u_q::Real = 162.266159057617
+  structural parameter max_abs_u_d::Real = 164.791656494141
+  structural parameter max_abs_motor_speed::Real = 1411.75
+  structural parameter max_abs_i_d::Real = 399.7197265625
+  structural parameter max_abs_i_q::Real = 369.958343505859
+  structural parameter max_abs_torque::Real = 2243.25
+relations
+  out[1] = u_q_raw / max_abs_u_q
+  out[2] = coolant_raw / MAX_TEMP
+  out[3] = u_d_raw / max_abs_u_d
+  out[4] = motor_speed_raw / max_abs_motor_speed
+  out[5] = i_d_raw / max_abs_i_d
+  out[6] = i_q_raw / max_abs_i_q
+  out[7] = ambient_raw / MAX_TEMP
+  out[8] = torque_raw / max_abs_torque
+  out[9] = i_s_raw
+  out[10] = u_s_raw
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://MotorTemperatureSciML/Normalizer.svg"}
+  },
+  "_links": {
+    "u_q_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 0, "x2": 50, "y2": 100}}}},
+    "coolant_raw":     {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 100, "x2": 50, "y2": 200}}}},
+    "u_d_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 200, "x2": 50, "y2": 300}}}},
+    "motor_speed_raw": {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 300, "x2": 50, "y2": 400}}}},
+    "i_d_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 400, "x2": 50, "y2": 500}}}},
+    "i_q_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 500, "x2": 50, "y2": 600}}}},
+    "ambient_raw":     {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 600, "x2": 50, "y2": 700}}}},
+    "torque_raw":      {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 700, "x2": 50, "y2": 800}}}},
+    "i_s_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 800, "x2": 50, "y2": 900}}}},
+    "u_s_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 900, "x2": 50, "y2": 1000}}}},
+    "out": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end
