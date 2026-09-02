@@ -1,0 +1,71 @@
+"""
+Thermal dynamics block for the TNN.
+
+Integrates 4 temperature states using a lumped-parameter thermal network ODE:
+
+  der(T[i]) = inv_cap[i] * (temp_diff[i] + ploss[i])
+
+where `temp_diff[i]` sums conductance-weighted temperature differences from all 6
+nodes (4 target nodes + coolant + ambient) to node `i`, following a fully
+connected adjacency graph.
+
+Adjacency (1-indexed conductance indices for each target node):
+
+  pm:             sy→1,  st→2,  sw→3,  cool→4,  amb→5
+  stator_yoke:    pm→1,  st→6,  sw→7,  cool→8,  amb→9
+  stator_tooth:   pm→2,  sy→6,  sw→10, cool→11, amb→12
+  stator_winding: pm→3,  sy→7,  st→10, cool→13, amb→14
+"""
+component ThermalDynamics
+  "Thermal conductance inputs from ConductanceNet"
+  conducts = [RealInput() for i in 1:15]
+  "Power loss inputs from PowerLossNet"
+  ploss = [RealInput() for i in 1:4]
+  "Inverse thermal capacitance inputs from CapacitanceBlock"
+  inv_cap = [RealInput() for i in 1:4]
+  "Normalised coolant temperature input"
+  coolant_norm = RealInput()
+  "Normalised ambient temperature input"
+  ambient_norm = RealInput()
+  "Estimated temperature states (normalised): pm, stator_yoke, stator_tooth, stator_winding"
+  T = [RealOutput() for i in 1:4]
+
+  structural parameter n_states::Integer = 4
+  structural parameter n_conds::Integer = 15
+  "Initial temperature states (normalised), configurable per profile"
+  parameter T_init::Real[4] = fill(0.15, 4)
+
+  variable T_state::Real[4]
+  variable temp_diff::Real[4]
+relations
+  initial T_state = T_init
+  for i in 1:4
+    T[i] = T_state[i]
+  end
+  # Node ordering: 1=pm, 2=stator_yoke, 3=stator_tooth, 4=stator_winding, 5=coolant, 6=ambient
+  temp_diff[1] = (T_state[2] - T_state[1]) * conducts[1] + (T_state[3] - T_state[1]) * conducts[2] + (T_state[4] - T_state[1]) * conducts[3] + (coolant_norm - T_state[1]) * conducts[4] + (ambient_norm - T_state[1]) * conducts[5]
+  temp_diff[2] = (T_state[1] - T_state[2]) * conducts[1] + (T_state[3] - T_state[2]) * conducts[6] + (T_state[4] - T_state[2]) * conducts[7] + (coolant_norm - T_state[2]) * conducts[8] + (ambient_norm - T_state[2]) * conducts[9]
+  temp_diff[3] = (T_state[1] - T_state[3]) * conducts[2] + (T_state[2] - T_state[3]) * conducts[6] + (T_state[4] - T_state[3]) * conducts[10] + (coolant_norm - T_state[3]) * conducts[11] + (ambient_norm - T_state[3]) * conducts[12]
+  temp_diff[4] = (T_state[1] - T_state[4]) * conducts[3] + (T_state[2] - T_state[4]) * conducts[7] + (T_state[3] - T_state[4]) * conducts[10] + (coolant_norm - T_state[4]) * conducts[13] + (ambient_norm - T_state[4]) * conducts[14]
+  for i in 1:4
+    der(T_state[i]) = inv_cap[i] * (temp_diff[i] + ploss[i])
+  end
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://MotorTemperatureSciML/ThermalDynamics.svg"}
+  },
+  "_links": {
+    "conducts":     {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 100, "x2": 50, "y2": 200}}}},
+    "ploss":        {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}}},
+    "inv_cap":      {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 800, "x2": 50, "y2": 900}}}},
+    "coolant_norm": {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": 200, "y1": 950, "x2": 300, "y2": 1050}}}},
+    "ambient_norm": {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": 700, "y1": 950, "x2": 800, "y2": 1050}}}},
+    "T": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end

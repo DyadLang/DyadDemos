@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#fff" d="M4 4h992v992H4z"/>
+  <path fill="#008a19" d="M992 8v984H8V8zm8-8H0h0v1000h1000z"/>
+  <!-- thermometer -->
+  <rect x="270" y="150" width="90" height="480" rx="45" fill="#fff" stroke="#000" stroke-width="12"/>
+  <circle cx="315" cy="700" r="105" fill="#d32f2f" stroke="#000" stroke-width="12"/>
+  <rect x="292" y="330" width="46" height="330" fill="#d32f2f"/>
+  <!-- temperature trajectory rising to steady state -->
+  <g stroke="#000" stroke-width="10" fill="none">
+    <path d="M520 800 h380"/>
+    <path d="M520 800 v-580"/>
+  </g>
+  <path fill="none" stroke="#0066b3" stroke-width="16" stroke-linecap="round"
+        d="M520 790 C 620 780 640 420 730 370 C 800 330 850 320 890 315"/>
+  <text x="500" y="960" font-family="sans-serif" font-size="88" text-anchor="middle" fill="#000">C·dT = ΣG·ΔT + P</text>
+</svg>

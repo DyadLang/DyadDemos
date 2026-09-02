@@ -1,0 +1,105 @@
+"""
+Top-level Thermal Neural Network (TNN) model for electric-drive temperature estimation.
+
+Wires together `Normalizer`, `ConductanceNet`, `PowerLossNet`, `CapacitanceBlock`
+and `ThermalDynamics`.
+
+Block diagram:
+  raw inputs → [Normalizer] → norm(10) → [ConductanceNet] → conducts(15) ─┐
+                             → norm(10) → [PowerLossNet]   → ploss(4) ────┤
+                                                                           ▼
+              [CapacitanceBlock] → inv_cap(4) → [ThermalDynamics] ← coolant,ambient
+                                                       │
+                                              T(4) feedback → NN inputs[11:14]
+                                                       │
+                                        T(4) → [Gain(MAX_TEMP)] → outputs [degC]
+"""
+component TNNModel
+  "Quadrature voltage [V]"
+  u_q_raw = RealInput()
+  "Coolant temperature [degC]"
+  coolant_raw = RealInput()
+  "Direct voltage [V]"
+  u_d_raw = RealInput()
+  "Motor speed [rpm]"
+  motor_speed_raw = RealInput()
+  "Direct current [A]"
+  i_d_raw = RealInput()
+  "Quadrature current [A]"
+  i_q_raw = RealInput()
+  "Ambient temperature [degC]"
+  ambient_raw = RealInput()
+  "Torque [Nm]"
+  torque_raw = RealInput()
+  "Precomputed |i| (normalised, from data prep)"
+  i_s_raw = RealInput()
+  "Precomputed |u| (normalised, from data prep)"
+  u_s_raw = RealInput()
+
+  "Estimated permanent-magnet temperature [degC]"
+  T_pm = RealOutput()
+  "Estimated stator-yoke temperature [degC]"
+  T_stator_yoke = RealOutput()
+  "Estimated stator-tooth temperature [degC]"
+  T_stator_tooth = RealOutput()
+  "Estimated stator-winding temperature [degC]"
+  T_stator_winding = RealOutput()
+
+  "Maximum temperature for de-normalisation [degC]"
+  structural parameter MAX_TEMP::Real = 200.0
+
+  normalizer = MotorTemperatureSciML.Thermal.Normalizer()
+  cond_net = MotorTemperatureSciML.Networks.ConductanceNet()
+  ploss_net = MotorTemperatureSciML.Networks.PowerLossNet()
+  cap_block = MotorTemperatureSciML.Thermal.CapacitanceBlock()
+  thermal = MotorTemperatureSciML.Thermal.ThermalDynamics()
+
+  gain_pm = BlockComponents.Math.Gain(k = MAX_TEMP)
+  gain_sy = BlockComponents.Math.Gain(k = MAX_TEMP)
+  gain_st = BlockComponents.Math.Gain(k = MAX_TEMP)
+  gain_sw = BlockComponents.Math.Gain(k = MAX_TEMP)
+relations
+  connect(u_q_raw, normalizer.u_q_raw)
+  connect(coolant_raw, normalizer.coolant_raw)
+  connect(u_d_raw, normalizer.u_d_raw)
+  connect(motor_speed_raw, normalizer.motor_speed_raw)
+  connect(i_d_raw, normalizer.i_d_raw)
+  connect(i_q_raw, normalizer.i_q_raw)
+  connect(ambient_raw, normalizer.ambient_raw)
+  connect(torque_raw, normalizer.torque_raw)
+  connect(i_s_raw, normalizer.i_s_raw)
+  connect(u_s_raw, normalizer.u_s_raw)
+
+  for i in 1:10
+    connect(normalizer.out[i], cond_net.inp[i])
+  end
+  for i in 1:10
+    connect(normalizer.out[i], ploss_net.inp[i])
+  end
+  for i in 1:4
+    connect(thermal.T[i], cond_net.inp[10 + i])
+  end
+  for i in 1:4
+    connect(thermal.T[i], ploss_net.inp[10 + i])
+  end
+  for i in 1:15
+    connect(cond_net.out[i], thermal.conducts[i])
+  end
+  for i in 1:4
+    connect(ploss_net.out[i], thermal.ploss[i])
+  end
+  for i in 1:4
+    connect(cap_block.out[i], thermal.inv_cap[i])
+  end
+  connect(normalizer.out[2], thermal.coolant_norm)
+  connect(normalizer.out[7], thermal.ambient_norm)
+
+  connect(thermal.T[1], gain_pm.u)
+  connect(gain_pm.y, T_pm)
+  connect(thermal.T[2], gain_sy.u)
+  connect(gain_sy.y, T_stator_yoke)
+  connect(thermal.T[3], gain_st.u)
+  connect(gain_st.y, T_stator_tooth)
+  connect(thermal.T[4], gain_sw.u)
+  connect(gain_sw.y, T_stator_winding)
+end

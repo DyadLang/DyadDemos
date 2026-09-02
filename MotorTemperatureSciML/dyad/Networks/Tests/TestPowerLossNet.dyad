@@ -1,0 +1,17 @@
+"""
+Smoke test for `PowerLossNet`: drive with constant `0.5` inputs and confirm the
+analysis solves.
+"""
+test component TestPowerLossNet
+  net = MotorTemperatureSciML.Networks.PowerLossNet()
+  sources = [BlockComponents.Sources.Constant(k = 0.5) for i in 1:14]
+relations
+  for i in 1:14
+    connect(sources[i].y, net.inp[i])
+  end
+end
+
+analysis TestPowerLossNetAnalysis
+  extends TransientAnalysis(stop = 1.0)
+  model = TestPowerLossNet()
+end

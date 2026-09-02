@@ -1,0 +1,17 @@
+"""
+Smoke test for `ConductanceNet`: drive with constant `0.5` inputs and confirm the
+analysis solves.
+"""
+test component TestConductanceNet
+  net = MotorTemperatureSciML.Networks.ConductanceNet()
+  sources = [BlockComponents.Sources.Constant(k = 0.5) for i in 1:14]
+relations
+  for i in 1:14
+    connect(sources[i].y, net.inp[i])
+  end
+end
+
+analysis TestConductanceNetAnalysis
+  extends TransientAnalysis(stop = 1.0)
+  model = TestConductanceNet()
+end

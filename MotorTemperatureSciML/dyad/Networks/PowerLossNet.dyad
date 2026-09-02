@@ -1,0 +1,55 @@
+"""
+Power-loss sub-network for the Thermal Neural Network (TNN).
+
+Maps a 14-element input vector (normalised operating conditions + estimated
+temperatures) to 4 non-negative power-loss values via
+`Dense(14 → 16, tanh) → Dense(16 → 4, abs)`. Each output is the heat-generation
+rate at one of the 4 target thermal nodes.
+
+The chain is wrapped in `DyadModelDiscovery.NeuralNetworkBlock` so the whole
+NN forward pass becomes one symbolic `stateless_apply` call over a single
+vector parameter — MTK sees one parameter, not 308 scalar weights. The `abs`
+lives inside the Lux chain (as the final layer's activation), not at the Dyad
+boundary, because a sub-component's indexed vector port (`nn.outputs[j]`) can
+appear only inside `connect(...)`, not in a general expression.
+"""
+component PowerLossNet
+  structural parameter n_in::Integer = 14
+  structural parameter n_hidden::Integer = 16
+  structural parameter n_out::Integer = 4
+
+  "Input vector (normalised operating conditions + estimated temperatures)"
+  inp = [RealInput() for i in 1:n_in]
+  "Output power-loss values (non-negative)"
+  out = [RealOutput() for j in 1:n_out]
+
+  nn = DyadModelDiscovery.NeuralNetworkBlock(
+    n_input = n_in,
+    n_output = n_out,
+    chain = MotorTemperatureSciML.power_loss_chain())
+relations
+  for i in 1:n_in
+    connect(inp[i], nn.inputs[i])
+  end
+  for j in 1:n_out
+    connect(nn.outputs[j], out[j])
+  end
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://MotorTemperatureSciML/PowerLossNet.svg"}
+  },
+  "_links": {
+    "inp": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "input", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
+      }
+    },
+    "out": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#fff" d="M4 4h992v992H4z"/>
+  <path fill="#008a19" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <!-- feedforward net: inputs -> hidden -> heat outputs -->
+  <g stroke="#999" stroke-width="6" fill="none">
+    <path d="M210 250 500 160M210 250 500 330M210 250 500 500M210 250 500 670M210 250 500 840"/>
+    <path d="M210 500 500 160M210 500 500 330M210 500 500 500M210 500 500 670M210 500 500 840"/>
+    <path d="M210 750 500 160M210 750 500 330M210 750 500 500M210 750 500 670M210 750 500 840"/>
+    <path d="M500 160 790 330M500 330 790 330M500 500 790 330M500 670 790 330M500 840 790 330"/>
+    <path d="M500 160 790 670M500 330 790 670M500 500 790 670M500 670 790 670M500 840 790 670"/>
+  </g>
+  <g fill="#0066b3" stroke="#000" stroke-width="6">
+    <circle cx="210" cy="250" r="40"/><circle cx="210" cy="500" r="40"/><circle cx="210" cy="750" r="40"/>
+  </g>
+  <g fill="#adaddb" stroke="#000" stroke-width="6">
+    <circle cx="500" cy="160" r="40"/><circle cx="500" cy="330" r="40"/><circle cx="500" cy="500" r="40"/>
+    <circle cx="500" cy="670" r="40"/><circle cx="500" cy="840" r="40"/>
+  </g>
+  <g fill="#d32f2f" stroke="#000" stroke-width="6">
+    <circle cx="790" cy="330" r="44"/><circle cx="790" cy="670" r="44"/>
+  </g>
+  <!-- heat squiggles off the output nodes -->
+  <g stroke="#d32f2f" stroke-width="12" fill="none" stroke-linecap="round">
+    <path d="M860 300 q30 -25 0 -50 q-30 -25 0 -50"/>
+    <path d="M860 640 q30 -25 0 -50 q-30 -25 0 -50"/>
+  </g>
+  <text x="500" y="965" font-family="sans-serif" font-size="90" text-anchor="middle" fill="#000">P(x)</text>
+</svg>

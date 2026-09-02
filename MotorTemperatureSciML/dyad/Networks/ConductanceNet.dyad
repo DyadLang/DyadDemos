@@ -1,0 +1,52 @@
+"""
+Conductance sub-network for the Thermal Neural Network (TNN).
+
+Maps a 14-element input vector (normalised operating conditions + estimated
+temperatures) to 15 thermal conductance values via `Dense(14 → 15, sigmoid)`.
+The 15 outputs correspond to all unique edges in a fully connected graph of
+6 temperature nodes. Outputs lie in `(0, 1)` courtesy of the sigmoid.
+
+The network is wrapped in `DyadModelDiscovery.NeuralNetworkBlock` so the
+forward pass is registered symbolically as a single opaque callable
+(`stateless_apply`) over one vector parameter `p` — MTK sees one parameter,
+not 225 scalar weights.
+"""
+component ConductanceNet
+  structural parameter n_in::Integer = 14
+  structural parameter n_out::Integer = 15
+
+  "Input vector (normalised operating conditions + estimated temperatures)"
+  inp = [RealInput() for i in 1:n_in]
+  "Output conductance values in (0, 1) after sigmoid activation"
+  out = [RealOutput() for j in 1:n_out]
+
+  nn = DyadModelDiscovery.NeuralNetworkBlock(
+    n_input = n_in,
+    n_output = n_out,
+    chain = MotorTemperatureSciML.conductance_chain())
+relations
+  for i in 1:n_in
+    connect(inp[i], nn.inputs[i])
+  end
+  for j in 1:n_out
+    connect(nn.outputs[j], out[j])
+  end
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://MotorTemperatureSciML/ConductanceNet.svg"}
+  },
+  "_links": {
+    "inp": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "input", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
+      }
+    },
+    "out": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#fff" d="M4 4h992v992H4z"/>
+  <path fill="#008a19" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <!-- fully connected 6-node thermal graph; edges = learned conductances -->
+  <g stroke="#555" stroke-width="8" fill="none">
+    <path d="M500 190 257 330M500 190 257 610M500 190 500 750M500 190 743 610M500 190 743 330"/>
+    <path d="M257 330 257 610M257 330 500 750M257 330 743 610M257 330 743 330"/>
+    <path d="M257 610 500 750M257 610 743 610M257 610 743 330"/>
+    <path d="M500 750 743 610M500 750 743 330"/>
+    <path d="M743 610 743 330"/>
+  </g>
+  <!-- 4 target nodes (orange), coolant (blue), ambient (gray) -->
+  <circle cx="500" cy="190" r="52" fill="#ef6c00" stroke="#000" stroke-width="8"/>
+  <circle cx="257" cy="330" r="52" fill="#ef6c00" stroke="#000" stroke-width="8"/>
+  <circle cx="743" cy="330" r="52" fill="#ef6c00" stroke="#000" stroke-width="8"/>
+  <circle cx="500" cy="750" r="52" fill="#ef6c00" stroke="#000" stroke-width="8"/>
+  <circle cx="257" cy="610" r="52" fill="#0066b3" stroke="#000" stroke-width="8"/>
+  <circle cx="743" cy="610" r="52" fill="#9e9e9e" stroke="#000" stroke-width="8"/>
+  <text x="500" y="930" font-family="sans-serif" font-size="90" text-anchor="middle" fill="#000">G(x)</text>
+</svg>
