@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#fff" d="M4 4h992v992H4z"/>
+  <path fill="#008a19" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <!-- thermal capacitance: capacitor plates with stored heat -->
+  <path fill="none" stroke="#000" stroke-width="14" d="M100 500h330M570 500h330"/>
+  <path fill="none" stroke="#000" stroke-width="26" d="M430 260v480M570 260v480"/>
+  <!-- stored heat squiggles -->
+  <g stroke="#d32f2f" stroke-width="14" fill="none" stroke-linecap="round">
+    <path d="M500 200 q35 -30 0 -60 q-35 -30 0 -60"/>
+    <path d="M340 180 q35 -30 0 -60 q-35 -30 0 -60"/>
+    <path d="M660 180 q35 -30 0 -60 q-35 -30 0 -60"/>
+  </g>
+  <text x="500" y="900" font-family="sans-serif" font-size="95" text-anchor="middle" fill="#000">exp(c)</text>
+</svg>

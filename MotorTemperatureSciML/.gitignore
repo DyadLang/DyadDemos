@@ -1,0 +1,12 @@
+/docs/build/
+*.jl.*.cov
+*.jl.cov
+*.jl.mem
+/Manifest*.toml
+/docs/Manifest*.toml
+/agent_resources/
+/.migration-backups/
+
+# Animation snapshot cache (scripts/animate_sms_training.jl); the GIFs are committed.
+/assets/sms_snapshots.bin
+/.dyadcache

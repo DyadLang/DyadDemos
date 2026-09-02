@@ -1,0 +1,8 @@
+# For scripts/train_pytorch_reference.py without uv:
+#   python -m venv .venv && . .venv/bin/activate
+#   pip install -r scripts/requirements.txt
+#   python scripts/train_pytorch_reference.py
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.2
+pandas>=2.0
+numpy>=1.26
