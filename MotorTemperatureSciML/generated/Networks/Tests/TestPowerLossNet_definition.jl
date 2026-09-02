@@ -78,11 +78,20 @@ analysis solves.
   __assertions = []
 
   ### Equations
-
-  ### Control Structures
-  for i in 1:14
-    push!(__eqs, connect(sources[i].y, net.inp[i]))
-  end
+  push!(__eqs, connect(sources[1].y, net.x[1]))
+  push!(__eqs, connect(sources[2].y, net.x[2]))
+  push!(__eqs, connect(sources[3].y, net.x[3]))
+  push!(__eqs, connect(sources[4].y, net.x[4]))
+  push!(__eqs, connect(sources[5].y, net.x[5]))
+  push!(__eqs, connect(sources[6].y, net.x[6]))
+  push!(__eqs, connect(sources[7].y, net.x[7]))
+  push!(__eqs, connect(sources[8].y, net.x[8]))
+  push!(__eqs, connect(sources[9].y, net.x[9]))
+  push!(__eqs, connect(sources[10].y, net.x[10]))
+  push!(__eqs, connect(sources[11].y, net.T[1]))
+  push!(__eqs, connect(sources[12].y, net.T[2]))
+  push!(__eqs, connect(sources[13].y, net.T[3]))
+  push!(__eqs, connect(sources[14].y, net.T[4]))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

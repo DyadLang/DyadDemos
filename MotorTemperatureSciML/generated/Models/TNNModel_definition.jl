@@ -15,14 +15,15 @@ Wires together `Normalizer`, `ConductanceNet`, `PowerLossNet`, `CapacitanceBlock
 and `ThermalDynamics`.
 
 Block diagram:
-  raw inputs → [Normalizer] → norm(10) → [ConductanceNet] → conducts(15) ─┐
-                             → norm(10) → [PowerLossNet]   → ploss(4) ────┤
-                                                                           ▼
-              [CapacitanceBlock] → inv_cap(4) → [ThermalDynamics] ← coolant,ambient
-                                                       │
-                                              T(4) feedback → NN inputs[11:14]
-                                                       │
-                                        T(4) → [Gain(MAX_TEMP)] → outputs [degC]
+  raw inputs → [Normalizer] → out(10) ─┬→ [ConductanceNet.x] → out(15) → [ThermalDynamics.conducts]
+                                       └→ [PowerLossNet.x]   → out(4)  → [ThermalDynamics.ploss]
+              [CapacitanceBlock] → out(4) → [ThermalDynamics.inv_cap];  out[2], out[7] → coolant, ambient
+              [ThermalDynamics.T](4) ─┬→ [ConductanceNet.T], [PowerLossNet.T]   (feedback)
+                                      └→ [Gain(MAX_TEMP)] ×4 → outputs [degC]
+
+Vector signals are connected as whole arrays (`connect(normalizer.out, cond_net.x)`),
+which is one wire in the schematic and the same set of equations as an element-wise
+`for` loop.
 
 ## Parameters:
 
@@ -154,6 +155,13 @@ Block diagram:
   push!(__eqs, connect(torque_raw, normalizer.torque_raw))
   push!(__eqs, connect(i_s_raw, normalizer.i_s_raw))
   push!(__eqs, connect(u_s_raw, normalizer.u_s_raw))
+  push!(__eqs, connect(normalizer.out, cond_net.x))
+  push!(__eqs, connect(normalizer.out, ploss_net.x))
+  push!(__eqs, connect(thermal.T, cond_net.T))
+  push!(__eqs, connect(thermal.T, ploss_net.T))
+  push!(__eqs, connect(cond_net.out, thermal.conducts))
+  push!(__eqs, connect(ploss_net.out, thermal.ploss))
+  push!(__eqs, connect(cap_block.out, thermal.inv_cap))
   push!(__eqs, connect(normalizer.out[2], thermal.coolant_norm))
   push!(__eqs, connect(normalizer.out[7], thermal.ambient_norm))
   push!(__eqs, connect(thermal.T[1], gain_pm.u))
@@ -164,29 +172,6 @@ Block diagram:
   push!(__eqs, connect(gain_st.y, T_stator_tooth))
   push!(__eqs, connect(thermal.T[4], gain_sw.u))
   push!(__eqs, connect(gain_sw.y, T_stator_winding))
-
-  ### Control Structures
-  for i in 1:10
-    push!(__eqs, connect(normalizer.out[i], cond_net.inp[i]))
-  end
-  for i in 1:10
-    push!(__eqs, connect(normalizer.out[i], ploss_net.inp[i]))
-  end
-  for i in 1:4
-    push!(__eqs, connect(thermal.T[i], cond_net.inp[10 + i]))
-  end
-  for i in 1:4
-    push!(__eqs, connect(thermal.T[i], ploss_net.inp[10 + i]))
-  end
-  for i in 1:15
-    push!(__eqs, connect(cond_net.out[i], thermal.conducts[i]))
-  end
-  for i in 1:4
-    push!(__eqs, connect(ploss_net.out[i], thermal.ploss[i]))
-  end
-  for i in 1:4
-    push!(__eqs, connect(cap_block.out[i], thermal.inv_cap[i]))
-  end
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

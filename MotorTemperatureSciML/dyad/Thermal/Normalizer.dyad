@@ -15,27 +15,27 @@ equations that turn the system into a DAE — precomputing them avoids that.
 """
 component Normalizer
   "Quadrature voltage [V]"
-  u_q_raw = RealInput()
+  u_q_raw = RealInput() {^u_q_raw}
   "Coolant temperature [degC]"
-  coolant_raw = RealInput()
+  coolant_raw = RealInput() {^coolant_raw}
   "Direct voltage [V]"
-  u_d_raw = RealInput()
+  u_d_raw = RealInput() {^u_d_raw}
   "Motor speed [rpm]"
-  motor_speed_raw = RealInput()
+  motor_speed_raw = RealInput() {^motor_speed_raw}
   "Direct current [A]"
-  i_d_raw = RealInput()
+  i_d_raw = RealInput() {^i_d_raw}
   "Quadrature current [A]"
-  i_q_raw = RealInput()
+  i_q_raw = RealInput() {^i_q_raw}
   "Ambient temperature [degC]"
-  ambient_raw = RealInput()
+  ambient_raw = RealInput() {^ambient_raw}
   "Torque [Nm]"
-  torque_raw = RealInput()
+  torque_raw = RealInput() {^torque_raw}
   "Precomputed |i| (normalised, sqrt(i_d_norm² + i_q_norm²) from data prep)"
-  i_s_raw = RealInput()
+  i_s_raw = RealInput() {^i_s_raw}
   "Precomputed |u| (normalised, sqrt(u_d_norm² + u_q_norm²) from data prep)"
-  u_s_raw = RealInput()
+  u_s_raw = RealInput() {^u_s_raw}
   "Normalised feature vector matching training-time input_cols ordering"
-  out = [RealOutput() for i in 1:10]
+  out = [RealOutput() for i in 1:10] {^out}
 
   "Maximum temperature for normalisation [degC]"
   structural parameter MAX_TEMP::Real = 200.0
@@ -62,21 +62,17 @@ metadata {
     "icons": {"default": "dyad://MotorTemperatureSciML/Normalizer.svg"}
   },
   "_links": {
-    "u_q_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 0, "x2": 50, "y2": 100}}}},
-    "coolant_raw":     {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 100, "x2": 50, "y2": 200}}}},
-    "u_d_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 200, "x2": 50, "y2": 300}}}},
-    "motor_speed_raw": {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 300, "x2": 50, "y2": 400}}}},
-    "i_d_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 400, "x2": 50, "y2": 500}}}},
-    "i_q_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 500, "x2": 50, "y2": 600}}}},
-    "ambient_raw":     {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 600, "x2": 50, "y2": 700}}}},
-    "torque_raw":      {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 700, "x2": 50, "y2": 800}}}},
-    "i_s_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 800, "x2": 50, "y2": 900}}}},
-    "u_s_raw":         {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -50, "y1": 900, "x2": 50, "y2": 1000}}}},
-    "out": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "output", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
-      }
-    }
+    "u_q_raw":         {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 0, "x2": 50, "y2": 100}}}},
+    "coolant_raw":     {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 100, "x2": 50, "y2": 200}}}},
+    "u_d_raw":         {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 200, "x2": 50, "y2": 300}}}},
+    "motor_speed_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 300, "x2": 50, "y2": 400}}}},
+    "i_d_raw":         {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 400, "x2": 50, "y2": 500}}}},
+    "i_q_raw":         {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 500, "x2": 50, "y2": 600}}}},
+    "ambient_raw":     {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 600, "x2": 50, "y2": 700}}}},
+    "torque_raw":      {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800}}}},
+    "i_s_raw":         {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 800, "x2": 50, "y2": 900}}}},
+    "u_s_raw":         {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 900, "x2": 50, "y2": 1000}}}},
+    "out":             {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 100, "x2": 1025, "y2": 900, "show": 10}}}}
   }
 }
 end

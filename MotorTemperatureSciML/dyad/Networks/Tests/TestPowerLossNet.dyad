@@ -3,12 +3,30 @@ Smoke test for `PowerLossNet`: drive with constant `0.5` inputs and confirm the
 analysis solves.
 """
 test component TestPowerLossNet
-  net = MotorTemperatureSciML.Networks.PowerLossNet()
-  sources = [BlockComponents.Sources.Constant(k = 0.5) for i in 1:14]
+  net = MotorTemperatureSciML.Networks.PowerLossNet() {^net}
+  sources = [BlockComponents.Sources.Constant(k = 0.5) for i in 1:14] {^sources}
 relations
-  for i in 1:14
-    connect(sources[i].y, net.inp[i])
-  end
+  # 14 constant sources: 10 into `x`, 4 into `T` (element-wise so the wires are drawn)
+  connect(sources[1].y, net.x[1])
+  connect(sources[2].y, net.x[2])
+  connect(sources[3].y, net.x[3])
+  connect(sources[4].y, net.x[4])
+  connect(sources[5].y, net.x[5])
+  connect(sources[6].y, net.x[6])
+  connect(sources[7].y, net.x[7])
+  connect(sources[8].y, net.x[8])
+  connect(sources[9].y, net.x[9])
+  connect(sources[10].y, net.x[10])
+  connect(sources[11].y, net.T[1])
+  connect(sources[12].y, net.T[2])
+  connect(sources[13].y, net.T[3])
+  connect(sources[14].y, net.T[4])
+metadata {
+  "_links": {
+    "sources": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 80, "y1": 450, "x2": 180, "y2": 550, "rot": 0}}}},
+    "net":     {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 400, "y1": 350, "x2": 700, "y2": 650, "rot": 0}}}}
+  }
+}
 end
 
 analysis TestPowerLossNetAnalysis

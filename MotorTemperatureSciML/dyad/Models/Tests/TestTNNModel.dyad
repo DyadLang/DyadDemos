@@ -7,21 +7,21 @@ so the temperature states drift toward the mean of the coolant and ambient
 inputs.
 """
 test component TestTNNModel
-  model = MotorTemperatureSciML.Models.TNNModel()
+  model = MotorTemperatureSciML.Models.TNNModel() {^model}
 
   "Typical operating point inputs"
-  src_u_q = BlockComponents.Sources.Constant(k = 50.0)
-  src_coolant = BlockComponents.Sources.Constant(k = 60.0)
-  src_u_d = BlockComponents.Sources.Constant(k = -30.0)
-  src_motor_speed = BlockComponents.Sources.Constant(k = 500.0)
-  src_i_d = BlockComponents.Sources.Constant(k = -100.0)
-  src_i_q = BlockComponents.Sources.Constant(k = 150.0)
-  src_ambient = BlockComponents.Sources.Constant(k = 25.0)
-  src_torque = BlockComponents.Sources.Constant(k = 100.0)
+  src_u_q = BlockComponents.Sources.Constant(k = 50.0) {^src_u_q}
+  src_coolant = BlockComponents.Sources.Constant(k = 60.0) {^src_coolant}
+  src_u_d = BlockComponents.Sources.Constant(k = -30.0) {^src_u_d}
+  src_motor_speed = BlockComponents.Sources.Constant(k = 500.0) {^src_motor_speed}
+  src_i_d = BlockComponents.Sources.Constant(k = -100.0) {^src_i_d}
+  src_i_q = BlockComponents.Sources.Constant(k = 150.0) {^src_i_q}
+  src_ambient = BlockComponents.Sources.Constant(k = 25.0) {^src_ambient}
+  src_torque = BlockComponents.Sources.Constant(k = 100.0) {^src_torque}
   "Precomputed |i| ≈ sqrt((-100/399.72)² + (150/369.96)²) ≈ 0.4764"
-  src_i_s = BlockComponents.Sources.Constant(k = 0.4764)
+  src_i_s = BlockComponents.Sources.Constant(k = 0.4764) {^src_i_s}
   "Precomputed |u| ≈ sqrt((-30/164.79)² + (50/162.27)²)  ≈ 0.3580"
-  src_u_s = BlockComponents.Sources.Constant(k = 0.3580)
+  src_u_s = BlockComponents.Sources.Constant(k = 0.3580) {^src_u_s}
 relations
   connect(src_u_q.y, model.u_q_raw)
   connect(src_coolant.y, model.coolant_raw)
@@ -33,6 +33,21 @@ relations
   connect(src_torque.y, model.torque_raw)
   connect(src_i_s.y, model.i_s_raw)
   connect(src_u_s.y, model.u_s_raw)
+metadata {
+  "_links": {
+    "src_u_q":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 60, "x2": 140, "y2": 140, "rot": 0}}}},
+    "src_coolant":      {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 190, "x2": 140, "y2": 270, "rot": 0}}}},
+    "src_u_d":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 320, "x2": 140, "y2": 400, "rot": 0}}}},
+    "src_motor_speed":  {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 450, "x2": 140, "y2": 530, "rot": 0}}}},
+    "src_i_d":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 580, "x2": 140, "y2": 660, "rot": 0}}}},
+    "src_i_q":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 710, "x2": 140, "y2": 790, "rot": 0}}}},
+    "src_ambient":      {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 840, "x2": 140, "y2": 920, "rot": 0}}}},
+    "src_torque":       {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 970, "x2": 140, "y2": 1050, "rot": 0}}}},
+    "src_i_s":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 1100, "x2": 140, "y2": 1180, "rot": 0}}}},
+    "src_u_s":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 1230, "x2": 140, "y2": 1310, "rot": 0}}}},
+    "model":           {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500, "y1": 535, "x2": 800, "y2": 835, "rot": 0}}}}
+  }
+}
 end
 
 analysis TestTNNModelAnalysis
