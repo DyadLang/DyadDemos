@@ -3,6 +3,7 @@
 # dependencies = [
 #     "torch>=2.2",
 #     "pandas>=2.0",
+#     "pyarrow>=15",
 #     "numpy>=1.26",
 # ]
 #
@@ -20,10 +21,10 @@ Reference PyTorch Thermal Neural Network, trained on profile 17 only.
 A port of the training and evaluation cells of `TNN_pytorch.ipynb` from
 github.com/wkirgsn/thermal-nn (model code verbatim), restricted to the single
 profile this demo trains on, so the Dyad calibration can be compared with the
-reference implementation at equal data. It reads the profile CSVs shipped in
+reference implementation at equal data. It reads the profile Parquet files shipped in
 assets/data/ (the notebook's preprocessing is reproduced with the same max-abs
 constants as dyad/Thermal/Normalizer.dyad) and writes
-assets/data/pytorch_profile_<id>.csv, the free-running predictions that
+assets/data/pytorch_profile_<id>.parquet, the free-running predictions that
 scripts/validate_calibration.jl overlays.
 
 Run from the package root (uv creates the CPU-only environment on first use):
@@ -65,7 +66,7 @@ TEMPERATURE_COLS = TARGET_COLS + ["ambient", "coolant"]
 
 # The notebook divides temperatures by 200 and every other signal by its
 # max-abs over the full 69-profile dataset. i_s / u_s are already derived from
-# the normalised currents and voltages in the shipped CSVs.
+# the normalised currents and voltages in the shipped profiles.
 MAX_TEMP = 200.0
 MAX_ABS = {
     "u_q": 162.266159057617,
@@ -78,7 +79,7 @@ MAX_ABS = {
 
 
 def load_profile(data_dir: Path, pid: int) -> pd.DataFrame:
-    df = pd.read_csv(data_dir / f"profile_{pid}.csv")
+    df = pd.read_parquet(data_dir / f"profile_{pid}.parquet")
     for c in TEMPERATURE_COLS:
         df[c] = df[c] / MAX_TEMP
     for c, m in MAX_ABS.items():
@@ -214,7 +215,7 @@ def main():
     ap.add_argument("--threads", type=int, default=None, help="torch CPU threads (default: torch's)")
     ap.add_argument("--data-dir", type=Path, default=here.parent / "assets" / "data")
     ap.add_argument("--out-dir", type=Path, default=None,
-                    help="where to write pytorch_profile_<id>.csv (default: --data-dir)")
+                    help="where to write pytorch_profile_<id>.parquet (default: --data-dir)")
     ap.add_argument("--no-export", action="store_true", help="only train and report, write nothing")
     args = ap.parse_args()
     out_dir = args.out_dir or args.data_dir
@@ -251,9 +252,9 @@ def main():
             for j, c in enumerate(TARGET_COLS):
                 out[f"{c}_pred"] = pred[:, j]
             out_dir.mkdir(parents=True, exist_ok=True)
-            out.to_csv(out_dir / f"pytorch_profile_{pid}.csv", index=False)
+            out.to_parquet(out_dir / f"pytorch_profile_{pid}.parquet", compression="zstd", index=False)
     if not args.no_export:
-        print(f"\nPredictions written to {out_dir}/pytorch_profile_<id>.csv")
+        print(f"\nPredictions written to {out_dir}/pytorch_profile_<id>.parquet")
 
 
 if __name__ == "__main__":

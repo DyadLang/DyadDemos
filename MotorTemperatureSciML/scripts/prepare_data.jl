@@ -3,8 +3,8 @@
 # Kaggle, DOI 10.34740/KAGGLE/DSV/2161054; also shipped with
 # github.com/wkirgsn/thermal-nn under data/input/). Sampling is 2 Hz.
 #
-# Writes assets/data/profile_<id>.csv in the schema `TestTNNProfile.dyad`
-# expects:
+# Writes assets/data/profile_<id>.parquet (zstd-compressed, Float64) in the
+# schema `TestTNNProfile.dyad` expects:
 #
 #   time, u_q, coolant, u_d, motor_speed, i_d, i_q, ambient, torque, i_s, u_s,
 #   pm, stator_yoke, stator_tooth, stator_winding
@@ -19,9 +19,13 @@
 #   julia +dyad-3.3.0 --project scripts/prepare_data.jl --source ... --truncate-seconds 7200
 #
 # The source path can also be given via the MEASURES_V2 environment variable.
-# The default profile set (17, 60, 62, 74) regenerates the shipped CSVs.
+# The default profile set (17, 60, 62, 74) regenerates the shipped files.
+#
+# Parquet keeps the full Float64 precision of the source at about a third of
+# the CSV size, and reads with one call from Julia (Parquet2.jl) and Python
+# (pandas / pyarrow) alike.
 
-using CSV, DataFrames
+using CSV, DataFrames, Parquet2
 
 const DST_DIR = normpath(joinpath(@__DIR__, "..", "assets", "data"))
 const DT      = 0.5   # Paderborn sampling period [s]
@@ -77,7 +81,7 @@ for pid in opts.profiles
     end
     select!(df, [:time, :u_q, :coolant, :u_d, :motor_speed, :i_d, :i_q, :ambient,
                  :torque, :i_s, :u_s, :pm, :stator_yoke, :stator_tooth, :stator_winding])
-    dst = joinpath(DST_DIR, "profile_$(pid).csv")
-    CSV.write(dst, df)
+    dst = joinpath(DST_DIR, "profile_$(pid).parquet")
+    Parquet2.writefile(dst, df; compression_codec = :zstd)
     @info "Wrote profile" profile_id = pid dst rows = nrow(df) span_s = (df.time[1], df.time[end])
 end

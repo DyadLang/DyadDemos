@@ -9,6 +9,7 @@ using DyadModelOptimizer: search_space_names
 using OrdinaryDiffEqTsit5: Tsit5
 using OptimizationOptimisers: Adam
 using CSV, DataFrames
+using Parquet2
 using Logging
 
 const ASSETS_DIR = normpath(joinpath(@__DIR__, "..", "assets"))
@@ -55,14 +56,21 @@ const CONTINUITY_TOL_C = 0.2
 const TARGET_COLS   = (:pm, :stator_yoke, :stator_tooth, :stator_winding)
 const TARGET_LABELS = ("T_pm", "T_stator_yoke", "T_stator_tooth", "T_stator_winding")
 
-profile_csv(id) = joinpath(DATA_DIR, "profile_$(id).csv")
-profile_uri(id) = "dyad://MotorTemperatureSciML/data/profile_$(id).csv"
-load_profile(id) = CSV.read(profile_csv(id), DataFrame)
+profile_path(id) = joinpath(DATA_DIR, "profile_$(id).parquet")
+profile_uri(id) = "dyad://MotorTemperatureSciML/data/profile_$(id).parquet"
+load_profile(id) = read_parquet(profile_path(id))
+
+"""
+Read a Parquet file into a `DataFrame` (all columns materialised). Columns that
+pandas marks as nullable but contain no missing values are narrowed to plain
+`Float64` so downstream arithmetic sees no `Missing`.
+"""
+read_parquet(path) = disallowmissing!(DataFrame(Parquet2.Dataset(path); copycols = true); error = false)
 
 """
     build_system(profile_id = TRAIN_PROFILE)
 
-Compiled `TestTNNProfile` system driven by `assets/data/profile_<id>.csv`.
+Compiled `TestTNNProfile` system driven by `assets/data/profile_<id>.parquet`.
 The harness is instantiated with `data_file` overridden and pushed through its
 `TransientAnalysis` so it is compiled exactly the way the Dyad pipeline does it
 (the 1 s solve the analysis performs is discarded).

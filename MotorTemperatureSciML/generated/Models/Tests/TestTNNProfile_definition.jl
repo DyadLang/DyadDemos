@@ -24,7 +24,7 @@ the parameter slot.
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `data_file`         | CSV with the profile's inputs and measured temperatures (see scripts/prepare_data.jl)                         | --  |   "dyad://Mot...ile_17.csv" |
+| `data_file`         | Parquet file with the profile's inputs and measured temperatures (see scripts/prepare_data.jl)                         | --  |   "dyad://Mot...17.parquet" |
 | `ds_inputs`         |                          | --  |   DyadData.Dy...s", "u_s"]) |
 | `ds_meas`         |                          | --  |   DyadData.Dy..._winding"]) |
 
@@ -42,7 +42,7 @@ the parameter slot.
 | `T_st_meas`         |                          | --  |
 | `T_sw_meas`         |                          | --  |
 """
-@component function TestTNNProfile(; name = nothing, data_file="dyad://MotorTemperatureSciML/data/profile_17.csv", ds_inputs=DyadData.DyadTimeseries(data_file; independent_var="time", dependent_vars=["u_q", "coolant", "u_d", "motor_speed", "i_d", "i_q", "ambient", "torque", "i_s", "u_s"]), ds_meas=DyadData.DyadTimeseries(data_file; independent_var="time", dependent_vars=["pm", "stator_yoke", "stator_tooth", "stator_winding"]), kwargs...)
+@component function TestTNNProfile(; name = nothing, data_file="dyad://MotorTemperatureSciML/data/profile_17.parquet", ds_inputs=DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file); independent_var="time", dependent_vars=["u_q", "coolant", "u_d", "motor_speed", "i_d", "i_q", "ambient", "torque", "i_s", "u_s"]), ds_meas=DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file); independent_var="time", dependent_vars=["pm", "stator_yoke", "stator_tooth", "stator_winding"]), kwargs...)
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:

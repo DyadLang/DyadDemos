@@ -179,13 +179,13 @@ measure either way.
 
 | Path | Purpose |
 |---|---|
-| `dyad/` | Model: `Models/TNNModel.dyad`, the `Networks/` and `Thermal/` blocks, `FastVectorInterpolation` (external component, implemented in `dyad/definitions.jl`), and the `TestTNNProfile` harness that drives the model from a profile CSV |
+| `dyad/` | Model: `Models/TNNModel.dyad`, the `Networks/` and `Thermal/` blocks, `FastVectorInterpolation` (external component, implemented in `dyad/definitions.jl`), and the `TestTNNProfile` harness that drives the model from a profile Parquet file |
 | `src/chains.jl` | Lux chains of the two networks |
 | `scripts/common.jl` | Shared setup: segmentation, `Experiment` / `InverseProblem` / algorithm builders |
 | `scripts/train_stochastic_ms.jl` | Calibration run |
 | `scripts/validate_calibration.jl` | Free-running validation and plots |
 | `scripts/animate_sms_training.jl` | Training animation |
-| `scripts/prepare_data.jl` | Re-slice profiles from `measures_v2.csv` |
+| `scripts/prepare_data.jl` | Re-slice profiles from `measures_v2.csv` into Parquet |
 | `scripts/train_pytorch_reference.py` | The reference PyTorch TNN trained on the same profile; writes the predictions the validation overlays |
 | `assets/data/` | Profiles 17, 60, 62, 74 and the PyTorch reference predictions |
 
@@ -193,19 +193,19 @@ Tests: `julia +dyad-3.3.0 --project -e 'using Pkg; Pkg.test()'`.
 
 ### Reproducing the PyTorch reference
 
-The reference predictions in `assets/data/pytorch_profile_<id>.csv` are
+The reference predictions in `assets/data/pytorch_profile_<id>.parquet` are
 written by a port of the upstream notebook's training and evaluation cells,
-restricted to profile 17. It reads the shipped profile CSVs, so no download is
+restricted to profile 17. It reads the shipped profile files, so no download is
 needed, and declares its dependencies inline; `uv` builds a CPU-only
 environment on first use:
 
 ```bash
-uv run scripts/train_pytorch_reference.py            # ~2.5 min, → assets/data/pytorch_profile_<id>.csv
+uv run scripts/train_pytorch_reference.py            # ~2.5 min, → assets/data/pytorch_profile_<id>.parquet
 ```
 
 Without `uv`, install `scripts/requirements.txt` into a virtualenv and run the
 script with `python`. `--epochs`, `--threads`, `--seed` and `--out-dir` are
-the useful knobs; `--no-export` trains and reports without touching the CSVs.
+the useful knobs; `--no-export` trains and reports without writing files.
 
 ## Data
 
@@ -213,9 +213,13 @@ The **Paderborn PMSM temperature dataset**
 ([Electric Motor Temperature](https://www.kaggle.com/datasets/wkirgsn/electric-motor-temperature)
 on Kaggle, DOI `10.34740/KAGGLE/DSV/2161054`, by the TNN authors): 185 hours
 of test-bench measurements at 2 Hz across 69 drive profiles. `assets/data/`
-ships the training profile (`profile_17.csv`) and the three held-out profiles
-the upstream notebook evaluates on (`profile_60/62/74.csv`), sliced by
-`scripts/prepare_data.jl`. `pytorch_profile_<id>.csv` are the free-running
+ships the training profile (`profile_17.parquet`) and the three held-out profiles
+the upstream notebook evaluates on (`profile_60/62/74.parquet`), sliced by
+`scripts/prepare_data.jl`. The files are zstd-compressed
+[Parquet](https://parquet.apache.org/) with the full Float64 precision of the
+source, about a third of the equivalent CSV; read them with
+`Parquet2.Dataset(path)` in Julia or `pandas.read_parquet(path)` in Python.
+`pytorch_profile_<id>.parquet` are the free-running
 predictions of the reference implementation ([wkirgsn/thermal-nn](https://github.com/wkirgsn/thermal-nn),
 `TNN_pytorch.ipynb`) after training on profile 17 only for 100 epochs, on the
 same 0.5 s grid, as written by `scripts/train_pytorch_reference.py` (seed 0).

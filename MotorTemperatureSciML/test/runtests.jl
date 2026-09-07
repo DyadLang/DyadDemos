@@ -19,7 +19,7 @@ include("../generated/tests.jl")
         @test all(x -> -0.05 <= x <= 1.05, T)
     end
 
-    # The measurement interpolator must reproduce the CSV: the first measured
+    # The measurement interpolator must reproduce the data file: the first measured
     # rotor temperature is in °C (positive, sub-boiling).
     T_pm_meas0 = result.sol[sys.T_pm_meas][1]
     @test 0.0 < T_pm_meas0 < 100.0

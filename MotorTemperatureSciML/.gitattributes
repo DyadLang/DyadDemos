@@ -4,3 +4,4 @@
 /docs/src/types/** linguist-generated
 /test/snapshots/** linguist-generated
 Manifest*.toml linguist-generated
+*.parquet binary

@@ -5,4 +5,5 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch>=2.2
 pandas>=2.0
+pyarrow>=15
 numpy>=1.26

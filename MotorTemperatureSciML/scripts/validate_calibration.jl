@@ -2,7 +2,7 @@
 #
 # Runs the calibrated model as a plain ODE (no per-segment initial states)
 # over the full training profile and over the three held-out profiles, and
-# compares against the measurements and, where the CSVs are present, against
+# compares against the measurements and, where the files are present, against
 # the reference PyTorch TNN trained on the same profile.
 #
 # Run standalone (reads assets/data/calibrated_params.csv):
@@ -60,9 +60,9 @@ measured(df) = [df[!, c] for c in TARGET_COLS]
 
 """Reference PyTorch predictions for `profile_id` (°C, on the same 0.5 s grid), or `nothing`."""
 function pytorch_predictions(profile_id)
-    path = joinpath(DATA_DIR, "pytorch_profile_$(profile_id).csv")
+    path = joinpath(DATA_DIR, "pytorch_profile_$(profile_id).parquet")
     isfile(path) || return nothing
-    pt = CSV.read(path, DataFrame)
+    pt = read_parquet(path)
     return [pt[!, c] for c in (:pm_pred, :stator_yoke_pred, :stator_tooth_pred, :stator_winding_pred)]
 end
 
@@ -141,7 +141,7 @@ hline!(p3, [0]; color = :black, ls = :dash, lw = 1, label = "")
 savefig(p3, joinpath(ASSETS_DIR, "validation_continuity.png"))
 
 # ── Held-out profiles ────────────────────────────────────────────────────────
-# Same harness, different CSV: `TestTNNProfile(data_file = ...)` rebuilds the
+# Same harness, different profile: `TestTNNProfile(data_file = ...)` rebuilds the
 # interpolators from the new profile; the search-space layout is unchanged so
 # the calibrated `x` plugs straight in. Each simulation starts from that
 # profile's first measured sample, as the reference does.

@@ -13,11 +13,12 @@ the parameter slot.
 test component TestTNNProfile
   model = MotorTemperatureSciML.Models.TNNModel() {^model}
 
-  "CSV with the profile's inputs and measured temperatures (see scripts/prepare_data.jl)"
-  structural parameter data_file::String = "dyad://MotorTemperatureSciML/data/profile_17.csv"
+  "Parquet file with the profile's inputs and measured temperatures (see scripts/prepare_data.jl)"
+  structural parameter data_file::String = "dyad://MotorTemperatureSciML/data/profile_17.parquet"
 
-  structural parameter ds_inputs::DyadData.DyadTimeseries = DyadData.DyadTimeseries(data_file, independent_var = "time", dependent_vars = ["u_q", "coolant", "u_d", "motor_speed", "i_d", "i_q", "ambient", "torque", "i_s", "u_s"])
-  structural parameter ds_meas::DyadData.DyadTimeseries = DyadData.DyadTimeseries(data_file, independent_var = "time", dependent_vars = ["pm", "stator_yoke", "stator_tooth", "stator_winding"])
+  # `profile_table` opens the Parquet file; drop it once DyadData reads Parquet natively.
+  structural parameter ds_inputs::DyadData.DyadTimeseries = DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file), independent_var = "time", dependent_vars = ["u_q", "coolant", "u_d", "motor_speed", "i_d", "i_q", "ambient", "torque", "i_s", "u_s"])
+  structural parameter ds_meas::DyadData.DyadTimeseries = DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file), independent_var = "time", dependent_vars = ["pm", "stator_yoke", "stator_tooth", "stator_winding"])
 
   # Single multi-channel interpolator for all 10 input signals — one search
   # per `t`, vector return, `interpolator(t)[i]` CSE'd across the 10 reads.
