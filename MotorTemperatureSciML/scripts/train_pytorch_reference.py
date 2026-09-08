@@ -215,10 +215,10 @@ def main():
     ap.add_argument("--threads", type=int, default=None, help="torch CPU threads (default: torch's)")
     ap.add_argument("--data-dir", type=Path, default=here.parent / "assets" / "data")
     ap.add_argument("--out-dir", type=Path, default=None,
-                    help="where to write pytorch_profile_<id>.parquet (default: --data-dir)")
+                    help="where to write pytorch_profile_<id>.parquet (default: runs/pytorch)")
     ap.add_argument("--no-export", action="store_true", help="only train and report, write nothing")
     args = ap.parse_args()
-    out_dir = args.out_dir or args.data_dir
+    out_dir = args.out_dir or here.parent / "runs" / "pytorch"
 
     if args.threads:
         torch.set_num_threads(args.threads)

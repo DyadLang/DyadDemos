@@ -12,6 +12,10 @@ using CSV, DataFrames
 using Parquet2
 using Logging
 
+include("output_paths.jl")
+
+const RUNS_DIR = normpath(joinpath(@__DIR__, "..", "runs"))
+
 const ASSETS_DIR = normpath(joinpath(@__DIR__, "..", "assets"))
 const DATA_DIR   = joinpath(ASSETS_DIR, "data")
 

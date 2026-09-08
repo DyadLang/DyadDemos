@@ -10,3 +10,6 @@
 # Animation snapshot cache (scripts/animate_sms_training.jl); the GIFs are committed.
 /assets/sms_snapshots.bin
 /.dyadcache
+
+# Local training, validation and animation outputs.
+/runs/
