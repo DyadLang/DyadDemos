@@ -23,6 +23,28 @@ networks:
 | `Thermal/CapacitanceBlock` | inverse thermal capacitances, `exp.(caps)` (log-space keeps them positive) | 4 |
 | `Thermal/ThermalDynamics` | fixed physics: `C·dT/dt = Σ G·ΔT + P` | – |
 | `Thermal/Normalizer` | fixed max-abs feature scaling to `[0, 1]` | – |
+| `Thermal/TemperatureOutputs` | converts the four normalized states to named outputs in °C | – |
+
+![TNN model schematic](assets/tnn_schematic.png)
+
+The diagram keeps feature and temperature vectors bundled, with temperature
+feedback below the neural networks. Explicit junctions mark shared signals;
+`BoundaryTemperatures` selects coolant and ambient from the feature vector.
+Inside each neural network, `FeatureMux` concatenates `[x; T]` before the NN.
+The profile harness uses named demux outputs to keep the ten scalar input wires
+separate and aligned. These routing components are local to this demo.
+The normalizer shows one row per input: `s1`–`s8` are the corresponding
+feature scales, while the two pre-normalized magnitude features pass through.
+The matching neural-network icons distinguish conductance (a thermal
+resistance) from power loss (heat waves); the output block groups the four
+conversions to °C.
+
+[Profile wiring](assets/profile_schematic.png) ·
+[Neural-network input mux](assets/network_schematic.png)
+
+`TNNModel.MAX_TEMP` sets the scale for both normalization and output conversion.
+The calibration scripts use the fixed 200 °C convention of the reference model.
+
 
 537 parameters in total, three orders of magnitude fewer than a comparably
 accurate black-box estimator. The network blocks are wrapped with

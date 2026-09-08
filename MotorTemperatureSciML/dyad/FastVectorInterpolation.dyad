@@ -25,13 +25,15 @@ external component FastVectorInterpolation
 relations
 metadata {
   "Dyad": {
-    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}
+    ],
     "icons": {"default": "dyad://BlockComponents/Interpolation.svg"},
     "doc": {"behavior": false}
   },
   "_links": {
     "u": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}}},
-    "y": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 475, "x2": 1025, "y2": 525, "show": 16}}}}
+    "y": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 972.5, "y1": 472.5, "x2": 1027.5, "y2": 527.5, "show": 1}}}}
   }
 }
 end

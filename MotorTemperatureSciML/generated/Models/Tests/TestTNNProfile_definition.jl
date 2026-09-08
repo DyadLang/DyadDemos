@@ -28,11 +28,6 @@ the parameter slot.
 | `ds_inputs`         |                          | --  |   DyadData.Dy...s", "u_s"]) |
 | `ds_meas`         |                          | --  |   DyadData.Dy..._winding"]) |
 
-## Connectors
-
- * `raw_inputs` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `raw_meas` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
-
 ## Variables
 
 | Name         | Description                         | Units  | 
@@ -77,8 +72,6 @@ the parameter slot.
   ### Final Parameters (assignments)
 
   ### Final Path Parameters
-  append!(__vars, @variables (raw_inputs(t)[1:10]::Real), [output = true])
-  append!(__vars, @variables (raw_meas(t)[1:4]::Real), [output = true])
 
   ### Variables (declarations)
   append!(__vars, @variables (T_pm_meas(t)::Real), [description = "Measured temperatures [degC], for plotting against the model outputs"])
@@ -113,6 +106,12 @@ the parameter slot.
   # Subcomponent interp_meas of type MotorTemperatureSciML.FastVectorInterpolation
   interp_meas_overrides = __pop_subcomponent_overrides!(__overrides, "interp_meas")
   push!(__systems, @named interp_meas = MotorTemperatureSciML.FastVectorInterpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=ds_meas, extrapolation_type=BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs=4, interp_meas_overrides...))
+  # Subcomponent inputs of type MotorTemperatureSciML.SignalRouting.OperatingConditionsDemux
+  inputs_overrides = __pop_subcomponent_overrides!(__overrides, "inputs")
+  push!(__systems, @named inputs = MotorTemperatureSciML.SignalRouting.OperatingConditionsDemux(; inputs_overrides...))
+  # Subcomponent measurements of type MotorTemperatureSciML.SignalRouting.TemperatureDemux
+  measurements_overrides = __pop_subcomponent_overrides!(__overrides, "measurements")
+  push!(__systems, @named measurements = MotorTemperatureSciML.SignalRouting.TemperatureDemux(; measurements_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -131,22 +130,22 @@ the parameter slot.
   ### Equations
   push!(__eqs, interp_inputs.u ~ t)
   push!(__eqs, interp_meas.u ~ t)
-  push!(__eqs, T_pm_meas ~ raw_meas[1])
-  push!(__eqs, T_sy_meas ~ raw_meas[2])
-  push!(__eqs, T_st_meas ~ raw_meas[3])
-  push!(__eqs, T_sw_meas ~ raw_meas[4])
-  push!(__eqs, connect(interp_inputs.y, raw_inputs))
-  push!(__eqs, connect(interp_meas.y, raw_meas))
-  push!(__eqs, connect(raw_inputs[1], model.u_q_raw))
-  push!(__eqs, connect(raw_inputs[2], model.coolant_raw))
-  push!(__eqs, connect(raw_inputs[3], model.u_d_raw))
-  push!(__eqs, connect(raw_inputs[4], model.motor_speed_raw))
-  push!(__eqs, connect(raw_inputs[5], model.i_d_raw))
-  push!(__eqs, connect(raw_inputs[6], model.i_q_raw))
-  push!(__eqs, connect(raw_inputs[7], model.ambient_raw))
-  push!(__eqs, connect(raw_inputs[8], model.torque_raw))
-  push!(__eqs, connect(raw_inputs[9], model.i_s_raw))
-  push!(__eqs, connect(raw_inputs[10], model.u_s_raw))
+  push!(__eqs, T_pm_meas ~ measurements.pm)
+  push!(__eqs, T_sy_meas ~ measurements.stator_yoke)
+  push!(__eqs, T_st_meas ~ measurements.stator_tooth)
+  push!(__eqs, T_sw_meas ~ measurements.stator_winding)
+  push!(__eqs, connect(interp_inputs.y, inputs.u))
+  push!(__eqs, connect(interp_meas.y, measurements.u))
+  push!(__eqs, connect(inputs.u_q, model.u_q_raw))
+  push!(__eqs, connect(inputs.coolant, model.coolant_raw))
+  push!(__eqs, connect(inputs.u_d, model.u_d_raw))
+  push!(__eqs, connect(inputs.motor_speed, model.motor_speed_raw))
+  push!(__eqs, connect(inputs.i_d, model.i_d_raw))
+  push!(__eqs, connect(inputs.i_q, model.i_q_raw))
+  push!(__eqs, connect(inputs.ambient, model.ambient_raw))
+  push!(__eqs, connect(inputs.torque, model.torque_raw))
+  push!(__eqs, connect(inputs.i_s, model.i_s_raw))
+  push!(__eqs, connect(inputs.u_s, model.u_s_raw))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

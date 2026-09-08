@@ -33,34 +33,31 @@ component ConductanceNet
     n_input = n_in,
     n_output = n_out,
     chain = MotorTemperatureSciML.conductance_chain()) {^nn}
+  mux = MotorTemperatureSciML.SignalRouting.FeatureMux(n_x = n_x, n_T = n_T) {^mux}
 relations
-  # NN input vector = [x; T]. Written out per index (not as a `for` loop) so the
-  # wiring is drawn in the schematic; the equations are the same.
-  connect(x[1], nn.inputs[1])
-  connect(x[2], nn.inputs[2])
-  connect(x[3], nn.inputs[3])
-  connect(x[4], nn.inputs[4])
-  connect(x[5], nn.inputs[5])
-  connect(x[6], nn.inputs[6])
-  connect(x[7], nn.inputs[7])
-  connect(x[8], nn.inputs[8])
-  connect(x[9], nn.inputs[9])
-  connect(x[10], nn.inputs[10])
-  connect(T[1], nn.inputs[11])
-  connect(T[2], nn.inputs[12])
-  connect(T[3], nn.inputs[13])
-  connect(T[4], nn.inputs[14])
+  connect(x, mux.x) {^features}
+  connect(T, mux.T) {^feedback}
+  connect(mux.y, nn.inputs) {^nn_input}
   connect(nn.outputs, out)
 metadata {
   "Dyad": {
-    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": -130, "layer": "icon", "attrs": {}},
+      {"label": "Operating conditions · x[10]", "x": 150, "y": 230, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "Estimated temperatures · T[4]", "x": 180, "y": 680, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "[x; T] · 14", "x": 435, "y": 410, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}}
+    ],
     "icons": {"default": "dyad://MotorTemperatureSciML/ConductanceNet.svg"}
   },
   "_links": {
-    "x":   {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25, "y1": 100, "x2": 25, "y2": 640, "show": 10}}}},
-    "T":   {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25, "y1": 700, "x2": 25, "y2": 940, "show": 4}}}},
-    "out": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 100, "x2": 1025, "y2": 900, "show": 15}}}},
-    "nn":  {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 250, "y1": 250, "x2": 750, "y2": 750, "rot": 0}}}}
+    "x": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -27.5, "y1": 372.5, "x2": 27.5, "y2": 427.5, "show": 1}, "diagram": {"iconName": "default", "x1": 88.0, "y1": 338.0, "x2": 112.0, "y2": 362.0, "show": 1}}}},
+    "T": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 472.5, "y1": 972.5, "x2": 527.5, "y2": 1027.5, "show": 1, "rot": 270}, "diagram": {"iconName": "default", "x1": 88.0, "y1": 538.0, "x2": 112.0, "y2": 562.0, "show": 1}}}},
+    "out": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 972.5, "y1": 372.5, "x2": 1027.5, "y2": 427.5, "show": 1}, "diagram": {"iconName": "default", "x1": 918.0, "y1": 438.0, "x2": 942.0, "y2": 462.0, "show": 1}}}},
+    "nn": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500.0, "y1": 300.0, "x2": 800.0, "y2": 600.0}}}},
+    "mux": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 220.0, "y1": 250.0, "x2": 380.0, "y2": 650.0}}}},
+    "features": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "feedback": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "nn_input": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}}
   }
 }
 end

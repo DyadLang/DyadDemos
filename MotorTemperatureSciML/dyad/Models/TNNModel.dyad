@@ -2,14 +2,14 @@
 Top-level Thermal Neural Network (TNN) model for electric-drive temperature estimation.
 
 Wires together `Normalizer`, `ConductanceNet`, `PowerLossNet`, `CapacitanceBlock`
-and `ThermalDynamics`.
+with `ThermalDynamics`, `BoundaryTemperatures` and `TemperatureOutputs`.
 
 Block diagram:
   raw inputs → [Normalizer] → out(10) ─┬→ [ConductanceNet.x] → out(15) → [ThermalDynamics.conducts]
                                        └→ [PowerLossNet.x]   → out(4)  → [ThermalDynamics.ploss]
-              [CapacitanceBlock] → out(4) → [ThermalDynamics.inv_cap];  out[2], out[7] → coolant, ambient
+              [CapacitanceBlock] → out(4) → [ThermalDynamics.inv_cap];  [BoundaryTemperatures] selects out[2], out[7] → coolant, ambient
               [ThermalDynamics.T](4) ─┬→ [ConductanceNet.T], [PowerLossNet.T]   (feedback)
-                                      └→ [Gain(MAX_TEMP)] ×4 → outputs [degC]
+                                      └→ [TemperatureOutputs(MAX_TEMP)] → outputs [degC]
 
 Vector signals are connected as whole arrays (`connect(normalizer.out, cond_net.x)`),
 which is one wire in the schematic and the same set of equations as an element-wise
@@ -44,15 +44,13 @@ component TNNModel
   T_stator_tooth = RealOutput() {^T_stator_tooth}
   "Estimated stator-winding temperature [degC]"
   T_stator_winding = RealOutput() {^T_stator_winding}
-  normalizer = MotorTemperatureSciML.Thermal.Normalizer() {^normalizer}
+  normalizer = MotorTemperatureSciML.Thermal.Normalizer(MAX_TEMP = MAX_TEMP) {^normalizer}
   cond_net = MotorTemperatureSciML.Networks.ConductanceNet() {^cond_net}
   ploss_net = MotorTemperatureSciML.Networks.PowerLossNet() {^ploss_net}
   cap_block = MotorTemperatureSciML.Thermal.CapacitanceBlock() {^cap_block}
   thermal = MotorTemperatureSciML.Thermal.ThermalDynamics() {^thermal}
-  gain_pm = BlockComponents.Math.Gain(k = MAX_TEMP) {^gain_pm}
-  gain_sy = BlockComponents.Math.Gain(k = MAX_TEMP) {^gain_sy}
-  gain_st = BlockComponents.Math.Gain(k = MAX_TEMP) {^gain_st}
-  gain_sw = BlockComponents.Math.Gain(k = MAX_TEMP) {^gain_sw}
+  boundaries = MotorTemperatureSciML.SignalRouting.BoundaryTemperatures() {^boundaries}
+  outputs = MotorTemperatureSciML.Thermal.TemperatureOutputs(MAX_TEMP = MAX_TEMP) {^outputs}
   "Maximum temperature for de-normalisation [degC]"
   structural parameter MAX_TEMP::Real = 200.0
 relations
@@ -66,60 +64,61 @@ relations
   connect(torque_raw, normalizer.torque_raw)
   connect(i_s_raw, normalizer.i_s_raw)
   connect(u_s_raw, normalizer.u_s_raw)
-  connect(normalizer.out, cond_net.x) {^norm_to_cond}
-  connect(normalizer.out, ploss_net.x) {^norm_to_ploss}
-  connect(thermal.T, cond_net.T) {^T_to_cond}
-  connect(thermal.T, ploss_net.T) {^T_to_ploss}
+  connect(normalizer.out, cond_net.x, ploss_net.x, boundaries.u) {^features}
+  connect(thermal.T, outputs.T, cond_net.T, ploss_net.T) {^temperatures}
   connect(cond_net.out, thermal.conducts) {^cond_to_thermal}
-  connect(ploss_net.out, thermal.ploss)
+  connect(ploss_net.out, thermal.ploss) {^ploss_to_thermal}
   connect(cap_block.out, thermal.inv_cap) {^cap_to_thermal}
-  connect(normalizer.out[2], thermal.coolant_norm) {^coolant}
-  connect(normalizer.out[7], thermal.ambient_norm) {^ambient}
-  connect(thermal.T[1], gain_pm.u)
-  connect(gain_pm.y, T_pm)
-  connect(thermal.T[2], gain_sy.u)
-  connect(gain_sy.y, T_stator_yoke)
-  connect(thermal.T[3], gain_st.u)
-  connect(gain_st.y, T_stator_tooth)
-  connect(thermal.T[4], gain_sw.u)
-  connect(gain_sw.y, T_stator_winding)
+  connect(boundaries.coolant, thermal.coolant_norm) {^coolant}
+  connect(boundaries.ambient, thermal.ambient_norm) {^ambient}
+  connect(outputs.T_pm, T_pm)
+  connect(outputs.T_stator_yoke, T_stator_yoke)
+  connect(outputs.T_stator_tooth, T_stator_tooth)
+  connect(outputs.T_stator_winding, T_stator_winding)
 metadata {
   "Dyad": {
-    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "layer": "icon", "attrs": {}},
+      {"label": "THERMAL NEURAL NETWORK", "x": 800, "y": -65, "layer": "diagram", "attrs": {"font-size": "28", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "Operating conditions", "x": 190, "y": 180, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "Normalized features · x[10]", "x": 390, "y": 805, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "G[15]", "x": 905, "y": 205, "layer": "diagram", "attrs": {"font-size": "19", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "P[4]", "x": 905, "y": 430, "layer": "diagram", "attrs": {"font-size": "19", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "Temperature feedback · T[4]", "x": 885, "y": 960, "layer": "diagram", "attrs": {"font-size": "21", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "Inverse capacitances", "x": 1110, "y": 860, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "Temperatures [°C]", "x": 1480, "y": 180, "layer": "diagram", "attrs": {"font-size": "23", "width": "max-content", "white-space": "nowrap"}}
+    ],
     "icons": {"default": "dyad://MotorTemperatureSciML/TNNModel.svg"}
   },
   "_links": {
-    "u_q_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 0, "x2": 50, "y2": 100}, "diagram": {"iconName": "default", "x1": -50, "y1": 90, "x2": 50, "y2": 190}}}},
-    "coolant_raw":      {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 100, "x2": 50, "y2": 200}, "diagram": {"iconName": "default", "x1": -50, "y1": 170, "x2": 50, "y2": 270}}}},
-    "u_d_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 200, "x2": 50, "y2": 300}, "diagram": {"iconName": "default", "x1": -50, "y1": 250, "x2": 50, "y2": 350}}}},
-    "motor_speed_raw":  {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 300, "x2": 50, "y2": 400}, "diagram": {"iconName": "default", "x1": -50, "y1": 330, "x2": 50, "y2": 430}}}},
-    "i_d_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 400, "x2": 50, "y2": 500}, "diagram": {"iconName": "default", "x1": -50, "y1": 410, "x2": 50, "y2": 510}}}},
-    "i_q_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"iconName": "default", "x1": -50, "y1": 490, "x2": 50, "y2": 590}}}},
-    "ambient_raw":      {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 600, "x2": 50, "y2": 700}, "diagram": {"iconName": "default", "x1": -50, "y1": 570, "x2": 50, "y2": 670}}}},
-    "torque_raw":       {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"iconName": "default", "x1": -50, "y1": 650, "x2": 50, "y2": 750}}}},
-    "i_s_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 800, "x2": 50, "y2": 900}, "diagram": {"iconName": "default", "x1": -50, "y1": 730, "x2": 50, "y2": 830}}}},
-    "u_s_raw":          {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 900, "x2": 50, "y2": 1000}, "diagram": {"iconName": "default", "x1": -50, "y1": 810, "x2": 50, "y2": 910}}}},
-    "T_pm":             {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 950, "y1": 150, "x2": 1050, "y2": 250}, "diagram": {"iconName": "default", "x1": 1350, "y1": 150, "x2": 1450, "y2": 250}}}},
-    "T_stator_yoke":    {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 950, "y1": 350, "x2": 1050, "y2": 450}, "diagram": {"iconName": "default", "x1": 1350, "y1": 310, "x2": 1450, "y2": 410}}}},
-    "T_stator_tooth":   {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 950, "y1": 550, "x2": 1050, "y2": 650}, "diagram": {"iconName": "default", "x1": 1350, "y1": 490, "x2": 1450, "y2": 590}}}},
-    "T_stator_winding": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 950, "y1": 750, "x2": 1050, "y2": 850}, "diagram": {"iconName": "default", "x1": 1350, "y1": 650, "x2": 1450, "y2": 750}}}},
-    "normalizer":       {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 150, "y1": 400, "x2": 350, "y2": 600}}}},
-    "cond_net":         {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500, "y1": 80, "x2": 700, "y2": 280}}}},
-    "ploss_net":        {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500, "y1": 380, "x2": 700, "y2": 580}}}},
-    "cap_block":        {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 850, "y1": 700, "x2": 1050, "y2": 900}}}},
-    "thermal":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 850, "y1": 350, "x2": 1050, "y2": 550}}}},
-    "gain_pm":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1180, "y1": 150, "x2": 1280, "y2": 250}}}},
-    "gain_sy":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1180, "y1": 310, "x2": 1280, "y2": 410}}}},
-    "gain_st":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1180, "y1": 490, "x2": 1280, "y2": 590}}}},
-    "gain_sw":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1180, "y1": 650, "x2": 1280, "y2": 750}}}},
-    "norm_to_cond":     {"Dyad": {"edges": [{"S": 1, "M": [{"x": 470, "y": 500}, {"x": 470, "y": 154}], "E": 2}]}},
-    "norm_to_ploss":    {"Dyad": {"edges": [{"S": 1, "M": [{"x": 430, "y": 500}, {"x": 430, "y": 454}], "E": 2}]}},
-    "T_to_cond":        {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 450}, {"x": 1500, "y": -40}, {"x": 440, "y": -40}, {"x": 440, "y": 244}], "E": 2}]}},
-    "T_to_ploss":       {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 450}, {"x": 1500, "y": 1000}, {"x": 440, "y": 1000}, {"x": 440, "y": 544}], "E": 2}]}},
-    "cond_to_thermal":  {"Dyad": {"edges": [{"S": 1, "M": [{"x": 950, "y": 180}], "E": 2}]}},
-    "cap_to_thermal":   {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1100, "y": 800}, {"x": 1100, "y": 640}, {"x": 800, "y": 640}, {"x": 800, "y": 498}], "E": 2}]}},
-    "coolant":          {"Dyad": {"edges": [{"S": 1, "M": [{"x": 380, "y": 442}, {"x": 380, "y": 362}], "E": 2}]}},
-    "ambient":          {"Dyad": {"edges": [{"S": 1, "M": [{"x": 400, "y": 525}, {"x": 400, "y": 384}], "E": 2}]}}
+    "u_q_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 25.0, "x2": 25.0, "y2": 75.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 228.0, "x2": 167.0, "y2": 242.0}}}},
+    "coolant_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 125.0, "x2": 25.0, "y2": 175.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 278.0, "x2": 167.0, "y2": 292.0}}}},
+    "u_d_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 225.0, "x2": 25.0, "y2": 275.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 328.0, "x2": 167.0, "y2": 342.0}}}},
+    "motor_speed_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 325.0, "x2": 25.0, "y2": 375.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 378.0, "x2": 167.0, "y2": 392.0}}}},
+    "i_d_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 425.0, "x2": 25.0, "y2": 475.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 428.0, "x2": 167.0, "y2": 442.0}}}},
+    "i_q_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 525.0, "x2": 25.0, "y2": 575.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 478.0, "x2": 167.0, "y2": 492.0}}}},
+    "ambient_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 625.0, "x2": 25.0, "y2": 675.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 528.0, "x2": 167.0, "y2": 542.0}}}},
+    "torque_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 725.0, "x2": 25.0, "y2": 775.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 578.0, "x2": 167.0, "y2": 592.0}}}},
+    "i_s_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 825.0, "x2": 25.0, "y2": 875.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 628.0, "x2": 167.0, "y2": 642.0}}}},
+    "u_s_raw": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 925.0, "x2": 25.0, "y2": 975.0}, "diagram": {"iconName": "default", "x1": 153.0, "y1": 678.0, "x2": 167.0, "y2": 692.0}}}},
+    "T_pm": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975.0, "y1": 175.0, "x2": 1025.0, "y2": 225.0}, "diagram": {"iconName": "default", "x1": 1692.0, "y1": 310.0, "x2": 1708.0, "y2": 326.0}}}},
+    "T_stator_yoke": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975.0, "y1": 375.0, "x2": 1025.0, "y2": 425.0}, "diagram": {"iconName": "default", "x1": 1692.0, "y1": 358.0, "x2": 1708.0, "y2": 374.0}}}},
+    "T_stator_tooth": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975.0, "y1": 575.0, "x2": 1025.0, "y2": 625.0}, "diagram": {"iconName": "default", "x1": 1692.0, "y1": 406.0, "x2": 1708.0, "y2": 422.0}}}},
+    "T_stator_winding": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975.0, "y1": 775.0, "x2": 1025.0, "y2": 825.0}, "diagram": {"iconName": "default", "x1": 1692.0, "y1": 454.0, "x2": 1708.0, "y2": 470.0}}}},
+    "normalizer": {"Dyad": {"placement": {"diagram": {"iconName": "tall", "x1": 250.0, "y1": 210.0, "x2": 530.0, "y2": 710.0}}}},
+    "cond_net": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 650.0, "y1": 150.0, "x2": 850.0, "y2": 350.0}}}},
+    "ploss_net": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 650.0, "y1": 410.0, "x2": 850.0, "y2": 610.0}}}},
+    "cap_block": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1035.0, "y1": 665.0, "x2": 1185.0, "y2": 815.0}}}},
+    "thermal": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 990.0, "y1": 270.0, "x2": 1230.0, "y2": 510.0}}}},
+    "cond_to_thermal": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 910, "y": 230}, {"x": 910, "y": 318}], "E": 2}]}},
+    "cap_to_thermal": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}},
+    "coolant": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 1062, "y": 40}]}]}},
+    "ambient": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 1158, "y": 90}]}]}},
+    "ploss_to_thermal": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 920, "y": 490}, {"x": 920, "y": 438}], "E": 2}]}},
+    "outputs": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1330.0, "y1": 270.0, "x2": 1570.0, "y2": 510.0}}}},
+    "boundaries": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 725.0, "y1": 15.0, "x2": 775.0, "y2": 115.0}}}},
+    "features": {"Dyad": {"junctions": [{"x": 590, "y": 460}, {"x": 590, "y": 230}], "edges": [{"S": 1, "E": -1, "M": []}, {"S": -1, "E": -2, "M": []}, {"S": -2, "E": 2, "M": []}, {"S": -1, "E": 3, "M": [{"x": 590, "y": 490}]}, {"S": -2, "E": 4, "M": [{"x": 590, "y": 65}]}]}},
+    "temperatures": {"Dyad": {"junctions": [{"x": 1270, "y": 390}, {"x": 750, "y": 930}], "edges": [{"S": 1, "E": -1, "M": []}, {"S": -1, "E": 2, "M": []}, {"S": -1, "E": -2, "M": [{"x": 1270, "y": 930}]}, {"S": -2, "E": 3, "M": [{"x": 610, "y": 930}, {"x": 610, "y": 375}, {"x": 750, "y": 375}]}, {"S": -2, "E": 4, "M": []}]}}
   }
 }
 end

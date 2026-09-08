@@ -12,14 +12,14 @@ import Moshi as __Ext__Moshi
 Top-level Thermal Neural Network (TNN) model for electric-drive temperature estimation.
 
 Wires together `Normalizer`, `ConductanceNet`, `PowerLossNet`, `CapacitanceBlock`
-and `ThermalDynamics`.
+with `ThermalDynamics`, `BoundaryTemperatures` and `TemperatureOutputs`.
 
 Block diagram:
   raw inputs → [Normalizer] → out(10) ─┬→ [ConductanceNet.x] → out(15) → [ThermalDynamics.conducts]
                                        └→ [PowerLossNet.x]   → out(4)  → [ThermalDynamics.ploss]
-              [CapacitanceBlock] → out(4) → [ThermalDynamics.inv_cap];  out[2], out[7] → coolant, ambient
+              [CapacitanceBlock] → out(4) → [ThermalDynamics.inv_cap];  [BoundaryTemperatures] selects out[2], out[7] → coolant, ambient
               [ThermalDynamics.T](4) ─┬→ [ConductanceNet.T], [PowerLossNet.T]   (feedback)
-                                      └→ [Gain(MAX_TEMP)] ×4 → outputs [degC]
+                                      └→ [TemperatureOutputs(MAX_TEMP)] → outputs [degC]
 
 Vector signals are connected as whole arrays (`connect(normalizer.out, cond_net.x)`),
 which is one wire in the schematic and the same set of equations as an element-wise
@@ -108,7 +108,7 @@ which is one wire in the schematic and the same set of equations as an element-w
   ### Components
   # Subcomponent normalizer of type MotorTemperatureSciML.Thermal.Normalizer
   normalizer_overrides = __pop_subcomponent_overrides!(__overrides, "normalizer")
-  push!(__systems, @named normalizer = MotorTemperatureSciML.Thermal.Normalizer(; normalizer_overrides...))
+  push!(__systems, @named normalizer = MotorTemperatureSciML.Thermal.Normalizer(; MAX_TEMP=MAX_TEMP, normalizer_overrides...))
   # Subcomponent cond_net of type MotorTemperatureSciML.Networks.ConductanceNet
   cond_net_overrides = __pop_subcomponent_overrides!(__overrides, "cond_net")
   push!(__systems, @named cond_net = MotorTemperatureSciML.Networks.ConductanceNet(; cond_net_overrides...))
@@ -121,18 +121,12 @@ which is one wire in the schematic and the same set of equations as an element-w
   # Subcomponent thermal of type MotorTemperatureSciML.Thermal.ThermalDynamics
   thermal_overrides = __pop_subcomponent_overrides!(__overrides, "thermal")
   push!(__systems, @named thermal = MotorTemperatureSciML.Thermal.ThermalDynamics(; thermal_overrides...))
-  # Subcomponent gain_pm of type BlockComponents.Math.Gain
-  gain_pm_overrides = __pop_subcomponent_overrides!(__overrides, "gain_pm")
-  push!(__systems, @named gain_pm = BlockComponents.Math.Gain(; k=MAX_TEMP, gain_pm_overrides...))
-  # Subcomponent gain_sy of type BlockComponents.Math.Gain
-  gain_sy_overrides = __pop_subcomponent_overrides!(__overrides, "gain_sy")
-  push!(__systems, @named gain_sy = BlockComponents.Math.Gain(; k=MAX_TEMP, gain_sy_overrides...))
-  # Subcomponent gain_st of type BlockComponents.Math.Gain
-  gain_st_overrides = __pop_subcomponent_overrides!(__overrides, "gain_st")
-  push!(__systems, @named gain_st = BlockComponents.Math.Gain(; k=MAX_TEMP, gain_st_overrides...))
-  # Subcomponent gain_sw of type BlockComponents.Math.Gain
-  gain_sw_overrides = __pop_subcomponent_overrides!(__overrides, "gain_sw")
-  push!(__systems, @named gain_sw = BlockComponents.Math.Gain(; k=MAX_TEMP, gain_sw_overrides...))
+  # Subcomponent boundaries of type MotorTemperatureSciML.SignalRouting.BoundaryTemperatures
+  boundaries_overrides = __pop_subcomponent_overrides!(__overrides, "boundaries")
+  push!(__systems, @named boundaries = MotorTemperatureSciML.SignalRouting.BoundaryTemperatures(; boundaries_overrides...))
+  # Subcomponent outputs of type MotorTemperatureSciML.Thermal.TemperatureOutputs
+  outputs_overrides = __pop_subcomponent_overrides!(__overrides, "outputs")
+  push!(__systems, @named outputs = MotorTemperatureSciML.Thermal.TemperatureOutputs(; MAX_TEMP=MAX_TEMP, outputs_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -155,23 +149,17 @@ which is one wire in the schematic and the same set of equations as an element-w
   push!(__eqs, connect(torque_raw, normalizer.torque_raw))
   push!(__eqs, connect(i_s_raw, normalizer.i_s_raw))
   push!(__eqs, connect(u_s_raw, normalizer.u_s_raw))
-  push!(__eqs, connect(normalizer.out, cond_net.x))
-  push!(__eqs, connect(normalizer.out, ploss_net.x))
-  push!(__eqs, connect(thermal.T, cond_net.T))
-  push!(__eqs, connect(thermal.T, ploss_net.T))
+  push!(__eqs, connect(normalizer.out, cond_net.x, ploss_net.x, boundaries.u))
+  push!(__eqs, connect(thermal.T, outputs.T, cond_net.T, ploss_net.T))
   push!(__eqs, connect(cond_net.out, thermal.conducts))
   push!(__eqs, connect(ploss_net.out, thermal.ploss))
   push!(__eqs, connect(cap_block.out, thermal.inv_cap))
-  push!(__eqs, connect(normalizer.out[2], thermal.coolant_norm))
-  push!(__eqs, connect(normalizer.out[7], thermal.ambient_norm))
-  push!(__eqs, connect(thermal.T[1], gain_pm.u))
-  push!(__eqs, connect(gain_pm.y, T_pm))
-  push!(__eqs, connect(thermal.T[2], gain_sy.u))
-  push!(__eqs, connect(gain_sy.y, T_stator_yoke))
-  push!(__eqs, connect(thermal.T[3], gain_st.u))
-  push!(__eqs, connect(gain_st.y, T_stator_tooth))
-  push!(__eqs, connect(thermal.T[4], gain_sw.u))
-  push!(__eqs, connect(gain_sw.y, T_stator_winding))
+  push!(__eqs, connect(boundaries.coolant, thermal.coolant_norm))
+  push!(__eqs, connect(boundaries.ambient, thermal.ambient_norm))
+  push!(__eqs, connect(outputs.T_pm, T_pm))
+  push!(__eqs, connect(outputs.T_stator_yoke, T_stator_yoke))
+  push!(__eqs, connect(outputs.T_stator_tooth, T_stator_tooth))
+  push!(__eqs, connect(outputs.T_stator_winding, T_stator_winding))
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
