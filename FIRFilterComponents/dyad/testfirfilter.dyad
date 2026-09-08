@@ -1,0 +1,60 @@
+"short TestFIRFilter component description"
+component TestFIRFilter
+  firfilter = FIRFilterComponents.FIRFilter() {^firfilter}
+  sine = BlockComponents.Sources.Sine(amplitude = 1.0, frequency = 1) {^sine}
+  integrator = BlockComponents.Continuous.Integrator() {^integrator}
+  periodicclock = DiscreteComponents.PeriodicClock(dt = 0.25) {^periodicclock}
+  sampler = DiscreteComponents.Sampler() {^sampler}
+relations
+  connect(sine.y, integrator.u) {^id6}
+  connect(integrator.y, sampler.u) {^id7}
+  connect(sampler.y, periodicclock.y) {^id8}
+  connect(sampler.y, firfilter.realinput) {^id9}
+metadata {
+  "Dyad": {
+    "experiments": {},
+    "tests": {},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1100,
+        "rot": 0,
+        "layer": "icon",
+        "attrs": {}
+      }
+    ],
+    "icons": {"default": "dyad://Dyad/Default.svg"},
+    "path": {},
+    "doc": {"behavior": true},
+    "deprecated": null,
+    "panel": {}
+  },
+  "_links": {
+    "firfilter": {
+      "Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 280, "y2": 380}}}
+    },
+    "sine": {
+      "Dyad": {"placement": {"diagram": {"x1": 20, "x2": 120, "y1": 450, "y2": 550}}}
+    },
+    "integrator": {
+      "Dyad": {"placement": {"diagram": {"x1": 230, "x2": 330, "y1": 450, "y2": 550}}}
+    },
+    "periodicclock": {
+      "Dyad": {"placement": {"diagram": {"x1": 610, "x2": 710, "y1": 450, "y2": 550}}}
+    },
+    "sampler": {
+      "Dyad": {"placement": {"diagram": {"x1": 420, "x2": 520, "y1": 450, "y2": 550}}}
+    },
+    "id6": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}},
+    "id7": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}},
+    "id8": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}},
+    "id9": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 561, "y": 500}, {"x": 561, "y": 330}], "E": 2}],
+        "path": {}
+      }
+    }
+  }
+}
+end
