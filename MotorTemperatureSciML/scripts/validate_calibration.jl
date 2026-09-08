@@ -12,7 +12,7 @@
 # or `include` it in the session that just ran train_stochastic_ms.jl, in which
 # case it reuses `calres` and the problem objects from there.
 #
-# Output (assets/):
+# Output (runs/validation/ by default; override with --out-dir):
 #   validation_training_profile.png — predicted vs measured, 4 channels
 #   validation_residuals.png        — prediction error over time, 4 channels
 #   validation_continuity.png       — segment-junction residuals of the SMS fit
@@ -25,16 +25,19 @@ using LinearAlgebra: norm
 using Printf
 using DyadModelOptimizer: compute_residual, calibration_parameters
 
+validation_paths = output_paths(ARGS; default_dir = joinpath(RUNS_DIR, "validation"),
+    default_calibration = CALIBRATED_CSV)
+mkpath(validation_paths.out_dir)
 gr()
 
 # ── Calibrated parameters ────────────────────────────────────────────────────
-if @isdefined(calres)
+if @isdefined(calres) && !("--calibration" in ARGS)
     x, x_full = collect(calres.u), collect(calres.original.u)
     @info "Using `calres` from the current session"
 else
-    isfile(CALIBRATED_CSV) || error("$(CALIBRATED_CSV) not found — run scripts/train_stochastic_ms.jl first.")
-    (; x, x_full) = load_calibration(CALIBRATED_CSV)
-    @info "Loaded calibrated parameters" path = CALIBRATED_CSV n_params = length(x)
+    isfile(validation_paths.calibration) || error("Calibration not found: $(validation_paths.calibration). Pass --calibration pointing to a saved fit.")
+    (; x, x_full) = load_calibration(validation_paths.calibration)
+    @info "Loaded calibrated parameters" path = validation_paths.calibration n_params = length(x)
 end
 
 # ── Training problem (reused from the training session when available) ──────
@@ -104,7 +107,7 @@ for i in 1:4
     xlabel!(p1, "t [s]"; subplot = i)
     ylabel!(p1, "T [°C]"; subplot = i)
 end
-savefig(p1, joinpath(ASSETS_DIR, "validation_training_profile.png"))
+savefig(p1, joinpath(validation_paths.out_dir, "validation_training_profile.png"))
 
 p2 = plot(layout = (2, 2), size = (1100, 700), link = :x, legend = false,
     suptitle = "Profile $(TRAIN_PROFILE): prediction error (Dyad − measured)")
@@ -117,7 +120,7 @@ for i in 1:4
     xlabel!(p2, "t [s]"; subplot = i)
     ylabel!(p2, "error [°C]"; subplot = i)
 end
-savefig(p2, joinpath(ASSETS_DIR, "validation_residuals.png"))
+savefig(p2, joinpath(validation_paths.out_dir, "validation_residuals.png"))
 
 # ── Segment-continuity residuals of the shooting fit ─────────────────────────
 # g_k = (end of segment k) − (initial state of segment k+1), per state, in °C.
@@ -138,7 +141,7 @@ for i in 1:4
         label = TARGET_LABELS[i])
 end
 hline!(p3, [0]; color = :black, ls = :dash, lw = 1, label = "")
-savefig(p3, joinpath(ASSETS_DIR, "validation_continuity.png"))
+savefig(p3, joinpath(validation_paths.out_dir, "validation_continuity.png"))
 
 # ── Held-out profiles ────────────────────────────────────────────────────────
 # Same harness, different profile: `TestTNNProfile(data_file = ...)` rebuilds the
@@ -165,7 +168,7 @@ for (row, r) in enumerate(test_runs), col in 1:4
     col == 1 && ylabel!(p4, "Profile $(r.pid)\nT [°C]"; subplot = sub)
     row == length(TEST_PROFILES) && xlabel!(p4, "t [s]"; subplot = sub)
 end
-savefig(p4, joinpath(ASSETS_DIR, "validation_test_profiles.png"))
+savefig(p4, joinpath(validation_paths.out_dir, "validation_test_profiles.png"))
 
 # ── Summary ──────────────────────────────────────────────────────────────────
 function report(label, t_mask, meas, pred, pt)
@@ -194,4 +197,4 @@ for r in test_runs
 end
 println()
 @printf "Segment-continuity residuals: ‖g‖₂ = %.3e °C, max |g| = %.3e °C, mean g = %+.3e °C\n" norm(G) maximum(abs, G) mean(G)
-println("Plots written to $(ASSETS_DIR)/validation_*.png")
+println("Plots written to $(validation_paths.out_dir)/validation_*.png")

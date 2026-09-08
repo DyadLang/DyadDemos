@@ -5,18 +5,18 @@
 # optimizer state, then re-solves every segment for each snapshot and renders
 # two GIFs:
 #
-#   assets/sms_training.gif          — T_pm: measured trace, the 24 segment
+#   runs/animation/sms_training.gif          — T_pm: measured trace, the 24 segment
 #                                      predictions (gold = in the current
 #                                      mini-batch, brown = dormant), red bars
 #                                      for the continuity defects at junctions
-#   assets/sms_training_detailed.gif — the same panel plus per-segment data
+#   runs/animation/sms_training_detailed.gif — the same panel plus per-segment data
 #                                      MSE, the training curves (AugLag
 #                                      objective, data MSE, constraint norm,
 #                                      gradient norm) and the per-junction
 #                                      defect of each of the four states
 #
 # plus a PNG of the final frame of each. The snapshots are cached in
-# assets/sms_snapshots.bin (gitignored); delete it or set FORCE_RETRAIN=1 to
+# runs/animation/sms_snapshots.bin (gitignored); delete it or set FORCE_RETRAIN=1 to
 # retrain.
 #
 # Run from the package root:
@@ -51,9 +51,12 @@ const MAX_FRAMES       = 120
 const FPS              = 8
 const SAVEAT           = 0.5
 
-const CACHE_PATH   = joinpath(ASSETS_DIR, "sms_snapshots.bin")
-const GIF_SIMPLE   = joinpath(ASSETS_DIR, "sms_training.gif")
-const GIF_DETAILED = joinpath(ASSETS_DIR, "sms_training_detailed.gif")
+animation_paths = output_paths(ARGS; default_dir = joinpath(RUNS_DIR, "animation"))
+mkpath(animation_paths.out_dir)
+
+const CACHE_PATH   = joinpath(animation_paths.out_dir, "sms_snapshots.bin")
+const GIF_SIMPLE   = joinpath(animation_paths.out_dir, "sms_training.gif")
+const GIF_DETAILED = joinpath(animation_paths.out_dir, "sms_training_detailed.gif")
 
 # Palette
 const BG       = parse(Colorant, "#1F1F1F")

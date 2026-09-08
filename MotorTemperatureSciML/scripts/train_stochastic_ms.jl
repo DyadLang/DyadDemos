@@ -12,13 +12,18 @@
 #
 #   TNN_BUDGET=short JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl
 #
-# Writes assets/data/calibrated_params.csv, consumed by validate_calibration.jl
+# Writes runs/training/calibrated_params.csv by default (--out-dir overrides).
+# Pass that file to validate_calibration.jl with --calibration
 # (which can also be `include`d right after this script in the same session).
 
 include("common.jl")
 using Printf
 using Base.Threads: nthreads
 using ADTypes, ForwardDiff
+
+training_paths = output_paths(ARGS; default_dir = joinpath(RUNS_DIR, "training"))
+mkpath(training_paths.out_dir)
+training_csv = joinpath(training_paths.out_dir, "calibrated_params.csv")
 
 # ── Optimizer budget ─────────────────────────────────────────────────────────
 # One "epoch" is a pass over all N_SEGMENTS segments, i.e. N_SEGMENTS ÷
@@ -90,6 +95,6 @@ end
 # accuracy. validate_calibration.jl simulates the calibrated model free-running
 # over the full profile and the held-out profiles, which is the number that
 # matters.
-save_calibration(CALIBRATED_CSV, calres, invprob)
-@info "Saved calibrated parameters" path = CALIBRATED_CSV
-@info "Next: include(\"scripts/validate_calibration.jl\") (or run it standalone)"
+save_calibration(training_csv, calres, invprob)
+@info "Saved calibrated parameters" path = training_csv
+@info "Validate this fit with scripts/validate_calibration.jl --calibration <file> --out-dir <directory>" file = training_csv directory = training_paths.out_dir

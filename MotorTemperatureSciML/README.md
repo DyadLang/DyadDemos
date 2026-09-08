@@ -1,13 +1,75 @@
 # MotorTemperatureSciML
 
-Physics-informed machine learning for electric-motor temperature estimation:
-a Dyad port of the **Thermal Neural Network** (TNN) of Kirchgässner,
-Wallscheid & Böcker, trained on the public Paderborn PMSM dataset with
-**stochastic mini-batch multiple shooting** under an **augmented Lagrangian**
-via `DyadModelOptimizer`, and validated free-running against the reference
-PyTorch implementation.
+Estimate four internal electric-motor temperatures from measured operating
+conditions. Two small neural networks estimate heat generation and heat
+transfer; a thermal model integrates these into temperature predictions.
+This Dyad demo shows how to train that combined model and check its accuracy
+in a continuous simulation.
+
+The shipped fit is accurate on its training profile, but errors on unseen
+profiles remain around **9–28 °C RMS**. This is a demonstration of training
+and validation using a single drive profile; it does not reproduce the
+published model's generalization performance from much broader training data.
 
 ![Free-running prediction on the training profile](assets/validation_training_profile.png)
+
+## Try the demo
+
+The input profiles, calibrated parameters, and reference predictions are
+included. **You can validate the saved fit without training or downloading data.**
+
+Set the JuliaHub juliaup environment variables once per shell (not needed for
+the VS Code REPL command), then instantiate the standalone project:
+
+```bash
+export JULIAUP_SERVER="https://juliahub.com/juliabin"
+export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
+cd MotorTemperatureSciML
+julia +dyad-3.3.0 --project -e 'using Pkg; Pkg.instantiate()'
+```
+
+### View the saved fit
+
+```bash
+julia +dyad-3.3.0 --project scripts/validate_calibration.jl
+```
+
+This reads `assets/data/calibrated_params.csv`, reports RMS errors, and writes
+four plots to `runs/validation/`. Start with `validation_training_profile.png`
+and `validation_test_profiles.png`. Initial package loading and compilation
+can take a few minutes. Each profile starts from its first measured temperatures
+and then runs continuously, without resetting at the end of the training horizon.
+
+### Check the training pipeline
+
+```bash
+TNN_BUDGET=quick JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl --out-dir runs/quick
+julia +dyad-3.3.0 --project scripts/validate_calibration.jl --calibration runs/quick/calibrated_params.csv --out-dir runs/quick
+```
+
+The quick budget takes about a minute on the measured machine, including
+compilation. It checks that the pipeline works; it is too short for an accurate
+fit. The second command evaluates this quick fit explicitly.
+
+### Retrain the full model
+
+```bash
+JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl --out-dir runs/full
+julia +dyad-3.3.0 --project scripts/validate_calibration.jl --calibration runs/full/calibrated_params.csv --out-dir runs/full
+```
+
+Full training takes about 21 minutes on the measured machine. See
+[training settings](#training-settings-and-performance) for the shorter budget
+and thread-count measurements.
+
+All run outputs go under the gitignored `runs/` directory by default. Training
+without `--out-dir` writes to `runs/training/`. Validation defaults to the
+**shipped calibration**, even after a training run; select your new fit with
+`--calibration`. `--out-dir` selects where each script writes its results;
+relative paths are relative to the working directory. Reusing a run directory
+replaces its previous outputs. The committed data and README plots remain intact.
+
+## How the model works
 
 The TNN estimates four internal temperatures of a permanent-magnet
 synchronous motor (rotor magnet, stator yoke, stator tooth, stator winding)
@@ -22,7 +84,7 @@ networks:
 | `Networks/PowerLossNet` | heat generation at the 4 target nodes | `Dense(14 → 16, tanh) → Dense(16 → 4, abs)`, 308 |
 | `Thermal/CapacitanceBlock` | inverse thermal capacitances, `exp.(caps)` (log-space keeps them positive) | 4 |
 | `Thermal/ThermalDynamics` | fixed physics: `C·dT/dt = Σ G·ΔT + P` | – |
-| `Thermal/Normalizer` | fixed max-abs feature scaling to `[0, 1]` | – |
+| `Thermal/Normalizer` | fixed feature scaling: temperatures divided by 200, signed signals by max-abs constants | – |
 | `Thermal/TemperatureOutputs` | converts the four normalized states to named outputs in °C | – |
 
 ![TNN model schematic](assets/tnn_schematic.png)
@@ -45,17 +107,11 @@ conversions to °C.
 `TNNModel.MAX_TEMP` sets the scale for both normalization and output conversion.
 The calibration scripts use the fixed 200 °C convention of the reference model.
 
-
-537 parameters in total, three orders of magnitude fewer than a comparably
-accurate black-box estimator. The network blocks are wrapped with
-`ModelingToolkitNeuralNets.NeuralNetworkBlock` (via `DyadModelDiscovery`), so
-ModelingToolkit sees each network as one opaque callable over a single
-parameter vector. Measured signals enter through `FastVectorInterpolation`
-(`dyad/definitions.jl`), a multi-channel interpolation block stored as a
-concretely typed callable parameter: one time search per RHS call and no
-boxing under ForwardDiff.
-
 ## How it is trained
+
+This is a Dyad port of the Thermal Neural Network (TNN) of Kirchgässner,
+Wallscheid & Böcker. It is trained on the public Paderborn PMSM dataset and
+compared with a port of the reference PyTorch implementation.
 
 Fitting a two-hour profile by single shooting is slow and badly conditioned:
 the loss landscape over the network weights is dominated by how early errors
@@ -145,26 +201,21 @@ systematic sign, which is what lets the segment-wise fit carry over to the
 free-running simulation, and is the criterion the run stops on. The fitted
 log-capacitances moved from the initial −5.0 to −5.6 / −5.2 / −5.2 / −5.3.
 
-## Running the demo
+## Implementation details
 
-Set the JuliaHub juliaup env vars once per shell (not needed for the VS Code
-REPL command), then instantiate this project:
+The model has 537 trained parameters in total. The network blocks are wrapped with
+`ModelingToolkitNeuralNets.NeuralNetworkBlock` (via `DyadModelDiscovery`), so
+ModelingToolkit sees each network as one opaque callable over a single
+parameter vector. Measured signals enter through `FastVectorInterpolation`
+(`dyad/definitions.jl`), a multi-channel interpolation block stored as a
+concretely typed callable parameter: one time search per RHS call and no
+boxing under ForwardDiff.
 
-```bash
-export JULIAUP_SERVER="https://juliahub.com/juliabin"
-export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
-cd MotorTemperatureSciML
-julia +dyad-3.3.0 --project -e 'using Pkg; Pkg.instantiate()'
-```
+## Training settings and performance
 
-The profiles are committed, so training runs immediately. Segments in a
-mini-batch solve in parallel across Julia threads:
-
-```bash
-JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl    # ~20 min, → assets/data/calibrated_params.csv
-julia +dyad-3.3.0 --project scripts/validate_calibration.jl                       # → assets/validation_*.png
-JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/animate_sms_training.jl   # ~13 min, → assets/sms_training*.gif
-```
+The full training run uses stochastic mini-batch multiple shooting with an
+augmented Lagrangian, via `DyadModelOptimizer`. The timing guidance below is
+specific to the measured machine and workload.
 
 More threads is not faster here. The CPU used, an i9-14900K, has 8
 performance cores and 16 efficiency cores, and the optimum is one thread per
@@ -191,13 +242,24 @@ error on the training horizon):
 | `short` | 10 × 12 | 360 | ~5 min | 4.1 / 0.8 / 0.9 / 3.1 |
 | `full` (default) | 5 × 100 | 1500 | ~21 min | 0.42 / 0.42 / 0.37 / 0.60 |
 
-The validation script can also be `include`d in the session that just trained.
+The validation script can also be `include`d in the session that just trained;
+it then uses the in-memory `calres`, unless `--calibration` explicitly selects
+a file.
 The augmented Lagrangian stops with `Success` once every segment junction has
 closed to within `CONTINUITY_TOL_C = 0.2 °C` (`scripts/common.jl`); if it
 runs out of outer iterations first it reports `ConvergenceFailure`. `Success`
 certifies continuity, not accuracy: the junctions can close while the data
 fit is still improving, so the free-running validation is the accuracy
 measure either way.
+
+To regenerate the training animation in a separate run directory:
+
+```bash
+JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/animate_sms_training.jl --out-dir runs/animation
+```
+
+This writes the GIFs, final-frame PNGs, and reusable snapshot cache there.
+Use `FORCE_RETRAIN=1` to refresh a cached animation run.
 
 | Path | Purpose |
 |---|---|
@@ -208,26 +270,30 @@ measure either way.
 | `scripts/validate_calibration.jl` | Free-running validation and plots |
 | `scripts/animate_sms_training.jl` | Training animation |
 | `scripts/prepare_data.jl` | Re-slice profiles from `measures_v2.csv` into Parquet |
-| `scripts/train_pytorch_reference.py` | The reference PyTorch TNN trained on the same profile; writes the predictions the validation overlays |
-| `assets/data/` | Profiles 17, 60, 62, 74 and the PyTorch reference predictions |
+| `scripts/train_pytorch_reference.py` | The reference PyTorch TNN trained on the same profile; writes new predictions under `runs/` |
+| `assets/data/` | Shipped profiles, calibration, and PyTorch reference predictions |
+| `runs/` | Local calibration, validation, and animation outputs (gitignored) |
 
 Tests: `julia +dyad-3.3.0 --project -e 'using Pkg; Pkg.test()'`.
 
 ### Reproducing the PyTorch reference
 
-The reference predictions in `assets/data/pytorch_profile_<id>.parquet` are
-written by a port of the upstream notebook's training and evaluation cells,
+The shipped reference predictions in `assets/data/pytorch_profile_<id>.parquet`
+were written by a port of the upstream notebook's training and evaluation cells,
 restricted to profile 17. It reads the shipped profile files, so no download is
 needed, and declares its dependencies inline; `uv` builds a CPU-only
 environment on first use:
 
 ```bash
-uv run scripts/train_pytorch_reference.py            # ~2.5 min, → assets/data/pytorch_profile_<id>.parquet
+uv run scripts/train_pytorch_reference.py            # ~2.5 min, → runs/pytorch/pytorch_profile_<id>.parquet
 ```
 
 Without `uv`, install `scripts/requirements.txt` into a virtualenv and run the
 script with `python`. `--epochs`, `--threads`, `--seed` and `--out-dir` are
 the useful knobs; `--no-export` trains and reports without writing files.
+New predictions go to `runs/pytorch/` by default. Validation overlays the
+shipped reference predictions; regenerating them into a run directory does
+not replace that reference.
 
 ## Data
 
