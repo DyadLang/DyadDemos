@@ -52,16 +52,18 @@ relations
   end
 metadata {
   "Dyad": {
-    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": -130, "layer": "icon", "attrs": {}}
+    ],
     "icons": {"default": "dyad://MotorTemperatureSciML/ThermalDynamics.svg"}
   },
   "_links": {
-    "conducts":     {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 275, "y1": -15, "x2": 725, "y2": 15, "show": 15}}}},
-    "coolant_norm": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 10, "x2": 50, "y2": 110}}}},
-    "ambient_norm": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 120, "x2": 50, "y2": 220}}}},
-    "ploss":        {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -20, "y1": 300, "x2": 20, "y2": 460, "show": 4}}}},
-    "inv_cap":      {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -20, "y1": 660, "x2": 20, "y2": 820, "show": 4}}}},
-    "T":            {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 350, "x2": 1025, "y2": 650, "show": 4}}}}
+    "conducts": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 175.0, "x2": 25.0, "y2": 225.0, "show": 1}}}},
+    "coolant_norm": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 275.0, "y1": -25.0, "x2": 325.0, "y2": 25.0, "rot": 90}}}},
+    "ambient_norm": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 675.0, "y1": -25.0, "x2": 725.0, "y2": 25.0, "rot": 90}}}},
+    "ploss": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25.0, "y1": 675.0, "x2": 25.0, "y2": 725.0, "show": 1}}}},
+    "inv_cap": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 475.0, "y1": 975.0, "x2": 525.0, "y2": 1025.0, "show": 1, "rot": 270}}}},
+    "T": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975.0, "y1": 475.0, "x2": 1025.0, "y2": 525.0, "show": 1}}}}
   }
 }
 end

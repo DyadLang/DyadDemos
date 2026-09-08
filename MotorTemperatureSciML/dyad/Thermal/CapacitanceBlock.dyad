@@ -16,11 +16,13 @@ relations
   end
 metadata {
   "Dyad": {
-    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1140, "layer": "icon", "attrs": {}}
+    ],
     "icons": {"default": "dyad://MotorTemperatureSciML/CapacitanceBlock.svg"}
   },
   "_links": {
-    "out": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 380, "x2": 1025, "y2": 620, "show": 4}}}}
+    "out": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 472.5, "y1": -27.5, "x2": 527.5, "y2": 27.5, "show": 1, "rot": 270}}}}
   }
 }
 end

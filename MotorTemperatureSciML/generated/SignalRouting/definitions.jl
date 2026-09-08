@@ -12,8 +12,8 @@ using OrdinaryDiffEqDefault
 using RuntimeGeneratedFunctions
 RuntimeGeneratedFunctions.init(@__MODULE__)
 
-if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "Thermal", "definitions.jl"))
-  include(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "Thermal", "definitions.jl"))
+if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "SignalRouting", "definitions.jl"))
+  include(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "SignalRouting", "definitions.jl"))
 end
 
 import BlockComponents
@@ -199,7 +199,7 @@ component.
 end
 
 
-include("CapacitanceBlock_definition.jl")
-include("Normalizer_definition.jl")
-include("TemperatureOutputs_definition.jl")
-include("ThermalDynamics_definition.jl")
+include("BoundaryTemperatures_definition.jl")
+include("FeatureMux_definition.jl")
+include("OperatingConditionsDemux_definition.jl")
+include("TemperatureDemux_definition.jl")

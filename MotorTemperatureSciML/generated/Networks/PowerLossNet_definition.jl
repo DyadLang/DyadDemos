@@ -90,6 +90,9 @@ appear only inside `connect(...)`, not in a general expression.
   # Subcomponent nn of type DyadModelDiscovery.NeuralNetworkBlock
   nn_overrides = __pop_subcomponent_overrides!(__overrides, "nn")
   push!(__systems, @named nn = DyadModelDiscovery.NeuralNetworkBlock(; n_input=n_in, n_output=n_out, chain=MotorTemperatureSciML.power_loss_chain(), nn_overrides...))
+  # Subcomponent mux of type MotorTemperatureSciML.SignalRouting.FeatureMux
+  mux_overrides = __pop_subcomponent_overrides!(__overrides, "mux")
+  push!(__systems, @named mux = MotorTemperatureSciML.SignalRouting.FeatureMux(; n_x=n_x, n_T=n_T, mux_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -102,20 +105,9 @@ appear only inside `connect(...)`, not in a general expression.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(x[1], nn.inputs[1]))
-  push!(__eqs, connect(x[2], nn.inputs[2]))
-  push!(__eqs, connect(x[3], nn.inputs[3]))
-  push!(__eqs, connect(x[4], nn.inputs[4]))
-  push!(__eqs, connect(x[5], nn.inputs[5]))
-  push!(__eqs, connect(x[6], nn.inputs[6]))
-  push!(__eqs, connect(x[7], nn.inputs[7]))
-  push!(__eqs, connect(x[8], nn.inputs[8]))
-  push!(__eqs, connect(x[9], nn.inputs[9]))
-  push!(__eqs, connect(x[10], nn.inputs[10]))
-  push!(__eqs, connect(T[1], nn.inputs[11]))
-  push!(__eqs, connect(T[2], nn.inputs[12]))
-  push!(__eqs, connect(T[3], nn.inputs[13]))
-  push!(__eqs, connect(T[4], nn.inputs[14]))
+  push!(__eqs, connect(x, mux.x))
+  push!(__eqs, connect(T, mux.T))
+  push!(__eqs, connect(mux.y, nn.inputs))
   push!(__eqs, connect(nn.outputs, out))
 
   # Return completely constructed System

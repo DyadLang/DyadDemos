@@ -18,5 +18,6 @@ end
 @testset "`MotorTemperatureSciML.Thermal`" begin
 include("CapacitanceBlock_test.jl")
 include("Normalizer_test.jl")
+include("TemperatureOutputs_test.jl")
 include("ThermalDynamics_test.jl")
 end

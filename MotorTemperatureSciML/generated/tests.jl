@@ -22,4 +22,5 @@ include("FastVectorInterpolation_test.jl")
 end
 include("Models/tests.jl")
 include("Networks/tests.jl")
+include("SignalRouting/tests.jl")
 include("Thermal/tests.jl")

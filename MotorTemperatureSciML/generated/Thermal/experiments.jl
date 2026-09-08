@@ -11,4 +11,5 @@ end
 
 include("CapacitanceBlock_experiment.jl")
 include("Normalizer_experiment.jl")
+include("TemperatureOutputs_experiment.jl")
 include("ThermalDynamics_experiment.jl")

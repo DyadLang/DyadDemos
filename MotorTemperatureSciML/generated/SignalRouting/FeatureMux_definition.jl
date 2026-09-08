@@ -7,43 +7,30 @@
 import Moshi as __Ext__Moshi
 
 @doc Markdown.doc"""
-   ConductanceNet(; name, n_x, n_T, n_in, n_out)
+   FeatureMux(; name, n_x, n_T, n_out)
 
-Conductance sub-network for the Thermal Neural Network (TNN).
-
-Maps a 14-element input vector — 10 normalised operating conditions (`x`, in
-`Normalizer.out` order) followed by the 4 estimated normalised temperatures
-(`T`, in `ThermalDynamics.T` order) — to 15 thermal conductance values via
-`Dense(14 → 15, sigmoid)`. The 15 outputs correspond to all unique edges in a
-fully connected graph of 6 temperature nodes. Outputs lie in `(0, 1)` courtesy
-of the sigmoid.
-
-The network is wrapped in `DyadModelDiscovery.NeuralNetworkBlock` so the
-forward pass is registered symbolically as a single opaque callable
-(`stateless_apply`) over one vector parameter `p` — MTK sees one parameter,
-not 225 scalar weights.
+Concatenate operating conditions and estimated temperatures, in the order [x; T].
 
 ## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `n_x`         | Number of operating-condition inputs (first block of the NN input vector)                         | --  |   10 |
-| `n_T`         | Number of temperature feedback inputs (second block of the NN input vector)                         | --  |   4 |
-| `n_in`         | NN input width, must equal n_x + n_T                         | --  |   14 |
-| `n_out`         |                          | --  |   15 |
+| `n_x`         |                          | --  |   10 |
+| `n_T`         |                          | --  |   4 |
+| `n_out`         |                          | --  |   n_x + n_T |
 
 ## Connectors
 
  * `x` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `T` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
- * `out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function ConductanceNet(; name = nothing, n_x=10, n_T=4, n_in=14, n_out=15, kwargs...)
+@component function FeatureMux(; name = nothing, n_x=10, n_T=4, n_out=n_x + n_T, kwargs...)
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
   
-    @named model = ConductanceNet()
+    @named model = FeatureMux()
   """))
 
   __overrides = __build_overrides(kwargs)
@@ -75,7 +62,7 @@ not 225 scalar weights.
   ### Final Path Parameters
   append!(__vars, @variables (x(t)[1:n_x]::Real), [input = true])
   append!(__vars, @variables (T(t)[1:n_T]::Real), [input = true])
-  append!(__vars, @variables (out(t)[1:n_out]::Real), [output = true])
+  append!(__vars, @variables (y(t)[1:n_out]::Real), [output = true])
 
   ### Variables (declarations)
 
@@ -85,12 +72,6 @@ not 225 scalar weights.
   __constants = Any[]
 
   ### Components
-  # Subcomponent nn of type DyadModelDiscovery.NeuralNetworkBlock
-  nn_overrides = __pop_subcomponent_overrides!(__overrides, "nn")
-  push!(__systems, @named nn = DyadModelDiscovery.NeuralNetworkBlock(; n_input=n_in, n_output=n_out, chain=MotorTemperatureSciML.conductance_chain(), nn_overrides...))
-  # Subcomponent mux of type MotorTemperatureSciML.SignalRouting.FeatureMux
-  mux_overrides = __pop_subcomponent_overrides!(__overrides, "mux")
-  push!(__systems, @named mux = MotorTemperatureSciML.SignalRouting.FeatureMux(; n_x=n_x, n_T=n_T, mux_overrides...))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
@@ -103,12 +84,16 @@ not 225 scalar weights.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(x, mux.x))
-  push!(__eqs, connect(T, mux.T))
-  push!(__eqs, connect(mux.y, nn.inputs))
-  push!(__eqs, connect(nn.outputs, out))
+
+  ### Control Structures
+  for i in 1:n_x
+    push!(__eqs, y[i] ~ x[i])
+  end
+  for i in 1:n_T
+    push!(__eqs, y[n_x + i] ~ T[i])
+  end
 
   # Return completely constructed System
   return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
-export ConductanceNet
+export FeatureMux

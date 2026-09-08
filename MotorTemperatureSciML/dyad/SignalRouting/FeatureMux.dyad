@@ -1,0 +1,29 @@
+"Concatenate operating conditions and estimated temperatures, in the order [x; T]."
+component FeatureMux
+  structural parameter n_x::Integer = 10
+  structural parameter n_T::Integer = 4
+  structural parameter n_out::Integer = n_x + n_T
+  x = [RealInput() for i in 1:n_x] {^x}
+  T = [RealInput() for i in 1:n_T] {^T}
+  y = [RealOutput() for i in 1:n_out] {^y}
+relations
+  for i in 1:n_x
+    y[i] = x[i]
+  end
+  for i in 1:n_T
+    y[n_x + i] = T[i]
+  end
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": -100, "layer": "icon"}
+    ],
+    "icons": {"default": "dyad://MotorTemperatureSciML/FeatureMux.svg"}
+  },
+  "_links": {
+    "x": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -35.0, "y1": 225.0, "x2": 35.0, "y2": 275.0, "show": 1}}}},
+    "T": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -35.0, "y1": 725.0, "x2": 35.0, "y2": 775.0, "show": 1}}}},
+    "y": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 965.0, "y1": 475.0, "x2": 1035.0, "y2": 525.0, "show": 1}}}}
+  }
+}
+end
