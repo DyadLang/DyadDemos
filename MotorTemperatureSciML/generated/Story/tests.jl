@@ -16,6 +16,7 @@ end
 
 
 @testset "`MotorTemperatureSciML.Story`" begin
+include("HighTempTNNModel_test.jl")
 include("TestTNNProfile60_test.jl")
 include("TestTNNProfile62_test.jl")
 include("TestTNNProfile74_test.jl")

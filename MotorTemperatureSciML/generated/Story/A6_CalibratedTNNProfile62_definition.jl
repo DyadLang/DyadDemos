@@ -5,26 +5,26 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using MotorTemperatureSciML: AbstractTNNFreeRunAnalysisSpec, TNNFreeRunAnalysisSpec
-@kwdef mutable struct A6_CalibratedTNNProfile60Spec <: AbstractTNNFreeRunAnalysisSpec
-  name::Symbol = :A6_CalibratedTNNProfile60
+@kwdef mutable struct A6_CalibratedTNNProfile62Spec <: AbstractTNNFreeRunAnalysisSpec
+  name::Symbol = :A6_CalibratedTNNProfile62
   # Calibrated parameters CSV (dyad:// URI or path); empty runs the untrained model
   var"calibration"::String = "dyad://MotorTemperatureSciML/data/calibrated_params.csv"
   # PyTorch reference predictions (Parquet, dyad:// URI or path); empty for none
-  var"reference"::String = "dyad://MotorTemperatureSciML/data/pytorch_profile_60.parquet"
+  var"reference"::String = "dyad://MotorTemperatureSciML/data/pytorch_profile_62.parquet"
   # End of the training horizon, marked on the plots; 0 hides the marker
   var"train_horizon"::Float64 = 0
   # Simulation end; 0 runs the whole profile
   var"stop"::Float64 = 0.0
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
-  # `TestTNNProfile` driven by held-out profile 60.
-  var"model"::Union{Nothing, System} = MotorTemperatureSciML.Story.TestTNNProfile60(; name=:TestTNNProfile60)
+  # `TestTNNProfile` driven by held-out profile 62.
+  var"model"::Union{Nothing, System} = MotorTemperatureSciML.Story.TestTNNProfile62(; name=:TestTNNProfile62)
 end
 
-function DyadInterface.run_analysis(spec::A6_CalibratedTNNProfile60Spec)
+function DyadInterface.run_analysis(spec::A6_CalibratedTNNProfile62Spec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
   
@@ -34,5 +34,5 @@ function DyadInterface.run_analysis(spec::A6_CalibratedTNNProfile60Spec)
   run_analysis(base_spec)
 end
 
-A6_CalibratedTNNProfile60(;kwargs...) = run_analysis(A6_CalibratedTNNProfile60Spec(;kwargs...))
-export A6_CalibratedTNNProfile60, A6_CalibratedTNNProfile60Spec
+A6_CalibratedTNNProfile62(;kwargs...) = run_analysis(A6_CalibratedTNNProfile62Spec(;kwargs...))
+export A6_CalibratedTNNProfile62, A6_CalibratedTNNProfile62Spec

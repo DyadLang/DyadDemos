@@ -9,6 +9,7 @@ if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "Story", 
 end
 
 
+include("HighTempTNNModel_experiment.jl")
 include("TestTNNProfile60_experiment.jl")
 include("TestTNNProfile62_experiment.jl")
 include("TestTNNProfile74_experiment.jl")

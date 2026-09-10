@@ -5,7 +5,7 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using MotorTemperatureSciML: AbstractTNNFreeRunAnalysisSpec, TNNFreeRunAnalysisSpec
 @kwdef mutable struct A1_UntrainedTNNSpec <: AbstractTNNFreeRunAnalysisSpec

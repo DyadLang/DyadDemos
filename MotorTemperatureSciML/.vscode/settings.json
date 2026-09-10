@@ -6,7 +6,7 @@
     "julia.additionalArgs": [
         // "--optimize=0"
     ],
-    "julia.languageServerJuliaupChannel": "release",
-    "julia.executablePath": "julia +release",
+    "julia.languageServerJuliaupChannel": "dyad-3.4.0-rc1",
+    "julia.executablePath": "julia +dyad-3.4.0-rc1",
     "julia.juliaup.server": "https://juliahub.com/juliabin"
 }

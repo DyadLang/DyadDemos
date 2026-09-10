@@ -5,11 +5,11 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using MotorTemperatureSciML: AbstractTNNFreeRunAnalysisSpec, TNNFreeRunAnalysisSpec
-@kwdef mutable struct A4_RetrainedTNNSpec <: AbstractTNNFreeRunAnalysisSpec
-  name::Symbol = :A4_RetrainedTNN
+@kwdef mutable struct A3_RetrainedTNNSpec <: AbstractTNNFreeRunAnalysisSpec
+  name::Symbol = :A3_RetrainedTNN
   # Calibrated parameters CSV (dyad:// URI or path); empty runs the untrained model
   var"calibration"::String = "dyad://MotorTemperatureSciML/story/calibrated_params.csv"
   # PyTorch reference predictions (Parquet, dyad:// URI or path); empty for none
@@ -33,7 +33,7 @@ using MotorTemperatureSciML: AbstractTNNFreeRunAnalysisSpec, TNNFreeRunAnalysisS
   var"model"::Union{Nothing, System} = MotorTemperatureSciML.Models.Tests.TestTNNProfile(; name=:TestTNNProfile)
 end
 
-function DyadInterface.run_analysis(spec::A4_RetrainedTNNSpec)
+function DyadInterface.run_analysis(spec::A3_RetrainedTNNSpec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
   
@@ -43,5 +43,5 @@ function DyadInterface.run_analysis(spec::A4_RetrainedTNNSpec)
   run_analysis(base_spec)
 end
 
-A4_RetrainedTNN(;kwargs...) = run_analysis(A4_RetrainedTNNSpec(;kwargs...))
-export A4_RetrainedTNN, A4_RetrainedTNNSpec
+A3_RetrainedTNN(;kwargs...) = run_analysis(A3_RetrainedTNNSpec(;kwargs...))
+export A3_RetrainedTNN, A3_RetrainedTNNSpec

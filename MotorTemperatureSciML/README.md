@@ -29,16 +29,21 @@ julia --project -e 'using Pkg; Pkg.instantiate()'
 
 The same story is available as Dyad analyses, so it can be run from Dyad
 Builder or from Julia without touching the scripts. They are declared in
-[`dyad/Story/Story.dyad`](dyad/Story/Story.dyad), numbered `A1` to `A8` in the
+[`dyad/Story/Story.dyad`](dyad/Story/Story.dyad), numbered `A1` to `A7` in the
 order to run them, and every one has a `SimulationSolutionPlot` artifact (a
-Makie figure):
+Makie figure). Each finishes in a couple of minutes, so the sequence runs
+click by click:
 
 | Step | Analysis | `SimulationSolutionPlot` shows |
 |---|---|---|
 | 1 · Before training | `A1_UntrainedTNN` | the untrained model free-running against the measurements |
-| 2 · Training | `A2_TrainTNNQuick` (about two minutes), `A3_TrainTNN` (the full run, 20 to 40 minutes) | loss per Adam step, junction gap and penalty per outer iteration; also `FitPlot`, `ContinuityPlot` |
-| 3 · After training | `A4_RetrainedTNN` (the fit step 2 wrote), `A5_CalibratedTNN` (shipped fit) | the calibrated model against the measurements and the PyTorch reference |
-| 3 · Held out | `A6_CalibratedTNNProfile60`, `…62`, `…74` | the shipped fit on profiles the model never saw |
+| 2 · Training | `A2_TrainTNNQuick` (about two minutes) | loss per Adam step, junction gap and penalty per outer iteration; also `FitPlot`, `ContinuityPlot` |
+| 3 · After training | `A3_RetrainedTNN` (the fit step 2 wrote), `A4_CalibratedTNN` (shipped fit) | the calibrated model against the measurements and the PyTorch reference |
+| 3 · Held out | `A5_CalibratedTNNProfile60`, `…62`, `…74` | the shipped fit on profiles the model never saw |
+
+The full-budget calibration behind the results below is
+[`scripts/train_stochastic_ms.jl`](scripts/train_stochastic_ms.jl), a 20-to-40
+minute run kept out of the click-through sequence.
 
 Every analysis also exposes tables (`ErrorTable`, `SimulationSolutionTable`,
 `LossTable`, …) and the raw solution. The two base analyses,
@@ -133,6 +138,9 @@ conversions to °C.
 
 `TNNModel.MAX_TEMP` sets the scale for both normalization and output conversion.
 The calibration scripts use the fixed 200 °C convention of the reference model.
+[`Story/HighTempTNNModel`](dyad/Story/HighTempTNNModel.dyad) is the whole model
+cloned to a 250 °C ceiling in one line of `extends`, and shows up in the
+component browser with the ports, wiring and icon it inherits.
 
 ## How it is trained
 

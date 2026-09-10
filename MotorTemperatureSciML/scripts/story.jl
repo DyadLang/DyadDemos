@@ -2,10 +2,11 @@
 # Julia. Each analysis is one call; every one has a SimulationSolutionPlot
 # artifact, and this script saves every plot artifact as a PNG.
 #
-#   JULIA_NUM_THREADS=8 julia --project scripts/story.jl            # quick training run
-#   TNN_STORY_FULL=1 JULIA_NUM_THREADS=8 julia --project scripts/story.jl   # 21-minute run
+#   JULIA_NUM_THREADS=8 julia --project scripts/story.jl
 #
 # Output: runs/story/<Analysis>_<Artifact>.png and the RMS tables on stdout.
+# For the full-budget calibration behind the README results, run
+# scripts/train_stochastic_ms.jl.
 
 using MotorTemperatureSciML
 using MotorTemperatureSciML.Story
@@ -30,19 +31,17 @@ end
 @info "1 · Before training"
 untrained = save_plots(A1_UntrainedTNN(), "A1_UntrainedTNN")
 
-@info "2 · Training" full = get(ENV, "TNN_STORY_FULL", "0") == "1"
-training = get(ENV, "TNN_STORY_FULL", "0") == "1" ? A3_TrainTNN() : A2_TrainTNNQuick()
-train_label = get(ENV, "TNN_STORY_FULL", "0") == "1" ? "A3_TrainTNN" : "A2_TrainTNNQuick"
-save_plots(training, train_label)
+@info "2 · Training"
+training = save_plots(A2_TrainTNNQuick(), "A2_TrainTNNQuick")
 # Training curves as CSV, so the figures can be redrawn without retraining.
-CSV.write(joinpath(OUT, "$(train_label)_LossTable.csv"), artifacts(training, :LossTable))
-CSV.write(joinpath(OUT, "$(train_label)_OuterIterationTable.csv"), artifacts(training, :OuterIterationTable))
+CSV.write(joinpath(OUT, "A2_TrainTNNQuick_LossTable.csv"), artifacts(training, :LossTable))
+CSV.write(joinpath(OUT, "A2_TrainTNNQuick_OuterIterationTable.csv"), artifacts(training, :OuterIterationTable))
 
 @info "3 · After training"
-save_plots(A4_RetrainedTNN(), "A4_RetrainedTNN")          # the run above
-save_plots(A5_CalibratedTNN(), "A5_CalibratedTNN")        # the shipped 21-minute fit
-for (A, label) in ((A6_CalibratedTNNProfile60, "A6_CalibratedTNNProfile60"),
-                   (A7_CalibratedTNNProfile62, "A7_CalibratedTNNProfile62"),
-                   (A8_CalibratedTNNProfile74, "A8_CalibratedTNNProfile74"))
+save_plots(A3_RetrainedTNN(), "A3_RetrainedTNN")      # the run above
+save_plots(A4_CalibratedTNN(), "A4_CalibratedTNN")    # the shipped fit
+for (A, label) in ((A5_CalibratedTNNProfile60, "A5_CalibratedTNNProfile60"),
+                   (A6_CalibratedTNNProfile62, "A6_CalibratedTNNProfile62"),
+                   (A7_CalibratedTNNProfile74, "A7_CalibratedTNNProfile74"))
     save_plots(A(), label)
 end
