@@ -321,6 +321,21 @@ predictions of the reference implementation ([wkirgsn/thermal-nn](https://github
 `TNN_pytorch.ipynb`) after training on the first 7200 s of profile 17 for 100 epochs, on the
 same 0.5 s grid, as written by `scripts/train_pytorch_reference.py` (seed 0).
 
+### Licenses
+
+- The profile files in `assets/data/` are derived from the Kaggle dataset
+  *Electric Motor Temperature* by W. Kirchgässner, O. Wallscheid and J. Böcker
+  (DOI `10.34740/KAGGLE/DSV/2161054`), published under
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Each file is
+  one drive profile of `measures_v2.csv` with a synthesised `time` column and
+  the two derived features `i_s` / `u_s` (see `scripts/prepare_data.jl`); they
+  are redistributed here under the same CC BY-SA 4.0 terms, with attribution to
+  the authors.
+- `scripts/train_pytorch_reference.py` contains the model and training-loop
+  code of [wkirgsn/thermal-nn](https://github.com/wkirgsn/thermal-nn), MIT
+  License, Copyright (c) 2021 Wilhelm Kirchgässner. The license notice is
+  reproduced in the script's header.
+
 ## References
 
 - W. Kirchgässner, O. Wallscheid, J. Böcker, *Thermal neural networks:
