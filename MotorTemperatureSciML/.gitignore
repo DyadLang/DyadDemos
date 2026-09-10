@@ -13,3 +13,6 @@
 
 # Local training, validation and animation outputs.
 /runs/
+
+# Parameters written by the TrainTNN* story analyses (dyad://MotorTemperatureSciML/story/...).
+/assets/story/

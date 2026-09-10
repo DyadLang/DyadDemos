@@ -18,20 +18,47 @@ published model's generalization performance from much broader training data.
 The input profiles, calibrated parameters, and reference predictions are
 included. **You can validate the saved fit without training or downloading data.**
 
-Set the JuliaHub juliaup environment variables once per shell (not needed for
-the VS Code REPL command), then instantiate the standalone project:
+Instantiate the standalone project once:
 
 ```bash
-export JULIAUP_SERVER="https://juliahub.com/juliabin"
-export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd MotorTemperatureSciML
-julia +dyad-3.3.0 --project -e 'using Pkg; Pkg.instantiate()'
+julia --project -e 'using Pkg; Pkg.instantiate()'
+```
+
+### Run it as a sequence of analyses
+
+The same story is available as Dyad analyses, so it can be run from Dyad
+Builder or from Julia without touching the scripts. They are declared in
+[`dyad/Story/Story.dyad`](dyad/Story/Story.dyad), numbered `A1` to `A8` in the
+order to run them, and every one has a `SimulationSolutionPlot` artifact (a
+Makie figure):
+
+| Step | Analysis | `SimulationSolutionPlot` shows |
+|---|---|---|
+| 1 · Before training | `A1_UntrainedTNN` | the untrained model free-running against the measurements |
+| 2 · Training | `A2_TrainTNNQuick` (about two minutes), `A3_TrainTNN` (the full run, 20 to 40 minutes) | loss per Adam step, junction gap and penalty per outer iteration; also `FitPlot`, `ContinuityPlot` |
+| 3 · After training | `A4_RetrainedTNN` (the fit step 2 wrote), `A5_CalibratedTNN` (shipped fit) | the calibrated model against the measurements and the PyTorch reference |
+| 3 · Held out | `A6_CalibratedTNNProfile60`, `…62`, `…74` | the shipped fit on profiles the model never saw |
+
+Every analysis also exposes tables (`ErrorTable`, `SimulationSolutionTable`,
+`LossTable`, …) and the raw solution. The two base analyses,
+`TNNFreeRunAnalysis` and `TNNTrainingAnalysis`, live in
+[`dyad/TNNAnalyses.dyad`](dyad/TNNAnalyses.dyad) with their Julia
+implementation in [`src/story_analyses.jl`](src/story_analyses.jl); they read
+the measurements from the harness the analysis is given, so a different
+profile is just a different `TestTNNProfile` component.
+
+From Julia, `scripts/story.jl` runs the whole sequence and saves every plot
+artifact to `runs/story/`:
+
+```bash
+JULIA_NUM_THREADS=8 julia --project scripts/story.jl
 ```
 
 ### View the saved fit
 
 ```bash
-julia +dyad-3.3.0 --project scripts/validate_calibration.jl
+julia --project scripts/validate_calibration.jl
 ```
 
 This reads `assets/data/calibrated_params.csv`, reports RMS errors, and writes
@@ -43,8 +70,8 @@ and then runs continuously, without resetting at the end of the training horizon
 ### Check the training pipeline
 
 ```bash
-TNN_BUDGET=quick JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl --out-dir runs/quick
-julia +dyad-3.3.0 --project scripts/validate_calibration.jl --calibration runs/quick/calibrated_params.csv --out-dir runs/quick
+TNN_BUDGET=quick JULIA_NUM_THREADS=8 julia --project scripts/train_stochastic_ms.jl --out-dir runs/quick
+julia --project scripts/validate_calibration.jl --calibration runs/quick/calibrated_params.csv --out-dir runs/quick
 ```
 
 The quick budget takes about a minute on the measured machine, including
@@ -54,8 +81,8 @@ fit. The second command evaluates this quick fit explicitly.
 ### Retrain the full model
 
 ```bash
-JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl --out-dir runs/full
-julia +dyad-3.3.0 --project scripts/validate_calibration.jl --calibration runs/full/calibrated_params.csv --out-dir runs/full
+JULIA_NUM_THREADS=8 julia --project scripts/train_stochastic_ms.jl --out-dir runs/full
+julia --project scripts/validate_calibration.jl --calibration runs/full/calibrated_params.csv --out-dir runs/full
 ```
 
 Full training takes about 21 minutes on the measured machine. See
@@ -211,6 +238,10 @@ parameter vector. Measured signals enter through `FastVectorInterpolation`
 concretely typed callable parameter: one time search per RHS call and no
 boxing under ForwardDiff.
 
+`OptimizationBBO` is a direct dependency only to pin it: version 0.4.8, which
+the resolver otherwise picks, does not load against `SciMLBase` 3.50 or newer.
+Drop the pin once a release supporting `LogExpFunctions` 1 is available.
+
 ## Training settings and performance
 
 The full training run uses stochastic mini-batch multiple shooting with an
@@ -255,7 +286,7 @@ measure either way.
 To regenerate the training animation in a separate run directory:
 
 ```bash
-JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/animate_sms_training.jl --out-dir runs/animation
+JULIA_NUM_THREADS=8 julia --project scripts/animate_sms_training.jl --out-dir runs/animation
 ```
 
 This writes the GIFs, final-frame PNGs, and reusable snapshot cache there.
@@ -274,7 +305,7 @@ Use `FORCE_RETRAIN=1` to refresh a cached animation run.
 | `assets/data/` | Shipped profiles, calibration, and PyTorch reference predictions |
 | `runs/` | Local calibration, validation, and animation outputs (gitignored) |
 
-Tests: `julia +dyad-3.3.0 --project -e 'using Pkg; Pkg.test()'`.
+Tests: `julia --project -e 'using Pkg; Pkg.test()'`.
 
 ### Reproducing the PyTorch reference
 

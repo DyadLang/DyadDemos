@@ -1,0 +1,118 @@
+# The demo as a sequence of analyses. Run them in order in Dyad Builder;
+# every one has a SimulationSolutionPlot artifact.
+#
+#   A1_UntrainedTNN             the model before training
+#   A2_TrainTNNQuick            a two-minute training run (pipeline check)
+#   A3_TrainTNN                 the full training run the README reports
+#   A4_RetrainedTNN             the fit A2 or A3 just wrote
+#   A5_CalibratedTNN            the shipped fit, with the PyTorch reference overlaid
+#   A6_CalibratedTNNProfile60   the shipped fit on held-out profiles
+#   A7_CalibratedTNNProfile62
+#   A8_CalibratedTNNProfile74
+
+"""
+**1 · Before training.** The Thermal Neural Network with its initial weights,
+free-running over the training profile. The conductance network starts near
+mid-range and the loss network near zero, so every node relaxes towards the
+coolant and ambient temperatures and misses the measured heating.
+"""
+analysis A1_UntrainedTNN
+  extends MotorTemperatureSciML.TNNFreeRunAnalysis(calibration = "", reference = "")
+  model = MotorTemperatureSciML.Models.Tests.TestTNNProfile()
+end
+
+"""
+**2 · Training, quick budget.** One augmented-Lagrangian outer iteration of two
+Adam epochs: six Adam steps over 96 segments of 75 s, about a minute with 8
+threads. Enough to see the machinery (loss per step, junction gaps, penalty);
+far too short for an accurate fit. Writes the parameters for `A4_RetrainedTNN`.
+"""
+analysis A2_TrainTNNQuick
+  extends MotorTemperatureSciML.TNNTrainingAnalysis(inner_epochs = 2, outer_maxiters = 1,
+    results_path = "dyad://MotorTemperatureSciML/story/calibrated_params.csv")
+  model = MotorTemperatureSciML.Models.Tests.TestTNNProfile()
+end
+
+"""
+**2 · Training, full budget.** Five outer iterations of 100 Adam epochs
+(1500 steps), about 21 minutes with 8 threads on the measured machine; this is
+the run behind the README results. Writes the parameters for `A4_RetrainedTNN`.
+"""
+analysis A3_TrainTNN
+  extends MotorTemperatureSciML.TNNTrainingAnalysis(inner_epochs = 100, outer_maxiters = 5,
+    results_path = "dyad://MotorTemperatureSciML/story/calibrated_params.csv")
+  model = MotorTemperatureSciML.Models.Tests.TestTNNProfile()
+end
+
+"""
+**3 · After training, your own run.** Same as `A5_CalibratedTNN` but with the
+parameters written by `A2_TrainTNNQuick` or `A3_TrainTNN`.
+"""
+analysis A4_RetrainedTNN
+  extends MotorTemperatureSciML.TNNFreeRunAnalysis(
+    calibration = "dyad://MotorTemperatureSciML/story/calibrated_params.csv",
+    reference = "dyad://MotorTemperatureSciML/data/pytorch_profile_17.parquet")
+  model = MotorTemperatureSciML.Models.Tests.TestTNNProfile()
+end
+
+"""
+**3 · After training.** The shipped calibration, free-running over the full
+training profile including the held-out tail after 7200 s, with the PyTorch
+reference TNN trained on the same profile overlaid.
+"""
+analysis A5_CalibratedTNN
+  extends MotorTemperatureSciML.TNNFreeRunAnalysis(
+    calibration = "dyad://MotorTemperatureSciML/data/calibrated_params.csv",
+    reference = "dyad://MotorTemperatureSciML/data/pytorch_profile_17.parquet")
+  model = MotorTemperatureSciML.Models.Tests.TestTNNProfile()
+end
+
+# ── Held-out profiles ────────────────────────────────────────────────────────
+# The same harness driven by a different profile; `data_file` is structural, so
+# each profile is its own component.
+
+"`TestTNNProfile` driven by held-out profile 60."
+test component TestTNNProfile60
+  extends MotorTemperatureSciML.Models.Tests.TestTNNProfile(data_file = "dyad://MotorTemperatureSciML/data/profile_60.parquet")
+end
+
+"`TestTNNProfile` driven by held-out profile 62."
+test component TestTNNProfile62
+  extends MotorTemperatureSciML.Models.Tests.TestTNNProfile(data_file = "dyad://MotorTemperatureSciML/data/profile_62.parquet")
+end
+
+"`TestTNNProfile` driven by held-out profile 74."
+test component TestTNNProfile74
+  extends MotorTemperatureSciML.Models.Tests.TestTNNProfile(data_file = "dyad://MotorTemperatureSciML/data/profile_74.parquet")
+end
+
+"""
+**3 · Held out.** The shipped calibration on profile 60, which the model never
+saw. Both the Dyad and the PyTorch model trained on a single profile, so this
+is a stress test: the published TNN trains on 66 profiles.
+"""
+analysis A6_CalibratedTNNProfile60
+  extends MotorTemperatureSciML.TNNFreeRunAnalysis(
+    calibration = "dyad://MotorTemperatureSciML/data/calibrated_params.csv",
+    reference = "dyad://MotorTemperatureSciML/data/pytorch_profile_60.parquet",
+    train_horizon = 0)
+  model = TestTNNProfile60()
+end
+
+"**3 · Held out.** The shipped calibration on profile 62."
+analysis A7_CalibratedTNNProfile62
+  extends MotorTemperatureSciML.TNNFreeRunAnalysis(
+    calibration = "dyad://MotorTemperatureSciML/data/calibrated_params.csv",
+    reference = "dyad://MotorTemperatureSciML/data/pytorch_profile_62.parquet",
+    train_horizon = 0)
+  model = TestTNNProfile62()
+end
+
+"**3 · Held out.** The shipped calibration on profile 74."
+analysis A8_CalibratedTNNProfile74
+  extends MotorTemperatureSciML.TNNFreeRunAnalysis(
+    calibration = "dyad://MotorTemperatureSciML/data/calibrated_params.csv",
+    reference = "dyad://MotorTemperatureSciML/data/pytorch_profile_74.parquet",
+    train_horizon = 0)
+  model = TestTNNProfile74()
+end
