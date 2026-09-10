@@ -20,7 +20,7 @@ Reference PyTorch Thermal Neural Network, trained on profile 17 only.
 
 A port of the training and evaluation cells of `TNN_pytorch.ipynb` from
 github.com/wkirgsn/thermal-nn (model code verbatim), restricted to the single
-profile this demo trains on, so the Dyad calibration can be compared with the
+profile's first 7200 seconds, so the Dyad calibration can be compared with the
 reference implementation at equal data. It reads the profile Parquet files shipped in
 assets/data/ (the notebook's preprocessing is reproduced with the same max-abs
 constants as dyad/Thermal/Normalizer.dyad) and writes
@@ -57,6 +57,7 @@ from torch.nn import Parameter as TorchParam
 # ── Data ──────────────────────────────────────────────────────────────────────
 
 TRAIN_PROFILE = 17
+TRAIN_HORIZON_S = 7200.0  # Keep in sync with scripts/common.jl.
 PROFILES = (17, 60, 62, 74)
 DT = 0.5  # s
 
@@ -89,8 +90,17 @@ def load_profile(data_dir: Path, pid: int) -> pd.DataFrame:
 
 def to_tensor(df: pd.DataFrame) -> Tensor:
     """(T, 1, n_inputs + n_targets) float32, batch dimension = one profile."""
-    arr = df[INPUT_COLS + TARGET_COLS].to_numpy(dtype=np.float32)
+    arr = df[INPUT_COLS + TARGET_COLS].to_numpy(dtype=np.float32, copy=True)
     return torch.from_numpy(arr[:, None, :])
+
+
+def training_window(df: pd.DataFrame, horizon_s: float) -> pd.DataFrame:
+    """Use the same inclusive training interval as the Dyad experiment."""
+    if not np.isfinite(horizon_s) or horizon_s <= 0:
+        raise ValueError("training horizon must be finite and positive")
+    if df.empty or df.time.iloc[0] != 0 or df.time.iloc[-1] < horizon_s:
+        raise ValueError("training profile must cover [0, training horizon]")
+    return df.loc[df.time <= horizon_s].copy()
 
 
 # ── Model (verbatim from the notebook, sizes passed in instead of read from globals) ──
@@ -212,6 +222,8 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--lr-decay-epoch", type=int, default=75, help="epoch after which the LR is halved")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--train-horizon", type=float, default=TRAIN_HORIZON_S,
+                    help="training horizon in seconds; evaluation still uses full profiles (default: 7200)")
     ap.add_argument("--threads", type=int, default=None, help="torch CPU threads (default: torch's)")
     ap.add_argument("--data-dir", type=Path, default=here.parent / "assets" / "data")
     ap.add_argument("--out-dir", type=Path, default=None,
@@ -226,11 +238,12 @@ def main():
     np.random.seed(args.seed)
 
     profiles = {pid: load_profile(args.data_dir, pid) for pid in PROFILES}
-    train_data = to_tensor(profiles[TRAIN_PROFILE])
+    train_df = training_window(profiles[TRAIN_PROFILE], args.train_horizon)
+    train_data = to_tensor(train_df)
     model = build_model()
     n_params = sum(p.numel() for p in model.parameters())
     n_batches = int(np.ceil(train_data.shape[0] / args.tbptt))
-    print(f"Training profile {TRAIN_PROFILE}: {train_data.shape[0]} samples, "
+    print(f"Training profile {TRAIN_PROFILE}, 0–{train_df.time.iloc[-1]:g} s: {train_data.shape[0]} samples, "
           f"{n_batches} TBPTT chunks of {args.tbptt} per epoch, {args.epochs} epochs "
           f"= {n_batches * args.epochs} updates; {n_params} parameters; "
           f"torch threads {torch.get_num_threads()}", flush=True)
@@ -244,9 +257,15 @@ def main():
     for pid, df in profiles.items():
         pred = predict(model, to_tensor(df))
         meas = df[TARGET_COLS].to_numpy() * MAX_TEMP
-        rms = np.sqrt(np.mean((pred - meas) ** 2, axis=0))
-        tag = "training" if pid == TRAIN_PROFILE else "held out"
-        print(f"  profile {pid:2d} ({tag:8s})  " + "  ".join(f"{r:7.2f}" for r in rms))
+        windows = [("held out", np.ones(len(df), dtype=bool))]
+        if pid == TRAIN_PROFILE:
+            windows = [("training horizon", df.time.to_numpy() <= args.train_horizon),
+                       ("held-out tail", df.time.to_numpy() > args.train_horizon)]
+        for tag, mask in windows:
+            if not mask.any():
+                continue
+            rms = np.sqrt(np.mean((pred[mask] - meas[mask]) ** 2, axis=0))
+            print(f"  profile {pid:2d} ({tag})  " + "  ".join(f"{r:7.2f}" for r in rms))
         if not args.no_export:
             out = pd.DataFrame({"time": df["time"].to_numpy()})
             for j, c in enumerate(TARGET_COLS):

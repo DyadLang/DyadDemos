@@ -147,7 +147,7 @@ with penalty terms and is evaluated with segment initial states that are stale
 right after a multiplier update. `scripts/validate_calibration.jl` therefore
 runs the calibrated model as a plain ODE over the whole training profile and
 over three held-out profiles, and compares with the reference PyTorch TNN
-trained on the same single profile for 100 epochs (see the note on
+trained on the same 0–7200 s interval of profile 17 for 100 epochs (see the note on
 multi-profile training under Results).
 
 ## Results
@@ -155,29 +155,34 @@ multi-profile training under Results).
 Free-running RMS error in °C. The Dyad run is 5 outer iterations × 100
 epochs, 1500 Adam steps over mini-batches of 32 segments, 21 min on 8
 threads. The PyTorch column is the reference implementation trained on the
-same profile for 100 epochs of truncated BPTT over 512-sample chunks, 3200
-updates, about 140 s on the same machine (`scripts/train_pytorch_reference.py`,
-torch on 24 threads). The reference is sensitive to its random initialisation:
-three seeds give 0.4–0.8 / 2.5–4.4 / 2.4–8.5 / 2.2–5.9 °C on the training
-profile; the table shows the default seed. An epoch is one pass over the profile in both cases, so
-per pass the Dyad run is about 1.6× slower and takes 5× more of them; each of
-its steps integrates 32 segments with an adaptive solver and differentiates
-through them with ForwardDiff, whereas a TBPTT update is 512 explicit Euler
-steps on one chunk.
+same 0–7200 s interval for 100 epochs of truncated BPTT over 512-sample chunks:
+14,401 samples, 29 chunks per epoch, 2900 updates, 144 s on the same machine
+(`scripts/train_pytorch_reference.py --threads 24`, seed 0). Both models exclude
+the remainder of profile 17 from training and evaluate it free-running, with
+no state reset at 7200 s. These are individual runs, not averages over seeds.
+An epoch covers the same two-hour interval in both cases, but the optimization
+work differs: a Dyad step integrates 32 segments with an adaptive solver and
+differentiates through them with ForwardDiff; a TBPTT update takes up to 512
+explicit Euler steps. Solver, initialization, thread count, and training budget
+also differ, so this compares the two workflows rather than isolating framework
+speed or optimizer quality.
 
 | Profile | | T_pm | T_stator_yoke | T_stator_tooth | T_stator_winding |
 |---|---|---|---|---|---|
 | 17, training horizon (0–7200 s) | Dyad | 0.42 | 0.42 | 0.37 | 0.60 |
-| | PyTorch | 0.78 | 4.05 | 8.53 | 2.48 |
+| | PyTorch | 0.92 | 4.60 | 9.65 | 2.69 |
 | 17, held-out tail (7200 s–end) | Dyad | 0.10 | 0.33 | 0.23 | 0.17 |
-| | PyTorch | 0.90 | 1.57 | 1.76 | 1.51 |
+| | PyTorch | 1.36 | 2.92 | 3.20 | 1.55 |
 | 60 (held out) | Dyad | 15.2 | 16.5 | 20.1 | 25.8 |
+| | PyTorch | 139.8 | 103.2 | 148.6 | 169.4 |
 | 62 (held out) | Dyad | 10.5 | 8.6 | 10.5 | 13.6 |
+| | PyTorch | 212.5 | 153.8 | 244.0 | 259.0 |
 | 74 (held out) | Dyad | 17.6 | 16.4 | 21.2 | 27.6 |
+| | PyTorch | 198.4 | 146.0 | 229.7 | 232.1 |
 
 ![Held-out profiles](assets/validation_test_profiles.png)
 
-Both models saw a *single* 2.2 h profile. The published TNN results are
+Both models trained on the first 2 h of a *single* 2.2 h profile. The published TNN results are
 obtained very differently: the upstream notebook trains on the whole Paderborn
 training set, 66 profiles and 176 h of data, and generalises to the held-out
 profiles far better than either column here. Training over several profiles
@@ -187,12 +192,12 @@ profile and uses the other three only as a stress test. On that test the Dyad
 fit stays bounded and tracks the shape of the unseen profiles with a 9–28 °C
 error; the reference fit runs away on all three (its curves leave the frame in
 the figure above, whose axes follow the measurement). The two share the same
-architecture and both are trained over the whole profile (the notebook's
+architecture and both are trained over the same two-hour horizon (the notebook's
 truncated BPTT carries the state across chunks), so the difference lies
 elsewhere: the reference steps the ODE with explicit Euler at the 0.5 s
 sample rate and clips its outputs, the Dyad model is integrated adaptively;
 the capacitances start from different scales; and the shooting fit imposes
-exact continuity at 95 junctions. Which of these keeps the Dyad fit bounded
+continuity constraints at 95 junctions. Which of these keeps the Dyad fit bounded
 on unseen operating conditions is not established here. The
 segment-continuity residuals of the shooting fit
 ([`assets/validation_continuity.png`](assets/validation_continuity.png)) are
@@ -280,12 +285,12 @@ Tests: `julia +dyad-3.3.0 --project -e 'using Pkg; Pkg.test()'`.
 
 The shipped reference predictions in `assets/data/pytorch_profile_<id>.parquet`
 were written by a port of the upstream notebook's training and evaluation cells,
-restricted to profile 17. It reads the shipped profile files, so no download is
+restricted to the first 7200 s of profile 17. It reads the shipped profile files, so no download is
 needed, and declares its dependencies inline; `uv` builds a CPU-only
 environment on first use:
 
 ```bash
-uv run scripts/train_pytorch_reference.py            # ~2.5 min, → runs/pytorch/pytorch_profile_<id>.parquet
+uv run scripts/train_pytorch_reference.py --threads 24 # ~2.5 min, → runs/pytorch/pytorch_profile_<id>.parquet
 ```
 
 Without `uv`, install `scripts/requirements.txt` into a virtualenv and run the
@@ -294,6 +299,10 @@ the useful knobs; `--no-export` trains and reports without writing files.
 New predictions go to `runs/pytorch/` by default. Validation overlays the
 shipped reference predictions; regenerating them into a run directory does
 not replace that reference.
+`--train-horizon` defaults to 7200 s, matching `TRAIN_HORIZON_S` in
+`scripts/common.jl`; change both when comparing a different horizon. Evaluation
+and exported predictions always cover each full profile. Run the Python regression
+checks as `python test/test_reference.py` in the reference environment.
 
 ## Data
 
@@ -309,7 +318,7 @@ source, about a third of the equivalent CSV; read them with
 `Parquet2.Dataset(path)` in Julia or `pandas.read_parquet(path)` in Python.
 `pytorch_profile_<id>.parquet` are the free-running
 predictions of the reference implementation ([wkirgsn/thermal-nn](https://github.com/wkirgsn/thermal-nn),
-`TNN_pytorch.ipynb`) after training on profile 17 only for 100 epochs, on the
+`TNN_pytorch.ipynb`) after training on the first 7200 s of profile 17 for 100 epochs, on the
 same 0.5 s grid, as written by `scripts/train_pytorch_reference.py` (seed 0).
 
 ## References

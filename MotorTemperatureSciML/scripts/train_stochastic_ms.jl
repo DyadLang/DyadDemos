@@ -28,8 +28,8 @@ training_csv = joinpath(training_paths.out_dir, "calibrated_params.csv")
 # ── Optimizer budget ─────────────────────────────────────────────────────────
 # One "epoch" is a pass over all N_SEGMENTS segments, i.e. N_SEGMENTS ÷
 # BATCH_SIZE Adam steps (3 at the defaults). The reference PyTorch run does
-# 100 epochs of truncated BPTT over 512-sample chunks on the same profile
-# (3200 cheap updates); 5 × 100 epochs here is 1500 much larger steps, each
+# 100 epochs of truncated BPTT over 512-sample chunks on the same 7200 s horizon
+# (2900 cheap updates); 5 × 100 epochs here is 1500 much larger steps, each
 # integrating 32 segments and differentiating through them.
 #
 # INNER_LR       — Adam step size. AugLag's penalty ρ grows over outer
