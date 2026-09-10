@@ -1,0 +1,107 @@
+"""
+Data-driven harness for `TNNModel`: one drive profile of the Paderborn PMSM
+temperature dataset ("Electric Motor Temperature" on Kaggle) feeds the model.
+The default `data_file` is `profile_id = 17`, the training profile; the
+validation script re-instantiates this harness with the held-out profiles
+(60, 62, 74) by overriding `data_file`.
+
+Two `MotorTemperatureSciML.FastVectorInterpolation` instances feed the 10
+time-varying operating-condition inputs and the 4 measured temperatures into
+the model — one shared time search per RHS call, no FunctionWrapper boxing on
+the parameter slot.
+"""
+test component TestTNNProfile
+  model = MotorTemperatureSciML.Models.TNNModel() {^model}
+
+  "Parquet file with the profile's inputs and measured temperatures (see scripts/prepare_data.jl)"
+  structural parameter data_file::String = "dyad://MotorTemperatureSciML/data/profile_17.parquet"
+
+  # `profile_table` opens the Parquet file; drop it once DyadData reads Parquet natively.
+  structural parameter ds_inputs::DyadData.DyadTimeseries = DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file), independent_var = "time", dependent_vars = ["u_q", "coolant", "u_d", "motor_speed", "i_d", "i_q", "ambient", "torque", "i_s", "u_s"])
+  structural parameter ds_meas::DyadData.DyadTimeseries = DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file), independent_var = "time", dependent_vars = ["pm", "stator_yoke", "stator_tooth", "stator_winding"])
+
+  # Single multi-channel interpolator for all 10 input signals — one search
+  # per `t`, vector return, `interpolator(t)[i]` CSE'd across the 10 reads.
+  # See dyad/FastVectorInterpolation.dyad for why this beats stacked
+  # `BlockComponents.Tables.Interpolation` instances under ForwardDiff.
+  interp_inputs = MotorTemperatureSciML.FastVectorInterpolation(interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset = ds_inputs, extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs = 10) {^interp_inputs}
+
+  # Single multi-channel interpolator for the 4 measured temperatures.
+  # Order: 1=pm, 2=stator_yoke, 3=stator_tooth, 4=stator_winding.
+  interp_meas = MotorTemperatureSciML.FastVectorInterpolation(interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset = ds_meas, extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs = 4) {^interp_meas}
+
+  inputs = MotorTemperatureSciML.SignalRouting.OperatingConditionsDemux() {^inputs}
+  measurements = MotorTemperatureSciML.SignalRouting.TemperatureDemux() {^measurements}
+  "Measured temperatures [degC], for plotting against the model outputs"
+  variable T_pm_meas::Real
+  variable T_sy_meas::Real
+  variable T_st_meas::Real
+  variable T_sw_meas::Real
+relations
+  interp_inputs.u = time
+  interp_meas.u = time
+
+  connect(interp_inputs.y, inputs.u)
+  connect(interp_meas.y, measurements.u)
+  connect(inputs.u_q, model.u_q_raw) {^input_1}
+  connect(inputs.coolant, model.coolant_raw) {^input_2}
+  connect(inputs.u_d, model.u_d_raw) {^input_3}
+  connect(inputs.motor_speed, model.motor_speed_raw) {^input_4}
+  connect(inputs.i_d, model.i_d_raw) {^input_5}
+  connect(inputs.i_q, model.i_q_raw) {^input_6}
+  connect(inputs.ambient, model.ambient_raw) {^input_7}
+  connect(inputs.torque, model.torque_raw) {^input_8}
+  connect(inputs.i_s, model.i_s_raw) {^input_9}
+  connect(inputs.u_s, model.u_s_raw) {^input_10}
+
+  T_pm_meas = measurements.pm
+  T_sy_meas = measurements.stator_yoke
+  T_st_meas = measurements.stator_tooth
+  T_sw_meas = measurements.stator_winding
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "Operating conditions · 10 channels", "x": 180, "y": 130, "layer": "diagram", "attrs": {"font-size": "21", "width": "max-content"}},
+      {"label": "TNN temperature estimator", "x": 830, "y": 80, "layer": "diagram", "attrs": {"font-size": "25", "width": "max-content"}},
+      {"label": "Measured temperatures · 4 channels", "x": 170, "y": 580, "layer": "diagram", "attrs": {"font-size": "21", "width": "max-content"}},
+      {"label": "Targets for calibration / validation", "x": 780, "y": 610, "layer": "diagram", "attrs": {"font-size": "22", "width": "max-content"}},
+      {"label": "pm", "x": 580, "y": 668, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "stator yoke", "x": 580, "y": 728, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "stator tooth", "x": 580, "y": 788, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "stator winding", "x": 580, "y": 848, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "u_q", "x": 550, "y": 110, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "coolant", "x": 550, "y": 150, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "u_d", "x": 550, "y": 190, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "motor_speed", "x": 550, "y": 230, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "i_d", "x": 550, "y": 270, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "i_q", "x": 550, "y": 310, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "ambient", "x": 550, "y": 350, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "torque", "x": 550, "y": 390, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "i_s", "x": 550, "y": 430, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "u_s", "x": 550, "y": 470, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}}
+    ]
+  },
+  "_links": {
+    "interp_inputs": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 80.0, "y1": 230.0, "x2": 260.0, "y2": 410.0}}}},
+    "interp_meas": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 80.0, "y1": 680.0, "x2": 260.0, "y2": 860.0}}}},
+    "model": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 630.0, "y1": 120.0, "x2": 1030.0, "y2": 520.0}}}},
+    "input_1": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "input_2": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "input_3": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "input_4": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "input_5": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "input_6": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "input_7": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "input_8": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "input_9": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "input_10": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "inputs": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 370.0, "y1": 120.0, "x2": 470.0, "y2": 520.0}}}},
+    "measurements": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 390.0, "y1": 650.0, "x2": 450.0, "y2": 890.0}}}}
+  }
+}
+end
+
+analysis TestTNNProfileAnalysis
+  extends TransientAnalysis(stop = 2201.0)
+  model = TestTNNProfile()
+end

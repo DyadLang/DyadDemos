@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <title>Learned inverse thermal capacitances</title>
+  <rect x="4" y="4" width="992" height="992" fill="#fff" stroke="#008a19" stroke-width="8"/>
+  <path d="M115 500 H400 M600 500 H885" fill="none" stroke="#334155" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M400 270 V730 M600 270 V730" fill="none" stroke="#e99535" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M360 205 q28 -25 0 -50 q-28 -25 0 -50" fill="none" stroke="#d94b48" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M500 205 q28 -25 0 -50 q-28 -25 0 -50" fill="none" stroke="#d94b48" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M640 205 q28 -25 0 -50 q-28 -25 0 -50" fill="none" stroke="#d94b48" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="500" y="920" text-anchor="middle" font-family="sans-serif" font-size="110" fill="#334155">1 / C</text>
+
+</svg>

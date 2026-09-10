@@ -1,0 +1,30 @@
+"Convert the four normalized temperature states to named outputs in degrees Celsius."
+component TemperatureOutputs
+  "Normalized states: permanent magnet, stator yoke, stator tooth, stator winding"
+  T = [RealInput() for i in 1:4] {^T}
+  T_pm = RealOutput() {^T_pm}
+  T_stator_yoke = RealOutput() {^T_stator_yoke}
+  T_stator_tooth = RealOutput() {^T_stator_tooth}
+  T_stator_winding = RealOutput() {^T_stator_winding}
+  structural parameter MAX_TEMP::Real = 200.0
+relations
+  T_pm = MAX_TEMP * T[1]
+  T_stator_yoke = MAX_TEMP * T[2]
+  T_stator_tooth = MAX_TEMP * T[3]
+  T_stator_winding = MAX_TEMP * T[4]
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://MotorTemperatureSciML/TemperatureOutputs.svg"},
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": -130}
+    ]
+  },
+  "_links": {
+    "T": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -25, "y1": 475, "x2": 25, "y2": 525, "show": 1}}}},
+    "T_pm": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 175, "x2": 1025, "y2": 225}}}},
+    "T_stator_yoke": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 375, "x2": 1025, "y2": 425}}}},
+    "T_stator_tooth": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 575, "x2": 1025, "y2": 625}}}},
+    "T_stator_winding": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 975, "y1": 775, "x2": 1025, "y2": 825}}}}
+  }
+}
+end
