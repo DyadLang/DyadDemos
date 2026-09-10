@@ -7,7 +7,7 @@
 #
 # Run standalone (reads assets/data/calibrated_params.csv):
 #
-#   julia +dyad-3.3.0 --project scripts/validate_calibration.jl
+#   julia --project scripts/validate_calibration.jl
 #
 # or `include` it in the session that just ran train_stochastic_ms.jl, in which
 # case it reuses `calres` and the problem objects from there.

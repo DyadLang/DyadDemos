@@ -23,4 +23,5 @@ end
 include("Models/tests.jl")
 include("Networks/tests.jl")
 include("SignalRouting/tests.jl")
+include("Story/tests.jl")
 include("Thermal/tests.jl")

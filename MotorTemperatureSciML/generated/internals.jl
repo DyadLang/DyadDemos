@@ -28,3 +28,90 @@ function __pop_subcomponent_overrides!(overrides::Dict{String, Symbolics.Symboli
   end
   return sub
 end
+
+# Dyad's enum case test (issue #1504).  An enum lowers to a module holding an
+# abstract `Type` with one concrete subtype per case, so testing a case is just
+# `isa`.  Both `case(...)` and every `@__dyad_switch` arm route through here.
+#
+# Why a helper and not a bare `x isa T`: `isa` is an ordinary binding, so a
+# component with a Dyad parameter named `isa` shadows it and the test throws a
+# MethodError.  A `__`-prefixed name cannot be shadowed, because the Dyad lexer
+# rejects identifiers containing `__`.
+#
+# Unconstrained in `T` deliberately.  Every library emits its own copy, and a
+# cross-library `switch`/`case()` calls the *consuming* library's copy with the
+# *providing* library's case type.  Any `where {T<:SomeMarker}` bound would
+# resolve that marker to the consuming library's own type and throw a
+# MethodError.  Do not tighten this.
+__dyad_isa_variant(value, ::Type{T}) where {T} = value isa T
+
+# Type-and-shape test for a promoted enum-field kwarg (issue #1504).  Emitted
+# into a promoted-kwarg check only when several cases share the kwarg's name
+# with *different* signatures: each per-case guard then also requires the
+# passed value to fit that case's declared element type and shape, so a value
+# meant for an inactive case throws the check's `ArgumentError` at construction
+# instead of surfacing later as an MTK dimension/conversion error deep inside
+# `System`.
+#
+# `T` is the declared element type widened to its abstract supertype
+# (`Real -> Real`, `Integer -> Integer`, `Boolean -> Bool`), so an `Int` is an
+# acceptable `Real` while a `Float64` is not an acceptable `Integer`.
+#
+# `extents` are the declared dimensions of one case's field: empty for a
+# scalar, otherwise one entry per dimension, with `nothing` for an extent the
+# declaration leaves open (`Real[:]`, sized from the runtime value).
+#
+# Symbolic values (issue #20 routing) take the shape tests — a scalar symbolic
+# is not an `AbstractArray`, and a symbolic array (`Symbolics.Arr`) carries its
+# shape — but are exempt from the element-type test.  A symbolic carries no
+# concrete element type at construction (`Symbolics.Num <: Real` whatever the
+# field was declared as), so it is MTK's own declaration that types it.
+function __dyad_promoted_value_fits(value, ::Type{T}, extents...) where {T}
+  if !(value isa Union{Symbolics.Num, Symbolics.Arr, Symbolics.SymbolicT})
+    el = value isa AbstractArray ? eltype(value) : typeof(value)
+    el <: T || return false
+  end
+  isempty(extents) && return !(value isa AbstractArray)
+  value isa AbstractArray || return false
+  ndims(value) == length(extents) || return false
+  return all(e === nothing || size(value, k) == e for (k, e) in enumerate(extents))
+end
+
+# Dyad's `switch` statement.  Expands to a chain of `__dyad_isa_variant` tests
+# over the arms in source order, so a `default` (spelled `_`) behaves the same in
+# any position: it is an arm whose test is always true, shadowing every later
+# arm exactly as it does in the Dyad source.
+#
+# The scrutinee is bound once.  `switch sub.mode` and `switch modes[i]` are legal
+# Dyad, and re-evaluating that chain per arm would be wasteful and noisy.
+#
+# Falling off the end throws, so a `switch` matching no arm fails loudly at
+# construction instead of silently contributing no equations and surfacing later
+# as an under-determined system.
+macro __dyad_switch(value, block)
+  # Codegen only ever passes a `begin ... end` block, but this macro ships in
+  # every generated library's `internals.jl` and is reachable from hand-written
+  # Julia — validate the block shape (like the arm shape below) so a malformed
+  # call fails with a legible message instead of `type Symbol has no field args`.
+  Meta.isexpr(block, :block) ||
+    error("@__dyad_switch expects a `begin ... end` block of arms, got: ", block)
+  arms = filter(a -> !(a isa LineNumberNode), block.args)
+  expanded = :(error("matching non-exhaustive: no arm matched a value of type ", typeof(__dyad_switch_value)))
+  for arm in reverse(arms)
+    # Codegen only ever emits `Pattern => body` arms, but this macro ships in
+    # every generated library's `internals.jl` and is reachable from
+    # hand-written Julia — validate the arm shape so a malformed one fails
+    # with a legible message instead of `type Symbol has no field args`.
+    Meta.isexpr(arm, :call) && arm.args[1] === :(=>) ||
+      error("@__dyad_switch arms must be written `Pattern => body`, got: ", arm)
+    pattern, body = arm.args[2], arm.args[3]
+    test = pattern === :_ ? true :
+      :(__dyad_isa_variant(__dyad_switch_value, $(esc(pattern))))
+    expanded = Expr(:if, test, esc(body), expanded)
+  end
+  quote
+    let __dyad_switch_value = $(esc(value))
+      $expanded
+    end
+  end
+end

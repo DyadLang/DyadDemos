@@ -20,7 +20,7 @@
 # retrain.
 #
 # Run from the package root:
-#   JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/animate_sms_training.jl
+#   JULIA_NUM_THREADS=8 julia --project scripts/animate_sms_training.jl
 
 include("common.jl")
 using DyadModelOptimizer: setup_problem, internal_params_part, split_timespan,

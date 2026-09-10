@@ -5,12 +5,12 @@
 # Run from the package root (segments in a batch solve in parallel across
 # Julia threads; more threads is not always faster, see the README):
 #
-#   JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl
+#   JULIA_NUM_THREADS=8 julia --project scripts/train_stochastic_ms.jl
 #
 # Budget presets (TNN_BUDGET=quick|short|full, default full; see the README
 # for what each buys):
 #
-#   TNN_BUDGET=short JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl
+#   TNN_BUDGET=short JULIA_NUM_THREADS=8 julia --project scripts/train_stochastic_ms.jl
 #
 # Writes runs/training/calibrated_params.csv by default (--out-dir overrides).
 # Pass that file to validate_calibration.jl with --calibration

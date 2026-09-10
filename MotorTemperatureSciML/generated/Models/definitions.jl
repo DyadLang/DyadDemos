@@ -6,7 +6,6 @@
 
 using ModelingToolkit
 import Markdown
-import Moshi
 using ModelingToolkit: t_nounits as t
 using OrdinaryDiffEqDefault
 using RuntimeGeneratedFunctions
