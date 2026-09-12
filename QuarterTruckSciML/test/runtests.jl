@@ -3,6 +3,8 @@ using Test
 using ModelingToolkit
 using OrdinaryDiffEqDefault
 using CSV, DataFrames
+using CairoMakie
+using DyadInterface
 
 # Generated test-component smoke tests (mtkcompile + initial-condition checks)
 include("../generated/tests.jl")
@@ -55,6 +57,50 @@ include("../generated/tests.jl")
         rms_trained = sqrt(sum((sol_nn[sys_nn.model.tire.s]   .- sol_gt[sys_gt.model.tire.s]).^2))
         rms_zero    = sqrt(sum((sol_zero[sys_nn.model.tire.s] .- sol_gt[sys_gt.model.tire.s]).^2))
         @test rms_trained < rms_zero
+    end
+
+    @testset "Story analysis contract" begin
+        story = QuarterTruckSciML.Story
+        package_root = normpath(joinpath(@__DIR__, ".."))
+        @test story._story_path("assets/data/nn_weights_full_sin_lbfgs.csv") ==
+              joinpath(package_root, "assets", "data", "nn_weights_full_sin_lbfgs.csv")
+        absolute = joinpath(package_root, "story_output")
+        @test story._story_path(absolute) == absolute
+
+        @test story.A3TrainingSpec().optimizer_maxtime == 60.0
+        @test story.A3TrainingSpec().optimizer_maxiters == 5000
+        @test story.A3TrainingSpec().stop == 0.5
+        @test story.A4PerformanceSpec().weights_path ==
+              "assets/data/nn_weights_full_sin_lbfgs.csv"
+        @test story.A1ProblemSpec().road_profile == "bump"
+        @test story.A1ProblemSpec().stop == 5.0
+        @test !hasproperty(story.A1ProblemSpec(), :scene)
+        @test !hasproperty(story.A1ProblemSpec(), :optimizer_maxtime)
+        @test hasproperty(story.A1ProblemSpec(), :automatic_discontinuity_detection)
+        @test story.A5SineValidationSpec().frequency == 2.0
+        @test story.A6OutOfDomainSpec().frequency == 4.0
+        for seconds in (-1.0, Inf, NaN)
+            @test_throws ArgumentError story.A3Training(optimizer_maxtime=seconds)
+        end
+
+        t = collect(range(0.0, 1.0; length=21))
+        data = (; t, road=0.001 .* sin.(2π .* t),
+            truth=0.1 .* sin.(4π .* t), linear=0.08 .* sin.(4π .* t))
+        data = merge(data, (;
+            residual=data.truth .- data.linear,
+            linear_rms=sqrt(sum(abs2, data.truth .- data.linear) / length(t)),
+            signal_rms=sqrt(sum(abs2, data.truth) / length(t)),
+            road_label="test road"))
+        plot_solution = story.StoryAnalysisSolution(
+            story.A1ProblemAnalysisSpec(; name=:plot_smoke, model=nothing), :problem, data)
+        @test DyadInterface.artifacts(plot_solution) == [:SimulationSolutionPlot]
+        @test DyadInterface.artifacts(plot_solution, :SimulationSolutionPlot) isa CairoMakie.Figure
+
+        performance = story.A4Performance()
+        @test performance.data.learned_rms < performance.data.linear_rms
+        @test all(isfinite, performance.data.learned)
+        @test DyadInterface.artifacts(performance) == [:SimulationSolutionPlot]
+        @test DyadInterface.artifacts(performance, :SimulationSolutionPlot) isa CairoMakie.Figure
     end
 
 end

@@ -7,7 +7,7 @@
 using ModelingToolkit
 
 function __build_overrides(@nospecialize(kwargs))
-  overrides = Dict{String, Symbolics.SymbolicT}()
+  overrides = Dict{String, Union{Missing, Symbolics.SymbolicT}}()
   for (k, v) in kwargs
     overrides[string(k)::String] = v
   end
@@ -18,10 +18,10 @@ function __dyad_sym_union(::Type{T}) where T
   return Union{T, Symbolics.has_symwrapper(T) ? Symbolics.wrapper_type(T) : Symbolics.SymbolicT}
 end
 
-function __pop_subcomponent_overrides!(overrides::Dict{String, Symbolics.SymbolicT}, prefix::String)
+function __pop_subcomponent_overrides!(overrides::Dict{String, Union{Missing, Symbolics.SymbolicT}}, prefix::String)
   full = prefix * "__"
   n = ncodeunits(full)
-  sub = Dict{Symbol, Symbolics.SymbolicT}()
+  sub = Dict{Symbol, Union{Missing, Symbolics.SymbolicT}}()
   for k in collect(keys(overrides))
     startswith(k, full) || continue
     sub[Symbol(SubString(k, n + 1))] = pop!(overrides, k)

@@ -41,3 +41,4 @@ include("TestQuarterTruckNonlinearISOA_test.jl")
 include("TireWithExternalResidual_test.jl")
 include("ViscoelasticSpringDamper_test.jl")
 end
+include("Story/tests.jl")

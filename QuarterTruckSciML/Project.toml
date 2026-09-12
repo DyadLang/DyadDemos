@@ -5,6 +5,7 @@ authors = ["Sebastian Micluța-Câmpeanu <sebastian.mc95@proton.me>"]
 
 [deps]
 BlockComponents = "1ef5d832-be8e-447f-9f2c-8b5d17d15fd3"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DyadData = "cab12561-e36c-4498-ae70-c9a5e79fef2a"
 DyadInterface = "99806f68-afab-45ca-9d8c-ceff6bc61f54"
 DyadModelDiscovery = "10085453-beac-46aa-ae7d-57ed1c379a70"
@@ -24,6 +25,7 @@ TranslationalComponents = "42acc370-819b-4877-bdd6-eb3294461f5d"
 
 [compat]
 BlockComponents = "4.6.0"
+CairoMakie = "0.15"
 DyadData = "2.0.1"
 DyadInterface = "7.3.0"
 DyadModelDiscovery = "0.5.2"
