@@ -11,8 +11,8 @@ using OrdinaryDiffEqDefault
 using RuntimeGeneratedFunctions
 RuntimeGeneratedFunctions.init(@__MODULE__)
 
-if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "Story", "definitions.jl"))
-  include(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "Story", "definitions.jl"))
+if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname |> Base.dirname, "dyad", "Story", "Partials", "definitions.jl"))
+  include(joinpath((@__DIR__) |> Base.dirname |> Base.dirname |> Base.dirname, "dyad", "Story", "Partials", "definitions.jl"))
 end
 
 import BlockComponents
@@ -200,11 +200,3 @@ component.
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
 
-
-include("A1Problem_definition.jl")
-include("A2Gap_definition.jl")
-include("A3Training_definition.jl")
-include("A4Performance_definition.jl")
-include("A5SineValidation_definition.jl")
-include("A6OutOfDomain_definition.jl")
-include("StoryQuarterTruck_definition.jl")

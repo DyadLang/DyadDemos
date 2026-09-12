@@ -12,8 +12,8 @@ using ModelingToolkit: SymbolicT, toggle_namespacing, System, connect, t_nounits
 abstract type AbstractStoryTransientSpec <: AbstractAnalysisSpec end
 
 for prefix in (:A1Problem, :A2Gap, :A4Performance)
-    abstract_name = Symbol(:Abstract, prefix, :Spec)
-    spec_name = Symbol(prefix, :Spec)
+    abstract_name = Symbol(:Abstract, prefix, :AnalysisSpec)
+    spec_name = Symbol(prefix, :AnalysisSpec)
     @eval begin
         abstract type $abstract_name <: AbstractStoryTransientSpec end
         Base.@kwdef struct $spec_name{M} <: $abstract_name
@@ -47,8 +47,8 @@ for prefix in (:A1Problem, :A2Gap, :A4Performance)
 end
 
 for prefix in (:A5SineValidation, :A6OutOfDomain)
-    abstract_name = Symbol(:Abstract, prefix, :Spec)
-    spec_name = Symbol(prefix, :Spec)
+    abstract_name = Symbol(:Abstract, prefix, :AnalysisSpec)
+    spec_name = Symbol(prefix, :AnalysisSpec)
     default_frequency = prefix === :A5SineValidation ? 2.0 : 4.0
     @eval begin
         abstract type $abstract_name <: AbstractStoryTransientSpec end
@@ -78,9 +78,9 @@ for prefix in (:A5SineValidation, :A6OutOfDomain)
     end
 end
 
-abstract type AbstractA3TrainingSpec <: AbstractAnalysisSpec end
+abstract type AbstractA3TrainingAnalysisSpec <: AbstractAnalysisSpec end
 
-Base.@kwdef struct A3TrainingSpec{M} <: AbstractA3TrainingSpec
+Base.@kwdef struct A3TrainingAnalysisSpec{M} <: AbstractA3TrainingAnalysisSpec
     name::Symbol = :A3Training
     model::M = StoryQuarterTruck(; name=:model)
     overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
@@ -113,16 +113,6 @@ Base.@kwdef struct A3TrainingSpec{M} <: AbstractA3TrainingSpec
     max_weight::Float64 = Inf
     initial_values_path::String = ""
     results_path::String = "story_output/nn_weights_demo.csv"
-end
-
-# Base analyses are directly runnable; no derived Dyad analysis wrappers are needed.
-for analysis in (:A1Problem, :A2Gap, :A3Training, :A4Performance,
-        :A5SineValidation, :A6OutOfDomain)
-    spec = Symbol(analysis, :Spec)
-    @eval begin
-        $analysis(; kwargs...) = run_analysis($spec(; kwargs...))
-        export $analysis, $spec
-    end
 end
 
 struct StoryAnalysisSolution{S, D} <: AbstractAnalysisSolution
@@ -297,18 +287,18 @@ function _sine_comparison(spec)
         linear_rms=_rms(linear .- reference), learned_rms=_rms(learned .- reference))
 end
 
-DyadInterface.run_analysis(spec::A1ProblemSpec) =
+DyadInterface.run_analysis(spec::A1ProblemAnalysisSpec) =
     StoryAnalysisSolution(spec, :problem, _road_comparison(spec))
-DyadInterface.run_analysis(spec::A2GapSpec) =
+DyadInterface.run_analysis(spec::A2GapAnalysisSpec) =
     StoryAnalysisSolution(spec, :gap, _road_comparison(spec))
-DyadInterface.run_analysis(spec::A4PerformanceSpec) =
+DyadInterface.run_analysis(spec::A4PerformanceAnalysisSpec) =
     StoryAnalysisSolution(spec, :performance, _road_comparison(spec; learned=true))
-DyadInterface.run_analysis(spec::A5SineValidationSpec) =
+DyadInterface.run_analysis(spec::A5SineValidationAnalysisSpec) =
     StoryAnalysisSolution(spec, :training_sine, _sine_comparison(spec))
-DyadInterface.run_analysis(spec::A6OutOfDomainSpec) =
+DyadInterface.run_analysis(spec::A6OutOfDomainAnalysisSpec) =
     StoryAnalysisSolution(spec, :ood_sine, _sine_comparison(spec))
 
-function DyadInterface.run_analysis(spec::A3TrainingSpec)
+function DyadInterface.run_analysis(spec::A3TrainingAnalysisSpec)
     isfinite(spec.optimizer_maxtime) && spec.optimizer_maxtime >= 0 ||
         throw(ArgumentError("optimizer_maxtime must be finite and nonnegative"))
     spec.optimizer_maxiters > 0 || throw(ArgumentError("optimizer_maxiters must be positive"))
@@ -341,7 +331,7 @@ function DyadInterface.run_analysis(spec::A3TrainingSpec)
     training = DyadInterface.run_analysis(training_spec)
     artifacts(training, :ResultsExport)
 
-    transient_spec = A5SineValidationSpec(; name=:training_plot,
+    transient_spec = A5SineValidationAnalysisSpec(; name=:training_plot,
         model=spec.model, overrides=spec.overrides, alg=spec.alg,
         start=spec.start, stop=spec.stop,
         abstol=spec.abstol, reltol=spec.reltol, saveat=0.01, dtmax=spec.dtmax,

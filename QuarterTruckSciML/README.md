@@ -128,9 +128,10 @@ A1, A2, A4, A5, and A6 each expose the standard `TransientAnalysis` parameters,
 including `start`, `stop`, `saveat`, `alg`, and solver tolerances, plus their
 excitation settings. A3 exposes the `NNTrainingAnalysis` parameters, including
 the dataset, optimizer, iteration limit, time limit, and weight-file paths.
-Each is a directly runnable base analysis with `StoryQuarterTruck` as its default
-model; there are no separate derived analysis wrappers. Each implements its own
-comparison and plotting behavior internally.
+The runnable A1–A6 analyses live directly in `Story` and select `StoryQuarterTruck`.
+Their partial bases live in `Story.Partials`, keeping the implementation declarations
+out of the main story list. Custom Julia execution and plotting remain in
+`dyad/Story/definitions.jl`.
 
 A5 uses the training excitation: 3 cm amplitude at 2 Hz. A6 defaults to the
 same amplitude at 4 Hz, outside the training excitation. Change `amplitude` and

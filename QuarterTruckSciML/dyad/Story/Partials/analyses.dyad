@@ -1,0 +1,190 @@
+"A1 · Pose the ride-prediction problem on a clear road-bump experiment."
+partial analysis A1ProblemAnalysis
+  extends Analysis
+  parameter alg::Native = ODEAlg.Auto()
+  parameter start::Time = 0.0
+  parameter stop::Time = 5.0
+  parameter abstol::Real = 1e-6
+  parameter reltol::Real = 1e-6
+  parameter saveat::Time = 0.01
+  parameter dtmax::Time = 0.0
+  parameter progress::Boolean = false
+  parameter tstops::Real[:] = []
+  parameter automatic_discontinuity_detection::Boolean = false
+  parameter optimize::Native = OptimizationLevel.Aggressive()
+  parameter respecialize::Boolean = false
+  parameter specialization::Native = SpecializationLevel.Despecialize()
+  parameter verbose::Native = DEVerbosity.Standard()
+  parameter log_file::String = ""
+  parameter road_profile::String = "bump"
+  parameter bump_amplitude::Distance = 0.03
+  parameter bump_duration::Time = 0.3
+  parameter bump_start::Time = 1.0
+  parameter roughness::Real = 16e-6
+  parameter speed::Velocity = 13.89
+  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+metadata {
+  "Dyad": {"using": "QuarterTruckSciML.Story"}
+}
+end
+
+"A2 · Measure the linear suspension model's acceleration gap."
+partial analysis A2GapAnalysis
+  extends Analysis
+  parameter alg::Native = ODEAlg.Auto()
+  parameter start::Time = 0.0
+  parameter stop::Time = 5.0
+  parameter abstol::Real = 1e-6
+  parameter reltol::Real = 1e-6
+  parameter saveat::Time = 0.01
+  parameter dtmax::Time = 0.0
+  parameter progress::Boolean = false
+  parameter tstops::Real[:] = []
+  parameter automatic_discontinuity_detection::Boolean = false
+  parameter optimize::Native = OptimizationLevel.Aggressive()
+  parameter respecialize::Boolean = false
+  parameter specialization::Native = SpecializationLevel.Despecialize()
+  parameter verbose::Native = DEVerbosity.Standard()
+  parameter log_file::String = ""
+  parameter road_profile::String = "bump"
+  parameter bump_amplitude::Distance = 0.03
+  parameter bump_duration::Time = 0.3
+  parameter bump_start::Time = 1.0
+  parameter roughness::Real = 16e-6
+  parameter speed::Velocity = 13.89
+  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+metadata {
+  "Dyad": {"using": "QuarterTruckSciML.Story"}
+}
+end
+
+
+using DyadData: DyadDataset
+
+"A3 · Run a short optimizer-limited training demonstration on controlled sine data."
+partial analysis A3TrainingAnalysis
+  extends Analysis
+  parameter alg::Native = ODEAlg.Tsit5()
+  parameter start::Time = 0.0
+  parameter stop::Time = 0.5
+  parameter abstol::Real = 1e-6
+  parameter reltol::Real = 1e-6
+  parameter saveat::Time = 0.0
+  parameter dtmax::Time = 0.0
+  parameter data::Native = DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/truck_sin_full_train.csv",
+    independent_var = "timestamp",
+    dependent_vars = ["model.tire.s(t)", "model.driver.s(t)", "model.driver.a(t)"])
+  parameter depvars_names::String[3] = ["model.tire.s", "model.driver.s", "model.driver.a"]
+  parameter loss_func::Native = DyadModelOptimizer.LossFunc.L2Loss()
+  parameter calibration_alg::Native = "SingleShooting"
+  parameter multiple_shooting_trajectories::Integer = 0
+  parameter pem_gain::Real = 0.0
+  parameter optimizer::Native = "Adam"
+  parameter optimizer_maxiters::Integer = 5000
+  parameter optimizer_maxtime::Time = 60.0
+  parameter optimizer_abstol::Real = 1e-4
+  parameter optimizer_verbose::Boolean = false
+  parameter diagnostics::Native = DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking()
+  parameter learning_rate::Real = 1e-3
+  parameter network_component::String = "model.scaled_nn.nn"
+  parameter min_weight::Real = -Inf
+  parameter max_weight::Real = Inf
+  parameter initial_values_path::String = ""
+  parameter results_path::String = "story_output/nn_weights_demo.csv"
+  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+metadata {
+  "Dyad": {"using": "QuarterTruckSciML.Story"}
+}
+end
+
+"A4 · Evaluate the separately pretrained model on a held-out road input."
+partial analysis A4PerformanceAnalysis
+  extends Analysis
+  parameter alg::Native = ODEAlg.Auto()
+  parameter start::Time = 0.0
+  parameter stop::Time = 5.0
+  parameter abstol::Real = 1e-6
+  parameter reltol::Real = 1e-6
+  parameter saveat::Time = 0.01
+  parameter dtmax::Time = 0.0
+  parameter progress::Boolean = false
+  parameter tstops::Real[:] = []
+  parameter automatic_discontinuity_detection::Boolean = false
+  parameter optimize::Native = OptimizationLevel.Aggressive()
+  parameter respecialize::Boolean = false
+  parameter specialization::Native = SpecializationLevel.Despecialize()
+  parameter verbose::Native = DEVerbosity.Standard()
+  parameter log_file::String = ""
+  parameter road_profile::String = "bump"
+  parameter bump_amplitude::Distance = 0.03
+  parameter bump_duration::Time = 0.3
+  parameter bump_start::Time = 1.0
+  parameter roughness::Real = 16e-6
+  parameter speed::Velocity = 13.89
+  "Pretrained weights used for the held-out road validation"
+  parameter weights_path::String = "assets/data/nn_weights_full_sin_lbfgs.csv"
+  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+metadata {
+  "Dyad": {"using": "QuarterTruckSciML.Story"}
+}
+end
+
+"A5 · Compare the pretrained model at the sine condition used for training."
+partial analysis A5SineValidationAnalysis
+  extends Analysis
+  parameter alg::Native = ODEAlg.Auto()
+  parameter start::Time = 0.0
+  parameter stop::Time = 5.0
+  parameter abstol::Real = 1e-6
+  parameter reltol::Real = 1e-6
+  parameter saveat::Time = 0.01
+  parameter dtmax::Time = 0.0
+  parameter progress::Boolean = false
+  parameter tstops::Real[:] = []
+  parameter automatic_discontinuity_detection::Boolean = false
+  parameter optimize::Native = OptimizationLevel.Aggressive()
+  parameter respecialize::Boolean = false
+  parameter specialization::Native = SpecializationLevel.Despecialize()
+  parameter verbose::Native = DEVerbosity.Standard()
+  parameter log_file::String = ""
+  "Sine displacement amplitude [m]"
+  parameter amplitude::Distance = 0.03
+  "Sine frequency [Hz]"
+  parameter frequency::Frequency = 2.0
+  "Pretrained weights used for comparison"
+  parameter weights_path::String = "assets/data/nn_weights_full_sin_lbfgs.csv"
+  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+metadata {
+  "Dyad": {"using": "QuarterTruckSciML.Story"}
+}
+end
+
+"A6 · Compare the pretrained model at a configurable sine condition outside training."
+partial analysis A6OutOfDomainAnalysis
+  extends Analysis
+  parameter alg::Native = ODEAlg.Auto()
+  parameter start::Time = 0.0
+  parameter stop::Time = 5.0
+  parameter abstol::Real = 1e-6
+  parameter reltol::Real = 1e-6
+  parameter saveat::Time = 0.01
+  parameter dtmax::Time = 0.0
+  parameter progress::Boolean = false
+  parameter tstops::Real[:] = []
+  parameter automatic_discontinuity_detection::Boolean = false
+  parameter optimize::Native = OptimizationLevel.Aggressive()
+  parameter respecialize::Boolean = false
+  parameter specialization::Native = SpecializationLevel.Despecialize()
+  parameter verbose::Native = DEVerbosity.Standard()
+  parameter log_file::String = ""
+  "Sine displacement amplitude [m]"
+  parameter amplitude::Distance = 0.03
+  "Sine frequency [Hz]"
+  parameter frequency::Frequency = 4.0
+  "Pretrained weights used for comparison"
+  parameter weights_path::String = "assets/data/nn_weights_full_sin_lbfgs.csv"
+  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+metadata {
+  "Dyad": {"using": "QuarterTruckSciML.Story"}
+}
+end
