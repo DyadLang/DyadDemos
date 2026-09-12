@@ -67,6 +67,13 @@ include("../generated/tests.jl")
         absolute = joinpath(package_root, "story_output")
         @test story._story_path(absolute) == absolute
 
+        for name in (:A1Problem, :A2Gap, :A3Training, :A4Performance,
+                :A5SineValidation, :A6OutOfDomain)
+            spec = getproperty(story, Symbol(name, :Spec))()
+            @test spec.name == name
+            @test spec.model isa ModelingToolkit.System
+        end
+
         @test story.A3TrainingSpec().optimizer_maxtime == 60.0
         @test story.A3TrainingSpec().optimizer_maxiters == 5000
         @test story.A3TrainingSpec().stop == 0.5
@@ -92,7 +99,7 @@ include("../generated/tests.jl")
             signal_rms=sqrt(sum(abs2, data.truth) / length(t)),
             road_label="test road"))
         plot_solution = story.StoryAnalysisSolution(
-            story.A1ProblemAnalysisSpec(; name=:plot_smoke, model=nothing), :problem, data)
+            story.A1ProblemSpec(; name=:plot_smoke, model=nothing), :problem, data)
         @test DyadInterface.artifacts(plot_solution) == [:SimulationSolutionPlot]
         @test DyadInterface.artifacts(plot_solution, :SimulationSolutionPlot) isa CairoMakie.Figure
 

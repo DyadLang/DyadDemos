@@ -7,7 +7,8 @@ metadata {
 }
 end
 
-partial analysis A1ProblemAnalysis
+"A1 · Pose the ride-prediction problem on a clear road-bump experiment."
+partial analysis A1Problem
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
@@ -30,10 +31,11 @@ partial analysis A1ProblemAnalysis
   parameter bump_start::Time = 1.0
   parameter roughness::Real = 16e-6
   parameter speed::Velocity = 13.89
-  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+  model::StoryQuarterTruck = StoryQuarterTruck()
 end
 
-partial analysis A2GapAnalysis
+"A2 · Measure the linear suspension model's acceleration gap."
+partial analysis A2Gap
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
@@ -56,13 +58,14 @@ partial analysis A2GapAnalysis
   parameter bump_start::Time = 1.0
   parameter roughness::Real = 16e-6
   parameter speed::Velocity = 13.89
-  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+  model::StoryQuarterTruck = StoryQuarterTruck()
 end
 
 
 using DyadData: DyadDataset
 
-partial analysis A3TrainingAnalysis
+"A3 · Run a short optimizer-limited training demonstration on controlled sine data."
+partial analysis A3Training
   extends Analysis
   parameter alg::Native = ODEAlg.Tsit5()
   parameter start::Time = 0.0
@@ -91,10 +94,11 @@ partial analysis A3TrainingAnalysis
   parameter max_weight::Real = Inf
   parameter initial_values_path::String = ""
   parameter results_path::String = "story_output/nn_weights_demo.csv"
-  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+  model::StoryQuarterTruck = StoryQuarterTruck()
 end
 
-partial analysis A4PerformanceAnalysis
+"A4 · Evaluate the separately pretrained model on a held-out road input."
+partial analysis A4Performance
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
@@ -119,10 +123,11 @@ partial analysis A4PerformanceAnalysis
   parameter speed::Velocity = 13.89
   "Pretrained weights used for the held-out road validation"
   parameter weights_path::String = "assets/data/nn_weights_full_sin_lbfgs.csv"
-  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+  model::StoryQuarterTruck = StoryQuarterTruck()
 end
 
-partial analysis A5SineValidationAnalysis
+"A5 · Compare the pretrained model at the sine condition used for training."
+partial analysis A5SineValidation
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
@@ -145,10 +150,11 @@ partial analysis A5SineValidationAnalysis
   parameter frequency::Frequency = 2.0
   "Pretrained weights used for comparison"
   parameter weights_path::String = "assets/data/nn_weights_full_sin_lbfgs.csv"
-  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
+  model::StoryQuarterTruck = StoryQuarterTruck()
 end
 
-partial analysis A6OutOfDomainAnalysis
+"A6 · Compare the pretrained model at a configurable sine condition outside training."
+partial analysis A6OutOfDomain
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
@@ -171,41 +177,5 @@ partial analysis A6OutOfDomainAnalysis
   parameter frequency::Frequency = 4.0
   "Pretrained weights used for comparison"
   parameter weights_path::String = "assets/data/nn_weights_full_sin_lbfgs.csv"
-  model::Dyad.EmptyComponent = Dyad.EmptyComponent()
-end
-
-"A1 · Pose the ride-prediction problem on a clear road-bump experiment."
-analysis A1Problem
-  extends A1ProblemAnalysis
-  model = StoryQuarterTruck()
-end
-
-"A2 · Measure the linear suspension model's acceleration gap."
-analysis A2Gap
-  extends A2GapAnalysis
-  model = StoryQuarterTruck()
-end
-
-"A3 · Run a short optimizer-limited training demonstration on controlled sine data."
-analysis A3Training
-  extends A3TrainingAnalysis
-  model = StoryQuarterTruck()
-end
-
-"A4 · Evaluate the separately pretrained model on a held-out road input."
-analysis A4Performance
-  extends A4PerformanceAnalysis
-  model = StoryQuarterTruck()
-end
-
-"A5 · Compare the pretrained model at the sine condition used for training."
-analysis A5SineValidation
-  extends A5SineValidationAnalysis
-  model = StoryQuarterTruck()
-end
-
-"A6 · Compare the pretrained model at a configurable sine condition outside training."
-analysis A6OutOfDomain
-  extends A6OutOfDomainAnalysis
-  model = StoryQuarterTruck()
+  model::StoryQuarterTruck = StoryQuarterTruck()
 end

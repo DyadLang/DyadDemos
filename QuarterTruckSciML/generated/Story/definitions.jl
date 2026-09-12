@@ -201,10 +201,4 @@ component.
 end
 
 
-include("A1Problem_definition.jl")
-include("A2Gap_definition.jl")
-include("A3Training_definition.jl")
-include("A4Performance_definition.jl")
-include("A5SineValidation_definition.jl")
-include("A6OutOfDomain_definition.jl")
 include("StoryQuarterTruck_definition.jl")

@@ -12,13 +12,13 @@ using ModelingToolkit: SymbolicT, toggle_namespacing, System, connect, t_nounits
 abstract type AbstractStoryTransientSpec <: AbstractAnalysisSpec end
 
 for prefix in (:A1Problem, :A2Gap, :A4Performance)
-    abstract_name = Symbol(:Abstract, prefix, :AnalysisSpec)
-    spec_name = Symbol(prefix, :AnalysisSpec)
+    abstract_name = Symbol(:Abstract, prefix, :Spec)
+    spec_name = Symbol(prefix, :Spec)
     @eval begin
         abstract type $abstract_name <: AbstractStoryTransientSpec end
         Base.@kwdef struct $spec_name{M} <: $abstract_name
-            name::Symbol
-            model::M
+            name::Symbol = $(QuoteNode(prefix))
+            model::M = StoryQuarterTruck(; name=:model)
             overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
             alg::ODEAlg.Type = ODEAlg.Auto()
             start::Float64 = 0.0
@@ -47,14 +47,14 @@ for prefix in (:A1Problem, :A2Gap, :A4Performance)
 end
 
 for prefix in (:A5SineValidation, :A6OutOfDomain)
-    abstract_name = Symbol(:Abstract, prefix, :AnalysisSpec)
-    spec_name = Symbol(prefix, :AnalysisSpec)
+    abstract_name = Symbol(:Abstract, prefix, :Spec)
+    spec_name = Symbol(prefix, :Spec)
     default_frequency = prefix === :A5SineValidation ? 2.0 : 4.0
     @eval begin
         abstract type $abstract_name <: AbstractStoryTransientSpec end
         Base.@kwdef struct $spec_name{M} <: $abstract_name
-            name::Symbol
-            model::M
+            name::Symbol = $(QuoteNode(prefix))
+            model::M = StoryQuarterTruck(; name=:model)
             overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
             alg::ODEAlg.Type = ODEAlg.Auto()
             start::Float64 = 0.0
@@ -78,11 +78,11 @@ for prefix in (:A5SineValidation, :A6OutOfDomain)
     end
 end
 
-abstract type AbstractA3TrainingAnalysisSpec <: AbstractAnalysisSpec end
+abstract type AbstractA3TrainingSpec <: AbstractAnalysisSpec end
 
-Base.@kwdef struct A3TrainingAnalysisSpec{M} <: AbstractA3TrainingAnalysisSpec
-    name::Symbol
-    model::M
+Base.@kwdef struct A3TrainingSpec{M} <: AbstractA3TrainingSpec
+    name::Symbol = :A3Training
+    model::M = StoryQuarterTruck(; name=:model)
     overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
     alg::Any = ODEAlg.Tsit5()
     start::Float64 = 0.0
@@ -91,8 +91,11 @@ Base.@kwdef struct A3TrainingAnalysisSpec{M} <: AbstractA3TrainingAnalysisSpec
     reltol::Float64 = 1e-6
     saveat::Float64 = 0.0
     dtmax::Float64 = 0.0
-    data::Any
-    depvars_names::Vector{String}
+    data::Any = DyadData.DyadTimeseries(
+        "dyad://QuarterTruckSciML/data/truck_sin_full_train.csv";
+        independent_var="timestamp",
+        dependent_vars=["model.tire.s(t)", "model.driver.s(t)", "model.driver.a(t)"])
+    depvars_names::Vector{String} = ["model.tire.s", "model.driver.s", "model.driver.a"]
     loss_func::Any = DyadModelOptimizer.LossFunc.L2Loss()
     calibration_alg::Any = "SingleShooting"
     multiple_shooting_trajectories::Int = 0
@@ -110,6 +113,16 @@ Base.@kwdef struct A3TrainingAnalysisSpec{M} <: AbstractA3TrainingAnalysisSpec
     max_weight::Float64 = Inf
     initial_values_path::String = ""
     results_path::String = "story_output/nn_weights_demo.csv"
+end
+
+# Base analyses are directly runnable; no derived Dyad analysis wrappers are needed.
+for analysis in (:A1Problem, :A2Gap, :A3Training, :A4Performance,
+        :A5SineValidation, :A6OutOfDomain)
+    spec = Symbol(analysis, :Spec)
+    @eval begin
+        $analysis(; kwargs...) = run_analysis($spec(; kwargs...))
+        export $analysis, $spec
+    end
 end
 
 struct StoryAnalysisSolution{S, D} <: AbstractAnalysisSolution
@@ -284,18 +297,18 @@ function _sine_comparison(spec)
         linear_rms=_rms(linear .- reference), learned_rms=_rms(learned .- reference))
 end
 
-DyadInterface.run_analysis(spec::A1ProblemAnalysisSpec) =
+DyadInterface.run_analysis(spec::A1ProblemSpec) =
     StoryAnalysisSolution(spec, :problem, _road_comparison(spec))
-DyadInterface.run_analysis(spec::A2GapAnalysisSpec) =
+DyadInterface.run_analysis(spec::A2GapSpec) =
     StoryAnalysisSolution(spec, :gap, _road_comparison(spec))
-DyadInterface.run_analysis(spec::A4PerformanceAnalysisSpec) =
+DyadInterface.run_analysis(spec::A4PerformanceSpec) =
     StoryAnalysisSolution(spec, :performance, _road_comparison(spec; learned=true))
-DyadInterface.run_analysis(spec::A5SineValidationAnalysisSpec) =
+DyadInterface.run_analysis(spec::A5SineValidationSpec) =
     StoryAnalysisSolution(spec, :training_sine, _sine_comparison(spec))
-DyadInterface.run_analysis(spec::A6OutOfDomainAnalysisSpec) =
+DyadInterface.run_analysis(spec::A6OutOfDomainSpec) =
     StoryAnalysisSolution(spec, :ood_sine, _sine_comparison(spec))
 
-function DyadInterface.run_analysis(spec::A3TrainingAnalysisSpec)
+function DyadInterface.run_analysis(spec::A3TrainingSpec)
     isfinite(spec.optimizer_maxtime) && spec.optimizer_maxtime >= 0 ||
         throw(ArgumentError("optimizer_maxtime must be finite and nonnegative"))
     spec.optimizer_maxiters > 0 || throw(ArgumentError("optimizer_maxiters must be positive"))
@@ -328,7 +341,7 @@ function DyadInterface.run_analysis(spec::A3TrainingAnalysisSpec)
     training = DyadInterface.run_analysis(training_spec)
     artifacts(training, :ResultsExport)
 
-    transient_spec = A5SineValidationAnalysisSpec(; name=:training_plot,
+    transient_spec = A5SineValidationSpec(; name=:training_plot,
         model=spec.model, overrides=spec.overrides, alg=spec.alg,
         start=spec.start, stop=spec.stop,
         abstol=spec.abstol, reltol=spec.reltol, saveat=0.01, dtmax=spec.dtmax,

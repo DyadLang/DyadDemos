@@ -128,7 +128,9 @@ A1, A2, A4, A5, and A6 each expose the standard `TransientAnalysis` parameters,
 including `start`, `stop`, `saveat`, `alg`, and solver tolerances, plus their
 excitation settings. A3 exposes the `NNTrainingAnalysis` parameters, including
 the dataset, optimizer, iteration limit, time limit, and weight-file paths.
-Each analysis implements its own comparison and plotting behavior internally.
+Each is a directly runnable base analysis with `StoryQuarterTruck` as its default
+model; there are no separate derived analysis wrappers. Each implements its own
+comparison and plotting behavior internally.
 
 A5 uses the training excitation: 3 cm amplitude at 2 Hz. A6 defaults to the
 same amplitude at 4 Hz, outside the training excitation. Change `amplitude` and
