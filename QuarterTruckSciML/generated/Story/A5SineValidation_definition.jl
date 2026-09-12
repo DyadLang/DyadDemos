@@ -12,7 +12,7 @@ using QuarterTruckSciML.Story: AbstractA5SineValidationAnalysisSpec, A5SineValid
   name::Symbol = :A5SineValidation
   var"alg"::Any = ODEAlg.Auto()
   var"start"::Float64 = 0.0
-  var"stop"::Float64 = 5.0
+  var"stop"::Float64 = 2.0
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
   var"saveat"::Float64 = 0.01

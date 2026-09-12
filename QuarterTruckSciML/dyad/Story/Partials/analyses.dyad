@@ -1,9 +1,9 @@
-"A1 · Pose the ride-prediction problem on a clear road-bump experiment."
+"A1 · Pose the ride-prediction problem on a rough-road experiment."
 partial analysis A1ProblemAnalysis
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
-  parameter stop::Time = 5.0
+  parameter stop::Time = 2.0
   parameter abstol::Real = 1e-6
   parameter reltol::Real = 1e-6
   parameter saveat::Time = 0.01
@@ -16,7 +16,7 @@ partial analysis A1ProblemAnalysis
   parameter specialization::Native = SpecializationLevel.Despecialize()
   parameter verbose::Native = DEVerbosity.Standard()
   parameter log_file::String = ""
-  parameter road_profile::String = "bump"
+  parameter road_profile::String = "rough"
   parameter bump_amplitude::Distance = 0.03
   parameter bump_duration::Time = 0.3
   parameter bump_start::Time = 1.0
@@ -33,7 +33,7 @@ partial analysis A2GapAnalysis
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
-  parameter stop::Time = 5.0
+  parameter stop::Time = 2.0
   parameter abstol::Real = 1e-6
   parameter reltol::Real = 1e-6
   parameter saveat::Time = 0.01
@@ -46,7 +46,7 @@ partial analysis A2GapAnalysis
   parameter specialization::Native = SpecializationLevel.Despecialize()
   parameter verbose::Native = DEVerbosity.Standard()
   parameter log_file::String = ""
-  parameter road_profile::String = "bump"
+  parameter road_profile::String = "rough"
   parameter bump_amplitude::Distance = 0.03
   parameter bump_duration::Time = 0.3
   parameter bump_start::Time = 1.0
@@ -102,7 +102,7 @@ partial analysis A4PerformanceAnalysis
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
-  parameter stop::Time = 5.0
+  parameter stop::Time = 2.0
   parameter abstol::Real = 1e-6
   parameter reltol::Real = 1e-6
   parameter saveat::Time = 0.01
@@ -115,7 +115,7 @@ partial analysis A4PerformanceAnalysis
   parameter specialization::Native = SpecializationLevel.Despecialize()
   parameter verbose::Native = DEVerbosity.Standard()
   parameter log_file::String = ""
-  parameter road_profile::String = "bump"
+  parameter road_profile::String = "rough"
   parameter bump_amplitude::Distance = 0.03
   parameter bump_duration::Time = 0.3
   parameter bump_start::Time = 1.0
@@ -134,7 +134,7 @@ partial analysis A5SineValidationAnalysis
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
-  parameter stop::Time = 5.0
+  parameter stop::Time = 2.0
   parameter abstol::Real = 1e-6
   parameter reltol::Real = 1e-6
   parameter saveat::Time = 0.01
@@ -164,7 +164,7 @@ partial analysis A6OutOfDomainAnalysis
   extends Analysis
   parameter alg::Native = ODEAlg.Auto()
   parameter start::Time = 0.0
-  parameter stop::Time = 5.0
+  parameter stop::Time = 2.0
   parameter abstol::Real = 1e-6
   parameter reltol::Real = 1e-6
   parameter saveat::Time = 0.01

@@ -7,7 +7,7 @@ metadata {
 }
 end
 
-"A1 · Pose the ride-prediction problem on a clear road-bump experiment."
+"A1 · Pose the ride-prediction problem on a rough-road experiment."
 analysis A1Problem
   extends QuarterTruckSciML.Story.Partials.A1ProblemAnalysis
   model = StoryQuarterTruck()

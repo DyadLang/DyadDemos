@@ -22,7 +22,7 @@ for prefix in (:A1Problem, :A2Gap, :A4Performance)
             overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
             alg::ODEAlg.Type = ODEAlg.Auto()
             start::Float64 = 0.0
-            stop::Float64 = 5.0
+            stop::Float64 = 2.0
             abstol::Float64 = 1e-6
             reltol::Float64 = 1e-6
             saveat::Float64 = 0.01
@@ -35,7 +35,7 @@ for prefix in (:A1Problem, :A2Gap, :A4Performance)
             specialization::SpecializationLevel.Type = SpecializationLevel.Despecialize()
             verbose::DEVerbosity.Type = DEVerbosity.Standard()
             log_file::String = ""
-            road_profile::String = "bump"
+            road_profile::String = "rough"
             bump_amplitude::Float64 = 0.03
             bump_duration::Float64 = 0.3
             bump_start::Float64 = 1.0
@@ -58,7 +58,7 @@ for prefix in (:A5SineValidation, :A6OutOfDomain)
             overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
             alg::ODEAlg.Type = ODEAlg.Auto()
             start::Float64 = 0.0
-            stop::Float64 = 5.0
+            stop::Float64 = 2.0
             abstol::Float64 = 1e-6
             reltol::Float64 = 1e-6
             saveat::Float64 = 0.01
@@ -267,7 +267,16 @@ function _road_comparison(spec; learned=false)
         learned_rms=_rms(learned_values .- reference)))
 end
 
-function _sine_comparison(spec)
+# The checked-in training CSV is synthetic reference data, not vehicle measurements.
+function _training_reference()
+    rows = split.(readlines(_story_path("assets/data/truck_sin_full_train.csv")), ',')
+    acceleration_column = findfirst(==(_ACCEL), first(rows))
+    isnothing(acceleration_column) && error("Training CSV is missing $_ACCEL")
+    (; t=[parse(Float64, row[1]) for row in rows[2:end]],
+       acceleration=[parse(Float64, row[acceleration_column]) for row in rows[2:end]])
+end
+
+function _sine_comparison(spec; use_saved_reference=false)
     weights = _read_weights(spec.weights_path)
     baseline = _transient(spec, _physical_sine_harness(
         spec.amplitude, spec.frequency; name=:linear, nonlinear=false);
@@ -275,14 +284,22 @@ function _sine_comparison(spec)
     prediction = _transient(spec,
         _sine_harness(spec.model, spec.amplitude, spec.frequency; name=:learned);
         weights, inherit_overrides=true, event_times=[0.1])
-    truth_harness = _physical_sine_harness(spec.amplitude, spec.frequency;
-        name=:truth, nonlinear=true)
-    truth = _transient(spec, truth_harness; event_times=[0.1])
-    t = spec.saveat == 0 ? collect(range(spec.start, spec.stop; length=1001)) : truth.t
+    saved = use_saved_reference && spec.amplitude == 0.03 && spec.frequency == 2.0 &&
+        spec.start == 0.0 && spec.stop <= 5.0
+    truth = if saved
+        _training_reference()
+    else
+        truth_harness = _physical_sine_harness(spec.amplitude, spec.frequency;
+            name=:truth, nonlinear=true)
+        _transient(spec, truth_harness; event_times=[0.1])
+    end
+    t = spec.saveat == 0 ? collect(range(spec.start, spec.stop; length=1001)) : baseline.t
     reference = _resample(truth.t, truth.acceleration, t)
     linear = _resample(baseline.t, baseline.acceleration, t)
     learned = _resample(prediction.t, prediction.acceleration, t)
     (; t, truth=reference, linear, learned,
+        reference_source=saved ? "saved training CSV (synthetic reference data)" :
+            "nonlinear reference model (synthetic data)",
         amplitude=spec.amplitude, frequency=spec.frequency,
         linear_rms=_rms(linear .- reference), learned_rms=_rms(learned .- reference))
 end
@@ -294,7 +311,7 @@ DyadInterface.run_analysis(spec::A2GapAnalysisSpec) =
 DyadInterface.run_analysis(spec::A4PerformanceAnalysisSpec) =
     StoryAnalysisSolution(spec, :performance, _road_comparison(spec; learned=true))
 DyadInterface.run_analysis(spec::A5SineValidationAnalysisSpec) =
-    StoryAnalysisSolution(spec, :training_sine, _sine_comparison(spec))
+    StoryAnalysisSolution(spec, :training_sine, _sine_comparison(spec; use_saved_reference=true))
 DyadInterface.run_analysis(spec::A6OutOfDomainAnalysisSpec) =
     StoryAnalysisSolution(spec, :ood_sine, _sine_comparison(spec))
 
@@ -351,14 +368,14 @@ end
 function _comparison_figure(d, title, subtitle; legend_below=false)
     fig = _base_figure(title, subtitle)
     ax = Axis(fig[3, 1]; xlabel="time (s)", ylabel="driver acceleration (m/s²)")
-    lines!(ax, d.t, d.truth; color=_TRUTH, linewidth=2.5, linestyle=:solid,
+    lines!(ax, d.t, d.truth; color=_TRUTH, linewidth=6, linestyle=:solid,
         label="reference ride")
     lines!(ax, d.t, d.linear; color=_LINEAR, linewidth=2.5, linestyle=:solid,
         label="linear")
     lines!(ax, d.t, d.learned; color=_LEARNED, linewidth=2.5, linestyle=:solid,
         label="learned")
     if legend_below
-        Legend(fig[4, 1], ax; orientation=:horizontal, framevisible=false, labelsize=24)
+        Legend(fig[4, 1], ax; orientation=:horizontal, framevisible=false, labelsize=24, tellwidth=false)
     else
         axislegend(ax; position=:rt, framevisible=false, labelsize=24)
     end
@@ -375,7 +392,7 @@ function _story_plot(sol)
             linestyle=:solid)
         hidexdecorations!(road_ax; grid=false)
         ax = Axis(fig[4, 1]; xlabel="time (s)", ylabel="driver acceleration (m/s²)")
-        lines!(ax, d.t, d.truth; color=_TRUTH, linewidth=2.5, linestyle=:solid,
+        lines!(ax, d.t, d.truth; color=_TRUTH, linewidth=6, linestyle=:solid,
             label="reference ride")
         lines!(ax, d.t, d.linear; color=_LINEAR, linewidth=2.5, linestyle=:solid,
             label="linear suspension model")
@@ -401,6 +418,7 @@ function _story_plot(sol)
         fig = _comparison_figure(d, "A5 · At the training condition",
             "$(d.amplitude) m at $(d.frequency) Hz · RMS error: linear $(round(d.linear_rms; digits=3)) · learned $(round(d.learned_rms; digits=3)) m/s²";
             legend_below=true)
+        Label(fig[5, 1], "Reference: $(d.reference_source)"; fontsize=20, color=:gray35, tellwidth=false)
     else
         fig = _comparison_figure(d, "A6 · Outside the training condition",
             "trained at 0.03 m, 2 Hz · tested at $(d.amplitude) m, $(d.frequency) Hz · RMS: linear $(round(d.linear_rms; digits=3)) · learned $(round(d.learned_rms; digits=3)) m/s²";

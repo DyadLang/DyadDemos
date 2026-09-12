@@ -12,7 +12,7 @@ using QuarterTruckSciML.Story: AbstractA4PerformanceAnalysisSpec, A4PerformanceA
   name::Symbol = :A4Performance
   var"alg"::Any = ODEAlg.Auto()
   var"start"::Float64 = 0.0
-  var"stop"::Float64 = 5.0
+  var"stop"::Float64 = 2.0
   var"abstol"::Float64 = 0.000001
   var"reltol"::Float64 = 0.000001
   var"saveat"::Float64 = 0.01
@@ -25,7 +25,7 @@ using QuarterTruckSciML.Story: AbstractA4PerformanceAnalysisSpec, A4PerformanceA
   var"specialization"::Any = SpecializationLevel.Despecialize()
   var"verbose"::Any = DEVerbosity.Standard()
   var"log_file"::String = ""
-  var"road_profile"::String = "bump"
+  var"road_profile"::String = "rough"
   var"bump_amplitude"::Float64 = 0.03
   var"bump_duration"::Float64 = 0.3
   var"bump_start"::Float64 = 1.0

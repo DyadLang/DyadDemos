@@ -86,8 +86,8 @@ include("../generated/tests.jl")
         @test story.A3TrainingSpec().stop == 0.5
         @test story.A4PerformanceSpec().weights_path ==
               "assets/data/nn_weights_full_sin_lbfgs.csv"
-        @test story.A1ProblemSpec().road_profile == "bump"
-        @test story.A1ProblemSpec().stop == 5.0
+        @test story.A1ProblemSpec().road_profile == "rough"
+        @test story.A1ProblemSpec().stop == 2.0
         @test !hasproperty(story.A1ProblemSpec(), :scene)
         @test !hasproperty(story.A1ProblemSpec(), :optimizer_maxtime)
         @test hasproperty(story.A1ProblemSpec(), :automatic_discontinuity_detection)
@@ -109,6 +109,14 @@ include("../generated/tests.jl")
             story.Partials.A1ProblemAnalysisSpec(; name=:plot_smoke, model=nothing), :problem, data)
         @test DyadInterface.artifacts(plot_solution) == [:SimulationSolutionPlot]
         @test DyadInterface.artifacts(plot_solution, :SimulationSolutionPlot) isa CairoMakie.Figure
+
+        sine = story.A5SineValidation()
+        saved = CSV.read(joinpath(package_root, "assets", "data", "truck_sin_full_train.csv"), DataFrame)
+        @test sine.data.reference_source == "saved training CSV (synthetic reference data)"
+        @test sine.data.t ≈ saved.timestamp[1:length(sine.data.t)]
+        @test sine.data.truth ≈ saved[1:length(sine.data.t), "model.driver.a(t)"]
+        @test last(sine.data.t) == 2.0
+        @test DyadInterface.artifacts(sine, :SimulationSolutionPlot) isa CairoMakie.Figure
 
         performance = story.A4Performance()
         @test performance.data.learned_rms < performance.data.linear_rms
