@@ -46,7 +46,7 @@ relations
   connect(road_data.y, road.s) {^id17}
 metadata {
   "Dyad": {
-    "icons": {"default": "dyad://DyadExampleComponents/Example.svg"},
+    "icons": {"default": "dyad://PassiveSuspension/MyActiveSuspension.svg"},
     "tests": {
       "case1": {
         "stop": 10,

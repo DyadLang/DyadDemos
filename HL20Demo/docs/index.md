@@ -2,7 +2,7 @@
 Title = "HL-20 Flight Simulator — agent-built 6-DOF lifting body"
 Description = "A 6-DOF flight simulation of the NASA HL-20 lifting body, generated end-to-end by the Dyad Agent from an engineering spec."
 Tags = ["aerospace", "flight-dynamics", "control", "agent-built"]
-Cover = "assets/hl20_icon.svg"
+Cover = "assets/icon.svg"
 ```
 
 # HL-20 Flight Simulator

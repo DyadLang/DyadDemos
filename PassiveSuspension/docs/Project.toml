@@ -1,0 +1,6 @@
+[deps]
+PassiveSuspension = "319979a8-4c04-4e42-b14e-77fd939a769e"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+
+[sources]
+PassiveSuspension = {path = ".."}

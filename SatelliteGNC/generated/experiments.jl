@@ -10,7 +10,6 @@ end
 
 
 include("AttitudeController_experiment.jl")
-include("Hello_experiment.jl")
 include("LuenbergerObserver_experiment.jl")
 include("ReactionJet_experiment.jl")
 include("SatelliteBody6DOF_experiment.jl")
