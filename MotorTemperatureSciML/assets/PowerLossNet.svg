@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <title>Learned heat generation</title>
+  <rect x="4" y="4" width="992" height="992" fill="#fff" stroke="#008a19" stroke-width="8"/>
+  <!-- Shared neural-network motif, with a physical output cue. -->
+  <path d="M180 330 L425 230" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M180 330 L425 470" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M180 330 L425 710" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M180 610 L425 230" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M180 610 L425 470" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M180 610 L425 710" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M425 230 L670 330" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M425 230 L670 610" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M425 470 L670 330" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M425 470 L670 610" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M425 710 L670 330" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M425 710 L670 610" fill="none" stroke="#c1c6d5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="180" cy="330" r="43" fill="#087fa3" stroke="#334155" stroke-width="12"/>
+  <circle cx="180" cy="610" r="43" fill="#087fa3" stroke="#334155" stroke-width="12"/>
+  <circle cx="425" cy="230" r="43" fill="#8275b5" stroke="#334155" stroke-width="12"/>
+  <circle cx="425" cy="470" r="43" fill="#8275b5" stroke="#334155" stroke-width="12"/>
+  <circle cx="425" cy="710" r="43" fill="#8275b5" stroke="#334155" stroke-width="12"/>
+  <circle cx="670" cy="330" r="43" fill="#d94b48" stroke="#334155" stroke-width="12"/>
+  <circle cx="670" cy="610" r="43" fill="#d94b48" stroke="#334155" stroke-width="12"/>
+  <path d="M805 350 q40 -35 0 -70 q-40 -35 0 -70" fill="none" stroke="#d94b48" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M805 630 q40 -35 0 -70 q-40 -35 0 -70" fill="none" stroke="#d94b48" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="500" y="915" text-anchor="middle" font-family="sans-serif" font-size="92" fill="#334155">P(x, T)</text>
+
+</svg>
