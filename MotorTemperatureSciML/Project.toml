@@ -43,7 +43,7 @@ CSV = "0.10"
 CairoMakie = "0.15"
 Colors = "0.13"
 DataFrames = "1"
-DataInterpolations = "8"
+DataInterpolations = "8, 9"
 DyadData = "2"
 DyadInterface = "7"
 DyadModelDiscovery = "0.5"
@@ -65,7 +65,7 @@ Setfield = "1"
 Statistics = "1"
 
 [dyad]
-kernel = "3.3.0"
+kernel = "3.4.0-rc4"
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"

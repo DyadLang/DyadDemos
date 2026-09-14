@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    Normalizer(; name, MAX_TEMP, max_abs_u_q, max_abs_u_d, max_abs_motor_speed, max_abs_i_d, max_abs_i_q, max_abs_torque)
 

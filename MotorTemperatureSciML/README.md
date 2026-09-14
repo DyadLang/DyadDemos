@@ -25,13 +25,13 @@ the VS Code REPL command), then instantiate the standalone project:
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd MotorTemperatureSciML
-julia +dyad-3.3.0 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.4.0-rc1 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 ### View the saved fit
 
 ```bash
-julia +dyad-3.3.0 --project scripts/validate_calibration.jl
+julia +dyad-3.4.0-rc1 --project scripts/validate_calibration.jl
 ```
 
 This reads `assets/data/calibrated_params.csv`, reports RMS errors, and writes
@@ -43,8 +43,8 @@ and then runs continuously, without resetting at the end of the training horizon
 ### Check the training pipeline
 
 ```bash
-TNN_BUDGET=quick JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl --out-dir runs/quick
-julia +dyad-3.3.0 --project scripts/validate_calibration.jl --calibration runs/quick/calibrated_params.csv --out-dir runs/quick
+TNN_BUDGET=quick JULIA_NUM_THREADS=8 julia +dyad-3.4.0-rc1 --project scripts/train_stochastic_ms.jl --out-dir runs/quick
+julia +dyad-3.4.0-rc1 --project scripts/validate_calibration.jl --calibration runs/quick/calibrated_params.csv --out-dir runs/quick
 ```
 
 The quick budget takes about a minute on the measured machine, including
@@ -54,8 +54,8 @@ fit. The second command evaluates this quick fit explicitly.
 ### Retrain the full model
 
 ```bash
-JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/train_stochastic_ms.jl --out-dir runs/full
-julia +dyad-3.3.0 --project scripts/validate_calibration.jl --calibration runs/full/calibrated_params.csv --out-dir runs/full
+JULIA_NUM_THREADS=8 julia +dyad-3.4.0-rc1 --project scripts/train_stochastic_ms.jl --out-dir runs/full
+julia +dyad-3.4.0-rc1 --project scripts/validate_calibration.jl --calibration runs/full/calibrated_params.csv --out-dir runs/full
 ```
 
 Full training takes about 21 minutes on the measured machine. See
@@ -260,7 +260,7 @@ measure either way.
 To regenerate the training animation in a separate run directory:
 
 ```bash
-JULIA_NUM_THREADS=8 julia +dyad-3.3.0 --project scripts/animate_sms_training.jl --out-dir runs/animation
+JULIA_NUM_THREADS=8 julia +dyad-3.4.0-rc1 --project scripts/animate_sms_training.jl --out-dir runs/animation
 ```
 
 This writes the GIFs, final-frame PNGs, and reusable snapshot cache there.
@@ -279,7 +279,7 @@ Use `FORCE_RETRAIN=1` to refresh a cached animation run.
 | `assets/data/` | Shipped profiles, calibration, and PyTorch reference predictions |
 | `runs/` | Local calibration, validation, and animation outputs (gitignored) |
 
-Tests: `julia +dyad-3.3.0 --project -e 'using Pkg; Pkg.test()'`.
+Tests: `julia +dyad-3.4.0-rc1 --project -e 'using Pkg; Pkg.test()'`.
 
 ### Reproducing the PyTorch reference
 
