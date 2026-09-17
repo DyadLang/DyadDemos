@@ -1,0 +1,17 @@
+# Normalisation denominators derived from the source dataset by
+# scripts/prepare_data.jl. Do not edit by hand: regenerating the
+# profiles regenerates this file, and every consumer reads it.
+#
+# source = "measures_v2.csv"
+# rows   = 1330816
+# profiles = 69
+
+max_temp = 200.0
+
+[max_abs]
+u_q = 133.0369935103849
+u_d = 131.53041076660156
+motor_speed = 6000.01513671875
+i_d = 278.0036315917969
+i_q = 301.7078552246094
+torque = 261.0057067871094

@@ -3,6 +3,7 @@
 ### If you edit this code it is likely to get overwritten.
 ### Instead, update the Dyad source code and regenerate this file
 
+
 @doc Markdown.doc"""
    HighTempTNNModel(; name, MAX_TEMP)
 
