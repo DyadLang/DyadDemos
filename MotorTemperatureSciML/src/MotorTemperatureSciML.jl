@@ -6,5 +6,7 @@ include("data.jl")
 include("story_analyses.jl")
 include("story_plots.jl")
 include("../generated/module.jl")
-    
+# Needs the generated `Models.Tests.TestTNNProfile`.
+include("profiles.jl")
+
 end # module MotorTemperatureSciML

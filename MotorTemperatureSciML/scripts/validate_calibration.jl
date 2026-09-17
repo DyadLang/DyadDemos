@@ -44,11 +44,11 @@ end
 if !(@isdefined(invprob))
     df         = load_profile(TRAIN_PROFILE)
     sys        = build_system(TRAIN_PROFILE)
-    experiment = build_experiment(sys, df; name = "profile_$(TRAIN_PROFILE)")
+    experiment = build_experiment(sys; name = "profile_$(TRAIN_PROFILE)")
     invprob    = build_invprob(experiment, build_search_space(sys))
     # Only the segmentation matters here (it fixes the layout of `x_full`).
     alg = make_sms(; n_segments = N_SEGMENTS, batch_size = BATCH_SIZE,
-        block_size = BLOCK_SIZE, inner_lr = 1e-3, inner_epochs = 1, outer_maxiters = 1)
+        block_size = BLOCK_SIZE, learning_rate = 1e-3, inner_epochs = 1, outer_maxiters = 1)
 end
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -151,7 +151,7 @@ savefig(p3, joinpath(validation_paths.out_dir, "validation_continuity.png"))
 test_runs = map(TEST_PROFILES) do pid
     df_p  = load_profile(pid)
     sys_p = build_system(pid)
-    exp_p = build_experiment(sys_p, df_p; name = "profile_$(pid)", tspan = (0.0, df_p.time[end]))
+    exp_p = build_experiment(sys_p; name = "profile_$(pid)", tspan = (0.0, df_p.time[end]))
     inv_p = build_invprob(exp_p, build_search_space(sys_p))
     (; pid, df = df_p, pred = free_running(sys_p, exp_p, inv_p, x, df_p),
         meas = measured(df_p), pt = pytorch_predictions(pid))

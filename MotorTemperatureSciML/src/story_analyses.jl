@@ -7,9 +7,10 @@
 #                          training curves
 #
 # Both are base ("partial") analyses declared in dyad/TNNAnalyses.dyad; the
-# story itself is the set of derived analyses in dyad/Story/. The implementation
-# mirrors scripts/common.jl so a Builder run and a script run fit the same
-# problem.
+# story itself is the set of derived analyses in dyad/Story/. The problem setup
+# (`build_experiment`, `build_search_space`, `build_invprob`, `make_sms`) is
+# shared with the scripts under scripts/, which only add constants and I/O on
+# top, so a Builder run and a script run fit the same problem by construction.
 
 using DyadInterface
 using DyadInterface: AbstractAnalysisSpec, AbstractAnalysisSolution,
@@ -59,22 +60,53 @@ function normalized_targets(t, meas)
         (string(k) => meas[i, :] ./ STORY_MAX_TEMP for (i, k) in enumerate(CHANNEL_KEYS))...)
 end
 
-function build_experiment(sys, t, meas, spec; tspan, name)
+"""
+    build_experiment(sys, t, meas; tspan, name, overrides = (), abstol = 1e-6, reltol = 1e-6)
+
+DMO `Experiment` fitting the model's normalized temperature states to the
+measurements `meas` (4 × N, °C, sampled at `t`) over `tspan`. The initial state
+is warm-started from the first measured sample, as the PyTorch reference does:
+the model default `T_init = 0.15` (30 °C) is 5–12 °C off the data, a bias the
+networks would otherwise have to absorb. `overrides` (pairs) are appended to
+those initial-state overrides.
+"""
+function build_experiment(sys, t, meas; tspan, name,
+        overrides = (), abstol = 1e-6, reltol = 1e-6)
     keep = t .<= tspan[2]
     data = normalized_targets(t[keep], meas[:, keep])
     T = temperature_states(sys)
-    # Warm start from the first measured sample; the model default (30 °C) is
-    # 5–12 °C off the data and the networks would have to absorb that bias.
     T0 = meas[:, 1] ./ STORY_MAX_TEMP
-    overrides = vcat([sys.model.thermal.T_init[i] => T0[i] for i in 1:4],
-                     [k => v for (k, v) in spec.overrides])
+    all_overrides = vcat([sys.model.thermal.T_init[i] => T0[i] for i in 1:4],
+                         [k => v for (k, v) in overrides])
     Experiment(data, sys;
-        tspan, alg = Tsit5(), abstol = spec.abstol, reltol = spec.reltol, name,
+        tspan, alg = Tsit5(), abstol, reltol, name,
         depvars = [T[i] => k for (i, k) in enumerate(CHANNEL_KEYS)],
+        # Mean (not sum) of squares: keeps the loss O(1), matches nn.MSELoss,
+        # and doesn't scramble AugLag's penalty schedule.
         loss = meansquaredl2loss,
-        overrides,
+        overrides = all_overrides,
+        # `optimize = :aggressive` enables the DyadCompilerPasses codegen
+        # rewrites (static arrays for the small NN input literals, fused
+        # matmuls) — roughly 2× faster gradients on this model.
         prob_kwargs = (; fully_determined = true, optimize = :aggressive))
 end
+
+"""
+    build_experiment(sys; tspan = (0.0, last(profile_data(sys).t)), name, kwargs...)
+
+The harness carries the profile it was built with, so no data argument: the
+measurements come from its `interp_meas` interpolator. This is the entry point
+for fitting the profile a `build_system(id)` harness is driven by, and the whole
+of it by default.
+"""
+function build_experiment(sys; tspan = nothing, name, kwargs...)
+    (; t, meas) = profile_data(sys)
+    return build_experiment(sys, t, meas;
+        tspan = something(tspan, (0.0, t[end])), name, kwargs...)
+end
+
+"""The `build_experiment` keywords an analysis spec carries."""
+experiment_kwargs(spec) = (; overrides = spec.overrides, abstol = spec.abstol, reltol = spec.reltol)
 
 # Two network weight vectors (225 + 308) and the four log-capacitances.
 function build_search_space(sys)
@@ -99,6 +131,15 @@ function Logging.handle_message(l::DropMessage, level, message, args...; kwargs.
     Logging.handle_message(l.parent, level, message, args...; kwargs...)
 end
 
+"""
+    build_invprob(experiment, search_space)
+
+`optimize_tunables = true` restricts the differentiated parameter buffer to the
+search space (everything else stays a Float64 constant). `init_optimization =
+true` strips the ODEProblem's initialization data: without it every per-segment
+`remake` re-runs the initialization, which fights the shooting algorithm's own
+segment initial states and stalls convergence ~8× at the same step budget.
+"""
 function build_invprob(experiment, search_space)
     # The network vectors are re-listed in the search space, so DMO's "explicit
     # tunables are ignored" warning is noise here.
@@ -106,6 +147,38 @@ function build_invprob(experiment, search_space)
         InverseProblem(experiment, search_space;
             optimize_tunables = true, init_optimization = true)
     end
+end
+
+"""
+    make_sms(; n_segments, batch_size, block_size, learning_rate, inner_epochs,
+               outer_maxiters, continuity_tol = 0.2, inner_kwargs = (;),
+               auglag_kwargs = (;), kwargs...)
+
+`StochasticMultipleShooting` for the TNN: the horizon is split into `n_segments`
+windows with free initial states; each Adam step samples `batch_size` segments
+in contiguous blocks of `block_size` and solves them in parallel on a pooled set
+of integrators; segment-boundary continuity is enforced by the augmented
+Lagrangian outer loop (at most `outer_maxiters` multiplier updates of
+`inner_epochs` passes over the segments each, stopping early once every junction
+gap is below `continuity_tol` °C). Extra `inner_kwargs`/`auglag_kwargs` are
+merged over the defaults; remaining `kwargs` go to the algorithm (e.g. an outer
+`callback`).
+"""
+function make_sms(; n_segments, batch_size, block_size, learning_rate, inner_epochs,
+        outer_maxiters, continuity_tol = 0.2, inner_kwargs = (;), auglag_kwargs = (;),
+        kwargs...)
+    StochasticMultipleShooting(;
+        trajectories  = n_segments,
+        batch_size, block_size,
+        sampling      = :stratified_pairs,
+        inner         = Adam(learning_rate),
+        inner_kwargs  = merge((; epochs = inner_epochs), inner_kwargs),
+        maxiters      = outer_maxiters,
+        # The constraint is in normalized units; the OptimizationAuglag default
+        # (1e-8, i.e. 2 µK) sits below the ODE tolerance and can never be met.
+        auglag_kwargs = merge((; ϵ_primal = continuity_tol / STORY_MAX_TEMP), auglag_kwargs),
+        ensemblealg   = DyadModelOptimizer.EnsemblePooled(),
+        kwargs...)
 end
 
 """Free-running simulation sampled on `t`, as a 4 × N matrix in °C."""
@@ -137,19 +210,34 @@ function save_calibration(path, calres, invprob)
     x_full = collect(calres.original.u)
     n_p = length(names)
     length(x_full) >= n_p || error("Optimizer state shorter than the search space?")
+    isapprox(x_full[1:n_p], collect(calres.u)) ||
+        @warn "search-space part of the optimizer state differs from calres.u"
     stripe_names = ["u0_stripe_$(i)" for i in 1:(length(x_full) - n_p)]
     mkpath(dirname(path))
     CSV.write(path, DataFrame(name = vcat(names, stripe_names), value = x_full))
     return path
 end
 
-"""Search-space values from a calibration CSV, in the order `invprob` expects."""
-function load_calibration(path, invprob)
+"""
+    load_calibration(path) -> (; x, x_full, names)
+
+Read a calibration CSV as written by `save_calibration`: `x` are the search-space
+values (with their `names`), `x_full` the whole optimizer state including the
+per-segment initial states, in file order.
+"""
+function load_calibration(path)
     isfile(path) || error("Calibration not found: `$path`. Run a TNNTrainingAnalysis " *
                           "with `results_path` pointing here, or use the shipped " *
                           "dyad://MotorTemperatureSciML/data/calibrated_params.csv.")
     df = CSV.read(path, DataFrame)
-    values = Dict(String(n) => v for (n, v) in zip(df.name, df.value))
+    is_stripe = startswith.(df.name, "u0_stripe")
+    return (; x = df.value[.!is_stripe], x_full = df.value, names = df.name[.!is_stripe])
+end
+
+"""Search-space values from a calibration CSV, in the order `invprob` expects."""
+function load_calibration(path, invprob)
+    (; x, names) = load_calibration(path)
+    values = Dict(String(n) => v for (n, v) in zip(names, x))
     return [get(values, n) do
                 error("Calibration `$path` has no entry for `$n`")
             end for n in string.(search_space_names(invprob))]
@@ -219,7 +307,8 @@ function DyadInterface.run_analysis(spec::TNNFreeRunAnalysisSpec)
     keep = t .<= tstop
     t, meas = t[keep], meas[:, keep]
 
-    experiment = build_experiment(sys, t, meas, spec; tspan = (0.0, tstop), name = "free_run")
+    experiment = build_experiment(sys, t, meas; tspan = (0.0, tstop), name = "free_run",
+        experiment_kwargs(spec)...)
     invprob = build_invprob(experiment, build_search_space(sys))
 
     trained = !isempty(spec.calibration)
@@ -384,7 +473,8 @@ function DyadInterface.run_analysis(spec::TNNTrainingAnalysisSpec)
     (; t, meas) = profile_data(sys)
     horizon = min(spec.train_horizon, t[end])
 
-    experiment = build_experiment(sys, t, meas, spec; tspan = (0.0, horizon), name = "training")
+    experiment = build_experiment(sys, t, meas; tspan = (0.0, horizon), name = "training",
+        experiment_kwargs(spec)...)
     invprob = build_invprob(experiment, build_search_space(sys))
 
     # Per-Adam-step and per-outer-iteration records.
@@ -407,17 +497,10 @@ function DyadInterface.run_analysis(spec::TNNTrainingAnalysisSpec)
         return false
     end
 
-    alg = StochasticMultipleShooting(;
-        trajectories  = n_seg,
-        batch_size    = spec.batch_size,
-        block_size    = spec.block_size,
-        sampling      = :stratified_pairs,
-        inner         = Adam(spec.learning_rate),
-        inner_kwargs  = (; epochs = spec.inner_epochs, callback = inner_cb),
-        maxiters      = spec.outer_maxiters,
-        auglag_kwargs = (; ϵ_primal = spec.continuity_tol / STORY_MAX_TEMP),
-        ensemblealg   = DyadModelOptimizer.EnsemblePooled(),
-        callback      = outer_cb)
+    alg = make_sms(; n_segments = n_seg, spec.batch_size, spec.block_size,
+        spec.learning_rate, spec.inner_epochs, spec.outer_maxiters, spec.continuity_tol,
+        inner_kwargs = (; callback = inner_cb),
+        callback = outer_cb)
 
     steps_per_epoch = n_seg ÷ spec.batch_size
     @info "TNNTrainingAnalysis: calibrating" n_params = length(search_space_names(invprob)) n_segments = n_seg window_s = spec.window batch_size = spec.batch_size total_adam_steps = spec.outer_maxiters * spec.inner_epochs * steps_per_epoch threads = Threads.nthreads()
