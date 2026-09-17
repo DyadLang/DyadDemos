@@ -32,6 +32,7 @@ using LinearAlgebra: norm
 using Printf
 using Base.Threads: nthreads
 using ADTypes, ForwardDiff
+using OrdinaryDiffEqTsit5: Tsit5   # build_integrator reconstructs frames segment by segment
 using Serialization: serialize, deserialize
 using CairoMakie
 using Colors
