@@ -43,11 +43,13 @@ const CHANNEL_SHORT  = ("T_pm", "T_stator_yoke", "T_stator_tooth", "T_stator_win
 
 Time grid [s] and the 4 × N measured temperatures [°C] of the drive profile the
 harness was built with, read from the `interp_meas` interpolator parameter, so
-an analysis always fits the data its model is driven by.
+an analysis always fits the data its model is driven by. `FastVectorInterpolation`
+stores `u` as one `SVector` per time sample, so `stack` is what puts the channels
+back on the rows.
 """
 function profile_data(sys)
     itp = ModelingToolkit.getdefault(sys.interp_meas.interpolator)
-    return (; t = collect(Float64, itp.t), meas = Matrix{Float64}(itp.u))
+    return (; t = collect(Float64, itp.t), meas = stack(itp.u))
 end
 
 temperature_states(sys) = ntuple(i -> sys.model.thermal.T[i], 4)
