@@ -75,7 +75,7 @@ const STATE_COLORS = (parse(Colorant, "#FF6B6B"), parse(Colorant, "#FFC36B"),
 df         = load_profile(TRAIN_PROFILE)
 df_h       = df[df.time .<= TRAIN_HORIZON_S, :]
 sys        = build_system(TRAIN_PROFILE)
-experiment = build_experiment(sys; name = "profile_$(TRAIN_PROFILE)_animation")
+experiment = training_experiment(sys; name = "profile_$(TRAIN_PROFILE)_animation")
 invprob    = build_invprob(experiment, build_search_space(sys))
 T          = temperature_states(sys)
 const UUID = get_uuid(experiment)

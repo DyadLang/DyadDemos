@@ -61,25 +61,32 @@ function normalized_targets(t, meas)
 end
 
 """
-    build_experiment(sys, t, meas; tspan, name, overrides = (), abstol = 1e-6, reltol = 1e-6)
+    build_experiment(sys; tspan = (0.0, <profile end>), name,
+                     overrides = (), abstol = 1e-6, reltol = 1e-6)
 
 DMO `Experiment` fitting the model's normalized temperature states to the
-measurements `meas` (4 × N, °C, sampled at `t`) over `tspan`. The initial state
-is warm-started from the first measured sample, as the PyTorch reference does:
-the model default `T_init = 0.15` (30 °C) is 5–12 °C off the data, a bias the
-networks would otherwise have to absorb. `overrides` (pairs) are appended to
-those initial-state overrides.
+measurements the harness carries in its `interp_meas` interpolator, over
+`tspan` -- the whole profile by default. There is no data argument: `sys`
+already determines both the model and the measurements, so the two cannot
+disagree.
+
+The initial state is warm-started from the first measured sample, as the
+PyTorch reference does: the model default `T_init = 0.15` (30 C) is 5-12 C off
+the data, a bias the networks would otherwise have to absorb. `overrides`
+(pairs) are appended to those initial-state overrides.
 """
-function build_experiment(sys, t, meas; tspan, name,
+function build_experiment(sys; tspan = nothing, name,
         overrides = (), abstol = 1e-6, reltol = 1e-6)
-    keep = t .<= tspan[2]
+    (; t, meas) = profile_data(sys)
+    span = something(tspan, (0.0, t[end]))
+    keep = t .<= span[2]
     data = normalized_targets(t[keep], meas[:, keep])
     T = temperature_states(sys)
     T0 = meas[:, 1] ./ STORY_MAX_TEMP
     all_overrides = vcat([sys.model.thermal.T_init[i] => T0[i] for i in 1:4],
                          [k => v for (k, v) in overrides])
     Experiment(data, sys;
-        tspan, alg = Tsit5(), abstol, reltol, name,
+        tspan = span, alg = Tsit5(), abstol, reltol, name,
         depvars = [T[i] => k for (i, k) in enumerate(CHANNEL_KEYS)],
         # Mean (not sum) of squares: keeps the loss O(1), matches nn.MSELoss,
         # and doesn't scramble AugLag's penalty schedule.
@@ -87,22 +94,8 @@ function build_experiment(sys, t, meas; tspan, name,
         overrides = all_overrides,
         # `optimize = :aggressive` enables the DyadCompilerPasses codegen
         # rewrites (static arrays for the small NN input literals, fused
-        # matmuls) — roughly 2× faster gradients on this model.
+        # matmuls) -- roughly 2x faster gradients on this model.
         prob_kwargs = (; fully_determined = true, optimize = :aggressive))
-end
-
-"""
-    build_experiment(sys; tspan = (0.0, last(profile_data(sys).t)), name, kwargs...)
-
-The harness carries the profile it was built with, so no data argument: the
-measurements come from its `interp_meas` interpolator. This is the entry point
-for fitting the profile a `build_system(id)` harness is driven by, and the whole
-of it by default.
-"""
-function build_experiment(sys; tspan = nothing, name, kwargs...)
-    (; t, meas) = profile_data(sys)
-    return build_experiment(sys, t, meas;
-        tspan = something(tspan, (0.0, t[end])), name, kwargs...)
 end
 
 """The `build_experiment` keywords an analysis spec carries."""
@@ -307,7 +300,7 @@ function DyadInterface.run_analysis(spec::TNNFreeRunAnalysisSpec)
     keep = t .<= tstop
     t, meas = t[keep], meas[:, keep]
 
-    experiment = build_experiment(sys, t, meas; tspan = (0.0, tstop), name = "free_run",
+    experiment = build_experiment(sys; tspan = (0.0, tstop), name = "free_run",
         experiment_kwargs(spec)...)
     invprob = build_invprob(experiment, build_search_space(sys))
 
@@ -473,7 +466,7 @@ function DyadInterface.run_analysis(spec::TNNTrainingAnalysisSpec)
     (; t, meas) = profile_data(sys)
     horizon = min(spec.train_horizon, t[end])
 
-    experiment = build_experiment(sys, t, meas; tspan = (0.0, horizon), name = "training",
+    experiment = build_experiment(sys; tspan = (0.0, horizon), name = "training",
         experiment_kwargs(spec)...)
     invprob = build_invprob(experiment, build_search_space(sys))
 

@@ -61,7 +61,7 @@ df  = load_profile(TRAIN_PROFILE)
 @info "Loaded training profile" profile_id = TRAIN_PROFILE rows = nrow(df) span_s = (df.time[1], df.time[end])
 
 sys        = build_system(TRAIN_PROFILE)
-experiment = build_experiment(sys; name = "profile_$(TRAIN_PROFILE)")
+experiment = training_experiment(sys; name = "profile_$(TRAIN_PROFILE)")
 invprob    = build_invprob(experiment, build_search_space(sys))
 alg        = make_sms(; n_segments = N_SEGMENTS, batch_size = BATCH_SIZE,
     block_size = BLOCK_SIZE, learning_rate = INNER_LR, inner_epochs = INNER_EPOCHS,

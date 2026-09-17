@@ -2,14 +2,10 @@
 # setup itself (system, experiment, search space, inverse problem, shooting
 # algorithm, calibration I/O) lives in the package (src/story_analyses.jl and
 # src/profiles.jl) and is shared with the Dyad analyses; this file only adds
-# the constants the scripts agree on and a DataFrame adapter. Everything here
-# is independent of the optimizer budget.
+# the constants the scripts agree on and their default training horizon.
+# Everything here is independent of the optimizer budget.
 
 using MotorTemperatureSciML
-using MotorTemperatureSciML: TRAIN_PROFILE, TEST_PROFILES, STORY_MAX_TEMP,
-                             load_profile, read_parquet, build_system,
-                             build_search_space, build_invprob, make_sms,
-                             temperature_states, save_calibration, load_calibration
 using DyadModelOptimizer
 using DyadModelOptimizer: search_space_names
 using CSV, DataFrames
@@ -57,14 +53,15 @@ const TARGET_LABELS = ("T_pm", "T_stator_yoke", "T_stator_tooth", "T_stator_wind
 const CALIBRATED_CSV = joinpath(DATA_DIR, "calibrated_params.csv")
 
 """
-    build_experiment(sys; name, tspan = (0.0, min(TRAIN_HORIZON_S, <profile end>)))
+    training_experiment(sys; name, tspan = (0.0, min(TRAIN_HORIZON_S, <profile end>)))
 
-`MotorTemperatureSciML.build_experiment` with the scripts' default training
-horizon. The harness already carries its measurements, so there is no data
-argument and no way for the fitted data to disagree with the model driving it.
+`build_experiment` over the scripts' default training horizon. The harness
+already carries its measurements, so there is no data argument and no way for
+the fitted data to disagree with the model driving it. Use `build_experiment`
+directly to fit a whole profile, as the held-out evaluation does.
 """
-function build_experiment(sys; name, tspan = nothing)
-    (; t) = MotorTemperatureSciML.profile_data(sys)
+function training_experiment(sys; name, tspan = nothing)
+    (; t) = profile_data(sys)
     span = something(tspan, (0.0, min(TRAIN_HORIZON_S, t[end])))
-    return MotorTemperatureSciML.build_experiment(sys; tspan = span, name)
+    return build_experiment(sys; tspan = span, name)
 end

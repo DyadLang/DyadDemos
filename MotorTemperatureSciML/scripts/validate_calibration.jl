@@ -44,7 +44,7 @@ end
 if !(@isdefined(invprob))
     df         = load_profile(TRAIN_PROFILE)
     sys        = build_system(TRAIN_PROFILE)
-    experiment = build_experiment(sys; name = "profile_$(TRAIN_PROFILE)")
+    experiment = training_experiment(sys; name = "profile_$(TRAIN_PROFILE)")
     invprob    = build_invprob(experiment, build_search_space(sys))
     # Only the segmentation matters here (it fixes the layout of `x_full`).
     alg = make_sms(; n_segments = N_SEGMENTS, batch_size = BATCH_SIZE,
