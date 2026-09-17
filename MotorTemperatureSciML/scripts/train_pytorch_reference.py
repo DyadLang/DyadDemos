@@ -1,5 +1,5 @@
 # /// script
-# requires-python = ">=3.10"
+# requires-python = ">=3.11"
 # dependencies = [
 #     "torch>=2.2",
 #     "pandas>=2.0",
@@ -68,6 +68,7 @@ Kaggle "Electric Motor Temperature" dataset by the same authors, CC BY-SA 4.0
 (DOI 10.34740/KAGGLE/DSV/2161054); see the README for details.
 """
 import argparse
+import tomllib
 import time
 import warnings
 from pathlib import Path
@@ -93,17 +94,17 @@ TARGET_COLS = ["pm", "stator_yoke", "stator_tooth", "stator_winding"]
 TEMPERATURE_COLS = TARGET_COLS + ["ambient", "coolant"]
 
 # The notebook divides temperatures by 200 and every other signal by its
-# max-abs over the full 69-profile dataset. i_s / u_s are already derived from
-# the normalised currents and voltages in the shipped profiles.
-MAX_TEMP = 200.0
-MAX_ABS = {
-    "u_q": 162.266159057617,
-    "u_d": 164.791656494141,
-    "motor_speed": 1411.75,
-    "i_d": 399.7197265625,
-    "i_q": 369.958343505859,
-    "torque": 2243.25,
-}
+# max-abs over the full dataset. Those denominators are derived from the source
+# data by scripts/prepare_data.jl and shipped alongside the profiles, so this
+# script, dyad/Thermal/Normalizer.dyad and the precomputed i_s / u_s in the
+# profile files all scale identically. i_s / u_s are already normalised in the
+# shipped profiles.
+_NORMALIZATION = tomllib.loads(
+    (Path(__file__).resolve().parent.parent / "assets" / "data" / "normalization.toml")
+    .read_text()
+)
+MAX_TEMP = float(_NORMALIZATION["max_temp"])
+MAX_ABS = {k: float(v) for k, v in _NORMALIZATION["max_abs"].items()}
 
 
 def load_profile(data_dir: Path, pid: int) -> pd.DataFrame:

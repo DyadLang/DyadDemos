@@ -1,4 +1,5 @@
 using ModelingToolkit
+using StaticArrays: SVector
 using ModelingToolkit: t_nounits
 using DyadData
 using DataInterpolations: DataInterpolations
@@ -42,9 +43,14 @@ function FastVectorInterpolation(; interpolation_type, extrapolation_type = Extr
     tb = build_table(dataset)
     independent_var = getproperty(tb, Symbol(get_independent_var(dataset)))
 
-    # Stack channels into rows: (n_channels, n_times) — the convention
-    # DataInterpolations expects for vector-valued u.
-    data_matrix = permutedims(stack(getproperty(tb, Symbol(d)) for d in deps))
+    # One `SVector` per time sample rather than an (n_channels, n_times) matrix:
+    # DataInterpolations then returns an `SVector` from each evaluation — no heap
+    # allocation per RHS call (the matrix layout allocates the result vector, and
+    # the slope vector unless parameters are cached), and no pointer-valued
+    # temporary for Enzyme's static activity analysis to classify.
+    cols = [getproperty(tb, Symbol(d)) for d in deps]
+    data_matrix = [SVector{n_outputs, Float64}(ntuple(j -> Float64(cols[j][i]), n_outputs))
+                   for i in eachindex(independent_var)]
 
     interp_value = @match interpolation_type begin
         InterpolationType.ConstantInterpolation() =>
@@ -52,7 +58,8 @@ function FastVectorInterpolation(; interpolation_type, extrapolation_type = Extr
         InterpolationType.SmoothedConstantInterpolation() =>
             DataInterpolations.SmoothedConstantInterpolation(data_matrix, independent_var; extrapolation, kwargs...)
         InterpolationType.LinearInterpolation() =>
-            DataInterpolations.LinearInterpolation(data_matrix, independent_var; extrapolation, kwargs...)
+            DataInterpolations.LinearInterpolation(data_matrix, independent_var; extrapolation,
+                cache_parameters = true, kwargs...)
         InterpolationType.QuadraticInterpolation() =>
             DataInterpolations.QuadraticInterpolation(data_matrix, independent_var; extrapolation, kwargs...)
         InterpolationType.LagrangeInterpolation(n) =>

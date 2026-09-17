@@ -26,12 +26,12 @@ equations that turn the system into a DAE — precomputing them avoids that.
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `MAX_TEMP`         | Maximum temperature for normalisation [degC]                         | --  |   200.0 |
-| `max_abs_u_q`         |                          | --  |   162.266159057617 |
-| `max_abs_u_d`         |                          | --  |   164.791656494141 |
-| `max_abs_motor_speed`         |                          | --  |   1411.75 |
-| `max_abs_i_d`         |                          | --  |   399.7197265625 |
-| `max_abs_i_q`         |                          | --  |   369.958343505859 |
-| `max_abs_torque`         |                          | --  |   2243.25 |
+| `max_abs_u_q`         |                          | --  |   MotorTemper...MAX_ABS.u_q |
+| `max_abs_u_d`         |                          | --  |   MotorTemper...MAX_ABS.u_d |
+| `max_abs_motor_speed`         |                          | --  |   MotorTemper...motor_speed |
+| `max_abs_i_d`         |                          | --  |   MotorTemper...MAX_ABS.i_d |
+| `max_abs_i_q`         |                          | --  |   MotorTemper...MAX_ABS.i_q |
+| `max_abs_torque`         |                          | --  |   MotorTemper..._ABS.torque |
 
 ## Connectors
 
@@ -47,7 +47,7 @@ equations that turn the system into a DAE — precomputing them avoids that.
  * `u_s_raw` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function Normalizer(; name = nothing, MAX_TEMP=Float64(200.0), max_abs_u_q=162.266159057617, max_abs_u_d=164.791656494141, max_abs_motor_speed=1411.75, max_abs_i_d=399.7197265625, max_abs_i_q=369.958343505859, max_abs_torque=2243.25, kwargs...)
+@component function Normalizer(; name = nothing, MAX_TEMP=Float64(200.0), max_abs_u_q=MotorTemperatureSciML.REFERENCE_MAX_ABS.u_q, max_abs_u_d=MotorTemperatureSciML.REFERENCE_MAX_ABS.u_d, max_abs_motor_speed=MotorTemperatureSciML.REFERENCE_MAX_ABS.motor_speed, max_abs_i_d=MotorTemperatureSciML.REFERENCE_MAX_ABS.i_d, max_abs_i_q=MotorTemperatureSciML.REFERENCE_MAX_ABS.i_q, max_abs_torque=MotorTemperatureSciML.REFERENCE_MAX_ABS.torque, kwargs...)
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
