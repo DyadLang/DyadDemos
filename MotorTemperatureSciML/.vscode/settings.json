@@ -5,7 +5,7 @@
     "julia.NumThreads": "auto",
     "julia.additionalArgs": [
     ],
-    "julia.languageServerJuliaupChannel": "dyad-3.4.0-rc1",
-    "julia.executablePath": "julia +dyad-3.4.0-rc1",
+    "julia.languageServerJuliaupChannel": "dyad-3.4.0",
+    "julia.executablePath": "julia +dyad-3.4.0",
     "julia.juliaup.server": "https://juliahub.com/juliabin"
 }

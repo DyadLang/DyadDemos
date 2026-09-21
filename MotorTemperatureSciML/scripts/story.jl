@@ -2,7 +2,7 @@
 # Julia. Each analysis is one call; every one has a SimulationSolutionPlot
 # artifact, and this script saves every plot artifact as a PNG.
 #
-#   JULIA_NUM_THREADS=8 julia +dyad-3.4.0-rc1 --project scripts/story.jl
+#   JULIA_NUM_THREADS=8 julia +dyad-3.4.0 --project scripts/story.jl
 #
 # Output: runs/story/<Analysis>_<Artifact>.png and the RMS tables on stdout.
 # For the full-budget calibration behind the README results, run
