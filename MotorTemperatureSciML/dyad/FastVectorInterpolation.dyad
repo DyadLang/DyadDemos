@@ -28,7 +28,7 @@ metadata {
     "labels": [
       {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}
     ],
-    "icons": {"default": "dyad://BlockComponents/Interpolation.svg"},
+    "icons": {"default": "dyad://MotorTemperatureSciML/FastVectorInterpolation.svg"},
     "doc": {"behavior": false}
   },
   "_links": {

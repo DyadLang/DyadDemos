@@ -14,9 +14,9 @@
 # implementation derives as extra features.
 #
 # Usage (from the package root):
-#   julia +dyad-3.4.0-rc1 --project scripts/prepare_data.jl --source <path>/measures_v2.csv
-#   julia +dyad-3.4.0-rc1 --project scripts/prepare_data.jl --source ... --profiles 17,60
-#   julia +dyad-3.4.0-rc1 --project scripts/prepare_data.jl --source ... --truncate-seconds 7200
+#   julia +dyad-3.4.0 --project scripts/prepare_data.jl --source <path>/measures_v2.csv
+#   julia +dyad-3.4.0 --project scripts/prepare_data.jl --source ... --profiles 17,60
+#   julia +dyad-3.4.0 --project scripts/prepare_data.jl --source ... --truncate-seconds 7200
 #
 # The source path can also be given via the MEASURES_V2 environment variable.
 # The default profile set (17, 60, 62, 74) regenerates the shipped files.
@@ -29,6 +29,7 @@ using CSV, DataFrames, Parquet2
 
 const DST_DIR = normpath(joinpath(@__DIR__, "..", "assets", "data"))
 const DT      = 0.5   # Paderborn sampling period [s]
+const MAX_TEMP_DEGC = 200.0   # temperature normalisation of the reference
 
 function parse_args(argv)
     profiles = [17, 60, 62, 74]
@@ -58,24 +59,48 @@ isfile(opts.source) || error(
 @info "Loading Paderborn dataset" source = opts.source
 df_all = CSV.read(opts.source, DataFrame)
 
-# Feature scaling constants of the reference implementation (column-wise max
-# abs over the full dataset). They also live in dyad/Thermal/Normalizer.dyad,
-# where the in-model normalisation of the raw signals happens; `i_s` / `u_s`
-# are precomputed here from the *normalised* components because deriving them
-# inside the model would add two algebraic equations and turn the ODE into a
-# DAE.
-const MAX_ABS_I_D = 399.7197265625
-const MAX_ABS_I_Q = 369.958343505859
-const MAX_ABS_U_D = 164.791656494141
-const MAX_ABS_U_Q = 162.266159057617
+# Feature scaling of the reference implementation: every non-temperature signal
+# is divided by its max abs over the whole dataset, temperatures by 200 degC
+# (`TNN_pytorch.ipynb` cell 5). Derived here rather than hardcoded, and written
+# to assets/data/normalization.toml so that dyad/Thermal/Normalizer.dyad (the
+# in-model scaling of the raw signals) and scripts/train_pytorch_reference.py
+# use the same denominators. `i_s` / `u_s` are precomputed here from the
+# *normalised* components because deriving them inside the model would add two
+# algebraic equations and turn the ODE into a DAE.
+const TEMPERATURE_COLS     = [:pm, :stator_yoke, :stator_tooth, :stator_winding,
+                              :ambient, :coolant]
+const NON_TEMPERATURE_COLS = [:u_q, :u_d, :motor_speed, :i_d, :i_q, :torque]
+
+max_abs = Dict(String(c) => maximum(abs, skipmissing(df_all[!, c]))
+               for c in NON_TEMPERATURE_COLS)
+
+let path = joinpath(DST_DIR, "normalization.toml")
+    open(path, "w") do io
+        println(io, "# Normalisation denominators derived from the source dataset by")
+        println(io, "# scripts/prepare_data.jl. Do not edit by hand: regenerating the")
+        println(io, "# profiles regenerates this file, and every consumer reads it.")
+        println(io, "#")
+        println(io, "# source = ", repr(basename(opts.source)))
+        println(io, "# rows   = ", nrow(df_all))
+        println(io, "# profiles = ", length(unique(df_all.profile_id)))
+        println(io)
+        println(io, "max_temp = ", MAX_TEMP_DEGC)
+        println(io)
+        println(io, "[max_abs]")
+        for c in NON_TEMPERATURE_COLS
+            println(io, c, " = ", repr(max_abs[String(c)]))
+        end
+    end
+    @info "Wrote normalisation constants" path max_abs
+end
 
 for pid in opts.profiles
     df = df_all[df_all.profile_id .== pid, :]
     isempty(df) && error("profile_id=$pid not found in $(opts.source)")
     select!(df, Not(:profile_id))
     insertcols!(df, 1, :time => (0:nrow(df) - 1) .* DT)
-    df.i_s = @. sqrt((df.i_d / MAX_ABS_I_D)^2 + (df.i_q / MAX_ABS_I_Q)^2)
-    df.u_s = @. sqrt((df.u_d / MAX_ABS_U_D)^2 + (df.u_q / MAX_ABS_U_Q)^2)
+    df.i_s = @. sqrt((df.i_d / max_abs["i_d"])^2 + (df.i_q / max_abs["i_q"])^2)
+    df.u_s = @. sqrt((df.u_d / max_abs["u_d"])^2 + (df.u_q / max_abs["u_q"])^2)
     if opts.truncate !== nothing
         df = df[1:min(nrow(df), floor(Int, opts.truncate / DT) + 1), :]
     end

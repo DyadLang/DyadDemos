@@ -5,12 +5,12 @@
 # Run from the package root (segments in a batch solve in parallel across
 # Julia threads; more threads is not always faster, see the README):
 #
-#   JULIA_NUM_THREADS=8 julia +dyad-3.4.0-rc1 --project scripts/train_stochastic_ms.jl
+#   JULIA_NUM_THREADS=8 julia +dyad-3.4.0 --project scripts/train_stochastic_ms.jl
 #
 # Budget presets (TNN_BUDGET=quick|short|full, default full; see the README
 # for what each buys):
 #
-#   TNN_BUDGET=short JULIA_NUM_THREADS=8 julia +dyad-3.4.0-rc1 --project scripts/train_stochastic_ms.jl
+#   TNN_BUDGET=short JULIA_NUM_THREADS=8 julia +dyad-3.4.0 --project scripts/train_stochastic_ms.jl
 #
 # Writes runs/training/calibrated_params.csv by default (--out-dir overrides).
 # Pass that file to validate_calibration.jl with --calibration
@@ -61,11 +61,11 @@ df  = load_profile(TRAIN_PROFILE)
 @info "Loaded training profile" profile_id = TRAIN_PROFILE rows = nrow(df) span_s = (df.time[1], df.time[end])
 
 sys        = build_system(TRAIN_PROFILE)
-experiment = build_experiment(sys, df; name = "profile_$(TRAIN_PROFILE)")
+experiment = training_experiment(sys; name = "profile_$(TRAIN_PROFILE)")
 invprob    = build_invprob(experiment, build_search_space(sys))
 alg        = make_sms(; n_segments = N_SEGMENTS, batch_size = BATCH_SIZE,
-    block_size = BLOCK_SIZE, inner_lr = INNER_LR, inner_epochs = INNER_EPOCHS,
-    outer_maxiters = OUTER_MAXITERS)
+    block_size = BLOCK_SIZE, learning_rate = INNER_LR, inner_epochs = INNER_EPOCHS,
+    outer_maxiters = OUTER_MAXITERS, continuity_tol = CONTINUITY_TOL_C)
 
 n_params = length(search_space_names(invprob))
 steps_per_epoch = N_SEGMENTS ÷ BATCH_SIZE

@@ -1,0 +1,69 @@
+"""
+Run the Thermal Neural Network free-running (a plain ODE, no per-segment resets)
+over the drive profile its `TestTNNProfile` harness is built with and compare it
+with the measured temperatures.
+
+With `calibration` empty the model runs with its initial weights; point it at a
+calibrated-parameter CSV (a `dyad://` URI or a path written by
+`TNNTrainingAnalysis`) to see the fit. `reference` overlays PyTorch reference
+predictions when given.
+
+Artifacts: `SimulationSolutionPlot` (prediction vs measured), `ResidualPlot`,
+`SimulationSolutionTable`, `ErrorTable`.
+"""
+partial analysis TNNFreeRunAnalysis
+  extends Analysis
+  model = EmptyComponent()
+  "Calibrated parameters CSV (dyad:// URI or path); empty runs the untrained model"
+  parameter calibration::String = ""
+  "PyTorch reference predictions (Parquet, dyad:// URI or path); empty for none"
+  parameter reference::String = ""
+  "End of the training horizon, marked on the plots; 0 hides the marker"
+  parameter train_horizon::Time = 7200.0
+  "Simulation end; 0 runs the whole profile"
+  parameter stop::Time = 0.0
+  parameter abstol::Real = 1e-6
+  parameter reltol::Real = 1e-6
+end
+
+"""
+Calibrate the Thermal Neural Network on the profile its harness is built with,
+using stochastic mini-batch multiple shooting: `[0, train_horizon]` is cut into
+segments of `window` seconds with free initial states, every Adam step samples
+`batch_size` segments in contiguous blocks of `block_size` and solves them in
+parallel across Julia threads, and continuity at the junctions is enforced by an
+augmented Lagrangian outer loop of at most `outer_maxiters` multiplier updates
+with `inner_epochs` Adam epochs each. It stops early once every junction gap is
+below `continuity_tol` degrees.
+
+If `results_path` is set the calibrated parameters are written there as CSV,
+ready for a `TNNFreeRunAnalysis` with `calibration = results_path`.
+
+Artifacts: `SimulationSolutionPlot` (training curves), `FitPlot`,
+`ContinuityPlot`, `LossTable`, `OuterIterationTable`, `ErrorTable`,
+`ResultsExport`.
+"""
+partial analysis TNNTrainingAnalysis
+  extends Analysis
+  model = EmptyComponent()
+  "Training horizon [s]; the rest of the profile is a held-out tail"
+  parameter train_horizon::Time = 7200.0
+  "Shooting segment length [s]"
+  parameter window::Time = 75.0
+  "Segments per Adam step (must divide the number of segments)"
+  parameter batch_size::Integer = 32
+  "Segments are sampled in contiguous blocks of this size (must divide batch_size)"
+  parameter block_size::Integer = 4
+  "Adam step size"
+  parameter learning_rate::Real = 1e-3
+  "Adam epochs (passes over all segments) per outer iteration"
+  parameter inner_epochs::Integer = 2
+  "Augmented-Lagrangian outer iterations (upper bound)"
+  parameter outer_maxiters::Integer = 1
+  "Stopping test: largest junction gap [degC]"
+  parameter continuity_tol::Real = 0.2
+  "Where to write the calibrated parameters (dyad:// URI or path); empty skips"
+  parameter results_path::String = ""
+  parameter abstol::Real = 1e-6
+  parameter reltol::Real = 1e-6
+end

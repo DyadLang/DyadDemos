@@ -20,7 +20,7 @@
 # retrain.
 #
 # Run from the package root:
-#   JULIA_NUM_THREADS=8 julia +dyad-3.4.0-rc1 --project scripts/animate_sms_training.jl
+#   JULIA_NUM_THREADS=8 julia +dyad-3.4.0 --project scripts/animate_sms_training.jl
 
 include("common.jl")
 using DyadModelOptimizer: setup_problem, internal_params_part, split_timespan,
@@ -32,6 +32,7 @@ using LinearAlgebra: norm
 using Printf
 using Base.Threads: nthreads
 using ADTypes, ForwardDiff
+using OrdinaryDiffEqTsit5: Tsit5   # build_integrator reconstructs frames segment by segment
 using Serialization: serialize, deserialize
 using CairoMakie
 using Colors
@@ -75,7 +76,7 @@ const STATE_COLORS = (parse(Colorant, "#FF6B6B"), parse(Colorant, "#FFC36B"),
 df         = load_profile(TRAIN_PROFILE)
 df_h       = df[df.time .<= TRAIN_HORIZON_S, :]
 sys        = build_system(TRAIN_PROFILE)
-experiment = build_experiment(sys, df; name = "profile_$(TRAIN_PROFILE)_animation")
+experiment = training_experiment(sys; name = "profile_$(TRAIN_PROFILE)_animation")
 invprob    = build_invprob(experiment, build_search_space(sys))
 T          = temperature_states(sys)
 const UUID = get_uuid(experiment)
@@ -110,7 +111,7 @@ function outer_cb(state, loss, args...)
 end
 
 alg = make_sms(; n_segments = ANIM_N_SEGMENTS, batch_size = ANIM_BATCH_SIZE,
-    block_size = ANIM_BLOCK_SIZE, inner_lr = ANIM_INNER_LR,
+    block_size = ANIM_BLOCK_SIZE, learning_rate = ANIM_INNER_LR,
     inner_epochs = ANIM_INNER_EPOCHS, outer_maxiters = ANIM_OUTER_ITERS,
     inner_kwargs = (; callback = snap_cb),
     # Run the whole budget: with 300 s segments the junction gaps close to the

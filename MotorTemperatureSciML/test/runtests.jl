@@ -7,6 +7,7 @@ include("../generated/tests.jl")
 
 include("temperature_scale.jl")
 include("signal_routing.jl")
+include("interpolation_allocations.jl")
 include("output_paths.jl")
 
 @testset "TNN training-profile transient analysis" begin

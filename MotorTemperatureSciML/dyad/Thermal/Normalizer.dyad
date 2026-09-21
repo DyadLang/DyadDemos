@@ -39,12 +39,12 @@ component Normalizer
 
   "Maximum temperature for normalisation [degC]"
   structural parameter MAX_TEMP::Real = 200.0
-  structural parameter max_abs_u_q::Real = 162.266159057617
-  structural parameter max_abs_u_d::Real = 164.791656494141
-  structural parameter max_abs_motor_speed::Real = 1411.75
-  structural parameter max_abs_i_d::Real = 399.7197265625
-  structural parameter max_abs_i_q::Real = 369.958343505859
-  structural parameter max_abs_torque::Real = 2243.25
+  structural parameter max_abs_u_q::Real = MotorTemperatureSciML.REFERENCE_MAX_ABS.u_q
+  structural parameter max_abs_u_d::Real = MotorTemperatureSciML.REFERENCE_MAX_ABS.u_d
+  structural parameter max_abs_motor_speed::Real = MotorTemperatureSciML.REFERENCE_MAX_ABS.motor_speed
+  structural parameter max_abs_i_d::Real = MotorTemperatureSciML.REFERENCE_MAX_ABS.i_d
+  structural parameter max_abs_i_q::Real = MotorTemperatureSciML.REFERENCE_MAX_ABS.i_q
+  structural parameter max_abs_torque::Real = MotorTemperatureSciML.REFERENCE_MAX_ABS.torque
 relations
   out[1] = u_q_raw / max_abs_u_q
   out[2] = coolant_raw / MAX_TEMP
