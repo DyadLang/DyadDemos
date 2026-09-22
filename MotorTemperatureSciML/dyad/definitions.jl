@@ -3,8 +3,39 @@ using StaticArrays: SVector
 using ModelingToolkit: t_nounits
 using DyadData
 using DataInterpolations: DataInterpolations
+using EnzymeCore: EnzymeCore
 using BlockComponents.Tables: InterpolationType, ExtrapolationType
 using Moshi.Match: @match
+
+"""
+    ForcingInterpolation(itp)
+
+Callable wrapper around a `DataInterpolations` interpolator that carries *measured
+forcing*: data the model is driven by, never calibrated. The type exists so that an
+AD backend can be told, in user code, that nothing reachable from it is differentiable
+(e.g. `EnzymeRules.inactive_type` on the type + `EnzymeRules.inactive` on the call),
+without making that claim about `DataInterpolations` types in general.
+"""
+struct ForcingInterpolation{I}
+    itp::I
+end
+(f::ForcingInterpolation)(t) = getfield(f, :itp)(t)
+# transparent to readers of the data (`profile_data` reads `.t`/`.u`)
+Base.getproperty(f::ForcingInterpolation, s::Symbol) =
+    s === :itp ? getfield(f, :itp) : getproperty(getfield(f, :itp), s)
+
+# Enzyme: the forcing is constant data. Both rules are needed and sufficient:
+#  - `inactive_type` shrinks the parameter shadow (no `make_zero`/`remake_zero!` copy of
+#    the tables on every VJP, ~6x per reverse pass on the motor model);
+#  - `inactive` on the CALL guarantees no active-typed pointer is ever loaded out of the
+#    inactive object — the evaluation returns an isbits `SVector`, so nothing downstream
+#    can form ∂/∂(table) and accumulate it into the aliased primal (Enzyme.jl#1569 class).
+#    The type rule alone happened to work on this wrapper, but the same shape with one more
+#    container hop corrupts the tables under static activity, so do not rely on it.
+# Deliberately NOT declared on `DataInterpolations` types: users calibrating interpolation
+# data need those gradients.
+EnzymeCore.EnzymeRules.inactive_type(::Type{<:ForcingInterpolation}) = true
+EnzymeCore.EnzymeRules.inactive(::ForcingInterpolation, args...; kwargs...) = nothing
 
 """
     FastVectorInterpolation(; interpolation_type, extrapolation_type, dataset,
@@ -73,6 +104,8 @@ function FastVectorInterpolation(; interpolation_type, extrapolation_type = Extr
         _ => error("Unsupported interpolation type: $interpolation_type")
     end
 
+    # measured forcing, never calibrated: see `ForcingInterpolation`
+    interp_value = ForcingInterpolation(interp_value)
     @parameters (interpolator::typeof(interp_value))(..)[1:n_outputs]=interp_value [tunable=false]
 
     @variables u(t_nounits), [input = true]
