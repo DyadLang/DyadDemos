@@ -1,0 +1,28 @@
+"Split the dataset vector into named scalar channels; order matches TestTNNProfile dependent_vars."
+component TemperatureDemux
+  u = [RealInput() for i in 1:4] {^u}
+  pm = RealOutput() {^pm}
+  stator_yoke = RealOutput() {^stator_yoke}
+  stator_tooth = RealOutput() {^stator_tooth}
+  stator_winding = RealOutput() {^stator_winding}
+relations
+  pm = u[1]
+  stator_yoke = u[2]
+  stator_tooth = u[3]
+  stator_winding = u[4]
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": -100, "layer": "icon"}
+    ],
+    "icons": {"default": "dyad://MotorTemperatureSciML/TemperatureDemux.svg"}
+  },
+  "_links": {
+    "u": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -30.0, "y1": 480.0, "x2": 30.0, "y2": 520.0, "show": 1}}}},
+    "pm": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 970.0, "y1": 110.0, "x2": 1030.0, "y2": 140.0}}}},
+    "stator_yoke": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 970.0, "y1": 360.0, "x2": 1030.0, "y2": 390.0}}}},
+    "stator_tooth": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 970.0, "y1": 610.0, "x2": 1030.0, "y2": 640.0}}}},
+    "stator_winding": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 970.0, "y1": 860.0, "x2": 1030.0, "y2": 890.0}}}}
+  }
+}
+end

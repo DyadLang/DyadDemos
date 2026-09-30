@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <title>Thermal energy balance and temperature dynamics</title>
+  <rect x="4" y="4" width="992" height="992" fill="#fff" stroke="#008a19" stroke-width="8"/>
+  <path d="M200 300 H570 V660 H200 Z" fill="none" stroke="#a8b8c6" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M200 300 L570 660 M570 300 L200 660" fill="none" stroke="#c9d3dc" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="200" cy="300" r="62" fill="#e99535" stroke="#334155" stroke-width="12"/>
+  <circle cx="570" cy="300" r="62" fill="#e99535" stroke="#334155" stroke-width="12"/>
+  <circle cx="200" cy="660" r="62" fill="#e99535" stroke="#334155" stroke-width="12"/>
+  <circle cx="570" cy="660" r="62" fill="#e99535" stroke="#334155" stroke-width="12"/>
+  <path d="M645 480 H735" fill="none" stroke="#087fa3" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="757" y="190" width="96" height="460" rx="48" fill="#f1f5f9" stroke="#334155" stroke-width="18"/>
+  <circle cx="805" cy="685" r="90" fill="#d94b48" stroke="#334155" stroke-width="12"/>
+  <path d="M805 350 V685" fill="none" stroke="#d94b48" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M831 290 H850" fill="none" stroke="#334155" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M831 390 H850" fill="none" stroke="#334155" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M831 490 H850" fill="none" stroke="#334155" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="500" y="920" text-anchor="middle" font-family="sans-serif" font-size="96" fill="#334155">dT / dt</text>
+
+</svg>

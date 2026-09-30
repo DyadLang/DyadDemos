@@ -1,0 +1,65 @@
+"""
+Power-loss sub-network for the Thermal Neural Network (TNN).
+
+Maps a 14-element input vector — 10 normalised operating conditions (`x`, in
+`Normalizer.out` order) followed by the 4 estimated normalised temperatures
+(`T`, in `ThermalDynamics.T` order) — to 4 non-negative power-loss values via
+`Dense(14 → 16, tanh) → Dense(16 → 4, abs)`. Each output is the heat-generation
+rate at one of the 4 target thermal nodes.
+
+The chain is wrapped in `DyadModelDiscovery.NeuralNetworkBlock` so the whole
+NN forward pass becomes one symbolic `stateless_apply` call over a single
+vector parameter — MTK sees one parameter, not 308 scalar weights. The `abs`
+lives inside the Lux chain (as the final layer's activation), not at the Dyad
+boundary, because a sub-component's indexed vector port (`nn.outputs[j]`) can
+appear only inside `connect(...)`, not in a general expression.
+"""
+component PowerLossNet
+  "Number of operating-condition inputs (first block of the NN input vector)"
+  structural parameter n_x::Integer = 10
+  "Number of temperature feedback inputs (second block of the NN input vector)"
+  structural parameter n_T::Integer = 4
+  "NN input width, must equal n_x + n_T"
+  structural parameter n_in::Integer = 14
+  structural parameter n_hidden::Integer = 16
+  structural parameter n_out::Integer = 4
+
+  "Normalised operating conditions (Normalizer.out ordering)"
+  x = [RealInput() for i in 1:n_x] {^x}
+  "Estimated normalised temperatures fed back from ThermalDynamics.T"
+  T = [RealInput() for i in 1:n_T] {^T}
+  "Output power-loss values (non-negative)"
+  out = [RealOutput() for j in 1:n_out] {^out}
+
+  nn = DyadModelDiscovery.NeuralNetworkBlock(
+    n_input = n_in,
+    n_output = n_out,
+    chain = MotorTemperatureSciML.power_loss_chain()) {^nn}
+  mux = MotorTemperatureSciML.SignalRouting.FeatureMux(n_x = n_x, n_T = n_T) {^mux}
+relations
+  connect(x, mux.x) {^features}
+  connect(T, mux.T) {^feedback}
+  connect(mux.y, nn.inputs) {^nn_input}
+  connect(nn.outputs, out)
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": -60, "layer": "icon", "attrs": {}},
+      {"label": "Operating conditions · x[10]", "x": 150, "y": 230, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "Estimated temperatures · T[4]", "x": 180, "y": 680, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "[x; T] · 14", "x": 435, "y": 410, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}}
+    ],
+    "icons": {"default": "dyad://MotorTemperatureSciML/PowerLossNet.svg"}
+  },
+  "_links": {
+    "x": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -27.5, "y1": 372.5, "x2": 27.5, "y2": 427.5, "show": 1}, "diagram": {"iconName": "default", "x1": 88.0, "y1": 338.0, "x2": 112.0, "y2": 362.0, "show": 1}}}},
+    "T": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 472.5, "y1": 972.5, "x2": 527.5, "y2": 1027.5, "show": 1, "rot": 270}, "diagram": {"iconName": "default", "x1": 88.0, "y1": 538.0, "x2": 112.0, "y2": 562.0, "show": 1}}}},
+    "out": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 972.5, "y1": 372.5, "x2": 1027.5, "y2": 427.5, "show": 1}, "diagram": {"iconName": "default", "x1": 918.0, "y1": 438.0, "x2": 942.0, "y2": 462.0, "show": 1}}}},
+    "nn": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500.0, "y1": 300.0, "x2": 800.0, "y2": 600.0}}}},
+    "mux": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 220.0, "y1": 250.0, "x2": 380.0, "y2": 650.0}}}},
+    "features": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "feedback": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
+    "nn_input": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}}
+  }
+}
+end

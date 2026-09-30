@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <title>Independent feature scaling; final two channels pass through</title>
+  <rect x="4" y="4" width="992" height="992" fill="#fff" stroke="#008a19" stroke-width="8"/>
+  <!-- Each row is scaled independently before vector assembly. -->
+  <rect x="220.0" y="16" width="400.0" height="968" rx="22" fill="#eef7fa" stroke="#a7cbd6" stroke-width="4"/>
+  <path d="M0 50 H206.0 M634.0 50 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="65" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">÷ s1</text>
+  <path d="M0 150 H206.0 M634.0 150 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="165" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">÷ s2</text>
+  <path d="M0 250 H206.0 M634.0 250 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="265" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">÷ s3</text>
+  <path d="M0 350 H206.0 M634.0 350 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="365" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">÷ s4</text>
+  <path d="M0 450 H206.0 M634.0 450 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="465" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">÷ s5</text>
+  <path d="M0 550 H206.0 M634.0 550 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="565" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">÷ s6</text>
+  <path d="M0 650 H206.0 M634.0 650 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="665" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">÷ s7</text>
+  <path d="M0 750 H206.0 M634.0 750 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="765" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">÷ s8</text>
+  <path d="M0 850 H206.0 M634.0 850 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="865" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">× 1</text>
+  <path d="M0 950 H206.0 M634.0 950 H820.0" fill="none" stroke="#087fa3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="420.0" y="965" text-anchor="middle" font-family="sans-serif" font-size="44" fill="#087fa3">× 1</text>
+  <path d="M820.0 50 V950 M820.0 500 H1000" fill="none" stroke="#087fa3" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+</svg>

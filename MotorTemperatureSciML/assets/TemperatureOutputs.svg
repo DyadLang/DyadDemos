@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <title>Convert estimated states to four temperatures in degrees Celsius</title>
+  <rect x="4" y="4" width="992" height="992" fill="#fff" stroke="#008a19" stroke-width="8"/>
+  <path d="M0 500 H220 V200 M220 500 V800" fill="none" stroke="#087fa3" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M220 200 H430 M880 200 H1000" fill="none" stroke="#087fa3" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="655" y="224" text-anchor="middle" font-family="sans-serif" font-size="76" fill="#334155">pm</text>
+  <path d="M220 400 H430 M880 400 H1000" fill="none" stroke="#087fa3" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="655" y="424" text-anchor="middle" font-family="sans-serif" font-size="76" fill="#334155">yoke</text>
+  <path d="M220 600 H430 M880 600 H1000" fill="none" stroke="#087fa3" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="655" y="624" text-anchor="middle" font-family="sans-serif" font-size="76" fill="#334155">tooth</text>
+  <path d="M220 800 H430 M880 800 H1000" fill="none" stroke="#087fa3" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="655" y="824" text-anchor="middle" font-family="sans-serif" font-size="76" fill="#334155">winding</text>
+  <text x="500" y="110" text-anchor="middle" font-family="sans-serif" font-size="94" fill="#334155">°C</text>
+
+</svg>

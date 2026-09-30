@@ -1,0 +1,13 @@
+{
+    "files.autoSave": "off",
+    "workbench.tree.indent": 25,
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "julia.environmentPath": "${workspaceFolder}",
+    "julia.NumThreads": "auto",
+    "julia.additionalArgs": [
+        "--optimize=0"
+    ],
+    "julia.languageServerJuliaupChannel": "dyad-3.3.0",
+    "julia.executablePath": "julia +dyad-3.3.0",
+    "julia.juliaup.server": "https://juliahub.com/juliabin"
+}
