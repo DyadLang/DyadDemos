@@ -6,7 +6,6 @@
 
 using ModelingToolkit
 import Markdown
-import Moshi
 using ModelingToolkit: t_nounits as t
 using OrdinaryDiffEqDefault
 using RuntimeGeneratedFunctions
@@ -202,12 +201,10 @@ include("ColdNightSizing_definition.jl")
 include("DiurnalOperation_definition.jl")
 include("HVACSizing_definition.jl")
 include("HeatCapacitorNoInit_definition.jl")
-include("Hello_definition.jl")
 include("OfficeOccupancy_definition.jl")
 include("TestColdNightSizing_definition.jl")
 include("TestDiurnalOperation_definition.jl")
 include("TestSteadySizing_definition.jl")
 include("ThermostatHeater_definition.jl")
 include("ThreeZoneBuilding_definition.jl")
-include("World_definition.jl")
 include("ZoneRoom_definition.jl")

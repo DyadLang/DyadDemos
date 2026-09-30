@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    BrakeThermal(; name, C_disk, C_pad, T_disk_init, T_pad_init, T_ambient, h_disk_base, h_pad_base, k_disk_speed, k_pad_speed, A_disk, A_pad, epsilon_disk, G_rad_pad_disk)
 

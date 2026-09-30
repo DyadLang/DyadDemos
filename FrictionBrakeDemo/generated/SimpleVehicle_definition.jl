@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    SimpleVehicle(; name, vehicle_mass_kg, inertia_moment, wheel_radius, damping_coeff, initial_position, initial_velocity)
 

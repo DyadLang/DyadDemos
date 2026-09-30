@@ -62,13 +62,11 @@ report("Stage 1", ["model.k1", "model.c1", "model.alpha"], [k1_fit, c1_fit, alph
 @printf "  Maxwell relaxation time τ = c1/k1: fitted %.2f ms, truth %.2f ms\n" 1000c1_fit / k1_fit 1000TRUTH.c1 / TRUTH.k1
 
 @info "Stage 2: Bouc-Wen element from slow cycling (alpha, beta_bw, gamma_bw; A_bw ≡ 1 by convention)"
-# Freeze the (de-biased) Maxwell branch by constructing the harness with the
-# Stage 1 fit: harness parameters outside the Stage 2 search space are fixed
-# overrides. A_bw stays at its default 1.0 — the Bouc-Wen flow rule is invariant
-# under (A_bw → s·A_bw, alpha → alpha/s), so it is fixed rather than searched.
-# The Stage 1 alpha (alpha1_fit) is an independent cross-check on the slow-cycle
-# alpha below; it is not used as a seed because alpha is a sharp (start-
-# independent) minimum on the full-amplitude slow cycle.
+# Harness parameters outside the Stage 2 search space act as fixed overrides,
+# so constructing with the Stage 1 fit freezes the de-biased Maxwell branch.
+# A_bw stays at 1.0: the flow rule is invariant under (A_bw → s·A_bw, alpha → alpha/s).
+# alpha1_fit serves as a cross-check on the slow-cycle alpha rather than a seed,
+# since alpha is a sharp start-independent minimum at full amplitude.
 stage2_model = DrivelineSciML.TestDrivelineSlowCycle(;
     name = :TestDrivelineSlowCycle, k1 = k1_fit, c1 = c1_fit)
 res2 = DrivelineSciML.DrivelineStage2CalibrationAnalysis(; name = :stage2, model = stage2_model)

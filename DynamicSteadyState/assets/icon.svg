@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="dss-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A2036"/>
+      <stop offset="100%" stop-color="#0A0D1A"/>
+    </linearGradient>
+    <linearGradient id="dss-z1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0099FF"/>
+      <stop offset="100%" stop-color="#33ADFF"/>
+    </linearGradient>
+    <linearGradient id="dss-z2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#637AFF"/>
+      <stop offset="100%" stop-color="#7B90FF"/>
+    </linearGradient>
+    <linearGradient id="dss-z3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#372CD5"/>
+      <stop offset="100%" stop-color="#4F42E0"/>
+    </linearGradient>
+    <radialGradient id="dss-glow" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#6C44FF" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#6C44FF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Rounded background panel -->
+  <rect x="6" y="6" width="116" height="116" rx="22" fill="url(#dss-bg)"/>
+  <rect x="6" y="6" width="116" height="116" rx="22" fill="url(#dss-glow)"/>
+
+  <!-- Sun: solar gain driving the diurnal cycle -->
+  <circle cx="100" cy="30" r="9" fill="#FFCA28"/>
+  <g stroke="#FFCA28" stroke-width="2.5" stroke-linecap="round">
+    <line x1="100" y1="13" x2="100" y2="17"/>
+    <line x1="112" y1="18" x2="109" y2="21"/>
+    <line x1="117" y1="30" x2="113" y2="30"/>
+    <line x1="88" y1="18" x2="91" y2="21"/>
+  </g>
+
+  <!-- Three stacked thermal zones -->
+  <g stroke="#0A0D1A" stroke-width="1.5">
+    <rect x="24" y="34" width="52" height="20" rx="3" fill="url(#dss-z3)"/>
+    <rect x="24" y="56" width="52" height="20" rx="3" fill="url(#dss-z2)"/>
+    <rect x="24" y="78" width="52" height="20" rx="3" fill="url(#dss-z1)"/>
+  </g>
+
+  <!-- Windows per zone -->
+  <g fill="#E3F2FD" opacity="0.85">
+    <rect x="31" y="40" width="8" height="8" rx="1"/>
+    <rect x="45" y="40" width="8" height="8" rx="1"/>
+    <rect x="31" y="62" width="8" height="8" rx="1"/>
+    <rect x="45" y="62" width="8" height="8" rx="1"/>
+    <rect x="31" y="84" width="8" height="8" rx="1"/>
+    <rect x="45" y="84" width="8" height="8" rx="1"/>
+  </g>
+
+  <!-- Ground line -->
+  <line x1="16" y1="98" x2="112" y2="98" stroke="#546E7A" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- HVAC supply ducts, sized by the steady-state solve -->
+  <g stroke="#4DD0E1" stroke-width="3" stroke-linecap="round">
+    <line x1="76" y1="44" x2="94" y2="44"/>
+    <line x1="76" y1="66" x2="88" y2="66"/>
+    <line x1="76" y1="88" x2="98" y2="88"/>
+  </g>
+  <g fill="#4DD0E1">
+    <polygon points="80,40 74,44 80,48"/>
+    <polygon points="80,62 74,66 80,70"/>
+    <polygon points="80,84 74,88 80,92"/>
+  </g>
+
+  <!-- 24-hour diurnal transient trace -->
+  <path d="M 16 116 C 30 116, 38 104, 52 104 C 66 104, 74 118, 90 114 C 102 111, 106 106, 112 108"
+        fill="none" stroke="#FFB74D" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

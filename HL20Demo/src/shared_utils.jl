@@ -1,15 +1,6 @@
-# ============================================================================
-# Shared utilities — available to both golden and agent workspaces.
-# ============================================================================
-# Pre-provided HL-20 aero table infrastructure:
-#   - Lazy DAVE-ML data loading (HL20_aero.dml, atmos_76.dml in assets/shared/)
-#   - Registered symbolic functions called from HL20Aero.dyad
-#   - Index accessors evaluated at model-construction time (baked as constants)
-#
-# `HL20Aero.dyad` is provided pre-built in dyad/shared/. The agent uses these
-# functions but does not need to reimplement the table parsing or the
-# coefficient buildup. See `assets/shared/hl20_spec.md` §7 for the interface.
-# ============================================================================
+# Pre-provided HL-20 aero table infrastructure, shared by the golden and agent
+# workspaces: lazy DAVE-ML loading, the symbolic functions HL20Aero.dyad calls,
+# and index accessors baked in as constants at model-construction time.
 
 using EzXML
 using Interpolations

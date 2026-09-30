@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    TurkeyDiscretizedSphere(; name, N, Np1, M, rho, cp, k, T_init, pi, R, dr)
 
@@ -68,7 +66,7 @@ import Moshi as __Ext__Moshi
   ### Path Parameters (non-final)
 
   ### Final Parameters (declarations)
-  append!(__params, @parameters (T_inits[1:N]::Real), [description = "Workaround for array initial conditions", bounds = (0, Inf), misc = "final"])
+  append!(__params, @parameters (T_inits[1:N]::Real), [description = "Starting temperature of every shell, expanded from T_init", bounds = (0, Inf), misc = "final"])
 
   ### Deferred assignment (default values that depend on final parameters)
 

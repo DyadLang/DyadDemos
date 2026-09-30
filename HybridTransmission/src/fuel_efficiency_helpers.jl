@@ -1,8 +1,7 @@
 # Helper functions for fuel efficiency optimization
 
 """
-Rolling resistance force calculation with velocity threshold.
-Only applies rolling resistance when vehicle is moving above threshold.
+Rolling resistance force, zero below a small speed threshold.
 
 Inputs:
   - speed_ms: Vehicle speed (m/s)
@@ -14,8 +13,7 @@ Output:
   - F_rolling: Rolling resistance force (N)
 """
 function rolling_resistance_force(speed_ms, C_rr, m_kg, v_threshold=0.1)
-    # Use ifelse for symbolic safety
-    # Only apply rolling resistance when moving faster than threshold
+    # ifelse keeps this usable inside symbolic expressions.
     return ifelse(abs(speed_ms) > v_threshold, C_rr * m_kg * 9.81, 0.0)
 end
 
@@ -66,14 +64,8 @@ function engine_bsfc_fuel_rate(torque_nm, speed_rpm)
 end
 
 """
-UDDS (Urban Dynamometer Driving Schedule) speed profile.
-Simplified piecewise linear approximation using symbolic-safe operations.
-
-Input:
-  - t: Time (seconds)
-
-Output:
-  - speed_mps: Vehicle speed (m/s)
+UDDS (urban) drive cycle speed profile: time `t` in seconds, speed out in m/s.
+Simplified smooth approximation.
 """
 function udds_speed_profile(t)
     # Simplified UDDS-like profile using piecewise polynomial
@@ -97,14 +89,8 @@ function udds_speed_profile(t)
 end
 
 """
-Calculate optimal engine operating point for given power demand.
-Returns [optimal_torque, optimal_speed] that minimizes BSFC.
-
-Input:
-  - power_demand_kw: Required power (kW)
-
-Output:
-  - Tuple of (optimal_torque_nm, optimal_speed_rpm)
+Engine operating point that burns the least fuel for a given power demand (kW).
+Returns `(torque_nm, speed_rpm)`.
 """
 function optimal_engine_point(power_demand_kw::Real)::Tuple{Real, Real}
     # For a given power, the optimal operating point is typically
@@ -153,9 +139,7 @@ Output:
   - speed_mps: Vehicle speed (m/s)
 """
 function epa_highway_speed(t)
-    # Smooth continuous approximation of EPA HWFET drive cycle
-    # Using tanh-based transitions to avoid step discontinuities
-    # Based on EPA 40 CFR Part 86, Appendix I, Section (f)
+    # tanh transitions keep the profile differentiable for the solver.
     
     # Convert mph to m/s
     mph_to_ms = 0.44704

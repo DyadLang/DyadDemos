@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    FrictionBrake(; name, R_effective, N_surfaces, N_wheels, F_normal_max, μ_0, α_T, T_ref, f_partition)
 

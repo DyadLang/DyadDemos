@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ECMSController(; name, s_base, k_soc, soc_target, m_vehicle, C_rr, C_d, A_front, r_wheel, k_speed, k_mg1, k_soc_mg1, engine_max_torque, engine_max_power, mg1_max_torque, mg1_max_power, mg2_max_torque, omega_engine_min, omega_engine_max)
 
@@ -212,7 +210,7 @@ import Moshi as __Ext__Moshi
   push!(__eqs, F_load ~ C_rr * m_vehicle * 9.81 * tanh(speed_actual / 0.1) + 0.5 * 1.225 * C_d * A_front * (speed_actual * speed_actual))
   push!(__eqs, T_wheel_demand ~ F_load * r_wheel + k_speed * speed_error)
   push!(__eqs, s_effective ~ s_base + k_soc * (soc_target - soc))
-  push!(__eqs, engine_fraction ~ (s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 / ((s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 + s_base + 0.001) * (T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 / ((T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 + 1.0))
+  push!(__eqs, engine_fraction ~ ((s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0) / ((s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 + s_base + 0.001) * ((T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0) / ((T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 + 1.0))
   push!(__eqs, engine_throttle ~ (1.0 - ((1.0 - engine_fraction) + sqrt((1.0 - engine_fraction) * (1.0 - engine_fraction) + 0.0001)) / 2.0) * tanh(abs(T_wheel_demand) / 10.0))
   push!(__eqs, omega_engine_target ~ engine_throttle * (omega_engine_min + (omega_engine_max - omega_engine_min) * engine_throttle))
   push!(__eqs, mg1_torque_proportional ~ k_mg1 * (omega_engine_target - engine_omega) * max(0.1, soc / soc_target) + k_soc_mg1 * (soc_target - soc))

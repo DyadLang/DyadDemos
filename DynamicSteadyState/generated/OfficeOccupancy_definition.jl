@@ -4,10 +4,10 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    OfficeOccupancy(; name)
+
+Occupancy fraction for a representative weekday office, 0 (empty) to 1 (full).
 
 ## Connectors
 

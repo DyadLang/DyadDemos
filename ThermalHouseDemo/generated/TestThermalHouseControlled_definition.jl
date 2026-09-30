@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    TestThermalHouseControlled(; name, T_outdoor, T_initial, T_setpoint, solar_irrad)
 

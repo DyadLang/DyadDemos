@@ -32,9 +32,6 @@ tb.tellwidth = false
 # Now, we'll create an observable that will hold the result of the analysis.
 result_obs = Observable{TransientAnalysisSolution}(result);
 
-# Whenever the textbox is updated,
-# we'll parse the string into a float and re-run the analysis
-# with that value.
 on(tb.stored_string) do str
     val = parse(Float64, str)
     result_obs[] = World(; model = model, stop = 10, T_inf = val)
@@ -75,7 +72,6 @@ tb.tellwidth = false
 on(tb.stored_string) do str
     val = parse(Float64, str)
     global prob
-    # ModelingToolkit's `remake` function is used to update the parameters of the problem.
     prob = ModelingToolkit.remake(prob; p = [simplified_model.T_inf => val])
     sol = solve(prob)
     sol_obs[] = sol

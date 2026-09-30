@@ -2,50 +2,76 @@
 
 <img src="./assets/icon.svg" width="96" align="right"/>
 
-A discretized thermal model of cooking a turkey, built with [Dyad](https://help.juliahub.com/dyad/dev/). The turkey is approximated as a sphere divided into concentric shells, and heat transfer from the oven to the turkey surface occurs via both convection and radiation. The simulation tracks temperature over time at every radial shell, letting you predict when the center reaches a safe internal temperature (165 F).
+Roasting a turkey comes down to two questions: how long will a bird this size
+take, and is the middle safe to eat (165 F) before the outside dries out?
 
-## Getting Started
+Heat enters at the skin and takes hours to reach the center, so the two ends of
+the bird are never at the same temperature. This demo simulates that journey,
+using [Dyad](https://help.juliahub.com/dyad/dev/).
 
-Download this folder to your machine and open it in VS Code with the [Dyad extension](https://help.juliahub.com/dyad/dev/getting_started/).
+## The approach
 
-## Running Experiments
+The turkey is treated as a sphere sliced into concentric shells, like the layers
+of an onion. Each shell stores heat and passes it inward to the next, so the
+model can show the outside browning while the middle is still cold.
 
-Two scripts are provided in the `scripts/` directory:
+The oven reaches the outermost shell two ways: hot air moving over the skin
+(convection) and the oven walls glowing at the bird (radiation). From there,
+heat travels inward shell by shell.
 
-### Quick Simulation (`scripts/simulate_turkey_test.jl`)
-
-Runs the `TurkeySphereTest` model for 4 hours and plots the results using `Plots.jl`. This is useful for a quick, non-interactive look at the temperature profiles (oven, surface, and center temperatures in degrees Fahrenheit).
-
-```julia
-include("scripts/simulate_turkey_test.jl")
-```
-
-### Interactive Dashboard (`scripts/dashboard.jl`)
+The interactive dashboard plots the center and edge temperatures of the turkey
+in degrees Fahrenheit, marks the oven temperature, and highlights the point
+where the center reaches the safe internal temperature of 165 F. Change the oven
+setting or the size of the bird and the curves redraw.
 
 <img src="./assets/dashboard.png" width="500"/>
 
-Launches a GLMakie interactive dashboard that visualizes temperature over time with adjustable parameters. The dashboard plots the center and edge temperatures of the turkey in degrees Fahrenheit, marks the oven temperature, and highlights the point where the center reaches the safe internal temperature of 165 F.
+## Models
 
-To launch the dashboard:
+The Dyad models are defined in `dyad/TurkeyDiscretizedSphere.dyad`:
 
-1. Install [Dyad](https://help.juliahub.com/dyad/dev/installation.html) if you haven't already.
+| Model | What it is |
+| --- | --- |
+| `TurkeyDiscretizedSphere` | The bird itself, as `N` concentric shells. Each shell gets its mass, volume and surface area from the geometry; Fourier's law moves heat between neighbours, and an energy balance sets how fast each shell warms. A thermal connector on the outer shell is where the oven attaches. |
+| `TurkeySphereTest` | The bird in an oven: a `TurkeyDiscretizedSphere` wired to a fixed-temperature source through `ThermalComponents.Convection` (with a signal-driven conductance) and `ThermalComponents.BodyRadiation`. |
+| `TurkeySphereCooking` | A transient analysis specification that runs `TurkeySphereTest` for 14,400 seconds (4 hours) with results saved every 60 seconds. |
 
-2. Open this folder in a new VS Code window.
-3. Run `Julia: Start REPL` from the VS Code command palette.
+Parameters you can change:
 
-4. In the Julia REPL, paste the following code and press `Enter`:
+| Model | Parameters |
+| --- | --- |
+| `TurkeyDiscretizedSphere` | mass `M`, density `rho`, specific heat capacity `cp`, thermal conductivity `k`, initial temperature `T_init` |
+| `TurkeySphereTest` | oven temperature `T_oven`, convective heat transfer coefficient `h`, surface emissivity `epsilon`, turkey mass `M_turkey` |
+
+## Notes
+
+### Getting started
+
+Install [Dyad](https://help.juliahub.com/dyad/dev/installation.html) if you
+haven't already. Then download this folder to your machine and open it in VS
+Code with the [Dyad
+extension](https://help.juliahub.com/dyad/dev/getting_started/).
+
+### Running the dashboard (`scripts/dashboard.jl`)
+
+1. Open this folder in a new VS Code window.
+2. Run `Julia: Start REPL` from the VS Code command palette.
+3. In the Julia REPL, paste the following code and press `Enter`:
    ```julia
    include("scripts/dashboard.jl")
    ```
 
-This opens a GLMakie window showing temperature over time, with textboxes to adjust oven temperature, turkey mass, density, and radius. The simulation re-runs automatically when you change any parameter (this may take a few seconds).
+This opens a GLMakie window showing temperature over time, with textboxes to
+adjust oven temperature, turkey mass, density, and radius. The simulation
+re-runs automatically when you change any parameter (this may take a few
+seconds).
 
-## Models
+### Quick simulation (`scripts/simulate_turkey_test.jl`)
 
-The Dyad models are defined in `dyad/TurkeyDiscretizedSphere.dyad` and consist of three parts:
+Runs the `TurkeySphereTest` model for 4 hours and plots the results using
+`Plots.jl`. This is useful for a quick, non-interactive look at the temperature
+profiles (oven, surface, and center temperatures in degrees Fahrenheit).
 
-- **`TurkeyDiscretizedSphere`** -- The core thermal component. Models the turkey as a sphere discretized into `N` concentric shells. Each shell has mass, volume, and surface area computed from the geometry. Heat conduction between shells follows Fourier's law, and energy balance ODEs govern the temperature evolution in each shell. A thermal connector at the outer surface allows coupling to external heat sources. Configurable parameters include mass (`M`), density (`rho`), specific heat capacity (`cp`), thermal conductivity (`k`), and initial temperature (`T_init`).
-
-- **`TurkeySphereTest`** -- A test harness that wires together the full cooking system. It connects a `TurkeyDiscretizedSphere` to a fixed-temperature oven via both convection (using `ThermalComponents.Convection` with a signal-driven conductance) and radiation (using `ThermalComponents.BodyRadiation`). Parameters include oven temperature (`T_oven`), convective heat transfer coefficient (`h`), surface emissivity (`epsilon`), and turkey mass (`M_turkey`).
-
-- **`TurkeySphereCooking`** -- A transient analysis specification that runs `TurkeySphereTest` for 14,400 seconds (4 hours) with results saved every 60 seconds.
+```julia
+include("scripts/simulate_turkey_test.jl")
+```

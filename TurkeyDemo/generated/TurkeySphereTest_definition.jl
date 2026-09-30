@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    TurkeySphereTest(; name, N, T_oven, h, epsilon, M_turkey, rho_turkey, pi, R_turkey, A_surface, Gc_conv, Gr_rad)
 

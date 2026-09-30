@@ -4,11 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    AttitudeController(; name, Kp_x, Kp_y, Kp_z, Kd_x, Kd_y, Kd_z, Ixx_ff, Iyy_ff, Izz_ff)
-
 
 3-axis PD attitude controller with feedforward.
 

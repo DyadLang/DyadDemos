@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    TipInTorque(; name, T_cruise, T_accel, t_tip, t_ramp, ripple_amplitude, ripple_frequency)
 
