@@ -8,7 +8,18 @@
 #
 # Validation: held-out ISO 8608 Class A road, compared against linear baseline
 # and nonlinear ground truth.
-"Quarter truck with a single NeuralNetworkBlock (3 inputs → 3 outputs) learning THREE suspension nonlinearities: tire cubic residual (compression-only gated), tire-body Coulomb friction, and seat-driver viscoelastic damping residual. Physics inputs: normalized tire deflection, normalized tire-body relative velocity, normalized seat-driver relative velocity. Outputs (each × its own f_scale): tire residual force [N], friction force [N], seat damping residual force [N]."
+"""
+Quarter truck whose three missing nonlinear forces come from a single neural
+network, trained rather than hand-derived.
+
+| the network reads            | it returns                   |
+|------------------------------|------------------------------|
+| how far the tire is squashed | extra tire force [N]         |
+| tire-body sliding speed      | friction force [N]           |
+| seat-driver closing speed    | extra seat damping force [N] |
+
+Each input is normalized and each output scaled by its own `f_scale`.
+"""
 component QuarterTruckFullNN
   # Masses (identical to QuarterTruckConfigurable)
   tire = TranslationalComponents.Components.Mass(m = 40.0, L = 0.0, g = 9.81, theta = 1.5708) {^tire}
@@ -271,9 +282,7 @@ metadata {
 }
 end
 
-# =============================================================================
-#   Training harnesses (sin-driven)
-# =============================================================================
+# Training harnesses, driven by a sine road input.
 "Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-body Coulomb friction, AND seat-driver viscoelastic damping all active. Sin road excitation — used to generate training data."
 test component TestQuarterTruckConfigurableFullSin
   model = QuarterTruckConfigurable(tire_k3 = tire_k3, tire_compression_only = tire_compression_only, friction_Fc = friction_Fc, friction_v0 = friction_v0, seat_driver_n = seat_driver_n)
@@ -333,9 +342,7 @@ metadata {
 }
 end
 
-# =============================================================================
-#   Validation harnesses: 3-way comparison on ISO 8608 Class A
-# =============================================================================
+# Validation harnesses: linear vs. NN vs. truth on an ISO 8608 Class A road.
 "Linear-baseline quarter truck (all three nonlinearities disabled — tire_k3=0, friction_Fc=0, seat_driver_n=1.0) driven by ISO 8608 Class A road excitation. This is the 'before' model in the demo."
 test component TestQuarterTruckLinearISOA
   model = QuarterTruckConfigurable()

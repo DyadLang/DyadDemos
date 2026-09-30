@@ -7,18 +7,26 @@ Cover = "assets/icon.svg"
 
 # Passive Suspension Demo
 
-A quarter-car suspension driven by an ISO 8608 Class C road profile — an
-average-to-poor quality paved road, synthesized as a sum of 30 sinusoids between
-0.5 and 30 Hz with amplitudes scaled by vehicle speed. Three stacked masses carry
-the wheel, the car body, and the seated rider. Comfort is scored by the ISO 2631-1
-frequency-weighted RMS vertical acceleration at the seat, and as shipped the model
-does not reach the standard's top band: finding damper values that do is the point
-of the demo. An actively controlled variant ships alongside as a reference.
+A car drives over a bumpy road, and its springs and dampers decide how much of
+the shaking reaches the person in the seat. This demo lets you tune those
+springs and dampers.
+
+Three stacked masses carry the wheel, the car body, and the seated rider. They
+ride on an ISO 8608 Class C road profile — the standard description of an
+average-to-poor paved road. The profile is built here from 30 sine waves
+between 0.5 and 30 Hz, whose height grows with vehicle speed.
+
+Ride quality is scored with ISO 2631-1, the standard that says how much
+vibration a seated person will tolerate. As shipped, the model falls short of
+the standard's top band; finding damper values that reach it is the point of
+the demo.
+
+An actively controlled variant ships alongside as a reference.
 
 ## The model
 
-`MyPassiveSuspension` stacks three `MassSpringDamper` components — wheel, car and
-suspension, human and seat — on the Class C road source:
+`MyPassiveSuspension` stacks three `MassSpringDamper` components — wheel, car
+and suspension, human and seat — on the Class C road source:
 
 ```@dyadviewer
 entity = "PassiveSuspension.MyPassiveSuspension"
@@ -37,8 +45,15 @@ result = PassiveSuspensionTransient()
 plot(result)
 ```
 
-The actively controlled reference is `ActiveSuspensionTransient()`. Note that the
-two are not a like-for-like pair — the active model uses the example library's
-raised-cosine bump and mass values rather than the Class C profile. See the demo's
-`README.md` for the comfort metric, the ISO 2631-1 comfort bands, and the
-differences between the two models.
+The actively controlled reference is `ActiveSuspensionTransient()`. It runs on
+its own input — a single smooth 0.2 m bump from the example library, repeating
+every 10 s — and on its own mass values.
+
+The two runs therefore cover different roads and stand as separate reference
+points, not as a like-for-like pair.
+
+## Scoring comfort
+
+The score is the ISO 2631-1 weighted RMS vertical acceleration at the seat. The
+standard's top band, "not uncomfortable", sits below 0.315 m/s²; tuning the
+dampers to get there is the target.

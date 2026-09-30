@@ -7,7 +7,7 @@
 @doc Markdown.doc"""
    ScaledNeuralNetworkBlock(; name, n_input, n_output, nn_depth, nn_width, chain, s_rel0_tire, s_scale_tire, v_friction_scale, v_seat_scale, f_scale_tire, f_scale_friction, d_seat)
 
-Wrapper around a NeuralNetworkBlock (3 in -> 3 out) that applies the gray-box truck input normalization and output force-scaling using visible BlockComponents math blocks. Inputs are raw physics signals (tire deflection, tire-body velocity, seat-driver velocity); outputs are the tire residual force, friction force, and seat damping residual force in Newtons.
+Neural network that supplies the truck's missing forces: three raw physics signals in, three forces in Newtons out. The surrounding Gain and Product blocks do the scaling that keeps the network working on numbers near 1.
 
 ## Parameters:
 

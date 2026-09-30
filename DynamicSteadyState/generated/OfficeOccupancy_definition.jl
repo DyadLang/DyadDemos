@@ -7,6 +7,8 @@
 @doc Markdown.doc"""
    OfficeOccupancy(; name)
 
+Occupancy fraction for a representative weekday office, 0 (empty) to 1 (full).
+
 ## Connectors
 
  * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))

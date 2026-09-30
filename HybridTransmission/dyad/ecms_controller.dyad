@@ -8,7 +8,7 @@ component ECMSController
     J = ṁ_fuel + s * P_battery
   where s is the equivalence factor (fuel-equivalent cost of battery power).
   
-  Implementation: Torque-based split to avoid power-speed coupling issues in planetary gear.
+  Implementation: the split is computed on torque, which keeps it independent of the planetary gear speeds.
   """
   speed_ref = RealInput() {^speed_ref} # Reference speed from drive cycle (m/s)
   speed_actual = RealInput() {^speed_actual} # Actual vehicle speed (m/s)
@@ -21,7 +21,7 @@ component ECMSController
   mg2_torque_cmd = RealOutput() {^mg2_torque_cmd} # MG2 torque command (N·m)
   # ECMS parameters
   parameter s_base::Real = 2.5 # Base equivalence factor
-  parameter k_soc::Real = 5.0 # SOC feedback gain (reduced to avoid over-relying on engine)
+  parameter k_soc::Real = 5.0 # SOC feedback gain
   parameter soc_target::Real = 0.6 # Target SOC for charge sustaining
   # Vehicle parameters (duplicated for self-contained controller)
   parameter m_vehicle::Real = 1750.0
@@ -30,8 +30,8 @@ component ECMSController
   parameter A_front::Real = 2.56
   parameter r_wheel::Real = 0.318
   # Controller gains
-  parameter k_speed::Real = 100.0 # Speed tracking gain (N·m/(m/s)) - increased for better tracking
-  parameter k_mg1::Real = 0.5 # MG1 speed control gain (N·m/(rad/s)) - balanced for control authority
+  parameter k_speed::Real = 100.0 # Speed tracking gain (N·m/(m/s))
+  parameter k_mg1::Real = 0.5 # MG1 speed control gain (N·m/(rad/s))
   parameter k_soc_mg1::Real = 150.0 # MG1 SOC feedback gain (N·m per unit SOC) - for charge sustaining
   # Engine/motor limits
   parameter engine_max_torque::Torque = 145.0
@@ -53,33 +53,27 @@ component ECMSController
 relations
   # Speed tracking error
   speed_error = speed_ref - speed_actual
-  # Calculate load force at actual vehicle speed
-  # Rolling resistance: smooth tanh() for numerical stability at v=0
-  # Aerodynamic drag: F = 0.5 * ρ * Cd * A * v²
+  # Road load: rolling resistance (tanh keeps it continuous through v=0) plus aerodynamic drag.
   F_load = C_rr * m_vehicle * 9.81 * tanh(speed_actual / 0.1) + 0.5 * 1.225 * C_d * A_front * (speed_actual * speed_actual)
   # Wheel torque demand: overcome load + speed tracking
   T_wheel_demand = F_load * r_wheel + k_speed * speed_error
-  # ECMS equivalence factor with SOC feedback
-  # Increases when SOC < target (favor engine), decreases when SOC > target (favor battery)
+  # A battery below its target charge raises the price of battery power, tilting the split toward the engine.
   s_effective = s_base + k_soc * (soc_target - soc)
-  # Engine fraction: smooth ECMS formula without discrete switching
-  # Use smooth_max(0, x) = (x + sqrt(x² + ε²)) / 2 to avoid ifelse discontinuities
-  # smooth_s = smooth_max(0, s_effective) for clamping negative values
+  # Engine fraction, built from smooth_max(0, x) = (x + sqrt(x² + ε²)) / 2 so the split stays differentiable.
   # smooth_T = smooth_max(0, T_wheel_demand) for braking (no engine during regen)
-  engine_fraction = (s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 / ((s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 + s_base + 0.001) * (T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 / ((T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 + 1.0)
-  # Convert engine fraction to throttle (saturate at 1.0 using smooth min)
+  engine_fraction =
+    ((s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0)
+      / ((s_effective + sqrt(s_effective * s_effective + 0.01)) / 2.0 + s_base + 0.001)
+      * ((T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0)
+      / ((T_wheel_demand + sqrt(T_wheel_demand * T_wheel_demand + 1.0)) / 2.0 + 1.0)
+  # Throttle is the engine fraction, saturated smoothly at 1.0.
   # smooth_min(1, x) = 1 - smooth_max(0, 1-x) = 1 - (1-x + sqrt((1-x)² + ε²)) / 2
   # Multiply by demand indicator: tanh(|T_wheel_demand|/10) ensures throttle=0 at rest
   engine_throttle = (1.0 - ((1.0 - engine_fraction) + sqrt((1.0 - engine_fraction) * (1.0 - engine_fraction) + 0.0001)) / 2.0) * tanh(abs(T_wheel_demand) / 10.0)
-  # Target engine speed for optimal BSFC operation
-  # Smooth transition: omega_target scales with throttle (0 when off, optimal when on)
-  # omega_base = P_engine / T_optimal, where T_optimal = 0.75 * max_torque
-  # Clamp to [omega_engine_min, omega_engine_max] using smooth operations
+  # Target engine speed rides the throttle: zero when closed, omega_engine_max at full.
   omega_engine_target = engine_throttle * (omega_engine_min + (omega_engine_max - omega_engine_min) * engine_throttle)
-  # MG1: Speed control + SOC feedback for charge sustaining
+  # MG1 does two jobs: hold the engine at its target speed, and keep the battery near its target charge.
   # Scale speed control by SOC ratio: when SOC is low, prioritize charging over speed control
-  # soc_factor = max(0.1, soc/soc_target) - ranges from 0.1 (low SOC) to 1.0+ (high SOC)
-  # This reduces negative speed term when battery needs charging
   mg1_torque_proportional = k_mg1 * (omega_engine_target - engine_omega) * max(0.1, soc / soc_target) + k_soc_mg1 * (soc_target - soc)
   # Hard clamp to motor limits using min/max
   mg1_torque_cmd = max(-mg1_max_torque, min(mg1_max_torque, mg1_torque_proportional))
