@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ControlledOscillator(; name, pid_k, pid_Ti, pid_Td, pid_y_max, pid_y_min)
 
@@ -97,9 +95,9 @@ can apply damping force to suppress oscillations.
   # Subcomponent setpoint of type BlockComponents.Sources.Constant
   setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "setpoint")
   push!(__systems, @named setpoint = BlockComponents.Sources.Constant(; k=Float64(0.0), setpoint_overrides...))
-  # Subcomponent velocity_sensor of type TranslationalComponents.Sensors.SpeedSensor
+  # Subcomponent velocity_sensor of type TranslationalComponents.Sensors.VelocitySensor
   velocity_sensor_overrides = __pop_subcomponent_overrides!(__overrides, "velocity_sensor")
-  push!(__systems, @named velocity_sensor = TranslationalComponents.Sensors.SpeedSensor(; velocity_sensor_overrides...))
+  push!(__systems, @named velocity_sensor = TranslationalComponents.Sensors.VelocitySensor(; velocity_sensor_overrides...))
   # Subcomponent control_force of type TranslationalComponents.Sources.Force
   control_force_overrides = __pop_subcomponent_overrides!(__overrides, "control_force")
   push!(__systems, @named control_force = TranslationalComponents.Sources.Force(; control_force_overrides...))

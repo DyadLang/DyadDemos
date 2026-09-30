@@ -1,18 +1,32 @@
 # QuarterTruckSciML
 
-End-to-end demo of two SciML workflows on a quarter-truck ride-comfort model:
+A quarter truck is one wheel and the mass it carries — the smallest model that
+still predicts how rough a road feels to the person in the seat. Its
+hand-written
+equations are only approximately right, and this demo shows two ways of closing
+the gap with data.
 
-1. **`NNTrainingAnalysis`** (DyadModelDiscovery) — train a neural network
-   inside a gray-box model to recover three suspension nonlinearities (cubic
-   tire stiffness with compression-only lift-off, tire-body Coulomb friction,
-   seat-driver viscoelastic damping) from sin-excited training data, then
-   validate against the nonlinear ground truth on a held-out ISO 8608 Class A
-   road.
+**1. Learn the missing physics** — `NNTrainingAnalysis` (DyadModelDiscovery).
+A neural network sits inside the model and learns three effects the equations
+leave out:
 
-2. **`CalibrationAnalysis`** (DyadModelOptimizer) — recover four physical
-   parameters (body mass, suspension stiffness, suspension damping, friction
-   force) from time-series measurements of tire contact force, suspension
-   travel and seat acceleration, with the same ISO 8608 excitation.
+- the tire stiffening as it squashes, and going slack when the wheel lifts off
+- the tire and body sticking before they slide
+- the seat cushion resisting fast motion more than a plain damper would
+
+It trains on data from shaking the truck with a sine wave, then is checked
+against the true nonlinear truck on a road it never saw: ISO 8608 Class A, a
+standard smooth-highway roughness profile.
+
+**2. Recover the numbers** — `CalibrationAnalysis` (DyadModelOptimizer).
+From recordings of tire contact force, suspension travel, and seat acceleration
+on that same road, the calibrator works backwards to the four values that
+produced them:
+
+- body mass
+- suspension stiffness
+- suspension damping
+- friction force
 
 ## Layout
 
@@ -34,7 +48,8 @@ End-to-end demo of two SciML workflows on a quarter-truck ride-comfort model:
 
 ## Running the demo
 
-Set the JuliaHub juliaup env vars once per shell (not needed for the VS Code REPL command), then activate this project:
+Set the JuliaHub juliaup env vars once per shell (not needed for the VS Code
+REPL command), then activate this project:
 
 ```bash
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
@@ -45,7 +60,8 @@ julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
 
 ### NN-augmented gray-box validation
 
-The pre-trained LBFGS weights are checked in at `assets/data/nn_weights_full_sin_lbfgs.csv`,
+The pre-trained LBFGS weights are checked in at
+`assets/data/nn_weights_full_sin_lbfgs.csv`,
 so validation runs immediately:
 
 ```bash
@@ -74,9 +90,14 @@ julia +dyad-3.3.0-rc2 --project scripts/generate_calibration_data.jl
 julia +dyad-3.3.0-rc2 --project scripts/run_calibration.jl
 ```
 
-The calibration recovers all four parameters to within ~0.1% of the perturbed
-truth: `model.body_m` and `model.tire_to_body_c` essentially exactly, and
-`model.tire_to_body_d` / `model.friction_Fc` to a fraction of a percent.
+The calibration recovers all four parameters to within ~0.1% of the truth:
+
+| parameter              | nominal | truth |
+|------------------------|---------|-------|
+| `model.body_m`         | 300     | 315   |
+| `model.tire_to_body_c` | 20e3    | 22e3  |
+| `model.tire_to_body_d` | 1500    | 1800  |
+| `model.friction_Fc`    | 500     | 750   |
 
 ### Smoke tests
 
@@ -84,7 +105,12 @@ truth: `model.body_m` and `model.tire_to_body_c` essentially exactly, and
 julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.test()'
 ```
 
-Verifies that the dyad library compiles, ISO 8608 helpers work, all three
-ISO 8608 test harnesses simulate, and the pre-trained NN weights load and
-produce a smaller error against the nonlinear truth than a zero-weight NN
-would. Takes ~2 minutes including precompilation.
+Verifies that:
+
+- the Dyad library compiles
+- the ISO 8608 helpers work
+- all three ISO 8608 test harnesses simulate
+- the pre-trained NN weights load, and beat a zero-weight NN against the
+  nonlinear truth
+
+Takes ~2 minutes including precompilation.

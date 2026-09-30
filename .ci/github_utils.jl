@@ -1,10 +1,7 @@
 function post_status(; name, type, repo::String = "JuliaComputing/DyadDemos", subfolder = nothing, kwargs...)
     !haskey(ENV, "CI") && return
     try # make this non-fatal and silent
-        # If we got this far it usually means everything is in
-        # order so no need to check everything again.
-        # In particular this is only called after we have
-        # determined to deploy.
+        # Runs only after the deploy decision, so the environment is already validated.
         sha = nothing
         if get(ENV, "GITHUB_EVENT_NAME", nothing) == "pull_request"
             event_path = get(ENV, "GITHUB_EVENT_PATH", nothing)

@@ -2,25 +2,32 @@
 
 <img src="./assets/icon.svg" width="96" align="right"/>
 
-This project shows how a 6-DOF flight simulation of the **NASA HL-20 lifting body** can be
-built *from scratch* by prompting the **Dyad Agent** — no model code written by hand.
+This project shows how a 6-DOF flight simulation of the **NASA HL-20 lifting
+body** can be
+built *from scratch* by prompting the **Dyad Agent** — no model code written by
+hand.
 
-It is meant as a starting point for new users: read the two prompts, see what the agent
+It is meant as a starting point for new users: read the two prompts, see what
+the agent
 produced, and try it yourself.
 
 ## How it works
 
 The whole project is generated from two prompts, both kept in `scripts/`:
 
-1. **`prompt.md`** — *build the models.* Asks the agent to create the plant (rigid-body
-   dynamics, atmosphere, aerodynamics), the flight-control laws, the control-surface mixer,
+1. **`prompt.md`** — *build the models.* Asks the agent to create the plant
+   (rigid-body
+   dynamics, atmosphere, aerodynamics), the flight-control laws, the
+   control-surface mixer,
    and a set of validation analyses, working from the engineering spec in
    `assets/shared/hl20_spec.md`.
 
-2. **`prompt_pitchpulsesim.md`** — *simulate and plot.* Asks the agent to run the closed-loop
+2. **`prompt_pitchpulsesim.md`** — *simulate and plot.* Asks the agent to run
+   the closed-loop
    pitch-pulse maneuver and produce a summary plot of the signals of interest.
 
-The agent reads the spec, writes the Dyad components into `dyad/`, compiles them, and
+The agent reads the spec, writes the Dyad components into `dyad/`, compiles
+them, and
 validates each piece in Julia before moving on.
 
 ## Try it

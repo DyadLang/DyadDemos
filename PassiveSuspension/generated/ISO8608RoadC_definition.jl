@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ISO8608RoadC(; name, N, v, Gd_n0, n0, f_min, f_max, amp_base, frequencies, phases)
 

@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    HybridVehicle(; name, J_equiv, m_vehicle, C_d, A_front, C_rr, r_wheel)
 

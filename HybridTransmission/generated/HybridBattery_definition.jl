@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    HybridBattery(; name, V_nom, Q_nom, SOC_init, SOC_min, SOC_max)
 

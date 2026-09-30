@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    HL20Aero(; name, DLG, CBAR_ft, BSPAN_ft, Cm_bias, CMQ0, CMQ1, CMQ2, CMQ3, CNP0, CNP1, CNP2, CNP3, CNR0, CNR1, CNR2, CNR3, CLP0, CLP1, CLP2, CLP3, CLR0, CLR1, CLR2, CLR3)
 

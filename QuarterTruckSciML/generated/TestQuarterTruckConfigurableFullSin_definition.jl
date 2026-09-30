@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    TestQuarterTruckConfigurableFullSin(; name, amplitude, frequency, tire_k3, tire_compression_only, friction_Fc, friction_v0, seat_driver_n)
 

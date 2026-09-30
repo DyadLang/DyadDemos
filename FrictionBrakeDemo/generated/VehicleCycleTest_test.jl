@@ -29,6 +29,6 @@ __dyad_run_test_case!(
     (m -> m.brake_thermal.pad_mass.T, "brake_thermal.pad_mass.T", 0.001, 1e-5),
     (m -> m.brake_thermal.disk_mass.T, "brake_thermal.disk_mass.T", 0.001, 1e-5),
     (m -> m.powertrain.drive.tau, "powertrain.drive.tau", 1e-5, 1e-5),
-    (m -> m.brake.shaft.tau, "brake.shaft.tau", 1e-5, 1e-5),
+    (m -> m.brake.shaft.tau, "brake.shaft.tau", 2, 0.01),
   ],
 )

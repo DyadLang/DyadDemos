@@ -4,10 +4,11 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    ThreeZoneBuilding(; name)
+
+The building: three zones joined by partition resistors, and the single source of truth every
+analysis reuses. HVAC strategy lives outside this model, which is what makes that reuse possible.
 
 ## Connectors
 

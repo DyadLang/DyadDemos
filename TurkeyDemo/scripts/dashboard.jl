@@ -9,18 +9,10 @@ using ModelingToolkit, DyadInterface
 using GLMakie
 import Roots
 
-# ============================================================================
-# Initial Simulation
-# ============================================================================
-
 @named model = TurkeySphereTest()
 res = @time TransientAnalysis(; model, stop = 14400)  # 4 hours in seconds
 
 res_obs = Observable{ModelingToolkit.SciMLBase.ODESolution}(rebuild_sol(res))
-
-# ============================================================================
-# Figure Setup
-# ============================================================================
 
 fig = Figure()
 
@@ -51,10 +43,6 @@ end
 
 scatter!(ax, point_of_cooking; color = Makie.Cycled(4), markersize = 10, label = "Fully Cooked!")
 axislegend(ax; orientation = :horizontal)
-
-# ============================================================================
-# Parameter Controls
-# ============================================================================
 
 param_grid = GridLayout(fig[2, 1])
 
@@ -88,10 +76,6 @@ for (i, (label, default)) in enumerate(zip(labels, defaults))
     )
     push!(textboxes, tb)
 end
-
-# ============================================================================
-# Reactive Simulation Updates
-# ============================================================================
 
 textboxes_values = [lift(x -> parse(Float64, x), tb.stored_string) for tb in textboxes]
 

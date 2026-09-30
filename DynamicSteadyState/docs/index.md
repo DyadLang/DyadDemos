@@ -8,8 +8,10 @@ Order = 3
 
 # Dynamic Steady State Demo
 
-A thermal-envelope model of a three-zone commercial office building. One building
-model is the single source of truth for two analyses: steady-state HVAC equipment
+A thermal-envelope model of a three-zone commercial office building. One
+building
+model is the single source of truth for two analyses: steady-state HVAC
+equipment
 sizing and a 24-hour transient diurnal simulation with occupancy gains and
 thermostat control. The south, core, and north zones are linked by inter-zone
 partition resistors.

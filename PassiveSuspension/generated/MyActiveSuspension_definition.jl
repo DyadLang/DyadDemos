@@ -4,8 +4,6 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
    MyActiveSuspension(; name, wheel_mass, wheel_stiffness, wheel_damping, car_mass, suspension_stiffness, suspension_damping, human_and_seat_mass, seat_stiffness, seat_damping, wheel_initial_position, suspension_initial_position, seat_initial_position, Kp, Ti, Td)
 
