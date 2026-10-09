@@ -25,7 +25,7 @@ Markdown = "1"
 RotationalComponents = "2.5.5"
 
 [dyad]
-kernel = "3.4.0"
+kernel = "3.5.0-rc1"
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"

@@ -55,7 +55,7 @@ TranslationalComponents = "2.5.1"
 WGLMakie = "0.13.8"
 
 [dyad]
-kernel = "3.4.0"
+kernel = "3.5.0-rc1"
 
 [workspace]
 projects = [
