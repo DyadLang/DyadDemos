@@ -52,16 +52,16 @@ Shows underdamped, critically damped, and overdamped responses.
   ### Symbolic Parameters
   __local__R = R
   append!(__params, @parameters (R::Real), [description = "Resistance (controls damping)"])
-  __initial_conditions[R] = __local__R
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R, __local__R)
   __local__L = L
   append!(__params, @parameters (L::Real), [description = "Inductance"])
-  __initial_conditions[L] = __local__L
+  __dyad_seed_parameter!(__initial_conditions, __bindings, L, __local__L)
   __local__C = C
   append!(__params, @parameters (C::Real), [description = "Capacitance", bounds = (0, Inf)])
-  __initial_conditions[C] = __local__C
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C, __local__C)
   __local__V_init = V_init
   append!(__params, @parameters (V_init::Real), [description = "Initial capacitor voltage"])
-  __initial_conditions[V_init] = __local__V_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V_init, __local__V_init)
 
   ### Final Parameters (assignments)
 

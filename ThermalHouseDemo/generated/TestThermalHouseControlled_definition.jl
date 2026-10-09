@@ -49,16 +49,16 @@
   ### Symbolic Parameters
   __local__T_outdoor = T_outdoor
   append!(__params, @parameters (T_outdoor::Real), [description = "Outdoor temperature 0°C (32°F)", bounds = (0, Inf)])
-  __initial_conditions[T_outdoor] = __local__T_outdoor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_outdoor, __local__T_outdoor)
   __local__T_initial = T_initial
   append!(__params, @parameters (T_initial::Real), [description = "Initial temperature 21.1°C (70°F)", bounds = (0, Inf)])
-  __initial_conditions[T_initial] = __local__T_initial
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_initial, __local__T_initial)
   __local__T_setpoint = T_setpoint
   append!(__params, @parameters (T_setpoint::Real), [description = "Setpoint temperature 21.1°C (70°F)", bounds = (0, Inf)])
-  __initial_conditions[T_setpoint] = __local__T_setpoint
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_setpoint, __local__T_setpoint)
   __local__solar_irrad = solar_irrad
   append!(__params, @parameters (solar_irrad::Real), [description = "Solar irradiance (W/m²)"])
-  __initial_conditions[solar_irrad] = __local__solar_irrad
+  __dyad_seed_parameter!(__initial_conditions, __bindings, solar_irrad, __local__solar_irrad)
 
   ### Final Parameters (assignments)
 

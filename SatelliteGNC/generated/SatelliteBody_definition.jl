@@ -80,13 +80,13 @@ Outputs: 3 Euler angles (roll φ, pitch θ, yaw ψ) and 3 angular velocities.
   ### Symbolic Parameters
   __local__Ixx = Ixx
   append!(__params, @parameters (Ixx::Real), [description = "Principal moments of inertia"])
-  __initial_conditions[Ixx] = __local__Ixx
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Ixx, __local__Ixx)
   __local__Iyy = Iyy
   append!(__params, @parameters (Iyy::Real))
-  __initial_conditions[Iyy] = __local__Iyy
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Iyy, __local__Iyy)
   __local__Izz = Izz
   append!(__params, @parameters (Izz::Real))
-  __initial_conditions[Izz] = __local__Izz
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Izz, __local__Izz)
 
   ### Final Parameters (assignments)
 

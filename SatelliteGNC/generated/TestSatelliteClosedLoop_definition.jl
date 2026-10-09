@@ -48,13 +48,13 @@
   ### Symbolic Parameters
   __local__phi_cmd = phi_cmd
   append!(__params, @parameters (phi_cmd::Real), [description = "Reference angles (rad)"])
-  __initial_conditions[phi_cmd] = __local__phi_cmd
+  __dyad_seed_parameter!(__initial_conditions, __bindings, phi_cmd, __local__phi_cmd)
   __local__theta_cmd = theta_cmd
   append!(__params, @parameters (theta_cmd::Real))
-  __initial_conditions[theta_cmd] = __local__theta_cmd
+  __dyad_seed_parameter!(__initial_conditions, __bindings, theta_cmd, __local__theta_cmd)
   __local__psi_cmd = psi_cmd
   append!(__params, @parameters (psi_cmd::Real))
-  __initial_conditions[psi_cmd] = __local__psi_cmd
+  __dyad_seed_parameter!(__initial_conditions, __bindings, psi_cmd, __local__psi_cmd)
 
   ### Final Parameters (assignments)
 

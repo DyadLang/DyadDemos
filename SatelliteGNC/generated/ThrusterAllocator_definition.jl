@@ -96,7 +96,7 @@ with 2 degrees of redundancy.
   ### Symbolic Parameters
   __local__F_max = F_max
   append!(__params, @parameters (F_max::Real), [description = "Maximum thrust per jet (N) — used for normalization"])
-  __initial_conditions[F_max] = __local__F_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, F_max, __local__F_max)
 
   ### Final Parameters (assignments)
 

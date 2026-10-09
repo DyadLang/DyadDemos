@@ -101,19 +101,19 @@ Coupling:
   ### Symbolic Parameters
   __local__Ixx = Ixx
   append!(__params, @parameters (Ixx::Real), [description = "Principal moments of inertia (kg·m²)"])
-  __initial_conditions[Ixx] = __local__Ixx
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Ixx, __local__Ixx)
   __local__Iyy = Iyy
   append!(__params, @parameters (Iyy::Real))
-  __initial_conditions[Iyy] = __local__Iyy
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Iyy, __local__Iyy)
   __local__Izz = Izz
   append!(__params, @parameters (Izz::Real))
-  __initial_conditions[Izz] = __local__Izz
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Izz, __local__Izz)
   __local__m = m
   append!(__params, @parameters (m::Real), [description = "Satellite mass (kg)"])
-  __initial_conditions[m] = __local__m
+  __dyad_seed_parameter!(__initial_conditions, __bindings, m, __local__m)
   __local__mu = mu
   append!(__params, @parameters (mu::Real), [description = "Earth gravitational parameter (m³/s²)"])
-  __initial_conditions[mu] = __local__mu
+  __dyad_seed_parameter!(__initial_conditions, __bindings, mu, __local__mu)
 
   ### Final Parameters (assignments)
 

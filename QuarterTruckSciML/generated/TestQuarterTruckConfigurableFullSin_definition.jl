@@ -54,25 +54,25 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
   ### Symbolic Parameters
   __local__amplitude = amplitude
   append!(__params, @parameters (amplitude::Real), [bounds = (0, Inf)])
-  __initial_conditions[amplitude] = __local__amplitude
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amplitude, __local__amplitude)
   __local__frequency = frequency
   append!(__params, @parameters (frequency::Real))
-  __initial_conditions[frequency] = __local__frequency
+  __dyad_seed_parameter!(__initial_conditions, __bindings, frequency, __local__frequency)
   __local__tire_k3 = tire_k3
   append!(__params, @parameters (tire_k3::Real))
-  __initial_conditions[tire_k3] = __local__tire_k3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tire_k3, __local__tire_k3)
   __local__tire_compression_only = tire_compression_only
   append!(__params, @parameters (tire_compression_only::Real))
-  __initial_conditions[tire_compression_only] = __local__tire_compression_only
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tire_compression_only, __local__tire_compression_only)
   __local__friction_Fc = friction_Fc
   append!(__params, @parameters (friction_Fc::Real))
-  __initial_conditions[friction_Fc] = __local__friction_Fc
+  __dyad_seed_parameter!(__initial_conditions, __bindings, friction_Fc, __local__friction_Fc)
   __local__friction_v0 = friction_v0
   append!(__params, @parameters (friction_v0::Real))
-  __initial_conditions[friction_v0] = __local__friction_v0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, friction_v0, __local__friction_v0)
   __local__seat_driver_n = seat_driver_n
   append!(__params, @parameters (seat_driver_n::Real))
-  __initial_conditions[seat_driver_n] = __local__seat_driver_n
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_driver_n, __local__seat_driver_n)
 
   ### Final Parameters (assignments)
 

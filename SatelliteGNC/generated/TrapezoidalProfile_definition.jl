@@ -68,13 +68,13 @@ by a tracking controller.
   ### Symbolic Parameters
   __local__target_angle = target_angle
   append!(__params, @parameters (target_angle::Real), [description = "Target slew angle (rad)"])
-  __initial_conditions[target_angle] = __local__target_angle
+  __dyad_seed_parameter!(__initial_conditions, __bindings, target_angle, __local__target_angle)
   __local__w_max = w_max
   append!(__params, @parameters (w_max::Real), [description = "Maximum angular rate (rad/s)"])
-  __initial_conditions[w_max] = __local__w_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, w_max, __local__w_max)
   __local__a_max = a_max
   append!(__params, @parameters (a_max::Real), [description = "Maximum angular acceleration (rad/s^2)"])
-  __initial_conditions[a_max] = __local__a_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, a_max, __local__a_max)
 
   ### Final Parameters (assignments)
 

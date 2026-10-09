@@ -6,7 +6,7 @@
 module shared
 
 using ..HL20Demo
-using ..HL20Demo: __build_overrides, __dyad_sym_union, __pop_subcomponent_overrides!, __dyad_isa_variant, __dyad_promoted_value_fits, @__dyad_switch
+using ..HL20Demo: __build_overrides, __dyad_sym_union, __pop_subcomponent_overrides!, __dyad_isa_variant, __dyad_promoted_value_fits, __dyad_seed_parameter!, __dyad_bind_final!, @__dyad_switch
 
 if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "shared", "module.jl"))
   include(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "shared", "module.jl"))

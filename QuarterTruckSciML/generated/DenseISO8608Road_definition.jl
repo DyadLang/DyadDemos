@@ -67,22 +67,22 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   ### Symbolic Parameters
   __local__speed = speed
   append!(__params, @parameters (speed::Real), [description = "Vehicle speed [m/s]"])
-  __initial_conditions[speed] = __local__speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, speed, __local__speed)
   __local__start_time = start_time
   append!(__params, @parameters (start_time::Real), [description = "Time at which signal begins [s]"])
-  __initial_conditions[start_time] = __local__start_time
+  __dyad_seed_parameter!(__initial_conditions, __bindings, start_time, __local__start_time)
   __local__offset = offset
   append!(__params, @parameters (offset::Real), [description = "Baseline offset [m]", bounds = (0, Inf)])
-  __initial_conditions[offset] = __local__offset
+  __dyad_seed_parameter!(__initial_conditions, __bindings, offset, __local__offset)
   __local__amp = amp
   append!(__params, @parameters (amp[1:N]::Real), [description = "Harmonic amplitudes [m]"])
-  __initial_conditions[amp] = __local__amp
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amp, __local__amp)
   __local__freq = freq
   append!(__params, @parameters (freq[1:N]::Real), [description = "Spatial frequencies [cycles/m]"])
-  __initial_conditions[freq] = __local__freq
+  __dyad_seed_parameter!(__initial_conditions, __bindings, freq, __local__freq)
   __local__phase = phase
   append!(__params, @parameters (phase[1:N]::Real), [description = "Phase offsets [rad]"])
-  __initial_conditions[phase] = __local__phase
+  __dyad_seed_parameter!(__initial_conditions, __bindings, phase, __local__phase)
 
   ### Final Parameters (assignments)
 

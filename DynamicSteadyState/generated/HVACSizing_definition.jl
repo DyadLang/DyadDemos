@@ -5,7 +5,7 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractSteadyStateAnalysisSpec, SteadyStateAnalysisSpec
 @kwdef mutable struct HVACSizingSpec <: AbstractSteadyStateAnalysisSpec
@@ -15,6 +15,7 @@ using DyadInterface: AbstractSteadyStateAnalysisSpec, SteadyStateAnalysisSpec
   var"reltol"::Float64 = 1e-8
   var"automatic_discontinuity_detection"::Bool = false
   var"respecialize"::Bool = false
+  var"specialization"::SpecializationLevel.Type = SpecializationLevel.Despecialize()
   var"model"::Union{Nothing, System} = DynamicSteadyState.TestSteadySizing(; name=:TestSteadySizing)
 end
 
@@ -23,7 +24,7 @@ function DyadInterface.run_analysis(spec::HVACSizingSpec)
   no_namespace_model = toggle_namespacing(spec.model, false)
   
   base_spec = SteadyStateAnalysisSpec(;
-    name=:SteadyStateAnalysis, overrides, alg=spec.alg, abstol=spec.abstol, reltol=spec.reltol, automatic_discontinuity_detection=spec.automatic_discontinuity_detection, respecialize=spec.respecialize, model=spec.model
+    name=:SteadyStateAnalysis, overrides, alg=spec.alg, abstol=spec.abstol, reltol=spec.reltol, automatic_discontinuity_detection=spec.automatic_discontinuity_detection, respecialize=spec.respecialize, specialization=spec.specialization, model=spec.model
   )
   run_analysis(base_spec)
 end

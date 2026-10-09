@@ -52,13 +52,13 @@
   ### Symbolic Parameters
   __local__C_hand = C_hand
   append!(__params, @parameters (C_hand::Real))
-  __initial_conditions[C_hand] = __local__C_hand
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_hand, __local__C_hand)
   __local__T0_hand = T0_hand
   append!(__params, @parameters (T0_hand::Real), [bounds = (0, Inf)])
-  __initial_conditions[T0_hand] = __local__T0_hand
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0_hand, __local__T0_hand)
   __local__G_contact = G_contact
   append!(__params, @parameters (G_contact::Real))
-  __initial_conditions[G_contact] = __local__G_contact
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_contact, __local__G_contact)
 
   ### Final Parameters (assignments)
 

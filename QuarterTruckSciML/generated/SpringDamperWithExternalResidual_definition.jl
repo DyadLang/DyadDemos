@@ -65,13 +65,13 @@ Generic linear spring-damper whose total force includes an external residual for
   ### Symbolic Parameters
   __local__k = k
   append!(__params, @parameters (k::Real))
-  __initial_conditions[k] = __local__k
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k, __local__k)
   __local__d = d
   append!(__params, @parameters (d::Real))
-  __initial_conditions[d] = __local__d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, d, __local__d)
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [bounds = (0, Inf)])
-  __initial_conditions[s_rel0] = __local__s_rel0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0, __local__s_rel0)
 
   ### Final Parameters (assignments)
 

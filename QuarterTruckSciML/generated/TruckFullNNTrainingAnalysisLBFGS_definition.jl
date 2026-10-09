@@ -5,7 +5,7 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadModelDiscovery: AbstractNNTrainingAnalysisSpec, NNTrainingAnalysisSpec
 @kwdef mutable struct TruckFullNNTrainingAnalysisLBFGSSpec <: AbstractNNTrainingAnalysisSpec
@@ -24,6 +24,7 @@ using DyadModelDiscovery: AbstractNNTrainingAnalysisSpec, NNTrainingAnalysisSpec
   var"multiple_shooting_trajectories"::Int = 0
   var"pem_gain"::Float64 = 0
   var"optimizer"::DyadModelOptimizer.OptimizerAlg.Type = "LBFGS"
+  var"adtype"::DyadModelOptimizer.ADChoice.Type = DyadModelOptimizer.ADChoice.Enzyme()
   var"optimizer_maxiters"::Int = 200
   var"optimizer_maxtime"::Float64 = 0
   var"optimizer_abstol"::Float64 = 0.0001
@@ -44,7 +45,7 @@ function DyadInterface.run_analysis(spec::TruckFullNNTrainingAnalysisLBFGSSpec)
   no_namespace_model = toggle_namespacing(spec.model, false)
   
   base_spec = NNTrainingAnalysisSpec(;
-    name=:NNTrainingAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, data=spec.data, depvars_names=spec.depvars_names, loss_func=spec.loss_func, calibration_alg=spec.calibration_alg, multiple_shooting_trajectories=spec.multiple_shooting_trajectories, pem_gain=spec.pem_gain, optimizer=spec.optimizer, optimizer_maxiters=spec.optimizer_maxiters, optimizer_maxtime=spec.optimizer_maxtime, optimizer_abstol=spec.optimizer_abstol, optimizer_verbose=spec.optimizer_verbose, diagnostics=spec.diagnostics, learning_rate=spec.learning_rate, network_component=spec.network_component, min_weight=spec.min_weight, max_weight=spec.max_weight, initial_values_path=spec.initial_values_path, results_path=spec.results_path, model=spec.model
+    name=:NNTrainingAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, data=spec.data, depvars_names=spec.depvars_names, loss_func=spec.loss_func, calibration_alg=spec.calibration_alg, multiple_shooting_trajectories=spec.multiple_shooting_trajectories, pem_gain=spec.pem_gain, optimizer=spec.optimizer, adtype=spec.adtype, optimizer_maxiters=spec.optimizer_maxiters, optimizer_maxtime=spec.optimizer_maxtime, optimizer_abstol=spec.optimizer_abstol, optimizer_verbose=spec.optimizer_verbose, diagnostics=spec.diagnostics, learning_rate=spec.learning_rate, network_component=spec.network_component, min_weight=spec.min_weight, max_weight=spec.max_weight, initial_values_path=spec.initial_values_path, results_path=spec.results_path, model=spec.model
   )
   run_analysis(base_spec)
 end

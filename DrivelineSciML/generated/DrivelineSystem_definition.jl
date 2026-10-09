@@ -59,22 +59,22 @@ Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-
   ### Symbolic Parameters
   __local__k1 = k1
   append!(__params, @parameters (k1::Real), [description = "Maxwell branch stiffness [N*m/rad] (truth: 300)"])
-  __initial_conditions[k1] = __local__k1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k1, __local__k1)
   __local__c1 = c1
   append!(__params, @parameters (c1::Real), [description = "Maxwell branch damping [N*m*s/rad] (truth: 1.0)"])
-  __initial_conditions[c1] = __local__c1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c1, __local__c1)
   __local__alpha = alpha
   append!(__params, @parameters (alpha::Real), [description = "Bouc-Wen hysteretic torque scale [N*m] (truth: 50)"])
-  __initial_conditions[alpha] = __local__alpha
+  __dyad_seed_parameter!(__initial_conditions, __bindings, alpha, __local__alpha)
   __local__A_bw = A_bw
   append!(__params, @parameters (A_bw::Real), [description = "Bouc-Wen flow gain (truth: 1.0)"])
-  __initial_conditions[A_bw] = __local__A_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_bw, __local__A_bw)
   __local__beta_bw = beta_bw
   append!(__params, @parameters (beta_bw::Real), [description = "Bouc-Wen saturation coefficient (truth: 5.0)"])
-  __initial_conditions[beta_bw] = __local__beta_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, beta_bw, __local__beta_bw)
   __local__gamma_bw = gamma_bw
   append!(__params, @parameters (gamma_bw::Real), [description = "Bouc-Wen shape coefficient (truth: 0.5)"])
-  __initial_conditions[gamma_bw] = __local__gamma_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, gamma_bw, __local__gamma_bw)
 
   ### Final Parameters (assignments)
 
@@ -103,28 +103,13 @@ Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-
   push!(__systems, @named J_eng = RotationalComponents.Components.Inertia(; J=0.05, J_eng_overrides...))
   # Subcomponent isolator of type DrivelineSciML.MaxwellBoucWenIsolator
   isolator_overrides = __pop_subcomponent_overrides!(__overrides, "isolator")
-  push!(__systems, @named isolator = DrivelineSciML.MaxwellBoucWenIsolator(; k0=Float64(500.0), c0=0.5, isolator_overrides...))
-  __bindings[isolator.k1] = k1
-  __bindings[isolator.c1] = c1
-  __bindings[isolator.alpha] = alpha
-  __bindings[isolator.A_bw] = A_bw
-  __bindings[isolator.beta_bw] = beta_bw
-  __bindings[isolator.gamma_bw] = gamma_bw
-  # Now remove initial conditions in isolator that correspond to the bindings just added
-  __isolator_ics = ModelingToolkit.get_initial_conditions(isolator)
-  __no_namespace_isolator = ModelingToolkit.toggle_namespacing(isolator, false)
-  __isolator_k1 = Symbolics.unwrap(__no_namespace_isolator.k1)::Symbolics.SymbolicT
-  delete!(__isolator_ics, __isolator_k1)
-  __isolator_c1 = Symbolics.unwrap(__no_namespace_isolator.c1)::Symbolics.SymbolicT
-  delete!(__isolator_ics, __isolator_c1)
-  __isolator_alpha = Symbolics.unwrap(__no_namespace_isolator.alpha)::Symbolics.SymbolicT
-  delete!(__isolator_ics, __isolator_alpha)
-  __isolator_A_bw = Symbolics.unwrap(__no_namespace_isolator.A_bw)::Symbolics.SymbolicT
-  delete!(__isolator_ics, __isolator_A_bw)
-  __isolator_beta_bw = Symbolics.unwrap(__no_namespace_isolator.beta_bw)::Symbolics.SymbolicT
-  delete!(__isolator_ics, __isolator_beta_bw)
-  __isolator_gamma_bw = Symbolics.unwrap(__no_namespace_isolator.gamma_bw)::Symbolics.SymbolicT
-  delete!(__isolator_ics, __isolator_gamma_bw)
+  push!(__systems, @named isolator = DrivelineSciML.MaxwellBoucWenIsolator(; k0=Float64(500.0), c0=0.5, k1=k1, c1=c1, alpha=alpha, A_bw=A_bw, beta_bw=beta_bw, gamma_bw=gamma_bw, isolator_overrides...))
+  __dyad_bind_final!(__bindings, isolator, Symbol[], :k1, k1)
+  __dyad_bind_final!(__bindings, isolator, Symbol[], :c1, c1)
+  __dyad_bind_final!(__bindings, isolator, Symbol[], :alpha, alpha)
+  __dyad_bind_final!(__bindings, isolator, Symbol[], :A_bw, A_bw)
+  __dyad_bind_final!(__bindings, isolator, Symbol[], :beta_bw, beta_bw)
+  __dyad_bind_final!(__bindings, isolator, Symbol[], :gamma_bw, gamma_bw)
   # Subcomponent J_load of type RotationalComponents.Components.Inertia
   J_load_overrides = __pop_subcomponent_overrides!(__overrides, "J_load")
   push!(__systems, @named J_load = RotationalComponents.Components.Inertia(; J=0.2, J_load_overrides...))

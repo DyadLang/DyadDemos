@@ -52,10 +52,10 @@
   ### Symbolic Parameters
   __local__Gc_top = Gc_top
   append!(__params, @parameters (Gc_top::Real))
-  __initial_conditions[Gc_top] = __local__Gc_top
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_top, __local__Gc_top)
   __local__Gr_top = Gr_top
   append!(__params, @parameters (Gr_top::Real))
-  __initial_conditions[Gr_top] = __local__Gr_top
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gr_top, __local__Gr_top)
 
   ### Final Parameters (assignments)
 

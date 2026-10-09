@@ -72,25 +72,25 @@ Each input is normalized and each output scaled by its own `f_scale`.
   ### Symbolic Parameters
   __local__s_rel0_tire = s_rel0_tire
   append!(__params, @parameters (s_rel0_tire::Real), [description = "Tire unstretched length [m]", bounds = (0, Inf)])
-  __initial_conditions[s_rel0_tire] = __local__s_rel0_tire
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0_tire, __local__s_rel0_tire)
   __local__s_rel0_seat = s_rel0_seat
   append!(__params, @parameters (s_rel0_seat::Real), [description = "Seat-driver unstretched length [m]", bounds = (0, Inf)])
-  __initial_conditions[s_rel0_seat] = __local__s_rel0_seat
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0_seat, __local__s_rel0_seat)
   __local__s_scale_tire = s_scale_tire
   append!(__params, @parameters (s_scale_tire::Real), [description = "Tire deflection normalization [m]", bounds = (0, Inf)])
-  __initial_conditions[s_scale_tire] = __local__s_scale_tire
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_scale_tire, __local__s_scale_tire)
   __local__v_friction_scale = v_friction_scale
   append!(__params, @parameters (v_friction_scale::Real), [description = "Friction velocity normalization [m/s]"])
-  __initial_conditions[v_friction_scale] = __local__v_friction_scale
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v_friction_scale, __local__v_friction_scale)
   __local__v_seat_scale = v_seat_scale
   append!(__params, @parameters (v_seat_scale::Real), [description = "Seat-driver velocity normalization [m/s]"])
-  __initial_conditions[v_seat_scale] = __local__v_seat_scale
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v_seat_scale, __local__v_seat_scale)
   __local__f_scale_tire = f_scale_tire
   append!(__params, @parameters (f_scale_tire::Real), [description = "Force scale for tire NN output [N]"])
-  __initial_conditions[f_scale_tire] = __local__f_scale_tire
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_scale_tire, __local__f_scale_tire)
   __local__f_scale_friction = f_scale_friction
   append!(__params, @parameters (f_scale_friction::Real), [description = "Force scale for friction NN output [N] (matches true F_c magnitude)"])
-  __initial_conditions[f_scale_friction] = __local__f_scale_friction
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_scale_friction, __local__f_scale_friction)
 
   ### Final Parameters (assignments)
 
@@ -119,13 +119,8 @@ Each input is normalized and each output scaled by its own `f_scale`.
   push!(__systems, @named driver = TranslationalComponents.Components.Mass(; m=Float64(75.0), L=Float64(0.0), g=9.81, theta=1.5708, driver_overrides...))
   # Subcomponent tire_to_road of type QuarterTruckSciML.TireWithExternalResidual
   tire_to_road_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_road")
-  push!(__systems, @named tire_to_road = QuarterTruckSciML.TireWithExternalResidual(; k1=Float64(200000.0), d=Float64(50.0), tire_to_road_overrides...))
-  __bindings[tire_to_road.s_rel0] = s_rel0_tire
-  # Now remove initial conditions in tire_to_road that correspond to the bindings just added
-  __tire_to_road_ics = ModelingToolkit.get_initial_conditions(tire_to_road)
-  __no_namespace_tire_to_road = ModelingToolkit.toggle_namespacing(tire_to_road, false)
-  __tire_to_road_s_rel0 = Symbolics.unwrap(__no_namespace_tire_to_road.s_rel0)::Symbolics.SymbolicT
-  delete!(__tire_to_road_ics, __tire_to_road_s_rel0)
+  push!(__systems, @named tire_to_road = QuarterTruckSciML.TireWithExternalResidual(; k1=Float64(200000.0), d=Float64(50.0), s_rel0=s_rel0_tire, tire_to_road_overrides...))
+  __dyad_bind_final!(__bindings, tire_to_road, Symbol[], :s_rel0, s_rel0_tire)
   # Subcomponent tire_to_body of type TranslationalComponents.Components.SpringDamper
   tire_to_body_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_body")
   push!(__systems, @named tire_to_body = TranslationalComponents.Components.SpringDamper(; c=Float64(20000.0), d=Float64(1500.0), s_rel0=Float64(1.0), tire_to_body_overrides...))
@@ -137,13 +132,8 @@ Each input is normalized and each output scaled by its own `f_scale`.
   push!(__systems, @named body_to_seat = TranslationalComponents.Components.SpringDamper(; c=Float64(15000.0), d=Float64(800.0), s_rel0=0.2, body_to_seat_overrides...))
   # Subcomponent seat_to_driver of type QuarterTruckSciML.SpringDamperWithExternalResidual
   seat_to_driver_overrides = __pop_subcomponent_overrides!(__overrides, "seat_to_driver")
-  push!(__systems, @named seat_to_driver = QuarterTruckSciML.SpringDamperWithExternalResidual(; k=Float64(10000.0), d=Float64(500.0), seat_to_driver_overrides...))
-  __bindings[seat_to_driver.s_rel0] = s_rel0_seat
-  # Now remove initial conditions in seat_to_driver that correspond to the bindings just added
-  __seat_to_driver_ics = ModelingToolkit.get_initial_conditions(seat_to_driver)
-  __no_namespace_seat_to_driver = ModelingToolkit.toggle_namespacing(seat_to_driver, false)
-  __seat_to_driver_s_rel0 = Symbolics.unwrap(__no_namespace_seat_to_driver.s_rel0)::Symbolics.SymbolicT
-  delete!(__seat_to_driver_ics, __seat_to_driver_s_rel0)
+  push!(__systems, @named seat_to_driver = QuarterTruckSciML.SpringDamperWithExternalResidual(; k=Float64(10000.0), d=Float64(500.0), s_rel0=s_rel0_seat, seat_to_driver_overrides...))
+  __dyad_bind_final!(__bindings, seat_to_driver, Symbol[], :s_rel0, s_rel0_seat)
   # Subcomponent road of type TranslationalComponents.Sources.Position
   road_overrides = __pop_subcomponent_overrides!(__overrides, "road")
   push!(__systems, @named road = TranslationalComponents.Sources.Position(; ref_type=TranslationalComponents.Sources.ReferenceType.Filtered(; f_crit=Float64(100.0)), road_overrides...))

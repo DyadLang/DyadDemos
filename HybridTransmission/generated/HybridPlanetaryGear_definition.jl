@@ -52,7 +52,7 @@
   ### Symbolic Parameters
   __local__ratio = ratio
   append!(__params, @parameters (ratio::Real), [description = "Gear ratio defined as (number of ring_teeth) / (number of sun_teeth)."])
-  __initial_conditions[ratio] = __local__ratio
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ratio, __local__ratio)
 
   ### Final Parameters (assignments)
 

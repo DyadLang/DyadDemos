@@ -49,10 +49,10 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   ### Symbolic Parameters
   __local__k1 = k1
   append!(__params, @parameters (k1::Real), [description = "Maxwell branch stiffness [N*m/rad] (frozen from Stage 1)"])
-  __initial_conditions[k1] = __local__k1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k1, __local__k1)
   __local__c1 = c1
   append!(__params, @parameters (c1::Real), [description = "Maxwell branch damping [N*m*s/rad] (frozen from Stage 1)"])
-  __initial_conditions[c1] = __local__c1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c1, __local__c1)
 
   ### Final Parameters (assignments)
 
@@ -68,16 +68,9 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   ### Components
   # Subcomponent model of type DrivelineSciML.DrivelineSystem
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; model_overrides...))
-  __bindings[model.k1] = k1
-  __bindings[model.c1] = c1
-  # Now remove initial conditions in model that correspond to the bindings just added
-  __model_ics = ModelingToolkit.get_initial_conditions(model)
-  __no_namespace_model = ModelingToolkit.toggle_namespacing(model, false)
-  __model_k1 = Symbolics.unwrap(__no_namespace_model.k1)::Symbolics.SymbolicT
-  delete!(__model_ics, __model_k1)
-  __model_c1 = Symbolics.unwrap(__no_namespace_model.c1)::Symbolics.SymbolicT
-  delete!(__model_ics, __model_c1)
+  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; k1=k1, c1=c1, model_overrides...))
+  __dyad_bind_final!(__bindings, model, Symbol[], :k1, k1)
+  __dyad_bind_final!(__bindings, model, Symbol[], :c1, c1)
   # Subcomponent sine of type BlockComponents.Sources.Sine
   sine_overrides = __pop_subcomponent_overrides!(__overrides, "sine")
   push!(__systems, @named sine = BlockComponents.Sources.Sine(; amplitude=Float64(100.0), frequency=Float64(1.0), sine_overrides...))

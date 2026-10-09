@@ -62,16 +62,16 @@
   ### Symbolic Parameters
   __local__base_torque = base_torque
   append!(__params, @parameters (base_torque::Real))
-  __initial_conditions[base_torque] = __local__base_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, base_torque, __local__base_torque)
   __local__c_normalized_torque = c_normalized_torque
   append!(__params, @parameters (c_normalized_torque[1:4]::Real))
-  __initial_conditions[c_normalized_torque] = __local__c_normalized_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c_normalized_torque, __local__c_normalized_torque)
   __local__tau = tau
   append!(__params, @parameters (tau::Real))
-  __initial_conditions[tau] = __local__tau
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tau, __local__tau)
   __local__tau_start = tau_start
   append!(__params, @parameters (tau_start::Real))
-  __initial_conditions[tau_start] = __local__tau_start
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tau_start, __local__tau_start)
 
   ### Final Parameters (assignments)
 

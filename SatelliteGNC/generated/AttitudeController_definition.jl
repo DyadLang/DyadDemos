@@ -87,31 +87,31 @@ Outputs: commanded torques in the body frame.
   ### Symbolic Parameters
   __local__Kp_x = Kp_x
   append!(__params, @parameters (Kp_x::Real), [description = "Proportional gains"])
-  __initial_conditions[Kp_x] = __local__Kp_x
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kp_x, __local__Kp_x)
   __local__Kp_y = Kp_y
   append!(__params, @parameters (Kp_y::Real))
-  __initial_conditions[Kp_y] = __local__Kp_y
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kp_y, __local__Kp_y)
   __local__Kp_z = Kp_z
   append!(__params, @parameters (Kp_z::Real))
-  __initial_conditions[Kp_z] = __local__Kp_z
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kp_z, __local__Kp_z)
   __local__Kd_x = Kd_x
   append!(__params, @parameters (Kd_x::Real), [description = "Derivative gains"])
-  __initial_conditions[Kd_x] = __local__Kd_x
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kd_x, __local__Kd_x)
   __local__Kd_y = Kd_y
   append!(__params, @parameters (Kd_y::Real))
-  __initial_conditions[Kd_y] = __local__Kd_y
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kd_y, __local__Kd_y)
   __local__Kd_z = Kd_z
   append!(__params, @parameters (Kd_z::Real))
-  __initial_conditions[Kd_z] = __local__Kd_z
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kd_z, __local__Kd_z)
   __local__Ixx_ff = Ixx_ff
   append!(__params, @parameters (Ixx_ff::Real), [description = "Feedforward inertias (must match plant)"])
-  __initial_conditions[Ixx_ff] = __local__Ixx_ff
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Ixx_ff, __local__Ixx_ff)
   __local__Iyy_ff = Iyy_ff
   append!(__params, @parameters (Iyy_ff::Real))
-  __initial_conditions[Iyy_ff] = __local__Iyy_ff
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Iyy_ff, __local__Iyy_ff)
   __local__Izz_ff = Izz_ff
   append!(__params, @parameters (Izz_ff::Real))
-  __initial_conditions[Izz_ff] = __local__Izz_ff
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Izz_ff, __local__Izz_ff)
 
   ### Final Parameters (assignments)
 

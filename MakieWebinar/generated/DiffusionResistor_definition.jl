@@ -88,13 +88,13 @@ Supported dynamics:
   ### Symbolic Parameters
   __local__D = D
   append!(__params, @parameters (D::Real), [description = "Diffusion coefficient"])
-  __initial_conditions[D] = __local__D
+  __dyad_seed_parameter!(__initial_conditions, __bindings, D, __local__D)
   __local__dx = dx
   append!(__params, @parameters (dx::Real), [description = "Distance between points"])
-  __initial_conditions[dx] = __local__dx
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dx, __local__dx)
   __local__A = A
   append!(__params, @parameters (A::Real), [description = "Cross-sectional area"])
-  __initial_conditions[A] = __local__A
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A, __local__A)
 
   ### Final Parameters (assignments)
 

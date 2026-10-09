@@ -74,16 +74,16 @@ Supported dynamics:
   ### Symbolic Parameters
   __local__V = V
   append!(__params, @parameters (V::Real))
-  __initial_conditions[V] = __local__V
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V, __local__V)
   __local__a = a
   append!(__params, @parameters (a::Real))
-  __initial_conditions[a] = __local__a
+  __dyad_seed_parameter!(__initial_conditions, __bindings, a, __local__a)
   __local__b = b
   append!(__params, @parameters (b::Real))
-  __initial_conditions[b] = __local__b
+  __dyad_seed_parameter!(__initial_conditions, __bindings, b, __local__b)
   __local__eps = eps
   append!(__params, @parameters (eps::Real))
-  __initial_conditions[eps] = __local__eps
+  __dyad_seed_parameter!(__initial_conditions, __bindings, eps, __local__eps)
 
   ### Final Parameters (assignments)
 

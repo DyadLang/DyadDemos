@@ -57,22 +57,22 @@
   ### Symbolic Parameters
   __local__vehicle_mass_kg = vehicle_mass_kg
   append!(__params, @parameters (vehicle_mass_kg::Real), [bounds = (0, Inf)])
-  __initial_conditions[vehicle_mass_kg] = __local__vehicle_mass_kg
+  __dyad_seed_parameter!(__initial_conditions, __bindings, vehicle_mass_kg, __local__vehicle_mass_kg)
   __local__inertia_moment = inertia_moment
   append!(__params, @parameters (inertia_moment::Real))
-  __initial_conditions[inertia_moment] = __local__inertia_moment
+  __dyad_seed_parameter!(__initial_conditions, __bindings, inertia_moment, __local__inertia_moment)
   __local__wheel_radius = wheel_radius
   append!(__params, @parameters (wheel_radius::Real))
-  __initial_conditions[wheel_radius] = __local__wheel_radius
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_radius, __local__wheel_radius)
   __local__damping_coeff = damping_coeff
   append!(__params, @parameters (damping_coeff::Real))
-  __initial_conditions[damping_coeff] = __local__damping_coeff
+  __dyad_seed_parameter!(__initial_conditions, __bindings, damping_coeff, __local__damping_coeff)
   __local__initial_position = initial_position
   append!(__params, @parameters (initial_position::Real))
-  __initial_conditions[initial_position] = __local__initial_position
+  __dyad_seed_parameter!(__initial_conditions, __bindings, initial_position, __local__initial_position)
   __local__initial_velocity = initial_velocity
   append!(__params, @parameters (initial_velocity::Real))
-  __initial_conditions[initial_velocity] = __local__initial_velocity
+  __dyad_seed_parameter!(__initial_conditions, __bindings, initial_velocity, __local__initial_velocity)
 
   ### Final Parameters (assignments)
 

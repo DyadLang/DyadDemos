@@ -74,10 +74,10 @@ Supported dynamics:
   ### Symbolic Parameters
   __local__V = V
   append!(__params, @parameters (V::Real))
-  __initial_conditions[V] = __local__V
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V, __local__V)
   __local__growth_rate = growth_rate
   append!(__params, @parameters (growth_rate::Real))
-  __initial_conditions[growth_rate] = __local__growth_rate
+  __dyad_seed_parameter!(__initial_conditions, __bindings, growth_rate, __local__growth_rate)
 
   ### Final Parameters (assignments)
 

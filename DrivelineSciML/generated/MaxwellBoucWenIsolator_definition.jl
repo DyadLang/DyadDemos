@@ -72,31 +72,31 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
   ### Symbolic Parameters
   __local__k0 = k0
   append!(__params, @parameters (k0::Real), [description = "Baseline (quasi-static) stiffness [N*m/rad]"])
-  __initial_conditions[k0] = __local__k0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k0, __local__k0)
   __local__c0 = c0
   append!(__params, @parameters (c0::Real), [description = "Baseline viscous damping [N*m*s/rad]"])
-  __initial_conditions[c0] = __local__c0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c0, __local__c0)
   __local__k1 = k1
   append!(__params, @parameters (k1::Real), [description = "Maxwell branch stiffness [N*m/rad]"])
-  __initial_conditions[k1] = __local__k1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k1, __local__k1)
   __local__c1 = c1
   append!(__params, @parameters (c1::Real), [description = "Maxwell branch damping [N*m*s/rad]"])
-  __initial_conditions[c1] = __local__c1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c1, __local__c1)
   __local__alpha = alpha
   append!(__params, @parameters (alpha::Real), [description = "Bouc-Wen hysteretic torque scale [N*m]"])
-  __initial_conditions[alpha] = __local__alpha
+  __dyad_seed_parameter!(__initial_conditions, __bindings, alpha, __local__alpha)
   __local__A_bw = A_bw
   append!(__params, @parameters (A_bw::Real), [description = "Bouc-Wen flow gain"])
-  __initial_conditions[A_bw] = __local__A_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_bw, __local__A_bw)
   __local__beta_bw = beta_bw
   append!(__params, @parameters (beta_bw::Real), [description = "Bouc-Wen saturation coefficient (z_sat = A_bw/beta_bw)"])
-  __initial_conditions[beta_bw] = __local__beta_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, beta_bw, __local__beta_bw)
   __local__gamma_bw = gamma_bw
   append!(__params, @parameters (gamma_bw::Real), [description = "Bouc-Wen shape coefficient"])
-  __initial_conditions[gamma_bw] = __local__gamma_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, gamma_bw, __local__gamma_bw)
   __local__eps_bw = eps_bw
   append!(__params, @parameters (eps_bw::Real), [description = "Smoothing epsilon for |x| ~ sqrt(x^2 + eps_bw)"])
-  __initial_conditions[eps_bw] = __local__eps_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, eps_bw, __local__eps_bw)
 
   ### Final Parameters (assignments)
 

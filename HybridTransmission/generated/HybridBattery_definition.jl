@@ -64,19 +64,19 @@
   ### Symbolic Parameters
   __local__V_nom = V_nom
   append!(__params, @parameters (V_nom::Real))
-  __initial_conditions[V_nom] = __local__V_nom
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V_nom, __local__V_nom)
   __local__Q_nom = Q_nom
   append!(__params, @parameters (Q_nom::Real))
-  __initial_conditions[Q_nom] = __local__Q_nom
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_nom, __local__Q_nom)
   __local__SOC_init = SOC_init
   append!(__params, @parameters (SOC_init::Real))
-  __initial_conditions[SOC_init] = __local__SOC_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, SOC_init, __local__SOC_init)
   __local__SOC_min = SOC_min
   append!(__params, @parameters (SOC_min::Real))
-  __initial_conditions[SOC_min] = __local__SOC_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, SOC_min, __local__SOC_min)
   __local__SOC_max = SOC_max
   append!(__params, @parameters (SOC_max::Real))
-  __initial_conditions[SOC_max] = __local__SOC_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, SOC_max, __local__SOC_max)
 
   ### Final Parameters (assignments)
 

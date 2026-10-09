@@ -61,13 +61,13 @@
   ### Symbolic Parameters
   __local__Kt = Kt
   append!(__params, @parameters (Kt::Real))
-  __initial_conditions[Kt] = __local__Kt
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kt, __local__Kt)
   __local__b_friction = b_friction
   append!(__params, @parameters (b_friction::Real))
-  __initial_conditions[b_friction] = __local__b_friction
+  __dyad_seed_parameter!(__initial_conditions, __bindings, b_friction, __local__b_friction)
   __local__max_torque = max_torque
   append!(__params, @parameters (max_torque::Real))
-  __initial_conditions[max_torque] = __local__max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, max_torque, __local__max_torque)
 
   ### Final Parameters (assignments)
 

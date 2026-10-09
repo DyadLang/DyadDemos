@@ -86,58 +86,58 @@
   ### Symbolic Parameters
   __local__s_base = s_base
   append!(__params, @parameters (s_base::Real))
-  __initial_conditions[s_base] = __local__s_base
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_base, __local__s_base)
   __local__k_soc = k_soc
   append!(__params, @parameters (k_soc::Real))
-  __initial_conditions[k_soc] = __local__k_soc
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_soc, __local__k_soc)
   __local__soc_target = soc_target
   append!(__params, @parameters (soc_target::Real))
-  __initial_conditions[soc_target] = __local__soc_target
+  __dyad_seed_parameter!(__initial_conditions, __bindings, soc_target, __local__soc_target)
   __local__m_vehicle = m_vehicle
   append!(__params, @parameters (m_vehicle::Real))
-  __initial_conditions[m_vehicle] = __local__m_vehicle
+  __dyad_seed_parameter!(__initial_conditions, __bindings, m_vehicle, __local__m_vehicle)
   __local__C_rr = C_rr
   append!(__params, @parameters (C_rr::Real))
-  __initial_conditions[C_rr] = __local__C_rr
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_rr, __local__C_rr)
   __local__C_d = C_d
   append!(__params, @parameters (C_d::Real))
-  __initial_conditions[C_d] = __local__C_d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_d, __local__C_d)
   __local__A_front = A_front
   append!(__params, @parameters (A_front::Real))
-  __initial_conditions[A_front] = __local__A_front
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_front, __local__A_front)
   __local__r_wheel = r_wheel
   append!(__params, @parameters (r_wheel::Real))
-  __initial_conditions[r_wheel] = __local__r_wheel
+  __dyad_seed_parameter!(__initial_conditions, __bindings, r_wheel, __local__r_wheel)
   __local__k_speed = k_speed
   append!(__params, @parameters (k_speed::Real))
-  __initial_conditions[k_speed] = __local__k_speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_speed, __local__k_speed)
   __local__k_mg1 = k_mg1
   append!(__params, @parameters (k_mg1::Real))
-  __initial_conditions[k_mg1] = __local__k_mg1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_mg1, __local__k_mg1)
   __local__k_soc_mg1 = k_soc_mg1
   append!(__params, @parameters (k_soc_mg1::Real))
-  __initial_conditions[k_soc_mg1] = __local__k_soc_mg1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_soc_mg1, __local__k_soc_mg1)
   __local__engine_max_torque = engine_max_torque
   append!(__params, @parameters (engine_max_torque::Real))
-  __initial_conditions[engine_max_torque] = __local__engine_max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, engine_max_torque, __local__engine_max_torque)
   __local__engine_max_power = engine_max_power
   append!(__params, @parameters (engine_max_power::Real))
-  __initial_conditions[engine_max_power] = __local__engine_max_power
+  __dyad_seed_parameter!(__initial_conditions, __bindings, engine_max_power, __local__engine_max_power)
   __local__mg1_max_torque = mg1_max_torque
   append!(__params, @parameters (mg1_max_torque::Real))
-  __initial_conditions[mg1_max_torque] = __local__mg1_max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, mg1_max_torque, __local__mg1_max_torque)
   __local__mg1_max_power = mg1_max_power
   append!(__params, @parameters (mg1_max_power::Real))
-  __initial_conditions[mg1_max_power] = __local__mg1_max_power
+  __dyad_seed_parameter!(__initial_conditions, __bindings, mg1_max_power, __local__mg1_max_power)
   __local__mg2_max_torque = mg2_max_torque
   append!(__params, @parameters (mg2_max_torque::Real))
-  __initial_conditions[mg2_max_torque] = __local__mg2_max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, mg2_max_torque, __local__mg2_max_torque)
   __local__omega_engine_min = omega_engine_min
   append!(__params, @parameters (omega_engine_min::Real))
-  __initial_conditions[omega_engine_min] = __local__omega_engine_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, omega_engine_min, __local__omega_engine_min)
   __local__omega_engine_max = omega_engine_max
   append!(__params, @parameters (omega_engine_max::Real))
-  __initial_conditions[omega_engine_max] = __local__omega_engine_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, omega_engine_max, __local__omega_engine_max)
 
   ### Final Parameters (assignments)
 

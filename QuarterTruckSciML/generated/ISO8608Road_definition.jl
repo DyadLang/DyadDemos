@@ -57,22 +57,22 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
   ### Symbolic Parameters
   __local__roughness = roughness
   append!(__params, @parameters (roughness::Real), [description = "Road roughness G_d(n0) at n0=0.1 cycles/m [m3]"])
-  __initial_conditions[roughness] = __local__roughness
+  __dyad_seed_parameter!(__initial_conditions, __bindings, roughness, __local__roughness)
   __local__speed = speed
   append!(__params, @parameters (speed::Real), [description = "Vehicle speed [m/s] (e.g. 13.89 = 50 km/h)"])
-  __initial_conditions[speed] = __local__speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, speed, __local__speed)
   __local__lambda_min = lambda_min
   append!(__params, @parameters (lambda_min::Real), [description = "Shortest spatial wavelength [m]", bounds = (0, Inf)])
-  __initial_conditions[lambda_min] = __local__lambda_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, lambda_min, __local__lambda_min)
   __local__lambda_max = lambda_max
   append!(__params, @parameters (lambda_max::Real), [description = "Longest spatial wavelength [m]", bounds = (0, Inf)])
-  __initial_conditions[lambda_max] = __local__lambda_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, lambda_max, __local__lambda_max)
   __local__start_time = start_time
   append!(__params, @parameters (start_time::Real), [description = "Time at which signal begins [s]"])
-  __initial_conditions[start_time] = __local__start_time
+  __dyad_seed_parameter!(__initial_conditions, __bindings, start_time, __local__start_time)
   __local__offset = offset
   append!(__params, @parameters (offset::Real), [description = "Baseline offset [m]", bounds = (0, Inf)])
-  __initial_conditions[offset] = __local__offset
+  __dyad_seed_parameter!(__initial_conditions, __bindings, offset, __local__offset)
 
   ### Final Parameters (assignments)
 

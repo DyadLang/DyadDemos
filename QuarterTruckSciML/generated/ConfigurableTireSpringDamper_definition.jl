@@ -65,19 +65,19 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
   ### Symbolic Parameters
   __local__k1 = k1
   append!(__params, @parameters (k1::Real), [description = "Linear stiffness [N/m]"])
-  __initial_conditions[k1] = __local__k1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k1, __local__k1)
   __local__k3 = k3
   append!(__params, @parameters (k3::Real), [description = "Cubic stiffness coefficient [N/m^3] - 0 disables nonlinearity"])
-  __initial_conditions[k3] = __local__k3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k3, __local__k3)
   __local__d = d
   append!(__params, @parameters (d::Real), [description = "Damping [N*s/m]"])
-  __initial_conditions[d] = __local__d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, d, __local__d)
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [description = "Unstretched (free) length [m]", bounds = (0, Inf)])
-  __initial_conditions[s_rel0] = __local__s_rel0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0, __local__s_rel0)
   __local__compression_only = compression_only
   append!(__params, @parameters (compression_only::Real), [description = "Compression-only flag: 0.0=symmetric, 1.0=compression-only"])
-  __initial_conditions[compression_only] = __local__compression_only
+  __dyad_seed_parameter!(__initial_conditions, __bindings, compression_only, __local__compression_only)
 
   ### Final Parameters (assignments)
 

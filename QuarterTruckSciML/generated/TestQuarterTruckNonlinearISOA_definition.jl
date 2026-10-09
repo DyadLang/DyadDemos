@@ -48,7 +48,7 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
   ### Symbolic Parameters
   __local__speed = speed
   append!(__params, @parameters (speed::Real))
-  __initial_conditions[speed] = __local__speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, speed, __local__speed)
 
   ### Final Parameters (assignments)
 

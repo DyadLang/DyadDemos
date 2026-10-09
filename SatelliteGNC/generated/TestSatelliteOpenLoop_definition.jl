@@ -46,7 +46,7 @@
   ### Symbolic Parameters
   __local__tau_x_val = tau_x_val
   append!(__params, @parameters (tau_x_val::Real), [description = "Constant torque about X axis"])
-  __initial_conditions[tau_x_val] = __local__tau_x_val
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tau_x_val, __local__tau_x_val)
 
   ### Final Parameters (assignments)
 

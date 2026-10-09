@@ -70,7 +70,7 @@ Supported dynamics:
   ### Symbolic Parameters
   __local__V = V
   append!(__params, @parameters (V::Real), [description = "Volume (capacitance for mass storage)"])
-  __initial_conditions[V] = __local__V
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V, __local__V)
 
   ### Final Parameters (assignments)
 

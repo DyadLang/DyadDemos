@@ -49,16 +49,16 @@
   ### Symbolic Parameters
   __local__Q_disk = Q_disk
   append!(__params, @parameters (Q_disk::Real))
-  __initial_conditions[Q_disk] = __local__Q_disk
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_disk, __local__Q_disk)
   __local__Q_pad = Q_pad
   append!(__params, @parameters (Q_pad::Real))
-  __initial_conditions[Q_pad] = __local__Q_pad
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_pad, __local__Q_pad)
   __local__vehicle_speed = vehicle_speed
   append!(__params, @parameters (vehicle_speed::Real))
-  __initial_conditions[vehicle_speed] = __local__vehicle_speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, vehicle_speed, __local__vehicle_speed)
   __local__wheel_speed = wheel_speed
   append!(__params, @parameters (wheel_speed::Real))
-  __initial_conditions[wheel_speed] = __local__wheel_speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_speed, __local__wheel_speed)
 
   ### Final Parameters (assignments)
 

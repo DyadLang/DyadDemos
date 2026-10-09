@@ -73,7 +73,7 @@ The occupancy schedule is a representative weekday office profile with
   ### Symbolic Parameters
   __local__C = C
   append!(__params, @parameters (C::Real), [description = "Heat capacity of the element (J/K)"])
-  __initial_conditions[C] = __local__C
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C, __local__C)
 
   ### Final Parameters (assignments)
 

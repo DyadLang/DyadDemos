@@ -55,16 +55,16 @@ Half-sine bump signal source.
   ### Symbolic Parameters
   __local__amplitude = amplitude
   append!(__params, @parameters (amplitude::Real), [description = "Bump height [m]", bounds = (0, Inf)])
-  __initial_conditions[amplitude] = __local__amplitude
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amplitude, __local__amplitude)
   __local__bump_duration = bump_duration
   append!(__params, @parameters (bump_duration::Real), [description = "Duration of the bump [s] (= bump_length / vehicle_speed)"])
-  __initial_conditions[bump_duration] = __local__bump_duration
+  __dyad_seed_parameter!(__initial_conditions, __bindings, bump_duration, __local__bump_duration)
   __local__start_time = start_time
   append!(__params, @parameters (start_time::Real), [description = "Time at which the bump begins [s]"])
-  __initial_conditions[start_time] = __local__start_time
+  __dyad_seed_parameter!(__initial_conditions, __bindings, start_time, __local__start_time)
   __local__offset = offset
   append!(__params, @parameters (offset::Real), [description = "Baseline offset [m]", bounds = (0, Inf)])
-  __initial_conditions[offset] = __local__offset
+  __dyad_seed_parameter!(__initial_conditions, __bindings, offset, __local__offset)
 
   ### Final Parameters (assignments)
 

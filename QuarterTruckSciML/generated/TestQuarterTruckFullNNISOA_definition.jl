@@ -48,7 +48,7 @@ Full-NN gray-box quarter truck driven by ISO 8608 Class A — trained weights ar
   ### Symbolic Parameters
   __local__speed = speed
   append!(__params, @parameters (speed::Real))
-  __initial_conditions[speed] = __local__speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, speed, __local__speed)
 
   ### Final Parameters (assignments)
 

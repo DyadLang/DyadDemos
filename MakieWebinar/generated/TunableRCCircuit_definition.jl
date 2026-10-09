@@ -51,13 +51,13 @@ User can adjust R and C to see different charging behaviors.
   ### Symbolic Parameters
   __local__R = R
   append!(__params, @parameters (R::Real), [description = "Resistance (controls charging speed)"])
-  __initial_conditions[R] = __local__R
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R, __local__R)
   __local__C = C
   append!(__params, @parameters (C::Real), [description = "Capacitance (controls charge storage)", bounds = (0, Inf)])
-  __initial_conditions[C] = __local__C
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C, __local__C)
   __local__V_supply = V_supply
   append!(__params, @parameters (V_supply::Real), [description = "Supply voltage"])
-  __initial_conditions[V_supply] = __local__V_supply
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V_supply, __local__V_supply)
 
   ### Final Parameters (assignments)
 

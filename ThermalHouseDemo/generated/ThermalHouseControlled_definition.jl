@@ -59,16 +59,16 @@ Thermal model of a house with controlled heater and input for temperature setpoi
   ### Symbolic Parameters
   __local__T_initial = T_initial
   append!(__params, @parameters (T_initial::Real), [description = "Initial temperature 21.1°C", bounds = (0, Inf)])
-  __initial_conditions[T_initial] = __local__T_initial
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_initial, __local__T_initial)
   __local__k_p = k_p
   append!(__params, @parameters (k_p::Real), [description = "Proportional gain (W/K)"])
-  __initial_conditions[k_p] = __local__k_p
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_p, __local__k_p)
   __local__T_i = T_i
   append!(__params, @parameters (T_i::Real), [description = "Integral time constant (s)"])
-  __initial_conditions[T_i] = __local__T_i
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_i, __local__T_i)
   __local__Q_max = Q_max
   append!(__params, @parameters (Q_max::Real), [description = "Maximum heater capacity (W)"])
-  __initial_conditions[Q_max] = __local__Q_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_max, __local__Q_max)
 
   ### Final Parameters (assignments)
 

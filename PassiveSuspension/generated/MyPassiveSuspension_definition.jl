@@ -58,43 +58,43 @@
   ### Symbolic Parameters
   __local__wheel_mass = wheel_mass
   append!(__params, @parameters (wheel_mass::Real), [bounds = (0, Inf)])
-  __initial_conditions[wheel_mass] = __local__wheel_mass
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_mass, __local__wheel_mass)
   __local__wheel_stiffness = wheel_stiffness
   append!(__params, @parameters (wheel_stiffness::Real))
-  __initial_conditions[wheel_stiffness] = __local__wheel_stiffness
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_stiffness, __local__wheel_stiffness)
   __local__wheel_damping = wheel_damping
   append!(__params, @parameters (wheel_damping::Real))
-  __initial_conditions[wheel_damping] = __local__wheel_damping
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_damping, __local__wheel_damping)
   __local__car_mass = car_mass
   append!(__params, @parameters (car_mass::Real), [bounds = (0, Inf)])
-  __initial_conditions[car_mass] = __local__car_mass
+  __dyad_seed_parameter!(__initial_conditions, __bindings, car_mass, __local__car_mass)
   __local__suspension_stiffness = suspension_stiffness
   append!(__params, @parameters (suspension_stiffness::Real))
-  __initial_conditions[suspension_stiffness] = __local__suspension_stiffness
+  __dyad_seed_parameter!(__initial_conditions, __bindings, suspension_stiffness, __local__suspension_stiffness)
   __local__suspension_damping = suspension_damping
   append!(__params, @parameters (suspension_damping::Real))
-  __initial_conditions[suspension_damping] = __local__suspension_damping
+  __dyad_seed_parameter!(__initial_conditions, __bindings, suspension_damping, __local__suspension_damping)
   __local__human_and_seat_mass = human_and_seat_mass
   append!(__params, @parameters (human_and_seat_mass::Real), [bounds = (0, Inf)])
-  __initial_conditions[human_and_seat_mass] = __local__human_and_seat_mass
+  __dyad_seed_parameter!(__initial_conditions, __bindings, human_and_seat_mass, __local__human_and_seat_mass)
   __local__seat_stiffness = seat_stiffness
   append!(__params, @parameters (seat_stiffness::Real))
-  __initial_conditions[seat_stiffness] = __local__seat_stiffness
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_stiffness, __local__seat_stiffness)
   __local__seat_damping = seat_damping
   append!(__params, @parameters (seat_damping::Real))
-  __initial_conditions[seat_damping] = __local__seat_damping
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_damping, __local__seat_damping)
   __local__wheel_initial_position = wheel_initial_position
   append!(__params, @parameters (wheel_initial_position::Real))
-  __initial_conditions[wheel_initial_position] = __local__wheel_initial_position
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_initial_position, __local__wheel_initial_position)
   __local__suspension_initial_position = suspension_initial_position
   append!(__params, @parameters (suspension_initial_position::Real))
-  __initial_conditions[suspension_initial_position] = __local__suspension_initial_position
+  __dyad_seed_parameter!(__initial_conditions, __bindings, suspension_initial_position, __local__suspension_initial_position)
   __local__seat_initial_position = seat_initial_position
   append!(__params, @parameters (seat_initial_position::Real))
-  __initial_conditions[seat_initial_position] = __local__seat_initial_position
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_initial_position, __local__seat_initial_position)
   __local__speed = speed
   append!(__params, @parameters (speed::Real), [description = "Vehicle speed (m/s)"])
-  __initial_conditions[speed] = __local__speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, speed, __local__speed)
 
   ### Final Parameters (assignments)
 

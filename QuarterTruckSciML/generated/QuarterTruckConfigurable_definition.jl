@@ -57,34 +57,34 @@ Quarter truck: tire, body, seat, and driver masses stacked on springs and damper
   ### Symbolic Parameters
   __local__body_m = body_m
   append!(__params, @parameters (body_m::Real), [description = "Body (sprung) mass [kg]", bounds = (0, Inf)])
-  __initial_conditions[body_m] = __local__body_m
+  __dyad_seed_parameter!(__initial_conditions, __bindings, body_m, __local__body_m)
   __local__tire_to_body_c = tire_to_body_c
   append!(__params, @parameters (tire_to_body_c::Real), [description = "Tire-to-body suspension spring constant [N/m]"])
-  __initial_conditions[tire_to_body_c] = __local__tire_to_body_c
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tire_to_body_c, __local__tire_to_body_c)
   __local__tire_to_body_d = tire_to_body_d
   append!(__params, @parameters (tire_to_body_d::Real), [description = "Tire-to-body suspension damping [N*s/m]"])
-  __initial_conditions[tire_to_body_d] = __local__tire_to_body_d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tire_to_body_d, __local__tire_to_body_d)
   __local__tire_k3 = tire_k3
   append!(__params, @parameters (tire_k3::Real), [description = "Tire cubic stiffness [N/m^3] - 0 for linear"])
-  __initial_conditions[tire_k3] = __local__tire_k3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tire_k3, __local__tire_k3)
   __local__tire_compression_only = tire_compression_only
   append!(__params, @parameters (tire_compression_only::Real), [description = "Tire compression-only flag: 0=symmetric, 1=compression-only"])
-  __initial_conditions[tire_compression_only] = __local__tire_compression_only
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tire_compression_only, __local__tire_compression_only)
   __local__friction_Fc = friction_Fc
   append!(__params, @parameters (friction_Fc::Real), [description = "Coulomb friction force [N] - 0 disables friction"])
-  __initial_conditions[friction_Fc] = __local__friction_Fc
+  __dyad_seed_parameter!(__initial_conditions, __bindings, friction_Fc, __local__friction_Fc)
   __local__friction_v0 = friction_v0
   append!(__params, @parameters (friction_v0::Real), [description = "Friction regularization velocity [m/s]"])
-  __initial_conditions[friction_v0] = __local__friction_v0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, friction_v0, __local__friction_v0)
   __local__seat_driver_k = seat_driver_k
   append!(__params, @parameters (seat_driver_k::Real), [description = "Seat-driver spring stiffness [N/m] (1e8 for rigid seat)"])
-  __initial_conditions[seat_driver_k] = __local__seat_driver_k
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_driver_k, __local__seat_driver_k)
   __local__seat_driver_d = seat_driver_d
   append!(__params, @parameters (seat_driver_d::Real), [description = "Seat-driver damping coefficient [N*s^n/m^n]"])
-  __initial_conditions[seat_driver_d] = __local__seat_driver_d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_driver_d, __local__seat_driver_d)
   __local__seat_driver_n = seat_driver_n
   append!(__params, @parameters (seat_driver_n::Real), [description = "Seat-driver velocity exponent: 1.0=linear, 0.5=viscoelastic"])
-  __initial_conditions[seat_driver_n] = __local__seat_driver_n
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_driver_n, __local__seat_driver_n)
 
   ### Final Parameters (assignments)
 
@@ -103,13 +103,8 @@ Quarter truck: tire, body, seat, and driver masses stacked on springs and damper
   push!(__systems, @named tire = TranslationalComponents.Components.Mass(; m=Float64(40.0), L=Float64(0.0), g=9.81, theta=1.5708, tire_overrides...))
   # Subcomponent body of type TranslationalComponents.Components.Mass
   body_overrides = __pop_subcomponent_overrides!(__overrides, "body")
-  push!(__systems, @named body = TranslationalComponents.Components.Mass(; L=Float64(0.0), g=9.81, theta=1.5708, body_overrides...))
-  __bindings[body.m] = body_m
-  # Now remove initial conditions in body that correspond to the bindings just added
-  __body_ics = ModelingToolkit.get_initial_conditions(body)
-  __no_namespace_body = ModelingToolkit.toggle_namespacing(body, false)
-  __body_m = Symbolics.unwrap(__no_namespace_body.m)::Symbolics.SymbolicT
-  delete!(__body_ics, __body_m)
+  push!(__systems, @named body = TranslationalComponents.Components.Mass(; m=body_m, L=Float64(0.0), g=9.81, theta=1.5708, body_overrides...))
+  __dyad_bind_final!(__bindings, body, Symbol[], :m, body_m)
   # Subcomponent seat of type TranslationalComponents.Components.Mass
   seat_overrides = __pop_subcomponent_overrides!(__overrides, "seat")
   push!(__systems, @named seat = TranslationalComponents.Components.Mass(; m=Float64(15.0), L=Float64(0.0), g=9.81, theta=1.5708, seat_overrides...))
@@ -118,58 +113,28 @@ Quarter truck: tire, body, seat, and driver masses stacked on springs and damper
   push!(__systems, @named driver = TranslationalComponents.Components.Mass(; m=Float64(75.0), L=Float64(0.0), g=9.81, theta=1.5708, driver_overrides...))
   # Subcomponent tire_to_road of type QuarterTruckSciML.ConfigurableTireSpringDamper
   tire_to_road_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_road")
-  push!(__systems, @named tire_to_road = QuarterTruckSciML.ConfigurableTireSpringDamper(; k1=Float64(200000.0), d=Float64(50.0), s_rel0=0.2, tire_to_road_overrides...))
-  __bindings[tire_to_road.k3] = tire_k3
-  __bindings[tire_to_road.compression_only] = tire_compression_only
-  # Now remove initial conditions in tire_to_road that correspond to the bindings just added
-  __tire_to_road_ics = ModelingToolkit.get_initial_conditions(tire_to_road)
-  __no_namespace_tire_to_road = ModelingToolkit.toggle_namespacing(tire_to_road, false)
-  __tire_to_road_k3 = Symbolics.unwrap(__no_namespace_tire_to_road.k3)::Symbolics.SymbolicT
-  delete!(__tire_to_road_ics, __tire_to_road_k3)
-  __tire_to_road_compression_only = Symbolics.unwrap(__no_namespace_tire_to_road.compression_only)::Symbolics.SymbolicT
-  delete!(__tire_to_road_ics, __tire_to_road_compression_only)
+  push!(__systems, @named tire_to_road = QuarterTruckSciML.ConfigurableTireSpringDamper(; k1=Float64(200000.0), k3=tire_k3, d=Float64(50.0), s_rel0=0.2, compression_only=tire_compression_only, tire_to_road_overrides...))
+  __dyad_bind_final!(__bindings, tire_to_road, Symbol[], :k3, tire_k3)
+  __dyad_bind_final!(__bindings, tire_to_road, Symbol[], :compression_only, tire_compression_only)
   # Subcomponent tire_to_body of type TranslationalComponents.Components.SpringDamper
   tire_to_body_overrides = __pop_subcomponent_overrides!(__overrides, "tire_to_body")
-  push!(__systems, @named tire_to_body = TranslationalComponents.Components.SpringDamper(; s_rel0=Float64(1.0), tire_to_body_overrides...))
-  __bindings[tire_to_body.c] = tire_to_body_c
-  __bindings[tire_to_body.d] = tire_to_body_d
-  # Now remove initial conditions in tire_to_body that correspond to the bindings just added
-  __tire_to_body_ics = ModelingToolkit.get_initial_conditions(tire_to_body)
-  __no_namespace_tire_to_body = ModelingToolkit.toggle_namespacing(tire_to_body, false)
-  __tire_to_body_c = Symbolics.unwrap(__no_namespace_tire_to_body.c)::Symbolics.SymbolicT
-  delete!(__tire_to_body_ics, __tire_to_body_c)
-  __tire_to_body_d = Symbolics.unwrap(__no_namespace_tire_to_body.d)::Symbolics.SymbolicT
-  delete!(__tire_to_body_ics, __tire_to_body_d)
+  push!(__systems, @named tire_to_body = TranslationalComponents.Components.SpringDamper(; c=tire_to_body_c, d=tire_to_body_d, s_rel0=Float64(1.0), tire_to_body_overrides...))
+  __dyad_bind_final!(__bindings, tire_to_body, Symbol[], :c, tire_to_body_c)
+  __dyad_bind_final!(__bindings, tire_to_body, Symbol[], :d, tire_to_body_d)
   # Subcomponent body_to_seat of type TranslationalComponents.Components.SpringDamper
   body_to_seat_overrides = __pop_subcomponent_overrides!(__overrides, "body_to_seat")
   push!(__systems, @named body_to_seat = TranslationalComponents.Components.SpringDamper(; c=Float64(15000.0), d=Float64(800.0), s_rel0=0.2, body_to_seat_overrides...))
   # Subcomponent seat_to_driver of type QuarterTruckSciML.ViscoelasticSpringDamper
   seat_to_driver_overrides = __pop_subcomponent_overrides!(__overrides, "seat_to_driver")
-  push!(__systems, @named seat_to_driver = QuarterTruckSciML.ViscoelasticSpringDamper(; s_rel0=0.1, seat_to_driver_overrides...))
-  __bindings[seat_to_driver.k] = seat_driver_k
-  __bindings[seat_to_driver.d] = seat_driver_d
-  __bindings[seat_to_driver.n] = seat_driver_n
-  # Now remove initial conditions in seat_to_driver that correspond to the bindings just added
-  __seat_to_driver_ics = ModelingToolkit.get_initial_conditions(seat_to_driver)
-  __no_namespace_seat_to_driver = ModelingToolkit.toggle_namespacing(seat_to_driver, false)
-  __seat_to_driver_k = Symbolics.unwrap(__no_namespace_seat_to_driver.k)::Symbolics.SymbolicT
-  delete!(__seat_to_driver_ics, __seat_to_driver_k)
-  __seat_to_driver_d = Symbolics.unwrap(__no_namespace_seat_to_driver.d)::Symbolics.SymbolicT
-  delete!(__seat_to_driver_ics, __seat_to_driver_d)
-  __seat_to_driver_n = Symbolics.unwrap(__no_namespace_seat_to_driver.n)::Symbolics.SymbolicT
-  delete!(__seat_to_driver_ics, __seat_to_driver_n)
+  push!(__systems, @named seat_to_driver = QuarterTruckSciML.ViscoelasticSpringDamper(; k=seat_driver_k, d=seat_driver_d, s_rel0=0.1, n=seat_driver_n, seat_to_driver_overrides...))
+  __dyad_bind_final!(__bindings, seat_to_driver, Symbol[], :k, seat_driver_k)
+  __dyad_bind_final!(__bindings, seat_to_driver, Symbol[], :d, seat_driver_d)
+  __dyad_bind_final!(__bindings, seat_to_driver, Symbol[], :n, seat_driver_n)
   # Subcomponent friction_tb of type QuarterTruckSciML.CoulombFriction
   friction_tb_overrides = __pop_subcomponent_overrides!(__overrides, "friction_tb")
-  push!(__systems, @named friction_tb = QuarterTruckSciML.CoulombFriction(; friction_tb_overrides...))
-  __bindings[friction_tb.F_c] = friction_Fc
-  __bindings[friction_tb.v0] = friction_v0
-  # Now remove initial conditions in friction_tb that correspond to the bindings just added
-  __friction_tb_ics = ModelingToolkit.get_initial_conditions(friction_tb)
-  __no_namespace_friction_tb = ModelingToolkit.toggle_namespacing(friction_tb, false)
-  __friction_tb_F_c = Symbolics.unwrap(__no_namespace_friction_tb.F_c)::Symbolics.SymbolicT
-  delete!(__friction_tb_ics, __friction_tb_F_c)
-  __friction_tb_v0 = Symbolics.unwrap(__no_namespace_friction_tb.v0)::Symbolics.SymbolicT
-  delete!(__friction_tb_ics, __friction_tb_v0)
+  push!(__systems, @named friction_tb = QuarterTruckSciML.CoulombFriction(; F_c=friction_Fc, v0=friction_v0, friction_tb_overrides...))
+  __dyad_bind_final!(__bindings, friction_tb, Symbol[], :F_c, friction_Fc)
+  __dyad_bind_final!(__bindings, friction_tb, Symbol[], :v0, friction_v0)
   # Subcomponent road of type TranslationalComponents.Sources.Position
   road_overrides = __pop_subcomponent_overrides!(__overrides, "road")
   push!(__systems, @named road = TranslationalComponents.Sources.Position(; ref_type=TranslationalComponents.Sources.ReferenceType.Filtered(; f_crit=Float64(100.0)), road_overrides...))

@@ -73,28 +73,28 @@
   ### Symbolic Parameters
   __local__M = M
   append!(__params, @parameters (M::Real), [bounds = (0, Inf)])
-  __initial_conditions[M] = __local__M
+  __dyad_seed_parameter!(__initial_conditions, __bindings, M, __local__M)
   __local__rho = rho
   append!(__params, @parameters (rho::Real), [bounds = (0, Inf)])
-  __initial_conditions[rho] = __local__rho
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rho, __local__rho)
   __local__cp = cp
   append!(__params, @parameters (cp::Real))
-  __initial_conditions[cp] = __local__cp
+  __dyad_seed_parameter!(__initial_conditions, __bindings, cp, __local__cp)
   __local__k = k
   append!(__params, @parameters (k::Real))
-  __initial_conditions[k] = __local__k
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k, __local__k)
   __local__T_init = T_init
   append!(__params, @parameters (T_init::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_init] = __local__T_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_init, __local__T_init)
   __local__pi = pi
   append!(__params, @parameters (pi::Real))
-  __initial_conditions[pi] = __local__pi
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pi, __local__pi)
   __local__R = R
   append!(__params, @parameters (R::Real))
-  __initial_conditions[R] = __local__R
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R, __local__R)
   __local__dr = dr
   append!(__params, @parameters (dr::Real))
-  __initial_conditions[dr] = __local__dr
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dr, __local__dr)
 
   ### Final Parameters (assignments)
   __bindings[T_inits] = T_init * ones(N)

@@ -56,7 +56,7 @@ The log-space parameterisation ensures positivity.
   ### Symbolic Parameters
   __local__caps = caps
   append!(__params, @parameters (caps[1:4]::Real), [description = "Log-space thermal capacitance parameters"])
-  __initial_conditions[caps] = __local__caps
+  __dyad_seed_parameter!(__initial_conditions, __bindings, caps, __local__caps)
 
   ### Final Parameters (assignments)
 

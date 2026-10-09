@@ -62,10 +62,10 @@ Regularized Coulomb friction element. F_c=0 disables friction.
   ### Symbolic Parameters
   __local__F_c = F_c
   append!(__params, @parameters (F_c::Real), [description = "Coulomb friction force magnitude [N] - 0 disables friction"])
-  __initial_conditions[F_c] = __local__F_c
+  __dyad_seed_parameter!(__initial_conditions, __bindings, F_c, __local__F_c)
   __local__v0 = v0
   append!(__params, @parameters (v0::Real), [description = "Regularization velocity [m/s]"])
-  __initial_conditions[v0] = __local__v0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v0, __local__v0)
 
   ### Final Parameters (assignments)
 

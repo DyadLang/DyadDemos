@@ -54,19 +54,19 @@ can apply damping force to suppress oscillations.
   ### Symbolic Parameters
   __local__pid_k = pid_k
   append!(__params, @parameters (pid_k::Real), [description = "PID proportional gain"])
-  __initial_conditions[pid_k] = __local__pid_k
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_k, __local__pid_k)
   __local__pid_Ti = pid_Ti
   append!(__params, @parameters (pid_Ti::Real), [description = "PID integral time"])
-  __initial_conditions[pid_Ti] = __local__pid_Ti
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_Ti, __local__pid_Ti)
   __local__pid_Td = pid_Td
   append!(__params, @parameters (pid_Td::Real), [description = "PID derivative time"])
-  __initial_conditions[pid_Td] = __local__pid_Td
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_Td, __local__pid_Td)
   __local__pid_y_max = pid_y_max
   append!(__params, @parameters (pid_y_max::Real), [description = "Maximum control force"])
-  __initial_conditions[pid_y_max] = __local__pid_y_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_y_max, __local__pid_y_max)
   __local__pid_y_min = pid_y_min
   append!(__params, @parameters (pid_y_min::Real), [description = "Minimum control force"])
-  __initial_conditions[pid_y_min] = __local__pid_y_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_y_min, __local__pid_y_min)
 
   ### Final Parameters (assignments)
 

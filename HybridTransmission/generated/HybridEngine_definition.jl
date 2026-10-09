@@ -64,13 +64,13 @@
   ### Symbolic Parameters
   __local__max_torque = max_torque
   append!(__params, @parameters (max_torque::Real))
-  __initial_conditions[max_torque] = __local__max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, max_torque, __local__max_torque)
   __local__b_friction = b_friction
   append!(__params, @parameters (b_friction::Real))
-  __initial_conditions[b_friction] = __local__b_friction
+  __dyad_seed_parameter!(__initial_conditions, __bindings, b_friction, __local__b_friction)
   __local__idle_fuel_rate = idle_fuel_rate
   append!(__params, @parameters (idle_fuel_rate::Real))
-  __initial_conditions[idle_fuel_rate] = __local__idle_fuel_rate
+  __dyad_seed_parameter!(__initial_conditions, __bindings, idle_fuel_rate, __local__idle_fuel_rate)
 
   ### Final Parameters (assignments)
 

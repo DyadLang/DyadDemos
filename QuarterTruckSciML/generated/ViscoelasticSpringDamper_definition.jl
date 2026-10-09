@@ -65,19 +65,19 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
   ### Symbolic Parameters
   __local__k = k
   append!(__params, @parameters (k::Real), [description = "Linear spring stiffness [N/m]"])
-  __initial_conditions[k] = __local__k
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k, __local__k)
   __local__d = d
   append!(__params, @parameters (d::Real), [description = "Damping coefficient [N*s^n/m^n]"])
-  __initial_conditions[d] = __local__d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, d, __local__d)
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [description = "Unstretched length [m]", bounds = (0, Inf)])
-  __initial_conditions[s_rel0] = __local__s_rel0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0, __local__s_rel0)
   __local__n = n
   append!(__params, @parameters (n::Real), [description = "Velocity exponent: 1.0=linear, 0.5=viscoelastic foam"])
-  __initial_conditions[n] = __local__n
+  __dyad_seed_parameter!(__initial_conditions, __bindings, n, __local__n)
   __local__v_reg = v_reg
   append!(__params, @parameters (v_reg::Real), [description = "Regularization velocity [m/s]"])
-  __initial_conditions[v_reg] = __local__v_reg
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v_reg, __local__v_reg)
 
   ### Final Parameters (assignments)
 

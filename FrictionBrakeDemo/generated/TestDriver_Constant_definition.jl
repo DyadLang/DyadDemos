@@ -53,10 +53,10 @@
   ### Symbolic Parameters
   __local__max_accel = max_accel
   append!(__params, @parameters (max_accel::Real))
-  __initial_conditions[max_accel] = __local__max_accel
+  __dyad_seed_parameter!(__initial_conditions, __bindings, max_accel, __local__max_accel)
   __local__drag_coeff = drag_coeff
   append!(__params, @parameters (drag_coeff::Real))
-  __initial_conditions[drag_coeff] = __local__drag_coeff
+  __dyad_seed_parameter!(__initial_conditions, __bindings, drag_coeff, __local__drag_coeff)
 
   ### Final Parameters (assignments)
 

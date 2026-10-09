@@ -74,16 +74,16 @@ Supported dynamics:
   ### Symbolic Parameters
   __local__V = V
   append!(__params, @parameters (V::Real), [description = "Volume"])
-  __initial_conditions[V] = __local__V
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V, __local__V)
   __local__a = a
   append!(__params, @parameters (a::Real), [description = "Excitation rate"])
-  __initial_conditions[a] = __local__a
+  __dyad_seed_parameter!(__initial_conditions, __bindings, a, __local__a)
   __local__b = b
   append!(__params, @parameters (b::Real), [description = "Recovery rate"])
-  __initial_conditions[b] = __local__b
+  __dyad_seed_parameter!(__initial_conditions, __bindings, b, __local__b)
   __local__epsilon = epsilon
   append!(__params, @parameters (epsilon::Real), [description = "Coupling strength"])
-  __initial_conditions[epsilon] = __local__epsilon
+  __dyad_seed_parameter!(__initial_conditions, __bindings, epsilon, __local__epsilon)
 
   ### Final Parameters (assignments)
 

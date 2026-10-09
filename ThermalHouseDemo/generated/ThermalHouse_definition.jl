@@ -117,169 +117,169 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   ### Symbolic Parameters
   __local__area_floor = area_floor
   append!(__params, @parameters (area_floor::Real), [description = "Building geometry (default 1000 sq ft house)"])
-  __initial_conditions[area_floor] = __local__area_floor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, area_floor, __local__area_floor)
   __local__height = height
   append!(__params, @parameters (height::Real))
-  __initial_conditions[height] = __local__height
+  __dyad_seed_parameter!(__initial_conditions, __bindings, height, __local__height)
   __local__ratio_L_W = ratio_L_W
   append!(__params, @parameters (ratio_L_W::Real))
-  __initial_conditions[ratio_L_W] = __local__ratio_L_W
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ratio_L_W, __local__ratio_L_W)
   __local__Aratio_window_wall = Aratio_window_wall
   append!(__params, @parameters (Aratio_window_wall::Real), [description = "Ratio of window to wall area"])
-  __initial_conditions[Aratio_window_wall] = __local__Aratio_window_wall
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Aratio_window_wall, __local__Aratio_window_wall)
   __local__no_doors = no_doors
   append!(__params, @parameters (no_doors::Real), [description = "Number of doors"])
-  __initial_conditions[no_doors] = __local__no_doors
+  __dyad_seed_parameter!(__initial_conditions, __bindings, no_doors, __local__no_doors)
   __local__A_door = A_door
   append!(__params, @parameters (A_door::Real), [description = "Area of single door"])
-  __initial_conditions[A_door] = __local__A_door
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_door, __local__A_door)
   __local__length = length
   append!(__params, @parameters (length::Real))
-  __initial_conditions[length] = __local__length
+  __dyad_seed_parameter!(__initial_conditions, __bindings, length, __local__length)
   __local__width = width
   append!(__params, @parameters (width::Real))
-  __initial_conditions[width] = __local__width
+  __dyad_seed_parameter!(__initial_conditions, __bindings, width, __local__width)
   __local__volume = volume
   append!(__params, @parameters (volume::Real))
-  __initial_conditions[volume] = __local__volume
+  __dyad_seed_parameter!(__initial_conditions, __bindings, volume, __local__volume)
   __local__area_walls = area_walls
   append!(__params, @parameters (area_walls::Real), [description = "Total wall area (m²)"])
-  __initial_conditions[area_walls] = __local__area_walls
+  __dyad_seed_parameter!(__initial_conditions, __bindings, area_walls, __local__area_walls)
   __local__area_window = area_window
   append!(__params, @parameters (area_window::Real), [description = "Total window area (m²)"])
-  __initial_conditions[area_window] = __local__area_window
+  __dyad_seed_parameter!(__initial_conditions, __bindings, area_window, __local__area_window)
   __local__area_doors = area_doors
   append!(__params, @parameters (area_doors::Real), [description = "Total door area (m²)"])
-  __initial_conditions[area_doors] = __local__area_doors
+  __dyad_seed_parameter!(__initial_conditions, __bindings, area_doors, __local__area_doors)
   __local__area_roof = area_roof
   append!(__params, @parameters (area_roof::Real), [description = "Total roof area (m²)"])
-  __initial_conditions[area_roof] = __local__area_roof
+  __dyad_seed_parameter!(__initial_conditions, __bindings, area_roof, __local__area_roof)
   __local__U_walls = U_walls
   append!(__params, @parameters (U_walls::Real), [description = "U-value for walls W/(m²·K)"])
-  __initial_conditions[U_walls] = __local__U_walls
+  __dyad_seed_parameter!(__initial_conditions, __bindings, U_walls, __local__U_walls)
   __local__U_roof = U_roof
   append!(__params, @parameters (U_roof::Real), [description = "U-value for roof W/(m²·K)"])
-  __initial_conditions[U_roof] = __local__U_roof
+  __dyad_seed_parameter!(__initial_conditions, __bindings, U_roof, __local__U_roof)
   __local__U_floor = U_floor
   append!(__params, @parameters (U_floor::Real), [description = "U-value for floor W/(m²·K)"])
-  __initial_conditions[U_floor] = __local__U_floor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, U_floor, __local__U_floor)
   __local__U_window = U_window
   append!(__params, @parameters (U_window::Real), [description = "U-value for windows W/(m²·K)"])
-  __initial_conditions[U_window] = __local__U_window
+  __dyad_seed_parameter!(__initial_conditions, __bindings, U_window, __local__U_window)
   __local__U_door = U_door
   append!(__params, @parameters (U_door::Real), [description = "U-value for door W/(m²·K)"])
-  __initial_conditions[U_door] = __local__U_door
+  __dyad_seed_parameter!(__initial_conditions, __bindings, U_door, __local__U_door)
   __local__SHGC = SHGC
   append!(__params, @parameters (SHGC::Real), [description = "Window solar heat gain coefficient"])
-  __initial_conditions[SHGC] = __local__SHGC
+  __dyad_seed_parameter!(__initial_conditions, __bindings, SHGC, __local__SHGC)
   __local__f_window = f_window
   append!(__params, @parameters (f_window::Real), [description = "Window orientation factor for sun-facing windows"])
-  __initial_conditions[f_window] = __local__f_window
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_window, __local__f_window)
   __local__rho_air = rho_air
   append!(__params, @parameters (rho_air::Real), [description = "Thermal mass (air + structure)", bounds = (0, Inf)])
-  __initial_conditions[rho_air] = __local__rho_air
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rho_air, __local__rho_air)
   __local__cp_air = cp_air
   append!(__params, @parameters (cp_air::Real))
-  __initial_conditions[cp_air] = __local__cp_air
+  __dyad_seed_parameter!(__initial_conditions, __bindings, cp_air, __local__cp_air)
   __local__mass_air = mass_air
   append!(__params, @parameters (mass_air::Real), [bounds = (0, Inf)])
-  __initial_conditions[mass_air] = __local__mass_air
+  __dyad_seed_parameter!(__initial_conditions, __bindings, mass_air, __local__mass_air)
   __local__C_air = C_air
   append!(__params, @parameters (C_air::Real))
-  __initial_conditions[C_air] = __local__C_air
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_air, __local__C_air)
   __local__t_dw = t_dw
   append!(__params, @parameters (t_dw::Real), [description = "Drywall thermal mass"])
-  __initial_conditions[t_dw] = __local__t_dw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, t_dw, __local__t_dw)
   __local__rho_dw = rho_dw
   append!(__params, @parameters (rho_dw::Real), [bounds = (0, Inf)])
-  __initial_conditions[rho_dw] = __local__rho_dw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rho_dw, __local__rho_dw)
   __local__cp_dw = cp_dw
   append!(__params, @parameters (cp_dw::Real))
-  __initial_conditions[cp_dw] = __local__cp_dw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, cp_dw, __local__cp_dw)
   __local__C_walls_ceiling = C_walls_ceiling
   append!(__params, @parameters (C_walls_ceiling::Real))
-  __initial_conditions[C_walls_ceiling] = __local__C_walls_ceiling
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_walls_ceiling, __local__C_walls_ceiling)
   __local__t_floor = t_floor
   append!(__params, @parameters (t_floor::Real), [description = "Floor thermal mass"])
-  __initial_conditions[t_floor] = __local__t_floor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, t_floor, __local__t_floor)
   __local__rho_floor = rho_floor
   append!(__params, @parameters (rho_floor::Real), [bounds = (0, Inf)])
-  __initial_conditions[rho_floor] = __local__rho_floor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rho_floor, __local__rho_floor)
   __local__cp_floor = cp_floor
   append!(__params, @parameters (cp_floor::Real))
-  __initial_conditions[cp_floor] = __local__cp_floor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, cp_floor, __local__cp_floor)
   __local__C_floor = C_floor
   append!(__params, @parameters (C_floor::Real))
-  __initial_conditions[C_floor] = __local__C_floor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_floor, __local__C_floor)
   __local__C_tot = C_tot
   append!(__params, @parameters (C_tot::Real), [description = "Total thermal capacitance"])
-  __initial_conditions[C_tot] = __local__C_tot
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_tot, __local__C_tot)
   __local__G_wall = G_wall
   append!(__params, @parameters (G_wall::Real), [description = "Envelope conductances"])
-  __initial_conditions[G_wall] = __local__G_wall
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_wall, __local__G_wall)
   __local__G_window = G_window
   append!(__params, @parameters (G_window::Real))
-  __initial_conditions[G_window] = __local__G_window
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_window, __local__G_window)
   __local__G_roof = G_roof
   append!(__params, @parameters (G_roof::Real))
-  __initial_conditions[G_roof] = __local__G_roof
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_roof, __local__G_roof)
   __local__G_floor = G_floor
   append!(__params, @parameters (G_floor::Real))
-  __initial_conditions[G_floor] = __local__G_floor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_floor, __local__G_floor)
   __local__G_door = G_door
   append!(__params, @parameters (G_door::Real))
-  __initial_conditions[G_door] = __local__G_door
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_door, __local__G_door)
   __local__G_envelope = G_envelope
   append!(__params, @parameters (G_envelope::Real))
-  __initial_conditions[G_envelope] = __local__G_envelope
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_envelope, __local__G_envelope)
   __local__U_envelope = U_envelope
   append!(__params, @parameters (U_envelope::Real), [description = "Envelope U-value relative to floor area W/(m²·K)"])
-  __initial_conditions[U_envelope] = __local__U_envelope
+  __dyad_seed_parameter!(__initial_conditions, __bindings, U_envelope, __local__U_envelope)
   __local__ACH_infiltration = ACH_infiltration
   append!(__params, @parameters (ACH_infiltration::Real), [description = "Natural infiltration (ACH = air changes per hour)"])
-  __initial_conditions[ACH_infiltration] = __local__ACH_infiltration
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ACH_infiltration, __local__ACH_infiltration)
   __local__ACH_ventilation = ACH_ventilation
   append!(__params, @parameters (ACH_ventilation::Real), [description = "Mechanical ventilation (ASHRAE 62.2)"])
-  __initial_conditions[ACH_ventilation] = __local__ACH_ventilation
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ACH_ventilation, __local__ACH_ventilation)
   __local__ACH_total = ACH_total
   append!(__params, @parameters (ACH_total::Real))
-  __initial_conditions[ACH_total] = __local__ACH_total
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ACH_total, __local__ACH_total)
   __local__m_dot_air = m_dot_air
   append!(__params, @parameters (m_dot_air::Real), [description = "Air mass flow rate (kg/s)"])
-  __initial_conditions[m_dot_air] = __local__m_dot_air
+  __dyad_seed_parameter!(__initial_conditions, __bindings, m_dot_air, __local__m_dot_air)
   __local__G_infiltration = G_infiltration
   append!(__params, @parameters (G_infiltration::Real))
-  __initial_conditions[G_infiltration] = __local__G_infiltration
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_infiltration, __local__G_infiltration)
   __local__U_infiltration = U_infiltration
   append!(__params, @parameters (U_infiltration::Real), [description = "Infiltration U-value relative to floor area W/(m²·K)"])
-  __initial_conditions[U_infiltration] = __local__U_infiltration
+  __dyad_seed_parameter!(__initial_conditions, __bindings, U_infiltration, __local__U_infiltration)
   __local__G_total = G_total
   append!(__params, @parameters (G_total::Real), [description = "Total conductance (envelope + infiltration)"])
-  __initial_conditions[G_total] = __local__G_total
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_total, __local__G_total)
   __local__U_total = U_total
   append!(__params, @parameters (U_total::Real), [description = "Total U-value relative to floor area W/(m²·K)"])
-  __initial_conditions[U_total] = __local__U_total
+  __dyad_seed_parameter!(__initial_conditions, __bindings, U_total, __local__U_total)
   __local__h_conv = h_conv
   append!(__params, @parameters (h_conv::Real), [description = "Convection at exterior surface"])
-  __initial_conditions[h_conv] = __local__h_conv
+  __dyad_seed_parameter!(__initial_conditions, __bindings, h_conv, __local__h_conv)
   __local__G_conv = G_conv
   append!(__params, @parameters (G_conv::Real))
-  __initial_conditions[G_conv] = __local__G_conv
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_conv, __local__G_conv)
   __local__Q_people = Q_people
   append!(__params, @parameters (Q_people::Real), [description = "Occupant sensible heat"])
-  __initial_conditions[Q_people] = __local__Q_people
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_people, __local__Q_people)
   __local__Q_lighting = Q_lighting
   append!(__params, @parameters (Q_lighting::Real), [description = "Lighting heat"])
-  __initial_conditions[Q_lighting] = __local__Q_lighting
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_lighting, __local__Q_lighting)
   __local__Q_appliances = Q_appliances
   append!(__params, @parameters (Q_appliances::Real), [description = "Appliance heat"])
-  __initial_conditions[Q_appliances] = __local__Q_appliances
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_appliances, __local__Q_appliances)
   __local__Q_internal = Q_internal
   append!(__params, @parameters (Q_internal::Real))
-  __initial_conditions[Q_internal] = __local__Q_internal
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_internal, __local__Q_internal)
   __local__T_initial = T_initial
   append!(__params, @parameters (T_initial::Real), [description = "Temperature references", bounds = (0, Inf)])
-  __initial_conditions[T_initial] = __local__T_initial
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_initial, __local__T_initial)
 
   ### Final Parameters (assignments)
 

@@ -66,28 +66,28 @@ ISO 8608 Class C road profile via sum-of-sinusoids approximation
   ### Symbolic Parameters
   __local__v = v
   append!(__params, @parameters (v::Real), [description = "Vehicle speed (m/s)"])
-  __initial_conditions[v] = __local__v
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v, __local__v)
   __local__Gd_n0 = Gd_n0
   append!(__params, @parameters (Gd_n0::Real), [description = "Roughness coefficient at n0 (m^3), Class C = 256e-6"])
-  __initial_conditions[Gd_n0] = __local__Gd_n0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gd_n0, __local__Gd_n0)
   __local__n0 = n0
   append!(__params, @parameters (n0::Real), [description = "Reference spatial frequency (cycles/m)"])
-  __initial_conditions[n0] = __local__n0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, n0, __local__n0)
   __local__f_min = f_min
   append!(__params, @parameters (f_min::Real), [description = "Minimum temporal frequency (Hz)"])
-  __initial_conditions[f_min] = __local__f_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_min, __local__f_min)
   __local__f_max = f_max
   append!(__params, @parameters (f_max::Real), [description = "Maximum temporal frequency (Hz)"])
-  __initial_conditions[f_max] = __local__f_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_max, __local__f_max)
   __local__amp_base = amp_base
   append!(__params, @parameters (amp_base[1:N]::Real), [description = "Velocity-independent amplitude base: multiply by sqrt(v) for final amplitude"])
-  __initial_conditions[amp_base] = __local__amp_base
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amp_base, __local__amp_base)
   __local__frequencies = frequencies
   append!(__params, @parameters (frequencies[1:N]::Real))
-  __initial_conditions[frequencies] = __local__frequencies
+  __dyad_seed_parameter!(__initial_conditions, __bindings, frequencies, __local__frequencies)
   __local__phases = phases
   append!(__params, @parameters (phases[1:N]::Real))
-  __initial_conditions[phases] = __local__phases
+  __dyad_seed_parameter!(__initial_conditions, __bindings, phases, __local__phases)
 
   ### Final Parameters (assignments)
 

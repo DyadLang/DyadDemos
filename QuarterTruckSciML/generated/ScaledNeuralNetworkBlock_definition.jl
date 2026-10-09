@@ -68,25 +68,25 @@ Neural network that supplies the truck's missing forces: three raw physics signa
   ### Symbolic Parameters
   __local__s_rel0_tire = s_rel0_tire
   append!(__params, @parameters (s_rel0_tire::Real), [description = "Tire unstretched length [m]"])
-  __initial_conditions[s_rel0_tire] = __local__s_rel0_tire
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0_tire, __local__s_rel0_tire)
   __local__s_scale_tire = s_scale_tire
   append!(__params, @parameters (s_scale_tire::Real), [description = "Tire deflection normalization [m]"])
-  __initial_conditions[s_scale_tire] = __local__s_scale_tire
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_scale_tire, __local__s_scale_tire)
   __local__v_friction_scale = v_friction_scale
   append!(__params, @parameters (v_friction_scale::Real), [description = "Friction velocity normalization [m/s]"])
-  __initial_conditions[v_friction_scale] = __local__v_friction_scale
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v_friction_scale, __local__v_friction_scale)
   __local__v_seat_scale = v_seat_scale
   append!(__params, @parameters (v_seat_scale::Real), [description = "Seat-driver velocity normalization [m/s]"])
-  __initial_conditions[v_seat_scale] = __local__v_seat_scale
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v_seat_scale, __local__v_seat_scale)
   __local__f_scale_tire = f_scale_tire
   append!(__params, @parameters (f_scale_tire::Real), [description = "Force scale for tire NN output [N]"])
-  __initial_conditions[f_scale_tire] = __local__f_scale_tire
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_scale_tire, __local__f_scale_tire)
   __local__f_scale_friction = f_scale_friction
   append!(__params, @parameters (f_scale_friction::Real), [description = "Force scale for friction NN output [N]"])
-  __initial_conditions[f_scale_friction] = __local__f_scale_friction
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_scale_friction, __local__f_scale_friction)
   __local__d_seat = d_seat
   append!(__params, @parameters (d_seat::Real), [description = "Seat-driver damping coefficient [N*s/m] (d*v prefactor)"])
-  __initial_conditions[d_seat] = __local__d_seat
+  __dyad_seed_parameter!(__initial_conditions, __bindings, d_seat, __local__d_seat)
 
   ### Final Parameters (assignments)
 

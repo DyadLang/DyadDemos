@@ -49,10 +49,10 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
   ### Symbolic Parameters
   __local__amplitude = amplitude
   append!(__params, @parameters (amplitude::Real), [bounds = (0, Inf)])
-  __initial_conditions[amplitude] = __local__amplitude
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amplitude, __local__amplitude)
   __local__frequency = frequency
   append!(__params, @parameters (frequency::Real))
-  __initial_conditions[frequency] = __local__frequency
+  __dyad_seed_parameter!(__initial_conditions, __bindings, frequency, __local__frequency)
 
   ### Final Parameters (assignments)
 

@@ -73,28 +73,28 @@
   ### Symbolic Parameters
   __local__R_effective = R_effective
   append!(__params, @parameters (R_effective::Real))
-  __initial_conditions[R_effective] = __local__R_effective
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_effective, __local__R_effective)
   __local__N_surfaces = N_surfaces
   append!(__params, @parameters (N_surfaces::Int))
-  __initial_conditions[N_surfaces] = __local__N_surfaces
+  __dyad_seed_parameter!(__initial_conditions, __bindings, N_surfaces, __local__N_surfaces)
   __local__N_wheels = N_wheels
   append!(__params, @parameters (N_wheels::Int))
-  __initial_conditions[N_wheels] = __local__N_wheels
+  __dyad_seed_parameter!(__initial_conditions, __bindings, N_wheels, __local__N_wheels)
   __local__F_normal_max = F_normal_max
   append!(__params, @parameters (F_normal_max::Real))
-  __initial_conditions[F_normal_max] = __local__F_normal_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, F_normal_max, __local__F_normal_max)
   __local__μ_0 = μ_0
   append!(__params, @parameters (μ_0::Real))
-  __initial_conditions[μ_0] = __local__μ_0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, μ_0, __local__μ_0)
   __local__α_T = α_T
   append!(__params, @parameters (α_T::Real))
-  __initial_conditions[α_T] = __local__α_T
+  __dyad_seed_parameter!(__initial_conditions, __bindings, α_T, __local__α_T)
   __local__T_ref = T_ref
   append!(__params, @parameters (T_ref::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_ref] = __local__T_ref
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_ref, __local__T_ref)
   __local__f_partition = f_partition
   append!(__params, @parameters (f_partition::Real))
-  __initial_conditions[f_partition] = __local__f_partition
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_partition, __local__f_partition)
 
   ### Final Parameters (assignments)
 

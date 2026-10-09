@@ -7,6 +7,7 @@
 using CSV, DataFrames, Plots
 using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
 using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
+using ModelingToolkit: SciMLBase
 
 # Runs one Dyad test case end-to-end. Called once per (component, case)
 # pair from the generated `<Component>_test.jl` files; the call site is

@@ -65,43 +65,43 @@
   ### Symbolic Parameters
   __local__C_disk = C_disk
   append!(__params, @parameters (C_disk::Real))
-  __initial_conditions[C_disk] = __local__C_disk
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_disk, __local__C_disk)
   __local__C_pad = C_pad
   append!(__params, @parameters (C_pad::Real))
-  __initial_conditions[C_pad] = __local__C_pad
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_pad, __local__C_pad)
   __local__T_disk_init = T_disk_init
   append!(__params, @parameters (T_disk_init::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_disk_init] = __local__T_disk_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_disk_init, __local__T_disk_init)
   __local__T_pad_init = T_pad_init
   append!(__params, @parameters (T_pad_init::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_pad_init] = __local__T_pad_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_pad_init, __local__T_pad_init)
   __local__T_ambient = T_ambient
   append!(__params, @parameters (T_ambient::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_ambient] = __local__T_ambient
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_ambient, __local__T_ambient)
   __local__h_disk_base = h_disk_base
   append!(__params, @parameters (h_disk_base::Real))
-  __initial_conditions[h_disk_base] = __local__h_disk_base
+  __dyad_seed_parameter!(__initial_conditions, __bindings, h_disk_base, __local__h_disk_base)
   __local__h_pad_base = h_pad_base
   append!(__params, @parameters (h_pad_base::Real))
-  __initial_conditions[h_pad_base] = __local__h_pad_base
+  __dyad_seed_parameter!(__initial_conditions, __bindings, h_pad_base, __local__h_pad_base)
   __local__k_disk_speed = k_disk_speed
   append!(__params, @parameters (k_disk_speed::Real))
-  __initial_conditions[k_disk_speed] = __local__k_disk_speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_disk_speed, __local__k_disk_speed)
   __local__k_pad_speed = k_pad_speed
   append!(__params, @parameters (k_pad_speed::Real))
-  __initial_conditions[k_pad_speed] = __local__k_pad_speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_pad_speed, __local__k_pad_speed)
   __local__A_disk = A_disk
   append!(__params, @parameters (A_disk::Real))
-  __initial_conditions[A_disk] = __local__A_disk
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_disk, __local__A_disk)
   __local__A_pad = A_pad
   append!(__params, @parameters (A_pad::Real))
-  __initial_conditions[A_pad] = __local__A_pad
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_pad, __local__A_pad)
   __local__epsilon_disk = epsilon_disk
   append!(__params, @parameters (epsilon_disk::Real))
-  __initial_conditions[epsilon_disk] = __local__epsilon_disk
+  __dyad_seed_parameter!(__initial_conditions, __bindings, epsilon_disk, __local__epsilon_disk)
   __local__G_rad_pad_disk = G_rad_pad_disk
   append!(__params, @parameters (G_rad_pad_disk::Real))
-  __initial_conditions[G_rad_pad_disk] = __local__G_rad_pad_disk
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_rad_pad_disk, __local__G_rad_pad_disk)
 
   ### Final Parameters (assignments)
 

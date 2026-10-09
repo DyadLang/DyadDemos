@@ -56,34 +56,34 @@
   ### Symbolic Parameters
   __local__T_oven = T_oven
   append!(__params, @parameters (T_oven::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_oven] = __local__T_oven
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_oven, __local__T_oven)
   __local__h = h
   append!(__params, @parameters (h::Real))
-  __initial_conditions[h] = __local__h
+  __dyad_seed_parameter!(__initial_conditions, __bindings, h, __local__h)
   __local__epsilon = epsilon
   append!(__params, @parameters (epsilon::Real))
-  __initial_conditions[epsilon] = __local__epsilon
+  __dyad_seed_parameter!(__initial_conditions, __bindings, epsilon, __local__epsilon)
   __local__M_turkey = M_turkey
   append!(__params, @parameters (M_turkey::Real), [bounds = (0, Inf)])
-  __initial_conditions[M_turkey] = __local__M_turkey
+  __dyad_seed_parameter!(__initial_conditions, __bindings, M_turkey, __local__M_turkey)
   __local__rho_turkey = rho_turkey
   append!(__params, @parameters (rho_turkey::Real), [bounds = (0, Inf)])
-  __initial_conditions[rho_turkey] = __local__rho_turkey
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rho_turkey, __local__rho_turkey)
   __local__pi = pi
   append!(__params, @parameters (pi::Real))
-  __initial_conditions[pi] = __local__pi
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pi, __local__pi)
   __local__R_turkey = R_turkey
   append!(__params, @parameters (R_turkey::Real))
-  __initial_conditions[R_turkey] = __local__R_turkey
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_turkey, __local__R_turkey)
   __local__A_surface = A_surface
   append!(__params, @parameters (A_surface::Real))
-  __initial_conditions[A_surface] = __local__A_surface
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_surface, __local__A_surface)
   __local__Gc_conv = Gc_conv
   append!(__params, @parameters (Gc_conv::Real))
-  __initial_conditions[Gc_conv] = __local__Gc_conv
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_conv, __local__Gc_conv)
   __local__Gr_rad = Gr_rad
   append!(__params, @parameters (Gr_rad::Real))
-  __initial_conditions[Gr_rad] = __local__Gr_rad
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gr_rad, __local__Gr_rad)
 
   ### Final Parameters (assignments)
 

@@ -83,25 +83,25 @@ with different positions/directions for a full thruster configuration.
   ### Symbolic Parameters
   __local__rx = rx
   append!(__params, @parameters (rx::Real), [description = "Thruster mounting position from CoM (body frame, m)"])
-  __initial_conditions[rx] = __local__rx
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rx, __local__rx)
   __local__ry = ry
   append!(__params, @parameters (ry::Real))
-  __initial_conditions[ry] = __local__ry
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ry, __local__ry)
   __local__rz = rz
   append!(__params, @parameters (rz::Real))
-  __initial_conditions[rz] = __local__rz
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rz, __local__rz)
   __local__dx = dx
   append!(__params, @parameters (dx::Real), [description = "Thrust direction (body frame, unit vector)"])
-  __initial_conditions[dx] = __local__dx
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dx, __local__dx)
   __local__dy = dy
   append!(__params, @parameters (dy::Real))
-  __initial_conditions[dy] = __local__dy
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dy, __local__dy)
   __local__dz = dz
   append!(__params, @parameters (dz::Real))
-  __initial_conditions[dz] = __local__dz
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dz, __local__dz)
   __local__F_max = F_max
   append!(__params, @parameters (F_max::Real), [description = "Maximum thrust (N)"])
-  __initial_conditions[F_max] = __local__F_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, F_max, __local__F_max)
 
   ### Final Parameters (assignments)
 

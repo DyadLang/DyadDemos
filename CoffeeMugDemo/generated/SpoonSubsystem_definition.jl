@@ -55,19 +55,19 @@
   ### Symbolic Parameters
   __local__C_spoon = C_spoon
   append!(__params, @parameters (C_spoon::Real))
-  __initial_conditions[C_spoon] = __local__C_spoon
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_spoon, __local__C_spoon)
   __local__T0_spoon = T0_spoon
   append!(__params, @parameters (T0_spoon::Real), [bounds = (0, Inf)])
-  __initial_conditions[T0_spoon] = __local__T0_spoon
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0_spoon, __local__T0_spoon)
   __local__G_liquid_contact = G_liquid_contact
   append!(__params, @parameters (G_liquid_contact::Real))
-  __initial_conditions[G_liquid_contact] = __local__G_liquid_contact
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_liquid_contact, __local__G_liquid_contact)
   __local__Gc_exposed = Gc_exposed
   append!(__params, @parameters (Gc_exposed::Real))
-  __initial_conditions[Gc_exposed] = __local__Gc_exposed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_exposed, __local__Gc_exposed)
   __local__Gr_exposed = Gr_exposed
   append!(__params, @parameters (Gr_exposed::Real))
-  __initial_conditions[Gr_exposed] = __local__Gr_exposed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gr_exposed, __local__Gr_exposed)
 
   ### Final Parameters (assignments)
 

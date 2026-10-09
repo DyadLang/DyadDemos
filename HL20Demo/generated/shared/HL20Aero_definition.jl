@@ -205,76 +205,76 @@ HL-20 aerodynamic model. TM-4302 coefficient buildup via registered symbolic fun
   ### Symbolic Parameters
   __local__DLG = DLG
   append!(__params, @parameters (DLG::Real))
-  __initial_conditions[DLG] = __local__DLG
+  __dyad_seed_parameter!(__initial_conditions, __bindings, DLG, __local__DLG)
   __local__CBAR_ft = CBAR_ft
   append!(__params, @parameters (CBAR_ft::Real))
-  __initial_conditions[CBAR_ft] = __local__CBAR_ft
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CBAR_ft, __local__CBAR_ft)
   __local__BSPAN_ft = BSPAN_ft
   append!(__params, @parameters (BSPAN_ft::Real))
-  __initial_conditions[BSPAN_ft] = __local__BSPAN_ft
+  __dyad_seed_parameter!(__initial_conditions, __bindings, BSPAN_ft, __local__BSPAN_ft)
   __local__Cm_bias = Cm_bias
   append!(__params, @parameters (Cm_bias::Real))
-  __initial_conditions[Cm_bias] = __local__Cm_bias
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Cm_bias, __local__Cm_bias)
   __local__CMQ0 = CMQ0
   append!(__params, @parameters (CMQ0::Real))
-  __initial_conditions[CMQ0] = __local__CMQ0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CMQ0, __local__CMQ0)
   __local__CMQ1 = CMQ1
   append!(__params, @parameters (CMQ1::Real))
-  __initial_conditions[CMQ1] = __local__CMQ1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CMQ1, __local__CMQ1)
   __local__CMQ2 = CMQ2
   append!(__params, @parameters (CMQ2::Real))
-  __initial_conditions[CMQ2] = __local__CMQ2
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CMQ2, __local__CMQ2)
   __local__CMQ3 = CMQ3
   append!(__params, @parameters (CMQ3::Real))
-  __initial_conditions[CMQ3] = __local__CMQ3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CMQ3, __local__CMQ3)
   __local__CNP0 = CNP0
   append!(__params, @parameters (CNP0::Real))
-  __initial_conditions[CNP0] = __local__CNP0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CNP0, __local__CNP0)
   __local__CNP1 = CNP1
   append!(__params, @parameters (CNP1::Real))
-  __initial_conditions[CNP1] = __local__CNP1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CNP1, __local__CNP1)
   __local__CNP2 = CNP2
   append!(__params, @parameters (CNP2::Real))
-  __initial_conditions[CNP2] = __local__CNP2
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CNP2, __local__CNP2)
   __local__CNP3 = CNP3
   append!(__params, @parameters (CNP3::Real))
-  __initial_conditions[CNP3] = __local__CNP3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CNP3, __local__CNP3)
   __local__CNR0 = CNR0
   append!(__params, @parameters (CNR0::Real))
-  __initial_conditions[CNR0] = __local__CNR0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CNR0, __local__CNR0)
   __local__CNR1 = CNR1
   append!(__params, @parameters (CNR1::Real))
-  __initial_conditions[CNR1] = __local__CNR1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CNR1, __local__CNR1)
   __local__CNR2 = CNR2
   append!(__params, @parameters (CNR2::Real))
-  __initial_conditions[CNR2] = __local__CNR2
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CNR2, __local__CNR2)
   __local__CNR3 = CNR3
   append!(__params, @parameters (CNR3::Real))
-  __initial_conditions[CNR3] = __local__CNR3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CNR3, __local__CNR3)
   __local__CLP0 = CLP0
   append!(__params, @parameters (CLP0::Real))
-  __initial_conditions[CLP0] = __local__CLP0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CLP0, __local__CLP0)
   __local__CLP1 = CLP1
   append!(__params, @parameters (CLP1::Real))
-  __initial_conditions[CLP1] = __local__CLP1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CLP1, __local__CLP1)
   __local__CLP2 = CLP2
   append!(__params, @parameters (CLP2::Real))
-  __initial_conditions[CLP2] = __local__CLP2
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CLP2, __local__CLP2)
   __local__CLP3 = CLP3
   append!(__params, @parameters (CLP3::Real))
-  __initial_conditions[CLP3] = __local__CLP3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CLP3, __local__CLP3)
   __local__CLR0 = CLR0
   append!(__params, @parameters (CLR0::Real))
-  __initial_conditions[CLR0] = __local__CLR0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CLR0, __local__CLR0)
   __local__CLR1 = CLR1
   append!(__params, @parameters (CLR1::Real))
-  __initial_conditions[CLR1] = __local__CLR1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CLR1, __local__CLR1)
   __local__CLR2 = CLR2
   append!(__params, @parameters (CLR2::Real))
-  __initial_conditions[CLR2] = __local__CLR2
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CLR2, __local__CLR2)
   __local__CLR3 = CLR3
   append!(__params, @parameters (CLR3::Real))
-  __initial_conditions[CLR3] = __local__CLR3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, CLR3, __local__CLR3)
 
   ### Final Parameters (assignments)
   __bindings[iCL0A] = ChallengeComponent.idx1d("CL0A")

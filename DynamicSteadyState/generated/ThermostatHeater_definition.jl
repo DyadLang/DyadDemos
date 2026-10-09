@@ -59,13 +59,13 @@
   ### Symbolic Parameters
   __local__K = K
   append!(__params, @parameters (K::Real), [description = "Proportional gain (W/K)"])
-  __initial_conditions[K] = __local__K
+  __dyad_seed_parameter!(__initial_conditions, __bindings, K, __local__K)
   __local__T_set = T_set
   append!(__params, @parameters (T_set::Real), [description = "Heating setpoint temperature", bounds = (0, Inf)])
-  __initial_conditions[T_set] = __local__T_set
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_set, __local__T_set)
   __local__Q_max = Q_max
   append!(__params, @parameters (Q_max::Real), [description = "Maximum heating capacity (W)"])
-  __initial_conditions[Q_max] = __local__Q_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_max, __local__Q_max)
 
   ### Final Parameters (assignments)
 

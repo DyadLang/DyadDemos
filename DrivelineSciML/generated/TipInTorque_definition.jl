@@ -57,22 +57,22 @@ Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at
   ### Symbolic Parameters
   __local__T_cruise = T_cruise
   append!(__params, @parameters (T_cruise::Real), [description = "Cruise torque before tip-in [N*m]"])
-  __initial_conditions[T_cruise] = __local__T_cruise
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_cruise, __local__T_cruise)
   __local__T_accel = T_accel
   append!(__params, @parameters (T_accel::Real), [description = "Torque after tip-in [N*m]"])
-  __initial_conditions[T_accel] = __local__T_accel
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_accel, __local__T_accel)
   __local__t_tip = t_tip
   append!(__params, @parameters (t_tip::Real), [description = "Tip-in center time [s]"])
-  __initial_conditions[t_tip] = __local__t_tip
+  __dyad_seed_parameter!(__initial_conditions, __bindings, t_tip, __local__t_tip)
   __local__t_ramp = t_ramp
   append!(__params, @parameters (t_ramp::Real), [description = "Ramp time constant [s]"])
-  __initial_conditions[t_ramp] = __local__t_ramp
+  __dyad_seed_parameter!(__initial_conditions, __bindings, t_ramp, __local__t_ramp)
   __local__ripple_amplitude = ripple_amplitude
   append!(__params, @parameters (ripple_amplitude::Real), [description = "Motor torque ripple amplitude [N*m]"])
-  __initial_conditions[ripple_amplitude] = __local__ripple_amplitude
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ripple_amplitude, __local__ripple_amplitude)
   __local__ripple_frequency = ripple_frequency
   append!(__params, @parameters (ripple_frequency::Real), [description = "Motor torque ripple frequency [Hz]"])
-  __initial_conditions[ripple_frequency] = __local__ripple_frequency
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ripple_frequency, __local__ripple_frequency)
 
   ### Final Parameters (assignments)
 

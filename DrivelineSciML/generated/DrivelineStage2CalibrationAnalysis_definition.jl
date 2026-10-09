@@ -5,7 +5,7 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
 using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadModelOptimizer: AbstractCalibrationAnalysisSpec, CalibrationAnalysisSpec
 @kwdef mutable struct DrivelineStage2CalibrationAnalysisSpec <: AbstractCalibrationAnalysisSpec
@@ -27,6 +27,7 @@ using DyadModelOptimizer: AbstractCalibrationAnalysisSpec, CalibrationAnalysisSp
   var"multiple_shooting_trajectories"::Int = 0
   var"pem_gain"::Float64 = 0.0
   var"optimizer"::DyadModelOptimizer.OptimizerAlg.Type = "auto"
+  var"adtype"::DyadModelOptimizer.ADChoice.Type = DyadModelOptimizer.ADChoice.Auto()
   var"optimizer_abstol"::Float64 = 0.0001
   var"optimizer_maxiters"::Int = 300
   var"optimizer_maxtime"::Float64 = 0.0
@@ -42,7 +43,7 @@ function DyadInterface.run_analysis(spec::DrivelineStage2CalibrationAnalysisSpec
   no_namespace_model = toggle_namespacing(spec.model, false)
   
   base_spec = CalibrationAnalysisSpec(;
-    name=:CalibrationAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, data=spec.data, depvars_names=spec.depvars_names, loss_func=spec.loss_func, search_space_names=spec.search_space_names, search_space_lb=spec.search_space_lb, search_space_ub=spec.search_space_ub, calibration_alg=spec.calibration_alg, multiple_shooting_trajectories=spec.multiple_shooting_trajectories, pem_gain=spec.pem_gain, optimizer=spec.optimizer, optimizer_abstol=spec.optimizer_abstol, optimizer_maxiters=spec.optimizer_maxiters, optimizer_maxtime=spec.optimizer_maxtime, optimizer_verbose=spec.optimizer_verbose, diagnostics=spec.diagnostics, results_path=spec.results_path, model=spec.model
+    name=:CalibrationAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, data=spec.data, depvars_names=spec.depvars_names, loss_func=spec.loss_func, search_space_names=spec.search_space_names, search_space_lb=spec.search_space_lb, search_space_ub=spec.search_space_ub, calibration_alg=spec.calibration_alg, multiple_shooting_trajectories=spec.multiple_shooting_trajectories, pem_gain=spec.pem_gain, optimizer=spec.optimizer, adtype=spec.adtype, optimizer_abstol=spec.optimizer_abstol, optimizer_maxiters=spec.optimizer_maxiters, optimizer_maxtime=spec.optimizer_maxtime, optimizer_verbose=spec.optimizer_verbose, diagnostics=spec.diagnostics, results_path=spec.results_path, model=spec.model
   )
   run_analysis(base_spec)
 end

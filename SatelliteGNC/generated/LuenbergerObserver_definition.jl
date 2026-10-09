@@ -96,34 +96,34 @@ Typical design: p ≈ 3× controller bandwidth for separation principle.
   ### Symbolic Parameters
   __local__Ixx = Ixx
   append!(__params, @parameters (Ixx::Real), [description = "Principal moments of inertia (must match plant)"])
-  __initial_conditions[Ixx] = __local__Ixx
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Ixx, __local__Ixx)
   __local__Iyy = Iyy
   append!(__params, @parameters (Iyy::Real))
-  __initial_conditions[Iyy] = __local__Iyy
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Iyy, __local__Iyy)
   __local__Izz = Izz
   append!(__params, @parameters (Izz::Real))
-  __initial_conditions[Izz] = __local__Izz
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Izz, __local__Izz)
   __local__p = p
   append!(__params, @parameters (p::Real), [description = "Observer pole location (rad/s) — sets estimation bandwidth"])
-  __initial_conditions[p] = __local__p
+  __dyad_seed_parameter!(__initial_conditions, __bindings, p, __local__p)
   __local__La_x = La_x
   append!(__params, @parameters (La_x::Real), [description = "Angle correction gains (L_a = 2p)"])
-  __initial_conditions[La_x] = __local__La_x
+  __dyad_seed_parameter!(__initial_conditions, __bindings, La_x, __local__La_x)
   __local__La_y = La_y
   append!(__params, @parameters (La_y::Real))
-  __initial_conditions[La_y] = __local__La_y
+  __dyad_seed_parameter!(__initial_conditions, __bindings, La_y, __local__La_y)
   __local__La_z = La_z
   append!(__params, @parameters (La_z::Real))
-  __initial_conditions[La_z] = __local__La_z
+  __dyad_seed_parameter!(__initial_conditions, __bindings, La_z, __local__La_z)
   __local__Lw_x = Lw_x
   append!(__params, @parameters (Lw_x::Real), [description = "Rate correction gains (L_w = p^2 * I)"])
-  __initial_conditions[Lw_x] = __local__Lw_x
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Lw_x, __local__Lw_x)
   __local__Lw_y = Lw_y
   append!(__params, @parameters (Lw_y::Real))
-  __initial_conditions[Lw_y] = __local__Lw_y
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Lw_y, __local__Lw_y)
   __local__Lw_z = Lw_z
   append!(__params, @parameters (Lw_z::Real))
-  __initial_conditions[Lw_z] = __local__Lw_z
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Lw_z, __local__Lw_z)
 
   ### Final Parameters (assignments)
 

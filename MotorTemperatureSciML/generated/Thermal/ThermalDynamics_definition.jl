@@ -81,7 +81,7 @@ Adjacency (1-indexed conductance indices for each target node):
   ### Symbolic Parameters
   __local__T_init = T_init
   append!(__params, @parameters (T_init[1:4]::Real), [description = "Initial temperature states (normalised), configurable per profile"])
-  __initial_conditions[T_init] = __local__T_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_init, __local__T_init)
 
   ### Final Parameters (assignments)
 

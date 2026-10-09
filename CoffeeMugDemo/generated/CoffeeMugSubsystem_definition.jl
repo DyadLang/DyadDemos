@@ -60,28 +60,28 @@
   ### Symbolic Parameters
   __local__C_espresso = C_espresso
   append!(__params, @parameters (C_espresso::Real))
-  __initial_conditions[C_espresso] = __local__C_espresso
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_espresso, __local__C_espresso)
   __local__T0_espresso = T0_espresso
   append!(__params, @parameters (T0_espresso::Real), [bounds = (0, Inf)])
-  __initial_conditions[T0_espresso] = __local__T0_espresso
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0_espresso, __local__T0_espresso)
   __local__C_cup = C_cup
   append!(__params, @parameters (C_cup::Real))
-  __initial_conditions[C_cup] = __local__C_cup
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_cup, __local__C_cup)
   __local__T0_cup = T0_cup
   append!(__params, @parameters (T0_cup::Real), [bounds = (0, Inf)])
-  __initial_conditions[T0_cup] = __local__T0_cup
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0_cup, __local__T0_cup)
   __local__Gc_internal = Gc_internal
   append!(__params, @parameters (Gc_internal::Real))
-  __initial_conditions[Gc_internal] = __local__Gc_internal
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_internal, __local__Gc_internal)
   __local__G_wall = G_wall
   append!(__params, @parameters (G_wall::Real))
-  __initial_conditions[G_wall] = __local__G_wall
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_wall, __local__G_wall)
   __local__Gc_external = Gc_external
   append!(__params, @parameters (Gc_external::Real))
-  __initial_conditions[Gc_external] = __local__Gc_external
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_external, __local__Gc_external)
   __local__Gr_external = Gr_external
   append!(__params, @parameters (Gr_external::Real))
-  __initial_conditions[Gr_external] = __local__Gr_external
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gr_external, __local__Gr_external)
 
   ### Final Parameters (assignments)
 

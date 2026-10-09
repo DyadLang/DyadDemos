@@ -57,22 +57,22 @@
   ### Symbolic Parameters
   __local__R_wall = R_wall
   append!(__params, @parameters (R_wall::Real))
-  __initial_conditions[R_wall] = __local__R_wall
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_wall, __local__R_wall)
   __local__R_win = R_win
   append!(__params, @parameters (R_win::Real))
-  __initial_conditions[R_win] = __local__R_win
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_win, __local__R_win)
   __local__R_roof = R_roof
   append!(__params, @parameters (R_roof::Real))
-  __initial_conditions[R_roof] = __local__R_roof
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_roof, __local__R_roof)
   __local__R_slab = R_slab
   append!(__params, @parameters (R_slab::Real))
-  __initial_conditions[R_slab] = __local__R_slab
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_slab, __local__R_slab)
   __local__R_infil = R_infil
   append!(__params, @parameters (R_infil::Real))
-  __initial_conditions[R_infil] = __local__R_infil
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_infil, __local__R_infil)
   __local__C = C
   append!(__params, @parameters (C::Real))
-  __initial_conditions[C] = __local__C
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C, __local__C)
 
   ### Final Parameters (assignments)
 

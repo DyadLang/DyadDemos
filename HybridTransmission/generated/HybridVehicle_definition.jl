@@ -67,22 +67,22 @@
   ### Symbolic Parameters
   __local__J_equiv = J_equiv
   append!(__params, @parameters (J_equiv::Real))
-  __initial_conditions[J_equiv] = __local__J_equiv
+  __dyad_seed_parameter!(__initial_conditions, __bindings, J_equiv, __local__J_equiv)
   __local__m_vehicle = m_vehicle
   append!(__params, @parameters (m_vehicle::Real))
-  __initial_conditions[m_vehicle] = __local__m_vehicle
+  __dyad_seed_parameter!(__initial_conditions, __bindings, m_vehicle, __local__m_vehicle)
   __local__C_d = C_d
   append!(__params, @parameters (C_d::Real))
-  __initial_conditions[C_d] = __local__C_d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_d, __local__C_d)
   __local__A_front = A_front
   append!(__params, @parameters (A_front::Real))
-  __initial_conditions[A_front] = __local__A_front
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_front, __local__A_front)
   __local__C_rr = C_rr
   append!(__params, @parameters (C_rr::Real))
-  __initial_conditions[C_rr] = __local__C_rr
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_rr, __local__C_rr)
   __local__r_wheel = r_wheel
   append!(__params, @parameters (r_wheel::Real))
-  __initial_conditions[r_wheel] = __local__r_wheel
+  __dyad_seed_parameter!(__initial_conditions, __bindings, r_wheel, __local__r_wheel)
 
   ### Final Parameters (assignments)
 
