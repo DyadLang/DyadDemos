@@ -18,9 +18,9 @@ RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [compat]
-BlockComponents = "4.5.1"
-DiscreteComponents = "0.2.0"
-DyadData = "2.0.1"
+BlockComponents = "4.6.2"
+DiscreteComponents = "0.5.1"
+DyadData = "2.3.0"
 JSON = "0.21, 1"
 Markdown = "1"
 TOML = "1"
