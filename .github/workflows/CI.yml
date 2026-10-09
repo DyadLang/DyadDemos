@@ -11,39 +11,25 @@ on:
 env:
   JULIA_PKG_SERVER: internal.juliahub.com
   JULIAUP_SERVER: "https://juliahub.com/juliabin"
-  # Single source of truth for the Julia toolchain CI runs the demos on. This
-  # is stock upstream Julia, NOT a `dyad-*` distribution channel -- and that is
-  # deliberate and temporary, see below. The Dyad *packages* are 3.3: every
-  # demo declares `[dyad].kernel = "3.3.0-rc2"` and its `[compat]` floors are
-  # the 3.3 component set, all of which come from the DyadRegistry rather than
-  # from any distribution's sysimage.
+  # Single source of truth for the Julia toolchain CI runs the demos on: the
+  # Dyad 3.5 distribution, matching every demo's `[dyad].kernel` and the
+  # `julia +...` pin in its `.vscode/settings.json`. It has to be the
+  # distribution, not stock `release`: it bundles the Component libraries as
+  # stdlibs, and the demos' environments resolve against those.
   #
-  # WHY STOCK JULIA AND NOT `dyad-3.3.0-rc2`: the Dyad musl builds set
-  # `Base.USE_GPL_LIBS = false`, so `SuiteSparse.UMFPACK` is never defined.
-  # Hypatia declares a struct field of type `SuiteSparse.UMFPACK.UmfpackLU` at
-  # `src/linearalgebra/sparse.jl:23`, which is evaluated at precompile time and
-  # so is a hard failure rather than a lazy reference. That takes down
-  # Hypatia -> DyadControlSystems -> MakieWebinar (and its DyadData/GLMakie
-  # extensions) on any `Pkg.precompile`. Stock `release` has
-  # `USE_GPL_LIBS = true` and precompiles the whole set clean. The six demos
-  # whose `.vscode/settings.json` pins `julia +release` are consistent with
-  # this; the four pinning `julia +dyad-3.3.0-rc2` are editor-only settings
-  # that CI overrides via `JULIA_EXECUTABLE` below.
-  #
-  # This is expected to be fixed in `dyad-3.3.0-rc3`. When it is, flipping back
-  # is a one-word change: set both values here to the Dyad channel and re-sync
-  # the job `name:` below. Nothing else in the repo needs to move.
-  #
-  # Whatever you set it to, it cannot go back below 1.12: DyadInterface 7.2
-  # requires `julia = "1.12.0-1"` and DyadEcosystemDependencies 0.11.6+
-  # requires `julia = "1.12.5-1"`, so the `1.10`/`1.11` matrix this replaced
-  # could not resolve the 3.3 stack at all.
-  JULIA_CHANNEL: release
+  # (CI used to run `release` because the 3.3 builds set `USE_GPL_LIBS = false`,
+  # which broke Hypatia -> DyadControlSystems -> MakieWebinar at precompile
+  # time. The 3.5 builds set it to `true`.)
+  JULIA_CHANNEL: dyad-3.5.0-rc1
   # dyad-lang's `getEnv()` honours `JULIA_EXECUTABLE` ahead of each package's
   # `.vscode/settings.json`, so this makes codegen use one toolchain across all
   # demos regardless of the per-demo editor pins. Keep it in step with
   # `JULIA_CHANNEL`.
-  JULIA_EXECUTABLE: julia +release
+  JULIA_EXECUTABLE: julia +dyad-3.5.0-rc1
+  # The rc1 sys.so requests an executable stack, which glibc >= 2.41 refuses
+  # ("cannot enable executable stack") unless this tunable allows it. Older
+  # glibc ignores the unknown tunable.
+  GLIBC_TUNABLES: glibc.rtld.execstack=2
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -53,7 +39,7 @@ jobs:
   test:
     # NB: the `env` context is not available in `jobs.<id>.name`, so the channel
     # is spelled out here; keep it in step with `JULIA_CHANNEL` above.
-    name: Julia release - self-hosted - x64 - ${{ github.event_name }}
+    name: Julia dyad-3.5.0-rc1 - self-hosted - x64 - ${{ github.event_name }}
 
     runs-on: self-hosted
 
