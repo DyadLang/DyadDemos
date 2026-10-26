@@ -8,6 +8,9 @@ measurements.
 This repository holds full-sized demos of that workflow. Each one is a
 standalone project: open the folder, run it, and read its own README.
 
+These demos target Dyad 3.5 and are validated with **3.5.0-rc2** (Julia 1.13.2).
+See [the toolchain and validation notes](./UPGRADE_3_5.md) for setup and results.
+
 | | Demo | Description |
 |---|---|---|
 | <img src="./FrictionBrakeDemo/assets/icon.svg" width="48"/> | [**FrictionBrakeDemo**](./FrictionBrakeDemo/) | A vehicle friction brake system with thermal effects and a cycle test. |

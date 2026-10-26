@@ -11,39 +11,11 @@ on:
 env:
   JULIA_PKG_SERVER: internal.juliahub.com
   JULIAUP_SERVER: "https://juliahub.com/juliabin"
-  # Single source of truth for the Julia toolchain CI runs the demos on. This
-  # is stock upstream Julia, NOT a `dyad-*` distribution channel -- and that is
-  # deliberate and temporary, see below. The Dyad *packages* are 3.3: every
-  # demo declares `[dyad].kernel = "3.3.0-rc2"` and its `[compat]` floors are
-  # the 3.3 component set, all of which come from the DyadRegistry rather than
-  # from any distribution's sysimage.
-  #
-  # WHY STOCK JULIA AND NOT `dyad-3.3.0-rc2`: the Dyad musl builds set
-  # `Base.USE_GPL_LIBS = false`, so `SuiteSparse.UMFPACK` is never defined.
-  # Hypatia declares a struct field of type `SuiteSparse.UMFPACK.UmfpackLU` at
-  # `src/linearalgebra/sparse.jl:23`, which is evaluated at precompile time and
-  # so is a hard failure rather than a lazy reference. That takes down
-  # Hypatia -> DyadControlSystems -> MakieWebinar (and its DyadData/GLMakie
-  # extensions) on any `Pkg.precompile`. Stock `release` has
-  # `USE_GPL_LIBS = true` and precompiles the whole set clean. The six demos
-  # whose `.vscode/settings.json` pins `julia +release` are consistent with
-  # this; the four pinning `julia +dyad-3.3.0-rc2` are editor-only settings
-  # that CI overrides via `JULIA_EXECUTABLE` below.
-  #
-  # This is expected to be fixed in `dyad-3.3.0-rc3`. When it is, flipping back
-  # is a one-word change: set both values here to the Dyad channel and re-sync
-  # the job `name:` below. Nothing else in the repo needs to move.
-  #
-  # Whatever you set it to, it cannot go back below 1.12: DyadInterface 7.2
-  # requires `julia = "1.12.0-1"` and DyadEcosystemDependencies 0.11.6+
-  # requires `julia = "1.12.5-1"`, so the `1.10`/`1.11` matrix this replaced
-  # could not resolve the 3.3 stack at all.
-  JULIA_CHANNEL: release
-  # dyad-lang's `getEnv()` honours `JULIA_EXECUTABLE` ahead of each package's
-  # `.vscode/settings.json`, so this makes codegen use one toolchain across all
-  # demos regardless of the per-demo editor pins. Keep it in step with
-  # `JULIA_CHANNEL`.
-  JULIA_EXECUTABLE: julia +release
+  JULIA_CHANNEL: dyad-3.5.0-rc2
+  JULIA_EXECUTABLE: julia +dyad-3.5.0-rc2
+  JULIA_PKG_USE_CLI_GIT: "true"
+  JULIA_NUM_THREADS: "2"
+  JULIA_NUM_PRECOMPILE_TASKS: "1"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -53,7 +25,7 @@ jobs:
   test:
     # NB: the `env` context is not available in `jobs.<id>.name`, so the channel
     # is spelled out here; keep it in step with `JULIA_CHANNEL` above.
-    name: Julia release - self-hosted - x64 - ${{ github.event_name }}
+    name: Dyad 3.5.0-rc2 - self-hosted - x64 - ${{ github.event_name }}
 
     runs-on: self-hosted
 
@@ -70,6 +42,17 @@ jobs:
           encoded-juliahub-token: "${{ secrets.JULIAHUB_TOKEN_ENCODED }}"
           enable-JuliaHubRegistry: "true"
           # ssh-key: "${{ secrets.JULIASIM_REGISTRY_SSH_KEY }}"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Uses the runner's configured GitHub credentials for the compiler source.
+      # Only public npm dependencies are needed; no read:packages scope is required.
+      - name: "Build pinned Dyad compiler"
+        run: |
+          .ci/compiler/setup.sh
+          echo "DYAD_CLI_PATH=$GITHUB_WORKSPACE/.ci/compiler/dyad" >> "$GITHUB_ENV"
 
       - name: "Instantiate CI environment"
         run: julia --project=.ci -e 'using Pkg; Pkg.instantiate()'

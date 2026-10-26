@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+compiler_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec node "$compiler_dir/compiler.mjs" "$@"

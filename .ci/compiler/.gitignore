@@ -1,0 +1,4 @@
+/.source/
+/node_modules/
+/compiler.mjs
+/.npm-cache/
