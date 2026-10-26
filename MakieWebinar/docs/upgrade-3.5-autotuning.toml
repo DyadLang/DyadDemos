@@ -1,0 +1,8 @@
+# Dyad 3.5.0-rc2, Julia 1.13.2; script reference_input, ref=1.0, output=y
+# OptimizationMOI 1.4.1, OptimizationBase 5.7.0, DyadControlSystems 2.5.0
+# Parameters are [kp, ki, kd, Tf] in parallel PID form.
+parameters = [0.010864914347610397, 867462.6795089559, 291114.8333267874, 0.00030251199216164477]
+retcode = "Success"
+cost = 0.00023278115342276342
+frequency_count = 567
+elapsed = 129.995675445

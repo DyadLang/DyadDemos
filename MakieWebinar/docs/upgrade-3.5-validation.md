@@ -66,9 +66,17 @@ For the old baseline only, the nonexistent scripts workspace entry and the unuse
 
 The test process reports an optional GLMakie initialization/precompile error because `DISPLAY` is absent, then completes its numerical tests successfully. GUI behavior remains unvalidated in this headless environment.
 
-The optional autotuning script’s model and `PIDAutotuningAnalysisSpec` construction passed in the new scripts environment (200 frequencies, first-order derivative filter). ControlSystemsMTK emits an upstream warning about the removed `ModelingToolkit.FnType` import. The optimizer and designer were not launched.
+The optional autotuning script uses the supported `reference_input` sentinel, a unit tracking target (`ref=1.0`), and the `y` analysis point. The original variable paths `set_point.y` and `seat_pos.s` failed the analysis-point linearizer. Its configured `num_frequencies` is 200; with automatic frequency limits the library chooses its own grid.
 
-No training is defined or run. GUI interaction, GLMakie windows, live sliders, video recording and `launch_pid_autotuning_designer` were not run in this headless environment. The 19 declared analyses used by the visualizations are covered above; this does not claim a successful interactive autotuning session.
+The scripts environment pins OptimizationMOI 1.4.1, whose [declared compatibility](https://github.com/SciML/Optimization.jl/blob/OptimizationMOI-v1.4.1/lib/OptimizationMOI/Project.toml) supports the distribution’s OptimizationBase 5.7.0. OptimizationMOI 1.6.0 called the absent `OptimizationBase.despecialize` and failed before Ipopt initialization. The [release history](https://github.com/SciML/Optimization.jl/compare/OptimizationMOI-v1.4.1...OptimizationMOI-v1.6.0) and NLP implementation were checked before adding the pin.
+
+The final headless unit-reference PID autotuning run passed with Ipopt `Success` / “Optimal Solution Found.” `run_analysis` took 129.996 s including JIT compilation; its automatic grid contained 567 frequencies. The objective was 0.000232781153; parallel-form parameters `[kp, ki, kd, Tf]` were `[0.010864914347610397, 867462.6795089559, 291114.8333267874, 0.00030251199216164477]`. [The numerical result](upgrade-3.5-autotuning.toml) is retained. This is an additional successful script analysis beyond the 19 declared `.dyad` analyses. No old optimized-controller comparison was run; the original script failed its analysis-point lookup on the new stack.
+
+For headless reproduction, load the model/spec portion of `scripts/05_autotuning_analysis.jl` and call `DyadInterface.run_analysis(spec)` instead of launching the designer. The final attempt completed within its 300 s limit; earlier API checks used a 150 s limit and failed on the errors described above before reaching optimization. A zero-reference diagnostic also converged after the dependency pin; the retained result uses the explicit unit reference.
+
+ControlSystemsMTK emits an upstream warning about the removed `ModelingToolkit.FnType` import. The suspension linearization also warns about its underdetermined initialization and a frequency grid below the Nyquist constraint frequency; these warnings are preserved. The GUI designer was not launched.
+
+No machine-learning training is defined or run. GUI interaction, GLMakie windows, live sliders, video recording and `launch_pid_autotuning_designer` were not run in this headless environment. The 19 declared analyses used by the visualizations are covered above; this does not claim a successful interactive autotuning session.
 
 ## Reproduction
 
