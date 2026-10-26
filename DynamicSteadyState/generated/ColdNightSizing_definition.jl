@@ -5,28 +5,128 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
-using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadInterface: AbstractSteadyStateAnalysisSpec, SteadyStateAnalysisSpec
-@kwdef mutable struct ColdNightSizingSpec <: AbstractSteadyStateAnalysisSpec
+@component function ColdNightSizing__System(; name = nothing, var"alg"=NonlinearSolveAlg.Auto(), var"abstol"=1e-8, var"reltol"=1e-8, var"automatic_discontinuity_detection"=false, var"respecialize"=false, var"specialization"=SpecializationLevel.Despecialize(), __overrides = Dict{String, Any}())
+  isnothing(name) && throw(ArgumentError("""
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+
+    @named model = ColdNightSizing__System()
+  """))
+
+  __overrides = Dict{String, Any}(__overrides)
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
+  __systems = System[]
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
+  __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "alg") && (alg = pop!(__overrides, "alg"))
+  haskey(__overrides, "abstol") && (abstol = pop!(__overrides, "abstol"))
+  haskey(__overrides, "reltol") && (reltol = pop!(__overrides, "reltol"))
+  haskey(__overrides, "automatic_discontinuity_detection") && (automatic_discontinuity_detection = pop!(__overrides, "automatic_discontinuity_detection"))
+  haskey(__overrides, "respecialize") && (respecialize = pop!(__overrides, "respecialize"))
+  haskey(__overrides, "specialization") && (specialization = pop!(__overrides, "specialization"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
+
+  ### Symbolic Parameters
+  __local__alg = alg
+  append!(__params, @parameters (alg::NonlinearSolveAlg.Type))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, alg, __local__alg)
+  __local__abstol = abstol
+  append!(__params, @parameters (abstol::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, abstol, __local__abstol)
+  __local__reltol = reltol
+  append!(__params, @parameters (reltol::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, reltol, __local__reltol)
+  __local__automatic_discontinuity_detection = automatic_discontinuity_detection
+  append!(__params, @parameters (automatic_discontinuity_detection::Bool))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, automatic_discontinuity_detection, __local__automatic_discontinuity_detection)
+  __local__respecialize = respecialize
+  append!(__params, @parameters (respecialize::Bool))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, respecialize, __local__respecialize)
+  __local__specialization = specialization
+  append!(__params, @parameters (specialization::SpecializationLevel.Type))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, specialization, __local__specialization)
+
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
+
+  ### Constants
+  __constants = Any[]
+
+  ### Components
+  # Subcomponent model of type DynamicSteadyState.TestColdNightSizing
+  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
+  push!(__systems, @named model = DynamicSteadyState.TestColdNightSizing(; __overrides = model_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
+
+  ### Guesses
+
+  ### Initialization Equations
+
+  ### Assertions
+  __assertions = []
+
+  ### Equations
+
+  # Return completely constructed System
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+end
+export ColdNightSizing__System
+
+@kwdef struct ColdNightSizing__Spec <: AbstractSteadyStateAnalysisSpec
   name::Symbol = :ColdNightSizing
+  __overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
   var"alg"::NonlinearSolveAlg.Type = NonlinearSolveAlg.Auto()
   var"abstol"::Float64 = 1e-8
   var"reltol"::Float64 = 1e-8
   var"automatic_discontinuity_detection"::Bool = false
   var"respecialize"::Bool = false
+  var"specialization"::SpecializationLevel.Type = SpecializationLevel.Despecialize()
   var"model"::Union{Nothing, System} = DynamicSteadyState.TestColdNightSizing(; name=:TestColdNightSizing)
+  __system::System = ColdNightSizing__System(; name, var"alg"=var"alg", var"abstol"=var"abstol", var"reltol"=var"reltol", var"automatic_discontinuity_detection"=var"automatic_discontinuity_detection", var"respecialize"=var"respecialize", var"specialization"=var"specialization")
 end
 
-function DyadInterface.run_analysis(spec::ColdNightSizingSpec)
+function __dyad_base_analysis_spec(spec::ColdNightSizing__Spec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
-  
-  base_spec = SteadyStateAnalysisSpec(;
-    name=:SteadyStateAnalysis, overrides, alg=spec.alg, abstol=spec.abstol, reltol=spec.reltol, automatic_discontinuity_detection=spec.automatic_discontinuity_detection, respecialize=spec.respecialize, model=spec.model
+
+  merge!(overrides, spec.__overrides)
+  SteadyStateAnalysisSpec(;
+    name=spec.name, overrides, __system=spec.__system, var"alg"=spec.var"alg", var"abstol"=spec.var"abstol", var"reltol"=spec.var"reltol", var"automatic_discontinuity_detection"=spec.var"automatic_discontinuity_detection", var"respecialize"=spec.var"respecialize", var"specialization"=spec.var"specialization", var"model"=spec.var"model"
   )
-  run_analysis(base_spec)
 end
 
-ColdNightSizing(;kwargs...) = run_analysis(ColdNightSizingSpec(;kwargs...))
-export ColdNightSizing, ColdNightSizingSpec
+function DyadInterface.run_analysis(spec::ColdNightSizing__Spec)
+  run_analysis(__dyad_base_analysis_spec(spec))
+end
+
+function DyadInterface.setup_analysis(spec::ColdNightSizing__Spec; kwargs...)
+  DyadInterface.setup_analysis(__dyad_base_analysis_spec(spec); kwargs...)
+end
+
+ColdNightSizing(;kwargs...) = run_analysis(ColdNightSizing__Spec(;kwargs...))
+export ColdNightSizing, ColdNightSizing__Spec

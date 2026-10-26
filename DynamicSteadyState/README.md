@@ -18,6 +18,10 @@ Doing sizing and operation off one model is the point of the demo.
 
 ## Getting Started
 
+Use Dyad 3.5 (Julia 1.13.2). The editor is pinned to the validation channel
+`dyad-3.5.0-rc2`. See [upgrade validation](docs/upgrade-3.5-validation.md)
+for analysis coverage and results.
+
 Download this folder to your machine and open it in VS Code with the [Dyad
 extension](https://help.juliahub.com/dyad/dev/getting_started/).
 

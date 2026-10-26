@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ThreeZoneBuilding(; name)
+   ThreeZoneBuilding(; name, __overrides)
 
 The building: three zones joined by partition resistors, and the single source of truth every
 analysis reuses. HVAC strategy lives outside this model, which is what makes that reuse possible.
@@ -18,15 +18,15 @@ analysis reuses. HVAC strategy lives outside this model, which is what makes tha
  * `zone2_port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `zone3_port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function ThreeZoneBuilding(; name = nothing, kwargs...)
+@component function ThreeZoneBuilding(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = ThreeZoneBuilding()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -69,22 +69,22 @@ analysis reuses. HVAC strategy lives outside this model, which is what makes tha
   push!(__systems, @named zone3_port = __Dyad__HeatPort())
   # Subcomponent z1 of type DynamicSteadyState.ZoneRoom
   z1_overrides = __pop_subcomponent_overrides!(__overrides, "z1")
-  push!(__systems, @named z1 = DynamicSteadyState.ZoneRoom(; R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000.0), z1_overrides...))
+  push!(__systems, @named z1 = DynamicSteadyState.ZoneRoom(; R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000.0), __overrides = z1_overrides))
   # Subcomponent z2 of type DynamicSteadyState.ZoneRoom
   z2_overrides = __pop_subcomponent_overrides!(__overrides, "z2")
-  push!(__systems, @named z2 = DynamicSteadyState.ZoneRoom(; R_wall=Float64(1000000.0), R_win=Float64(1000000.0), R_roof=0.025, R_slab=0.05, R_infil=0.0667, C=Float64(300000.0), z2_overrides...))
+  push!(__systems, @named z2 = DynamicSteadyState.ZoneRoom(; R_wall=Float64(1000000.0), R_win=Float64(1000000.0), R_roof=0.025, R_slab=0.05, R_infil=0.0667, C=Float64(300000.0), __overrides = z2_overrides))
   # Subcomponent z3 of type DynamicSteadyState.ZoneRoom
   z3_overrides = __pop_subcomponent_overrides!(__overrides, "z3")
-  push!(__systems, @named z3 = DynamicSteadyState.ZoneRoom(; R_wall=0.01, R_win=0.02, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000.0), z3_overrides...))
+  push!(__systems, @named z3 = DynamicSteadyState.ZoneRoom(; R_wall=0.01, R_win=0.02, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000.0), __overrides = z3_overrides))
   # Subcomponent partition12 of type ThermalComponents.Components.ThermalResistor
   partition12_overrides = __pop_subcomponent_overrides!(__overrides, "partition12")
-  push!(__systems, @named partition12 = ThermalComponents.Components.ThermalResistor(; R=0.01, partition12_overrides...))
+  push!(__systems, @named partition12 = ThermalComponents.Components.ThermalResistor(; R=0.01, __overrides = partition12_overrides))
   # Subcomponent partition23 of type ThermalComponents.Components.ThermalResistor
   partition23_overrides = __pop_subcomponent_overrides!(__overrides, "partition23")
-  push!(__systems, @named partition23 = ThermalComponents.Components.ThermalResistor(; R=0.01, partition23_overrides...))
+  push!(__systems, @named partition23 = ThermalComponents.Components.ThermalResistor(; R=0.01, __overrides = partition23_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -101,6 +101,6 @@ analysis reuses. HVAC strategy lives outside this model, which is what makes tha
   push!(__eqs, connect(z3.zone_port, zone3_port, partition23.port_b))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ThreeZoneBuilding

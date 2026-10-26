@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   HeatCapacitorNoInit(; name, C)
+   HeatCapacitorNoInit(; name, C, __overrides)
 
 Three-Zone Commercial Office Building — Single Source of Truth
 
@@ -35,20 +35,20 @@ The occupancy schedule is a representative weekday office profile with
 
 ## Variables
 
-| Name         | Description                         | Units  | 
+| Name         | Description                         | Units  |
 | ------------ | ----------------------------------- | ------ |
 | `T`         | Temperature of the element                         | K  |
 | `dT`         | Time derivative of temperature                         | K/s  |
 """
-@component function HeatCapacitorNoInit(; name = nothing, C=nothing, kwargs...)
+@component function HeatCapacitorNoInit(; name = nothing, var"C"=nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = HeatCapacitorNoInit()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -57,6 +57,9 @@ The occupancy schedule is a representative weekday office profile with
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "C") && (C = pop!(__overrides, "C"))
 
   ### Structural Parameters (functions)
 
@@ -73,7 +76,7 @@ The occupancy schedule is a representative weekday office profile with
   ### Symbolic Parameters
   __local__C = C
   append!(__params, @parameters (C::Real), [description = "Heat capacity of the element (J/K)"])
-  __initial_conditions[C] = __local__C
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C, __local__C)
 
   ### Final Parameters (assignments)
 
@@ -85,11 +88,11 @@ The occupancy schedule is a representative weekday office profile with
 
   ### Variables (assignments)
   __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
-  __ovr_T__initial = pop!(__overrides, "T__initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
-  __ovr_T__guess = pop!(__overrides, "T__guess", nothing)
+  __ovr_T__initial = pop!(__overrides, "T.initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
+  __ovr_T__guess = pop!(__overrides, "T.guess", nothing)
   __ovr_dT = pop!(__overrides, "dT", nothing); isnothing(__ovr_dT) || push!(__eqs, dT ~ __ovr_dT)
-  __ovr_dT__initial = pop!(__overrides, "dT__initial", nothing); isnothing(__ovr_dT__initial) || (__initial_conditions[dT] = __ovr_dT__initial)
-  __ovr_dT__guess = pop!(__overrides, "dT__guess", nothing)
+  __ovr_dT__initial = pop!(__overrides, "dT.initial", nothing); isnothing(__ovr_dT__initial) || (__initial_conditions[dT] = __ovr_dT__initial)
+  __ovr_dT__guess = pop!(__overrides, "dT.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -98,7 +101,7 @@ The occupancy schedule is a representative weekday office profile with
   push!(__systems, @named node = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_T__guess) || (__guesses[T] = __ovr_T__guess)
@@ -115,6 +118,6 @@ The occupancy schedule is a representative weekday office profile with
   push!(__eqs, dT ~ node.Q_flow / C)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HeatCapacitorNoInit
