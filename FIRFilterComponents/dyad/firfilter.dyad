@@ -41,7 +41,7 @@ metadata {
         "attrs": {}
       }
     ],
-    "icons": {"default": "dyad://Dyad/Default.svg"},
+    "icons": {"default": "dyad://FIRFilterComponents/icon.svg"},
     "path": {},
     "doc": {"behavior": true},
     "deprecated": null,

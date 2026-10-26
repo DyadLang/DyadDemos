@@ -1,4 +1,10 @@
 # FIRFilterComponents
+
+<img src="./assets/icon.svg" width="96" align="right"/>
+
+A finite impulse response filter built from clocked delays and weighted taps.
+
+[Dyad 3.5 validation](docs/upgrade-3.5-validation.md)
   
 ## Getting Started
   
