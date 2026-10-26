@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   FitzHughNagumoCapacitor(; name, V, a, b, epsilon)
+   FitzHughNagumoCapacitor(; name, V, a, b, epsilon, __overrides)
 
 ## Parameters:
 
@@ -41,7 +41,7 @@ Supported dynamics:
 | `u`         | Activator concentration (fast, excitable)                         | --  |
 | `v`         | Inhibitor concentration (slow, recovery)                         | --  |
 """
-@component function FitzHughNagumoCapacitor(; name = nothing, V=Float64(1.0), a=0.1, b=0.01, epsilon=0.01, kwargs...)
+@component function FitzHughNagumoCapacitor(; name = nothing, var"V"=Float64(1.0), var"a"=0.1, var"b"=0.01, var"epsilon"=0.01, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -49,7 +49,7 @@ Supported dynamics:
     @named model = FitzHughNagumoCapacitor()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,6 +58,12 @@ Supported dynamics:
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "V") && (V = pop!(__overrides, "V"))
+  haskey(__overrides, "a") && (a = pop!(__overrides, "a"))
+  haskey(__overrides, "b") && (b = pop!(__overrides, "b"))
+  haskey(__overrides, "epsilon") && (epsilon = pop!(__overrides, "epsilon"))
 
   ### Structural Parameters (functions)
 
@@ -74,16 +80,16 @@ Supported dynamics:
   ### Symbolic Parameters
   __local__V = V
   append!(__params, @parameters (V::Real), [description = "Volume"])
-  __initial_conditions[V] = __local__V
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V, __local__V)
   __local__a = a
   append!(__params, @parameters (a::Real), [description = "Excitation rate"])
-  __initial_conditions[a] = __local__a
+  __dyad_seed_parameter!(__initial_conditions, __bindings, a, __local__a)
   __local__b = b
   append!(__params, @parameters (b::Real), [description = "Recovery rate"])
-  __initial_conditions[b] = __local__b
+  __dyad_seed_parameter!(__initial_conditions, __bindings, b, __local__b)
   __local__epsilon = epsilon
   append!(__params, @parameters (epsilon::Real), [description = "Coupling strength"])
-  __initial_conditions[epsilon] = __local__epsilon
+  __dyad_seed_parameter!(__initial_conditions, __bindings, epsilon, __local__epsilon)
 
   ### Final Parameters (assignments)
 
@@ -95,11 +101,11 @@ Supported dynamics:
 
   ### Variables (assignments)
   __ovr_u = pop!(__overrides, "u", nothing); isnothing(__ovr_u) || push!(__eqs, u ~ __ovr_u)
-  __ovr_u__initial = pop!(__overrides, "u__initial", nothing); isnothing(__ovr_u__initial) || (__initial_conditions[u] = __ovr_u__initial)
-  __ovr_u__guess = pop!(__overrides, "u__guess", nothing)
+  __ovr_u__initial = pop!(__overrides, "u.initial", nothing); isnothing(__ovr_u__initial) || (__initial_conditions[u] = __ovr_u__initial)
+  __ovr_u__guess = pop!(__overrides, "u.guess", nothing)
   __ovr_v = pop!(__overrides, "v", nothing); isnothing(__ovr_v) || push!(__eqs, v ~ __ovr_v)
-  __ovr_v__initial = pop!(__overrides, "v__initial", nothing); isnothing(__ovr_v__initial) || (__initial_conditions[v] = __ovr_v__initial)
-  __ovr_v__guess = pop!(__overrides, "v__guess", nothing)
+  __ovr_v__initial = pop!(__overrides, "v.initial", nothing); isnothing(__ovr_v__initial) || (__initial_conditions[v] = __ovr_v__initial)
+  __ovr_v__guess = pop!(__overrides, "v.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -108,7 +114,7 @@ Supported dynamics:
   push!(__systems, @named port = MakieWebinar.DiffusionPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_u__guess) || (__guesses[u] = __ovr_u__guess)
@@ -125,6 +131,6 @@ Supported dynamics:
   push!(__eqs, V * ModelingToolkit.D_nounits(v) ~ V * epsilon * (u - b * v))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FitzHughNagumoCapacitor

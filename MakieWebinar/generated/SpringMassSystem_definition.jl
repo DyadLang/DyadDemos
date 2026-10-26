@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   SpringMassSystem(; name)
+   SpringMassSystem(; name, __overrides)
 
 Spring-mass system with external force input.
 
@@ -13,7 +13,7 @@ Spring-mass system with external force input.
 
  * `f` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
 """
-@component function SpringMassSystem(; name = nothing, kwargs...)
+@component function SpringMassSystem(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -21,7 +21,7 @@ Spring-mass system with external force input.
     @named model = SpringMassSystem()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -60,22 +60,22 @@ Spring-mass system with external force input.
   ### Components
   # Subcomponent mass of type TranslationalComponents.Components.Mass
   mass_overrides = __pop_subcomponent_overrides!(__overrides, "mass")
-  push!(__systems, @named mass = TranslationalComponents.Components.Mass(; m=Float64(1.0), mass_overrides...))
+  push!(__systems, @named mass = TranslationalComponents.Components.Mass(; m=Float64(1.0), __overrides = mass_overrides))
   # Subcomponent spring of type TranslationalComponents.Components.Spring
   spring_overrides = __pop_subcomponent_overrides!(__overrides, "spring")
-  push!(__systems, @named spring = TranslationalComponents.Components.Spring(; c=Float64(10.0), s_rel0=Float64(0.0), spring_overrides...))
+  push!(__systems, @named spring = TranslationalComponents.Components.Spring(; c=Float64(10.0), s_rel0=Float64(0.0), __overrides = spring_overrides))
   # Subcomponent fixed of type TranslationalComponents.Components.Fixed
   fixed_overrides = __pop_subcomponent_overrides!(__overrides, "fixed")
-  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), fixed_overrides...))
+  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), __overrides = fixed_overrides))
   # Subcomponent force_source of type TranslationalComponents.Sources.Force
   force_source_overrides = __pop_subcomponent_overrides!(__overrides, "force_source")
-  push!(__systems, @named force_source = TranslationalComponents.Sources.Force(; force_source_overrides...))
+  push!(__systems, @named force_source = TranslationalComponents.Sources.Force(; __overrides = force_source_overrides))
   # Subcomponent ground of type TranslationalComponents.Components.Fixed
   ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
-  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), ground_overrides...))
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), __overrides = ground_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -92,6 +92,6 @@ Spring-mass system with external force input.
   push!(__eqs, connect(f, force_source.f))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SpringMassSystem
