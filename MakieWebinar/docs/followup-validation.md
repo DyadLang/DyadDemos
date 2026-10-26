@@ -25,3 +25,34 @@ Direct GLMakie import fails for missing DISPLAY on both 3.4 and rc2, using GLMak
 ## Limits
 
 This audit does not validate GUI windows, browser interaction, VS Code notebook execution, dashboard controls, interactive sliders, or PID designer operation. Previously recorded analyses/training are not rerun or claimed here unless explicitly listed. Generated-doc failures above remain failures and have draft follow-ups; no upstream issue was filed.
+
+## Artifact access retry
+
+After task access to `github.com` was granted, the unchanged task-local
+`dyad document MakieWebinar` workflow was retried. It still failed during
+workspace instantiation after **13.352420 s** (process exit **1**) with
+`HTTP/1.1 403 Forbidden (CONNECT tunnel failed, response 403)` at:
+
+```text
+https://github.com/JuliaComputing/DyadDAQP_jll.jl/releases/download/DyadDAQP-v0.10.3+0/DyadDAQP.v0.10.3.x86_64-linux-gnu.tar.gz
+```
+
+The grant did not make this download reachable. Generation did not reach
+example execution or HTML rendering; no new solver, residual, accuracy or
+HTML-success claim follows. Existing successful handwritten Cairo results
+above remain the covered workflow. No package version, workspace dependency,
+model, or success check was changed to bypass the download.
+
+With the environment recorded in the shared workflow report, the exact retry
+was:
+
+```sh
+python3 .task/workflows/jobs.py .task/workflows/jobs-access-retry.json
+```
+
+The job invokes `node "$repo/.ci/compiler/compiler.mjs" document MakieWebinar`
+with cwd `.task/workflows/copies/MakieWebinar`. The full output is retained in
+`.task/workflows/document-MakieWebinar-access-retry.log`; exact argv, cwd and
+300 s process limit are in `jobs-access-retry.json`, and measured wall time and
+exit status are appended to `results.jsonl`. No additional 3.4 numerical
+comparison is appropriate for this unchanged network-access failure.

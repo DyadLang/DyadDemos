@@ -90,3 +90,13 @@ python3 .task/workflows/jobs.py .task/workflows/jobs-baseline-remainder.json
 For a clean manual documentation rerun, copy one project to a task-local directory, invoke `node "$repo/.ci/compiler/compiler.mjs" document <ProjectName>` with that copy as cwd, activate its docs environment, `Pkg.resolve(); Pkg.instantiate()`, remove only `:example_block` from the generated `make.jl` warning list, and include `make.jl`. The compiler-only CLI is the exact rc2/a24a224 build. Original handmade `docs/index.md` examples are extracted and executed separately by `docs.jl`; each result is rebuilt and checked with `successful_retcode`, the problem’s actual stop time, and finite states. Notebook scripts are concatenated code cells with `@__DIR__` replaced by the copied scripts path, a concrete selected analysis, and appended result/HTML checks.
 
 Per-project reports link the relevant results and limitations. No generated HTML, generated Julia, snapshots or upstream source modifications are committed by this worker.
+
+## Granted-access retry
+
+The outstanding MakieWebinar artifact download was retried after the task's
+`github.com` access grant. `document-MakieWebinar-access-retry` still exited
+**1** after **13.352420 s**, with the same HTTP 403 CONNECT-tunnel rejection of
+the DyadDAQP_jll 0.10.3 release URL. Generation/HTML coverage therefore remains
+blocked as shown above. The [project report](MakieWebinar/docs/followup-validation.md#artifact-access-retry)
+records the exact command, logs and limits. No source/model/dependency workaround
+was applied and no numerical result changed.

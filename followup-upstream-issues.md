@@ -212,3 +212,10 @@ fetching DyadDAQP_jll 0.10.3 from
 `https://github.com/JuliaComputing/DyadDAQP_jll.jl/releases/download/DyadDAQP-v0.10.3+0/DyadDAQP.v0.10.3.x86_64-linux-gnu.tar.gz`.
 This is an artifact-access limitation; it is not a missing-DISPLAY or numerical
 analysis defect. The handwritten Cairo examples and SVG export passed.
+
+The task's subsequent `github.com` access grant was followed by an unchanged
+document-generation retry. It failed after 13.352420 s (exit 1) with the same
+HTTP 403 CONNECT-tunnel error at the exact DyadDAQP release URL above. This
+remains an access limitation, with generation and HTML execution unvalidated;
+it supplies no additional evidence of a compiler/library regression. The retry
+log is `.task/workflows/document-MakieWebinar-access-retry.log`.
