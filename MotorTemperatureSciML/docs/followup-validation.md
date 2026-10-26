@@ -276,15 +276,17 @@ visible progress, and do not turn its interruption into a library-defect claim.
 
 ## Animation audit
 
-Ran the real animation calibration with its **original 24 × 300 s segments,
-batch size eight, 10 × 33 epochs = 990 Adam updates**, and the **unchanged
-strict 1e-8 normalized continuity criterion (0.000002 °C)**. It finished in
+Ran the real fixed-budget diagnostic with its **original 24 × 300 s segments,
+batch size eight, 10 × 33 epochs = 990 Adam updates**, and its **unchanged
+artificial 1e-8 normalized stopping threshold (0.000002 °C)**. That threshold
+was designed to prevent early stopping; it is not a calibration acceptance
+requirement. It finished in
 **2305.5 s** and returned **`ConvergenceFailure`**. The final reconstructed
-maximum gap was **0.06310550081657595 °C**, far above that strict criterion.
+maximum gap was **0.06310550081657595 °C**, far above that artificial threshold.
 This is a fixed-budget diagnostic trajectory; it is **not** counted as
-successful calibration. The strict criterion lies below the configured
-1e-6 ODE tolerance, and the finite stochastic-update scale also limits
-junction refinement. Neither the return code nor the criterion was relabeled.
+successful calibration. The threshold lies below the configured 1e-6 ODE
+tolerance, and the finite stochastic-update scale also limits junction
+refinement. The raw return code and numerical threshold remain visible.
 
 Both GIFs and both final PNGs exported headlessly. The return code, final gap
 and original criterion appear on both figures. Limited stored frames to three
@@ -402,7 +404,7 @@ DYAD_UPGRADE_ONLY="Networks.Tests.TestConductanceNetAnalysis,Networks.Tests.Test
   --source .task/motor-followup/measures_subset.csv --out-dir .task/motor-followup/prepared
 "$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" .task/motor-followup/check-failure.jl
 
-# Full numerical animation budget; three captured frames, unchanged strict criterion.
+# Full diagnostic animation budget; three captured frames, unchanged threshold.
 TNN_ANIMATION_MAX_FRAMES=3 TNN_ANIMATION_CAPTURE_EVERY=100 \
   "$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" \
   "$PROJECT/scripts/animate_sms_training.jl" --out-dir .task/motor-followup/animation-scheduled

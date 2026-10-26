@@ -59,13 +59,15 @@ unexecuted workflow is counted as passing.
 Motor's standalone Julia trainer remains **unvalidated to completion** at every
 preset in the evidence collected so far. Default optimization hits severe LLVM
 compilation latency; an `-O1` full-preset retry reached finite optimization states
-but was interrupted without a final return code. Intermediate checkpoints are
+but was externally interrupted at 1542 updates / 5902.04 s without a final
+return code or calibration CSV. Its last independently reconstructed gap was
+0.21330 °C, above the unchanged 0.2 °C criterion. Intermediate checkpoints are
 not completed calibrations. The validated A2 path shares the numerical core but
 does not validate the standalone script's export path or full preset. See the
 [Motor investigation](MotorTemperatureSciML/docs/followup-validation.md).
 
 Shipped datasets and calibration weights are preserved. New upstream issue text
 is drafted only; nothing has been filed. The independent Claude review and its
-resolution are recorded with the final validation report. GUI frontends, complete
+resolution are recorded in [the review report](followup-review.md). GUI frontends, complete
 source-data provenance, full old-runtime retraining and every explicitly noted
 unexecuted preset remain validation gaps.
