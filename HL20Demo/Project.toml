@@ -6,6 +6,9 @@ authors = [
 ]
 
 [deps]
+EzXML = "8f5d6c58-4d21-5cfd-889c-e3ad7ee6a615"
+Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 DyadInterface = "99806f68-afab-45ca-9d8c-ceff6bc61f54"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
@@ -15,8 +18,14 @@ PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
 
 [compat]
-DyadInterface = "7.3.0"
+EzXML = "1"
+Interpolations = "0.16"
+Symbolics = "=7.45.0"
+DyadInterface = "=7.5.1"
 Markdown = "1"
+DyadEcosystemDependencies = "=0.11.20"
+
+julia = "=1.13.2"
 
 [extras]
 DyadEcosystemDependencies = "7bc808db-8006-421e-b546-062440d520b7"
@@ -35,4 +44,4 @@ test = [
 ]
 
 [dyad]
-kernel = "3.4.0"
+kernel = "3.5.0"
