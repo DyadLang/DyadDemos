@@ -58,3 +58,9 @@ include("../generated/tests.jl")
     end
 
 end
+
+@testset "Calibration/training analyses construct through the Dyad pipeline" begin
+    @test QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec().__system isa ModelingToolkit.System
+    @test QuarterTruckSciML.TruckFullNNTrainingAnalysis__Spec().__system isa ModelingToolkit.System
+    @test QuarterTruckSciML.TruckFullNNTrainingAnalysisLBFGS__Spec().__system isa ModelingToolkit.System
+end

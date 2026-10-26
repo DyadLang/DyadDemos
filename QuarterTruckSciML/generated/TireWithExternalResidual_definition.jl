@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TireWithExternalResidual(; name, k1, d, s_rel0)
+   TireWithExternalResidual(; name, k1, d, s_rel0, __overrides)
 
 Tire spring-damper that pushes only while squashed. Stretched past `s_rel0` the wheel has left the road, so the total force drops to zero — the same lift-off behaviour as `ConfigurableTireSpringDamper`. While in contact the force is the linear spring-damper plus whatever the neural network feeds into `f_residual`.
 
@@ -32,15 +32,15 @@ Tire spring-damper that pushes only while squashed. Stretched past `s_rel0` the 
 | `v_rel`         |                          | m/s  |
 | `f`         |                          | N  |
 """
-@component function TireWithExternalResidual(; name = nothing, k1=Float64(200000.0), d=Float64(50.0), s_rel0=0.2, kwargs...)
+@component function TireWithExternalResidual(; name = nothing, var"k1"=Float64(200000.0), var"d"=Float64(50.0), var"s_rel0"=0.2, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = TireWithExternalResidual()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -49,6 +49,11 @@ Tire spring-damper that pushes only while squashed. Stretched past `s_rel0` the 
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "k1") && (k1 = pop!(__overrides, "k1"))
+  haskey(__overrides, "d") && (d = pop!(__overrides, "d"))
+  haskey(__overrides, "s_rel0") && (s_rel0 = pop!(__overrides, "s_rel0"))
 
   ### Structural Parameters (functions)
 
@@ -65,13 +70,13 @@ Tire spring-damper that pushes only while squashed. Stretched past `s_rel0` the 
   ### Symbolic Parameters
   __local__k1 = k1
   append!(__params, @parameters (k1::Real))
-  __initial_conditions[k1] = __local__k1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k1, __local__k1)
   __local__d = d
   append!(__params, @parameters (d::Real))
-  __initial_conditions[d] = __local__d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, d, __local__d)
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [bounds = (0, Inf)])
-  __initial_conditions[s_rel0] = __local__s_rel0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0, __local__s_rel0)
 
   ### Final Parameters (assignments)
 
@@ -86,14 +91,14 @@ Tire spring-damper that pushes only while squashed. Stretched past `s_rel0` the 
 
   ### Variables (assignments)
   __ovr_s_rel = pop!(__overrides, "s_rel", nothing); isnothing(__ovr_s_rel) || push!(__eqs, s_rel ~ __ovr_s_rel)
-  __ovr_s_rel__initial = pop!(__overrides, "s_rel__initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
-  __ovr_s_rel__guess = pop!(__overrides, "s_rel__guess", nothing)
+  __ovr_s_rel__initial = pop!(__overrides, "s_rel.initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
+  __ovr_s_rel__guess = pop!(__overrides, "s_rel.guess", nothing)
   __ovr_v_rel = pop!(__overrides, "v_rel", nothing); isnothing(__ovr_v_rel) || push!(__eqs, v_rel ~ __ovr_v_rel)
-  __ovr_v_rel__initial = pop!(__overrides, "v_rel__initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
-  __ovr_v_rel__guess = pop!(__overrides, "v_rel__guess", nothing)
+  __ovr_v_rel__initial = pop!(__overrides, "v_rel.initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
+  __ovr_v_rel__guess = pop!(__overrides, "v_rel.guess", nothing)
   __ovr_f = pop!(__overrides, "f", nothing); isnothing(__ovr_f) || push!(__eqs, f ~ __ovr_f)
-  __ovr_f__initial = pop!(__overrides, "f__initial", nothing); isnothing(__ovr_f__initial) || (__initial_conditions[f] = __ovr_f__initial)
-  __ovr_f__guess = pop!(__overrides, "f__guess", nothing)
+  __ovr_f__initial = pop!(__overrides, "f.initial", nothing); isnothing(__ovr_f__initial) || (__initial_conditions[f] = __ovr_f__initial)
+  __ovr_f__guess = pop!(__overrides, "f.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -103,7 +108,7 @@ Tire spring-damper that pushes only while squashed. Stretched past `s_rel0` the 
   push!(__systems, @named flange_b = __Dyad__Flange())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_s_rel__guess) || (__guesses[s_rel] = __ovr_s_rel__guess)
@@ -124,6 +129,6 @@ Tire spring-damper that pushes only while squashed. Stretched past `s_rel0` the 
   push!(__eqs, s_rel_out ~ s_rel)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TireWithExternalResidual

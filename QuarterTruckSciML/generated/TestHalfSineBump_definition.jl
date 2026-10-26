@@ -5,19 +5,19 @@
 
 
 @doc Markdown.doc"""
-   TestHalfSineBump(; name)
+   TestHalfSineBump(; name, __overrides)
 
 Test harness for HalfSineBump signal in isolation.
 """
-@component function TestHalfSineBump(; name = nothing, kwargs...)
+@component function TestHalfSineBump(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = TestHalfSineBump()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,10 +55,10 @@ Test harness for HalfSineBump signal in isolation.
   ### Components
   # Subcomponent bump of type QuarterTruckSciML.HalfSineBump
   bump_overrides = __pop_subcomponent_overrides!(__overrides, "bump")
-  push!(__systems, @named bump = QuarterTruckSciML.HalfSineBump(; amplitude=0.05, bump_duration=0.1, start_time=0.1, bump_overrides...))
+  push!(__systems, @named bump = QuarterTruckSciML.HalfSineBump(; amplitude=0.05, bump_duration=0.1, start_time=0.1, __overrides = bump_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -70,6 +70,6 @@ Test harness for HalfSineBump signal in isolation.
   ### Equations
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestHalfSineBump

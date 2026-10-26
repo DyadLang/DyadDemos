@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   PureExternalForce(; name)
+   PureExternalForce(; name, __overrides)
 
 Force element that transmits an externally supplied force (via `f_external` RealInput) between its flanges, with no internal dynamics. Used to inject the NN-learned friction force between tire and body masses.
 
@@ -23,15 +23,15 @@ Force element that transmits an externally supplied force (via `f_external` Real
 | `s_rel`         |                          | m  |
 | `v_rel`         |                          | m/s  |
 """
-@component function PureExternalForce(; name = nothing, kwargs...)
+@component function PureExternalForce(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = PureExternalForce()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -67,11 +67,11 @@ Force element that transmits an externally supplied force (via `f_external` Real
 
   ### Variables (assignments)
   __ovr_s_rel = pop!(__overrides, "s_rel", nothing); isnothing(__ovr_s_rel) || push!(__eqs, s_rel ~ __ovr_s_rel)
-  __ovr_s_rel__initial = pop!(__overrides, "s_rel__initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
-  __ovr_s_rel__guess = pop!(__overrides, "s_rel__guess", nothing)
+  __ovr_s_rel__initial = pop!(__overrides, "s_rel.initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
+  __ovr_s_rel__guess = pop!(__overrides, "s_rel.guess", nothing)
   __ovr_v_rel = pop!(__overrides, "v_rel", nothing); isnothing(__ovr_v_rel) || push!(__eqs, v_rel ~ __ovr_v_rel)
-  __ovr_v_rel__initial = pop!(__overrides, "v_rel__initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
-  __ovr_v_rel__guess = pop!(__overrides, "v_rel__guess", nothing)
+  __ovr_v_rel__initial = pop!(__overrides, "v_rel.initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
+  __ovr_v_rel__guess = pop!(__overrides, "v_rel.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -81,7 +81,7 @@ Force element that transmits an externally supplied force (via `f_external` Real
   push!(__systems, @named flange_b = __Dyad__Flange())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_s_rel__guess) || (__guesses[s_rel] = __ovr_s_rel__guess)
@@ -100,6 +100,6 @@ Force element that transmits an externally supplied force (via `f_external` Real
   push!(__eqs, v_rel_out ~ v_rel)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export PureExternalForce

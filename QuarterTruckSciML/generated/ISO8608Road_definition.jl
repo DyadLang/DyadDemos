@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ISO8608Road(; name, roughness, speed, lambda_min, lambda_max, start_time, offset)
+   ISO8608Road(; name, roughness, speed, lambda_min, lambda_max, start_time, offset, __overrides)
 
 ISO 8608 calibrated road profile with speed-dependent frequency scaling.
 
@@ -24,15 +24,15 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
 
  * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function ISO8608Road(; name = nothing, roughness=0.000016, speed=13.89, lambda_min=0.5, lambda_max=Float64(30.0), start_time=Float64(0.0), offset=Float64(0.0), kwargs...)
+@component function ISO8608Road(; name = nothing, var"roughness"=0.000016, var"speed"=13.89, var"lambda_min"=0.5, var"lambda_max"=Float64(30.0), var"start_time"=Float64(0.0), var"offset"=Float64(0.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = ISO8608Road()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -41,6 +41,14 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "roughness") && (roughness = pop!(__overrides, "roughness"))
+  haskey(__overrides, "speed") && (speed = pop!(__overrides, "speed"))
+  haskey(__overrides, "lambda_min") && (lambda_min = pop!(__overrides, "lambda_min"))
+  haskey(__overrides, "lambda_max") && (lambda_max = pop!(__overrides, "lambda_max"))
+  haskey(__overrides, "start_time") && (start_time = pop!(__overrides, "start_time"))
+  haskey(__overrides, "offset") && (offset = pop!(__overrides, "offset"))
 
   ### Structural Parameters (functions)
 
@@ -57,22 +65,22 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
   ### Symbolic Parameters
   __local__roughness = roughness
   append!(__params, @parameters (roughness::Real), [description = "Road roughness G_d(n0) at n0=0.1 cycles/m [m3]"])
-  __initial_conditions[roughness] = __local__roughness
+  __dyad_seed_parameter!(__initial_conditions, __bindings, roughness, __local__roughness)
   __local__speed = speed
   append!(__params, @parameters (speed::Real), [description = "Vehicle speed [m/s] (e.g. 13.89 = 50 km/h)"])
-  __initial_conditions[speed] = __local__speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, speed, __local__speed)
   __local__lambda_min = lambda_min
   append!(__params, @parameters (lambda_min::Real), [description = "Shortest spatial wavelength [m]", bounds = (0, Inf)])
-  __initial_conditions[lambda_min] = __local__lambda_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, lambda_min, __local__lambda_min)
   __local__lambda_max = lambda_max
   append!(__params, @parameters (lambda_max::Real), [description = "Longest spatial wavelength [m]", bounds = (0, Inf)])
-  __initial_conditions[lambda_max] = __local__lambda_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, lambda_max, __local__lambda_max)
   __local__start_time = start_time
   append!(__params, @parameters (start_time::Real), [description = "Time at which signal begins [s]"])
-  __initial_conditions[start_time] = __local__start_time
+  __dyad_seed_parameter!(__initial_conditions, __bindings, start_time, __local__start_time)
   __local__offset = offset
   append!(__params, @parameters (offset::Real), [description = "Baseline offset [m]", bounds = (0, Inf)])
-  __initial_conditions[offset] = __local__offset
+  __dyad_seed_parameter!(__initial_conditions, __bindings, offset, __local__offset)
 
   ### Final Parameters (assignments)
 
@@ -89,7 +97,7 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -102,6 +110,6 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
   push!(__eqs, y ~ offset + ifelse(t >= start_time, sqrt(roughness * 0.16 * (lambda_max - lambda_min)) * 0.125 * (2.3488 * sin(2 * π * (speed / lambda_max) * (t - start_time) + 3.8832) + 1.3087 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (1.0 / 7.0) * (t - start_time) + 1.4833) + 0.7291 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (2.0 / 7.0) * (t - start_time) + 5.3665) + 0.4062 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (3.0 / 7.0) * (t - start_time) + 2.9665) + 0.2263 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (4.0 / 7.0) * (t - start_time) + 0.5666) + 0.1261 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (5.0 / 7.0) * (t - start_time) + 4.4498) + 0.0703 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (6.0 / 7.0) * (t - start_time) + 2.0498) + 0.0391 * sin(2 * π * (speed / lambda_min) * (t - start_time) + 5.933) + 0.742), 0.0))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ISO8608Road
