@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TestThermalHouse(; name, T_outdoor, T_indoor, Q_heater, solar_irrad)
+   TestThermalHouse(; name, T_outdoor, T_indoor, Q_heater, solar_irrad, __overrides)
 
 ## Parameters:
 
@@ -16,15 +16,15 @@
 | `Q_heater`         | HVAC system heat                         | W  |   7500.0 |
 | `solar_irrad`         | Solar irradiance for summer conditions (W/m²)                         | --  |   0.0 |
 """
-@component function TestThermalHouse(; name = nothing, T_outdoor=273.15, T_indoor=294.26, Q_heater=Float64(7500.0), solar_irrad=Float64(0.0), kwargs...)
+@component function TestThermalHouse(; name = nothing, var"T_outdoor"=273.15, var"T_indoor"=294.26, var"Q_heater"=Float64(7500.0), var"solar_irrad"=Float64(0.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = TestThermalHouse()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -33,6 +33,12 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "T_outdoor") && (T_outdoor = pop!(__overrides, "T_outdoor"))
+  haskey(__overrides, "T_indoor") && (T_indoor = pop!(__overrides, "T_indoor"))
+  haskey(__overrides, "Q_heater") && (Q_heater = pop!(__overrides, "Q_heater"))
+  haskey(__overrides, "solar_irrad") && (solar_irrad = pop!(__overrides, "solar_irrad"))
 
   ### Structural Parameters (functions)
 
@@ -49,16 +55,16 @@
   ### Symbolic Parameters
   __local__T_outdoor = T_outdoor
   append!(__params, @parameters (T_outdoor::Real), [description = "Outdoor temperature 0°C (32°F)", bounds = (0, Inf)])
-  __initial_conditions[T_outdoor] = __local__T_outdoor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_outdoor, __local__T_outdoor)
   __local__T_indoor = T_indoor
   append!(__params, @parameters (T_indoor::Real), [description = "Indoor temperature 21.1°C (70°F)", bounds = (0, Inf)])
-  __initial_conditions[T_indoor] = __local__T_indoor
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_indoor, __local__T_indoor)
   __local__Q_heater = Q_heater
   append!(__params, @parameters (Q_heater::Real), [description = "HVAC system heat"])
-  __initial_conditions[Q_heater] = __local__Q_heater
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_heater, __local__Q_heater)
   __local__solar_irrad = solar_irrad
   append!(__params, @parameters (solar_irrad::Real), [description = "Solar irradiance for summer conditions (W/m²)"])
-  __initial_conditions[solar_irrad] = __local__solar_irrad
+  __dyad_seed_parameter!(__initial_conditions, __bindings, solar_irrad, __local__solar_irrad)
 
   ### Final Parameters (assignments)
 
@@ -74,19 +80,19 @@
   ### Components
   # Subcomponent house of type ThermalHouseDemo.ThermalHouse
   house_overrides = __pop_subcomponent_overrides!(__overrides, "house")
-  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(; T_initial=T_indoor, Q_people=Float64(100.0), Q_lighting=Float64(200.0), Q_appliances=Float64(200.0), house_overrides...))
+  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(; T_initial=T_indoor, Q_people=Float64(100.0), Q_lighting=Float64(200.0), Q_appliances=Float64(200.0), __overrides = house_overrides))
   # Subcomponent heater_signal of type BlockComponents.Sources.Constant
   heater_signal_overrides = __pop_subcomponent_overrides!(__overrides, "heater_signal")
-  push!(__systems, @named heater_signal = BlockComponents.Sources.Constant(; k=Q_heater, heater_signal_overrides...))
+  push!(__systems, @named heater_signal = BlockComponents.Sources.Constant(; k=Q_heater, __overrides = heater_signal_overrides))
   # Subcomponent solar_signal of type BlockComponents.Sources.Constant
   solar_signal_overrides = __pop_subcomponent_overrides!(__overrides, "solar_signal")
-  push!(__systems, @named solar_signal = BlockComponents.Sources.Constant(; k=solar_irrad, solar_signal_overrides...))
+  push!(__systems, @named solar_signal = BlockComponents.Sources.Constant(; k=solar_irrad, __overrides = solar_signal_overrides))
   # Subcomponent ambient_signal of type BlockComponents.Sources.Constant
   ambient_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ambient_signal")
-  push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(; k=T_outdoor, ambient_signal_overrides...))
+  push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(; k=T_outdoor, __overrides = ambient_signal_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   __guesses[house.wall_loss.ΔT] = (10.0)
@@ -102,6 +108,6 @@
   push!(__eqs, connect(ambient_signal.y, house.T_ambient))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestThermalHouse

@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ThermalHouseControlled(; name, T_initial, k_p, T_i, Q_max)
+   ThermalHouseControlled(; name, T_initial, k_p, T_i, Q_max, __overrides)
 
 Thermal model of a house with controlled heater and input for temperature setpoint and solar irradiance
 
@@ -26,15 +26,15 @@ Thermal model of a house with controlled heater and input for temperature setpoi
  * `solar_irradiance` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `T_ambient` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
 """
-@component function ThermalHouseControlled(; name = nothing, T_initial=294.26, k_p=Float64(10000.0), T_i=Float64(600.0), Q_max=Float64(10000.0), kwargs...)
+@component function ThermalHouseControlled(; name = nothing, var"T_initial"=294.26, var"k_p"=Float64(10000.0), var"T_i"=Float64(600.0), var"Q_max"=Float64(10000.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = ThermalHouseControlled()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -43,6 +43,12 @@ Thermal model of a house with controlled heater and input for temperature setpoi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "T_initial") && (T_initial = pop!(__overrides, "T_initial"))
+  haskey(__overrides, "k_p") && (k_p = pop!(__overrides, "k_p"))
+  haskey(__overrides, "T_i") && (T_i = pop!(__overrides, "T_i"))
+  haskey(__overrides, "Q_max") && (Q_max = pop!(__overrides, "Q_max"))
 
   ### Structural Parameters (functions)
 
@@ -59,16 +65,16 @@ Thermal model of a house with controlled heater and input for temperature setpoi
   ### Symbolic Parameters
   __local__T_initial = T_initial
   append!(__params, @parameters (T_initial::Real), [description = "Initial temperature 21.1°C", bounds = (0, Inf)])
-  __initial_conditions[T_initial] = __local__T_initial
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_initial, __local__T_initial)
   __local__k_p = k_p
   append!(__params, @parameters (k_p::Real), [description = "Proportional gain (W/K)"])
-  __initial_conditions[k_p] = __local__k_p
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_p, __local__k_p)
   __local__T_i = T_i
   append!(__params, @parameters (T_i::Real), [description = "Integral time constant (s)"])
-  __initial_conditions[T_i] = __local__T_i
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_i, __local__T_i)
   __local__Q_max = Q_max
   append!(__params, @parameters (Q_max::Real), [description = "Maximum heater capacity (W)"])
-  __initial_conditions[Q_max] = __local__Q_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_max, __local__Q_max)
 
   ### Final Parameters (assignments)
 
@@ -89,16 +95,16 @@ Thermal model of a house with controlled heater and input for temperature setpoi
   ### Components
   # Subcomponent house of type ThermalHouseDemo.ThermalHouse
   house_overrides = __pop_subcomponent_overrides!(__overrides, "house")
-  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(; T_initial=T_initial, house_overrides...))
+  push!(__systems, @named house = ThermalHouseDemo.ThermalHouse(; T_initial=T_initial, __overrides = house_overrides))
   # Subcomponent pid of type BlockComponents.Continuous.LimPID
   pid_overrides = __pop_subcomponent_overrides!(__overrides, "pid")
-  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(; k=k_p, Ti=T_i, Td=Float64(0.0), y_max=Q_max, y_min=Float64(0.0), pid_overrides...))
+  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(; k=k_p, Ti=T_i, Td=Float64(0.0), y_max=Q_max, y_min=Float64(0.0), __overrides = pid_overrides))
   # Subcomponent zero_ff of type BlockComponents.Sources.Constant
   zero_ff_overrides = __pop_subcomponent_overrides!(__overrides, "zero_ff")
-  push!(__systems, @named zero_ff = BlockComponents.Sources.Constant(; k=Float64(0.0), zero_ff_overrides...))
+  push!(__systems, @named zero_ff = BlockComponents.Sources.Constant(; k=Float64(0.0), __overrides = zero_ff_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -122,6 +128,6 @@ Thermal model of a house with controlled heater and input for temperature setpoi
   push!(__eqs, connect(Q_heater, pid.y))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ThermalHouseControlled

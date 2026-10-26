@@ -4,3 +4,6 @@ ThermalHouseDemo = "cc625cb1-519f-4735-a3fa-810aa2cd8f53"
 
 [sources]
 ThermalHouseDemo = {path = ".."}
+
+[compat]
+julia = "=1.13.2"
