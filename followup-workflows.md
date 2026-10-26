@@ -20,9 +20,9 @@ The handwritten pages and generated Documenter site are separate workflows. `dya
 | FIRFilterComponents | No executable block | pass | fail | 44.942 s |
 | SatelliteGNC | Success, full horizon | pass | fail | 23.080 s |
 | HL20Demo | No executable block | pass | fail | 27.895 s |
-| MakieWebinar | Success, full horizon | blocked: artifact host | blocked during generation (DyadDAQP artifact download) | 9.344 s |
+| MakieWebinar | Success, full horizon | pass (24.379 s after access grant) | fail: generated `Hello` parameter cycle | 73.976 s |
 
-Full HTML passes: CoffeeMugDemo, TurkeyDemo, ThermalHouseDemo, DynamicSteadyState. Failures: FrictionBrake exceeds the unchanged HTML size limit; HybridTransmission, PassiveSuspension, FIRFilterComponents, SatelliteGNC and HL20Demo hit generated symbolic-parameter cycles. MakieWebinar generation requires a blocked DyadDAQP artifact. Earlier exit-zero builds with broken examples downgraded to warnings are explicitly not counted as passes.
+Full HTML passes: CoffeeMugDemo, TurkeyDemo, ThermalHouseDemo, DynamicSteadyState. Failures: FrictionBrake exceeds the unchanged HTML size limit; HybridTransmission, PassiveSuspension, FIRFilterComponents, SatelliteGNC, HL20Demo and MakieWebinar hit generated symbolic-parameter cycles. MakieWebinar generation succeeded after the artifact-host access grant. Earlier exit-zero builds with broken examples downgraded to warnings are explicitly not counted as passes.
 
 ## Notebook and headless script coverage
 
@@ -46,7 +46,7 @@ The existing FrictionBrake regression testset also passed **21/21** checks (58.5
 
 The original thermal/mechanical/flight projects are preserved under workspace `.task/thermal-baseline`, `.task/mechanical-baseline`, and `.task/flight-baseline`; SciML baseline data for the isolated annotation repro is under `.task/sciml/baseline`. These use the original 3.4 sources documented in each existing upgrade report. Baseline tests do not run rc2-generated model sources. For documentation behavior comparisons, the exact emitted Julia example block is executed against each original 3.4 model, then against rc2.
 
-FIR’s `Hello` behavior block passes on 3.4 (1.038771 s in-block) and fails on rc2 (0.427529 s) with a `T_inf` parameter cycle. Hybrid ECMSController/HybridBattery, suspension ISO8608RoadC, and satellite AttitudeController/LuenbergerObserver/ReactionJet blocks also pass against 3.4 and fail with the same cycle on rc2. Original HL20 construction instead fails earlier on undefined `ChallengeComponent`; no successful original full-flight baseline exists. The SVG-only documentation fixture fails the default HTML limit under 3.4 as well (722.04 KiB, 40.616872 s process time). This tests the same generated SVG content, not an independently rebuilt 3.4 documentation generator.
+FIR’s `Hello` behavior block passes on 3.4 (1.038771 s in-block) and fails on rc2 (0.427529 s) with a `T_inf` parameter cycle. Hybrid ECMSController/HybridBattery, suspension ISO8608RoadC, satellite AttitudeController/LuenbergerObserver/ReactionJet, and MakieWebinar Hello blocks also pass against 3.4 and fail with the same cycle on rc2. Original HL20 construction instead fails earlier on undefined `ChallengeComponent`; no successful original full-flight baseline exists. The SVG-only documentation fixture fails the default HTML limit under 3.4 as well (722.04 KiB, 40.616872 s process time). This tests the same generated SVG content, not an independently rebuilt 3.4 documentation generator.
 
 The timeseries annotation regression was regenerated and reproduced only in `.task/workflows/annotation/DrivelineSciML`; neither concurrent SciML owner’s project was edited. Old spec construction: pass (2.621428 s in-process); exact rc2 system construction: failure before solving (0.242543 s). Substituting the concrete runtime timeseries type in that task copy permits construction (3.097058 s). This is code-generation evidence, not a successful calibration or a change to optimization acceptance criteria. See [precise issue drafts](followup-upstream-issues.md), including the already-open dyad-lang #1958.
 
@@ -96,7 +96,46 @@ Per-project reports link the relevant results and limitations. No generated HTML
 The outstanding MakieWebinar artifact download was retried after the task's
 `github.com` access grant. `document-MakieWebinar-access-retry` still exited
 **1** after **13.352420 s**, with the same HTTP 403 CONNECT-tunnel rejection of
-the DyadDAQP_jll 0.10.3 release URL. Generation/HTML coverage therefore remains
-blocked as shown above. The [project report](MakieWebinar/docs/followup-validation.md#artifact-access-retry)
+the DyadDAQP_jll 0.10.3 release URL. Generation/HTML coverage was still
+blocked at that point; the later release-assets retry below supersedes it. The [project report](MakieWebinar/docs/followup-validation.md#artifact-access-retry)
 records the exact command, logs and limits. No source/model/dependency workaround
 was applied and no numerical result changed.
+
+## Release-assets access retry: generation completed, example regression exposed
+
+After task access to `release-assets.githubusercontent.com` was granted, the
+unchanged MakieWebinar generation command completed with exit **0** in
+**24.378873 s**. This supersedes the artifact blockage above. The subsequent
+strict-example HTML build exited **1** in **73.975772 s**, before HTML rendering,
+because generated `components/Hello.md:51` fails in `full_equations` with a
+`T_inf` parameter-binding cycle. Cross-reference/missing-docstring warnings and
+the optional missing-DISPLAY precompile diagnostic are retained; the terminal
+Documenter error is `[:example_block]`.
+
+All twelve emitted component behavior blocks were then executed against the
+original 3.4 model and rc2 model in separate processes. Old: **12 pass**,
+**6.627891 s** process time. New: **11 pass, Hello fails**, **6.929902 s** process
+time. Hello's in-block times are **0.289241 s** old and **0.212930 s** new. These
+are symbolic construction/equation checks; they add no numerical solve,
+residual, or trajectory-accuracy claim. The probe catches and prints individual
+errors to cover every component, so its zero process exit is not an all-pass
+signal. The independent HTML build exits nonzero as required.
+
+With the environment in Reproduction above, exact retained commands are:
+
+```sh
+python3 .task/workflows/jobs.py .task/workflows/jobs-release-assets-retry.json
+python3 .task/workflows/jobs.py .task/workflows/jobs-html-release-assets-retry.json
+python3 .task/workflows/jobs.py .task/workflows/jobs-makie-behaviors.json
+```
+
+The first invokes the same compiler `document MakieWebinar` command in the task
+copy. The second uses `build-docs.jl` after removing only `:example_block` from
+that copy's generated `warnonly` list. The third runs
+`behavior-MakieWebinar-all.jl <model-root> <generated-docs-root>` under each
+runtime/project, loads the unchanged generated models by inclusion, and executes
+the emitted component blocks in separate modules. All exact argv, cwd, process
+limits, per-block outcomes, and wall times remain under `.task/workflows/` in
+the named job files, matching `.log` files, and `results.jsonl`. No generated
+source, artifact payload, manifest, or HTML is committed. See the updated
+[MakieWebinar report](MakieWebinar/docs/followup-validation.md#release-assets-access-retry).

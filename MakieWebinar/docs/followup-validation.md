@@ -10,9 +10,9 @@ Executed the `docs/index.md` example block(s): `Hello, both CairoMakie blocks`, 
 
 ## Generated documentation
 
-RC2 documentation generation: blocked (162.263 s). Full generated HTML build: **blocked during generation (DyadDAQP artifact download)**, 9.344 s. Documenter 1.19.0 was used.
+Latest RC2 documentation generation: **pass**, 24.378873 s after the release-assets access grant. Full generated HTML build: **fail**, 73.975772 s, generated Hello parameter cycle. Documenter 1.19.0 was used.
 
-`dyad document` could not instantiate its copied workspace: the DyadDAQP_jll 0.10.3 artifact download returned HTTP 403 from the configured proxy. A complete generated-document build is not claimed. Both handwritten CairoMakie example blocks did execute.
+Initially `dyad document` could not instantiate its copied workspace: the DyadDAQP_jll 0.10.3 artifact download returned HTTP 403 from the configured proxy. The latest access grant resolved that blockage; generation completes and the strict-example build now exposes the upstream cycle described below. A successful generated HTML site is not claimed. Both handwritten CairoMakie example blocks did execute.
 
 The existing docs environment omitted its `Documenter` dependency even though generated `make.jl` imports it. Added `Documenter` with compat `1`. The same missing dependency is present in the pre-upgrade docs environments; the 3.4 CoffeeMug environment reproduced the import error in 1.468 s.
 
@@ -56,3 +56,54 @@ with cwd `.task/workflows/copies/MakieWebinar`. The full output is retained in
 300 s process limit are in `jobs-access-retry.json`, and measured wall time and
 exit status are appended to `results.jsonl`. No additional 3.4 numerical
 comparison is appropriate for this unchanged network-access failure.
+
+## Release-assets access retry
+
+After access to `release-assets.githubusercontent.com` was granted, the unchanged
+`document MakieWebinar` command passed in **24.378873 s**, exit **0**. The new
+strict-example HTML build failed in **73.975772 s**, exit **1**, with:
+
+```text
+failed to run @example block in docs/src/components/Hello.md:51-62
+The bindings for parameters were found to have at least one cycle
+involving the follow parameters:
+T_inf
+makedocs encountered an error [:example_block] -- terminating build before rendering.
+```
+
+The generated block declares external `@variables T_inf T0 h A m c_p`, passes
+them as same-name keyword arguments to `MakieWebinar.Hello`, and calls
+`full_equations(sys)`. The original 3.4 model executes this exact block
+successfully (**0.289241 s** in-block); rc2 fails (**0.212930 s**). This is the
+constructor/docs-generation regression already isolated in FIR, now confirmed
+in MakieWebinar. Correct model physics and defaults are preserved; the
+[upstream draft](../../followup-upstream-issues.md#new-draft-generated-behavior-examples-create-self-referential-bindings)
+was extended, without filing an issue.
+
+All **12** emitted component behavior blocks pass against the original 3.4
+model (**6.627891 s** total process time). On rc2, **11 pass and Hello fails**
+(**6.929902 s** total process time). The comparison covers symbolic construction
+and equations; it adds no solve, residual, calibration or accuracy claim. The
+probe deliberately catches/prints per-component errors to finish the inventory;
+its zero process exit is not an all-pass result. The strict HTML build exits
+nonzero and remains failed. Its optional GLMakie missing-DISPLAY diagnostic is
+retained; it proceeds into Documenter and ultimately fails on the example.
+
+With the environment in the shared report, reproduce from the workspace root:
+
+```sh
+python3 .task/workflows/jobs.py .task/workflows/jobs-release-assets-retry.json
+python3 .task/workflows/jobs.py .task/workflows/jobs-html-release-assets-retry.json
+python3 .task/workflows/jobs.py .task/workflows/jobs-makie-behaviors.json
+```
+
+The HTML job uses the same `build-docs.jl` and removes only `:example_block` from
+the generated task-copy `warnonly` list; HTML limits and cross-reference warnings
+are unchanged. The comparison includes each runtime's original generated model
+in its own environment and executes the rc2-emitted component blocks in separate
+modules. Exact argv/cwd and 300 s build/180 s comparison limits are in the job
+files. Matching logs are `document-MakieWebinar-release-assets-retry.log`,
+`html-MakieWebinar-release-assets-retry.log`, and
+`behavior-MakieWebinar-all-{3.4.0,3.5.0-rc2}.log`; measured wall times are in
+`results.jsonl`. No generated source, manifest, artifact, HTML or GUI workflow is
+committed or claimed validated. This result supersedes the earlier network gap.

@@ -130,6 +130,7 @@ The same new-cycle failure occurs in generated behavior blocks for:
 | SatelliteGNC | LuenbergerObserver | `Ixx` | passes |
 | SatelliteGNC | ReactionJet | `rx` | passes |
 | HL20Demo | shared.HL20Aero | `DLG` | fails earlier on missing `ChallengeComponent` |
+| MakieWebinar | Hello | `T_inf` | passes (0.289241 s in-block) |
 
 No successful original HL20 construction is claimed. Its new cycle is the same
 mechanism independently isolated by FIR, while its standalone helper bug had
@@ -207,15 +208,35 @@ encountered a Julia world-age `ComputePipeline` import error in CairoMakie.
 Fresh-process imports and the final Cairo SVG export succeeded. That abandoned
 shared-session diagnostic is not counted as a persistent demo failure.
 
-MakieWebinar generated docs remain separately blocked by an HTTP 403 when
+MakieWebinar generated docs were initially blocked by an HTTP 403 when
 fetching DyadDAQP_jll 0.10.3 from
 `https://github.com/JuliaComputing/DyadDAQP_jll.jl/releases/download/DyadDAQP-v0.10.3+0/DyadDAQP.v0.10.3.x86_64-linux-gnu.tar.gz`.
-This is an artifact-access limitation; it is not a missing-DISPLAY or numerical
-analysis defect. The handwritten Cairo examples and SVG export passed.
+That attempt was an artifact-access limitation; it was not a missing-DISPLAY or
+numerical analysis defect. The handwritten Cairo examples and SVG export passed.
 
 The task's subsequent `github.com` access grant was followed by an unchanged
 document-generation retry. It failed after 13.352420 s (exit 1) with the same
 HTTP 403 CONNECT-tunnel error at the exact DyadDAQP release URL above. This
-remains an access limitation, with generation and HTML execution unvalidated;
+was still an access limitation at that point, with generation and HTML execution unvalidated;
 it supplies no additional evidence of a compiler/library regression. The retry
 log is `.task/workflows/document-MakieWebinar-access-retry.log`.
+
+### Release-assets grant resolved artifact access
+
+With subsequent task access to `release-assets.githubusercontent.com`, unchanged
+MakieWebinar documentation generation passed in **24.378873 s** (exit **0**).
+The strict-example build then failed in **73.975772 s** (exit **1**) on its
+emitted Hello block with the same `T_inf` cycle described in the constructor/docs
+draft above. This supersedes the earlier access blockage. The generated
+`warnonly` downgrade for `:example_block` was removed only in the task copy;
+Documenter terminates before HTML rendering and no successful site is claimed.
+
+For this newly exposed failure, all twelve generated component behavior blocks
+were independently executed against the preserved original 3.4 model and rc2.
+All twelve pass on 3.4 (**6.627891 s** process time); eleven pass on rc2 and Hello
+fails (**6.929902 s** process time). Hello itself passes in **0.289241 s** on 3.4
+and fails in **0.212930 s** on rc2. This confirms an upgrade regression in
+symbolic example construction rather than a GUI prerequisite or failed
+numerical analysis. The original model is preserved. No new issue was filed.
+Exact commands, old/new logs and limits are linked from the
+[workflow report](followup-workflows.md#release-assets-access-retry-generation-completed-example-regression-exposed).
