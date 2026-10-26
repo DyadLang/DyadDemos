@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TurkeyDiscretizedSphere(; name, N, Np1, M, rho, cp, k, T_init, pi, R, dr)
+   TurkeyDiscretizedSphere(; name, N, Np1, M, rho, cp, k, T_init, pi, R, dr, __overrides)
 
 ## Parameters:
 
@@ -28,7 +28,7 @@
 
 ## Variables
 
-| Name         | Description                         | Units  | 
+| Name         | Description                         | Units  |
 | ------------ | ----------------------------------- | ------ |
 | `T`         |                          | K  |
 | `Q_cond`         |                          | W  |
@@ -39,15 +39,15 @@
 | `m_shell`         |                          | kg  |
 | `T_degF`         |                          | --  |
 """
-@component function TurkeyDiscretizedSphere(; name = nothing, N=10, M=Float64(5.0), rho=Float64(1050.0), cp=Float64(3500.0), k=0.5, T_init=Float64(277.0), pi=3.14159265359, Np1=N + 1, R=(3 * M / (4 * pi * rho)) ^ (1 / 3), dr=R / N, kwargs...)
+@component function TurkeyDiscretizedSphere(; name = nothing, var"N"=10, var"M"=Float64(5.0), var"rho"=Float64(1050.0), var"cp"=Float64(3500.0), var"k"=0.5, var"T_init"=Float64(277.0), var"pi"=3.14159265359, var"Np1"=nothing, var"R"=nothing, var"dr"=nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = TurkeyDiscretizedSphere()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -56,6 +56,23 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "N") && (N = pop!(__overrides, "N"))
+  haskey(__overrides, "M") && (M = pop!(__overrides, "M"))
+  haskey(__overrides, "rho") && (rho = pop!(__overrides, "rho"))
+  haskey(__overrides, "cp") && (cp = pop!(__overrides, "cp"))
+  haskey(__overrides, "k") && (k = pop!(__overrides, "k"))
+  haskey(__overrides, "T_init") && (T_init = pop!(__overrides, "T_init"))
+  haskey(__overrides, "pi") && (pi = pop!(__overrides, "pi"))
+  haskey(__overrides, "Np1") && (Np1 = pop!(__overrides, "Np1"))
+  haskey(__overrides, "R") && (R = pop!(__overrides, "R"))
+  haskey(__overrides, "dr") && (dr = pop!(__overrides, "dr"))
+
+  ### Deferred keyword defaults (defaults referencing other keyword arguments)
+  isnothing(Np1) && (Np1 = N + 1)
+  isnothing(R) && (R = (3 * M / (4 * pi * rho)) ^ (1 / 3))
+  isnothing(dr) && (dr = R / N)
 
   ### Structural Parameters (functions)
 
@@ -73,28 +90,28 @@
   ### Symbolic Parameters
   __local__M = M
   append!(__params, @parameters (M::Real), [bounds = (0, Inf)])
-  __initial_conditions[M] = __local__M
+  __dyad_seed_parameter!(__initial_conditions, __bindings, M, __local__M)
   __local__rho = rho
   append!(__params, @parameters (rho::Real), [bounds = (0, Inf)])
-  __initial_conditions[rho] = __local__rho
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rho, __local__rho)
   __local__cp = cp
   append!(__params, @parameters (cp::Real))
-  __initial_conditions[cp] = __local__cp
+  __dyad_seed_parameter!(__initial_conditions, __bindings, cp, __local__cp)
   __local__k = k
   append!(__params, @parameters (k::Real))
-  __initial_conditions[k] = __local__k
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k, __local__k)
   __local__T_init = T_init
   append!(__params, @parameters (T_init::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_init] = __local__T_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_init, __local__T_init)
   __local__pi = pi
   append!(__params, @parameters (pi::Real))
-  __initial_conditions[pi] = __local__pi
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pi, __local__pi)
   __local__R = R
   append!(__params, @parameters (R::Real))
-  __initial_conditions[R] = __local__R
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R, __local__R)
   __local__dr = dr
   append!(__params, @parameters (dr::Real))
-  __initial_conditions[dr] = __local__dr
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dr, __local__dr)
 
   ### Final Parameters (assignments)
   __bindings[T_inits] = T_init * ones(N)
@@ -113,29 +130,29 @@
 
   ### Variables (assignments)
   __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
-  __ovr_T__initial = pop!(__overrides, "T__initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
-  __ovr_T__guess = pop!(__overrides, "T__guess", nothing)
+  __ovr_T__initial = pop!(__overrides, "T.initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
+  __ovr_T__guess = pop!(__overrides, "T.guess", nothing)
   __ovr_Q_cond = pop!(__overrides, "Q_cond", nothing); isnothing(__ovr_Q_cond) || push!(__eqs, Q_cond ~ __ovr_Q_cond)
-  __ovr_Q_cond__initial = pop!(__overrides, "Q_cond__initial", nothing); isnothing(__ovr_Q_cond__initial) || (__initial_conditions[Q_cond] = __ovr_Q_cond__initial)
-  __ovr_Q_cond__guess = pop!(__overrides, "Q_cond__guess", nothing)
+  __ovr_Q_cond__initial = pop!(__overrides, "Q_cond.initial", nothing); isnothing(__ovr_Q_cond__initial) || (__initial_conditions[Q_cond] = __ovr_Q_cond__initial)
+  __ovr_Q_cond__guess = pop!(__overrides, "Q_cond.guess", nothing)
   __ovr_r = pop!(__overrides, "r", nothing); isnothing(__ovr_r) || push!(__eqs, r ~ __ovr_r)
-  __ovr_r__initial = pop!(__overrides, "r__initial", nothing); isnothing(__ovr_r__initial) || (__initial_conditions[r] = __ovr_r__initial)
-  __ovr_r__guess = pop!(__overrides, "r__guess", nothing)
+  __ovr_r__initial = pop!(__overrides, "r.initial", nothing); isnothing(__ovr_r__initial) || (__initial_conditions[r] = __ovr_r__initial)
+  __ovr_r__guess = pop!(__overrides, "r.guess", nothing)
   __ovr_r_mid = pop!(__overrides, "r_mid", nothing); isnothing(__ovr_r_mid) || push!(__eqs, r_mid ~ __ovr_r_mid)
-  __ovr_r_mid__initial = pop!(__overrides, "r_mid__initial", nothing); isnothing(__ovr_r_mid__initial) || (__initial_conditions[r_mid] = __ovr_r_mid__initial)
-  __ovr_r_mid__guess = pop!(__overrides, "r_mid__guess", nothing)
+  __ovr_r_mid__initial = pop!(__overrides, "r_mid.initial", nothing); isnothing(__ovr_r_mid__initial) || (__initial_conditions[r_mid] = __ovr_r_mid__initial)
+  __ovr_r_mid__guess = pop!(__overrides, "r_mid.guess", nothing)
   __ovr_A_interface = pop!(__overrides, "A_interface", nothing); isnothing(__ovr_A_interface) || push!(__eqs, A_interface ~ __ovr_A_interface)
-  __ovr_A_interface__initial = pop!(__overrides, "A_interface__initial", nothing); isnothing(__ovr_A_interface__initial) || (__initial_conditions[A_interface] = __ovr_A_interface__initial)
-  __ovr_A_interface__guess = pop!(__overrides, "A_interface__guess", nothing)
+  __ovr_A_interface__initial = pop!(__overrides, "A_interface.initial", nothing); isnothing(__ovr_A_interface__initial) || (__initial_conditions[A_interface] = __ovr_A_interface__initial)
+  __ovr_A_interface__guess = pop!(__overrides, "A_interface.guess", nothing)
   __ovr_V_shell = pop!(__overrides, "V_shell", nothing); isnothing(__ovr_V_shell) || push!(__eqs, V_shell ~ __ovr_V_shell)
-  __ovr_V_shell__initial = pop!(__overrides, "V_shell__initial", nothing); isnothing(__ovr_V_shell__initial) || (__initial_conditions[V_shell] = __ovr_V_shell__initial)
-  __ovr_V_shell__guess = pop!(__overrides, "V_shell__guess", nothing)
+  __ovr_V_shell__initial = pop!(__overrides, "V_shell.initial", nothing); isnothing(__ovr_V_shell__initial) || (__initial_conditions[V_shell] = __ovr_V_shell__initial)
+  __ovr_V_shell__guess = pop!(__overrides, "V_shell.guess", nothing)
   __ovr_m_shell = pop!(__overrides, "m_shell", nothing); isnothing(__ovr_m_shell) || push!(__eqs, m_shell ~ __ovr_m_shell)
-  __ovr_m_shell__initial = pop!(__overrides, "m_shell__initial", nothing); isnothing(__ovr_m_shell__initial) || (__initial_conditions[m_shell] = __ovr_m_shell__initial)
-  __ovr_m_shell__guess = pop!(__overrides, "m_shell__guess", nothing)
+  __ovr_m_shell__initial = pop!(__overrides, "m_shell.initial", nothing); isnothing(__ovr_m_shell__initial) || (__initial_conditions[m_shell] = __ovr_m_shell__initial)
+  __ovr_m_shell__guess = pop!(__overrides, "m_shell.guess", nothing)
   __ovr_T_degF = pop!(__overrides, "T_degF", nothing); isnothing(__ovr_T_degF) || push!(__eqs, T_degF ~ __ovr_T_degF)
-  __ovr_T_degF__initial = pop!(__overrides, "T_degF__initial", nothing); isnothing(__ovr_T_degF__initial) || (__initial_conditions[T_degF] = __ovr_T_degF__initial)
-  __ovr_T_degF__guess = pop!(__overrides, "T_degF__guess", nothing)
+  __ovr_T_degF__initial = pop!(__overrides, "T_degF.initial", nothing); isnothing(__ovr_T_degF__initial) || (__initial_conditions[T_degF] = __ovr_T_degF__initial)
+  __ovr_T_degF__guess = pop!(__overrides, "T_degF.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -144,7 +161,7 @@
   push!(__systems, @named surface = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_T__guess) || (__guesses[T] = __ovr_T__guess)
@@ -191,6 +208,6 @@
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TurkeyDiscretizedSphere
