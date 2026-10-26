@@ -5,11 +5,173 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel
-using ModelingToolkit: SymbolicT, toggle_namespacing
 using DyadModelOptimizer: AbstractCalibrationAnalysisSpec, CalibrationAnalysisSpec
-@kwdef mutable struct DrivelineStage2CalibrationAnalysisSpec <: AbstractCalibrationAnalysisSpec
+@component function DrivelineStage2CalibrationAnalysis__System(; name = nothing, var"alg"=ODEAlg.Tsit5(), var"start"=0.0, var"stop"=5.0, var"abstol"=1e-8, var"reltol"=1e-8, var"saveat"=0.005, var"dtmax"=0, var"data"=DyadData.DyadTimeseries("dyad://DrivelineSciML/data/slow_cycle_measurements.csv"; independent_var="timestamp", dependent_vars=["omega_eng(t)"]), var"depvars_names"=["model.J_eng.w"], var"loss_func"=DyadModelOptimizer.LossFunc.L2Loss(), var"search_space_names"=["model.alpha", "model.beta_bw", "model.gamma_bw"], var"search_space_lb"=[10.0, 1.0, 0.05], var"search_space_ub"=[120.0, 15.0, 1.0], var"calibration_alg"="SingleShooting", var"multiple_shooting_trajectories"=0, var"pem_gain"=0.0, var"optimizer"="auto", var"adtype"=DyadModelOptimizer.ADChoice.Auto(), var"optimizer_abstol"=0.0001, var"optimizer_maxiters"=300, var"optimizer_maxtime"=0.0, var"optimizer_verbose"=false, var"diagnostics"=DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking(), var"results_path"="", __overrides = Dict{String, Any}())
+  isnothing(name) && throw(ArgumentError("""
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+
+    @named model = DrivelineStage2CalibrationAnalysis__System()
+  """))
+
+  __overrides = Dict{String, Any}(__overrides)
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
+  __systems = System[]
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
+  __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "alg") && (alg = pop!(__overrides, "alg"))
+  haskey(__overrides, "start") && (start = pop!(__overrides, "start"))
+  haskey(__overrides, "stop") && (stop = pop!(__overrides, "stop"))
+  haskey(__overrides, "abstol") && (abstol = pop!(__overrides, "abstol"))
+  haskey(__overrides, "reltol") && (reltol = pop!(__overrides, "reltol"))
+  haskey(__overrides, "saveat") && (saveat = pop!(__overrides, "saveat"))
+  haskey(__overrides, "dtmax") && (dtmax = pop!(__overrides, "dtmax"))
+  haskey(__overrides, "data") && (data = pop!(__overrides, "data"))
+  haskey(__overrides, "depvars_names") && (depvars_names = pop!(__overrides, "depvars_names"))
+  haskey(__overrides, "loss_func") && (loss_func = pop!(__overrides, "loss_func"))
+  haskey(__overrides, "search_space_names") && (search_space_names = pop!(__overrides, "search_space_names"))
+  haskey(__overrides, "search_space_lb") && (search_space_lb = pop!(__overrides, "search_space_lb"))
+  haskey(__overrides, "search_space_ub") && (search_space_ub = pop!(__overrides, "search_space_ub"))
+  haskey(__overrides, "calibration_alg") && (calibration_alg = pop!(__overrides, "calibration_alg"))
+  haskey(__overrides, "multiple_shooting_trajectories") && (multiple_shooting_trajectories = pop!(__overrides, "multiple_shooting_trajectories"))
+  haskey(__overrides, "pem_gain") && (pem_gain = pop!(__overrides, "pem_gain"))
+  haskey(__overrides, "optimizer") && (optimizer = pop!(__overrides, "optimizer"))
+  haskey(__overrides, "adtype") && (adtype = pop!(__overrides, "adtype"))
+  haskey(__overrides, "optimizer_abstol") && (optimizer_abstol = pop!(__overrides, "optimizer_abstol"))
+  haskey(__overrides, "optimizer_maxiters") && (optimizer_maxiters = pop!(__overrides, "optimizer_maxiters"))
+  haskey(__overrides, "optimizer_maxtime") && (optimizer_maxtime = pop!(__overrides, "optimizer_maxtime"))
+  haskey(__overrides, "optimizer_verbose") && (optimizer_verbose = pop!(__overrides, "optimizer_verbose"))
+  haskey(__overrides, "diagnostics") && (diagnostics = pop!(__overrides, "diagnostics"))
+  haskey(__overrides, "results_path") && (results_path = pop!(__overrides, "results_path"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
+
+  ### Symbolic Parameters
+  __local__alg = alg
+  append!(__params, @parameters (alg::ODEAlg.Type))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, alg, __local__alg)
+  __local__start = start
+  append!(__params, @parameters (start::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, start, __local__start)
+  __local__stop = stop
+  append!(__params, @parameters (stop::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, stop, __local__stop)
+  __local__abstol = abstol
+  append!(__params, @parameters (abstol::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, abstol, __local__abstol)
+  __local__reltol = reltol
+  append!(__params, @parameters (reltol::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, reltol, __local__reltol)
+  __local__saveat = saveat
+  append!(__params, @parameters (saveat::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, saveat, __local__saveat)
+  __local__dtmax = dtmax
+  append!(__params, @parameters (dtmax::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dtmax, __local__dtmax)
+  __local__data = data
+  append!(__params, @parameters (data::typeof(__local__data)))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, data, __local__data)
+  __local__depvars_names = depvars_names
+  append!(__params, @parameters (depvars_names::Array{String, 1}))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, depvars_names, __local__depvars_names)
+  __local__loss_func = loss_func
+  append!(__params, @parameters (loss_func::DyadModelOptimizer.LossFunc.Type))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, loss_func, __local__loss_func)
+  __local__search_space_names = search_space_names
+  append!(__params, @parameters (search_space_names::Array{String, 1}))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, search_space_names, __local__search_space_names)
+  __local__search_space_lb = search_space_lb
+  append!(__params, @parameters (search_space_lb::Array{Float64, 1}))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, search_space_lb, __local__search_space_lb)
+  __local__search_space_ub = search_space_ub
+  append!(__params, @parameters (search_space_ub::Array{Float64, 1}))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, search_space_ub, __local__search_space_ub)
+  __local__calibration_alg = calibration_alg
+  append!(__params, @parameters (calibration_alg::DyadModelOptimizer.CalibrationAlg.Type))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, calibration_alg, __local__calibration_alg)
+  __local__multiple_shooting_trajectories = multiple_shooting_trajectories
+  append!(__params, @parameters (multiple_shooting_trajectories::Int))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, multiple_shooting_trajectories, __local__multiple_shooting_trajectories)
+  __local__pem_gain = pem_gain
+  append!(__params, @parameters (pem_gain::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pem_gain, __local__pem_gain)
+  __local__optimizer = optimizer
+  append!(__params, @parameters (optimizer::DyadModelOptimizer.OptimizerAlg.Type))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, optimizer, __local__optimizer)
+  __local__adtype = adtype
+  append!(__params, @parameters (adtype::DyadModelOptimizer.ADChoice.Type))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, adtype, __local__adtype)
+  __local__optimizer_abstol = optimizer_abstol
+  append!(__params, @parameters (optimizer_abstol::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, optimizer_abstol, __local__optimizer_abstol)
+  __local__optimizer_maxiters = optimizer_maxiters
+  append!(__params, @parameters (optimizer_maxiters::Int))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, optimizer_maxiters, __local__optimizer_maxiters)
+  __local__optimizer_maxtime = optimizer_maxtime
+  append!(__params, @parameters (optimizer_maxtime::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, optimizer_maxtime, __local__optimizer_maxtime)
+  __local__optimizer_verbose = optimizer_verbose
+  append!(__params, @parameters (optimizer_verbose::Bool))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, optimizer_verbose, __local__optimizer_verbose)
+  __local__diagnostics = diagnostics
+  append!(__params, @parameters (diagnostics::DyadModelOptimizer.DiagnosticsLevel.Type))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, diagnostics, __local__diagnostics)
+  __local__results_path = results_path
+  append!(__params, @parameters (results_path::String))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, results_path, __local__results_path)
+
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
+
+  ### Constants
+  __constants = Any[]
+
+  ### Components
+  # Subcomponent model of type DrivelineSciML.TestDrivelineSlowCycle
+  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
+  push!(__systems, @named model = DrivelineSciML.TestDrivelineSlowCycle(; __overrides = model_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
+
+  ### Guesses
+
+  ### Initialization Equations
+
+  ### Assertions
+  __assertions = []
+
+  ### Equations
+
+  # Return completely constructed System
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+end
+export DrivelineStage2CalibrationAnalysis__System
+
+@kwdef struct DrivelineStage2CalibrationAnalysis__Spec <: AbstractCalibrationAnalysisSpec
   name::Symbol = :DrivelineStage2CalibrationAnalysis
+  __overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
   var"alg"::ODEAlg.Type = ODEAlg.Tsit5()
   var"start"::Float64 = 0.0
   var"stop"::Float64 = 5.0
@@ -27,6 +189,7 @@ using DyadModelOptimizer: AbstractCalibrationAnalysisSpec, CalibrationAnalysisSp
   var"multiple_shooting_trajectories"::Int = 0
   var"pem_gain"::Float64 = 0.0
   var"optimizer"::DyadModelOptimizer.OptimizerAlg.Type = "auto"
+  var"adtype"::DyadModelOptimizer.ADChoice.Type = DyadModelOptimizer.ADChoice.Auto()
   var"optimizer_abstol"::Float64 = 0.0001
   var"optimizer_maxiters"::Int = 300
   var"optimizer_maxtime"::Float64 = 0.0
@@ -35,17 +198,26 @@ using DyadModelOptimizer: AbstractCalibrationAnalysisSpec, CalibrationAnalysisSp
   var"results_path"::String = ""
   # Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hysteresis at full amplitude. The Maxwell parameters are re-exposed at harness level so the Stage 2 driver can freeze them to the Stage 1 fit via constructor keywords (model.k1 / model.c1 stay out of the Stage 2 search space and are therefore fixed).
   var"model"::Union{Nothing, System} = DrivelineSciML.TestDrivelineSlowCycle(; name=:TestDrivelineSlowCycle)
+  __system::System = DrivelineStage2CalibrationAnalysis__System(; name, var"alg"=var"alg", var"start"=var"start", var"stop"=var"stop", var"abstol"=var"abstol", var"reltol"=var"reltol", var"saveat"=var"saveat", var"dtmax"=var"dtmax", var"data"=var"data", var"depvars_names"=var"depvars_names", var"loss_func"=var"loss_func", var"search_space_names"=var"search_space_names", var"search_space_lb"=var"search_space_lb", var"search_space_ub"=var"search_space_ub", var"calibration_alg"=var"calibration_alg", var"multiple_shooting_trajectories"=var"multiple_shooting_trajectories", var"pem_gain"=var"pem_gain", var"optimizer"=var"optimizer", var"adtype"=var"adtype", var"optimizer_abstol"=var"optimizer_abstol", var"optimizer_maxiters"=var"optimizer_maxiters", var"optimizer_maxtime"=var"optimizer_maxtime", var"optimizer_verbose"=var"optimizer_verbose", var"diagnostics"=var"diagnostics", var"results_path"=var"results_path")
 end
 
-function DyadInterface.run_analysis(spec::DrivelineStage2CalibrationAnalysisSpec)
+function __dyad_base_analysis_spec(spec::DrivelineStage2CalibrationAnalysis__Spec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
   
-  base_spec = CalibrationAnalysisSpec(;
-    name=:CalibrationAnalysis, overrides, alg=spec.alg, start=spec.start, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, saveat=spec.saveat, dtmax=spec.dtmax, data=spec.data, depvars_names=spec.depvars_names, loss_func=spec.loss_func, search_space_names=spec.search_space_names, search_space_lb=spec.search_space_lb, search_space_ub=spec.search_space_ub, calibration_alg=spec.calibration_alg, multiple_shooting_trajectories=spec.multiple_shooting_trajectories, pem_gain=spec.pem_gain, optimizer=spec.optimizer, optimizer_abstol=spec.optimizer_abstol, optimizer_maxiters=spec.optimizer_maxiters, optimizer_maxtime=spec.optimizer_maxtime, optimizer_verbose=spec.optimizer_verbose, diagnostics=spec.diagnostics, results_path=spec.results_path, model=spec.model
+  merge!(overrides, spec.__overrides)
+  CalibrationAnalysisSpec(;
+    name=spec.name, overrides, __system=spec.__system, var"alg"=spec.var"alg", var"start"=spec.var"start", var"stop"=spec.var"stop", var"abstol"=spec.var"abstol", var"reltol"=spec.var"reltol", var"saveat"=spec.var"saveat", var"dtmax"=spec.var"dtmax", var"data"=spec.var"data", var"depvars_names"=spec.var"depvars_names", var"loss_func"=spec.var"loss_func", var"search_space_names"=spec.var"search_space_names", var"search_space_lb"=spec.var"search_space_lb", var"search_space_ub"=spec.var"search_space_ub", var"calibration_alg"=spec.var"calibration_alg", var"multiple_shooting_trajectories"=spec.var"multiple_shooting_trajectories", var"pem_gain"=spec.var"pem_gain", var"optimizer"=spec.var"optimizer", var"adtype"=spec.var"adtype", var"optimizer_abstol"=spec.var"optimizer_abstol", var"optimizer_maxiters"=spec.var"optimizer_maxiters", var"optimizer_maxtime"=spec.var"optimizer_maxtime", var"optimizer_verbose"=spec.var"optimizer_verbose", var"diagnostics"=spec.var"diagnostics", var"results_path"=spec.var"results_path", var"model"=spec.var"model"
   )
-  run_analysis(base_spec)
 end
 
-DrivelineStage2CalibrationAnalysis(;kwargs...) = run_analysis(DrivelineStage2CalibrationAnalysisSpec(;kwargs...))
-export DrivelineStage2CalibrationAnalysis, DrivelineStage2CalibrationAnalysisSpec
+function DyadInterface.run_analysis(spec::DrivelineStage2CalibrationAnalysis__Spec)
+  run_analysis(__dyad_base_analysis_spec(spec))
+end
+
+function DyadInterface.setup_analysis(spec::DrivelineStage2CalibrationAnalysis__Spec; kwargs...)
+  DyadInterface.setup_analysis(__dyad_base_analysis_spec(spec); kwargs...)
+end
+
+DrivelineStage2CalibrationAnalysis(;kwargs...) = run_analysis(DrivelineStage2CalibrationAnalysis__Spec(;kwargs...))
+export DrivelineStage2CalibrationAnalysis, DrivelineStage2CalibrationAnalysis__Spec

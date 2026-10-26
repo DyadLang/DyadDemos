@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TestDrivelineSlowCycle(; name, k1, c1)
+   TestDrivelineSlowCycle(; name, k1, c1, __overrides)
 
 Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hysteresis at full amplitude. The Maxwell parameters are re-exposed at harness level so the Stage 2 driver can freeze them to the Stage 1 fit via constructor keywords (model.k1 / model.c1 stay out of the Stage 2 search space and are therefore fixed).
 
@@ -16,15 +16,15 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
 | `k1`         | Maxwell branch stiffness [N*m/rad] (frozen from Stage 1)                         | N.m/rad  |   200.0 |
 | `c1`         | Maxwell branch damping [N*m*s/rad] (frozen from Stage 1)                         | N.m.s/rad  |   2.0 |
 """
-@component function TestDrivelineSlowCycle(; name = nothing, k1=Float64(200.0), c1=Float64(2.0), kwargs...)
+@component function TestDrivelineSlowCycle(; name = nothing, var"k1"=Float64(200.0), var"c1"=Float64(2.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = TestDrivelineSlowCycle()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -33,6 +33,10 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "k1") && (k1 = pop!(__overrides, "k1"))
+  haskey(__overrides, "c1") && (c1 = pop!(__overrides, "c1"))
 
   ### Structural Parameters (functions)
 
@@ -49,10 +53,10 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   ### Symbolic Parameters
   __local__k1 = k1
   append!(__params, @parameters (k1::Real), [description = "Maxwell branch stiffness [N*m/rad] (frozen from Stage 1)"])
-  __initial_conditions[k1] = __local__k1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k1, __local__k1)
   __local__c1 = c1
   append!(__params, @parameters (c1::Real), [description = "Maxwell branch damping [N*m*s/rad] (frozen from Stage 1)"])
-  __initial_conditions[c1] = __local__c1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c1, __local__c1)
 
   ### Final Parameters (assignments)
 
@@ -68,22 +72,15 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   ### Components
   # Subcomponent model of type DrivelineSciML.DrivelineSystem
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; model_overrides...))
-  __bindings[model.k1] = k1
-  __bindings[model.c1] = c1
-  # Now remove initial conditions in model that correspond to the bindings just added
-  __model_ics = ModelingToolkit.get_initial_conditions(model)
-  __no_namespace_model = ModelingToolkit.toggle_namespacing(model, false)
-  __model_k1 = Symbolics.unwrap(__no_namespace_model.k1)::Symbolics.SymbolicT
-  delete!(__model_ics, __model_k1)
-  __model_c1 = Symbolics.unwrap(__no_namespace_model.c1)::Symbolics.SymbolicT
-  delete!(__model_ics, __model_c1)
+  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; k1=k1, c1=c1, __overrides = model_overrides))
+  __dyad_bind_final!(__bindings, model, Symbol[], :k1, k1)
+  __dyad_bind_final!(__bindings, model, Symbol[], :c1, c1)
   # Subcomponent sine of type BlockComponents.Sources.Sine
   sine_overrides = __pop_subcomponent_overrides!(__overrides, "sine")
-  push!(__systems, @named sine = BlockComponents.Sources.Sine(; amplitude=Float64(100.0), frequency=Float64(1.0), sine_overrides...))
+  push!(__systems, @named sine = BlockComponents.Sources.Sine(; amplitude=Float64(100.0), frequency=Float64(1.0), __overrides = sine_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -96,6 +93,6 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   push!(__eqs, connect(sine.y, model.torque.tau))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestDrivelineSlowCycle

@@ -5,19 +5,19 @@
 
 
 @doc Markdown.doc"""
-   TestTipInTorque(; name)
+   TestTipInTorque(; name, __overrides)
 
 Test harness for TipInTorque in isolation.
 """
-@component function TestTipInTorque(; name = nothing, kwargs...)
+@component function TestTipInTorque(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = TestTipInTorque()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,10 +55,10 @@ Test harness for TipInTorque in isolation.
   ### Components
   # Subcomponent source of type DrivelineSciML.TipInTorque
   source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
-  push!(__systems, @named source = DrivelineSciML.TipInTorque(; source_overrides...))
+  push!(__systems, @named source = DrivelineSciML.TipInTorque(; __overrides = source_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -70,6 +70,6 @@ Test harness for TipInTorque in isolation.
   ### Equations
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestTipInTorque

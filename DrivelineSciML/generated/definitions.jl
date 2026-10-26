@@ -8,6 +8,8 @@ using ModelingToolkit
 import Markdown
 using ModelingToolkit: t_nounits as t
 using OrdinaryDiffEqDefault
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
+using ModelingToolkit: SymbolicT, toggle_namespacing
 using RuntimeGeneratedFunctions
 RuntimeGeneratedFunctions.init(@__MODULE__)
 
@@ -16,10 +18,16 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
 end
 
 import BlockComponents
+let api = isdefined(BlockComponents, :__dyad_constructor_api) ? BlockComponents.__dyad_constructor_api : 1
+  api == 2 || error("BlockComponents was generated with Dyad constructor API version $api, but DrivelineSciML requires version 2 (the `__overrides` dict override channel). Regenerate BlockComponents with the same Dyad compiler that generated DrivelineSciML.")
+end
 import DyadData
 import DyadInterface
 import DyadModelOptimizer
 import RotationalComponents
+let api = isdefined(RotationalComponents, :__dyad_constructor_api) ? RotationalComponents.__dyad_constructor_api : 1
+  api == 2 || error("RotationalComponents was generated with Dyad constructor API version $api, but DrivelineSciML requires version 2 (the `__overrides` dict override channel). Regenerate RotationalComponents with the same Dyad compiler that generated DrivelineSciML.")
+end
 @doc Markdown.doc"""
 This connector represents an electrical pin with voltage and current as the potential and flow variables, respectively.
 """
@@ -27,7 +35,7 @@ This connector represents an electrical pin with voltage and current as the pote
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = Pin()
   """))
   __params = Symbolics.SymbolicT[]
@@ -47,7 +55,7 @@ This connector represents a thermal port with temperature and heat flow as the p
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = HeatPort()
   """))
   __params = Symbolics.SymbolicT[]
@@ -67,7 +75,7 @@ This connector represents a mechanical flange with position and force as the pot
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = Flange()
   """))
   __params = Symbolics.SymbolicT[]
@@ -87,7 +95,7 @@ This connector represents a rotational spline with angle and torque as the poten
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = Spline()
   """))
   __params = Symbolics.SymbolicT[]
@@ -108,7 +116,7 @@ All variables are resolved in the planar world frame.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = Frame2D()
   """))
   __params = Symbolics.SymbolicT[]
@@ -133,7 +141,7 @@ connectors that can be connected together
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = Frame3D()
   """))
   __params = Symbolics.SymbolicT[]
@@ -164,7 +172,7 @@ component.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = ClockInput()
   """))
   __params = Symbolics.SymbolicT[]
@@ -186,7 +194,7 @@ component.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = ClockOutput()
   """))
   __params = Symbolics.SymbolicT[]

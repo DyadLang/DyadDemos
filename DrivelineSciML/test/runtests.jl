@@ -60,3 +60,8 @@ const TRUTH = (k1 = 300.0, c1 = 1.0, alpha = 50.0, A_bw = 1.0, beta_bw = 5.0, ga
     end
 
 end
+
+@testset "Calibration/training analyses construct through the Dyad pipeline" begin
+    @test DrivelineSciML.DrivelineStage1CalibrationAnalysis__Spec().__system isa ModelingToolkit.System
+    @test DrivelineSciML.DrivelineStage2CalibrationAnalysis__Spec().__system isa ModelingToolkit.System
+end

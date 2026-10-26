@@ -85,20 +85,20 @@ REPL command), then activate this project:
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd DrivelineSciML
-julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 The measurement CSVs are committed, so calibration runs immediately:
 
 ```bash
-julia +dyad-3.3.0-rc2 --project scripts/run_calibration.jl   # both stages, ~2 min
-julia +dyad-3.3.0-rc2 --project scripts/validate.jl          # → assets/validation_tipin.png
+julia +dyad-3.5.0-rc2 --project scripts/run_calibration.jl   # both stages, ~2 min
+julia +dyad-3.5.0-rc2 --project scripts/validate.jl          # → assets/validation_tipin.png
 ```
 
 To regenerate the synthetic measurements from the truth model:
 
 ```bash
-julia +dyad-3.3.0-rc2 --project scripts/generate_calibration_data.jl
+julia +dyad-3.5.0-rc2 --project scripts/generate_calibration_data.jl
 ```
 
 After editing any `.dyad` file, regenerate `generated/` with the Dyad CLI:
@@ -157,7 +157,7 @@ structure is at fault rather than the optimizer.
 ### Smoke tests
 
 ```bash
-julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'
 ```
 
 Verifies four things:
@@ -178,3 +178,10 @@ The natural Dyad port adds a gray-box `DrivelineSystem` variant — known physic
 `DyadModelDiscovery.NeuralNetworkBlock` for `der(z)`, plus an
 `NNTrainingAnalysis` on the slow-cycle data. That mirrors the
 `QuarterTruckSciML` NN-discovery demo.
+
+## Dyad 3.5 validation
+
+See [the upgrade validation report](docs/upgrade-3.5-validation.md) for the
+full analysis inventory, old/new numerical comparisons, and regeneration steps.
+After `dyad compile .`, run `julia +dyad-3.5.0-rc2 --project scripts/fix_analysis_codegen.jl`
+to correct the compiler’s parametric dataset annotation before loading the project.
