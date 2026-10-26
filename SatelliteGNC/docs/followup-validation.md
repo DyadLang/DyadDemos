@@ -12,13 +12,42 @@ Executed the `docs/index.md` example block(s): `TestFullGNCSim`, solver `Success
 
 RC2 documentation generation: pass (3.722 s). Full generated HTML build: **fail**, 23.080 s. Documenter 1.19.0 was used.
 
-Generated `AttitudeController`, `LuenbergerObserver`, and `ReactionJet` behavior blocks fail with cyclic bindings (`Kp_x`, `Ixx`, `rx`). The identical blocks pass against 3.4.
+The strict build reports **seven** failed generated behavior blocks:
+
+| Component | First cycle parameter | Identical block on original 3.4 model |
+|---|---|---|
+| `AttitudeController` | `Kp_x` | pass (initial audit) |
+| `LuenbergerObserver` | `Ixx` | pass (initial audit) |
+| `ReactionJet` | `rx` | pass (initial audit) |
+| `SatelliteBody` | `Ixx` | pass (review follow-up) |
+| `SatelliteBody6DOF` | `Ixx` | pass (review follow-up) |
+| `ThrusterAllocator` | `F_max` | pass (review follow-up) |
+| `TrapezoidalProfile` | `target_angle` | pass (review follow-up) |
+
+The initial report listed only the first three. The remaining four exact rc2-emitted
+Julia blocks were extracted from the generated pages and executed without catches
+against the preserved original `.task/flight-baseline/SatelliteGNC` model on 3.4.
+All four pass (5.078403 s process time, exit 0); no model was regenerated for the
+baseline. The harness is `.task/workflows/review-satellite-remaining-baseline.jl`,
+with command, output and time in `jobs-review-satellite-baseline.json`,
+`review-satellite-remaining-baseline.log` and `results.jsonl`. This checks symbolic
+construction and equations, not a trajectory or a complete old documentation build.
 
 The existing docs environment omitted its `Documenter` dependency even though generated `make.jl` imports it. Added `Documenter` with compat `1`. The same missing dependency is present in the pre-upgrade docs environments; the 3.4 CoffeeMug environment reproduced the import error in 1.468 s.
 
 ## Notebook
 
 Executed notebook code with `TestFullGNCSim` selected, using the package’s actual Orchestrator load/discovery/run/symbol/artifact APIs. Result: `Success`, full 40 s horizon, finite states, 60 listed symbols, and a predefined Plotly artifact. Numerical/artifact run: 7.883 s; HTML serialization run: 7.636 s. The script substitutes the task-local package path for notebook `@__DIR__`; the original placeholder was a selection template, not a solver failure. The checked-in notebook now supplies this working default and allows choosing another listed analysis. Browser interaction is unvalidated.
+
+The notebook now includes its own validation cell immediately after
+`run_analysis`, before symbol discovery or artifact production. It rebuilds the
+actual analysis result with `DyadInterface.rebuild_sol`, requires
+`successful_retcode`, nonempty samples, the exact problem stop time, and finite
+time/state samples, and raises explicit errors on failure. These gates are
+shipped in the notebook; the initial measurements above used appended harness
+checks. The [review rerun](../../followup-workflows.md#review-follow-up-notebook-gates)
+executes the checked-in cells against this checkout without appended solver
+validation. Browser/frontend interaction remains unvalidated.
 
 ## Limits
 

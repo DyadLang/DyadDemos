@@ -14,6 +14,16 @@ Generated `Hello` behavior block fails with a cyclic binding for `T_inf`; the id
 
 Executed notebook code with `TestFIRFilterAnalysis` selected, using the package’s actual Orchestrator load/discovery/run/symbol/artifact APIs. Result: `Success`, full 2π s horizon, finite states, 34 listed symbols, and a predefined Plotly artifact. Numerical/artifact run: 23.827 s; HTML serialization run: 22.368 s. The script substitutes the task-local package path for notebook `@__DIR__`; the original placeholder was a selection template, not a solver failure. The checked-in notebook now supplies this working default and allows choosing another listed analysis. Browser interaction is unvalidated.
 
+The notebook now includes its own validation cell immediately after
+`run_analysis`, before symbol discovery or artifact production. It rebuilds the
+actual analysis result with `DyadInterface.rebuild_sol`, requires
+`successful_retcode`, nonempty samples, the exact problem stop time, and finite
+time/state samples, and raises explicit errors on failure. These gates are
+shipped in the notebook; the initial measurements above used appended harness
+checks. The [review rerun](../../followup-workflows.md#review-follow-up-notebook-gates)
+executes the checked-in cells against this checkout without appended solver
+validation. Browser/frontend interaction remains unvalidated.
+
 ## Limits
 
 This audit does not validate GUI windows, browser interaction, VS Code notebook execution, dashboard controls, interactive sliders, or PID designer operation. Previously recorded analyses/training are not rerun or claimed here unless explicitly listed. Generated-doc failures above remain failures and have draft follow-ups; no upstream issue was filed.

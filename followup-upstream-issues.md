@@ -129,8 +129,19 @@ The same new-cycle failure occurs in generated behavior blocks for:
 | SatelliteGNC | AttitudeController | `Kp_x` | passes |
 | SatelliteGNC | LuenbergerObserver | `Ixx` | passes |
 | SatelliteGNC | ReactionJet | `rx` | passes |
+| SatelliteGNC | SatelliteBody | `Ixx` | passes (review follow-up) |
+| SatelliteGNC | SatelliteBody6DOF | `Ixx` | passes (review follow-up) |
+| SatelliteGNC | ThrusterAllocator | `F_max` | passes (review follow-up) |
+| SatelliteGNC | TrapezoidalProfile | `target_angle` | passes (review follow-up) |
 | HL20Demo | shared.HL20Aero | `DLG` | fails earlier on missing `ChallengeComponent` |
 | MakieWebinar | Hello | `T_inf` | passes (0.289241 s in-block) |
+
+SatelliteGNC has seven failed generated blocks, rather than the three initially
+listed. The remaining four exact emitted blocks pass against the original 3.4
+sources in 5.078403 s (exit 0), without catching errors. See
+[SatelliteGNC validation](SatelliteGNC/docs/followup-validation.md#generated-documentation)
+for the retained harness and logs. This extends the symbolic old/new comparison;
+it does not establish a successful complete old documentation build.
 
 No successful original HL20 construction is claimed. Its new cycle is the same
 mechanism independently isolated by FIR, while its standalone helper bug had
@@ -149,7 +160,8 @@ reported failures. No behavior block or model was deleted to get a green build.
 **Suggested target/title:** dyad-lang documentation renderer — large embedded
 component SVG exceeds Documenter's default HTML size threshold.
 
-`dyad document FrictionBrakeDemo` embeds a roughly 732 kB SVG in
+`dyad document FrictionBrakeDemo` embeds the 731703-byte asset
+`FrictionBrakeDemo/assets/brake_caliper.svg` in
 `docs/src/components/FrictionBrake.md`. The resulting page is 744.67 KiB and
 Documenter 1.19.0 rejects it with `HTMLSizeThresholdError` at its default 200 KiB
 limit. Every generated example in this project completed before HTML rendering
@@ -163,10 +175,32 @@ that also affects the old runtime with the same SVG content. An independent
 3.4 compiler documentation-generation run was not performed. The original icon
 asset/model was preserved.
 
-**Reproduction:** run `.task/workflows/svg-docs.jl` under `+dyad-3.4.0` with its
-task-local `svg-docs` project; exact commands are in `jobs-svg-baseline.json`.
-Alternatively build all generated FrictionBrake docs with the unchanged default
-HTML size threshold. The full rc2 build failed after 102.219274 s.
+**Self-contained reproduction from this checkout:** the committed
+[`reproduce_inline_svg.jl`](FrictionBrakeDemo/docs/reproduce_inline_svg.jl) reads
+`FrictionBrakeDemo/assets/brake_caliper.svg` directly, creates a temporary
+Documenter site with one raw-HTML SVG block, and calls `makedocs` with the default
+`Documenter.HTML()` limits. It requires only Documenter and the checked-in asset;
+no compiler, model, generated docs or task-local harness is needed.
+
+```sh
+julia --project=FrictionBrakeDemo/docs -e 'using Pkg; Pkg.instantiate()'
+julia --project=FrictionBrakeDemo/docs FrictionBrakeDemo/docs/reproduce_inline_svg.jl
+```
+
+Expected result: a nonzero exit with `HTMLSizeThresholdError` for `index.html`,
+above the default 200 KiB threshold. The temporary fixture path and exact asset
+size are printed. For a standalone Julia environment independent of the Dyad
+project, install Documenter 1.19.0 in a task-local environment and run the same
+script with that environment. The earlier 3.4 fixture used the generated SVG
+content (`jobs-svg-baseline.json`); it did not run the old compiler. The full rc2
+generated-site build failed after 102.219274 s.
+
+The committed source-asset fixture was also run on both runtimes with Documenter
+1.19.0: rc2 exits 1 with `HTMLSizeThresholdError` (720.27 KiB, 5.577645 s), as does
+3.4 (720.28 KiB, 4.274072 s). This minimal source-asset page differs from the
+earlier generated-content fixture; both exceed the unchanged 200 KiB limit.
+See [the review rerun](followup-workflows.md#review-follow-up-notebook-gates) for
+commands and logs. No complete old generated site is claimed.
 
 **Expected direction:** retain the icon but emit large SVG assets as external
 files/references, or compact SVG without changing the visible icon. Do not raise

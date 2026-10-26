@@ -36,7 +36,7 @@ Full HTML passes: CoffeeMugDemo, TurkeyDemo, ThermalHouseDemo, DynamicSteadyStat
 
 All selected notebook solves return Success, reach the declared stop time, and have finite states. Orchestrator returns predefined Plotly plot artifacts; an additional run serializes each artifact as HTML. Hybrid’s conditional-bootstrap notebook was also run without a bootstrap shortcut (11.592 s). DynamicSteadyState’s absent-package fallback was corrected from Orchestrator 0.6.1 to the distribution’s 0.15.0. These notebooks were selection templates; the placeholder itself was not a solver bug. HL20 loading/discovery returns zero analyses (3.272 s); its later selection/plot cells remain inapplicable until the documented prompts build analyses.
 
-Complete scripts executed: CoffeeMug (both variants, 6000 s), Turkey (14400 s), FrictionBrake thermal (1800 s), coast-down (100 s), and vehicle cycle (2000 s). All numerical solves passed full-horizon/finite-state checks; every script plot expression executed. FrictionBrake’s old default method exhausted its step budget on both runtimes and its heat-flow plot used nonexistent `.Q` fields. The corrected script uses Rodas5P and `.Q_flow`, and checks its return code and final time. Its [accuracy evidence](FrictionBrakeDemo/docs/followup-validation.md) includes a 2001-point comparison with a tighter reference: maximum speed/disk/pad differences 1.94057e-6 m/s, 9.81024e-5 K, and 2.70796e-5 K.
+Complete scripts executed: CoffeeMug (both variants, 6000 s), Turkey (14400 s), FrictionBrake thermal (1800 s), coast-down (100 s), and vehicle cycle (2000 s). All numerical solves passed full-horizon/finite-state checks; every script plot expression executed. FrictionBrake’s old default method exhausted its step budget on both runtimes and its heat-flow plot used nonexistent `.Q` fields. The corrected script uses Rodas5P and `.Q_flow`, and now raises explicit errors for unsuccessful return codes, missing samples, incomplete horizons, or non-finite time/state samples. Its [accuracy evidence](FrictionBrakeDemo/docs/followup-validation.md) includes a 2001-point comparison with a tighter reference: maximum speed/disk/pad differences 1.94057e-6 m/s, 9.81024e-5 K, and 2.70796e-5 K.
 
 DynamicSteadyState’s complete 240-frame GIF export: 204.705 s, result `0`. The full-day numerical solve is retained. Two earlier attempts timed out at 180/240 s. Old-stack two-frame export smoke: 60.473 s, result `0`; no complete 240-frame old export is claimed. Both use a task-local font cache. CairoMakie handwritten example SVG export: 50.202 s, result `0`.
 
@@ -46,7 +46,26 @@ The existing FrictionBrake regression testset also passed **21/21** checks (58.5
 
 The original thermal/mechanical/flight projects are preserved under workspace `.task/thermal-baseline`, `.task/mechanical-baseline`, and `.task/flight-baseline`; SciML baseline data for the isolated annotation repro is under `.task/sciml/baseline`. These use the original 3.4 sources documented in each existing upgrade report. Baseline tests do not run rc2-generated model sources. For documentation behavior comparisons, the exact emitted Julia example block is executed against each original 3.4 model, then against rc2.
 
-FIR’s `Hello` behavior block passes on 3.4 (1.038771 s in-block) and fails on rc2 (0.427529 s) with a `T_inf` parameter cycle. Hybrid ECMSController/HybridBattery, suspension ISO8608RoadC, satellite AttitudeController/LuenbergerObserver/ReactionJet, and MakieWebinar Hello blocks also pass against 3.4 and fail with the same cycle on rc2. Original HL20 construction instead fails earlier on undefined `ChallengeComponent`; no successful original full-flight baseline exists. The SVG-only documentation fixture fails the default HTML limit under 3.4 as well (722.04 KiB, 40.616872 s process time). This tests the same generated SVG content, not an independently rebuilt 3.4 documentation generator.
+FIR’s `Hello` behavior block passes on 3.4 (1.038771 s in-block) and fails on
+rc2 (0.427529 s) with a `T_inf` parameter cycle. Hybrid ECMSController/HybridBattery,
+suspension ISO8608RoadC, and MakieWebinar Hello blocks also pass against 3.4 and
+fail with the same cycle on rc2.
+
+SatelliteGNC has **seven** failed generated blocks: `AttitudeController` (`Kp_x`),
+`LuenbergerObserver` (`Ixx`), `ReactionJet` (`rx`), `SatelliteBody` (`Ixx`),
+`SatelliteBody6DOF` (`Ixx`), `ThrusterAllocator` (`F_max`), and
+`TrapezoidalProfile` (`target_angle`). All seven identical blocks pass against
+the original 3.4 model. The review follow-up tested the last four (5.078403 s,
+exit 0); the initial audit tested the first three. This is a symbolic block
+comparison, not a complete old site build. See the
+[component table and evidence](SatelliteGNC/docs/followup-validation.md#generated-documentation).
+
+Original HL20 construction instead fails earlier on undefined
+`ChallengeComponent`; no successful original full-flight baseline exists.
+The initial SVG-only documentation fixture fails the default HTML limit under
+3.4 as well (722.04 KiB, 40.616872 s process time). That fixture tests the same
+generated SVG content, not an independently rebuilt 3.4 documentation generator.
+The review follow-up additionally tests the committed source-asset fixture below.
 
 The timeseries annotation regression was regenerated and reproduced only in `.task/workflows/annotation/DrivelineSciML`; neither concurrent SciML owner’s project was edited. Old spec construction: pass (2.621428 s in-process); exact rc2 system construction: failure before solving (0.242543 s). Substituting the concrete runtime timeseries type in that task copy permits construction (3.097058 s). This is code-generation evidence, not a successful calibration or a change to optimization acceptance criteria. See [precise issue drafts](followup-upstream-issues.md), including the already-open dyad-lang #1958.
 
@@ -87,7 +106,7 @@ python3 .task/workflows/jobs.py .task/workflows/jobs-issues.json
 python3 .task/workflows/jobs.py .task/workflows/jobs-baseline-remainder.json
 ```
 
-For a clean manual documentation rerun, copy one project to a task-local directory, invoke `node "$repo/.ci/compiler/compiler.mjs" document <ProjectName>` with that copy as cwd, activate its docs environment, `Pkg.resolve(); Pkg.instantiate()`, remove only `:example_block` from the generated `make.jl` warning list, and include `make.jl`. The compiler-only CLI is the exact rc2/a24a224 build. Original handmade `docs/index.md` examples are extracted and executed separately by `docs.jl`; each result is rebuilt and checked with `successful_retcode`, the problem’s actual stop time, and finite states. Notebook scripts are concatenated code cells with `@__DIR__` replaced by the copied scripts path, a concrete selected analysis, and appended result/HTML checks.
+For a clean manual documentation rerun, copy one project to a task-local directory, invoke `node "$repo/.ci/compiler/compiler.mjs" document <ProjectName>` with that copy as cwd, activate its docs environment, `Pkg.resolve(); Pkg.instantiate()`, remove only `:example_block` from the generated `make.jl` warning list, and include `make.jl`. The compiler-only CLI is the exact rc2/a24a224 build. Original handmade `docs/index.md` examples are extracted and executed separately by `docs.jl`; each result is rebuilt and checked with `successful_retcode`, the problem’s actual stop time, and finite states. The initial notebook scripts concatenate code cells with `@__DIR__` replaced by the copied scripts path, a concrete selected analysis, and appended result/HTML checks. The review follow-up below instead executes the checks shipped inside the five notebooks against the actual checkout.
 
 Per-project reports link the relevant results and limitations. No generated HTML, generated Julia, snapshots or upstream source modifications are committed by this worker.
 
@@ -139,3 +158,75 @@ limits, per-block outcomes, and wall times remain under `.task/workflows/` in
 the named job files, matching `.log` files, and `results.jsonl`. No generated
 source, artifact payload, manifest, or HTML is committed. See the updated
 [MakieWebinar report](MakieWebinar/docs/followup-validation.md#release-assets-access-retry).
+
+## Review follow-up: notebook gates
+
+The five runnable analysis notebooks now validate the actual Orchestrator result
+immediately after `run_analysis` and before producing artifacts. The cell calls
+`DyadInterface.rebuild_sol(solution)`, checks `successful_retcode`, requires
+nonempty samples and the exact `sol.prob.tspan[2]` endpoint, and rejects
+non-finite time/state samples with explicit errors. It displays the retcode,
+final time and finiteness result. The criteria match the earlier audit and now
+ship with each notebook.
+
+Every checked-in code cell was rerun on rc2 against the actual project in this
+checkout, including the bootstrap, validation and Plotly artifact cells. Only
+`@__DIR__` was substituted with the real notebook directory for script execution;
+no solver checks were appended and no bootstrap cell was skipped.
+
+| Notebook | Declared end (s) | Validation and artifact cells | Process time |
+|---|---:|---|---:|
+| DynamicSteadyState | 86400 | pass | 11.841154 s |
+| FIRFilterComponents | 2π | pass | 22.113513 s |
+| HybridTransmission | 765 | pass | 16.211610 s |
+| PassiveSuspension | 10 | pass | 7.530924 s |
+| SatelliteGNC | 40 | pass | 7.780991 s |
+
+The extracted scripts, commands, logs and exit-zero records are retained under
+`.task/workflows/review-notebook-*.{jl,log}`, `jobs-review-notebooks.json` and
+`results.jsonl`. Browser/frontend interaction was not exercised again; the
+previous HTML serialization measurements remain the artifact-export evidence.
+
+The FrictionBrake vehicle-cycle script also uses explicit errors for return
+code, empty samples, exact final time and time/state finiteness before plotting.
+The actual script rerun returned `Success`, end `2000.0`, finite states, and
+executed every plot expression (10.637459 s, exit 0).
+
+The committed [inline SVG reproducer](FrictionBrakeDemo/docs/reproduce_inline_svg.jl)
+uses `FrictionBrakeDemo/assets/brake_caliper.svg` (731703 bytes) directly and
+builds one temporary Documenter page with default HTML limits. This removes the
+upstream draft’s dependency on a task-local generated fixture. Both runtime
+results are recorded below; a size-limit failure is the expected reproduction,
+not a successful documentation build.
+
+| Runtime | Result | Rendered page | Process time |
+|---|---|---:|---:|
+| 3.5.0-rc2 | exit 1, `HTMLSizeThresholdError` | 720.27 KiB | 5.577645 s |
+| 3.4.0 | exit 1, `HTMLSizeThresholdError` | 720.28 KiB | 4.274072 s |
+
+Both used Documenter 1.19.0 and exceeded its unchanged 200 KiB threshold.
+This minimal source-asset page differs from the earlier generated-content
+fixture; both reproduce the same default size-limit failure.
+
+With the environment in Reproduction above, run from the workspace root:
+
+```sh
+python3 .task/workflows/jobs.py .task/workflows/jobs-review-notebooks.json
+python3 .task/workflows/jobs.py .task/workflows/jobs-review-satellite-baseline.json
+python3 .task/workflows/jobs.py .task/workflows/jobs-review-scripts.json
+```
+
+The last job file records the guarded script and the source-asset SVG fixture
+under each runtime. The latter uses the existing Documenter-only task environment
+on 3.4, so it does not attempt to load rc2 model packages on that runtime. The
+[upstream draft](followup-upstream-issues.md#draft-inline-svg-makes-an-otherwise-executable-generated-site-fail-html-limits)
+also gives a reproduction using only committed files.
+
+HL20’s notebook note has a cell id for nbformat 4.5, and its card title and
+description now state that the checkout provides an aerodynamic core and prompts.
+MakieWebinar’s obsolete artifact retry is explicitly marked superseded. The
+Hybrid and Satellite drafts name components individually, and the affected docs
+dependency tables keep `Documenter` in alphabetical order. Notebook JSON, cell id
+uniqueness, empty outputs, relative file links, TOML parsing and whitespace were
+checked. No full generated sites were rebuilt for these prose/schema edits;
+previously failing generated builds remain failures.

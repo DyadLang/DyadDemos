@@ -34,6 +34,18 @@ These are sampled accuracy diagnostics, not residual bounds between sample times
 
 Existing `test/runtests.jl` also passed **21/21 assertions** in 58.562517 s process time (56.4 s testset time), with unchanged generated regression checks.
 
+The vehicle-cycle script now uses explicit `error(...)` guards for solver return
+code, nonempty samples, the exact 2000 s final time, and finite time/state samples.
+These guards execute before plotting and do not depend on assertions being enabled.
+The self-contained [inline SVG fixture](reproduce_inline_svg.jl) reads the named
+`assets/brake_caliper.svg` asset directly; it preserves the default HTML limits.
+See [the shared review rerun](../../followup-workflows.md#review-follow-up-notebook-gates)
+for current script/fixture checks. The script passes in 10.637459 s with
+`Success`, end `2000.0`, finite states and all plots executed. The committed
+source-asset fixture fails as expected on both runtimes with
+`HTMLSizeThresholdError`: rc2 720.27 KiB (5.577645 s) and 3.4 720.28 KiB
+(4.274072 s), using Documenter 1.19.0 and its unchanged 200 KiB limit.
+
 ## Limits
 
 This audit does not validate GUI windows, browser interaction, VS Code notebook execution, dashboard controls, interactive sliders, or PID designer operation. Previously recorded analyses/training are not rerun or claimed here unless explicitly listed. Generated-doc failures above remain failures and have draft follow-ups; no upstream issue was filed.

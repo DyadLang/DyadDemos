@@ -18,6 +18,16 @@ The existing docs environment omitted its `Documenter` dependency even though ge
 
 Executed notebook code with `DiurnalOperation` selected, using the package’s actual Orchestrator load/discovery/run/symbol/artifact APIs. Result: `Success`, full 86400 s horizon, finite states, 191 listed symbols, and a predefined Plotly artifact. Numerical/artifact run: 7.834 s; HTML serialization run: 7.432 s. The script substitutes the task-local package path for notebook `@__DIR__`; the original placeholder was a selection template, not a solver failure. The checked-in notebook now supplies this working default and allows choosing another listed analysis. Browser interaction is unvalidated.
 
+The notebook now includes its own validation cell immediately after
+`run_analysis`, before symbol discovery or artifact production. It rebuilds the
+actual analysis result with `DyadInterface.rebuild_sol`, requires
+`successful_retcode`, nonempty samples, the exact problem stop time, and finite
+time/state samples, and raises explicit errors on failure. These gates are
+shipped in the notebook; the initial measurements above used appended harness
+checks. The [review rerun](../../followup-workflows.md#review-follow-up-notebook-gates)
+executes the checked-in cells against this checkout without appended solver
+validation. Browser/frontend interaction remains unvalidated.
+
 ## Animated export
 
 Full 240-frame, 20 fps GIF script: 204.705 s (status: 0). It retains the complete 86400 s simulation. The first two attempts hit 180/240 s process limits and are not counted as successful exports. A task-local `XDG_CACHE_HOME` avoids read-only host font caches. Baseline export smoke (two frames over the same full-day physical simulation): 60.473 s (status: 0). The final GIF was independently parsed: 240 image records, complete trailer, 2711329 bytes. The old smoke artifact has two image records and a complete trailer (148477 bytes). A complete old 240-frame export is not claimed.

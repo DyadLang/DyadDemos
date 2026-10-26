@@ -28,6 +28,10 @@ This audit does not validate GUI windows, browser interaction, VS Code notebook 
 
 ## Artifact access retry
 
+**Superseded:** the release-assets grant described below resolved this download
+blockage; generation now passes and the strict HTML build fails on a generated
+parameter cycle. The following records the earlier attempt.
+
 After task access to `github.com` was granted, the unchanged task-local
 `dyad document MakieWebinar` workflow was retried. It still failed during
 workspace instantiation after **13.352420 s** (process exit **1**) with

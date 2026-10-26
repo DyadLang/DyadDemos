@@ -12,7 +12,7 @@ Generated `shared.HL20Aero` behavior block fails with a cyclic binding for `DLG`
 
 ## Notebook and flight coverage
 
-Orchestrator package loading and analysis discovery completed in 3.272 s; the inventory is empty as expected. The analysis-selection/solution/artifact cells cannot run until the agent prompts create analyses. Added an explicit notebook note and corrected the handwritten page’s claims of an already-completed flight simulator. No full flight, NASA validation maneuver, or training result was invented.
+Orchestrator package loading and analysis discovery completed in 3.272 s; the inventory is empty as expected. The analysis-selection/solution/artifact cells cannot run until the agent prompts create analyses. Added an explicit notebook note and corrected the handwritten page’s claims of an already-completed flight simulator. The notebook note now has a required nbformat 4.5 cell id, and the card title/description describe the aerodynamic core and prompts rather than claiming an included flight simulator. No full flight, NASA validation maneuver, or training result was invented.
 
 ## Limits
 
