@@ -30,7 +30,7 @@ Thermal model of a house with controlled heater and input for temperature setpoi
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = ThermalHouseControlled()
   """))
 

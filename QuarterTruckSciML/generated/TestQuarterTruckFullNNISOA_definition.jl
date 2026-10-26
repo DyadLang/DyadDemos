@@ -19,7 +19,7 @@ Full-NN gray-box quarter truck driven by ISO 8608 Class A — trained weights ar
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = TestQuarterTruckFullNNISOA()
   """))
 

@@ -22,7 +22,7 @@ analysis reuses. HVAC strategy lives outside this model, which is what makes tha
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = ThreeZoneBuilding()
   """))
 

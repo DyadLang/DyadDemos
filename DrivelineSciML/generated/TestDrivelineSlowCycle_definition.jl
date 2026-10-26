@@ -20,7 +20,7 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = TestDrivelineSlowCycle()
   """))
 

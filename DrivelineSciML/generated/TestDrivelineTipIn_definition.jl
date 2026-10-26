@@ -13,7 +13,7 @@ Event 3 harness: tip-in with motor ripple (30 -> 150 Nm at t = 0.5 s plus 3 Nm a
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = TestDrivelineTipIn()
   """))
 

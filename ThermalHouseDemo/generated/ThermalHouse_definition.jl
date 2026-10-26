@@ -80,7 +80,7 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
 
 ## Variables
 
-| Name         | Description                         | Units  |
+| Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ |
 | `T_wall`         |                          | K  |
 """
@@ -88,7 +88,7 @@ Thermal model of a house with inputs for heat from heater and solar irradiance
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = ThermalHouse()
   """))
 

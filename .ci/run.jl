@@ -29,6 +29,14 @@ function test_demo(folder)
             run(`$(Base.julia_cmd()) --startup-file=no $codegen_fix`)
         end
 
+        # Committed output must match this compiler (and the documented RC2 fix).
+        # Check before tests so regeneration cannot hide stale or hand-edited code.
+        cd(folder) do
+            run(`git diff HEAD --exit-code -- generated`)
+            untracked = read(`git ls-files --others --exclude-standard -- generated`, String)
+            isempty(untracked) || error("Uncommitted generated files in $folder:\n$untracked")
+        end
+
         @info "Running tests" folder
         Pkg.test()
 

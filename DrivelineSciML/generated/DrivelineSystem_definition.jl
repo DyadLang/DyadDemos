@@ -30,7 +30,7 @@ Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = DrivelineSystem()
   """))
 

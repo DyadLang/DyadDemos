@@ -44,6 +44,13 @@ The wrapper supports `compile [directory]`, `document [library]`, and `--version
 For other commands, install the full Dyad CLI separately. CI builds this pinned
 compiler, selects the rc2 distribution, regenerates before testing, and fails
 if any project's validation fails while continuing to check the other projects.
+CI also requires the regenerated files to match the committed tree, including
+the two documented RC2 corrections below. Compiler-emitted whitespace is kept.
+
+Project compatibility bounds allow compatible library and Julia patch releases;
+the distribution and compiler channel remain pinned for reproducible validation.
+The explicit OptimizationMOI pin is retained for the documented optimizer API
+regression in the Makie webinar tuning environment.
 
 ## Migration research
 
@@ -78,7 +85,7 @@ for every analysis, metrics, baseline adjustments, and reproduction commands.
 | [ThermalHouseDemo](ThermalHouseDemo/docs/upgrade-3.5-validation.md) | 2 | Both pass; maximum sampled change 1.05e-8 K / 1.19e-4 W. |
 | [DynamicSteadyState](DynamicSteadyState/docs/upgrade-3.5-validation.md) | 3 | All pass; transient change up to 0.00363 K, sizing change up to 2.28e-13 W. |
 | [FrictionBrakeDemo](FrictionBrakeDemo/docs/upgrade-3.5-validation.md) | 9 | All pass; disk-temperature change up to 0.0375801 K, final change 1.97e-7 K. |
-| [HybridTransmission](HybridTransmission/docs/upgrade-3.5-validation.md) | 1 | Pass; final fuel +0.0453073 g (0.00351%); controller speed changes up to 16.4933 rad/s at transitions. |
+| [HybridTransmission](HybridTransmission/docs/upgrade-3.5-validation.md) | 1 | Pass; final fuel +0.0453073 g (0.00351%); controller speed changes up to 16.4933 rad/s at transitions at the shipped reltol=1e-3. |
 | [PassiveSuspension](PassiveSuspension/docs/upgrade-3.5-validation.md) | 2 | Both pass; maximum passive wheel-velocity change 3.22414e-7 m/s. |
 | [DrivelineSciML](DrivelineSciML/docs/upgrade-3.5-validation.md) | 7 | Five transients pass; stage 1 calibration retains `Infeasible` on both versions, stage 2 succeeds. Largest speed change 0.01421 rad/s. Chained fit and held-out plot export complete. |
 | [QuarterTruckSciML](QuarterTruckSciML/docs/upgrade-3.5-validation.md) | 8 | Five transients pass; physical calibration reaches its 100-iteration limit on both versions. Adam/LBFGS validated only at 25/10 limits; short-run final objective is 28.3% higher on 3.5. Full 5000/200 retraining remains unvalidated. |
@@ -98,8 +105,10 @@ above are retained explicitly rather than treated as convergence.
 GUI dashboards, interactive notebooks, animation rendering, and a complete
 documentation HTML build were not validated. Numerical analyses underlying
 them were exercised, and several headless plot exporters were checked. Optional
-upstream CSV/render/GLMakie extension diagnostics are documented in the project
-reports. DynamicSteadyState used `--compiled-modules=no` to avoid costly optional
+render/GLMakie extension diagnostics are documented in the project reports.
+The CSV extension diagnostics found during review were resolved by declaring
+DyadData directly in the four affected projects; their package tests pass
+without those diagnostics. DynamicSteadyState used `--compiled-modules=no` to avoid costly optional
 graphics precompilation. CI setup, compiler compilation/documentation smoke
 checks, and CI environment instantiation passed locally; the full hosted CI job
 has not yet run.
@@ -108,4 +117,18 @@ Two projects require a reproducible RC2 generated-code correction after each
 compilation: run `scripts/fix_analysis_codegen.jl` in DrivelineSciML and
 QuarterTruckSciML. These replace the generated UnionAll dataset annotation with
 the concrete `typeof(__local__data)` type; CI applies the same correction before
-testing. Regression tests cover construction of the affected analyses.
+testing. Regression tests cover construction of the affected analyses. This is
+the upstream [analysis structural-parameter issue](https://github.com/JuliaComputing/dyad-lang/issues/1958).
+Dyad Studio recompiles on save: after every such recompile, rerun the script
+before using either project's calibration or training analyses. The workaround
+is specific to the pinned RC2 compiler and must be reassessed when upgrading it.
+
+An independent Claude review regenerated all 14 projects and reran four package
+test suites. It found no result-changing correctness defect and recommended a
+draft PR with the training and optimizer limitations above kept explicit.
+The follow-up fixes restore consistent compatibility bounds, preserve compiler
+output, check regenerated files in CI, declare the missing test dependencies,
+and keep local caches ignored. All 22 affected project/docs/scripts environments
+resolved and instantiated; all 14 generated trees were verified against the
+pinned compiler and the two documented annotation corrections.
+Seven affected package test suites passed again after the fixes.

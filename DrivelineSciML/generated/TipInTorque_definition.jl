@@ -28,7 +28,7 @@ Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = TipInTorque()
   """))
 

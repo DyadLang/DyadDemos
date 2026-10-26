@@ -28,7 +28,7 @@ ISO 8608 calibrated road profile with speed-dependent frequency scaling.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = ISO8608Road()
   """))
 

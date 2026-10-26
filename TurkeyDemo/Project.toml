@@ -19,12 +19,12 @@ RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
 ThermalComponents = "084a29d9-4f48-4925-95b4-b7d4c79725f4"
 
 [compat]
-BlockComponents = "=5.0.0"
-DyadData = "=2.3.0"
-DyadInterface = "=7.5.1"
+BlockComponents = "5.0.0"
+DyadData = "2.3.0"
+DyadInterface = "7.5.1"
 Markdown = "1"
-ThermalComponents = "=3.0.0"
-julia = "=1.13.2"
+ThermalComponents = "3.0.0"
+julia = "1.13.2"
 
 [dyad]
 kernel = "3.5.0"

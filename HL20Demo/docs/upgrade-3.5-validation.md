@@ -16,7 +16,7 @@ There are **zero declared analyses** in the checked-in project. The five full-fl
 
 The original generated test suites contained zero assertions. The old core could not construct in this standalone package because `ChallengeComponent` was undefined. Consequently there is no runnable old full-flight baseline or trajectory comparison to claim.
 
-The distribution logs a DyadDataCSVExt extension precompile error when CSV is loaded by the generated test harness. It does not fail these tests; no custom CSV parser is used by this core.
+Initial tests logged a DyadDataCSVExt extension precompile error when CSV was loaded by the generated test harness. Declaring DyadData directly resolved it; the post-review package test rerun passed without that diagnostic.
 
 ## Reproduction
 

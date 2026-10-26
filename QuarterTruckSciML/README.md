@@ -58,6 +58,39 @@ cd QuarterTruckSciML
 julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
+### Recompiling with Dyad Studio or CLI
+
+**Every Dyad Studio recompile, including compile on save, requires rerunning
+`scripts/fix_analysis_codegen.jl` before loading the project again.** The same
+applies after every CLI compile:
+
+```bash
+dyad compile .  # use the 3.5.0-rc2 compiler
+julia +dyad-3.5.0-rc2 --project scripts/fix_analysis_codegen.jl
+```
+
+The rc2 compiler emits `@parameters (data::DyadData.DyadTimeseries)`, whose
+`UnionAll` type causes a `MethodError` converting to `DataType` when constructing
+the calibration analysis and both NN training analyses. The script changes only
+that annotation to
+`typeof(__local__data)`, preserving compiler whitespace. See the matching
+[upstream compiler issue #1958](https://github.com/JuliaComputing/dyad-lang/issues/1958).
+Keep the workaround until regeneration and the analysis construction tests pass
+without it on a compiler containing an upstream fix.
+
+The affected compiler is tag `v3.5.0-rc2`, commit
+`a24a2240667872d432a3b86c4db1240d77150e35`. A reproduction from this project
+directory, with a fresh Julia process and deliberately before applying the fix:
+
+```bash
+../.ci/compiler/dyad compile .
+julia +dyad-3.5.0-rc2 --project -e 'using QuarterTruckSciML; QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec()'
+```
+
+This fails with `Cannot convert an object of type Type{DyadData.DyadTimeseries}
+to an object of type DataType`. Run the fix script before retrying. The tests
+construct every affected analysis without running calibration or training.
+
 ### NN-augmented gray-box validation
 
 The pre-trained LBFGS weights are checked in at
@@ -119,5 +152,5 @@ Takes ~2 minutes including precompilation.
 
 See [the upgrade validation report](docs/upgrade-3.5-validation.md) for the
 full analysis inventory, old/new numerical comparisons, and regeneration steps.
-After `dyad compile .`, run `julia +dyad-3.5.0-rc2 --project scripts/fix_analysis_codegen.jl`
-to correct the compiler’s parametric dataset annotation before loading the project.
+Follow the [recompile workflow](#recompiling-with-dyad-studio-or-cli) after
+every Studio or CLI compile to reapply the required annotation workaround.

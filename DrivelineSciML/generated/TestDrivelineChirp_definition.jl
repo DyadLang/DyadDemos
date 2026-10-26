@@ -13,7 +13,7 @@ Event 1 harness: low-amplitude linear chirp (1 -> 500 Hz, +/-2 Nm) on a 30 Nm me
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = TestDrivelineChirp()
   """))
 

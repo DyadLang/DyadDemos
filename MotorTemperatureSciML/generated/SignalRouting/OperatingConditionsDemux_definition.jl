@@ -27,7 +27,7 @@ Split the dataset vector into named scalar channels; order matches TestTNNProfil
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = OperatingConditionsDemux()
   """))
 

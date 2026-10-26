@@ -27,7 +27,7 @@ Force element that transmits an externally supplied force (via `f_external` Real
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = PureExternalForce()
   """))
 

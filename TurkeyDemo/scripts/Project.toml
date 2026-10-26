@@ -11,6 +11,6 @@ WGLMakie = "276b4fcb-3e11-5398-bf8b-a0c2d153d008"
 TurkeyDemo = {path = ".."}
 
 [compat]
-DyadInterface = "=7.5.1"
-ModelingToolkit = "=11.45.3"
-julia = "=1.13.2"
+DyadInterface = "7.5.1"
+ModelingToolkit = "11.45.3"
+julia = "1.13.2"

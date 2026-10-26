@@ -1,7 +1,7 @@
 # Dyad 3.5 upgrade validation
 
 Target: Dyad 3.5.0, tested with distribution `dyad-3.5.0-rc2` (Julia 1.13.2).
-Library pins: BlockComponents 5.0.0, ThermalComponents 3.0.0,
+Validated library versions: BlockComponents 5.0.0, ThermalComponents 3.0.0,
 DyadInterface 7.5.1, DyadData 2.3.0.
 
 ## Research and migration
@@ -56,7 +56,7 @@ differences after upgrading the compiler and runtime.
 
 Compilation passed for all definitions using the 3.5.0-rc2 compiler-only source
 build at dyad-lang commit `a24a2240667872d432a3b86c4db1240d77150e35`.
-Generated Julia was regenerated (with trailing-whitespace cleanup), including
+Generated Julia was regenerated with compiler-emitted whitespace preserved, including
 the constructor API version checks,
 dotted override dictionaries, parameter seeding, and analysis setup adaptors.
 Workspace instantiation passed; its ignored manifest was regenerated.

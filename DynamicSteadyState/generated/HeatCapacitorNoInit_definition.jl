@@ -35,7 +35,7 @@ The occupancy schedule is a representative weekday office profile with
 
 ## Variables
 
-| Name         | Description                         | Units  |
+| Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ |
 | `T`         | Temperature of the element                         | K  |
 | `dT`         | Time derivative of temperature                         | K/s  |
@@ -44,7 +44,7 @@ The occupancy schedule is a representative weekday office profile with
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = HeatCapacitorNoInit()
   """))
 

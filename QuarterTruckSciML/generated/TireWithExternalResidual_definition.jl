@@ -36,7 +36,7 @@ Tire spring-damper that pushes only while squashed. Stretched past `s_rel0` the 
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = TireWithExternalResidual()
   """))
 

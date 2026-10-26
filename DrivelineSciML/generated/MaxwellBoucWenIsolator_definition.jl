@@ -43,7 +43,7 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = MaxwellBoucWenIsolator()
   """))
 

@@ -6,6 +6,7 @@ authors = [
 version = "0.1.0"
 
 [deps]
+DyadData = "cab12561-e36c-4498-ae70-c9a5e79fef2a"
 DyadEcosystemDependencies = "7bc808db-8006-421e-b546-062440d520b7"
 DyadInterface = "99806f68-afab-45ca-9d8c-ceff6bc61f54"
 GR = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
@@ -18,13 +19,14 @@ PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 RuntimeGeneratedFunctions = "7e49a35a-f44a-4d26-94aa-eba1b4ca6b47"
 
 [compat]
-DyadEcosystemDependencies = "=0.11.20"
+DyadData = "2.3.0"
+DyadEcosystemDependencies = "0.11.20"
 GR = "0.73.24"
 Markdown = "1"
 Plots = "1.41.6"
 
-DyadInterface = "=7.5.1"
-julia = "=1.13.2"
+DyadInterface = "7.5.1"
+julia = "1.13.2"
 
 [dyad]
 kernel = "3.5.0"

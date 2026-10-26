@@ -33,7 +33,7 @@ Regularized Coulomb friction element. F_c=0 disables friction.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = CoulombFriction()
   """))
 

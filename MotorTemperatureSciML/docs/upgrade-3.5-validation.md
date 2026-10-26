@@ -42,8 +42,8 @@ Regenerated this project with the repository's `../.ci/compiler/dyad`, reporting
 The earlier validation did not record its compiler version; its runtime was
 RC2. This follow-up establishes the current generated code's RC2 provenance.
 The regenerated tree differed from the committed version only in compiler-emitted
-blank-line whitespace. Normalizing that whitespace leaves the generated files
-byte-identical to the committed version. This project has no
+blank-line whitespace. The final review fixes retain that compiler-emitted
+whitespace, so the committed generated tree now matches the compiler byte for byte. This project has no
 `scripts/fix_analysis_codegen.jl` and needs no parametric-dataset annotation fix.
 
 Re-ran `julia +dyad-3.5.0-rc2 --project test/runtests.jl` after regeneration,

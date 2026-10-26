@@ -37,11 +37,18 @@ Regenerated this project with the repository's `../.ci/compiler/dyad`, reporting
 `3.5.0-rc2 (a24a224; compiler-only source build)`. Its source checkout is exactly
 `a24a2240667872d432a3b86c4db1240d77150e35` (`v3.5.0-rc2`).
 Then ran `scripts/fix_analysis_codegen.jl` with the RC2 Julia runtime, as shown
-above. After that correction, the generated tree differed from the committed
-version only in compiler-emitted blank-line whitespace. Normalizing that
-whitespace leaves the generated files byte-identical to the committed version.
+above. The generated tree now preserves the compiler's exact output, including
+blank-line whitespace, except for the required `DyadTimeseries` annotation
+correction. The script's former whitespace replacement has been removed.
+A byte comparison against raw compiler output verified that the annotation
+replacement is the only change; rerunning the script makes no further changes.
 
-Re-ran `julia +dyad-3.5.0-rc2 --project test/runtests.jl` after regeneration,
+The workaround tracks [upstream issue #1958](https://github.com/JuliaComputing/dyad-lang/issues/1958).
+Every Dyad Studio recompile, including compile on save, also requires rerunning
+the script before loading the project again; see the
+[README workflow](../README.md#recompiling-with-dyad-studio-or-cli).
+
+Re-ran `julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'` after regeneration,
 with two Julia threads and one precompile task: **15/15 assertions passed**,
 including the calibration/training analysis-construction regressions.
 

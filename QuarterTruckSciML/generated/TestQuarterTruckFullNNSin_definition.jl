@@ -20,7 +20,7 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = TestQuarterTruckFullNNSin()
   """))
 

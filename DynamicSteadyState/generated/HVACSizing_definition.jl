@@ -10,7 +10,7 @@ using DyadInterface: AbstractSteadyStateAnalysisSpec, SteadyStateAnalysisSpec
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = HVACSizing__System()
   """))
 
@@ -113,7 +113,7 @@ end
 function __dyad_base_analysis_spec(spec::HVACSizing__Spec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
-
+  
   merge!(overrides, spec.__overrides)
   SteadyStateAnalysisSpec(;
     name=spec.name, overrides, __system=spec.__system, var"alg"=spec.var"alg", var"abstol"=spec.var"abstol", var"reltol"=spec.var"reltol", var"automatic_discontinuity_detection"=spec.var"automatic_discontinuity_detection", var"respecialize"=spec.var"respecialize", var"specialization"=spec.var"specialization", var"model"=spec.var"model"

@@ -50,7 +50,7 @@ which is one wire in the schematic and the same set of equations as an element-w
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = TNNModel()
   """))
 

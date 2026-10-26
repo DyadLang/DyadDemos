@@ -15,7 +15,7 @@ Occupancy fraction for a representative weekday office, 0 (empty) to 1 (full).
 
 ## Variables
 
-| Name         | Description                         | Units  |
+| Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ |
 | `occ`         |                          | --  |
 """
@@ -23,7 +23,7 @@ Occupancy fraction for a representative weekday office, 0 (empty) to 1 (full).
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = OfficeOccupancy()
   """))
 

@@ -34,7 +34,7 @@ All runs use the declared analysis defaults, including horizons and solver toler
 
 The existing `Pkg.test(; allow_reresolve=false)` suite passed; it contains zero model assertions. The separate validation runner executed every one of the seven declared analyses, checked successful solver returns and finite results, and sampled each state at 51 evenly spaced times. For algebraic-only jet and allocator cases, it sampled all observable outputs instead. No training is defined or run.
 
-The distribution logs a DyadDataCSVExt extension precompile error when CSV is loaded by the generated test harness. It does not fail this suite or affect these analyses.
+Initial tests logged a DyadDataCSVExt extension precompile error when CSV was loaded by the generated test harness. Declaring DyadData directly resolved it; the post-review package test rerun passed without that diagnostic.
 
 ## Reproduction
 

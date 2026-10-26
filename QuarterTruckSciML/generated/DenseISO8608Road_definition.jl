@@ -38,7 +38,7 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = DenseISO8608Road()
   """))
 

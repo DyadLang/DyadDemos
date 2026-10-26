@@ -8,3 +8,4 @@
 .claude/
 agent_resources/
 /.migration-backups/
+/.dyadcache

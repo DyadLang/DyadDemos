@@ -43,7 +43,7 @@ Each input is normalized and each output scaled by its own `f_scale`.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = QuarterTruckFullNN()
   """))
 

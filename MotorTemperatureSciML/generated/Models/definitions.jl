@@ -27,7 +27,7 @@ This connector represents an electrical pin with voltage and current as the pote
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = Pin()
   """))
   __params = Symbolics.SymbolicT[]
@@ -47,7 +47,7 @@ This connector represents a thermal port with temperature and heat flow as the p
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = HeatPort()
   """))
   __params = Symbolics.SymbolicT[]
@@ -67,7 +67,7 @@ This connector represents a mechanical flange with position and force as the pot
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = Flange()
   """))
   __params = Symbolics.SymbolicT[]
@@ -87,7 +87,7 @@ This connector represents a rotational spline with angle and torque as the poten
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = Spline()
   """))
   __params = Symbolics.SymbolicT[]
@@ -108,7 +108,7 @@ All variables are resolved in the planar world frame.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = Frame2D()
   """))
   __params = Symbolics.SymbolicT[]
@@ -133,7 +133,7 @@ connectors that can be connected together
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = Frame3D()
   """))
   __params = Symbolics.SymbolicT[]
@@ -164,7 +164,7 @@ component.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = ClockInput()
   """))
   __params = Symbolics.SymbolicT[]
@@ -186,7 +186,7 @@ component.
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = ClockOutput()
   """))
   __params = Symbolics.SymbolicT[]

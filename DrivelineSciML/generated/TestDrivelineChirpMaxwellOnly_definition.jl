@@ -13,7 +13,7 @@ Stage 1 calibration harness: same chirp excitation as TestDrivelineChirp but wit
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = TestDrivelineChirpMaxwellOnly()
   """))
 

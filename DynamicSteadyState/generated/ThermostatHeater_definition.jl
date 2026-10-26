@@ -21,7 +21,7 @@
 
 ## Variables
 
-| Name         | Description                         | Units  |
+| Name         | Description                         | Units  | 
 | ------------ | ----------------------------------- | ------ |
 | `Q_raw`         | Raw proportional demand (W)                         | W  |
 | `Q_delivered`         | Delivered heating power (W, 0 ≤ Q ≤ Q_max)                         | W  |
@@ -30,7 +30,7 @@
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = ThermostatHeater()
   """))
 

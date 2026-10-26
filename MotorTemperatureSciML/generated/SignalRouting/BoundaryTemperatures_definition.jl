@@ -19,7 +19,7 @@ Select coolant (2) and ambient (7) from the normalized operating-condition vecto
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-
+  
     @named model = BoundaryTemperatures()
   """))
 

@@ -21,6 +21,7 @@ import BlockComponents
 let api = isdefined(BlockComponents, :__dyad_constructor_api) ? BlockComponents.__dyad_constructor_api : 1
   api == 2 || error("BlockComponents was generated with Dyad constructor API version $api, but FrictionBrakeDemo requires version 2 (the `__overrides` dict override channel). Regenerate BlockComponents with the same Dyad compiler that generated FrictionBrakeDemo.")
 end
+import DyadData
 import DyadInterface
 import RotationalComponents
 let api = isdefined(RotationalComponents, :__dyad_constructor_api) ? RotationalComponents.__dyad_constructor_api : 1
