@@ -4,6 +4,11 @@ Target: Dyad `3.5.0` language with runtime `dyad-3.5.0-rc2` (Julia 1.13.2).
 Baseline: the original project on `dyad-3.4.0` (Julia 1.12.7).
 Runs use two Julia threads and one precompile task.
 
+**Follow-up:** [calibration validation](followup-validation.md) supersedes the
+Stage 1 nonconvergence limitation below. Resolving the chirp with a 0.1 ms
+maximum integration step produces successful convergence on both runtimes,
+with the original tolerances, data, bounds, and optimizer budget.
+
 ## References read before editing
 
 - [BlockComponents changelog](https://github.com/JuliaComputing/BlockComponents/blob/v5.0.0/CHANGELOG.md): BlockComponents 5.0 and constructor API 2.

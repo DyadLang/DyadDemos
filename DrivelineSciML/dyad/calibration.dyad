@@ -4,6 +4,11 @@
 # Search bounds are deliberately wide (>=2x around truth) so the optimizer does
 # real work. Component defaults are the nominal starting guesses: k1=200, c1=2,
 # alpha=30, A_bw=1, beta_bw=3, gamma_bw=0.3.
+# Stage 1 caps the integration step at 0.1 ms: at least 20 steps per 500 Hz
+# chirp cycle. Accurate sampled states alone do not ensure a smooth objective
+# for the gradient-based optimizer when the forcing is under-resolved.
+# Stage 2 uses 1 ms to resolve the fitted Maxwell relaxation (about 3.5 ms)
+# and Bouc-Wen reversals, including when k1/c1 are frozen from Stage 1.
 
 "Stage 1: recovers the Maxwell branch (k1, c1) and the Bouc-Wen torque scale (alpha) from the low-amplitude chirp, matching the speed difference across the isolator (delta_w, which ignores the common-mode ramp the 30 Nm mean torque produces). Leaving the Bouc-Wen element active lets alpha absorb its frequency-flat tangent stiffness, and the 1->500 Hz sweep then separates that tangent from the Maxwell relaxation, which stiffens only above ~48 Hz."
 analysis DrivelineStage1CalibrationAnalysis
@@ -11,6 +16,7 @@ analysis DrivelineStage1CalibrationAnalysis
     alg = ODEAlg.Tsit5(),
     stop = 5.0, saveat = 0.001,
     abstol = 1e-8, reltol = 1e-8,
+    dtmax = 0.0001,
     data = DyadData.DyadTimeseries("dyad://DrivelineSciML/data/chirp_measurements.csv",
       independent_var = "timestamp",
       dependent_vars = ["delta_w(t)"]),
@@ -30,6 +36,7 @@ analysis DrivelineStage2CalibrationAnalysis
     alg = ODEAlg.Tsit5(),
     stop = 5.0, saveat = 0.005,
     abstol = 1e-8, reltol = 1e-8,
+    dtmax = 0.001,
     data = DyadData.DyadTimeseries("dyad://DrivelineSciML/data/slow_cycle_measurements.csv",
       independent_var = "timestamp",
       dependent_vars = ["omega_eng(t)"]),

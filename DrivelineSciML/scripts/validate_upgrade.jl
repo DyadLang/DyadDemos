@@ -7,31 +7,33 @@ using DrivelineSciML
 using DyadInterface
 using ModelingToolkit
 using DyadModelOptimizer: search_space_names
+include("workflow_checks.jl")
 
 const OUTPUT = mkpath(abspath(get(ENV, "DYAD_UPGRADE_OUTPUT", mktempdir(; cleanup = false))))
 const ONLY = Set(filter(!isempty, split(get(ENV, "DYAD_UPGRADE_ONLY", ""), ',')))
 const FAILURES = String[]
+const EXECUTED = Set{String}()
 println("Validation output: ", OUTPUT, "; Julia ", VERSION, "; threads ", Threads.nthreads())
 
 function validate_analysis(f, name)
     isempty(ONLY) || name in ONLY || return nothing
+    push!(EXECUTED, name)
     println("START ", name); flush(stdout)
     started = time()
     try
         result = f()
-        if hasproperty(result, :r) && hasproperty(result.spec, :results_path) && !isempty(result.spec.results_path)
-            artifacts(result, :ResultsExport)
-        end
         open(joinpath(OUTPUT, name * ".txt"), "w") do io
             println(io, "analysis=", name, " elapsed_s=", time() - started)
             raw = if hasproperty(result, :sol)
                 result.sol
+            elseif hasproperty(result, :r)
+                nothing # Calibration exposes its optimizer result instead.
             else
-                try artifacts(result, :RawSolution) catch; nothing end
+                artifacts(result, :RawSolution)
             end
             if raw !== nothing
                 println(io, "retcode=", raw.retcode, " samples=", length(raw.t), " end_s=", last(raw.t))
-                DyadInterface.SciMLBase.successful_retcode(raw) || error("ODE failed: $(raw.retcode)")
+                require_simulation_success(raw, result.spec.stop, name)
                 sys = symbolic_container(result)
                 states = ModelingToolkit.unknowns(sys)
                 # Pure signal/network harnesses have no integrated states.
@@ -69,8 +71,11 @@ function validate_analysis(f, name)
         end
         calibration = hasproperty(result, :r) ? result.r :
                       hasproperty(result, :result) ? result.result : nothing
-        status = calibration !== nothing && !DyadInterface.SciMLBase.successful_retcode(calibration.retcode) ? "COMPLETED_NONCONVERGED" : "PASS"
-        println(status, " ", name, " elapsed_s=", time() - started)
+        calibration === nothing || require_calibration_success(calibration, name)
+        if calibration !== nothing && hasproperty(result.spec, :results_path) && !isempty(result.spec.results_path)
+            artifacts(result, :ResultsExport)
+        end
+        println("PASS ", name, " elapsed_s=", time() - started)
         print(read(joinpath(OUTPUT, name * ".txt"), String)); flush(stdout)
         return result
     catch err
@@ -109,3 +114,4 @@ validate_analysis("DrivelineStage2CalibrationAnalysis") do
 end
 
 isempty(FAILURES) || error("Failed analyses: $(join(FAILURES, ", "))")
+isempty(setdiff(ONLY, EXECUTED)) || error("Unknown analyses requested: $(join(setdiff(ONLY, EXECUTED), ", "))")
