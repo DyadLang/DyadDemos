@@ -15,3 +15,6 @@
 /assets/validation_iso_a.csv
 /assets/data/nn_weights_full_sin.csv
 /.dyadcache
+
+# Direct training-analysis exports must not replace shipped pretrained weights.
+/training-results/

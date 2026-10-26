@@ -6,7 +6,7 @@
 
 using DyadInterface
 using DyadModelDiscovery: AbstractNNTrainingAnalysisSpec, NNTrainingAnalysisSpec
-@component function TruckFullNNTrainingAnalysisLBFGS__System(; name = nothing, var"alg"=ODEAlg.Tsit5(), var"start"=0, var"stop"=5.0, var"abstol"=1e-8, var"reltol"=1e-8, var"saveat"=0, var"dtmax"=0, var"data"=DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/truck_sin_full_train.csv"; independent_var="timestamp", dependent_vars=["model.tire.s(t)", "model.driver.s(t)", "model.driver.a(t)"]), var"depvars_names"=["model.tire.s", "model.driver.s", "model.driver.a"], var"loss_func"=DyadModelOptimizer.LossFunc.L2Loss(), var"calibration_alg"="SingleShooting", var"multiple_shooting_trajectories"=0, var"pem_gain"=0, var"optimizer"="LBFGS", var"adtype"=DyadModelOptimizer.ADChoice.Enzyme(), var"optimizer_maxiters"=200, var"optimizer_maxtime"=0, var"optimizer_abstol"=0.0001, var"optimizer_verbose"=false, var"diagnostics"=DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking(), var"learning_rate"=0.001, var"network_component"="model.scaled_nn.nn", var"min_weight"=-Inf, var"max_weight"=Inf, var"initial_values_path"="assets/data/nn_weights_full_sin.csv", var"results_path"="assets/data/nn_weights_full_sin_lbfgs.csv", __overrides = Dict{String, Any}())
+@component function TruckFullNNTrainingAnalysisLBFGS__System(; name = nothing, var"alg"=ODEAlg.Tsit5(), var"start"=0, var"stop"=5.0, var"abstol"=1e-8, var"reltol"=1e-8, var"saveat"=0, var"dtmax"=0, var"data"=DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/truck_sin_full_train.csv"; independent_var="timestamp", dependent_vars=["model.tire.s(t)", "model.driver.s(t)", "model.driver.a(t)"]), var"depvars_names"=["model.tire.s", "model.driver.s", "model.driver.a"], var"loss_func"=DyadModelOptimizer.LossFunc.L2Loss(), var"calibration_alg"="SingleShooting", var"multiple_shooting_trajectories"=0, var"pem_gain"=0, var"optimizer"="LBFGS", var"adtype"=DyadModelOptimizer.ADChoice.ForwardDiff(), var"optimizer_maxiters"=200, var"optimizer_maxtime"=0, var"optimizer_abstol"=0.0001, var"optimizer_verbose"=false, var"diagnostics"=DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking(), var"learning_rate"=0.001, var"network_component"="model.scaled_nn.nn", var"min_weight"=-Inf, var"max_weight"=Inf, var"initial_values_path"="training-results/adam_weights.csv", var"results_path"="training-results/lbfgs_weights.csv", __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -194,7 +194,7 @@ export TruckFullNNTrainingAnalysisLBFGS__System
   var"multiple_shooting_trajectories"::Int = 0
   var"pem_gain"::Float64 = 0
   var"optimizer"::DyadModelOptimizer.OptimizerAlg.Type = "LBFGS"
-  var"adtype"::DyadModelOptimizer.ADChoice.Type = DyadModelOptimizer.ADChoice.Enzyme()
+  var"adtype"::DyadModelOptimizer.ADChoice.Type = DyadModelOptimizer.ADChoice.ForwardDiff()
   var"optimizer_maxiters"::Int = 200
   var"optimizer_maxtime"::Float64 = 0
   var"optimizer_abstol"::Float64 = 0.0001
@@ -204,8 +204,8 @@ export TruckFullNNTrainingAnalysisLBFGS__System
   var"network_component"::String = "model.scaled_nn.nn"
   var"min_weight"::Float64 = -Inf
   var"max_weight"::Float64 = Inf
-  var"initial_values_path"::String = "assets/data/nn_weights_full_sin.csv"
-  var"results_path"::String = "assets/data/nn_weights_full_sin_lbfgs.csv"
+  var"initial_values_path"::String = "training-results/adam_weights.csv"
+  var"results_path"::String = "training-results/lbfgs_weights.csv"
   # Training harness: full 3-nonlinearity gray-box truck driven by the same sin as the ground-truth. The NN learns all three nonlinear residual forces jointly.
   var"model"::Union{Nothing, System} = QuarterTruckSciML.TestQuarterTruckFullNNSin(; name=:TestQuarterTruckFullNNSin)
   __system::System = TruckFullNNTrainingAnalysisLBFGS__System(; name, var"alg"=var"alg", var"start"=var"start", var"stop"=var"stop", var"abstol"=var"abstol", var"reltol"=var"reltol", var"saveat"=var"saveat", var"dtmax"=var"dtmax", var"data"=var"data", var"depvars_names"=var"depvars_names", var"loss_func"=var"loss_func", var"calibration_alg"=var"calibration_alg", var"multiple_shooting_trajectories"=var"multiple_shooting_trajectories", var"pem_gain"=var"pem_gain", var"optimizer"=var"optimizer", var"adtype"=var"adtype", var"optimizer_maxiters"=var"optimizer_maxiters", var"optimizer_maxtime"=var"optimizer_maxtime", var"optimizer_abstol"=var"optimizer_abstol", var"optimizer_verbose"=var"optimizer_verbose", var"diagnostics"=var"diagnostics", var"learning_rate"=var"learning_rate", var"network_component"=var"network_component", var"min_weight"=var"min_weight", var"max_weight"=var"max_weight", var"initial_values_path"=var"initial_values_path", var"results_path"=var"results_path")

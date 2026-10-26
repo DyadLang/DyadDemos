@@ -23,11 +23,16 @@ const TRUTH   = (var"body_m" = 315.0,         var"tire_to_body_c" = 22e3,
 const PARAMS  = ["model.body_m", "model.tire_to_body_c",
                  "model.tire_to_body_d", "model.friction_Fc"]
 
-@info "Running QuarterTruckCalibrationAnalysis (LBFGS, ≤100 iters)"
+@info "Running QuarterTruckCalibrationAnalysis (≤100 iters)"
 # The generated `QuarterTruckCalibrationAnalysis(; kwargs...)` shorthand already
 # calls `run_analysis(QuarterTruckCalibrationAnalysisSpec(; kwargs...))`, so we
 # get the solution back directly.
 result = QuarterTruckSciML.QuarterTruckCalibrationAnalysis(; name=:cal)
+@info "Calibration optimizer result" retcode=result.r.retcode objective=result.r.original.objective stats=result.r.original.stats
+DyadInterface.SciMLBase.successful_retcode(result.r.retcode) ||
+    error("Calibration did not converge: $(result.r.retcode)")
+all(isfinite, result.r.u) || error("Calibration produced nonfinite parameters")
+result.r.likely_wrong && error("Calibration failed the library's diagnostics")
 
 # `CalibrationAnalysisSolution` wraps `(spec, r::CalibrationResult)`; the
 # recovered parameter vector is `result.r.u`, in the order of

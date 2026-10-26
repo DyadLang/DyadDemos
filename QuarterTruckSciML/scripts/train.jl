@@ -1,32 +1,77 @@
-#=
-Train the full-NN gray-box truck from scratch.
-
-Stage 1: Adam optimizer, 5000 iterations, learning rate 1e-3 — fast global
-descent on the parameter space. Writes `assets/data/nn_weights_full_sin.csv`.
-
-Stage 2: LBFGS, 200 iterations, initialized from Stage 1 — refines to machine
-precision on the smooth bowl. Writes `assets/data/nn_weights_full_sin_lbfgs.csv`,
-overwriting any pre-shipped weights.
-
-End-to-end this typically takes ~5 minutes on a modern CPU. The pre-trained
-weights shipped with the package are the LBFGS output from a previous run;
-this script lets you reproduce them or retrain after model changes.
-=#
-
+# Run the declared 5000 Adam / 200 LBFGS schedule. Results go to ARGS[1]
+# (or a fresh temporary directory), preserving the shipped pretrained weights.
+# Runtime depends on the AD backend, solver and machine; see followup-validation.md.
 using QuarterTruckSciML
 using DyadInterface
+using Logging
 
-# The generated `TruckFullNNTrainingAnalysis(; kwargs...)` shorthand already calls
-# `run_analysis(...Spec(...))`, so it runs the training and returns the solution
-# directly; `artifacts(result, :ResultsExport)` then writes the weights CSV.
-@info "Stage 1: Adam (5000 iters, lr=1e-3)"
-adam_result = QuarterTruckSciML.TruckFullNNTrainingAnalysis(; name=:adam)
-artifacts(adam_result, :ResultsExport)
-@info "Adam done — weights at assets/data/nn_weights_full_sin.csv"
+# Keep iteration and loss evidence visible even in a redirected headless run.
+mutable struct TrainingLogger <: Logging.AbstractLogger
+    last_percent::Int
+    started::Float64
+end
+Logging.min_enabled_level(::TrainingLogger) = Logging.LogLevel(-1)
+Logging.shouldlog(::TrainingLogger, args...) = true
+Logging.catch_exceptions(::TrainingLogger) = false
+function Logging.handle_message(logger::TrainingLogger, level, message, mod, group, id, file, line; kwargs...)
+    if level == Logging.LogLevel(-1) && hasproperty(message, :fraction)
+        fraction = message.fraction
+        if fraction !== nothing
+            percent = floor(Int, 100 * fraction)
+            if percent > logger.last_percent
+                logger.last_percent = percent
+                println("PROGRESS elapsed_s=", time()-logger.started, " ", message.name)
+                flush(stdout)
+            end
+        end
+    elseif level >= Logging.Info
+        Logging.handle_message(Logging.ConsoleLogger(stderr), level, message, mod, group, id, file, line; kwargs...)
+    end
+end
 
-@info "Stage 2: LBFGS refinement (200 iters)"
-lbfgs_result = QuarterTruckSciML.TruckFullNNTrainingAnalysisLBFGS(; name=:lbfgs)
-artifacts(lbfgs_result, :ResultsExport)
-@info "LBFGS done — final weights at assets/data/nn_weights_full_sin_lbfgs.csv"
+const OUTPUT = mkpath(isempty(ARGS) ? mktempdir(; cleanup=false) : abspath(only(ARGS)))
+const SHIPPED = realpath(joinpath(@__DIR__, "..", "assets", "data"))
+realpath(OUTPUT) == SHIPPED && error("Choose a training output directory outside assets/data")
+const ADAM_PATH = joinpath(OUTPUT, "adam_weights.csv")
+const LBFGS_PATH = joinpath(OUTPUT, "lbfgs_weights.csv")
+any(ispath, (ADAM_PATH, LBFGS_PATH)) && error("Output files already exist; choose a new directory")
 
-@info "Training complete. Run scripts/validate.jl to see results on ISO 8608 Class A."
+function report_stage(label, result, elapsed)
+    r = result.r
+    @info label elapsed_s=elapsed retcode=r.retcode objective=r.original.objective stats=r.original.stats
+    open(joinpath(OUTPUT, "training-results.txt"), "a") do io
+        println(io, label, " elapsed_s=", elapsed, " retcode=", r.retcode,
+            " objective=", r.original.objective, " stats=", r.original.stats,
+            " likely_wrong=", r.likely_wrong)
+    end
+    all(isfinite, r.u) && isfinite(r.original.objective) || error("Nonfinite $label result")
+    r.likely_wrong && error("$label result failed the library's calibration diagnostics")
+end
+
+@info "Stage 1: Adam (5000 iterations, lr=1e-3)" output=OUTPUT
+started = time()
+adam = with_logger(TrainingLogger(-1, started)) do
+    QuarterTruckSciML.TruckFullNNTrainingAnalysis(; name=:adam, results_path=ADAM_PATH)
+end
+report_stage("Adam", adam, time()-started)
+# Adam's library adapter can return Default at the iteration limit. Preserve and
+# report that status; a completed budget supplies a checkpoint for refinement,
+# and is not a convergence claim. Other premature failures must stop the run.
+if !DyadInterface.SciMLBase.successful_retcode(adam.r.retcode)
+    string(adam.r.retcode) == "Default" && adam.r.original.stats.iterations == 5000 ||
+        error("Adam failed before completing its budget: $(adam.r.retcode)")
+    @warn "Adam completed its budget without a success return code" retcode=adam.r.retcode
+end
+artifacts(adam, :ResultsExport)
+
+@info "Stage 2: LBFGS refinement (up to 200 iterations)"
+started = time()
+lbfgs = with_logger(TrainingLogger(-1, started)) do
+    QuarterTruckSciML.TruckFullNNTrainingAnalysisLBFGS(; name=:lbfgs,
+        initial_values_path=ADAM_PATH, results_path=LBFGS_PATH)
+end
+report_stage("LBFGS", lbfgs, time()-started)
+DyadInterface.SciMLBase.successful_retcode(lbfgs.r.retcode) ||
+    error("LBFGS did not converge: $(lbfgs.r.retcode)")
+artifacts(lbfgs, :ResultsExport)
+@info "Refinement converged; validate these new weights on the held-out road" weights=LBFGS_PATH

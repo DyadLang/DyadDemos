@@ -60,6 +60,7 @@ function validate_analysis(f, name)
                 println(io, "parameter_names=", search_space_names(calibration.prob))
                 hasproperty(calibration.original, :stats) && println(io, "optimization_stats=", calibration.original.stats)
                 hasproperty(calibration, :likely_wrong) && println(io, "likely_wrong=", calibration.likely_wrong)
+                hasproperty(calibration, :likely_wrong) && calibration.likely_wrong && error("Calibration diagnostics flagged a likely wrong result")
                 if hasproperty(calibration.original, :objective)
                     println(io, "objective=", calibration.original.objective)
                 end
@@ -72,6 +73,7 @@ function validate_analysis(f, name)
         calibration = hasproperty(result, :r) ? result.r :
                       hasproperty(result, :result) ? result.result : nothing
         status = calibration !== nothing && !DyadInterface.SciMLBase.successful_retcode(calibration.retcode) ? "COMPLETED_NONCONVERGED" : "PASS"
+        status == "COMPLETED_NONCONVERGED" && push!(FAILURES, name * " ($(calibration.retcode))")
         println(status, " ", name, " elapsed_s=", time() - started)
         print(read(joinpath(OUTPUT, name * ".txt"), String)); flush(stdout)
         return result

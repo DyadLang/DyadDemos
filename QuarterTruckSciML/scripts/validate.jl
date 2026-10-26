@@ -13,14 +13,15 @@ and NN-vs-truth, and renders overlay plots showing all three predictions.
 =#
 
 using QuarterTruckSciML
+import DyadInterface
 using DyadInterface: TransientAnalysis, artifacts, ODEAlg
 using ModelingToolkit: toggle_namespacing, SymbolicT
 using CSV, DataFrames, Statistics, Printf
 using Plots
 
 const DATA_DIR = joinpath(@__DIR__, "..", "assets", "data")
-const OUT_DIR  = joinpath(@__DIR__, "..", "assets")
-const WEIGHTS_CSV = joinpath(DATA_DIR, "nn_weights_full_sin_lbfgs.csv")
+const OUT_DIR = mkpath(get(ENV, "QUARTERTRUCK_VALIDATION_OUTPUT", joinpath(@__DIR__, "..", "assets")))
+const WEIGHTS_CSV = get(ENV, "QUARTERTRUCK_WEIGHTS", joinpath(DATA_DIR, "nn_weights_full_sin_lbfgs.csv"))
 
 # (path, axis label, unit) for each compared observable. The path doubles as the
 # DataFrame column name and the symbolic lookup key into the analysis solution.
@@ -31,6 +32,7 @@ const OBS = [
 ]
 
 weights_flat = Vector{Float64}(collect(CSV.read(WEIGHTS_CSV, DataFrame)[1, :]))
+all(isfinite, weights_flat) || error("Nonfinite NN weights")
 @info "Loaded $(length(weights_flat)) NN weights from $(basename(WEIGHTS_CSV))"
 
 # Run a TransientAnalysis over `harness` and collect the OBS observables.
@@ -44,10 +46,13 @@ function run_transient(harness; nn_weights=nothing, tspan=(0.0, 10.0), saveat=0.
     result = TransientAnalysis(; model=harness, overrides, alg=ODEAlg.Auto(),
                                start=tspan[1], stop=tspan[2], saveat)
     sol = artifacts(result, :RawSolution)
+    DyadInterface.SciMLBase.successful_retcode(sol) || error("Transient failed: $(sol.retcode)")
+    all(u -> all(isfinite, u), sol.u) || error("Nonfinite transient states")
     df = DataFrame(timestamp = sol.t)
     for (path, _, _) in OBS
         df[!, path] = sol[getproperty(result, path)]
     end
+    all(c -> all(isfinite, c), eachcol(df)) || error("Nonfinite validation observables")
     return df
 end
 

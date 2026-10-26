@@ -8,13 +8,14 @@ the nonlinear ground truth, and the NN-augmented gray-box.
 =#
 
 using QuarterTruckSciML
+import DyadInterface
 using DyadInterface: TransientAnalysis, artifacts, ODEAlg
 using ModelingToolkit: toggle_namespacing, SymbolicT
 using CSV, DataFrames
 
 const DATA_DIR = joinpath(@__DIR__, "..", "assets", "data")
-const OUT_DIR  = joinpath(@__DIR__, "..", "assets")
-const WEIGHTS_CSV = joinpath(DATA_DIR, "nn_weights_full_sin_lbfgs.csv")
+const OUT_DIR = mkpath(get(ENV, "QUARTERTRUCK_VALIDATION_OUTPUT", joinpath(@__DIR__, "..", "assets")))
+const WEIGHTS_CSV = get(ENV, "QUARTERTRUCK_WEIGHTS", joinpath(DATA_DIR, "nn_weights_full_sin_lbfgs.csv"))
 
 # (observable path, output column stem) for each compared signal.
 const OBS = [
@@ -24,6 +25,7 @@ const OBS = [
 ]
 
 weights_flat = Vector{Float64}(collect(CSV.read(WEIGHTS_CSV, DataFrame)[1, :]))
+all(isfinite, weights_flat) || error("Nonfinite NN weights")
 @info "Loaded $(length(weights_flat)) NN weights from $(basename(WEIGHTS_CSV))"
 
 # Run a TransientAnalysis over `harness` and return (result, raw_solution). When
@@ -35,7 +37,10 @@ function run_transient(harness; nn_weights=nothing, tspan=(0.0, 10.0), saveat=0.
         Dict{SymbolicT, SymbolicT}(toggle_namespacing(harness, false).model.scaled_nn.nn.p => nn_weights)
     result = TransientAnalysis(; model=harness, overrides, alg=ODEAlg.Auto(),
                                start=tspan[1], stop=tspan[2], saveat)
-    return result, artifacts(result, :RawSolution)
+    sol = artifacts(result, :RawSolution)
+    DyadInterface.SciMLBase.successful_retcode(sol) || error("Transient failed: $(sol.retcode)")
+    all(u -> all(isfinite, u), sol.u) || error("Nonfinite transient states")
+    return result, sol
 end
 
 @info "Simulating linear baseline on ISO 8608 Class A"
@@ -59,6 +64,7 @@ for (path, col) in OBS
     df[!, col * "_nn"]     = sol_nn[getproperty(res_nn, path)]
 end
 
+all(c -> all(isfinite, c), eachcol(df)) || error("Nonfinite validation observables")
 outpath = joinpath(OUT_DIR, "validation_iso_a.csv")
 CSV.write(outpath, df)
 @info "Wrote $(nrow(df)) rows × $(ncol(df)) cols → $outpath"

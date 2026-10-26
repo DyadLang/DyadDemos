@@ -27,10 +27,12 @@ analysis TruckFullNNTrainingAnalysis
     alg = ODEAlg.Tsit5(),
     calibration_alg = "SingleShooting",
     optimizer = "Adam",
+    # ForwardDiff is faster for this small 68-parameter network on RC2.
+    adtype = DyadModelOptimizer.ADChoice.ForwardDiff(),
     optimizer_maxiters = 5000,
     learning_rate = 1e-3,
     network_component = "model.scaled_nn.nn",
-    results_path = "assets/data/nn_weights_full_sin.csv")
+    results_path = "training-results/adam_weights.csv")
   model = TestQuarterTruckFullNNSin()
 end
 
@@ -45,9 +47,10 @@ analysis TruckFullNNTrainingAnalysisLBFGS
     alg = ODEAlg.Tsit5(),
     calibration_alg = "SingleShooting",
     optimizer = "LBFGS",
+    adtype = DyadModelOptimizer.ADChoice.ForwardDiff(),
     optimizer_maxiters = 200,
     network_component = "model.scaled_nn.nn",
-    initial_values_path = "assets/data/nn_weights_full_sin.csv",
-    results_path = "assets/data/nn_weights_full_sin_lbfgs.csv")
+    initial_values_path = "training-results/adam_weights.csv",
+    results_path = "training-results/lbfgs_weights.csv")
   model = TestQuarterTruckFullNNSin()
 end
