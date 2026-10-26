@@ -8,6 +8,7 @@ ground-truth perturbed values, and what the optimizer recovered.
 =#
 
 using QuarterTruckSciML
+include("result_checks.jl")
 using DyadInterface
 using Printf
 
@@ -29,10 +30,8 @@ const PARAMS  = ["model.body_m", "model.tire_to_body_c",
 # get the solution back directly.
 result = QuarterTruckSciML.QuarterTruckCalibrationAnalysis(; name=:cal)
 @info "Calibration optimizer result" retcode=result.r.retcode objective=result.r.original.objective stats=result.r.original.stats
-DyadInterface.SciMLBase.successful_retcode(result.r.retcode) ||
-    error("Calibration did not converge: $(result.r.retcode)")
-all(isfinite, result.r.u) || error("Calibration produced nonfinite parameters")
-result.r.likely_wrong && error("Calibration failed the library's diagnostics")
+report_optimizer(stdout, result.r)
+check_calibration(result.r)
 
 # `CalibrationAnalysisSolution` wraps `(spec, r::CalibrationResult)`; the
 # recovered parameter vector is `result.r.u`, in the order of

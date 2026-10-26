@@ -4,6 +4,7 @@
 using QuarterTruckSciML
 using DyadInterface
 using Logging
+include("result_checks.jl")
 
 # Keep iteration and loss evidence visible even in a redirected headless run.
 mutable struct TrainingLogger <: Logging.AbstractLogger
@@ -43,9 +44,10 @@ function report_stage(label, result, elapsed)
         println(io, label, " elapsed_s=", elapsed, " retcode=", r.retcode,
             " objective=", r.original.objective, " stats=", r.original.stats,
             " likely_wrong=", r.likely_wrong)
+        report_optimizer(io, r)
     end
-    all(isfinite, r.u) && isfinite(r.original.objective) || error("Nonfinite $label result")
-    r.likely_wrong && error("$label result failed the library's calibration diagnostics")
+    report_optimizer(stdout, r)
+    check_finite_fit(r)
 end
 
 @info "Stage 1: Adam (5000 iterations, lr=1e-3)" output=OUTPUT
@@ -58,7 +60,7 @@ report_stage("Adam", adam, time()-started)
 # report that status; a completed budget supplies a checkpoint for refinement,
 # and is not a convergence claim. Other premature failures must stop the run.
 if !DyadInterface.SciMLBase.successful_retcode(adam.r.retcode)
-    string(adam.r.retcode) == "Default" && adam.r.original.stats.iterations == 5000 ||
+    string(adam.r.retcode) == "Default" && adam.r.original.stats.iterations == adam.spec.optimizer_maxiters ||
         error("Adam failed before completing its budget: $(adam.r.retcode)")
     @warn "Adam completed its budget without a success return code" retcode=adam.r.retcode
 end
@@ -71,7 +73,6 @@ lbfgs = with_logger(TrainingLogger(-1, started)) do
         initial_values_path=ADAM_PATH, results_path=LBFGS_PATH)
 end
 report_stage("LBFGS", lbfgs, time()-started)
-DyadInterface.SciMLBase.successful_retcode(lbfgs.r.retcode) ||
-    error("LBFGS did not converge: $(lbfgs.r.retcode)")
+check_lbfgs_optimality(lbfgs.r)
 artifacts(lbfgs, :ResultsExport)
-@info "Refinement converged; validate these new weights on the held-out road" weights=LBFGS_PATH
+@info "LBFGS met the gradient criterion; validate these new weights on the held-out road" weights=LBFGS_PATH

@@ -13,6 +13,7 @@ and NN-vs-truth, and renders overlay plots showing all three predictions.
 =#
 
 using QuarterTruckSciML
+include("result_checks.jl")
 import DyadInterface
 using DyadInterface: TransientAnalysis, artifacts, ODEAlg
 using ModelingToolkit: toggle_namespacing, SymbolicT
@@ -46,8 +47,10 @@ function run_transient(harness; nn_weights=nothing, tspan=(0.0, 10.0), saveat=0.
     result = TransientAnalysis(; model=harness, overrides, alg=ODEAlg.Auto(),
                                start=tspan[1], stop=tspan[2], saveat)
     sol = artifacts(result, :RawSolution)
-    DyadInterface.SciMLBase.successful_retcode(sol) || error("Transient failed: $(sol.retcode)")
-    all(u -> all(isfinite, u), sol.u) || error("Nonfinite transient states")
+    check_transient(sol, tspan...)
+    expected_times = collect(tspan[1]:saveat:tspan[2])
+    length(sol.t) == length(expected_times) && isapprox(sol.t, expected_times; rtol=0, atol=1e-12) ||
+        error("Transient did not return the requested sample grid")
     df = DataFrame(timestamp = sol.t)
     for (path, _, _) in OBS
         df[!, path] = sol[getproperty(result, path)]

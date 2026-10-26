@@ -9,6 +9,7 @@ using QuarterTruckSciML
 using DyadInterface
 using ModelingToolkit
 using DyadModelOptimizer: search_space_names
+include("result_checks.jl")
 
 const OUTPUT = mkpath(abspath(get(ENV, "DYAD_UPGRADE_OUTPUT", mktempdir(; cleanup = false))))
 const ONLY = Set(filter(!isempty, split(get(ENV, "DYAD_UPGRADE_ONLY", ""), ',')))
@@ -19,21 +20,17 @@ function validate_analysis(f, name)
     isempty(ONLY) || name in ONLY || return nothing
     println("START ", name); flush(stdout)
     started = time()
+    evidence = joinpath(OUTPUT, name * ".txt")
     try
         result = f()
-        if hasproperty(result, :r) && hasproperty(result.spec, :results_path) && !isempty(result.spec.results_path)
-            artifacts(result, :ResultsExport)
-        end
-        open(joinpath(OUTPUT, name * ".txt"), "w") do io
+        open(evidence, "w") do io
             println(io, "analysis=", name, " elapsed_s=", time() - started)
-            raw = if hasproperty(result, :sol)
-                result.sol
-            else
-                try artifacts(result, :RawSolution) catch; nothing end
-            end
-            if raw !== nothing
-                println(io, "retcode=", raw.retcode, " samples=", length(raw.t), " end_s=", last(raw.t))
-                DyadInterface.SciMLBase.successful_retcode(raw) || error("ODE failed: $(raw.retcode)")
+            calibration = hasproperty(result, :r) ? result.r : nothing
+            if calibration === nothing
+                # A broken/missing transient artifact must propagate as failure.
+                raw = artifacts(result, :RawSolution)
+                println(io, "retcode=", raw.retcode, " samples=", length(raw.t))
+                check_transient(raw, result.spec.start, result.spec.stop)
                 sys = symbolic_container(result)
                 states = ModelingToolkit.unknowns(sys)
                 # Pure signal/network harnesses have no integrated states.
@@ -50,35 +47,31 @@ function validate_analysis(f, name)
                         println(table, join([t; [values[i] for values in trajectories]], '\t'))
                     end
                 end
-            end
-            calibration = hasproperty(result, :r) ? result.r :
-                          hasproperty(result, :result) ? result.result : nothing
-            if calibration !== nothing
-                all(isfinite, calibration.u) || error("Nonfinite fitted parameters")
-                println(io, "optimization_retcode=", calibration.retcode,
-                    " parameters=", collect(calibration.u))
+            else
+                report_optimizer(io, calibration)
+                println(io, "parameters=", collect(calibration.u))
                 println(io, "parameter_names=", search_space_names(calibration.prob))
-                hasproperty(calibration.original, :stats) && println(io, "optimization_stats=", calibration.original.stats)
-                hasproperty(calibration, :likely_wrong) && println(io, "likely_wrong=", calibration.likely_wrong)
-                hasproperty(calibration, :likely_wrong) && calibration.likely_wrong && error("Calibration diagnostics flagged a likely wrong result")
-                if hasproperty(calibration.original, :objective)
-                    println(io, "objective=", calibration.original.objective)
+                if name == "TruckFullNNTrainingAnalysisLBFGS"
+                    check_lbfgs_optimality(calibration)
+                elseif name == "QuarterTruckCalibrationAnalysis"
+                    check_calibration(calibration)
+                else
+                    check_finite_fit(calibration)
+                    DyadInterface.SciMLBase.successful_retcode(calibration.retcode) ||
+                        error("Optimization stopped without convergence: $(calibration.retcode)")
                 end
             end
-            if hasproperty(result, :predicted)
-                errors = sqrt.(sum(abs2, result.predicted .- result.measured; dims=2) ./ size(result.measured, 2))
-                println(io, "temperature_RMSE_C=", vec(errors))
-            end
         end
-        calibration = hasproperty(result, :r) ? result.r :
-                      hasproperty(result, :result) ? result.result : nothing
-        status = calibration !== nothing && !DyadInterface.SciMLBase.successful_retcode(calibration.retcode) ? "COMPLETED_NONCONVERGED" : "PASS"
-        status == "COMPLETED_NONCONVERGED" && push!(FAILURES, name * " ($(calibration.retcode))")
-        println(status, " ", name, " elapsed_s=", time() - started)
-        print(read(joinpath(OUTPUT, name * ".txt"), String)); flush(stdout)
+        # Export only after status, finite-value and optimizer-specific checks.
+        if hasproperty(result, :r) && hasproperty(result.spec, :results_path) && !isempty(result.spec.results_path)
+            artifacts(result, :ResultsExport)
+        end
+        println("PASS ", name, " elapsed_s=", time() - started)
+        print(read(evidence, String)); flush(stdout)
         return result
     catch err
         push!(FAILURES, name)
+        isfile(evidence) && print(read(evidence, String))
         println("FAIL ", name, ": ", sprint(showerror, err, catch_backtrace())); flush(stdout)
         return nothing
     end

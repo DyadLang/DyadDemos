@@ -4,6 +4,11 @@ Target: Dyad `3.5.0` language with runtime `dyad-3.5.0-rc2` (Julia 1.13.2).
 Baseline: the original project on `dyad-3.4.0` (Julia 1.12.7).
 Runs use two Julia threads and one precompile task.
 
+This is the historical upgrade comparison. The [follow-up report](followup-validation.md)
+supersedes the calibration outcome, full-training timing and training acceptance
+claims: LBFGS `Success` can be a function-change stop without stationarity. The
+current scripts require its raw gradient criterion before accepted weight export.
+
 ## References read before editing
 
 - [BlockComponents changelog](https://github.com/JuliaComputing/BlockComponents/blob/v5.0.0/CHANGELOG.md): BlockComponents 5.0 and constructor API 2.

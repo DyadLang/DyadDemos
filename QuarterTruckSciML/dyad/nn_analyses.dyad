@@ -3,10 +3,13 @@
 # The two-stage training is:
 #   1. Adam (TruckFullNNTrainingAnalysis) for fast global descent
 #   2. LBFGS (TruckFullNNTrainingAnalysisLBFGS) starting from Adam's weights
-#      for high-precision refinement
+#      for candidate refinement
 #
 # Both consume the same sin-excited training set; the LBFGS analysis reads the
 # Adam-trained weights via `initial_values_path`.
+# RC2 maps optimizer_abstol to Optim's function-change tolerance. A Success
+# code can therefore precede gradient convergence. Use scripts/train.jl to
+# check raw gradient optimality before exporting accepted LBFGS weights.
 
 "Sanity: sin-driven gray-box truck with random NN init (should integrate cleanly but NOT match the GT)."
 analysis AnalysisFullNNSin

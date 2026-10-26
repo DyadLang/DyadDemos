@@ -100,9 +100,13 @@ singular values `[4561.5073, 1343.1336, 29.5810, 0.0715166]`, condition number
 63782.5, and damping/friction column cosine 0.99994665. The local sensitivity is
 full rank but poorly conditioned. These noise-free synthetic results establish
 this bounded demo's recovery; they do not establish reliable inference with
-real sensor noise. The force residual at exact truth is already about
-0.0024213 N RMS under both `1e-8` and `1e-10` integrations, so driving the loss
-to zero by changing data would misrepresent the numerical floor.
+real sensor noise. The force residual at exact truth is about 0.0024213 N RMS
+under both `1e-8` and `1e-10` replay integrations. The independent review compared
+the regenerated `1e-10` dataset to the committed CSV and found the same
+0.00242 N RMS difference. This is error retained from the older data-generation
+settings, not an intrinsic model or inference floor. The committed CSV is kept
+unchanged so the calibration regression remains comparable. The objective bound
+`< 0.006` is specific to that dataset, not a general accuracy guarantee.
 
 Rejected probes are retained in task logs: merely changing to LBFGS returned
 `Success` in 12 iterations but recovered damping 1538.0 (14.6% low); squared
@@ -151,7 +155,8 @@ warm time to 1,087,425,208 bytes / 2.922238363 s. It was not adopted: it would a
 custom network implementation and its Enzyme variant segfaulted. The production
 model and committed pretrained parameter layout remain unchanged.
 
-The full declared **5000 Adam / up-to-200 LBFGS** schedule completed on RC2.
+The **5000 Adam / up-to-200 LBFGS** schedule finished executing on RC2;
+it did not establish optimizer optimality.
 Measured process wall time was **4958.64 s (82 min 38.64 s)**, with
 6480.27 s user / 145.41 s system CPU time (`/usr/bin/time -p`).
 
@@ -162,12 +167,28 @@ Measured process wall time was **4958.64 s (82 min 38.64 s)**, with
 
 Both results have finite 68-element parameter vectors and `likely_wrong=false`.
 Adam evaluated the objective and gradient 5000 times each. LBFGS made seven
-function / three gradient evaluations and converged before its declared limit;
-the limit was not reduced. Adam's `Default` is preserved and **is not a
-successful-convergence claim**. The independent minimal adapter reproduction in
-the upstream draft explains that status. The staged workflow uses this full-budget
-checkpoint for refinement and requires LBFGS success. The strict general upgrade
-validator still rejects Adam's non-success status.
+function / three gradient evaluations. Independent review replayed LBFGS from
+the saved Adam checkpoint and reproduced the objective exactly. Its raw stop was:
+
+- `f_abschange = 6.05356569405302e-5 ≤ f_abstol = 1e-4`;
+- `g_residual = 0.09430872088659324 > g_abstol = 1e-8`;
+- function-change stopping satisfied, gradient stopping unsatisfied.
+
+The RC2 adapter maps `optimizer_abstol` to Optim's **function-change** tolerance,
+and maps any `Optim.converged` condition to SciML `Success`. **LBFGS stalled on
+function change; this is not a stationary fit.** Adam's `Default` also remains
+visible and is not a convergence claim. No stage of this measured run certifies
+optimality. The [UNFILED adapter draft](followup-upstream-issues.md) records the
+mapping and a small independent reproduction.
+
+The original run exported both diagnostic checkpoints before this review.
+The current `train.jl` preserves the full-budget Adam checkpoint, but requires
+both LBFGS success and raw gradient convergence with residual at most `1e-8`
+before exporting accepted LBFGS weights. It rejects this historical result and
+exits nonzero. The general upgrade validator likewise rejects it and exports no
+weights for any rejected stage, including Adam's `Default`. No tolerance was
+loosened and no full retraining was performed for this reporting correction;
+optimality-based training remains unresolved.
 
 The first foreground follow-up attempt was interrupted by the harness stall
 intervention after the logged 2500-iteration checkpoint (2469.5955498218536 s).
@@ -250,7 +271,8 @@ objective was **0.38384846067991096**, agreeing with the optimizer's
 | Driver acceleration [m/s²] | 0.016361145901600659 | 0.087692643793869873 | 0.0056348365423940817 |
 
 These residuals confirm the acceleration-dominated nature of the current
-mixed-unit objective: convergence does not mean negligible position error.
+mixed-unit objective: a small function change does not mean negligible position
+error or stationarity.
 The loss definition, data and pretrained weights were preserved deliberately;
 there is no claim that this fit solves a balanced sensor-noise inference problem.
 
@@ -263,20 +285,26 @@ accuracy claim is made.
 
 ## Script and notebook audit
 
-- `run_calibration.jl` prints optimizer status/objective/statistics and rejects
-  non-success, nonfinite or diagnostically flagged results.
+- `run_calibration.jl` prints optimizer status/objective/statistics and raw MadNLP
+  status/residuals; it requires `SOLVE_SUCCEEDED` as well as finite values and
+  unflagged diagnostics.
 - `train.jl` uses a fresh output directory (or the explicit directory argument),
   rejects existing checkpoint filenames, logs progress and actual timings, and
   keeps Adam's return code visible. Direct `.dyad` training exports also default
   to ignored `training-results/` paths rather than the shipped weights. `Default` is accepted only as a finite,
   full-5000-iteration checkpoint for refinement, never as convergence. Final
-  LBFGS must return a successful code. The unsupported five-minute and
-  machine-precision claims were removed.
-- `validate_upgrade.jl` now exits with failure for non-success optimizer codes;
-  finite vectors or `likely_wrong=false` no longer allow `MaxIters`/`Default`
-  to pass the validator. Its physical-calibration-only run returned `PASS`,
+  LBFGS must return a successful code and satisfy its raw gradient criterion
+  (`|g| ≤ 1e-8`) before export. Function-change stops are rejected, with raw
+  evidence retained in `training-results.txt`. The unsupported five-minute,
+  machine-precision and two-iteration-convergence claims were removed.
+- `validate_upgrade.jl` exits with failure for non-success optimizer codes or
+  unsatisfied LBFGS optimality, before weight export. RawSolution lookup errors
+  now propagate for transient analyses. Physical calibration requires raw MadNLP
+  `SOLVE_SUCCEEDED`, so acceptable-level/user stops cannot pass as strict success.
+  Its earlier physical-calibration-only run returned `PASS`,
   43 iterations, 102.467998028 s optimizer time, 251.22 s process wall time.
-- `validate.jl` and `export_validation_csv.jl` check ODE success/finite states;
+- `validate.jl` and `export_validation_csv.jl` check ODE success, finite states
+  and observables, full requested horizon and sample grid before output;
   `QUARTERTRUCK_WEIGHTS` and `QUARTERTRUCK_VALIDATION_OUTPUT` select new weights
   and isolated outputs for held-out evaluation. The CSV exporter was exercised
   with the shipped weights: 1001 rows × 11 columns, 102.68 s process wall time.
@@ -296,10 +324,42 @@ accuracy claim is made.
 
 ## Tests and data safety
 
-`Pkg.test()` passed **19/19 assertions**: 12 existing smoke assertions, three
-analysis-construction assertions and four new physical-calibration assertions
+Before the review correction, `Pkg.test()` passed **19/19 assertions**: 12 existing
+smoke assertions, three analysis-construction assertions and four physical-calibration assertions
 (success code, finite values, <0.1% parameter error and objective below 0.006).
 Reported test-set times: 1m23.2s smoke, 7.3s construction, 2m42.1s calibration.
+
+The review correction was checked on RC2 using the same task-local environment.
+Evidence is under `.task/quarter-review-fix`:
+
+- `Pkg.test()`: **35/35 assertions passed**, comprising 12 smoke, three
+  analysis-construction, four physical-calibration and 16 acceptance-check
+  assertions. Test-set times were 1m21.9s, 7.3s, 2m35.7s and 0.3s respectively.
+- `test/result_checks.jl`: **16/16** focused assertions passed, including rejection
+  of the reviewed false `Success`, nonfinite/missing gradient evidence, failed
+  optimizer codes, MadNLP acceptable/user stops and truncated transients.
+- `validate_upgrade.jl`, selecting only `TruckFullNNTrainingAnalysisLBFGS` and
+  seeding its output directory with the saved full-budget Adam checkpoint:
+  **expected exit 1**, objective `0.38384846067991113`, two iterations,
+  `g_residual=0.09430872088659324`, `g_converged=false`. The analysis took
+  81.4999308586 s (11.1877419949 s inside Optim). The report retains `Success`
+  and the raw stop reasons; **no `lbfgs_weights.csv` was written**.
+- The tiny quartic adapter reproduction in the UNFILED draft returned `Success`
+  with `f_converged=true`, `g_converged=false`, confirming the mapping without
+  running any truck training.
+- `export_validation_csv.jl` with shipped weights and an isolated output
+  directory exited 0 and wrote **1001 rows × 11 columns**, after all three
+  requested horizons/sample grids and finite-value checks passed.
+- A mixed `validate_upgrade.jl` probe passed `TestHalfSineBumpTransient` with
+  all 501 samples and passed physical calibration with raw `SOLVE_SUCCEEDED`,
+  43 iterations, objective `0.0058507392955954975` and dual residual
+  `1.4388840022991673e-9`. Calibration took 160.673575878 s through the validator,
+  102.453969002 s inside MadNLP. The same probe's three-step Adam run returned
+  `Default`, objective `50.838207224956335`; the validator exited 1 as expected
+  and wrote **no `adam_weights.csv`**, while retaining its status report.
+
+This correction does not rerun the 80-minute schedule or establish training
+stationarity. The historical full-run weights remain diagnostic evidence only.
 
 The calibration generator was run with a task output filename: 1001 rows,
 explicit `1e-10` integration tolerances, `Success`, 80.19 s process wall time.

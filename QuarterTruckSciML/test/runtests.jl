@@ -71,6 +71,9 @@ end
     @test all(isfinite, result.r.u)
     truth = [315.0, 22000.0, 1800.0, 750.0]
     @test maximum(abs.((collect(result.r.u) .- truth) ./ truth)) < 1e-3
-    # The committed synthetic measurements have a small numerical residual floor.
+    # The committed measurements retain error from their older generator settings;
+    # this bound is a regression check against that fixed dataset.
     @test result.r.original.objective < 0.006
 end
+
+include("result_checks.jl")

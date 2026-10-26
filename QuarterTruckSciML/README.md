@@ -115,17 +115,25 @@ julia +dyad-3.5.0-rc2 --project scripts/train.jl /path/to/fresh-training-output 
 ```
 
 The training script preserves the committed dataset and pretrained weights. It
-records actual optimizer return codes, losses and timings in `training-results.txt`
-and writes `adam_weights.csv` / `lbfgs_weights.csv` in the output directory.
-The measured RC2 full run took 82 min 38.64 s, with Adam completing all 5000
-iterations and LBFGS converging after two iterations within its 200-iteration
-limit; see the [follow-up report](docs/followup-validation.md) for exact statuses
-and fit limitations.
+records actual optimizer return codes, losses, raw stopping criteria and timings
+in `training-results.txt`. Adam's full-budget finite checkpoint is written as
+`adam_weights.csv`; accepted LBFGS weights are exported only after checking both
+the success code and Optim's gradient criterion (`|g| ≤ 1e-8`).
+
+The measured RC2 full run took 82 min 38.64 s. Adam completed 5000 iterations
+with `Default`. LBFGS returned `Success` after two iterations because its
+function change was `6.05e-5 ≤ f_abstol=1e-4`; its gradient residual was
+`0.0943 > 1e-8`. **This fit is not stationary.** The current script rejects that
+result, exits nonzero and does not export `lbfgs_weights.csv`. The optimizer
+configuration and budgets remain unchanged; successful optimality-based training
+is still unresolved. See the [follow-up report](docs/followup-validation.md) and
+[unfiled adapter note](docs/followup-upstream-issues.md).
+
 Direct analysis exports default to the ignored `training-results/` directory,
-with LBFGS reading Adam's checkpoint there.
-Adam may return `Default` after its full budget; the script reports this without
-claiming convergence and requires successful LBFGS refinement. To evaluate the
-new fit against the training samples and on the held-out road:
+with LBFGS reading Adam's checkpoint there. Direct `ResultsExport` requests
+bypass the script's acceptance checks; a CSV alone does not certify optimality.
+Historical task-local weights remain useful for diagnostic replay. To evaluate
+an explicitly selected exported file against the training samples and held-out road:
 
 ```bash
 julia +dyad-3.5.0-rc2 --project scripts/evaluate_training_fit.jl /path/to/fresh-training-output/lbfgs_weights.csv
@@ -157,7 +165,8 @@ inadequate. See [follow-up validation](docs/followup-validation.md) for residual
 and limitations. To deliberately regenerate the synthetic measurements, use
 `scripts/generate_calibration_data.jl`; an optional output filename preserves
 the committed file. The generator checks integration success and uses explicit
-`1e-10` solver tolerances.
+`1e-10` solver tolerances for future regeneration. The committed measurements
+retain error from the older generation settings; they were not regenerated.
 
 The ground-truth parameters are:
 
