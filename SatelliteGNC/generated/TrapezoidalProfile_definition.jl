@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TrapezoidalProfile(; name, target_angle, w_max, a_max)
+   TrapezoidalProfile(; name, target_angle, w_max, a_max, __overrides)
 
 Single-axis trapezoidal velocity profile for rest-to-rest slew maneuvers.
 
@@ -35,7 +35,7 @@ by a tracking controller.
  * `rate_ref` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `accel_ref` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function TrapezoidalProfile(; name = nothing, target_angle=0.35, w_max=0.035, a_max=0.0087, kwargs...)
+@component function TrapezoidalProfile(; name = nothing, var"target_angle"=0.35, var"w_max"=0.035, var"a_max"=0.0087, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -43,7 +43,7 @@ by a tracking controller.
     @named model = TrapezoidalProfile()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -52,6 +52,11 @@ by a tracking controller.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "target_angle") && (target_angle = pop!(__overrides, "target_angle"))
+  haskey(__overrides, "w_max") && (w_max = pop!(__overrides, "w_max"))
+  haskey(__overrides, "a_max") && (a_max = pop!(__overrides, "a_max"))
 
   ### Structural Parameters (functions)
 
@@ -68,13 +73,13 @@ by a tracking controller.
   ### Symbolic Parameters
   __local__target_angle = target_angle
   append!(__params, @parameters (target_angle::Real), [description = "Target slew angle (rad)"])
-  __initial_conditions[target_angle] = __local__target_angle
+  __dyad_seed_parameter!(__initial_conditions, __bindings, target_angle, __local__target_angle)
   __local__w_max = w_max
   append!(__params, @parameters (w_max::Real), [description = "Maximum angular rate (rad/s)"])
-  __initial_conditions[w_max] = __local__w_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, w_max, __local__w_max)
   __local__a_max = a_max
   append!(__params, @parameters (a_max::Real), [description = "Maximum angular acceleration (rad/s^2)"])
-  __initial_conditions[a_max] = __local__a_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, a_max, __local__a_max)
 
   ### Final Parameters (assignments)
 
@@ -93,7 +98,7 @@ by a tracking controller.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -108,6 +113,6 @@ by a tracking controller.
   push!(__eqs, accel_ref ~ SatelliteGNC.trapz_accel_ref(t, target_angle, w_max, a_max))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TrapezoidalProfile

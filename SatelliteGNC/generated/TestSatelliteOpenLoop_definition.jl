@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TestSatelliteOpenLoop(; name, tau_x_val)
+   TestSatelliteOpenLoop(; name, tau_x_val, __overrides)
 
 ## Parameters:
 
@@ -13,7 +13,7 @@
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `tau_x_val`         | Constant torque about X axis                         | --  |   0.1 |
 """
-@component function TestSatelliteOpenLoop(; name = nothing, tau_x_val=0.1, kwargs...)
+@component function TestSatelliteOpenLoop(; name = nothing, var"tau_x_val"=0.1, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -21,7 +21,7 @@
     @named model = TestSatelliteOpenLoop()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -30,6 +30,9 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "tau_x_val") && (tau_x_val = pop!(__overrides, "tau_x_val"))
 
   ### Structural Parameters (functions)
 
@@ -46,7 +49,7 @@
   ### Symbolic Parameters
   __local__tau_x_val = tau_x_val
   append!(__params, @parameters (tau_x_val::Real), [description = "Constant torque about X axis"])
-  __initial_conditions[tau_x_val] = __local__tau_x_val
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tau_x_val, __local__tau_x_val)
 
   ### Final Parameters (assignments)
 
@@ -62,10 +65,10 @@
   ### Components
   # Subcomponent sat of type SatelliteGNC.SatelliteBody
   sat_overrides = __pop_subcomponent_overrides!(__overrides, "sat")
-  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), sat_overrides...))
+  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), __overrides = sat_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -86,6 +89,6 @@
   push!(__eqs, sat.tau_z ~ 0.0)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestSatelliteOpenLoop

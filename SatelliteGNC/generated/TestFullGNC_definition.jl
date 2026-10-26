@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   TestFullGNC(; name)
+   TestFullGNC(; name, __overrides)
 """
-@component function TestFullGNC(; name = nothing, kwargs...)
+@component function TestFullGNC(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -15,7 +15,7 @@
     @named model = TestFullGNC()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,25 +53,25 @@
   ### Components
   # Subcomponent sat of type SatelliteGNC.SatelliteBody
   sat_overrides = __pop_subcomponent_overrides!(__overrides, "sat")
-  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), sat_overrides...))
+  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), __overrides = sat_overrides))
   # Subcomponent traj_phi of type SatelliteGNC.TrapezoidalProfile
   traj_phi_overrides = __pop_subcomponent_overrides!(__overrides, "traj_phi")
-  push!(__systems, @named traj_phi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.3491, w_max=0.0349, a_max=0.00873, traj_phi_overrides...))
+  push!(__systems, @named traj_phi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.3491, w_max=0.0349, a_max=0.00873, __overrides = traj_phi_overrides))
   # Subcomponent traj_theta of type SatelliteGNC.TrapezoidalProfile
   traj_theta_overrides = __pop_subcomponent_overrides!(__overrides, "traj_theta")
-  push!(__systems, @named traj_theta = SatelliteGNC.TrapezoidalProfile(; target_angle=0.1745, w_max=0.0349, a_max=0.00873, traj_theta_overrides...))
+  push!(__systems, @named traj_theta = SatelliteGNC.TrapezoidalProfile(; target_angle=0.1745, w_max=0.0349, a_max=0.00873, __overrides = traj_theta_overrides))
   # Subcomponent traj_psi of type SatelliteGNC.TrapezoidalProfile
   traj_psi_overrides = __pop_subcomponent_overrides!(__overrides, "traj_psi")
-  push!(__systems, @named traj_psi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.5236, w_max=0.0349, a_max=0.00873, traj_psi_overrides...))
+  push!(__systems, @named traj_psi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.5236, w_max=0.0349, a_max=0.00873, __overrides = traj_psi_overrides))
   # Subcomponent obs of type SatelliteGNC.LuenbergerObserver
   obs_overrides = __pop_subcomponent_overrides!(__overrides, "obs")
-  push!(__systems, @named obs = SatelliteGNC.LuenbergerObserver(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), p=Float64(2.0), La_x=Float64(4.0), La_y=Float64(4.0), La_z=Float64(4.0), Lw_x=Float64(40.0), Lw_y=Float64(32.0), Lw_z=Float64(24.0), obs_overrides...))
+  push!(__systems, @named obs = SatelliteGNC.LuenbergerObserver(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), p=Float64(2.0), La_x=Float64(4.0), La_y=Float64(4.0), La_z=Float64(4.0), Lw_x=Float64(40.0), Lw_y=Float64(32.0), Lw_z=Float64(24.0), __overrides = obs_overrides))
   # Subcomponent ctrl of type SatelliteGNC.AttitudeController
   ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "ctrl")
-  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(; Kp_x=Float64(5.0), Kd_x=Float64(20.0), Kp_y=Float64(4.0), Kd_y=Float64(16.0), Kp_z=Float64(3.0), Kd_z=Float64(12.0), Ixx_ff=Float64(10.0), Iyy_ff=Float64(8.0), Izz_ff=Float64(6.0), ctrl_overrides...))
+  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(; Kp_x=Float64(5.0), Kd_x=Float64(20.0), Kp_y=Float64(4.0), Kd_y=Float64(16.0), Kp_z=Float64(3.0), Kd_z=Float64(12.0), Ixx_ff=Float64(10.0), Iyy_ff=Float64(8.0), Izz_ff=Float64(6.0), __overrides = ctrl_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -119,6 +119,6 @@
   push!(__eqs, connect(ctrl.tau_z, obs.tau_z))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestFullGNC

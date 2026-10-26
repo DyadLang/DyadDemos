@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TestSatelliteClosedLoop(; name, phi_cmd, theta_cmd, psi_cmd)
+   TestSatelliteClosedLoop(; name, phi_cmd, theta_cmd, psi_cmd, __overrides)
 
 ## Parameters:
 
@@ -15,7 +15,7 @@
 | `theta_cmd`         |                          | --  |   0.0873 |
 | `psi_cmd`         |                          | --  |   0.2618 |
 """
-@component function TestSatelliteClosedLoop(; name = nothing, phi_cmd=0.1745, theta_cmd=0.0873, psi_cmd=0.2618, kwargs...)
+@component function TestSatelliteClosedLoop(; name = nothing, var"phi_cmd"=0.1745, var"theta_cmd"=0.0873, var"psi_cmd"=0.2618, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -23,7 +23,7 @@
     @named model = TestSatelliteClosedLoop()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -32,6 +32,11 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "phi_cmd") && (phi_cmd = pop!(__overrides, "phi_cmd"))
+  haskey(__overrides, "theta_cmd") && (theta_cmd = pop!(__overrides, "theta_cmd"))
+  haskey(__overrides, "psi_cmd") && (psi_cmd = pop!(__overrides, "psi_cmd"))
 
   ### Structural Parameters (functions)
 
@@ -48,13 +53,13 @@
   ### Symbolic Parameters
   __local__phi_cmd = phi_cmd
   append!(__params, @parameters (phi_cmd::Real), [description = "Reference angles (rad)"])
-  __initial_conditions[phi_cmd] = __local__phi_cmd
+  __dyad_seed_parameter!(__initial_conditions, __bindings, phi_cmd, __local__phi_cmd)
   __local__theta_cmd = theta_cmd
   append!(__params, @parameters (theta_cmd::Real))
-  __initial_conditions[theta_cmd] = __local__theta_cmd
+  __dyad_seed_parameter!(__initial_conditions, __bindings, theta_cmd, __local__theta_cmd)
   __local__psi_cmd = psi_cmd
   append!(__params, @parameters (psi_cmd::Real))
-  __initial_conditions[psi_cmd] = __local__psi_cmd
+  __dyad_seed_parameter!(__initial_conditions, __bindings, psi_cmd, __local__psi_cmd)
 
   ### Final Parameters (assignments)
 
@@ -70,13 +75,13 @@
   ### Components
   # Subcomponent sat of type SatelliteGNC.SatelliteBody
   sat_overrides = __pop_subcomponent_overrides!(__overrides, "sat")
-  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), sat_overrides...))
+  push!(__systems, @named sat = SatelliteGNC.SatelliteBody(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), __overrides = sat_overrides))
   # Subcomponent ctrl of type SatelliteGNC.AttitudeController
   ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "ctrl")
-  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(; Kp_x=Float64(5.0), Kd_x=Float64(20.0), Kp_y=Float64(4.0), Kd_y=Float64(16.0), Kp_z=Float64(3.0), Kd_z=Float64(12.0), ctrl_overrides...))
+  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(; Kp_x=Float64(5.0), Kd_x=Float64(20.0), Kp_y=Float64(4.0), Kd_y=Float64(16.0), Kp_z=Float64(3.0), Kd_z=Float64(12.0), __overrides = ctrl_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -112,6 +117,6 @@
   push!(__eqs, connect(ctrl.tau_z, sat.tau_z))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestSatelliteClosedLoop

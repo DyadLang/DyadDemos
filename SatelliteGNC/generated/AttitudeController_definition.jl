@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   AttitudeController(; name, Kp_x, Kp_y, Kp_z, Kd_x, Kd_y, Kd_z, Ixx_ff, Iyy_ff, Izz_ff)
+   AttitudeController(; name, Kp_x, Kp_y, Kp_z, Kd_x, Kd_y, Kd_z, Ixx_ff, Iyy_ff, Izz_ff, __overrides)
 
 3-axis PD attitude controller with feedforward.
 
@@ -54,7 +54,7 @@ Outputs: commanded torques in the body frame.
  * `tau_y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `tau_z` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function AttitudeController(; name = nothing, Kp_x=Float64(5.0), Kp_y=Float64(4.0), Kp_z=Float64(3.0), Kd_x=Float64(20.0), Kd_y=Float64(16.0), Kd_z=Float64(12.0), Ixx_ff=Float64(10.0), Iyy_ff=Float64(8.0), Izz_ff=Float64(6.0), kwargs...)
+@component function AttitudeController(; name = nothing, var"Kp_x"=Float64(5.0), var"Kp_y"=Float64(4.0), var"Kp_z"=Float64(3.0), var"Kd_x"=Float64(20.0), var"Kd_y"=Float64(16.0), var"Kd_z"=Float64(12.0), var"Ixx_ff"=Float64(10.0), var"Iyy_ff"=Float64(8.0), var"Izz_ff"=Float64(6.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -62,7 +62,7 @@ Outputs: commanded torques in the body frame.
     @named model = AttitudeController()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -71,6 +71,17 @@ Outputs: commanded torques in the body frame.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "Kp_x") && (Kp_x = pop!(__overrides, "Kp_x"))
+  haskey(__overrides, "Kp_y") && (Kp_y = pop!(__overrides, "Kp_y"))
+  haskey(__overrides, "Kp_z") && (Kp_z = pop!(__overrides, "Kp_z"))
+  haskey(__overrides, "Kd_x") && (Kd_x = pop!(__overrides, "Kd_x"))
+  haskey(__overrides, "Kd_y") && (Kd_y = pop!(__overrides, "Kd_y"))
+  haskey(__overrides, "Kd_z") && (Kd_z = pop!(__overrides, "Kd_z"))
+  haskey(__overrides, "Ixx_ff") && (Ixx_ff = pop!(__overrides, "Ixx_ff"))
+  haskey(__overrides, "Iyy_ff") && (Iyy_ff = pop!(__overrides, "Iyy_ff"))
+  haskey(__overrides, "Izz_ff") && (Izz_ff = pop!(__overrides, "Izz_ff"))
 
   ### Structural Parameters (functions)
 
@@ -87,31 +98,31 @@ Outputs: commanded torques in the body frame.
   ### Symbolic Parameters
   __local__Kp_x = Kp_x
   append!(__params, @parameters (Kp_x::Real), [description = "Proportional gains"])
-  __initial_conditions[Kp_x] = __local__Kp_x
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kp_x, __local__Kp_x)
   __local__Kp_y = Kp_y
   append!(__params, @parameters (Kp_y::Real))
-  __initial_conditions[Kp_y] = __local__Kp_y
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kp_y, __local__Kp_y)
   __local__Kp_z = Kp_z
   append!(__params, @parameters (Kp_z::Real))
-  __initial_conditions[Kp_z] = __local__Kp_z
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kp_z, __local__Kp_z)
   __local__Kd_x = Kd_x
   append!(__params, @parameters (Kd_x::Real), [description = "Derivative gains"])
-  __initial_conditions[Kd_x] = __local__Kd_x
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kd_x, __local__Kd_x)
   __local__Kd_y = Kd_y
   append!(__params, @parameters (Kd_y::Real))
-  __initial_conditions[Kd_y] = __local__Kd_y
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kd_y, __local__Kd_y)
   __local__Kd_z = Kd_z
   append!(__params, @parameters (Kd_z::Real))
-  __initial_conditions[Kd_z] = __local__Kd_z
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kd_z, __local__Kd_z)
   __local__Ixx_ff = Ixx_ff
   append!(__params, @parameters (Ixx_ff::Real), [description = "Feedforward inertias (must match plant)"])
-  __initial_conditions[Ixx_ff] = __local__Ixx_ff
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Ixx_ff, __local__Ixx_ff)
   __local__Iyy_ff = Iyy_ff
   append!(__params, @parameters (Iyy_ff::Real))
-  __initial_conditions[Iyy_ff] = __local__Iyy_ff
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Iyy_ff, __local__Iyy_ff)
   __local__Izz_ff = Izz_ff
   append!(__params, @parameters (Izz_ff::Real))
-  __initial_conditions[Izz_ff] = __local__Izz_ff
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Izz_ff, __local__Izz_ff)
 
   ### Final Parameters (assignments)
 
@@ -145,7 +156,7 @@ Outputs: commanded torques in the body frame.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -160,6 +171,6 @@ Outputs: commanded torques in the body frame.
   push!(__eqs, tau_z ~ -Kp_z * (psi_meas - psi_ref) - Kd_z * (wz_meas - wz_ref) + Izz_ff * az_ff)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export AttitudeController
