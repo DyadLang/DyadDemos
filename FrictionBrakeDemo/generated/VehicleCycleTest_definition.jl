@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   VehicleCycleTest(; name)
+   VehicleCycleTest(; name, __overrides)
 """
-@component function VehicleCycleTest(; name = nothing, kwargs...)
+@component function VehicleCycleTest(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -15,7 +15,7 @@
     @named model = VehicleCycleTest()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,25 +53,25 @@
   ### Components
   # Subcomponent brake of type FrictionBrakeDemo.FrictionBrake
   brake_overrides = __pop_subcomponent_overrides!(__overrides, "brake")
-  push!(__systems, @named brake = FrictionBrakeDemo.FrictionBrake(; f_partition=0.93, brake_overrides...))
+  push!(__systems, @named brake = FrictionBrakeDemo.FrictionBrake(; f_partition=0.93, __overrides = brake_overrides))
   # Subcomponent powertrain of type FrictionBrakeDemo.SimplePowertrain
   powertrain_overrides = __pop_subcomponent_overrides!(__overrides, "powertrain")
-  push!(__systems, @named powertrain = FrictionBrakeDemo.SimplePowertrain(; powertrain_overrides...))
+  push!(__systems, @named powertrain = FrictionBrakeDemo.SimplePowertrain(; __overrides = powertrain_overrides))
   # Subcomponent vehicle of type FrictionBrakeDemo.SimpleVehicle
   vehicle_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle")
-  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle(; vehicle_overrides...))
+  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle(; __overrides = vehicle_overrides))
   # Subcomponent brake_thermal of type FrictionBrakeDemo.BrakeThermal
   brake_thermal_overrides = __pop_subcomponent_overrides!(__overrides, "brake_thermal")
-  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(; brake_thermal_overrides...))
+  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(; __overrides = brake_thermal_overrides))
   # Subcomponent driver of type FrictionBrakeDemo.Driver
   driver_overrides = __pop_subcomponent_overrides!(__overrides, "driver")
-  push!(__systems, @named driver = FrictionBrakeDemo.Driver(; driver_overrides...))
+  push!(__systems, @named driver = FrictionBrakeDemo.Driver(; __overrides = driver_overrides))
   # Subcomponent vehicle_speed_ref of type BlockComponents.Sources.Sine
   vehicle_speed_ref_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_speed_ref")
-  push!(__systems, @named vehicle_speed_ref = BlockComponents.Sources.Sine(; start_time=Float64(0.0), offset=15.2, amplitude=Float64(15), frequency=0.02, vehicle_speed_ref_overrides...))
+  push!(__systems, @named vehicle_speed_ref = BlockComponents.Sources.Sine(; start_time=Float64(0.0), offset=15.2, amplitude=Float64(15), frequency=0.02, __overrides = vehicle_speed_ref_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   __guesses[brake.T_interface] = (293.15)
@@ -96,6 +96,6 @@
   push!(__eqs, connect(powertrain.drive, vehicle.shaft))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export VehicleCycleTest

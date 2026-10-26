@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   FrictionBrake(; name, R_effective, N_surfaces, N_wheels, F_normal_max, μ_0, α_T, T_ref, f_partition)
+   FrictionBrake(; name, R_effective, N_surfaces, N_wheels, F_normal_max, μ_0, α_T, T_ref, f_partition, __overrides)
 
 ## Parameters:
 
@@ -40,7 +40,7 @@
 | `P_friction_total`         |                          | W  |
 | `ω`         |                          | rad/s  |
 """
-@component function FrictionBrake(; name = nothing, R_effective=0.15, N_surfaces=2, N_wheels=4, F_normal_max=Float64(5000), μ_0=0.4, α_T=0.0005, T_ref=293.15, f_partition=0.6, kwargs...)
+@component function FrictionBrake(; name = nothing, var"R_effective"=0.15, var"N_surfaces"=2, var"N_wheels"=4, var"F_normal_max"=Float64(5000), var"μ_0"=0.4, var"α_T"=0.0005, var"T_ref"=293.15, var"f_partition"=0.6, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -48,7 +48,7 @@
     @named model = FrictionBrake()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -57,6 +57,16 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "R_effective") && (R_effective = pop!(__overrides, "R_effective"))
+  haskey(__overrides, "N_surfaces") && (N_surfaces = pop!(__overrides, "N_surfaces"))
+  haskey(__overrides, "N_wheels") && (N_wheels = pop!(__overrides, "N_wheels"))
+  haskey(__overrides, "F_normal_max") && (F_normal_max = pop!(__overrides, "F_normal_max"))
+  haskey(__overrides, "μ_0") && (μ_0 = pop!(__overrides, "μ_0"))
+  haskey(__overrides, "α_T") && (α_T = pop!(__overrides, "α_T"))
+  haskey(__overrides, "T_ref") && (T_ref = pop!(__overrides, "T_ref"))
+  haskey(__overrides, "f_partition") && (f_partition = pop!(__overrides, "f_partition"))
 
   ### Structural Parameters (functions)
 
@@ -73,28 +83,28 @@
   ### Symbolic Parameters
   __local__R_effective = R_effective
   append!(__params, @parameters (R_effective::Real))
-  __initial_conditions[R_effective] = __local__R_effective
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_effective, __local__R_effective)
   __local__N_surfaces = N_surfaces
   append!(__params, @parameters (N_surfaces::Int))
-  __initial_conditions[N_surfaces] = __local__N_surfaces
+  __dyad_seed_parameter!(__initial_conditions, __bindings, N_surfaces, __local__N_surfaces)
   __local__N_wheels = N_wheels
   append!(__params, @parameters (N_wheels::Int))
-  __initial_conditions[N_wheels] = __local__N_wheels
+  __dyad_seed_parameter!(__initial_conditions, __bindings, N_wheels, __local__N_wheels)
   __local__F_normal_max = F_normal_max
   append!(__params, @parameters (F_normal_max::Real))
-  __initial_conditions[F_normal_max] = __local__F_normal_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, F_normal_max, __local__F_normal_max)
   __local__μ_0 = μ_0
   append!(__params, @parameters (μ_0::Real))
-  __initial_conditions[μ_0] = __local__μ_0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, μ_0, __local__μ_0)
   __local__α_T = α_T
   append!(__params, @parameters (α_T::Real))
-  __initial_conditions[α_T] = __local__α_T
+  __dyad_seed_parameter!(__initial_conditions, __bindings, α_T, __local__α_T)
   __local__T_ref = T_ref
   append!(__params, @parameters (T_ref::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_ref] = __local__T_ref
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_ref, __local__T_ref)
   __local__f_partition = f_partition
   append!(__params, @parameters (f_partition::Real))
-  __initial_conditions[f_partition] = __local__f_partition
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_partition, __local__f_partition)
 
   ### Final Parameters (assignments)
 
@@ -113,29 +123,29 @@
 
   ### Variables (assignments)
   __ovr_F_normal = pop!(__overrides, "F_normal", nothing); isnothing(__ovr_F_normal) || push!(__eqs, F_normal ~ __ovr_F_normal)
-  __ovr_F_normal__initial = pop!(__overrides, "F_normal__initial", nothing); isnothing(__ovr_F_normal__initial) || (__initial_conditions[F_normal] = __ovr_F_normal__initial)
-  __ovr_F_normal__guess = pop!(__overrides, "F_normal__guess", nothing)
+  __ovr_F_normal__initial = pop!(__overrides, "F_normal.initial", nothing); isnothing(__ovr_F_normal__initial) || (__initial_conditions[F_normal] = __ovr_F_normal__initial)
+  __ovr_F_normal__guess = pop!(__overrides, "F_normal.guess", nothing)
   __ovr_T_interface = pop!(__overrides, "T_interface", nothing); isnothing(__ovr_T_interface) || push!(__eqs, T_interface ~ __ovr_T_interface)
-  __ovr_T_interface__initial = pop!(__overrides, "T_interface__initial", nothing); isnothing(__ovr_T_interface__initial) || (__initial_conditions[T_interface] = __ovr_T_interface__initial)
-  __ovr_T_interface__guess = pop!(__overrides, "T_interface__guess", nothing)
+  __ovr_T_interface__initial = pop!(__overrides, "T_interface.initial", nothing); isnothing(__ovr_T_interface__initial) || (__initial_conditions[T_interface] = __ovr_T_interface__initial)
+  __ovr_T_interface__guess = pop!(__overrides, "T_interface.guess", nothing)
   __ovr_μ = pop!(__overrides, "μ", nothing); isnothing(__ovr_μ) || push!(__eqs, μ ~ __ovr_μ)
-  __ovr_μ__initial = pop!(__overrides, "μ__initial", nothing); isnothing(__ovr_μ__initial) || (__initial_conditions[μ] = __ovr_μ__initial)
-  __ovr_μ__guess = pop!(__overrides, "μ__guess", nothing)
+  __ovr_μ__initial = pop!(__overrides, "μ.initial", nothing); isnothing(__ovr_μ__initial) || (__initial_conditions[μ] = __ovr_μ__initial)
+  __ovr_μ__guess = pop!(__overrides, "μ.guess", nothing)
   __ovr_T_brake_single_surface = pop!(__overrides, "T_brake_single_surface", nothing); isnothing(__ovr_T_brake_single_surface) || push!(__eqs, T_brake_single_surface ~ __ovr_T_brake_single_surface)
-  __ovr_T_brake_single_surface__initial = pop!(__overrides, "T_brake_single_surface__initial", nothing); isnothing(__ovr_T_brake_single_surface__initial) || (__initial_conditions[T_brake_single_surface] = __ovr_T_brake_single_surface__initial)
-  __ovr_T_brake_single_surface__guess = pop!(__overrides, "T_brake_single_surface__guess", nothing)
+  __ovr_T_brake_single_surface__initial = pop!(__overrides, "T_brake_single_surface.initial", nothing); isnothing(__ovr_T_brake_single_surface__initial) || (__initial_conditions[T_brake_single_surface] = __ovr_T_brake_single_surface__initial)
+  __ovr_T_brake_single_surface__guess = pop!(__overrides, "T_brake_single_surface.guess", nothing)
   __ovr_T_brake_per_wheel = pop!(__overrides, "T_brake_per_wheel", nothing); isnothing(__ovr_T_brake_per_wheel) || push!(__eqs, T_brake_per_wheel ~ __ovr_T_brake_per_wheel)
-  __ovr_T_brake_per_wheel__initial = pop!(__overrides, "T_brake_per_wheel__initial", nothing); isnothing(__ovr_T_brake_per_wheel__initial) || (__initial_conditions[T_brake_per_wheel] = __ovr_T_brake_per_wheel__initial)
-  __ovr_T_brake_per_wheel__guess = pop!(__overrides, "T_brake_per_wheel__guess", nothing)
+  __ovr_T_brake_per_wheel__initial = pop!(__overrides, "T_brake_per_wheel.initial", nothing); isnothing(__ovr_T_brake_per_wheel__initial) || (__initial_conditions[T_brake_per_wheel] = __ovr_T_brake_per_wheel__initial)
+  __ovr_T_brake_per_wheel__guess = pop!(__overrides, "T_brake_per_wheel.guess", nothing)
   __ovr_T_brake_magnitude = pop!(__overrides, "T_brake_magnitude", nothing); isnothing(__ovr_T_brake_magnitude) || push!(__eqs, T_brake_magnitude ~ __ovr_T_brake_magnitude)
-  __ovr_T_brake_magnitude__initial = pop!(__overrides, "T_brake_magnitude__initial", nothing); isnothing(__ovr_T_brake_magnitude__initial) || (__initial_conditions[T_brake_magnitude] = __ovr_T_brake_magnitude__initial)
-  __ovr_T_brake_magnitude__guess = pop!(__overrides, "T_brake_magnitude__guess", nothing)
+  __ovr_T_brake_magnitude__initial = pop!(__overrides, "T_brake_magnitude.initial", nothing); isnothing(__ovr_T_brake_magnitude__initial) || (__initial_conditions[T_brake_magnitude] = __ovr_T_brake_magnitude__initial)
+  __ovr_T_brake_magnitude__guess = pop!(__overrides, "T_brake_magnitude.guess", nothing)
   __ovr_P_friction_total = pop!(__overrides, "P_friction_total", nothing); isnothing(__ovr_P_friction_total) || push!(__eqs, P_friction_total ~ __ovr_P_friction_total)
-  __ovr_P_friction_total__initial = pop!(__overrides, "P_friction_total__initial", nothing); isnothing(__ovr_P_friction_total__initial) || (__initial_conditions[P_friction_total] = __ovr_P_friction_total__initial)
-  __ovr_P_friction_total__guess = pop!(__overrides, "P_friction_total__guess", nothing)
+  __ovr_P_friction_total__initial = pop!(__overrides, "P_friction_total.initial", nothing); isnothing(__ovr_P_friction_total__initial) || (__initial_conditions[P_friction_total] = __ovr_P_friction_total__initial)
+  __ovr_P_friction_total__guess = pop!(__overrides, "P_friction_total.guess", nothing)
   __ovr_ω = pop!(__overrides, "ω", nothing); isnothing(__ovr_ω) || push!(__eqs, ω ~ __ovr_ω)
-  __ovr_ω__initial = pop!(__overrides, "ω__initial", nothing); isnothing(__ovr_ω__initial) || (__initial_conditions[ω] = __ovr_ω__initial)
-  __ovr_ω__guess = pop!(__overrides, "ω__guess", nothing)
+  __ovr_ω__initial = pop!(__overrides, "ω.initial", nothing); isnothing(__ovr_ω__initial) || (__initial_conditions[ω] = __ovr_ω__initial)
+  __ovr_ω__guess = pop!(__overrides, "ω.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -146,7 +156,7 @@
   push!(__systems, @named pad = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_F_normal__guess) || (__guesses[F_normal] = __ovr_F_normal__guess)
@@ -177,6 +187,6 @@
   push!(__eqs, pad.Q_flow ~ -(1 - f_partition) * P_friction_total / N_wheels)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FrictionBrake

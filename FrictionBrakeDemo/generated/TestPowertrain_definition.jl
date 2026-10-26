@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   TestPowertrain(; name)
+   TestPowertrain(; name, __overrides)
 """
-@component function TestPowertrain(; name = nothing, kwargs...)
+@component function TestPowertrain(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -15,7 +15,7 @@
     @named model = TestPowertrain()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,22 +53,22 @@
   ### Components
   # Subcomponent throttle_cmd of type BlockComponents.Sources.Step
   throttle_cmd_overrides = __pop_subcomponent_overrides!(__overrides, "throttle_cmd")
-  push!(__systems, @named throttle_cmd = BlockComponents.Sources.Step(; height=-1.0, offset=Float64(1.0), start_time=Float64(25.0), throttle_cmd_overrides...))
+  push!(__systems, @named throttle_cmd = BlockComponents.Sources.Step(; height=-1.0, offset=Float64(1.0), start_time=Float64(25.0), __overrides = throttle_cmd_overrides))
   # Subcomponent powertrain of type FrictionBrakeDemo.SimplePowertrain
   powertrain_overrides = __pop_subcomponent_overrides!(__overrides, "powertrain")
-  push!(__systems, @named powertrain = FrictionBrakeDemo.SimplePowertrain(; base_torque=Float64(150.0), tau=0.1, powertrain_overrides...))
+  push!(__systems, @named powertrain = FrictionBrakeDemo.SimplePowertrain(; base_torque=Float64(150.0), tau=0.1, __overrides = powertrain_overrides))
   # Subcomponent load of type RotationalComponents.Components.Inertia
   load_overrides = __pop_subcomponent_overrides!(__overrides, "load")
-  push!(__systems, @named load = RotationalComponents.Components.Inertia(; J=Float64(1.0), load_overrides...))
+  push!(__systems, @named load = RotationalComponents.Components.Inertia(; J=Float64(1.0), __overrides = load_overrides))
   # Subcomponent damper of type RotationalComponents.Components.Damper
   damper_overrides = __pop_subcomponent_overrides!(__overrides, "damper")
-  push!(__systems, @named damper = RotationalComponents.Components.Damper(; d=Float64(5.0), damper_overrides...))
+  push!(__systems, @named damper = RotationalComponents.Components.Damper(; d=Float64(5.0), __overrides = damper_overrides))
   # Subcomponent fixed of type RotationalComponents.Components.Fixed
   fixed_overrides = __pop_subcomponent_overrides!(__overrides, "fixed")
-  push!(__systems, @named fixed = RotationalComponents.Components.Fixed(; fixed_overrides...))
+  push!(__systems, @named fixed = RotationalComponents.Components.Fixed(; __overrides = fixed_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -87,6 +87,6 @@
   push!(__eqs, connect(damper.spline_b, fixed.spline))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestPowertrain
