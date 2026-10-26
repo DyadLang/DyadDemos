@@ -69,7 +69,9 @@ function validate_analysis(f, name)
         end
         calibration = hasproperty(result, :r) ? result.r :
                       hasproperty(result, :result) ? result.result : nothing
-        status = calibration !== nothing && !DyadInterface.SciMLBase.successful_retcode(calibration.retcode) ? "COMPLETED_NONCONVERGED" : "PASS"
+        calibration === nothing || DyadInterface.SciMLBase.successful_retcode(calibration.retcode) ||
+            error("Calibration failed: $(calibration.retcode)")
+        status = "PASS"
         println(status, " ", name, " elapsed_s=", time() - started)
         print(read(joinpath(OUTPUT, name * ".txt"), String)); flush(stdout)
         return result

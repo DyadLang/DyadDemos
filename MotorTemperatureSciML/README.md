@@ -7,7 +7,7 @@ This Dyad demo shows how to train that combined model and check its accuracy
 in a continuous simulation.
 
 The shipped fit is accurate on its training profile, but errors on unseen
-profiles remain around **9–28 °C RMS**. This is a demonstration of training
+profiles remain around **7–28 °C RMS**. This is a demonstration of training
 and validation using a single drive profile; it does not reproduce the
 published model's generalization performance from much broader training data.
 
@@ -34,19 +34,20 @@ The same story is available as Dyad analyses, so it can be run from Dyad
 Builder or from Julia without touching the scripts. They are declared in
 [`dyad/Story/Story.dyad`](dyad/Story/Story.dyad), numbered `A1` to `A7` in the
 order to run them, and every one has a `SimulationSolutionPlot` artifact (a
-Makie figure). Each finishes in a couple of minutes, so the sequence runs
-click by click:
+Makie figure). Free-running evaluation is quick; training runs until its
+continuity criterion is met or its budget is exhausted:
 
 | Step | Analysis | `SimulationSolutionPlot` shows |
 |---|---|---|
 | 1 · Before training | `A1_UntrainedTNN` | the untrained model free-running against the measurements |
-| 2 · Training | `A2_TrainTNNQuick` (about two minutes) | loss per Adam step, junction gap and penalty per outer iteration; also `FitPlot`, `ContinuityPlot` |
+| 2 · Training | `A2_TrainTNNQuick` (short training preset) | loss per Adam step, junction gap and penalty per outer iteration; also `FitPlot`, `ContinuityPlot` |
 | 3 · After training | `A3_RetrainedTNN` (the fit step 2 wrote), `A4_CalibratedTNN` (shipped fit) | the calibrated model against the measurements and the PyTorch reference |
 | 3 · Held out | `A5_CalibratedTNNProfile60`, `…62`, `…74` | the shipped fit on profiles the model never saw |
 
 The full-budget calibration behind the results below is
-[`scripts/train_stochastic_ms.jl`](scripts/train_stochastic_ms.jl), a 20-to-40
-minute run kept out of the click-through sequence.
+[`scripts/train_stochastic_ms.jl`](scripts/train_stochastic_ms.jl), a larger-budget
+run. The shipped fit and its historical timings are recorded below; current
+validation results are in [the follow-up report](docs/followup-validation.md).
 
 Every analysis also exposes tables (`ErrorTable`, `SimulationSolutionTable`,
 `LossTable`, …) and the raw solution. The two base analyses,
@@ -75,16 +76,23 @@ and `validation_test_profiles.png`. Initial package loading and compilation
 can take a few minutes. Each profile starts from its first measured temperatures
 and then runs continuously, without resetting at the end of the training horizon.
 
-### Check the training pipeline
+### Run a short training demo
 
 ```bash
 TNN_BUDGET=quick JULIA_NUM_THREADS=8 julia +dyad-3.5.0-rc2 --project scripts/train_stochastic_ms.jl --out-dir runs/quick
 julia +dyad-3.5.0-rc2 --project scripts/validate_calibration.jl --calibration runs/quick/calibrated_params.csv --out-dir runs/quick
 ```
 
-The quick budget takes about a minute on the measured machine, including
-compilation. It checks that the pipeline works; it is too short for an accurate
-fit. The second command evaluates this quick fit explicitly.
+The `quick` name is retained for compatibility. It now allows up to 30 outer
+iterations of 12 epochs (1080 Adam updates), with measurement-based shooting
+initialization. Adam keeps its initial rate for 50 epochs, then uses inverse-square
+decay, with a rate floor whose physical step scale is one tenth of the junction tolerance.
+This lets the shooting states refine below the 0.2 °C scale of the initial
+1e-3 update. The actual rate is recorded in `LossTable`. The old six-update preset returned `ConvergenceFailure` on
+both Dyad 3.4 and 3.5. A2 and the standalone trainer now export only successful
+fits, after independently checking the unchanged 0.2 °C junction tolerance.
+Continuity success alone does not certify predictive accuracy: the second
+command measures free-running training and holdout error explicitly.
 
 ### Retrain the full model
 
@@ -93,15 +101,16 @@ JULIA_NUM_THREADS=8 julia +dyad-3.5.0-rc2 --project scripts/train_stochastic_ms.
 julia +dyad-3.5.0-rc2 --project scripts/validate_calibration.jl --calibration runs/full/calibrated_params.csv --out-dir runs/full
 ```
 
-Full training takes about 21 minutes on the measured machine. See
-[training settings](#training-settings-and-performance) for the shorter budget
-and thread-count measurements.
+The shipped calibration took about 21 minutes under the historical settings
+below. Current presets have larger iteration ceilings and can stop early;
+see [the follow-up report](docs/followup-validation.md) for measured runtimes.
 
 All run outputs go under the gitignored `runs/` directory by default. Training
 without `--out-dir` writes to `runs/training/`. Validation defaults to the
 **shipped calibration**, even after a training run; select your new fit with
 `--calibration`. `--out-dir` selects where each script writes its results;
-relative paths are relative to the working directory. Reusing a run directory
+relative paths are relative to the working directory. `story.jl --out-dir`
+also keeps A2's exported weights and A3's reload in that directory. Reusing a run directory
 replaces its previous outputs. The committed data and README plots remain intact.
 
 ## How the model works
@@ -158,7 +167,10 @@ compound along the trajectory. `scripts/train_stochastic_ms.jl` instead uses
 `StochasticMultipleShooting`:
 
 - the 2 h horizon is cut into 96 segments of 75 s, each with its own free
-  initial state;
+  initial state, seeded from measured training temperatures;
+- experiment targets resolve the measured thermal aliases to the actual ODE
+  states and follow the ODE state order, so initialization preserves every
+  channel rather than falling back to constant initial temperatures;
 - every Adam step samples a mini-batch of 32 segments in contiguous blocks of
   4 and solves them in parallel on a pool of integrators;
 - continuity at the 95 segment junctions is imposed as a constraint by an
@@ -174,12 +186,16 @@ Gold segments are the ones in the current mini-batch, red bars are the
 continuity defects the augmented Lagrangian shrinks. A four-panel version with
 the training curves and per-junction defects is in
 [`assets/sms_training_detailed.gif`](assets/sms_training_detailed.gif).
-The animation is a separate, coarser run chosen so that individual segments
+The shipped animation is a historical, separate, coarser run chosen so that individual segments
 are visible: 24 segments of 300 s instead of 96 of 75 s, mini-batches of 8,
 and 10 outer iterations of 33 epochs (990 steps, about 10 min). Its final
 frame sits 2–3 °C below the rotor plateau, short of the 0.4 °C the full
 calibration reaches; the GIF shows the mechanics, the results below show the
-fit.
+fit. Regeneration uses measurement-based initialization and preserves the
+original 990-update budget and strict 2e-6 °C junction criterion. This is a
+diagnostic training trajectory, not a converged-fit claim: the optimizer return
+code and final gap are displayed on both GIFs, including nonconvergence.
+The final frame is always retained.
 
 The training-time objective is not the model's accuracy: it mixes data misfit
 with penalty terms and is evaluated with segment initial states that are stale
@@ -191,7 +207,8 @@ multi-profile training under Results).
 
 ## Results
 
-Free-running RMS error in °C. The Dyad run is up to 5 outer iterations × 100
+Free-running RMS error in °C for the shipped calibration (historical settings,
+not regenerated in this follow-up). The Dyad run was up to 5 outer iterations × 100
 epochs over mini-batches of 32 segments; this one stopped after 4 (1200 Adam
 steps) when every junction gap fell below the continuity tolerance, 21 min on 8
 threads. The PyTorch column is the reference implementation trained on the
@@ -199,10 +216,10 @@ same 0–7200 s interval for 100 epochs of truncated BPTT over 512-sample chunks
 14,401 samples, 29 chunks per epoch, 2900 updates, 126 s on the same machine
 (`scripts/train_pytorch_reference.py --threads 24`, seed 0). Both models exclude
 the remainder of profile 17 from training and evaluate it free-running, with
-no state reset at 7200 s. These are individual runs. Both weight initialisation
-(`Xoshiro(0)`) and segment sampling are seeded, but the threaded segment
-ensemble sums in a non-deterministic order, so the Dyad column varies slightly
-between runs; differences below a few tenths of a °C are not meaningful.
+no state reset at 7200 s. These are individual runs. Weight initialization uses `Xoshiro(0)`. DMO's segment-sampler seed includes
+the experiment UUID, so fresh experiments can sample segments in different
+orders. Threaded adaptive solves also vary; differences below a few tenths
+of a °C are not meaningful.
 An epoch covers the same two-hour interval in both cases, but the optimization
 work differs: a Dyad step integrates 32 segments with an adaptive solver and
 differentiates through them with ForwardDiff; a TBPTT update takes up to 512
@@ -232,7 +249,7 @@ profiles far better than either column here. Training over several profiles
 at once, one experiment per profile inside the stochastic multiple-shooting
 loop, is not yet supported on the Dyad side, so this demo trains on one
 profile and uses the other three only as a stress test. On that test the Dyad
-fit stays bounded and tracks the shape of the unseen profiles with a 9–28 °C
+fit stays bounded and tracks the shape of the unseen profiles with a 7–28 °C
 error; the reference fit runs away on all three (its curves leave the frame in
 the figure above, whose axes follow the measurement). The two share the same
 architecture and both are trained over the same two-hour horizon (the notebook's
@@ -287,14 +304,19 @@ on small machines: the per-step cost is dominated by the full-batch constraint
 Jacobian, so a smaller batch costs almost as much per step and needs more
 steps per epoch (batch 8 on 8 threads: 6.75 s / epoch).
 
-`TNN_BUDGET` selects the training budget (8 threads; RMS is the free-running
-error on the training horizon):
+`TNN_BUDGET` selects an iteration ceiling. Every preset uses the same physical
+problem and 0.2 °C junction criterion; exhausted budgets are failures and do
+not write calibrated weights.
 
-| `TNN_BUDGET` | outer × epochs | Adam steps | time | RMS pm / yoke / tooth / winding [°C] |
-|---|---|---|---|---|
-| `quick` | 1 × 2 | 6 | ~1 min incl. compile | pipeline check only |
-| `short` | 10 × 12 | 360 | ~7 min | 4.2 / 1.3 / 1.1 / 2.2 |
-| `full` (default) | 5 × 100 | 1500 max, 1200 here | ~21 min | 0.61 / 0.41 / 0.36 / 0.58 |
+| `TNN_BUDGET` | outer × epochs | maximum Adam updates |
+|---|---|---:|
+| `quick` / A2 | 30 × 12 | 1080 |
+| `short` | 10 × 50 | 1500 |
+| `full` (default) | 10 × 100 | 3000 |
+
+See [follow-up validation](docs/followup-validation.md) for current accuracy,
+optimizer status, actual update counts, and timings. These ceilings replace
+the old six-step quick run and short budgets that could end without convergence.
 
 The validation script can also be `include`d in the session that just trained;
 it then uses the in-memory `calres`, unless `--calibration` explicitly selects
@@ -313,7 +335,11 @@ JULIA_NUM_THREADS=8 julia +dyad-3.5.0-rc2 --project scripts/animate_sms_training
 ```
 
 This writes the GIFs, final-frame PNGs, and reusable snapshot cache there.
-Use `FORCE_RETRAIN=1` to refresh a cached animation run.
+Use `FORCE_RETRAIN=1` to refresh a cached animation run; older caches that
+omit the final optimizer state are rejected. For a headless render
+check, `TNN_ANIMATION_MAX_FRAMES=3 TNN_ANIMATION_CAPTURE_EVERY=100` limits stored
+frames while retaining the final frame; it leaves training and the success
+criterion unchanged.
 
 | Path | Purpose |
 |---|---|
@@ -361,7 +387,8 @@ on Kaggle, DOI `10.34740/KAGGLE/DSV/2161054`, by the TNN authors): 185 hours
 of test-bench measurements at 2 Hz across 69 drive profiles. `assets/data/`
 ships the training profile (`profile_17.parquet`) and the three held-out profiles
 the upstream notebook evaluates on (`profile_60/62/74.parquet`), sliced by
-`scripts/prepare_data.jl`. The files are zstd-compressed
+`scripts/prepare_data.jl` (use `--out-dir` to inspect regenerated data separately).
+The files are zstd-compressed
 [Parquet](https://parquet.apache.org/) with the full Float64 precision of the
 source, about a third of the equivalent CSV; read them with
 `Parquet2.Dataset(path)` in Julia or `pandas.read_parquet(path)` in Python.
