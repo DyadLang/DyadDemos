@@ -34,7 +34,7 @@ The harness is instantiated with `data_file` overridden and pushed through its
 function build_system(profile_id = TRAIN_PROFILE; MAX_TEMP = STORY_MAX_TEMP)
     harness = Models.Tests.TestTNNProfile(;
         name = :TestTNNProfile, data_file = profile_uri(profile_id),
-        model__MAX_TEMP = MAX_TEMP)
+        __overrides = Dict{String,Any}("model.MAX_TEMP" => MAX_TEMP))
     result = Models.Tests.TestTNNProfileAnalysis(; model = harness, stop = 1.0)
     return symbolic_container(result)
 end

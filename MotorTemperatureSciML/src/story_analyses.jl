@@ -18,7 +18,7 @@ using DyadInterface: AbstractAnalysisSpec, AbstractAnalysisSolution,
                      PlotlyVisualizationSpec, simplify_model
 using DyadModelOptimizer
 using DyadModelOptimizer: search_space_names, compute_residual, calibration_parameters
-using ModelingToolkit: ModelingToolkit, SymbolicT
+using ModelingToolkit: ModelingToolkit, SymbolicT, System
 using OrdinaryDiffEqTsit5: Tsit5
 using OptimizationOptimisers: Adam
 using ADTypes: AutoForwardDiff
@@ -274,6 +274,8 @@ compare with the measured temperatures.
     name::Symbol = :TNNFreeRunAnalysis
     model::M
     overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
+    # Dyad 3.5 passes the generated analysis system to each root base spec.
+    __system::Union{Nothing, System} = nothing
     calibration::String = ""
     reference::String = ""
     train_horizon::Float64 = 7200.0
@@ -419,6 +421,8 @@ the calibrated parameters are written there (CSV), ready for a
     name::Symbol = :TNNTrainingAnalysis
     model::M
     overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
+    # Dyad 3.5 passes the generated analysis system to each root base spec.
+    __system::Union{Nothing, System} = nothing
     train_horizon::Float64 = 7200.0
     window::Float64 = 75.0
     batch_size::Int = 32

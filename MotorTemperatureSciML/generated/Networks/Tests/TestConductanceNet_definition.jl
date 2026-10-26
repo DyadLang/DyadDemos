@@ -5,20 +5,20 @@
 
 
 @doc Markdown.doc"""
-   TestConductanceNet(; name)
+   TestConductanceNet(; name, __overrides)
 
 Smoke test for `ConductanceNet`: drive with constant `0.5` inputs and confirm the
 analysis solves.
 """
-@component function TestConductanceNet(; name = nothing, kwargs...)
+@component function TestConductanceNet(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = TestConductanceNet()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -56,17 +56,17 @@ analysis solves.
   ### Components
   # Subcomponent net of type MotorTemperatureSciML.Networks.ConductanceNet
   net_overrides = __pop_subcomponent_overrides!(__overrides, "net")
-  push!(__systems, @named net = MotorTemperatureSciML.Networks.ConductanceNet(; net_overrides...))
+  push!(__systems, @named net = MotorTemperatureSciML.Networks.ConductanceNet(; __overrides = net_overrides))
   # Subcomponent sources of type BlockComponents.Sources.Constant
   sources_overrides = __pop_subcomponent_overrides!(__overrides, "sources")
   sources = System[]
   for i in 1:14
-    push!(sources, BlockComponents.Sources.Constant(k=ModelingToolkit.default_to_parentscope(0.5), name=Symbol("sources", "⸺", i); sources_overrides...))
+    push!(sources, BlockComponents.Sources.Constant(; k=ModelingToolkit.default_to_parentscope(0.5), name=Symbol("sources", "⸺", i), __overrides = sources_overrides))
   end
   append!(__systems, sources)
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -92,6 +92,6 @@ analysis solves.
   push!(__eqs, connect(sources[14].y, net.T[4]))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestConductanceNet

@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   PowerLossNet(; name, n_x, n_T, n_in, n_hidden, n_out)
+   PowerLossNet(; name, n_x, n_T, n_in, n_hidden, n_out, __overrides)
 
 Power-loss sub-network for the Thermal Neural Network (TNN).
 
@@ -38,15 +38,15 @@ appear only inside `connect(...)`, not in a general expression.
  * `T` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function PowerLossNet(; name = nothing, n_x=10, n_T=4, n_in=14, n_hidden=16, n_out=4, kwargs...)
+@component function PowerLossNet(; name = nothing, var"n_x"=10, var"n_T"=4, var"n_in"=14, var"n_hidden"=16, var"n_out"=4, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = PowerLossNet()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,6 +55,13 @@ appear only inside `connect(...)`, not in a general expression.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "n_x") && (n_x = pop!(__overrides, "n_x"))
+  haskey(__overrides, "n_T") && (n_T = pop!(__overrides, "n_T"))
+  haskey(__overrides, "n_in") && (n_in = pop!(__overrides, "n_in"))
+  haskey(__overrides, "n_hidden") && (n_hidden = pop!(__overrides, "n_hidden"))
+  haskey(__overrides, "n_out") && (n_out = pop!(__overrides, "n_out"))
 
   ### Structural Parameters (functions)
 
@@ -87,13 +94,13 @@ appear only inside `connect(...)`, not in a general expression.
   ### Components
   # Subcomponent nn of type DyadModelDiscovery.NeuralNetworkBlock
   nn_overrides = __pop_subcomponent_overrides!(__overrides, "nn")
-  push!(__systems, @named nn = DyadModelDiscovery.NeuralNetworkBlock(; n_input=n_in, n_output=n_out, chain=MotorTemperatureSciML.power_loss_chain(), nn_overrides...))
+  push!(__systems, @named nn = DyadModelDiscovery.NeuralNetworkBlock(; n_input=n_in, n_output=n_out, chain=MotorTemperatureSciML.power_loss_chain(), __symbol_overrides(nn_overrides)...))
   # Subcomponent mux of type MotorTemperatureSciML.SignalRouting.FeatureMux
   mux_overrides = __pop_subcomponent_overrides!(__overrides, "mux")
-  push!(__systems, @named mux = MotorTemperatureSciML.SignalRouting.FeatureMux(; n_x=n_x, n_T=n_T, mux_overrides...))
+  push!(__systems, @named mux = MotorTemperatureSciML.SignalRouting.FeatureMux(; n_x=n_x, n_T=n_T, __overrides = mux_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -109,6 +116,6 @@ appear only inside `connect(...)`, not in a general expression.
   push!(__eqs, connect(nn.outputs, out))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export PowerLossNet

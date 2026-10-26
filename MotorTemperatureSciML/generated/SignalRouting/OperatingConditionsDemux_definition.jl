@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   OperatingConditionsDemux(; name)
+   OperatingConditionsDemux(; name, __overrides)
 
 Split the dataset vector into named scalar channels; order matches TestTNNProfile dependent_vars.
 
@@ -23,15 +23,15 @@ Split the dataset vector into named scalar channels; order matches TestTNNProfil
  * `i_s` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `u_s` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function OperatingConditionsDemux(; name = nothing, kwargs...)
+@component function OperatingConditionsDemux(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = OperatingConditionsDemux()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -80,7 +80,7 @@ Split the dataset vector into named scalar channels; order matches TestTNNProfil
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -102,6 +102,6 @@ Split the dataset vector into named scalar channels; order matches TestTNNProfil
   push!(__eqs, u_s ~ u[10])
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export OperatingConditionsDemux

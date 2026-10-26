@@ -5,11 +5,101 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
-using ModelingToolkit: SymbolicT, toggle_namespacing
 using MotorTemperatureSciML: AbstractTNNFreeRunAnalysisSpec, TNNFreeRunAnalysisSpec
-@kwdef mutable struct A3_RetrainedTNNSpec <: AbstractTNNFreeRunAnalysisSpec
+@component function A3_RetrainedTNN__System(; name = nothing, var"calibration"="dyad://MotorTemperatureSciML/story/calibrated_params.csv", var"reference"="dyad://MotorTemperatureSciML/data/pytorch_profile_17.parquet", var"train_horizon"=7200.0, var"stop"=0.0, var"abstol"=0.000001, var"reltol"=0.000001, __overrides = Dict{String, Any}())
+  isnothing(name) && throw(ArgumentError("""
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+
+    @named model = A3_RetrainedTNN__System()
+  """))
+
+  __overrides = Dict{String, Any}(__overrides)
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
+  __systems = System[]
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
+  __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "calibration") && (calibration = pop!(__overrides, "calibration"))
+  haskey(__overrides, "reference") && (reference = pop!(__overrides, "reference"))
+  haskey(__overrides, "train_horizon") && (train_horizon = pop!(__overrides, "train_horizon"))
+  haskey(__overrides, "stop") && (stop = pop!(__overrides, "stop"))
+  haskey(__overrides, "abstol") && (abstol = pop!(__overrides, "abstol"))
+  haskey(__overrides, "reltol") && (reltol = pop!(__overrides, "reltol"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
+
+  ### Symbolic Parameters
+  __local__calibration = calibration
+  append!(__params, @parameters (calibration::String), [description = "Calibrated parameters CSV (dyad:// URI or path); empty runs the untrained model"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, calibration, __local__calibration)
+  __local__reference = reference
+  append!(__params, @parameters (reference::String), [description = "PyTorch reference predictions (Parquet, dyad:// URI or path); empty for none"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, reference, __local__reference)
+  __local__train_horizon = train_horizon
+  append!(__params, @parameters (train_horizon::Float64), [description = "End of the training horizon, marked on the plots; 0 hides the marker"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, train_horizon, __local__train_horizon)
+  __local__stop = stop
+  append!(__params, @parameters (stop::Float64), [description = "Simulation end; 0 runs the whole profile"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, stop, __local__stop)
+  __local__abstol = abstol
+  append!(__params, @parameters (abstol::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, abstol, __local__abstol)
+  __local__reltol = reltol
+  append!(__params, @parameters (reltol::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, reltol, __local__reltol)
+
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
+
+  ### Constants
+  __constants = Any[]
+
+  ### Components
+  # Subcomponent model of type MotorTemperatureSciML.Models.Tests.TestTNNProfile
+  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
+  push!(__systems, @named model = MotorTemperatureSciML.Models.Tests.TestTNNProfile(; __overrides = model_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
+
+  ### Guesses
+
+  ### Initialization Equations
+
+  ### Assertions
+  __assertions = []
+
+  ### Equations
+
+  # Return completely constructed System
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+end
+export A3_RetrainedTNN__System
+
+@kwdef struct A3_RetrainedTNN__Spec <: AbstractTNNFreeRunAnalysisSpec
   name::Symbol = :A3_RetrainedTNN
+  __overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
   # Calibrated parameters CSV (dyad:// URI or path); empty runs the untrained model
   var"calibration"::String = "dyad://MotorTemperatureSciML/story/calibrated_params.csv"
   # PyTorch reference predictions (Parquet, dyad:// URI or path); empty for none
@@ -31,17 +121,26 @@ using MotorTemperatureSciML: AbstractTNNFreeRunAnalysisSpec, TNNFreeRunAnalysisS
   # the model — one shared time search per RHS call, no FunctionWrapper boxing on
   # the parameter slot.
   var"model"::Union{Nothing, System} = MotorTemperatureSciML.Models.Tests.TestTNNProfile(; name=:TestTNNProfile)
+  __system::System = A3_RetrainedTNN__System(; name, var"calibration"=var"calibration", var"reference"=var"reference", var"train_horizon"=var"train_horizon", var"stop"=var"stop", var"abstol"=var"abstol", var"reltol"=var"reltol")
 end
 
-function DyadInterface.run_analysis(spec::A3_RetrainedTNNSpec)
+function __dyad_base_analysis_spec(spec::A3_RetrainedTNN__Spec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
   
-  base_spec = TNNFreeRunAnalysisSpec(;
-    name=:TNNFreeRunAnalysis, overrides, calibration=spec.calibration, reference=spec.reference, train_horizon=spec.train_horizon, stop=spec.stop, abstol=spec.abstol, reltol=spec.reltol, model=spec.model
+  merge!(overrides, spec.__overrides)
+  TNNFreeRunAnalysisSpec(;
+    name=spec.name, overrides, __system=spec.__system, var"calibration"=spec.var"calibration", var"reference"=spec.var"reference", var"train_horizon"=spec.var"train_horizon", var"stop"=spec.var"stop", var"abstol"=spec.var"abstol", var"reltol"=spec.var"reltol", var"model"=spec.var"model"
   )
-  run_analysis(base_spec)
 end
 
-A3_RetrainedTNN(;kwargs...) = run_analysis(A3_RetrainedTNNSpec(;kwargs...))
-export A3_RetrainedTNN, A3_RetrainedTNNSpec
+function DyadInterface.run_analysis(spec::A3_RetrainedTNN__Spec)
+  run_analysis(__dyad_base_analysis_spec(spec))
+end
+
+function DyadInterface.setup_analysis(spec::A3_RetrainedTNN__Spec; kwargs...)
+  DyadInterface.setup_analysis(__dyad_base_analysis_spec(spec); kwargs...)
+end
+
+A3_RetrainedTNN(;kwargs...) = run_analysis(A3_RetrainedTNN__Spec(;kwargs...))
+export A3_RetrainedTNN, A3_RetrainedTNN__Spec

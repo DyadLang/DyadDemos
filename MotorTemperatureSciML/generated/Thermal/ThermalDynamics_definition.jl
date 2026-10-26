@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ThermalDynamics(; name, n_states, n_conds, T_init)
+   ThermalDynamics(; name, n_states, n_conds, T_init, __overrides)
 
 Thermal dynamics block for the TNN.
 
@@ -48,15 +48,15 @@ Adjacency (1-indexed conductance indices for each target node):
 | `T_state`         |                          | --  |
 | `temp_diff`         |                          | --  |
 """
-@component function ThermalDynamics(; name = nothing, n_states=4, n_conds=15, T_init=fill(0.15, 4), kwargs...)
+@component function ThermalDynamics(; name = nothing, var"n_states"=4, var"n_conds"=15, var"T_init"=fill(0.15, 4), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
-  
+
     @named model = ThermalDynamics()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -65,6 +65,11 @@ Adjacency (1-indexed conductance indices for each target node):
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "n_states") && (n_states = pop!(__overrides, "n_states"))
+  haskey(__overrides, "n_conds") && (n_conds = pop!(__overrides, "n_conds"))
+  haskey(__overrides, "T_init") && (T_init = pop!(__overrides, "T_init"))
 
   ### Structural Parameters (functions)
 
@@ -81,7 +86,7 @@ Adjacency (1-indexed conductance indices for each target node):
   ### Symbolic Parameters
   __local__T_init = T_init
   append!(__params, @parameters (T_init[1:4]::Real), [description = "Initial temperature states (normalised), configurable per profile"])
-  __initial_conditions[T_init] = __local__T_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_init, __local__T_init)
 
   ### Final Parameters (assignments)
 
@@ -99,11 +104,11 @@ Adjacency (1-indexed conductance indices for each target node):
 
   ### Variables (assignments)
   __ovr_T_state = pop!(__overrides, "T_state", nothing); isnothing(__ovr_T_state) || push!(__eqs, T_state ~ __ovr_T_state)
-  __ovr_T_state__initial = pop!(__overrides, "T_state__initial", nothing); isnothing(__ovr_T_state__initial) || (__initial_conditions[T_state] = __ovr_T_state__initial)
-  __ovr_T_state__guess = pop!(__overrides, "T_state__guess", nothing)
+  __ovr_T_state__initial = pop!(__overrides, "T_state.initial", nothing); isnothing(__ovr_T_state__initial) || (__initial_conditions[T_state] = __ovr_T_state__initial)
+  __ovr_T_state__guess = pop!(__overrides, "T_state.guess", nothing)
   __ovr_temp_diff = pop!(__overrides, "temp_diff", nothing); isnothing(__ovr_temp_diff) || push!(__eqs, temp_diff ~ __ovr_temp_diff)
-  __ovr_temp_diff__initial = pop!(__overrides, "temp_diff__initial", nothing); isnothing(__ovr_temp_diff__initial) || (__initial_conditions[temp_diff] = __ovr_temp_diff__initial)
-  __ovr_temp_diff__guess = pop!(__overrides, "temp_diff__guess", nothing)
+  __ovr_temp_diff__initial = pop!(__overrides, "temp_diff.initial", nothing); isnothing(__ovr_temp_diff__initial) || (__initial_conditions[temp_diff] = __ovr_temp_diff__initial)
+  __ovr_temp_diff__guess = pop!(__overrides, "temp_diff.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -111,7 +116,7 @@ Adjacency (1-indexed conductance indices for each target node):
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_T_state__guess) || (__guesses[T_state] = __ovr_T_state__guess)
@@ -138,6 +143,6 @@ Adjacency (1-indexed conductance indices for each target node):
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ThermalDynamics

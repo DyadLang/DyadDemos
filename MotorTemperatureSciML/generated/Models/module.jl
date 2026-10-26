@@ -6,7 +6,7 @@
 module Models
 
 using ..MotorTemperatureSciML
-using ..MotorTemperatureSciML: __build_overrides, __dyad_sym_union, __pop_subcomponent_overrides!, __dyad_isa_variant, __dyad_promoted_value_fits, @__dyad_switch
+using ..MotorTemperatureSciML: __dyad_sym_union, __pop_subcomponent_overrides!, __symbol_overrides, __dyad_override_enum_field, __dyad_isa_variant, __dyad_promoted_value_fits, __dyad_seed_parameter!, __dyad_bind_final!, @__dyad_switch
 
 if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "Models", "module.jl"))
   include(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "Models", "module.jl"))
