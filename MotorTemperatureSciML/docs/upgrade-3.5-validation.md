@@ -102,3 +102,7 @@ The standalone `train_stochastic_ms.jl` short budget (360 steps) and full budget
 **not run**. All defined analyses, including quick training and every held-out
 profile, were run; the existing 79-assertion test suite passed. No CSV or Parquet
 measurement datasets were regenerated.
+
+The `A4_CalibratedTNN` simulation plot artifact was also rendered and exported to
+PNG with CairoMakie on 3.5; the optional Multibody render-extension failure does
+not prevent this demo’s plot exporter from working.
