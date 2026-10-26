@@ -34,3 +34,46 @@ Four Codex children are now investigating Driveline, QuarterTruck, Motor, and
 the documentation/notebook/compiler workflows independently in the shared
 checkout. The parent checks repository validation orchestration. Final results
 and newly discovered failures will be appended after those investigations.
+
+
+## Interim measured results (2026-10-26)
+
+This update records completed child work while full training and dependency access
+are pending. It does not supersede the final per-project evidence.
+
+- **Driveline fixed:** original failure reproduced on both 3.4 and 3.5.
+  Under-resolved dynamics caused the optimizer failure. Stage 1/2 step limits of
+  0.0001/0.001 seconds give genuine standalone and chained convergence without
+  changing data, bounds, tolerances or budgets. All seven analyses and 27 tests
+  pass; chained calibration took 172.475 s. See
+  `DrivelineSciML/docs/followup-validation.md`.
+- **QuarterTruck:** calibration/safe-training changes committed; the full
+  5000/200 run is still in progress. Do not count full training as validated.
+- **Motor:** quick-training failure remains unresolved and reproduces on both
+  versions. Python audit awaits task-local CPU PyTorch download access.
+- **FrictionBrake fixed:** original vehicle-cycle default solver exhausts its
+  step budget on both versions; heat-flow plots used nonexistent `.Q` fields.
+  Rodas5P plus `.Q_flow` gives full-horizon success; 21/21 tests pass. Maximum
+  speed/disk/pad differences against a tighter reference are 1.94057e-6 m/s,
+  9.81024e-5 K and 2.70796e-5 K.
+- **Documentation:** strict generated HTML passes for CoffeeMug, Turkey,
+  ThermalHouse and DynamicSteadyState. HybridTransmission, PassiveSuspension,
+  FIRFilterComponents, SatelliteGNC and HL20 hit upstream symbolic-parameter
+  cycles. Relevant example blocks pass on original 3.4 for the first four;
+  original HL20 fails earlier on undefined `ChallengeComponent`.
+  FrictionBrake hits Documenter's unchanged HTML size limit (same SVG fixture
+  also fails on 3.4). MakieWebinar generation awaits DyadDAQP artifact access.
+- **Notebook/scripts:** five selected notebook solves and HTML artifacts pass;
+  standalone headless simulation scripts pass. Full 240-frame GIF export takes
+  204.705 s; Cairo SVG export takes 50.202 s. Notebook frontends and interactive
+  windows remain unvalidated. HL20 has no declared analyses.
+- **Compiler:** the raw rc2 timeseries annotation failure is isolated; original
+  3.4 spec construction passes. Existing workaround remains necessary; issue
+  drafts reference already-open dyad-lang #1958. Render extension loading
+  succeeds in an explicit environment, so its earlier diagnostic is not a
+  confirmed remaining numerical defect.
+
+Detailed coverage, baseline qualifications, exact commands and issue drafts:
+`followup-workflows.md`, `followup-upstream-issues.md`, and each project's
+`docs/followup-validation.md`. No new branch has been pushed yet. The combined
+fixes still require independent Claude review.
