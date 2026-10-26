@@ -239,19 +239,38 @@ not exported calibration files. The production script now flushes its epoch
 progress too. Compiler optimization and logging do not change the model,
 training interval, budget, ODE tolerances, or 0.2 °C success criterion.
 
-Independent checks of three retained intermediate checkpoints establish that
-these are finite, physically sensible optimization states, not converged fits:
+That diagnostic run also did not survive the factory resume. Its last
+completed checkpoint is **epoch 514 / 1542 Adam updates**, **5902.036639928818 s**
+after the checkpoint timer started immediately before calibration; last
+mini-batch objective **0.0025421011071030553**, learning rate **0.0001**.
+Five 100-epoch outer iterations completed; the sixth was in progress. On
+resume the process and harness session were absent, the log ended at that
+checkpoint, and the output directory contained **no calibration CSV**. There
+is no final optimizer return code. This is an externally interrupted run,
+not a completed full-preset validation or a numerical `ConvergenceFailure`.
+No calibration was exported from its diagnostic snapshots.
+
+Independent checks of four intermediate checkpoints and the last available
+checkpoint establish that these are finite, physically sensible optimization
+states; none meets the continuity criterion:
 
 | Adam update | Checkpoint elapsed s | Max gap °C | Gap norm °C | Independent residual-call s | Full-profile temperatures °C |
 |---|---:|---:|---:|---:|---|
 | 102 | 372.569650888443 | 1.51303967025756 | 13.294224922285805 | 3.652325993 | 18.2932186126709–64.65379404291444 |
 | 318 | 1173.3730709552765 | 1.4394530099181735 | 4.338610987881391 | 3.622687511 | 18.2932186126709–68.41878752594279 |
 | 618 | 2343.067214012146 | 0.236705315338126 | 1.193567044920428 | 3.784080549 | 18.2932186126709–71.90604382444045 |
+| 915 | 3518.2456529140472 | 0.37609568264662663 | 1.0870901347742847 | 3.569359278 | 18.2932186126709–73.09356101906099 |
+| 1542 (last available) | 5902.036639928818 | 0.21330417203487828 | 0.8232354508508847 | 2.700189623 | 18.2932186126709–73.47330785367843 |
 
-All three full-profile ODE solves returned `Success`, with finite predictions.
+All five full-profile ODE solves returned `Success`, with finite predictions.
 Log-capacitances remained near -5, and shooting temperatures stayed between
-21.52 and 71.97 °C. See `inspect-checkpoint.log`, `inspect-outer2.log`, and
-`inspect-outer3.log`.
+21.388101280227396 and 73.35691535652934 °C. See `inspect-checkpoint.log`,
+`inspect-outer2.log`, `inspect-outer3.log`, `inspect-outer4.log`, and
+`inspect-final-interrupted.log`. Update 915 improves the norm but worsens the
+maximum gap relative to update 618, illustrating why norm reduction alone
+does not meet the unchanged maximum-gap stopping criterion. The last available
+checkpoint remains above 0.2 °C; its finite weights and successful free-running
+solve do not establish continuity feasibility or optimizer convergence.
 These checks do not identify the cause of the earlier buffered run's lack of
 visible progress, and do not turn its interruption into a library-defect claim.
 
@@ -389,6 +408,16 @@ TNN_ANIMATION_MAX_FRAMES=3 TNN_ANIMATION_CAPTURE_EVERY=100 \
   "$PROJECT/scripts/animate_sms_training.jl" --out-dir .task/motor-followup/animation-scheduled
 # Repeat the command to test replay from its real cache; FORCE_RETRAIN=1 retrains.
 
+# Standalone full preset: interrupted, no completed calibration claim.
+# The task-local helper runs this same production script with additional
+# checkpoint serialization and flushed progress only.
+TNN_BUDGET=full "$JULIA" +dyad-3.5.0-rc2 -O1 --project="$PROJECT" \
+  .task/motor-followup/full-checkpoint.jl --out-dir .task/motor-followup/full-checkpoint
+# Independent check of the retained final diagnostic snapshot (not a calibration).
+"$JULIA" +dyad-3.5.0-rc2 -O1 --project="$PROJECT" \
+  .task/motor-followup/inspect-checkpoint.jl \
+  .task/motor-followup/checkpoint-final-interrupted.bin
+
 # Python reference in the task-local venv.
 .task/motor-followup/venv/bin/python -m unittest discover -s "$PROJECT/test" -p 'test_*.py'
 .task/motor-followup/venv/bin/python "$PROJECT/scripts/train_pytorch_reference.py" \
@@ -402,3 +431,9 @@ it is not a framework benchmark. One profile is insufficient evidence of
 production generalization. The PyTorch reference deliberately follows the
 published notebook's single-profile restriction used in this demo; its large
 holdout errors are reported unchanged.
+
+The standalone `short` preset (50 epochs per outer iteration) was not run
+as a separate calibration; the real quick/Builder fits and the full-preset
+investigation exercise the shared implementation at different budgets.
+The full-preset checks use `-O1`; the interrupted default-optimization runs
+provide no completed full-preset result at the default compiler setting.
