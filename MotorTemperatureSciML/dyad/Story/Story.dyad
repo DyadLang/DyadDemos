@@ -3,7 +3,7 @@
 # a free-running evaluation; its budget must close the shooting constraints.
 #
 #   A1_UntrainedTNN             the model before training
-#   A2_TrainTNNQuick            a short converged training run
+#   A2_TrainTNNQuick            a continuity-feasible training run
 #   A3_RetrainedTNN             the fit A2 just wrote
 #   A4_CalibratedTNN            the shipped fit, with the PyTorch reference overlaid
 #   A5_CalibratedTNNProfile60   the shipped fit on held-out profiles
@@ -11,7 +11,8 @@
 #   A7_CalibratedTNNProfile74
 #
 # The full-budget calibration behind the README results lives in
-# scripts/train_stochastic_ms.jl, where a 20-to-40-minute run belongs.
+# scripts/train_stochastic_ms.jl. Current timings and unvalidated presets are
+# documented in docs/followup-validation.md.
 
 """
 **1 · Before training.** The Thermal Neural Network with its initial weights,

@@ -124,3 +124,23 @@ it does not establish an infinite loop or identify the particular optimized
 Julia method. The smaller A2/direct scheduled calibrations completed on the
 same distribution. Keep the mathematically correct problem; investigate
 compiler latency separately from optimizer convergence.
+
+## Draft: document OptimizationAuglag success as continuity feasibility
+
+**Not filed.** In the bundled RC2 `OptimizationAuglag.jl:205–223`, the dual
+residual is computed as `r_dual = ρ * r_primal`, while its effective tolerance
+is `max(ϵ_dual, ϵ_primal * ρ)`. For these equality constraints, satisfying the
+primal test also satisfies that dual test; it does not establish Lagrangian
+stationarity. A returned `Success` therefore certifies the configured shooting
+continuity criterion, not first-order optimality of the data-fit objective.
+
+The concrete A2 run illustrates the distinction: `Success` after 324 updates,
+maximum junction gap 0.19840 °C against 0.2 °C, but magnet training RMS 3.31 °C
+versus 0.61 °C for the shipped fit. Its independent tighter ODE replay gives
+0.19848 °C. These are continuity-feasible, under-trained parameters.
+
+Expected direction: document the actual termination guarantee and distinguish
+primal feasibility from optimality in result reporting. Any future stationarity
+criterion should use the Lagrangian gradient rather than a scaled primal
+residual. The demo retains the original continuity criterion and separately
+reports free-running training and held-out errors.

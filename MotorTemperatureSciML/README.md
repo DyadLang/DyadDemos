@@ -35,7 +35,9 @@ Builder or from Julia without touching the scripts. They are declared in
 [`dyad/Story/Story.dyad`](dyad/Story/Story.dyad), numbered `A1` to `A7` in the
 order to run them, and every one has a `SimulationSolutionPlot` artifact (a
 Makie figure). Free-running evaluation is quick; training runs until its
-continuity criterion is met or its budget is exhausted:
+continuity criterion is met or its budget is exhausted. A2 took 1210.1 s
+(20 min 10 s) for 324 updates on the two-thread validation worker. Its
+1080-update ceiling would take roughly 67 minutes at that measured update cost:
 
 | Step | Analysis | `SimulationSolutionPlot` shows |
 |---|---|---|
@@ -89,8 +91,10 @@ initialization. Adam keeps its initial rate for 50 epochs, then uses inverse-squ
 decay, with a rate floor whose physical step scale is one tenth of the junction tolerance.
 This lets the shooting states refine below the 0.2 °C scale of the initial
 1e-3 update. The actual rate is recorded in `LossTable`. The old six-update preset returned `ConvergenceFailure` on
-both Dyad 3.4 and 3.5. A2 and the standalone trainer now export only successful
-fits, after independently checking the unchanged 0.2 °C junction tolerance.
+both Dyad 3.4 and 3.5. Both paths require optimizer success and an independent
+check of the unchanged 0.2 °C junction tolerance before export. A2 completed
+validation; the standalone presets have no completed calibration result yet.
+The commands above describe how to run them, not a measured successful run.
 Continuity success alone does not certify predictive accuracy: the second
 command measures free-running training and holdout error explicitly.
 
@@ -102,8 +106,9 @@ julia +dyad-3.5.0-rc2 --project scripts/validate_calibration.jl --calibration ru
 ```
 
 The shipped calibration took about 21 minutes under the historical settings
-below. Current presets have larger iteration ceilings and can stop early;
-see [the follow-up report](docs/followup-validation.md) for measured runtimes.
+below. The current standalone full preset remains unvalidated to completion;
+default compiler optimization incurred substantial compilation latency. Current
+presets have larger iteration ceilings and can stop early; see [the follow-up report](docs/followup-validation.md) for measured runtimes.
 
 All run outputs go under the gitignored `runs/` directory by default. Training
 without `--out-dir` writes to `runs/training/`. Validation defaults to the
@@ -188,12 +193,14 @@ the training curves and per-junction defects is in
 [`assets/sms_training_detailed.gif`](assets/sms_training_detailed.gif).
 The shipped animation is a historical, separate, coarser run chosen so that individual segments
 are visible: 24 segments of 300 s instead of 96 of 75 s, mini-batches of 8,
-and 10 outer iterations of 33 epochs (990 steps, about 10 min). Its final
+and 10 outer iterations of 33 epochs (990 updates). The current follow-up
+ran those updates in 2305.5 s at two threads. Its final
 frame sits 2–3 °C below the rotor plateau, short of the 0.4 °C the full
 calibration reaches; the GIF shows the mechanics, the results below show the
 fit. Regeneration uses measurement-based initialization and preserves the
-original 990-update budget and strict 2e-6 °C junction criterion. This is a
-diagnostic training trajectory, not a converged-fit claim: the optimizer return
+original 990-update budget. Its artificial 2e-6 °C junction threshold disables
+early stopping for the animation; it is below the ODE tolerance and is not a
+calibration acceptance requirement. This is a fixed-budget diagnostic trajectory: the optimizer return
 code and final gap are displayed on both GIFs, including nonconvergence.
 The final frame is always retained.
 
@@ -324,7 +331,8 @@ a file.
 The augmented Lagrangian stops with `Success` once every segment junction has
 closed to within `CONTINUITY_TOL_C = 0.2 °C` (`scripts/common.jl`); if it
 runs out of outer iterations first it reports `ConvergenceFailure`. `Success`
-certifies continuity, not accuracy: the junctions can close while the data
+certifies continuity feasibility; it does not test Lagrangian stationarity or
+predictive accuracy: the junctions can close while the data
 fit is still improving, so the free-running validation is the accuracy
 measure either way.
 
