@@ -23,7 +23,8 @@ Instantiate this project, regenerate with the Dyad 3.5 CLI, then run the existin
 
 ```sh
 julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
-dyad compile .
+../.ci/compiler/dyad --version
+JULIA_EXECUTABLE="julia +dyad-3.5.0-rc2" ../.ci/compiler/dyad compile "$PWD"
 JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1 julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'
 DYAD_UPGRADE_OUTPUT=/path/to/results JULIA_NUM_THREADS=2 julia +dyad-3.5.0-rc2 --project scripts/validate_upgrade.jl
 ```
@@ -32,6 +33,28 @@ The validation driver uses the declared simulation horizons and training budgets
 checks ODE return codes and finite state/parameter values, and writes per-analysis
 metrics and state trajectories. Training output goes to the validation directory.
 `DYAD_UPGRADE_ONLY` selects a comma-separated subset when retrying failed runs.
+
+## RC2 compiler verification (2026-10-26)
+
+Regenerated this project with the repository's `../.ci/compiler/dyad`, reporting
+`3.5.0-rc2 (a24a224; compiler-only source build)`. Its source checkout is exactly
+`a24a2240667872d432a3b86c4db1240d77150e35` (`v3.5.0-rc2`).
+The earlier validation did not record its compiler version; its runtime was
+RC2. This follow-up establishes the current generated code's RC2 provenance.
+The regenerated tree differed from the committed version only in compiler-emitted
+blank-line whitespace. Normalizing that whitespace leaves the generated files
+byte-identical to the committed version. This project has no
+`scripts/fix_analysis_codegen.jl` and needs no parametric-dataset annotation fix.
+
+Re-ran `julia +dyad-3.5.0-rc2 --project test/runtests.jl` after regeneration,
+with two Julia threads and one precompile task: **79/79 assertions passed**,
+including the full training-profile transient check. No extension-load error
+was emitted in this test rerun.
+
+The numerical tables and workflow results below are retained from the earlier
+validation; those analyses were not rerun during this provenance check. The
+unchanged generated code supports retaining them without relabeling their
+original compiler provenance.
 
 ## Results
 
