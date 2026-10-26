@@ -7,15 +7,16 @@ Cover = "assets/icon.svg"
 
 # HL-20 Flight Simulator
 
-The **Dyad Agent** wrote this entire flight simulator — the vehicle, its
-autopilot, and the logic that moves its control surfaces — from a written
-engineering spec (`assets/shared/hl20_spec.md`) and two prompts in `scripts/`.
-No model code was typed by hand.
+This checkout provides the aerodynamic core, atmosphere/table helpers, an
+engineering spec (`assets/shared/hl20_spec.md`), and two Dyad Agent prompts in
+`scripts/`. The prompts describe how to build a full flight simulator; the
+closed-loop vehicle and flight analyses are not present in this checkout.
 
 The vehicle is the **NASA HL-20**, a proposed crew-carrying spaceplane that
-flies on the shape of its own body rather than on wings. The model follows its
+flies on the shape of its own body rather than on wings. The requested
+simulator would follow its
 motion through the air — where it is, how fast it is going, and which way it is
-pointing — from these parts:
+pointing — using these parts:
 
 | Part | What it does |
 |---|---|
@@ -25,8 +26,9 @@ pointing — from these parts:
 | Flight-control laws | Steers pitch, roll, yaw, and speed toward the commanded values |
 | Surface mixer and actuators | Spreads each command across the seven moving surfaces |
 
-Two references check the result: a golden solution, and NASA's own published
-pitch-pulse test case from TM-107580 Appendix F.
+The spec requests comparison with a golden solution and NASA's published
+pitch-pulse test case from TM-107580 Appendix F. No flight result or such
+comparison is included here.
 
 !!! note
     This is a heavy, agent-generated demo. The aerodynamic core's Dyad source is
