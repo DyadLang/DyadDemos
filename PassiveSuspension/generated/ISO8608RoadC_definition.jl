@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ISO8608RoadC(; name, N, v, Gd_n0, n0, f_min, f_max, amp_base, frequencies, phases)
+   ISO8608RoadC(; name, N, v, Gd_n0, n0, f_min, f_max, amp_base, frequencies, phases, __overrides)
 
 ISO 8608 Class C road profile via sum-of-sinusoids approximation
 
@@ -33,7 +33,7 @@ ISO 8608 Class C road profile via sum-of-sinusoids approximation
 | ------------ | ----------------------------------- | ------ |
 | `partial_sum`         |                          | --  |
 """
-@component function ISO8608RoadC(; name = nothing, N=30, v=Float64(20.0), Gd_n0=0.000256, n0=0.1, f_min=0.5, f_max=Float64(30.0), phases=PassiveSuspension.iso8608_phases(N), amp_base=PassiveSuspension.iso8608_amplitudes_base(Gd_n0, n0, f_min, f_max, N), frequencies=PassiveSuspension.iso8608_frequencies(f_min, f_max, N), kwargs...)
+@component function ISO8608RoadC(; name = nothing, var"N"=30, var"v"=Float64(20.0), var"Gd_n0"=0.000256, var"n0"=0.1, var"f_min"=0.5, var"f_max"=Float64(30.0), var"phases"=nothing, var"amp_base"=nothing, var"frequencies"=nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -41,7 +41,7 @@ ISO 8608 Class C road profile via sum-of-sinusoids approximation
     @named model = ISO8608RoadC()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -50,6 +50,22 @@ ISO 8608 Class C road profile via sum-of-sinusoids approximation
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "N") && (N = pop!(__overrides, "N"))
+  haskey(__overrides, "v") && (v = pop!(__overrides, "v"))
+  haskey(__overrides, "Gd_n0") && (Gd_n0 = pop!(__overrides, "Gd_n0"))
+  haskey(__overrides, "n0") && (n0 = pop!(__overrides, "n0"))
+  haskey(__overrides, "f_min") && (f_min = pop!(__overrides, "f_min"))
+  haskey(__overrides, "f_max") && (f_max = pop!(__overrides, "f_max"))
+  haskey(__overrides, "phases") && (phases = pop!(__overrides, "phases"))
+  haskey(__overrides, "amp_base") && (amp_base = pop!(__overrides, "amp_base"))
+  haskey(__overrides, "frequencies") && (frequencies = pop!(__overrides, "frequencies"))
+
+  ### Deferred keyword defaults (defaults referencing other keyword arguments)
+  isnothing(phases) && (phases = PassiveSuspension.iso8608_phases(N))
+  isnothing(amp_base) && (amp_base = PassiveSuspension.iso8608_amplitudes_base(Gd_n0, n0, f_min, f_max, N))
+  isnothing(frequencies) && (frequencies = PassiveSuspension.iso8608_frequencies(f_min, f_max, N))
 
   ### Structural Parameters (functions)
 
@@ -66,28 +82,28 @@ ISO 8608 Class C road profile via sum-of-sinusoids approximation
   ### Symbolic Parameters
   __local__v = v
   append!(__params, @parameters (v::Real), [description = "Vehicle speed (m/s)"])
-  __initial_conditions[v] = __local__v
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v, __local__v)
   __local__Gd_n0 = Gd_n0
   append!(__params, @parameters (Gd_n0::Real), [description = "Roughness coefficient at n0 (m^3), Class C = 256e-6"])
-  __initial_conditions[Gd_n0] = __local__Gd_n0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gd_n0, __local__Gd_n0)
   __local__n0 = n0
   append!(__params, @parameters (n0::Real), [description = "Reference spatial frequency (cycles/m)"])
-  __initial_conditions[n0] = __local__n0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, n0, __local__n0)
   __local__f_min = f_min
   append!(__params, @parameters (f_min::Real), [description = "Minimum temporal frequency (Hz)"])
-  __initial_conditions[f_min] = __local__f_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_min, __local__f_min)
   __local__f_max = f_max
   append!(__params, @parameters (f_max::Real), [description = "Maximum temporal frequency (Hz)"])
-  __initial_conditions[f_max] = __local__f_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_max, __local__f_max)
   __local__amp_base = amp_base
   append!(__params, @parameters (amp_base[1:N]::Real), [description = "Velocity-independent amplitude base: multiply by sqrt(v) for final amplitude"])
-  __initial_conditions[amp_base] = __local__amp_base
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amp_base, __local__amp_base)
   __local__frequencies = frequencies
   append!(__params, @parameters (frequencies[1:N]::Real))
-  __initial_conditions[frequencies] = __local__frequencies
+  __dyad_seed_parameter!(__initial_conditions, __bindings, frequencies, __local__frequencies)
   __local__phases = phases
   append!(__params, @parameters (phases[1:N]::Real))
-  __initial_conditions[phases] = __local__phases
+  __dyad_seed_parameter!(__initial_conditions, __bindings, phases, __local__phases)
 
   ### Final Parameters (assignments)
 
@@ -99,8 +115,8 @@ ISO 8608 Class C road profile via sum-of-sinusoids approximation
 
   ### Variables (assignments)
   __ovr_partial_sum = pop!(__overrides, "partial_sum", nothing); isnothing(__ovr_partial_sum) || push!(__eqs, partial_sum ~ __ovr_partial_sum)
-  __ovr_partial_sum__initial = pop!(__overrides, "partial_sum__initial", nothing); isnothing(__ovr_partial_sum__initial) || (__initial_conditions[partial_sum] = __ovr_partial_sum__initial)
-  __ovr_partial_sum__guess = pop!(__overrides, "partial_sum__guess", nothing)
+  __ovr_partial_sum__initial = pop!(__overrides, "partial_sum.initial", nothing); isnothing(__ovr_partial_sum__initial) || (__initial_conditions[partial_sum] = __ovr_partial_sum__initial)
+  __ovr_partial_sum__guess = pop!(__overrides, "partial_sum.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -108,7 +124,7 @@ ISO 8608 Class C road profile via sum-of-sinusoids approximation
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_partial_sum__guess) || (__guesses[partial_sum] = __ovr_partial_sum__guess)
@@ -128,6 +144,6 @@ ISO 8608 Class C road profile via sum-of-sinusoids approximation
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ISO8608RoadC

@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   MyActiveSuspension(; name, wheel_mass, wheel_stiffness, wheel_damping, car_mass, suspension_stiffness, suspension_damping, human_and_seat_mass, seat_stiffness, seat_damping, wheel_initial_position, suspension_initial_position, seat_initial_position, Kp, Ti, Td)
+   MyActiveSuspension(; name, wheel_mass, wheel_stiffness, wheel_damping, car_mass, suspension_stiffness, suspension_damping, human_and_seat_mass, seat_stiffness, seat_damping, wheel_initial_position, suspension_initial_position, seat_initial_position, Kp, Ti, Td, __overrides)
 
 ## Parameters:
 
@@ -27,7 +27,7 @@
 | `Ti`         |                          | --  |   5 |
 | `Td`         |                          | --  |   1 |
 """
-@component function MyActiveSuspension(; name = nothing, wheel_mass=Float64(25), wheel_stiffness=Float64(100.0), wheel_damping=Float64(10000.0), car_mass=Float64(1000), suspension_stiffness=Float64(10000.0), suspension_damping=Float64(10), human_and_seat_mass=Float64(100), seat_stiffness=Float64(1000), seat_damping=Float64(1), wheel_initial_position=0.5, suspension_initial_position=Float64(1), seat_initial_position=1.5, Kp=Float64(20), Ti=Float64(5), Td=Float64(1), kwargs...)
+@component function MyActiveSuspension(; name = nothing, var"wheel_mass"=Float64(25), var"wheel_stiffness"=Float64(100.0), var"wheel_damping"=Float64(10000.0), var"car_mass"=Float64(1000), var"suspension_stiffness"=Float64(10000.0), var"suspension_damping"=Float64(10), var"human_and_seat_mass"=Float64(100), var"seat_stiffness"=Float64(1000), var"seat_damping"=Float64(1), var"wheel_initial_position"=0.5, var"suspension_initial_position"=Float64(1), var"seat_initial_position"=1.5, var"Kp"=Float64(20), var"Ti"=Float64(5), var"Td"=Float64(1), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -35,7 +35,7 @@
     @named model = MyActiveSuspension()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -44,6 +44,23 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "wheel_mass") && (wheel_mass = pop!(__overrides, "wheel_mass"))
+  haskey(__overrides, "wheel_stiffness") && (wheel_stiffness = pop!(__overrides, "wheel_stiffness"))
+  haskey(__overrides, "wheel_damping") && (wheel_damping = pop!(__overrides, "wheel_damping"))
+  haskey(__overrides, "car_mass") && (car_mass = pop!(__overrides, "car_mass"))
+  haskey(__overrides, "suspension_stiffness") && (suspension_stiffness = pop!(__overrides, "suspension_stiffness"))
+  haskey(__overrides, "suspension_damping") && (suspension_damping = pop!(__overrides, "suspension_damping"))
+  haskey(__overrides, "human_and_seat_mass") && (human_and_seat_mass = pop!(__overrides, "human_and_seat_mass"))
+  haskey(__overrides, "seat_stiffness") && (seat_stiffness = pop!(__overrides, "seat_stiffness"))
+  haskey(__overrides, "seat_damping") && (seat_damping = pop!(__overrides, "seat_damping"))
+  haskey(__overrides, "wheel_initial_position") && (wheel_initial_position = pop!(__overrides, "wheel_initial_position"))
+  haskey(__overrides, "suspension_initial_position") && (suspension_initial_position = pop!(__overrides, "suspension_initial_position"))
+  haskey(__overrides, "seat_initial_position") && (seat_initial_position = pop!(__overrides, "seat_initial_position"))
+  haskey(__overrides, "Kp") && (Kp = pop!(__overrides, "Kp"))
+  haskey(__overrides, "Ti") && (Ti = pop!(__overrides, "Ti"))
+  haskey(__overrides, "Td") && (Td = pop!(__overrides, "Td"))
 
   ### Structural Parameters (functions)
 
@@ -60,49 +77,49 @@
   ### Symbolic Parameters
   __local__wheel_mass = wheel_mass
   append!(__params, @parameters (wheel_mass::Real), [bounds = (0, Inf)])
-  __initial_conditions[wheel_mass] = __local__wheel_mass
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_mass, __local__wheel_mass)
   __local__wheel_stiffness = wheel_stiffness
   append!(__params, @parameters (wheel_stiffness::Real))
-  __initial_conditions[wheel_stiffness] = __local__wheel_stiffness
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_stiffness, __local__wheel_stiffness)
   __local__wheel_damping = wheel_damping
   append!(__params, @parameters (wheel_damping::Real))
-  __initial_conditions[wheel_damping] = __local__wheel_damping
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_damping, __local__wheel_damping)
   __local__car_mass = car_mass
   append!(__params, @parameters (car_mass::Real), [bounds = (0, Inf)])
-  __initial_conditions[car_mass] = __local__car_mass
+  __dyad_seed_parameter!(__initial_conditions, __bindings, car_mass, __local__car_mass)
   __local__suspension_stiffness = suspension_stiffness
   append!(__params, @parameters (suspension_stiffness::Real))
-  __initial_conditions[suspension_stiffness] = __local__suspension_stiffness
+  __dyad_seed_parameter!(__initial_conditions, __bindings, suspension_stiffness, __local__suspension_stiffness)
   __local__suspension_damping = suspension_damping
   append!(__params, @parameters (suspension_damping::Real))
-  __initial_conditions[suspension_damping] = __local__suspension_damping
+  __dyad_seed_parameter!(__initial_conditions, __bindings, suspension_damping, __local__suspension_damping)
   __local__human_and_seat_mass = human_and_seat_mass
   append!(__params, @parameters (human_and_seat_mass::Real), [bounds = (0, Inf)])
-  __initial_conditions[human_and_seat_mass] = __local__human_and_seat_mass
+  __dyad_seed_parameter!(__initial_conditions, __bindings, human_and_seat_mass, __local__human_and_seat_mass)
   __local__seat_stiffness = seat_stiffness
   append!(__params, @parameters (seat_stiffness::Real))
-  __initial_conditions[seat_stiffness] = __local__seat_stiffness
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_stiffness, __local__seat_stiffness)
   __local__seat_damping = seat_damping
   append!(__params, @parameters (seat_damping::Real))
-  __initial_conditions[seat_damping] = __local__seat_damping
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_damping, __local__seat_damping)
   __local__wheel_initial_position = wheel_initial_position
   append!(__params, @parameters (wheel_initial_position::Real))
-  __initial_conditions[wheel_initial_position] = __local__wheel_initial_position
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_initial_position, __local__wheel_initial_position)
   __local__suspension_initial_position = suspension_initial_position
   append!(__params, @parameters (suspension_initial_position::Real))
-  __initial_conditions[suspension_initial_position] = __local__suspension_initial_position
+  __dyad_seed_parameter!(__initial_conditions, __bindings, suspension_initial_position, __local__suspension_initial_position)
   __local__seat_initial_position = seat_initial_position
   append!(__params, @parameters (seat_initial_position::Real))
-  __initial_conditions[seat_initial_position] = __local__seat_initial_position
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_initial_position, __local__seat_initial_position)
   __local__Kp = Kp
   append!(__params, @parameters (Kp::Real))
-  __initial_conditions[Kp] = __local__Kp
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kp, __local__Kp)
   __local__Ti = Ti
   append!(__params, @parameters (Ti::Real))
-  __initial_conditions[Ti] = __local__Ti
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Ti, __local__Ti)
   __local__Td = Td
   append!(__params, @parameters (Td::Real))
-  __initial_conditions[Td] = __local__Td
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Td, __local__Td)
 
   ### Final Parameters (assignments)
 
@@ -118,34 +135,34 @@
   ### Components
   # Subcomponent wheel of type DyadExampleComponents.MassSpringDamper
   wheel_overrides = __pop_subcomponent_overrides!(__overrides, "wheel")
-  push!(__systems, @named wheel = DyadExampleComponents.MassSpringDamper(; m=wheel_mass, d=wheel_damping, c=wheel_stiffness, g=Float64(-10), theta=pi / 2, wheel_overrides...))
+  push!(__systems, @named wheel = DyadExampleComponents.MassSpringDamper(; m=wheel_mass, d=wheel_damping, c=wheel_stiffness, g=Float64(-10), theta=pi / 2, __overrides = wheel_overrides))
   # Subcomponent car_and_suspension of type DyadExampleComponents.MassSpringDamper
   car_and_suspension_overrides = __pop_subcomponent_overrides!(__overrides, "car_and_suspension")
-  push!(__systems, @named car_and_suspension = DyadExampleComponents.MassSpringDamper(; m=car_mass, d=suspension_damping, c=suspension_stiffness, g=Float64(-10), theta=pi / 2, car_and_suspension_overrides...))
+  push!(__systems, @named car_and_suspension = DyadExampleComponents.MassSpringDamper(; m=car_mass, d=suspension_damping, c=suspension_stiffness, g=Float64(-10), theta=pi / 2, __overrides = car_and_suspension_overrides))
   # Subcomponent seat of type DyadExampleComponents.MassSpringDamper
   seat_overrides = __pop_subcomponent_overrides!(__overrides, "seat")
-  push!(__systems, @named seat = DyadExampleComponents.MassSpringDamper(; m=human_and_seat_mass, d=seat_damping, c=seat_stiffness, g=Float64(-10), theta=pi / 2, seat_overrides...))
+  push!(__systems, @named seat = DyadExampleComponents.MassSpringDamper(; m=human_and_seat_mass, d=seat_damping, c=seat_stiffness, g=Float64(-10), theta=pi / 2, __overrides = seat_overrides))
   # Subcomponent road_data of type DyadExampleComponents.RoadData
   road_data_overrides = __pop_subcomponent_overrides!(__overrides, "road_data")
-  push!(__systems, @named road_data = DyadExampleComponents.RoadData(; road_data_overrides...))
+  push!(__systems, @named road_data = DyadExampleComponents.RoadData(; __overrides = road_data_overrides))
   # Subcomponent road of type DyadExampleComponents.SimplePosition
   road_overrides = __pop_subcomponent_overrides!(__overrides, "road")
-  push!(__systems, @named road = DyadExampleComponents.SimplePosition(; road_overrides...))
+  push!(__systems, @named road = DyadExampleComponents.SimplePosition(; __overrides = road_overrides))
   # Subcomponent force of type TranslationalComponents.Sources.Force
   force_overrides = __pop_subcomponent_overrides!(__overrides, "force")
-  push!(__systems, @named force = TranslationalComponents.Sources.Force(; force_overrides...))
+  push!(__systems, @named force = TranslationalComponents.Sources.Force(; __overrides = force_overrides))
   # Subcomponent pid of type BlockComponents.Continuous.LimPID
   pid_overrides = __pop_subcomponent_overrides!(__overrides, "pid")
-  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(; k=Kp, Ti=Ti, Td=Td, pid_overrides...))
+  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(; k=Kp, Ti=Ti, Td=Td, __overrides = pid_overrides))
   # Subcomponent set_point of type BlockComponents.Sources.Constant
   set_point_overrides = __pop_subcomponent_overrides!(__overrides, "set_point")
-  push!(__systems, @named set_point = BlockComponents.Sources.Constant(; k=1.5, set_point_overrides...))
+  push!(__systems, @named set_point = BlockComponents.Sources.Constant(; k=1.5, __overrides = set_point_overrides))
   # Subcomponent seat_pos of type TranslationalComponents.Sensors.PositionSensor
   seat_pos_overrides = __pop_subcomponent_overrides!(__overrides, "seat_pos")
-  push!(__systems, @named seat_pos = TranslationalComponents.Sensors.PositionSensor(; seat_pos_overrides...))
+  push!(__systems, @named seat_pos = TranslationalComponents.Sensors.PositionSensor(; __overrides = seat_pos_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -177,6 +194,6 @@
   push!(__eqs, connect(road_data.y, road.s))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export MyActiveSuspension
