@@ -8,6 +8,8 @@ using ModelingToolkit
 import Markdown
 using ModelingToolkit: t_nounits as t
 using OrdinaryDiffEqDefault
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
+using ModelingToolkit: SymbolicT, toggle_namespacing
 using RuntimeGeneratedFunctions
 RuntimeGeneratedFunctions.init(@__MODULE__)
 
@@ -16,9 +18,15 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
 end
 
 import BlockComponents
+let api = isdefined(BlockComponents, :__dyad_constructor_api) ? BlockComponents.__dyad_constructor_api : 1
+  api == 2 || error("BlockComponents was generated with Dyad constructor API version $api, but HybridTransmission requires version 2 (the `__overrides` dict override channel). Regenerate BlockComponents with the same Dyad compiler that generated HybridTransmission.")
+end
 import DyadData
 import DyadInterface
 import RotationalComponents
+let api = isdefined(RotationalComponents, :__dyad_constructor_api) ? RotationalComponents.__dyad_constructor_api : 1
+  api == 2 || error("RotationalComponents was generated with Dyad constructor API version $api, but HybridTransmission requires version 2 (the `__overrides` dict override channel). Regenerate RotationalComponents with the same Dyad compiler that generated HybridTransmission.")
+end
 @doc Markdown.doc"""
 This connector represents an electrical pin with voltage and current as the potential and flow variables, respectively.
 """

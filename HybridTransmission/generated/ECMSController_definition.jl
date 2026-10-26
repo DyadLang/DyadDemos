@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ECMSController(; name, s_base, k_soc, soc_target, m_vehicle, C_rr, C_d, A_front, r_wheel, k_speed, k_mg1, k_soc_mg1, engine_max_torque, engine_max_power, mg1_max_torque, mg1_max_power, mg2_max_torque, omega_engine_min, omega_engine_max)
+   ECMSController(; name, s_base, k_soc, soc_target, m_vehicle, C_rr, C_d, A_front, r_wheel, k_speed, k_mg1, k_soc_mg1, engine_max_torque, engine_max_power, mg1_max_torque, mg1_max_power, mg2_max_torque, omega_engine_min, omega_engine_max, __overrides)
 
 ## Parameters:
 
@@ -53,7 +53,7 @@
 | `omega_engine_target`         |                          | --  |
 | `mg1_torque_proportional`         |                          | --  |
 """
-@component function ECMSController(; name = nothing, s_base=2.5, k_soc=Float64(5.0), soc_target=0.6, m_vehicle=Float64(1750.0), C_rr=0.012, C_d=0.38, A_front=2.56, r_wheel=0.318, k_speed=Float64(100.0), k_mg1=0.5, k_soc_mg1=Float64(150.0), engine_max_torque=Float64(145.0), engine_max_power=Float64(74000.0), mg1_max_torque=Float64(130.0), mg1_max_power=Float64(40000.0), mg2_max_torque=Float64(330.0), omega_engine_min=Float64(105.0), omega_engine_max=Float64(471.0), kwargs...)
+@component function ECMSController(; name = nothing, var"s_base"=2.5, var"k_soc"=Float64(5.0), var"soc_target"=0.6, var"m_vehicle"=Float64(1750.0), var"C_rr"=0.012, var"C_d"=0.38, var"A_front"=2.56, var"r_wheel"=0.318, var"k_speed"=Float64(100.0), var"k_mg1"=0.5, var"k_soc_mg1"=Float64(150.0), var"engine_max_torque"=Float64(145.0), var"engine_max_power"=Float64(74000.0), var"mg1_max_torque"=Float64(130.0), var"mg1_max_power"=Float64(40000.0), var"mg2_max_torque"=Float64(330.0), var"omega_engine_min"=Float64(105.0), var"omega_engine_max"=Float64(471.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -61,7 +61,7 @@
     @named model = ECMSController()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -70,6 +70,26 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "s_base") && (s_base = pop!(__overrides, "s_base"))
+  haskey(__overrides, "k_soc") && (k_soc = pop!(__overrides, "k_soc"))
+  haskey(__overrides, "soc_target") && (soc_target = pop!(__overrides, "soc_target"))
+  haskey(__overrides, "m_vehicle") && (m_vehicle = pop!(__overrides, "m_vehicle"))
+  haskey(__overrides, "C_rr") && (C_rr = pop!(__overrides, "C_rr"))
+  haskey(__overrides, "C_d") && (C_d = pop!(__overrides, "C_d"))
+  haskey(__overrides, "A_front") && (A_front = pop!(__overrides, "A_front"))
+  haskey(__overrides, "r_wheel") && (r_wheel = pop!(__overrides, "r_wheel"))
+  haskey(__overrides, "k_speed") && (k_speed = pop!(__overrides, "k_speed"))
+  haskey(__overrides, "k_mg1") && (k_mg1 = pop!(__overrides, "k_mg1"))
+  haskey(__overrides, "k_soc_mg1") && (k_soc_mg1 = pop!(__overrides, "k_soc_mg1"))
+  haskey(__overrides, "engine_max_torque") && (engine_max_torque = pop!(__overrides, "engine_max_torque"))
+  haskey(__overrides, "engine_max_power") && (engine_max_power = pop!(__overrides, "engine_max_power"))
+  haskey(__overrides, "mg1_max_torque") && (mg1_max_torque = pop!(__overrides, "mg1_max_torque"))
+  haskey(__overrides, "mg1_max_power") && (mg1_max_power = pop!(__overrides, "mg1_max_power"))
+  haskey(__overrides, "mg2_max_torque") && (mg2_max_torque = pop!(__overrides, "mg2_max_torque"))
+  haskey(__overrides, "omega_engine_min") && (omega_engine_min = pop!(__overrides, "omega_engine_min"))
+  haskey(__overrides, "omega_engine_max") && (omega_engine_max = pop!(__overrides, "omega_engine_max"))
 
   ### Structural Parameters (functions)
 
@@ -86,58 +106,58 @@
   ### Symbolic Parameters
   __local__s_base = s_base
   append!(__params, @parameters (s_base::Real))
-  __initial_conditions[s_base] = __local__s_base
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_base, __local__s_base)
   __local__k_soc = k_soc
   append!(__params, @parameters (k_soc::Real))
-  __initial_conditions[k_soc] = __local__k_soc
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_soc, __local__k_soc)
   __local__soc_target = soc_target
   append!(__params, @parameters (soc_target::Real))
-  __initial_conditions[soc_target] = __local__soc_target
+  __dyad_seed_parameter!(__initial_conditions, __bindings, soc_target, __local__soc_target)
   __local__m_vehicle = m_vehicle
   append!(__params, @parameters (m_vehicle::Real))
-  __initial_conditions[m_vehicle] = __local__m_vehicle
+  __dyad_seed_parameter!(__initial_conditions, __bindings, m_vehicle, __local__m_vehicle)
   __local__C_rr = C_rr
   append!(__params, @parameters (C_rr::Real))
-  __initial_conditions[C_rr] = __local__C_rr
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_rr, __local__C_rr)
   __local__C_d = C_d
   append!(__params, @parameters (C_d::Real))
-  __initial_conditions[C_d] = __local__C_d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_d, __local__C_d)
   __local__A_front = A_front
   append!(__params, @parameters (A_front::Real))
-  __initial_conditions[A_front] = __local__A_front
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_front, __local__A_front)
   __local__r_wheel = r_wheel
   append!(__params, @parameters (r_wheel::Real))
-  __initial_conditions[r_wheel] = __local__r_wheel
+  __dyad_seed_parameter!(__initial_conditions, __bindings, r_wheel, __local__r_wheel)
   __local__k_speed = k_speed
   append!(__params, @parameters (k_speed::Real))
-  __initial_conditions[k_speed] = __local__k_speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_speed, __local__k_speed)
   __local__k_mg1 = k_mg1
   append!(__params, @parameters (k_mg1::Real))
-  __initial_conditions[k_mg1] = __local__k_mg1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_mg1, __local__k_mg1)
   __local__k_soc_mg1 = k_soc_mg1
   append!(__params, @parameters (k_soc_mg1::Real))
-  __initial_conditions[k_soc_mg1] = __local__k_soc_mg1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_soc_mg1, __local__k_soc_mg1)
   __local__engine_max_torque = engine_max_torque
   append!(__params, @parameters (engine_max_torque::Real))
-  __initial_conditions[engine_max_torque] = __local__engine_max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, engine_max_torque, __local__engine_max_torque)
   __local__engine_max_power = engine_max_power
   append!(__params, @parameters (engine_max_power::Real))
-  __initial_conditions[engine_max_power] = __local__engine_max_power
+  __dyad_seed_parameter!(__initial_conditions, __bindings, engine_max_power, __local__engine_max_power)
   __local__mg1_max_torque = mg1_max_torque
   append!(__params, @parameters (mg1_max_torque::Real))
-  __initial_conditions[mg1_max_torque] = __local__mg1_max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, mg1_max_torque, __local__mg1_max_torque)
   __local__mg1_max_power = mg1_max_power
   append!(__params, @parameters (mg1_max_power::Real))
-  __initial_conditions[mg1_max_power] = __local__mg1_max_power
+  __dyad_seed_parameter!(__initial_conditions, __bindings, mg1_max_power, __local__mg1_max_power)
   __local__mg2_max_torque = mg2_max_torque
   append!(__params, @parameters (mg2_max_torque::Real))
-  __initial_conditions[mg2_max_torque] = __local__mg2_max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, mg2_max_torque, __local__mg2_max_torque)
   __local__omega_engine_min = omega_engine_min
   append!(__params, @parameters (omega_engine_min::Real))
-  __initial_conditions[omega_engine_min] = __local__omega_engine_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, omega_engine_min, __local__omega_engine_min)
   __local__omega_engine_max = omega_engine_max
   append!(__params, @parameters (omega_engine_max::Real))
-  __initial_conditions[omega_engine_max] = __local__omega_engine_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, omega_engine_max, __local__omega_engine_max)
 
   ### Final Parameters (assignments)
 
@@ -162,26 +182,26 @@
 
   ### Variables (assignments)
   __ovr_speed_error = pop!(__overrides, "speed_error", nothing); isnothing(__ovr_speed_error) || push!(__eqs, speed_error ~ __ovr_speed_error)
-  __ovr_speed_error__initial = pop!(__overrides, "speed_error__initial", nothing); isnothing(__ovr_speed_error__initial) || (__initial_conditions[speed_error] = __ovr_speed_error__initial)
-  __ovr_speed_error__guess = pop!(__overrides, "speed_error__guess", nothing)
+  __ovr_speed_error__initial = pop!(__overrides, "speed_error.initial", nothing); isnothing(__ovr_speed_error__initial) || (__initial_conditions[speed_error] = __ovr_speed_error__initial)
+  __ovr_speed_error__guess = pop!(__overrides, "speed_error.guess", nothing)
   __ovr_F_load = pop!(__overrides, "F_load", nothing); isnothing(__ovr_F_load) || push!(__eqs, F_load ~ __ovr_F_load)
-  __ovr_F_load__initial = pop!(__overrides, "F_load__initial", nothing); isnothing(__ovr_F_load__initial) || (__initial_conditions[F_load] = __ovr_F_load__initial)
-  __ovr_F_load__guess = pop!(__overrides, "F_load__guess", nothing)
+  __ovr_F_load__initial = pop!(__overrides, "F_load.initial", nothing); isnothing(__ovr_F_load__initial) || (__initial_conditions[F_load] = __ovr_F_load__initial)
+  __ovr_F_load__guess = pop!(__overrides, "F_load.guess", nothing)
   __ovr_T_wheel_demand = pop!(__overrides, "T_wheel_demand", nothing); isnothing(__ovr_T_wheel_demand) || push!(__eqs, T_wheel_demand ~ __ovr_T_wheel_demand)
-  __ovr_T_wheel_demand__initial = pop!(__overrides, "T_wheel_demand__initial", nothing); isnothing(__ovr_T_wheel_demand__initial) || (__initial_conditions[T_wheel_demand] = __ovr_T_wheel_demand__initial)
-  __ovr_T_wheel_demand__guess = pop!(__overrides, "T_wheel_demand__guess", nothing)
+  __ovr_T_wheel_demand__initial = pop!(__overrides, "T_wheel_demand.initial", nothing); isnothing(__ovr_T_wheel_demand__initial) || (__initial_conditions[T_wheel_demand] = __ovr_T_wheel_demand__initial)
+  __ovr_T_wheel_demand__guess = pop!(__overrides, "T_wheel_demand.guess", nothing)
   __ovr_s_effective = pop!(__overrides, "s_effective", nothing); isnothing(__ovr_s_effective) || push!(__eqs, s_effective ~ __ovr_s_effective)
-  __ovr_s_effective__initial = pop!(__overrides, "s_effective__initial", nothing); isnothing(__ovr_s_effective__initial) || (__initial_conditions[s_effective] = __ovr_s_effective__initial)
-  __ovr_s_effective__guess = pop!(__overrides, "s_effective__guess", nothing)
+  __ovr_s_effective__initial = pop!(__overrides, "s_effective.initial", nothing); isnothing(__ovr_s_effective__initial) || (__initial_conditions[s_effective] = __ovr_s_effective__initial)
+  __ovr_s_effective__guess = pop!(__overrides, "s_effective.guess", nothing)
   __ovr_engine_fraction = pop!(__overrides, "engine_fraction", nothing); isnothing(__ovr_engine_fraction) || push!(__eqs, engine_fraction ~ __ovr_engine_fraction)
-  __ovr_engine_fraction__initial = pop!(__overrides, "engine_fraction__initial", nothing); isnothing(__ovr_engine_fraction__initial) || (__initial_conditions[engine_fraction] = __ovr_engine_fraction__initial)
-  __ovr_engine_fraction__guess = pop!(__overrides, "engine_fraction__guess", nothing)
+  __ovr_engine_fraction__initial = pop!(__overrides, "engine_fraction.initial", nothing); isnothing(__ovr_engine_fraction__initial) || (__initial_conditions[engine_fraction] = __ovr_engine_fraction__initial)
+  __ovr_engine_fraction__guess = pop!(__overrides, "engine_fraction.guess", nothing)
   __ovr_omega_engine_target = pop!(__overrides, "omega_engine_target", nothing); isnothing(__ovr_omega_engine_target) || push!(__eqs, omega_engine_target ~ __ovr_omega_engine_target)
-  __ovr_omega_engine_target__initial = pop!(__overrides, "omega_engine_target__initial", nothing); isnothing(__ovr_omega_engine_target__initial) || (__initial_conditions[omega_engine_target] = __ovr_omega_engine_target__initial)
-  __ovr_omega_engine_target__guess = pop!(__overrides, "omega_engine_target__guess", nothing)
+  __ovr_omega_engine_target__initial = pop!(__overrides, "omega_engine_target.initial", nothing); isnothing(__ovr_omega_engine_target__initial) || (__initial_conditions[omega_engine_target] = __ovr_omega_engine_target__initial)
+  __ovr_omega_engine_target__guess = pop!(__overrides, "omega_engine_target.guess", nothing)
   __ovr_mg1_torque_proportional = pop!(__overrides, "mg1_torque_proportional", nothing); isnothing(__ovr_mg1_torque_proportional) || push!(__eqs, mg1_torque_proportional ~ __ovr_mg1_torque_proportional)
-  __ovr_mg1_torque_proportional__initial = pop!(__overrides, "mg1_torque_proportional__initial", nothing); isnothing(__ovr_mg1_torque_proportional__initial) || (__initial_conditions[mg1_torque_proportional] = __ovr_mg1_torque_proportional__initial)
-  __ovr_mg1_torque_proportional__guess = pop!(__overrides, "mg1_torque_proportional__guess", nothing)
+  __ovr_mg1_torque_proportional__initial = pop!(__overrides, "mg1_torque_proportional.initial", nothing); isnothing(__ovr_mg1_torque_proportional__initial) || (__initial_conditions[mg1_torque_proportional] = __ovr_mg1_torque_proportional__initial)
+  __ovr_mg1_torque_proportional__guess = pop!(__overrides, "mg1_torque_proportional.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -189,7 +209,7 @@
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_speed_error__guess) || (__guesses[speed_error] = __ovr_speed_error__guess)
@@ -218,6 +238,6 @@
   push!(__eqs, mg2_torque_cmd ~ max(-mg2_max_torque, min(mg2_max_torque, T_wheel_demand * (1.0 - engine_fraction))))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ECMSController

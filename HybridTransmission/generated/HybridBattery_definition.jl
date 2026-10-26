@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   HybridBattery(; name, V_nom, Q_nom, SOC_init, SOC_min, SOC_max)
+   HybridBattery(; name, V_nom, Q_nom, SOC_init, SOC_min, SOC_max, __overrides)
 
 ## Parameters:
 
@@ -31,7 +31,7 @@
 | `total_power`         |                          | W  |
 | `energy_discharged`         |                          | --  |
 """
-@component function HybridBattery(; name = nothing, V_nom=Float64(300.0), Q_nom=6.5, SOC_init=0.6, SOC_min=0.4, SOC_max=0.8, kwargs...)
+@component function HybridBattery(; name = nothing, var"V_nom"=Float64(300.0), var"Q_nom"=6.5, var"SOC_init"=0.6, var"SOC_min"=0.4, var"SOC_max"=0.8, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -39,7 +39,7 @@
     @named model = HybridBattery()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -48,6 +48,13 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "V_nom") && (V_nom = pop!(__overrides, "V_nom"))
+  haskey(__overrides, "Q_nom") && (Q_nom = pop!(__overrides, "Q_nom"))
+  haskey(__overrides, "SOC_init") && (SOC_init = pop!(__overrides, "SOC_init"))
+  haskey(__overrides, "SOC_min") && (SOC_min = pop!(__overrides, "SOC_min"))
+  haskey(__overrides, "SOC_max") && (SOC_max = pop!(__overrides, "SOC_max"))
 
   ### Structural Parameters (functions)
 
@@ -64,19 +71,19 @@
   ### Symbolic Parameters
   __local__V_nom = V_nom
   append!(__params, @parameters (V_nom::Real))
-  __initial_conditions[V_nom] = __local__V_nom
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V_nom, __local__V_nom)
   __local__Q_nom = Q_nom
   append!(__params, @parameters (Q_nom::Real))
-  __initial_conditions[Q_nom] = __local__Q_nom
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_nom, __local__Q_nom)
   __local__SOC_init = SOC_init
   append!(__params, @parameters (SOC_init::Real))
-  __initial_conditions[SOC_init] = __local__SOC_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, SOC_init, __local__SOC_init)
   __local__SOC_min = SOC_min
   append!(__params, @parameters (SOC_min::Real))
-  __initial_conditions[SOC_min] = __local__SOC_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, SOC_min, __local__SOC_min)
   __local__SOC_max = SOC_max
   append!(__params, @parameters (SOC_max::Real))
-  __initial_conditions[SOC_max] = __local__SOC_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, SOC_max, __local__SOC_max)
 
   ### Final Parameters (assignments)
 
@@ -92,14 +99,14 @@
 
   ### Variables (assignments)
   __ovr_SOC = pop!(__overrides, "SOC", nothing); isnothing(__ovr_SOC) || push!(__eqs, SOC ~ __ovr_SOC)
-  __ovr_SOC__initial = pop!(__overrides, "SOC__initial", nothing); isnothing(__ovr_SOC__initial) || (__initial_conditions[SOC] = __ovr_SOC__initial)
-  __ovr_SOC__guess = pop!(__overrides, "SOC__guess", nothing)
+  __ovr_SOC__initial = pop!(__overrides, "SOC.initial", nothing); isnothing(__ovr_SOC__initial) || (__initial_conditions[SOC] = __ovr_SOC__initial)
+  __ovr_SOC__guess = pop!(__overrides, "SOC.guess", nothing)
   __ovr_total_power = pop!(__overrides, "total_power", nothing); isnothing(__ovr_total_power) || push!(__eqs, total_power ~ __ovr_total_power)
-  __ovr_total_power__initial = pop!(__overrides, "total_power__initial", nothing); isnothing(__ovr_total_power__initial) || (__initial_conditions[total_power] = __ovr_total_power__initial)
-  __ovr_total_power__guess = pop!(__overrides, "total_power__guess", nothing)
+  __ovr_total_power__initial = pop!(__overrides, "total_power.initial", nothing); isnothing(__ovr_total_power__initial) || (__initial_conditions[total_power] = __ovr_total_power__initial)
+  __ovr_total_power__guess = pop!(__overrides, "total_power.guess", nothing)
   __ovr_energy_discharged = pop!(__overrides, "energy_discharged", nothing); isnothing(__ovr_energy_discharged) || push!(__eqs, energy_discharged ~ __ovr_energy_discharged)
-  __ovr_energy_discharged__initial = pop!(__overrides, "energy_discharged__initial", nothing); isnothing(__ovr_energy_discharged__initial) || (__initial_conditions[energy_discharged] = __ovr_energy_discharged__initial)
-  __ovr_energy_discharged__guess = pop!(__overrides, "energy_discharged__guess", nothing)
+  __ovr_energy_discharged__initial = pop!(__overrides, "energy_discharged.initial", nothing); isnothing(__ovr_energy_discharged__initial) || (__initial_conditions[energy_discharged] = __ovr_energy_discharged__initial)
+  __ovr_energy_discharged__guess = pop!(__overrides, "energy_discharged.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -107,7 +114,7 @@
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_SOC__guess) || (__guesses[SOC] = __ovr_SOC__guess)
@@ -128,6 +135,6 @@
   push!(__eqs, soc_output ~ SOC)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HybridBattery
