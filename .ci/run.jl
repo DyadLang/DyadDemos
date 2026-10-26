@@ -23,6 +23,11 @@ function test_demo(folder)
         cd(folder) do
             run(`$(DyadHarness.dyad_cli_path) compile .`)
         end
+        # Two custom timeseries analyses need this documented RC2 codegen fix.
+        codegen_fix = joinpath(folder, "scripts", "fix_analysis_codegen.jl")
+        if isfile(codegen_fix)
+            run(`$(Base.julia_cmd()) --startup-file=no $codegen_fix`)
+        end
 
         @info "Running tests" folder
         Pkg.test()
