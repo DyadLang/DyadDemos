@@ -1,5 +1,10 @@
 # Calibration follow-up validation (2026-10-26)
 
+Evidence paths and helper commands under `.task/` refer to the retained
+validation workspace; those logs and investigation helpers are not shipped
+with this repository. The demo entry points under `scripts/` are committed.
+
+
 Stage 1 now genuinely converges on both Dyad 3.4 and 3.5 by setting
 `dtmax = 0.0001` seconds. The chained Stage 2 also needs `dtmax = 0.001`
 seconds. Both settings are declared in `dyad/calibration.dyad` and regenerated

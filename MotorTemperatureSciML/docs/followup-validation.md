@@ -1,5 +1,10 @@
 # MotorTemperatureSciML convergence follow-up
 
+Evidence paths and helper commands under `.task/` refer to the retained
+validation workspace; those logs and investigation helpers are not shipped
+with this repository. The demo entry points under `scripts/` are committed.
+
+
 ## Environment and scope
 
 2026-10-26, Dyad 3.5.0-rc2 / Julia 1.13.2; original baseline Dyad

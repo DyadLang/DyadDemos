@@ -107,7 +107,10 @@ julia +dyad-3.5.0-rc2 --project scripts/validate_calibration.jl --calibration ru
 
 The shipped calibration took about 21 minutes under the historical settings
 below. The current standalone full preset remains unvalidated to completion;
-default compiler optimization incurred substantial compilation latency. Current
+default compiler optimization incurred substantial compilation latency. At
+1542 updates its last checkpoint still exceeded 0.2 °C, whereas the historical
+recipe reached that criterion at 1200 updates under different runtime and
+thread settings. These measurements do not establish equivalent convergence. Current
 presets have larger iteration ceilings and can stop early; see [the follow-up report](docs/followup-validation.md) for measured runtimes.
 
 All run outputs go under the gitignored `runs/` directory by default. Training

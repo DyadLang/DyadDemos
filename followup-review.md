@@ -21,9 +21,9 @@ in the validation workspace.
 | Inventory inconsistent with committed files and counts | Committed Motor sources and evidence; corrected notebook/test counts and removed pending outcome claims. |
 | Satellite generated-documentation failures undercounted | All seven failing blocks documented and independently checked against original 3.4 sources. No complete old-site success claimed. |
 | Notebook results lacked acceptance gates | Five runnable notebooks now check actual retcode, full horizon and finite values before plotting; all five executed successfully. |
-| Driveline standalone Stage 2 success confused with physical recovery | Validator and reports explicitly identify the near-bound gamma estimate and distinguish it from the chained calibration, whose 11.27% gamma bias remains reported. |
+| Driveline standalone Stage 2 success confused with physical recovery | Reports identify the near-bound gamma estimate and distinguish it from the chained calibration, whose 11.27% gamma bias remains reported. The validator prints a generic optimizer-success caveat; it does not detect active bounds. |
 
-Smaller corrections include strict raw MadNLP checks, validation before exports,
+Smaller corrections include QuarterTruck strict raw MadNLP checks, validation before exports,
 QuarterTruck full-grid/finite-value checks, honest data-generation-error wording,
 HL20 notebook cell identifiers, explicit FrictionBrake errors, and a portable
 SVG documentation-size reproducer. Motor's residual-row plot correction is a
@@ -46,3 +46,29 @@ full training remains interrupted and unvalidated. GUI frontends, complete
 source-data provenance and full original-runtime training/site builds remain
 explicit coverage gaps. Compiler/library defects have unfiled drafts linked
 from the inventory; no upstream issue was submitted.
+
+## Final independent Claude review
+
+Claude reviewed the frozen combined diff at `a3f8471` against `97c9fac`,
+confirmed all eight earlier findings resolved or accurately disclosed, and
+reported no blocking finding for a draft stacked PR. Its independent reruns
+passed Motor 103/103, Driveline 27/27 and QuarterTruck acceptance checks 16/16.
+The detailed review and evidence remain workspace-local at
+`.task/followup-claude-final-review.md` and
+`.task/followup-claude-final-evidence/`.
+
+The review found a further runnable error: the QuarterTruck notebook selected
+calibration but requested an unavailable `SimulationSolutionPlot`. The final
+correction selects `ConvergencePlot` and reuses the committed command-line
+raw-status/finite-fit checks. The reviewer’s smaller reporting findings are
+addressed by identifying QuarterTruck-only raw MadNLP checks, describing
+Driveline’s generic validator caveat accurately, documenting the expected
+nonzero unfiltered QuarterTruck validator, noting the unvalidated Motor full
+recipe against its historical result, and labeling workspace-only helpers.
+
+After that correction, every shipped QuarterTruck notebook code cell passed
+in a fresh normal-compiler RC2 process in **245.66 s**, including its final
+convergence artifact. The optimizer returned `Success`, raw
+`SOLVE_SUCCEEDED`, 43 iterations and dual residual 1.4388840022991673e-9.
+This correction follows the independent review’s recommendation; the later
+delta consists of that notebook fix and reporting clarifications.

@@ -1,5 +1,10 @@
 # QuarterTruck follow-up validation
 
+Evidence paths and helper commands under `.task/` refer to the retained
+validation workspace; those logs and investigation helpers are not shipped
+with this repository. The demo entry points under `scripts/` are committed.
+
+
 Date: 2026-10-26. Scope: physical calibration, full-budget neural training,
 script/notebook status reporting and safe output paths. The root upgrade report
 is unchanged. The original `upgrade-3.5-validation.md` records earlier runs;
@@ -376,3 +381,21 @@ No committed dataset or pretrained weight was regenerated or overwritten. SHA256
 The completed full-training output and all regenerated experimental data remain under
 `.task/quarter-followup`. Upstream status handling is described in
 [the unfiled issue drafts](followup-upstream-issues.md).
+
+## Final notebook correction and execution
+
+The final independent Claude review found that the selected calibration
+requested the transient-only `SimulationSolutionPlot` artifact. The notebook
+now requests `ConvergencePlot` and reuses `scripts/result_checks.jl` for
+finite-fit and raw `SOLVE_SUCCEEDED` acceptance.
+
+All shipped code cells ran in a fresh RC2 process with normal compiler
+settings and only `@__DIR__` relocated for the extracted driver: **245.66 s**
+process wall time, **106.679172039 s** optimizer time, **43 iterations**,
+objective **0.0058507392955954975**, raw **`SOLVE_SUCCEEDED`**, dual residual
+**1.4388840022991673e-9**. The final convergence artifact completed and
+`SHIPPED_NOTEBOOK_PASS QuarterTruckSciML` was printed. The driver and log
+are retained under workspace `.task/workflows/final-notebook-QuarterTruckSciML*`.
+The earlier `-O0` attempt was interrupted without a result; only the complete
+normal-compiler run is counted as validation. Notebook GUI interaction remains
+unvalidated.

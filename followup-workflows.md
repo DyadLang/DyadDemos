@@ -1,5 +1,10 @@
 # Follow-up workflow audit
 
+Evidence paths and helper commands under `.task/` refer to the retained
+validation workspace; those logs and investigation helpers are not shipped
+with this repository. The demo entry points under `scripts/` are committed.
+
+
 Validated on 2026-10-26 with Dyad 3.5.0-rc2 (Julia 1.13.2), two Julia threads, one precompile task, `--startup-file=no -O0`, and `GKSwstype=100`. Numerical/plot checks used existing distribution packages. Documentation generation and HTML builds used isolated task-local project copies; generated examples were fatal (`:example_block` removed from the generated template’s `warnonly` list). Cross-reference/missing-docstring warnings were retained. No solver success criteria, HTML size limits, physical horizons, or snapshots were relaxed. No hosted CI result is claimed.
 
 The commands, coverage, timings and baseline limits below supplement each project’s `docs/upgrade-3.5-validation.md`. See the [upstream issue drafts](followup-upstream-issues.md) for unresolved compiler/documentation behavior.
@@ -230,3 +235,28 @@ dependency tables keep `Documenter` in alphabetical order. Notebook JSON, cell i
 uniqueness, empty outputs, relative file links, TOML parsing and whitespace were
 checked. No full generated sites were rebuilt for these prose/schema edits;
 previously failing generated builds remain failures.
+
+## Final QuarterTruck notebook execution
+
+The final Claude review caught an additional notebook error: the selected
+`QuarterTruckCalibrationAnalysis` did not offer `SimulationSolutionPlot`.
+The notebook now requests `ConvergencePlot` and reuses the strict finite-fit
+and raw MadNLP acceptance helper used by the command-line workflow.
+
+Every shipped code cell then executed successfully in a fresh RC2 process
+with normal Julia compiler settings (two threads), with only `@__DIR__`
+relocated to the notebook directory. Process wall time was **245.66 s**,
+optimizer time **106.679172039 s**, **43 iterations**, objective
+**0.0058507392955954975**, raw status **`SOLVE_SUCCEEDED`**, primal residual
+**0.0** and dual residual **1.4388840022991673e-9**. The final convergence
+artifact call completed and the driver printed `SHIPPED_NOTEBOOK_PASS`.
+This extends the executed notebook coverage from five transient notebooks
+to six runnable notebooks. HL20 still has no analyses to select.
+
+Evidence is workspace-local:
+`.task/workflows/final-notebook-QuarterTruckSciML.jl` and
+`final-notebook-QuarterTruckSciML-default.log`. An initial `-O0` attempt
+was stopped after about eight minutes while sampled in the calibration
+solver; it had no final result and is not counted as a passing run.
+The complete successful run changed neither the numerical problem nor its
+iteration budget, tolerances or acceptance checks.

@@ -23,6 +23,13 @@ current scripts require its raw gradient criterion before accepted weight export
 
 ## Reproduction
 
+The follow-up validator now rejects Adam’s non-success `Default` before export.
+An unfiltered run therefore exits 1 by design, and its dependent LBFGS stage
+has no checkpoint to load. Use `scripts/train.jl` for staged training: it
+retains a completed Adam budget as a non-converged checkpoint and requires
+LBFGS gradient optimality before accepted export. Historical bounded-training
+commands and results below predate these stricter guards.
+
 Instantiate this project, regenerate with the Dyad 3.5 CLI, then run the existing tests and all concrete analyses:
 
 ```sh
