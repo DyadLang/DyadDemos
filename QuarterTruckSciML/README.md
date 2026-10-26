@@ -40,6 +40,7 @@ produced them:
 | `src/QuarterTruckSciML.jl`            | ISO 8608 spectrum helpers (Julia)                        |
 | `scripts/generate_training_data.jl`   | Produce `assets/data/truck_sin_full_train.csv`           |
 | `scripts/train.jl`                    | Run Adam + LBFGS to retrain the NN                       |
+| `scripts/evaluate_training_fit.jl`    | Replay exported NN weights against all training samples |
 | `scripts/validate.jl`                 | 3-panel overlay PNG (linear / NN / truth) on ISO 8608    |
 | `scripts/export_validation_csv.jl`    | Same data as `validate.jl` but as a tidy CSV             |
 | `scripts/generate_calibration_data.jl`| Simulate perturbed truth → synthetic measurements        |
@@ -116,17 +117,25 @@ julia +dyad-3.5.0-rc2 --project scripts/train.jl /path/to/fresh-training-output 
 The training script preserves the committed dataset and pretrained weights. It
 records actual optimizer return codes, losses and timings in `training-results.txt`
 and writes `adam_weights.csv` / `lbfgs_weights.csv` in the output directory.
+The measured RC2 full run took 82 min 38.64 s, with Adam completing all 5000
+iterations and LBFGS converging after two iterations within its 200-iteration
+limit; see the [follow-up report](docs/followup-validation.md) for exact statuses
+and fit limitations.
 Direct analysis exports default to the ignored `training-results/` directory,
 with LBFGS reading Adam's checkpoint there.
 Adam may return `Default` after its full budget; the script reports this without
 claiming convergence and requires successful LBFGS refinement. To evaluate the
-new fit on the held-out road:
+new fit against the training samples and on the held-out road:
 
 ```bash
+julia +dyad-3.5.0-rc2 --project scripts/evaluate_training_fit.jl /path/to/fresh-training-output/lbfgs_weights.csv
 QUARTERTRUCK_WEIGHTS=/path/to/fresh-training-output/lbfgs_weights.csv \
 QUARTERTRUCK_VALIDATION_OUTPUT=/path/to/validation-output \
 julia +dyad-3.5.0-rc2 --project scripts/validate.jl
 ```
+
+The validation output directory receives a PNG and
+`validation_iso_a_metrics.csv` with full-precision errors.
 
 Regenerate `assets/data/truck_sin_full_train.csv` only deliberately with
 `scripts/generate_training_data.jl`; an optional output filename keeps the

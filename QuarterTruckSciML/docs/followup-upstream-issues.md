@@ -45,6 +45,13 @@ ForwardDiff probe: `Default`, three iterations, objective
 without specifying a return code. This explains the propagated default status;
 the demo has no evidence of optimizer convergence solely from reaching a budget.
 
+The completed full-budget RC2 run also returned `Default` after exactly 5000
+Adam iterations, with objective `0.38392485285212924`, finite 68-element weights
+and `likely_wrong=false`. It took 4921.66849398613 seconds through the analysis,
+4828.688752174377 seconds inside the optimizer. The subsequent LBFGS solve
+returned `Success` after two iterations within its unchanged 200-iteration limit,
+objective `0.38384846067991113`. This does not retroactively change Adam's status.
+
 **Expected:** distinguish iteration-budget completion, user callback termination,
 and actual convergence with appropriate explicit SciML return codes. The demo's
 training workflow records Adam's status, requires its full budget before using

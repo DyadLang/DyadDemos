@@ -79,6 +79,13 @@ for (col, _, _) in OBS
                    pct_nn  = r > 0 ? 100 * e_nn  / r : NaN)
 end
 
+# Preserve full precision alongside the rounded console table and overlay plot.
+metrics_path = joinpath(OUT_DIR, "validation_iso_a_metrics.csv")
+CSV.write(metrics_path, DataFrame([
+    (; observable=col, signal_rms=errs[col].r, linear_rmse=errs[col].e_lin,
+       nn_rmse=errs[col].e_nn, linear_error_percent=errs[col].pct_lin,
+       nn_error_percent=errs[col].pct_nn) for (col, _, _) in OBS]))
+
 println()
 println("══════════════════════════════════════════════════════════════════════")
 println("   ISO 8608 Class A validation — linear vs NN vs nonlinear truth")

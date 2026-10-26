@@ -26,8 +26,15 @@ export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.0-rc2"
   -e 'using Pkg; Pkg.test()'
 .toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
   DyadDemos/QuarterTruckSciML/scripts/run_calibration.jl
+/usr/bin/time -p .toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
+  DyadDemos/QuarterTruckSciML/scripts/train.jl "$PWD/.task/quarter-followup/full-training-restart"
 .toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
-  DyadDemos/QuarterTruckSciML/scripts/train.jl "$PWD/.task/quarter-followup/full-training"
+  DyadDemos/QuarterTruckSciML/scripts/evaluate_training_fit.jl \
+  "$PWD/.task/quarter-followup/full-training-restart/lbfgs_weights.csv"
+QUARTERTRUCK_WEIGHTS="$PWD/.task/quarter-followup/full-training-restart/lbfgs_weights.csv" \
+QUARTERTRUCK_VALIDATION_OUTPUT="$PWD/.task/quarter-followup/retrained-heldout" \
+  .toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
+  DyadDemos/QuarterTruckSciML/scripts/validate.jl
 ```
 
 Compiler: exact `v3.5.0-rc2`, `a24a2240667872d432a3b86c4db1240d77150e35`.
@@ -43,6 +50,17 @@ The original analysis returns `MaxIters` after 100 iterations on 3.4 too:
 objective `0.0764897855707439`. Parameters:
 `[315.0000005744307, 22000.007194655205, 1801.4912803449884, 749.8531951517773]`.
 This is a pre-existing demo configuration problem, not an upgrade regression.
+The measured original-baseline command, from the workspace with the environment
+above exported, was:
+
+```sh
+MODE=baseline .toolchain/juliaup/bin/julia +dyad-3.4.0 \
+  --project="$PWD/.task/sciml/baseline/QuarterTruckSciML" \
+  .task/quarter-followup/diagnose.jl
+```
+
+That task-local probe prints timing, optimizer status, objective, parameters,
+statistics and diagnostics; its output is `diagnose-baseline.log`.
 
 The default L2 loss is the **square root** of the sum of squared residuals.
 Replacing it with smooth `SquaredL2Loss()` and tightening the optimizer's
@@ -133,8 +151,34 @@ warm time to 1,087,425,208 bytes / 2.922238363 s. It was not adopted: it would a
 custom network implementation and its Enzyme variant segfaulted. The production
 model and committed pretrained parameter layout remain unchanged.
 
-Full schedule result: **pending while the foreground run completes**. No
-extrapolated duration is presented as a measured completion time.
+The full declared **5000 Adam / up-to-200 LBFGS** schedule completed on RC2.
+Measured process wall time was **4958.64 s (82 min 38.64 s)**, with
+6480.27 s user / 145.41 s system CPU time (`/usr/bin/time -p`).
+
+| Stage | Actual iterations / limit | Return code | Objective | Analysis elapsed [s] | Optimizer elapsed [s] |
+|---|---:|---|---:|---:|---:|
+| Adam | 5000 / 5000 | `Default` | 0.38392485285212924 | 4921.66849398613 | 4828.688752174377 |
+| LBFGS | 2 / 200 | `Success` | 0.38384846067991113 | 19.275381088256836 | 11.226938009262085 |
+
+Both results have finite 68-element parameter vectors and `likely_wrong=false`.
+Adam evaluated the objective and gradient 5000 times each. LBFGS made seven
+function / three gradient evaluations and converged before its declared limit;
+the limit was not reduced. Adam's `Default` is preserved and **is not a
+successful-convergence claim**. The independent minimal adapter reproduction in
+the upstream draft explains that status. The staged workflow uses this full-budget
+checkpoint for refinement and requires LBFGS success. The strict general upgrade
+validator still rejects Adam's non-success status.
+
+The first foreground follow-up attempt was interrupted by the harness stall
+intervention after the logged 2500-iteration checkpoint (2469.5955498218536 s).
+It produced no final optimization result or weights. The completed run above
+restarted from the declared initialization, without resuming or counting any of
+those interrupted iterations. Logs are `full-training.log` (interrupted),
+`full-training-restart.log` (completed) and
+`full-training-restart/training-results.txt` under `.task/quarter-followup`.
+The earlier 8.3-hour figure was a short-run extrapolation; the 4958.64-second
+duration above is measured. A full-budget 3.4 training run was not completed;
+the old/new training comparison remains the measured 25-iteration comparison.
 
 ## Held-out validation with shipped weights
 
@@ -150,7 +194,27 @@ earlier report:
 | Driver acceleration | 0.07255 m/s² | 115.11% | 44.44% |
 
 This validates the committed pretrained artifact, separately from newly trained
-weights. A new-fit held-out result is still pending full training.
+weights.
+
+The **new full-budget fit** was then evaluated with the command above, using its
+exported LBFGS weights on the same held-out 10-second ISO Class A road. All three
+integrations returned successful codes with finite states and observables.
+Measured process wall time was **108.33 s**. The PNG and full-precision metrics
+CSV are under `.task/quarter-followup/retrained-heldout`.
+
+| Observable | Truth signal RMS | Linear RMS error | New NN RMS error | Linear error / signal RMS | New NN error / signal RMS |
+|---|---:|---:|---:|---:|---:|
+| Tire position [m] | 0.0005432634556033191 | 0.00047618784560293017 | 0.00006246571852170148 | 87.65320779291176% | 11.498236790532951% |
+| Driver position [m] | 0.000654832901642847 | 0.0009632044439610797 | 0.0003778190810857595 | 147.09163842326632% | 57.69702165817962% |
+| Driver acceleration [m/s²] | 0.07254727195299145 | 0.0835094031352022 | 0.032251081332370785 | 115.11032859969416% | 44.455264083904574% |
+
+The new fit beats the linear baseline on all three observables, but does not
+establish uniformly better generalization than the shipped fit: driver-position
+normalized error rises from the shipped 56.77% to 57.70%. The 57.70% position
+and 44.46% acceleration errors remain substantial. A slightly lower training
+objective alone does not imply a better held-out result. The shipped weights
+were kept; the new LBFGS CSV has SHA256
+`edaee61ddf71ae50c37ad6c91215b19f9449d2b1a6744839391f35a3dd9483e8`.
 
 ## Training objective and model limits
 
@@ -170,6 +234,25 @@ weighting. For the shipped weights, an independent Tsit5 replay returned
 0.01637334 m/s² respectively (16.21%, 18.75%, 0.564% of each data standard
 deviation). This illustrates why the total loss must be read alongside the
 per-observable and held-out errors.
+
+The newly trained LBFGS weights were independently replayed by the committed
+`scripts/evaluate_training_fit.jl`, using Tsit5 and `abstol=reltol=1e-8` over the
+same 5-second horizon. All **501** saved times match the committed data grid;
+the ODE returned **Success**, with finite states and observables. Recomputed L2
+objective was **0.38384846067991096**, agreeing with the optimizer's
+`0.38384846067991113` to floating-point precision. Process wall time was
+**90.69 s**, including 60.55426287651062 s through the transient analysis.
+
+| Observable | RMS residual | Maximum absolute residual | RMS residual / data standard deviation |
+|---|---:|---:|---:|
+| Tire position [m] | 0.0036846365222160094 | 0.0076070357765145313 | 0.16204406195751056 |
+| Driver position [m] | 0.0035815440552496585 | 0.0043937327477876487 | 0.18714873492648251 |
+| Driver acceleration [m/s²] | 0.016361145901600659 | 0.087692643793869873 | 0.0056348365423940817 |
+
+These residuals confirm the acceleration-dominated nature of the current
+mixed-unit objective: convergence does not mean negligible position error.
+The loss definition, data and pretrained weights were preserved deliberately;
+there is no claim that this fit solves a balanced sensor-noise inference problem.
 
 One sinusoidal road input does not identify a unique three-input nonlinear
 force law or unique network weights (including ordinary hidden-unit
@@ -197,6 +280,11 @@ accuracy claim is made.
   `QUARTERTRUCK_WEIGHTS` and `QUARTERTRUCK_VALIDATION_OUTPUT` select new weights
   and isolated outputs for held-out evaluation. The CSV exporter was exercised
   with the shipped weights: 1001 rows × 11 columns, 102.68 s process wall time.
+- `evaluate_training_fit.jl` independently replays an explicit exported weights
+  file on every training sample, checks its 68-element layout and exact sample
+  grid, and reports full-precision residuals and the recomputed objective.
+  `validate.jl` additionally exports full-precision held-out metrics to
+  `validation_iso_a_metrics.csv` beside its plot.
 - Both data generators check solver success/finite states and accept an optional
   output filename. The calibration generator now uses explicit `1e-10`
   tolerances for future deliberate regeneration.
@@ -225,6 +313,6 @@ No committed dataset or pretrained weight was regenerated or overwritten. SHA256
 | truck_sin_full_train.csv | 8ff03b75166cedf32a4e0f88b82297f60f6dd01a8b8da11942354da442a43ece |
 | nn_weights_full_sin_lbfgs.csv | a23859999a2f7307ad665ebb6008615ca3fc3a390d6eae2e5dc0ca0c6827359d |
 
-The full-training output and all regenerated experimental data remain under
+The completed full-training output and all regenerated experimental data remain under
 `.task/quarter-followup`. Upstream status handling is described in
 [the unfiled issue drafts](followup-upstream-issues.md).
