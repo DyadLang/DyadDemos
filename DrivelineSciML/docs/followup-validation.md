@@ -122,7 +122,10 @@ original horizons and budgets:
 
 Standalone Stage 2 returns `[41.27946238373415, 3.3939687271136365,
 0.05126855733513879]`, objective 0.39605148405164603, with its nominal fixed
-Maxwell branch. The chained workflow uses the fitted branch instead and
+Maxwell branch. This is optimizer success only: gamma is near its lower bound
+0.05 and far from the synthetic truth 0.5, so this standalone fit does not
+recover the physical parameters. It is not the scientific calibration result.
+The chained workflow uses the fitted branch instead and
 returns the 1 ms Stage 2 values in the refinement table above. Both optimizer
 statuses are `Success`, with raw `SOLVE_SUCCEEDED` confirmed by the final
 diagnostic driver. Its primal/dual residuals are respectively

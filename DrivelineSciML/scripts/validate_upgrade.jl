@@ -110,6 +110,7 @@ validate_analysis("DrivelineStage1CalibrationAnalysis") do
 end
 
 validate_analysis("DrivelineStage2CalibrationAnalysis") do
+    println("INTERPRETATION: standalone Stage 2 fixes the nominal Maxwell branch; optimizer success does not establish parameter recovery. Use run_calibration.jl for the chained fit.")
     DrivelineSciML.DrivelineStage2CalibrationAnalysis(; )
 end
 

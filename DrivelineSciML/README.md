@@ -136,6 +136,11 @@ Both stages must return a successful status before the workflow
 chains or writes parameters. See [follow-up validation](docs/followup-validation.md)
 for residuals, step refinement, and measured runtimes.
 
+Run the two-stage script for physical calibration. Running Stage 2 by itself
+keeps the nominal Maxwell branch: its optimizer succeeds, but gamma fits near
+its lower bound (0.0513 versus truth 0.5). The chained fit gives gamma 0.4437,
+still 11.27% below truth; successful optimization does not imply exact recovery.
+
 To regenerate the synthetic measurements from the truth model:
 
 ```bash
