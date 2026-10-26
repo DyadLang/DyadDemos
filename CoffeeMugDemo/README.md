@@ -90,3 +90,8 @@ To run the script, start a Julia REPL from this project directory and execute:
 ```julia
 include("scripts/simulate_coffee_mug.jl")
 ```
+
+## Dyad version
+
+Use Dyad 3.5 (Julia 1.13.2), validated with `dyad-3.5.0-rc2`.
+See [upgrade validation](docs/upgrade-3.5-validation.md) for analysis coverage and results.

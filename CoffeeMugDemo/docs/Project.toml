@@ -6,3 +6,8 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [sources]
 CoffeeMugDemo = {path = ".."}
+
+[compat]
+DyadInterface = "=7.5.1"
+ModelingToolkit = "=11.45.3"
+julia = "=1.13.2"
