@@ -47,8 +47,17 @@ are pending. It does not supersede the final per-project evidence.
   changing data, bounds, tolerances or budgets. All seven analyses and 27 tests
   pass; chained calibration took 172.475 s. See
   `DrivelineSciML/docs/followup-validation.md`.
-- **QuarterTruck:** calibration/safe-training changes committed; the full
-  5000/200 run is still in progress. Do not count full training as validated.
+- **QuarterTruck calibration fixed:** squared residuals remove the norm cusp;
+  the stricter gradient tolerance gives `Success` in 43/100 iterations,
+  worst parameter error 0.08273%, optimizer time 104.027 s. The original
+  3.4 100-iteration failure was reproduced.
+- **QuarterTruck full training completed:** 5000 Adam steps followed by LBFGS
+  `Success` in 2/200 iterations, total 4958.64 s. Adam retains its upstream
+  `Default` status; it is a budget-completed checkpoint, not converged training.
+  Final objective 0.38384846067991113 was independently replayed successfully.
+  Held-out normalized RMS errors are 11.4982%, 57.6970%, 44.4553%: better
+  than linear, still substantial and not uniformly better than shipped weights.
+  Full 3.4 retraining remains unvalidated. Data and shipped weights are unchanged.
 - **Motor:** quick-training failure remains unresolved and reproduces on both
   versions. Python audit awaits task-local CPU PyTorch download access.
 - **FrictionBrake fixed:** original vehicle-cycle default solver exhausts its
@@ -62,7 +71,10 @@ are pending. It does not supersede the final per-project evidence.
   cycles. Relevant example blocks pass on original 3.4 for the first four;
   original HL20 fails earlier on undefined `ChallengeComponent`.
   FrictionBrake hits Documenter's unchanged HTML size limit (same SVG fixture
-  also fails on 3.4). MakieWebinar generation awaits DyadDAQP artifact access.
+  also fails on 3.4). After artifact access was granted, MakieWebinar generation
+  passed in 24.379 s; its strict HTML build failed in 73.976 s on the same
+  upstream `Hello` parameter cycle. All 12 emitted component blocks pass on
+  original 3.4; 11 pass on rc2 and `Hello` fails.
 - **Notebook/scripts:** five selected notebook solves and HTML artifacts pass;
   standalone headless simulation scripts pass. Full 240-frame GIF export takes
   204.705 s; Cairo SVG export takes 50.202 s. Notebook frontends and interactive
