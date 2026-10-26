@@ -98,4 +98,3 @@ baseline errors are 0.5234 rad/s, 0.6543 rad/s, and 0.01073 rad, respectively:
 
 No measurement datasets were regenerated. All seven defined analyses and the
 existing tests were run; no analysis or training budget was silently omitted.
-
