@@ -102,13 +102,12 @@ probes never advance C. The continuous RHS reads only the held force.
 
 An `InitClock` equation frees and recreates the C session before the first
 tick, including after `remake` or `reinit!`. A finalize-only hook frees it
-after the solve; a Julia finalizer is the backstop. Each model instance owns
-one handle. For concurrent solves of one compiled system, supply a fresh
-`tire.owner => TireHandle()` in the second problem.
+after the solve; a Julia finalizer is the backstop. Problems built from one
+compiled system share the synchronous runtime; run them sequentially.
 
 Use `t` for timestamps: `SampleTime()` is the period.
 An aligned final time does not tick.
-Nonzero starts schedule ticks relative to the session start, not a global phase.
+Use zero-start sessions: fresh nonzero starts can miss the initial tick.
 
 Stage 5 is 73 lines versus 87 for the periodic-callback version in PR #43.
 Clocks replace handwritten scheduling, the held parameter and cached inputs;
