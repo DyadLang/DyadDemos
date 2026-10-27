@@ -7,7 +7,6 @@ component SampledSlidingAxle
   variable delta::Real
   variable alpha::Real
   sampler = DiscreteComponents.Sampler()
-  clock = DiscreteComponents.PeriodicClock(dt = dt)
   tire = CLibraryIntegration.RelaxationTire(vx = U, dt = dt)
   hold = DiscreteComponents.ZeroOrderHold()
 relations
@@ -15,7 +14,7 @@ relations
   delta = ifelse(time < 0.2, 0, 0.04 + 0.01 * sin(2 * pi * (time - 0.2)))
   alpha = delta - atan(vy / U)
   sampler.u = alpha
-  connect(sampler.y, clock.y, tire.alpha)
+  connect(sampler.y, tire.alpha)
   connect(tire.Fy, hold.u)
   m * der(vy) = hold.y
 metadata {

@@ -55,7 +55,7 @@ end
 
 function RelaxationTire(; name, Fz=4000.0, B=10.0, C=1.3, D=1.0, E=0.97,
         sigma=0.5, vx=20.0, dt=0.005, alpha0=0.0)
-    k = ShiftIndex()
+    k = ShiftIndex(Clock(dt))
     ki = ShiftIndex(SynchToolkit.InitClock())
     @variables alpha(t_nounits) [input=true]
     @variables Fy(t_nounits) [output=true]

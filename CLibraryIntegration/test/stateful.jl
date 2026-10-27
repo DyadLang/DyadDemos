@@ -97,3 +97,20 @@ end
     @test fine_error < .6continuous_error
     @info "Stateful reference errors" vy_error fy_error rodas_error continuous_error fine_error remake_error reinit_error rejected=rodas.stats.nreject
 end
+
+@testset "Periodic output supports a period-aware consumer" begin
+    @named tire = C.RelaxationTire(dt=.013, alpha0=.02)
+    @named accumulator = DiscreteComponents.DiscreteIntegrator(
+        method=DiscreteComponents.DiscretizationMethod.Forward())
+    @named hold = DiscreteComponents.ZeroOrderHold()
+    @variables x(t)
+    @named model = System([tire.alpha ~ .02, connect(tire.Fy, accumulator.u),
+        connect(accumulator.y, hold.u), Dt(x) ~ hold.y], t;
+        systems=[tire, accumulator, hold], initial_conditions=[x=>0.])
+    sys = mtkcompile(model; additional_passes=[SynchToolkit.compile_lustre])
+    sol = solve(ODEProblem(sys, [], (0., .04)), Tsit5())
+    ticks = only(filter(c -> length(c.t) > 1, sol.discretes.collection)).t
+    @test ModelingToolkit.SciMLBase.successful_retcode(sol)
+    @test ticks ≈ [0., .013, .026, .039]
+    @test sol(ticks; idxs=hold.y, continuity=:right).u ≈ julia_mf(.02, 4000.) .* ticks atol=1e-10 rtol=0
+end

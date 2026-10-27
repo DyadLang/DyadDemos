@@ -92,9 +92,6 @@ A sliding mass at constant forward speed.
   # Subcomponent sampler of type DiscreteComponents.Sampler
   sampler_overrides = __pop_subcomponent_overrides!(__overrides, "sampler")
   push!(__systems, @named sampler = DiscreteComponents.Sampler(; __overrides = sampler_overrides))
-  # Subcomponent clock of type DiscreteComponents.PeriodicClock
-  clock_overrides = __pop_subcomponent_overrides!(__overrides, "clock")
-  push!(__systems, @named clock = DiscreteComponents.PeriodicClock(; dt=dt, __symbol_overrides(clock_overrides)...))
   # Subcomponent tire of type CLibraryIntegration.RelaxationTire
   tire_overrides = __pop_subcomponent_overrides!(__overrides, "tire")
   push!(__systems, @named tire = CLibraryIntegration.RelaxationTire(; vx=U, dt=dt, __symbol_overrides(tire_overrides)...))
@@ -121,7 +118,7 @@ A sliding mass at constant forward speed.
   push!(__eqs, alpha ~ delta - atan(vy / U))
   push!(__eqs, sampler.u ~ alpha)
   push!(__eqs, m * ModelingToolkit.D_nounits(vy) ~ hold.y)
-  push!(__eqs, connect(sampler.y, clock.y, tire.alpha))
+  push!(__eqs, connect(sampler.y, tire.alpha))
   push!(__eqs, connect(tire.Fy, hold.u))
 
   # Return completely constructed System

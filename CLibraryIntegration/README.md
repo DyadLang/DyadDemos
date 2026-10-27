@@ -87,8 +87,8 @@ parameter sensitivities and higher derivatives need additional rules.
 ## 5. Own and step a clocked handle
 
 Read [`src/5_stateful.jl`](src/5_stateful.jl). Dyad connects a `Sampler`,
-a clocked `RelaxationTire` and a `ZeroOrderHold`; a `PeriodicClock` sets 5 ms
-communication points. Compile the clocked model with:
+a clocked `RelaxationTire` and a `ZeroOrderHold`; the tire owns `Clock(dt)`
+with a default period of 5 ms. Compile the clocked model with:
 
 ```julia
 mtkcompile(model; additional_passes=[SynchToolkit.compile_lustre])
@@ -109,9 +109,9 @@ Use `t` for timestamps: `SampleTime()` is the period.
 An aligned final time does not tick.
 Use zero-start sessions: fresh nonzero starts can miss the initial tick.
 
-Stage 5 is 73 lines versus 87 for the periodic-callback version in PR #43.
-Clocks replace handwritten scheduling, the held parameter and cached inputs;
-C ownership, snapshot calls and finalization stay.
+Stage 5 is 73 lines versus 83 in PR #43. Output-then-update removes the
+cached previous inputs; both versions keep C ownership, snapshot calls
+and finalization.
 
 ## 6. Use the wrappers from Dyad
 

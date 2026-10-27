@@ -55,7 +55,7 @@ metadata {
 end
 
 "Clocked tire with C-owned lagged slip, implemented in src/5_stateful.jl."
-external component RelaxationTire@[input clk extends Discrete]
+external component RelaxationTire@[output clk extends Periodic]
   structural parameter Fz::Real = 4000
   structural parameter B::Real = 10
   structural parameter C::Real = 1.3
