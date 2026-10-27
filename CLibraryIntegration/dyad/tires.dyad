@@ -55,7 +55,7 @@ metadata {
 end
 
 "Sampled tire with C-owned lagged slip, implemented in src/5_stateful.jl."
-external component RelaxationTire
+external component RelaxationTire@[output clk extends Periodic]
   structural parameter Fz::Real = 4000
   structural parameter B::Real = 10
   structural parameter C::Real = 1.3
@@ -66,7 +66,7 @@ external component RelaxationTire
   structural parameter dt::Real = 0.005
   parameter alpha0::Real = 0
   alpha = RealInput()
-  Fy = RealOutput()
+  Fy = RealOutput@[clk]()
 relations
 metadata {
   "Dyad": {

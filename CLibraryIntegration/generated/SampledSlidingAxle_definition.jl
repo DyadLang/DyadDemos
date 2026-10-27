@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   SampledSlidingAxle(; name, U, m, __overrides)
+   SampledSlidingAxle(; name, U, dt, m, __overrides)
 
 A sliding mass at constant forward speed.
 
@@ -14,6 +14,7 @@ A sliding mass at constant forward speed.
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `U`         |                          | --  |   20 |
+| `dt`         |                          | --  |   0.005 |
 | `m`         |                          | --  |   400 |
 
 ## Variables
@@ -24,7 +25,7 @@ A sliding mass at constant forward speed.
 | `delta`         |                          | --  |
 | `alpha`         |                          | --  |
 """
-@component function SampledSlidingAxle(; name = nothing, var"U"=Float64(20), var"m"=Float64(400), __overrides = Dict{String, Any}())
+@component function SampledSlidingAxle(; name = nothing, var"U"=Float64(20), var"dt"=0.005, var"m"=Float64(400), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -44,6 +45,7 @@ A sliding mass at constant forward speed.
 
   ### Keyword argument overrides
   haskey(__overrides, "U") && (U = pop!(__overrides, "U"))
+  haskey(__overrides, "dt") && (dt = pop!(__overrides, "dt"))
   haskey(__overrides, "m") && (m = pop!(__overrides, "m"))
 
   ### Structural Parameters (functions)
@@ -89,7 +91,10 @@ A sliding mass at constant forward speed.
   ### Components
   # Subcomponent tire of type CLibraryIntegration.RelaxationTire
   tire_overrides = __pop_subcomponent_overrides!(__overrides, "tire")
-  push!(__systems, @named tire = CLibraryIntegration.RelaxationTire(; vx=U, __symbol_overrides(tire_overrides)...))
+  push!(__systems, @named tire = CLibraryIntegration.RelaxationTire(; vx=U, dt=dt, __symbol_overrides(tire_overrides)...))
+  # Subcomponent hold of type DiscreteComponents.ZeroOrderHold
+  hold_overrides = __pop_subcomponent_overrides!(__overrides, "hold")
+  push!(__systems, @named hold = DiscreteComponents.ZeroOrderHold(; __overrides = hold_overrides))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
@@ -109,7 +114,8 @@ A sliding mass at constant forward speed.
   push!(__eqs, delta ~ ifelse(t < 0.2, 0, 0.04 + 0.01 * sin(2 * pi * (t - 0.2))))
   push!(__eqs, alpha ~ delta - atan(vy / U))
   push!(__eqs, tire.alpha ~ alpha)
-  push!(__eqs, m * ModelingToolkit.D_nounits(vy) ~ tire.Fy)
+  push!(__eqs, m * ModelingToolkit.D_nounits(vy) ~ hold.y)
+  push!(__eqs, connect(tire.Fy, hold.u))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

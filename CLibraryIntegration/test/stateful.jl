@@ -15,12 +15,14 @@ end
 
 @testset "Stateful ownership and rollback" begin
     h1, h2 = C.TireHandle(), C.TireHandle()
-    inputs(h) = (; handle=h, B=10., C=1.3, D=1., E=.97, sigma=.5,
-        Fz=4000., vx=20., alpha0=0., alpha=.05, t=0.)
-    C.initialize_tire!((;), inputs(h1), nothing, nothing)
-    C.initialize_tire!((;), inputs(h2), nothing, nothing)
+    p = Ref(C.TireParams(C.MFParams(10., 1.3, 1., .97), .5, 4000.))
+    for h in (h1, h2)
+        h.ptr = @ccall C.libtiremodel.tm_tire_new(p::Ref{C.TireParams})::Ptr{Cvoid}
+        C.check_status(@ccall C.libtiremodel.tm_tire_reset(h::Ptr{Cvoid}, 0.0::Cdouble, 0.0::Cdouble)::Cint)
+    end
     snapshot = C.tire_state(h1)
-    C.step_tire!((;), merge(inputs(h1), (;t=.01)), nothing, nothing)
+    C.check_status(@ccall C.libtiremodel.tm_tire_step(h1::Ptr{Cvoid}, 0.0::Cdouble,
+        0.01::Cdouble, 0.05::Cdouble, 20.0::Cdouble, 4000.0::Cdouble)::Cint)
     @test C.get_fy(h1) > 0 && C.get_fy(h2) == 0
     C.set_tire_state!(h1, snapshot)
     @test C.tire_state(h1) == snapshot
@@ -31,7 +33,7 @@ end
 
 @testset "Stateful Dyad simulation and continuous limit" begin
     @named axle = C.SampledSlidingAxle()
-    sys = mtkcompile(axle)
+    sys = mtkcompile(axle; additional_passes=[SynchToolkit.compile_lustre])
     prob = ODEProblem(sys, [], (0., 2.))
     sol = solve(prob, Tsit5(); abstol=1e-12, reltol=1e-12, tstops=[.2])
     times, vy, fy = discrete_reference(.005)
@@ -40,12 +42,12 @@ end
     # a communication point and correctly return the previous held force.
     clock_times = only(sol.discretes.collection).t
     @test clock_times ≈ times[1:end-1]
-    fy_error = maximum(abs.(sol(clock_times; idxs=axle.tire.Fy, continuity=:right).u .- fy[1:end-1]))
+    fy_error = maximum(abs.(sol(clock_times; idxs=axle.hold.y, continuity=:right).u .- fy[1:end-1]))
     @test ModelingToolkit.SciMLBase.successful_retcode(sol)
     @test vy_error < 1e-10
     @test fy_error < 1e-10
     # PeriodicCallback does not tick at the end of tspan.
-    @test sol(2.; idxs=axle.tire.Fy) ≈ fy[end-1] atol=1e-10
+    @test sol(2.; idxs=axle.hold.y) ≈ fy[end-1] atol=1e-10
     again = solve(ModelingToolkit.SciMLBase.remake(prob), Tsit5(); abstol=1e-12, reltol=1e-12, tstops=[.2])
     @test sol(times; idxs=axle.vy).u == again(times; idxs=axle.vy).u
     h = prob.ps[sys.tire.handle]
@@ -66,4 +68,12 @@ end
     @test continuous_error < .02
     @test fine_error < .6continuous_error
     @info "Stateful reference errors" vy_error fy_error continuous_error fine_error
+end
+
+@testset "Output clock follows dt" begin
+    @named slower = C.SampledSlidingAxle(dt=.01)
+    sys = mtkcompile(slower; additional_passes=[SynchToolkit.compile_lustre])
+    sol = solve(ODEProblem(sys, [], (0., .051)), Tsit5())
+    @test ModelingToolkit.SciMLBase.successful_retcode(sol)
+    @test only(sol.discretes.collection).t ≈ collect(0.:.01:.05)
 end

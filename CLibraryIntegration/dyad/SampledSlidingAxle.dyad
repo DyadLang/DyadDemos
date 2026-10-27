@@ -2,16 +2,19 @@
 component SampledSlidingAxle
   parameter m::Real = 400
   structural parameter U::Real = 20
+  structural parameter dt::Real = 0.005
   variable vy::Real
   variable delta::Real
   variable alpha::Real
-  tire = CLibraryIntegration.RelaxationTire(vx = U)
+  tire = CLibraryIntegration.RelaxationTire(vx = U, dt = dt)
+  hold = DiscreteComponents.ZeroOrderHold()
 relations
   initial vy = 0
   delta = ifelse(time < 0.2, 0, 0.04 + 0.01 * sin(2 * pi * (time - 0.2)))
   alpha = delta - atan(vy / U)
   tire.alpha = alpha
-  m * der(vy) = tire.Fy
+  connect(tire.Fy, hold.u)
+  m * der(vy) = hold.y
 metadata {
   "Dyad": {
     "icons": {

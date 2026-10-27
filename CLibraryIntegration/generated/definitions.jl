@@ -17,6 +17,10 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
   include(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
 end
 
+import DiscreteComponents
+let api = isdefined(DiscreteComponents, :__dyad_constructor_api) ? DiscreteComponents.__dyad_constructor_api : 1
+  api == 2 || error("DiscreteComponents was generated with Dyad constructor API version $api, but CLibraryIntegration requires version 2 (the `__overrides` dict override channel). Regenerate DiscreteComponents with the same Dyad compiler that generated CLibraryIntegration.")
+end
 import DyadData
 import DyadInterface
 @doc Markdown.doc"""

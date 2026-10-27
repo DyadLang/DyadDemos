@@ -40,6 +40,7 @@ function set_tire_state!(h::TireHandle, buf::Vector{Float64})
     nothing
 end
 get_fy(h::TireHandle) = @ccall libtiremodel.tm_tire_get_fy(h::Ptr{Cvoid})::Cdouble
+@register_symbolic get_fy(h::TireHandle)::Real
 
 function initialize_tire!(m, o, ctx, integrator)
     h = o.handle
@@ -49,7 +50,8 @@ function initialize_tire!(m, o, ctx, integrator)
     h.ptr == C_NULL && error("could not create tire")
     check_status(@ccall libtiremodel.tm_tire_reset(h::Ptr{Cvoid}, o.t::Cdouble, o.alpha0::Cdouble)::Cint)
     h.time, h.alpha, h.vx, h.Fz = o.t, o.alpha, o.vx, o.Fz
-    (; Fy_hold = get_fy(h))
+    SynchToolkit.get_clock_invoker(integrator.f.sys, integrator, ctx)()
+    (;)
 end
 function step_tire!(m, o, ctx, integrator)
     h = o.handle
@@ -59,7 +61,8 @@ function step_tire!(m, o, ctx, integrator)
     check_status(@ccall libtiremodel.tm_tire_step(h::Ptr{Cvoid}, h.time::Cdouble,
         dt::Cdouble, h.alpha::Cdouble, h.vx::Cdouble, h.Fz::Cdouble)::Cint)
     h.time, h.alpha, h.vx, h.Fz = o.t, o.alpha, o.vx, o.Fz
-    (; Fy_hold = get_fy(h))
+    SynchToolkit.get_clock_invoker(integrator.f.sys, integrator, ctx)()
+    (;)
 end
 function finalize_tire!(m, o, ctx, integrator)
     close(o.handle)
@@ -68,20 +71,18 @@ end
 
 function RelaxationTire(; name, Fz=4000.0, B=10.0, C=1.3, D=1.0, E=0.97,
         sigma=0.5, vx=20.0, dt=0.005, alpha0=0.0)
+    clock = SynchToolkit.ImperativeClock()
+    k = ShiftIndex(clock)
     @variables alpha(t_nounits) [input=true]
     @variables Fy(t_nounits) [output=true]
     @parameters (handle::TireHandle) = TireHandle() [tunable=false]
-    @discretes Fy_hold(t_nounits) [tunable=false]
     observed = (; handle, alpha, t=t_nounits, Fz, B, C, D, E, sigma, vx, alpha0)
-    modified = (; Fy_hold)
     cb = SymbolicDiscreteCallback(dt,
-        ImperativeAffect(step_tire!; observed, modified);
-        initialize=ImperativeAffect(initialize_tire!; observed, modified),
+        ImperativeAffect(step_tire!; observed, ctx=clock);
+        initialize=ImperativeAffect(initialize_tire!; observed, ctx=clock),
         finalize=ImperativeAffect(finalize_tire!; observed=(; handle)),
         reinitializealg=ModelingToolkit.SciMLBase.NoInit())
-    # An initialization equation supplies a consistent held force before
-    # callback initialization. The continuous equation reads only this parameter.
-    System([Fy ~ Fy_hold], t_nounits, [alpha, Fy], [handle, Fy_hold]; name,
-        initialization_eqs=[Fy_hold ~ mf_fy(alpha0, Fz, B, C, D, E)],
+    # Publish after C updates, so a downstream hold sees this tick's force.
+    System([Fy(k) ~ get_fy(handle)], t_nounits, [alpha, Fy(k)], [handle]; name,
         discrete_events=[cb])
 end

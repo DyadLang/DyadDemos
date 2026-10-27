@@ -96,16 +96,20 @@ Like FMI `doStep`, Simulink `mdlUpdate`/`mdlOutputs`, or a Modelica
 Advancing inside a solver RHS would also advance on rejected steps and
 Jacobian probes. Here the RHS reads a held force and never calls C.
 
-The MTK FMI extension supplies the pattern: a nonnumeric handle parameter,
-a periodic `SymbolicDiscreteCallback` with `ImperativeAffect`, and lifecycle
-hooks. MTK 11.45 requires **`@discretes`** for the held force. An
-initialization equation makes it consistent at time zero. Initialization
-creates/resets the C instance; finalization frees it, with a Julia finalizer
-as a backstop. Each model instance owns one handle. For two simultaneous
-solves of one compiled system, pass `tire.handle => TireHandle()` when
-building the second problem.
-C snapshots restore time, lagged slip and force; a host doing rollback must
-also restore its continuous state and sampled inputs.
+The MTK FMI extension supplies the ownership and callback pattern. After
+initialization and each `dt` step, the callback emits its output clock through
+`SynchToolkit.ImperativeClock`. The clocked equation queries the updated C
+force; publishing after the update avoids an extra tick of delay.
+
+Dyad declares `RelaxationTire@[output clk extends Periodic]` and
+`Fy = RealOutput@[clk]()`. Its timer uses the tire's structural `dt` parameter.
+A `DiscreteComponents.ZeroOrderHold` feeds the continuous mass. Compile with
+`mtkcompile(model; additional_passes=[SynchToolkit.compile_lustre])`.
+
+Initialization creates/resets the C instance; finalization frees it, with a
+Julia finalizer as a backstop. Problems from one compiled system share the
+synchronous runtime; run them sequentially. C snapshots restore time, lagged
+slip and force; rollback also needs the host's continuous state and sampled inputs.
 
 ## 6. Use the wrappers from Dyad
 
