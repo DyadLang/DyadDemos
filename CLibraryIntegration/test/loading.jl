@@ -21,7 +21,9 @@
         code = "using Pkg; Pkg.instantiate(); using TireModel_jll; " *
             "@assert TireModel_jll.libtiremodel == $(repr(library)); " *
             "include($(repr(joinpath(ROOT, "scripts", "b_local_jll.jl"))))"
-        output = read(`$(Base.julia_cmd()) --startup-file=no --project=$dir -e $code`, String)
+        cmd = `$(Base.julia_cmd()) --startup-file=no --project=$dir -e $code`
+        # Pkg.test restricts LOAD_PATH; this subprocess owns a different project.
+        output = read(addenv(cmd, "JULIA_LOAD_PATH" => "@:@stdlib"), String)
         @test occursin("local JLL: Fy =", output)
     end
 end
