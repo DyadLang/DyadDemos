@@ -43,7 +43,8 @@ end
     @test C.tire_state(h) == snapshot
     sol = solve!(integ)
     times, vy, fy = discrete_reference(.005)
-    vy_error = maximum(abs.(sol(times; idxs=axle.vy, continuity=:right).u .- vy))
+    original_vy = copy(sol(times; idxs=axle.vy, continuity=:right).u)
+    vy_error = maximum(abs.(original_vy .- vy))
     # Clock outputs have their own saved times, separate from the solver grid.
     clock_times = only(filter(c -> length(c.t) > 1, sol.discretes.collection)).t
     @test clock_times ≈ times[1:end-1]
@@ -53,13 +54,13 @@ end
     @test fy_error < 1e-10
     @test sol(2.; idxs=axle.hold.y) ≈ fy[end-1] atol=1e-10
     again = solve(ModelingToolkit.SciMLBase.remake(prob), Tsit5(); abstol=1e-12, reltol=1e-12, tstops=[.2])
-    remake_error = maximum(abs.(sol(times; idxs=axle.vy).u .- again(times; idxs=axle.vy).u))
+    remake_error = maximum(abs.(original_vy .- again(times; idxs=axle.vy).u))
     @test remake_error < 1e-12
     @test h.ptr == C_NULL
     reinit!(integ)
     @test C.tire_state(h)[1] ≈ .005
     replay = solve!(integ)
-    reinit_error = maximum(abs.(sol(times; idxs=axle.vy).u .- replay(times; idxs=axle.vy).u))
+    reinit_error = maximum(abs.(original_vy .- replay(times; idxs=axle.vy).u))
     @test reinit_error < 1e-12
     @test h.ptr == C_NULL
 
