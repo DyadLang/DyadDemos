@@ -40,7 +40,7 @@ end
     vy_error = maximum(abs.(sol(times; idxs=axle.vy, continuity=:right).u .- vy))
     # Query the recorded clock times: a rounded decimal can be one float before
     # a communication point and correctly return the previous held force.
-    clock_times = only(sol.discretes.collection).t
+    clock_times = only(filter(c -> length(c.t) > 1, sol.discretes.collection)).t
     @test clock_times ≈ times[1:end-1]
     fy_error = maximum(abs.(sol(clock_times; idxs=axle.hold.y, continuity=:right).u .- fy[1:end-1]))
     @test ModelingToolkit.SciMLBase.successful_retcode(sol)
@@ -70,10 +70,19 @@ end
     @info "Stateful reference errors" vy_error fy_error continuous_error fine_error
 end
 
-@testset "Output clock follows dt" begin
-    @named slower = C.SampledSlidingAxle(dt=.01)
-    sys = mtkcompile(slower; additional_passes=[SynchToolkit.compile_lustre])
-    sol = solve(ODEProblem(sys, [], (0., .051)), Tsit5())
+@testset "Periodic output supports a period-aware consumer" begin
+    @named tire = C.RelaxationTire(dt=.013, alpha0=.02)
+    @named accumulator = DiscreteComponents.DiscreteIntegrator(
+        method=DiscreteComponents.DiscretizationMethod.Forward())
+    @named hold = DiscreteComponents.ZeroOrderHold()
+    @variables x(t)
+    @named model = System([tire.alpha ~ .02, connect(tire.Fy, accumulator.u),
+        connect(accumulator.y, hold.u), Dt(x) ~ hold.y], t;
+        systems=[tire, accumulator, hold], initial_conditions=[x=>0.])
+    sys = mtkcompile(model; additional_passes=[SynchToolkit.compile_lustre])
+    sol = solve(ODEProblem(sys, [], (0., .04)), Tsit5())
+    ticks = only(filter(c -> length(c.t) > 1, sol.discretes.collection)).t
     @test ModelingToolkit.SciMLBase.successful_retcode(sol)
-    @test only(sol.discretes.collection).t ≈ collect(0.:.01:.05)
+    @test ticks ≈ [0., .013, .026, .039]
+    @test sol(ticks; idxs=hold.y, continuity=:right).u ≈ julia_mf(.02, 4000.) .* ticks atol=1e-10 rtol=0
 end

@@ -96,20 +96,20 @@ Like FMI `doStep`, Simulink `mdlUpdate`/`mdlOutputs`, or a Modelica
 Advancing inside a solver RHS would also advance on rejected steps and
 Jacobian probes. Here the RHS reads a held force and never calls C.
 
-The MTK FMI extension supplies the ownership and callback pattern. After
-initialization and each `dt` step, the callback emits its output clock through
-`SynchToolkit.ImperativeClock`. The clocked equation queries the updated C
-force; publishing after the update avoids an extra tick of delay.
-
 Dyad declares `RelaxationTire@[output clk extends Periodic]` and
-`Fy = RealOutput@[clk]()`. Its timer uses the tire's structural `dt` parameter.
-A `DiscreteComponents.ZeroOrderHold` feeds the continuous mass. Compile with
+`Fy = RealOutput@[clk]()`. Julia implements that clock with `Clock(dt)`,
+so downstream blocks can read its period through `SampleTime()`.
+A `DiscreteComponents.Sampler` samples slip, then the clocked function
+advances C to the current communication point using the previous inputs.
+It returns the current force to a `DiscreteComponents.ZeroOrderHold`,
+which feeds the continuous mass. Compile with
 `mtkcompile(model; additional_passes=[SynchToolkit.compile_lustre])`.
 
-Initialization creates/resets the C instance; finalization frees it, with a
-Julia finalizer as a backstop. Problems from one compiled system share the
-synchronous runtime; run them sequentially. C snapshots restore time, lagged
-slip and force; rollback also needs the host's continuous state and sampled inputs.
+`InitClock` creates/resets the C session before the first periodic tick.
+Finalization frees it, with a Julia finalizer as a backstop. Use zero-start
+sessions and one active integrator per compiled system: the synchronous
+runtime is shared. C snapshots restore time, lagged slip and force; rollback
+also needs the host's continuous state and sampled inputs.
 
 ## 6. Use the wrappers from Dyad
 

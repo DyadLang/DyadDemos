@@ -1,4 +1,4 @@
-# Stage 5: only callbacks may advance the foreign state.
+# Stage 5: advance the C state only at communication points.
 struct TireParams
     mf::MFParams
     sigma::Cdouble
@@ -40,49 +40,44 @@ function set_tire_state!(h::TireHandle, buf::Vector{Float64})
     nothing
 end
 get_fy(h::TireHandle) = @ccall libtiremodel.tm_tire_get_fy(h::Ptr{Cvoid})::Cdouble
-@register_symbolic get_fy(h::TireHandle)::Real
 
-function initialize_tire!(m, o, ctx, integrator)
-    h = o.handle
+function begin_session!(h, Fz, B, C, D, E, sigma, vx, alpha0, t0)
     close(h)
-    p = Ref(TireParams(MFParams(o.B, o.C, o.D, o.E), o.sigma, o.Fz))
+    p = Ref(TireParams(MFParams(B, C, D, E), sigma, Fz))
     h.ptr = @ccall libtiremodel.tm_tire_new(p::Ref{TireParams})::Ptr{Cvoid}
     h.ptr == C_NULL && error("could not create tire")
-    check_status(@ccall libtiremodel.tm_tire_reset(h::Ptr{Cvoid}, o.t::Cdouble, o.alpha0::Cdouble)::Cint)
-    h.time, h.alpha, h.vx, h.Fz = o.t, o.alpha, o.vx, o.Fz
-    SynchToolkit.get_clock_invoker(integrator.f.sys, integrator, ctx)()
-    (;)
+    check_status(@ccall libtiremodel.tm_tire_reset(h::Ptr{Cvoid}, t0::Cdouble, alpha0::Cdouble)::Cint)
+    h.time, h.alpha, h.vx, h.Fz = t0, alpha0, vx, Fz
+    1.0
 end
-function step_tire!(m, o, ctx, integrator)
-    h = o.handle
-    dt = o.t - h.time
-    # Complete the previous interval with its LEFT-endpoint inputs. Sampling
-    # current inputs before advancing would silently change the coupling scheme.
-    check_status(@ccall libtiremodel.tm_tire_step(h::Ptr{Cvoid}, h.time::Cdouble,
-        dt::Cdouble, h.alpha::Cdouble, h.vx::Cdouble, h.Fz::Cdouble)::Cint)
-    h.time, h.alpha, h.vx, h.Fz = o.t, o.alpha, o.vx, o.Fz
-    SynchToolkit.get_clock_invoker(integrator.f.sys, integrator, ctx)()
-    (;)
+function current_fy!(h, alpha, tk, vx, Fz, ready)
+    # At the initial tick C is already at tk; later ticks complete the previous interval.
+    if tk > h.time
+        check_status(@ccall libtiremodel.tm_tire_step(h::Ptr{Cvoid}, h.time::Cdouble,
+            (tk-h.time)::Cdouble, h.alpha::Cdouble, h.vx::Cdouble, h.Fz::Cdouble)::Cint)
+    end
+    h.time, h.alpha, h.vx, h.Fz = tk, alpha, vx, Fz
+    get_fy(h)
 end
-function finalize_tire!(m, o, ctx, integrator)
-    close(o.handle)
-    (;)
-end
+@register_symbolic begin_session!(h::TireHandle, Fz, B, C, D, E, sigma, vx, alpha0, t0)::Real
+@register_symbolic current_fy!(h::TireHandle, alpha, tk, vx, Fz, ready)::Real
 
 function RelaxationTire(; name, Fz=4000.0, B=10.0, C=1.3, D=1.0, E=0.97,
         sigma=0.5, vx=20.0, dt=0.005, alpha0=0.0)
-    clock = SynchToolkit.ImperativeClock()
-    k = ShiftIndex(clock)
+    k = ShiftIndex(Clock(dt))
+    ki = ShiftIndex(SynchToolkit.InitClock())
     @variables alpha(t_nounits) [input=true]
     @variables Fy(t_nounits) [output=true]
+    @variables ready(t_nounits)
     @parameters (handle::TireHandle) = TireHandle() [tunable=false]
-    observed = (; handle, alpha, t=t_nounits, Fz, B, C, D, E, sigma, vx, alpha0)
-    cb = SymbolicDiscreteCallback(dt,
-        ImperativeAffect(step_tire!; observed, ctx=clock);
-        initialize=ImperativeAffect(initialize_tire!; observed, ctx=clock),
-        finalize=ImperativeAffect(finalize_tire!; observed=(; handle)),
-        reinitializealg=ModelingToolkit.SciMLBase.NoInit())
-    # Publish after C updates, so a downstream hold sees this tick's force.
-    System([Fy(k) ~ get_fy(handle)], t_nounits, [alpha, Fy(k)], [handle]; name,
-        discrete_events=[cb])
+    @named sampler = DiscreteComponents.Sampler()
+    # Latest makes session initialization precede the first periodic tick.
+    eqs = [ready(ki) ~ begin_session!(handle, Fz, B, C, D, E, sigma, vx, alpha0, t_nounits),
+        sampler.u ~ alpha,
+        Fy(k) ~ current_fy!(handle, sampler.y, t_nounits, vx, Fz,
+            SynchToolkit.Latest()(ready, 0.0))]
+    cleanup = SymbolicDiscreteCallback(Float64[];
+        finalize=ImperativeAffect((m, o, ctx, integrator) -> (close(o.handle); (;));
+            observed=(; handle)))
+    System(eqs, t_nounits; name, systems=[sampler], discrete_events=[cleanup])
 end

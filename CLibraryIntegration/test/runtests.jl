@@ -1,7 +1,7 @@
 using Test
 using CLibraryIntegration, ModelingToolkit, Symbolics, ForwardDiff
 using OrdinaryDiffEqTsit5, OrdinaryDiffEqRosenbrock
-import SynchToolkit
+import DiscreteComponents, SynchToolkit
 const C = CLibraryIntegration
 const t = ModelingToolkit.t_nounits
 const Dt = ModelingToolkit.D_nounits
