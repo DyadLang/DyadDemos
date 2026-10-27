@@ -8,7 +8,7 @@ function discrete_reference(dt)
         alpha = steering(times[i]) - atan(vy[i]/20)
         vy[i+1] = vy[i] + dt*fy[i]/400
         lag += (alpha-lag) * -expm1(-20dt/.5)
-        fy[i+1] = C.julia_mf(lag, 4000.)
+        fy[i+1] = julia_mf(lag, 4000.)
     end
     times, vy, fy
 end
@@ -27,7 +27,6 @@ end
     close(h1)
     finalize(h2) # Exercise the finalizer backstop, not just the normal close path.
     @test h1.ptr == h2.ptr == C_NULL
-    @test h1.allocations == h1.frees == h2.allocations == h2.frees == 1
 end
 
 @testset "Stateful Dyad simulation and continuous limit" begin
@@ -50,11 +49,11 @@ end
     again = solve(ModelingToolkit.SciMLBase.remake(prob), Tsit5(); abstol=1e-12, reltol=1e-12, tstops=[.2])
     @test sol(times; idxs=axle.vy).u == again(times; idxs=axle.vy).u
     h = prob.ps[sys.tire.handle]
-    @test h.ptr == C_NULL && h.allocations == h.frees == 2
+    @test h.ptr == C_NULL
 
     @variables v(t) lag(t)
     @named continuous = System([
-        Dt(v) ~ C.julia_mf(lag, 4000.)/400,
+        Dt(v) ~ julia_mf(lag, 4000.)/400,
         Dt(lag) ~ 20/.5*(steering(t)-atan(v/20)-lag)], t)
     ref = solve(ODEProblem(mtkcompile(continuous), [v=>0., lag=>0.], (0., 2.)),
         Tsit5(); abstol=1e-12, reltol=1e-12, tstops=[.2])

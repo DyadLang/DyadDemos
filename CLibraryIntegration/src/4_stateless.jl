@@ -28,9 +28,3 @@ function mf_fy(alpha::ForwardDiff.Dual{T}, Fz::Real, B::Real, C::Real, D::Real, 
     slope = mf_dfy_dalpha(a, Fz, B, C, D, E)
     ForwardDiff.Dual{T}(value, slope * ForwardDiff.partials(alpha))
 end
-
-# Used for initialization and independent reference simulations, never by case 1.
-function julia_mf(alpha, Fz, B=10.0, C=1.3, D=1.0, E=0.97)
-    x = B * alpha
-    D * Fz * sin(C * atan(x - E * (x - atan(x))))
-end

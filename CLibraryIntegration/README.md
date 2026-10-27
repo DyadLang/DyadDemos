@@ -3,7 +3,7 @@
 A small tire library, called from Julia and used by two Dyad sliding-axle
 models. Read the six stages in order. The C model is a teaching stand-in,
 not a validated tire model. Requires Dyad **3.5.0-rc2**, Julia **1.13.2**,
-a C compiler and `make`. The local JLL targets x86_64 Linux.
+a C compiler and `make`.
 
 Run commands from this directory. Start with:
 
@@ -23,7 +23,8 @@ The opaque `tm_tire` also holds lagged slip, time and force.
 make -C csrc
 ```
 
-The result is `csrc/build/libtiremodel.so`. No binaries are committed.
+The result is `csrc/build/libtiremodel.so` (`.dylib` on macOS).
+No binaries are committed.
 [`scripts/build.jl`](scripts/build.jl) also installs it for the local JLL.
 
 ## 2. Load a system library
@@ -36,8 +37,9 @@ The result is `csrc/build/libtiremodel.so`. No binaries are committed.
 LD_LIBRARY_PATH="$PWD/csrc/build" julia +dyad-3.5.0-rc2 --project scripts/a_system_library.jl
 ```
 
-Set the loader path **before Julia starts**. Match the C ABI exactly: our
-four-field Julia parameter struct has the same layout as four C doubles.
+Set the loader path **before Julia starts** (`DYLD_LIBRARY_PATH` on macOS).
+Match the C ABI exactly: our 4-tuple of `Cdouble` has the same layout as
+the C parameter struct.
 A package must acquire `dlopen` handles/function pointers in `__init__`,
 never cache live pointers during precompilation. Stage 3 does that for us.
 
@@ -52,9 +54,11 @@ Its `__init__` opens the library; Julia wrappers call the library product.
 julia +dyad-3.5.0-rc2 --project scripts/b_local_jll.jl
 ```
 
-JLLWrappers 1.8 needs `Artifacts.toml` to select a platform wrapper even
+JLLWrappers 1.8 needs `Artifacts.toml` to select a wrapper even
 with an override directory. This local package uses a lazy entry for the
 empty artifact tree; the actual library always comes from the source build.
+Real JLLs ship one wrapper per platform triplet; this one builds locally
+for the host.
 A different installed binary can be selected in **LocalPreferences.toml**:
 
 ```toml
@@ -94,10 +98,12 @@ Jacobian probes. Here the RHS reads a held force and never calls C.
 
 The MTK FMI extension supplies the pattern: a nonnumeric handle parameter,
 a periodic `SymbolicDiscreteCallback` with `ImperativeAffect`, and lifecycle
-hooks. MTK 11.45 requires **`@discretes`** for the held force. A pure Julia
+hooks. MTK 11.45 requires **`@discretes`** for the held force. An
 initialization equation makes it consistent at time zero. Initialization
 creates/resets the C instance; finalization frees it, with a Julia finalizer
-as a backstop. Build a separate model/problem for concurrent simulations.
+as a backstop. Each model instance owns one handle. For two simultaneous
+solves of one compiled system, pass `tire.handle => TireHandle()` when
+building the second problem.
 C snapshots restore time, lagged slip and force; a host doing rollback must
 also restore its continuous state and sampled inputs.
 

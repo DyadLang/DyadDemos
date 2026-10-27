@@ -1,3 +1,10 @@
+```@cardmeta
+Title = "C library integration"
+Description = "Six stages for calling a C tire library from Julia and Dyad, with derivatives and stateful stepping."
+Tags = ["c", "julia", "integration", "co-simulation"]
+Cover = "assets/icon.svg"
+```
+
 # Integrating a C tire library
 
 Follow the six stages in [the demo README](../README.md): C API, system

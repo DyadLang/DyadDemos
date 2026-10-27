@@ -1,6 +1,4 @@
 using Test
-include("../scripts/build.jl")
-build_tiremodel()
 using CLibraryIntegration, ModelingToolkit, Symbolics, ForwardDiff
 using OrdinaryDiffEqTsit5, OrdinaryDiffEqRosenbrock
 const C = CLibraryIntegration
