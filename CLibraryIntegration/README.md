@@ -84,28 +84,35 @@ purposes:
 Only slip varies in this demo. Load and coefficients are fixed parameters;
 parameter sensitivities and higher derivatives need additional rules.
 
-## 5. Own and step a stateful handle
+## 5. Own and step a clocked handle
 
-Read [`src/5_stateful.jl`](src/5_stateful.jl). The C library integrates
-`alpha_l' = vx/sigma * (alpha - alpha_l)` exactly for constant inputs.
-Each communication point completes the previous interval using its saved
-left-endpoint inputs, then holds the new force until the next point.
+Read [`src/5_stateful.jl`](src/5_stateful.jl). Dyad connects a `Sampler`,
+a clocked `RelaxationTire` and a `ZeroOrderHold`; a `PeriodicClock` sets 5 ms
+communication points. Compile the clocked model with:
 
-Like FMI `doStep`, Simulink `mdlUpdate`/`mdlOutputs`, or a Modelica
-`ExternalObject`, state advances only at committed discrete points.
-Advancing inside a solver RHS would also advance on rejected steps and
-Jacobian probes. Here the RHS reads a held force and never calls C.
+```julia
+mtkcompile(model; additional_passes=[SynchToolkit.compile_lustre])
+```
 
-The MTK FMI extension supplies the pattern: a nonnumeric handle parameter,
-a periodic `SymbolicDiscreteCallback` with `ImperativeAffect`, and lifecycle
-hooks. MTK 11.45 requires **`@discretes`** for the held force. An
-initialization equation makes it consistent at time zero. Initialization
-creates/resets the C instance; finalization frees it, with a Julia finalizer
-as a backstop. Each model instance owns one handle. For two simultaneous
-solves of one compiled system, pass `tire.handle => TireHandle()` when
-building the second problem.
-C snapshots restore time, lagged slip and force; a host doing rollback must
-also restore its continuous state and sampled inputs.
+One registered tick function reads `Fy`, then advances the C lag with the
+sampled inputs over `[t, t+dt]`. Output-then-update preserves the force at
+the current communication point; updating first would expose next-step state.
+Clock affects run only at accepted solver steps, so rejected trials and AD
+probes never advance C. The continuous RHS reads only the held force.
+
+An `InitClock` equation frees and recreates the C session before the first
+tick, including after `remake` or `reinit!`. A finalize-only hook frees it
+after the solve; a Julia finalizer is the backstop. Each model instance owns
+one handle. For concurrent solves of one compiled system, supply a fresh
+`tire.owner => TireHandle()` in the second problem.
+
+Use `t` for timestamps: `SampleTime()` is the period.
+An aligned final time does not tick.
+Nonzero starts schedule ticks relative to the session start, not a global phase.
+
+Stage 5 is 73 lines versus 87 for the periodic-callback version in PR #43.
+Clocks replace handwritten scheduling, the held parameter and cached inputs;
+C ownership, snapshot calls and finalization stay.
 
 ## 6. Use the wrappers from Dyad
 

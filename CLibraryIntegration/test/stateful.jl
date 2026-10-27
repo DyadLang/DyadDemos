@@ -1,26 +1,24 @@
-# The host's exact discrete reference: constant force moves the mass linearly;
-# constant slip advances the C lag by an exponential over the same interval.
+# Output first, then advance the lag and the mass with this tick's inputs.
 function discrete_reference(dt)
     times = collect(0.:dt:2.)
     vy, fy = zeros(length(times)), zeros(length(times))
     lag = 0.0
     for i in 1:length(times)-1
+        fy[i] = julia_mf(lag, 4000.)
         alpha = steering(times[i]) - atan(vy[i]/20)
-        vy[i+1] = vy[i] + dt*fy[i]/400
         lag += (alpha-lag) * -expm1(-20dt/.5)
-        fy[i+1] = julia_mf(lag, 4000.)
+        vy[i+1] = vy[i] + dt*fy[i]/400
     end
+    fy[end] = fy[end-1] # No tick at the aligned final time.
     times, vy, fy
 end
 
 @testset "Stateful ownership and rollback" begin
     h1, h2 = C.TireHandle(), C.TireHandle()
-    inputs(h) = (; handle=h, B=10., C=1.3, D=1., E=.97, sigma=.5,
-        Fz=4000., vx=20., alpha0=0., alpha=.05, t=0.)
-    C.initialize_tire!((;), inputs(h1), nothing, nothing)
-    C.initialize_tire!((;), inputs(h2), nothing, nothing)
+    C.begin_session!(h1, 4000., 10., 1.3, 1., .97, .5, 0., 0.)
+    C.begin_session!(h2, 4000., 10., 1.3, 1., .97, .5, 0., 0.)
     snapshot = C.tire_state(h1)
-    C.step_tire!((;), merge(inputs(h1), (;t=.01)), nothing, nothing)
+    C.tick_fy!(h1, .05, 0., .01, 20., 4000., 1.)
     @test C.get_fy(h1) > 0 && C.get_fy(h2) == 0
     C.set_tire_state!(h1, snapshot)
     @test C.tire_state(h1) == snapshot
@@ -31,24 +29,55 @@ end
 
 @testset "Stateful Dyad simulation and continuous limit" begin
     @named axle = C.SampledSlidingAxle()
-    sys = mtkcompile(axle)
+    sys = mtkcompile(axle; additional_passes=[SynchToolkit.compile_lustre])
     prob = ODEProblem(sys, [], (0., 2.))
-    sol = solve(prob, Tsit5(); abstol=1e-12, reltol=1e-12, tstops=[.2])
+    h = prob.ps[sys.tire.owner]
+    @test h.ptr == C_NULL
+    integ = init(prob, Tsit5(); abstol=1e-12, reltol=1e-12, tstops=[.2])
+    @test C.tire_state(h)[1] ≈ .005
+    step!(integ, 1.999, true)
+    snapshot = C.tire_state(h)
+    # C rejects skipped or repeated timestamps; reaching 2 s requires 400 steps.
+    @test snapshot[1] ≈ 2.
+    integ.sol(.4; idxs=axle.hold.y)
+    @test C.tire_state(h) == snapshot
+    sol = solve!(integ)
     times, vy, fy = discrete_reference(.005)
     vy_error = maximum(abs.(sol(times; idxs=axle.vy, continuity=:right).u .- vy))
-    # Query the recorded clock times: a rounded decimal can be one float before
-    # a communication point and correctly return the previous held force.
-    clock_times = only(sol.discretes.collection).t
+    # Clock outputs have their own saved times, separate from the solver grid.
+    clock_times = only(filter(c -> length(c.t) > 1, sol.discretes.collection)).t
     @test clock_times ≈ times[1:end-1]
-    fy_error = maximum(abs.(sol(clock_times; idxs=axle.tire.Fy, continuity=:right).u .- fy[1:end-1]))
+    fy_error = maximum(abs.(sol(clock_times; idxs=axle.hold.y, continuity=:right).u .- fy[1:end-1]))
     @test ModelingToolkit.SciMLBase.successful_retcode(sol)
     @test vy_error < 1e-10
     @test fy_error < 1e-10
-    # PeriodicCallback does not tick at the end of tspan.
-    @test sol(2.; idxs=axle.tire.Fy) ≈ fy[end-1] atol=1e-10
+    @test sol(2.; idxs=axle.hold.y) ≈ fy[end-1] atol=1e-10
     again = solve(ModelingToolkit.SciMLBase.remake(prob), Tsit5(); abstol=1e-12, reltol=1e-12, tstops=[.2])
-    @test sol(times; idxs=axle.vy).u == again(times; idxs=axle.vy).u
-    h = prob.ps[sys.tire.handle]
+    remake_error = maximum(abs.(sol(times; idxs=axle.vy).u .- again(times; idxs=axle.vy).u))
+    @test remake_error < 1e-12
+    @test h.ptr == C_NULL
+    reinit!(integ)
+    @test C.tire_state(h)[1] ≈ .005
+    replay = solve!(integ)
+    reinit_error = maximum(abs.(sol(times; idxs=axle.vy).u .- replay(times; idxs=axle.vy).u))
+    @test reinit_error < 1e-12
+    @test h.ptr == C_NULL
+
+    reject_once = Ref(true)
+    reject(u, p, t) = if reject_once[]
+        reject_once[] = false
+        true
+    else
+        false
+    end
+    implicit = init(prob, Rodas5P(); dt=.1, abstol=1e-12, reltol=1e-12,
+        tstops=[.2], isoutofdomain=reject)
+    step!(implicit, 1.999, true)
+    @test C.tire_state(h)[1] ≈ 2.
+    rodas = solve!(implicit)
+    @test ModelingToolkit.SciMLBase.successful_retcode(rodas) && rodas.stats.nreject > 0
+    rodas_error = maximum(abs.(rodas(times; idxs=axle.vy, continuity=:right).u .- vy))
+    @test rodas_error < 1e-10
     @test h.ptr == C_NULL
 
     @variables v(t) lag(t)
@@ -65,5 +94,5 @@ end
     # to 0.02 m/s (2.5% of U*delta), and require first-order refinement.
     @test continuous_error < .02
     @test fine_error < .6continuous_error
-    @info "Stateful reference errors" vy_error fy_error continuous_error fine_error
+    @info "Stateful reference errors" vy_error fy_error rodas_error continuous_error fine_error remake_error reinit_error rejected=rodas.stats.nreject
 end
