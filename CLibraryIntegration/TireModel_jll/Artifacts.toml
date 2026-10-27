@@ -1,0 +1,7 @@
+# No downloadable artifact: these entries select the locally built wrapper.
+[[TireModel]]
+arch = "x86_64"
+os = "linux"
+libc = "glibc"
+git-tree-sha1 = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+lazy = true

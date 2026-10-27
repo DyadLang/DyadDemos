@@ -13,6 +13,7 @@ See [the toolchain and validation notes](./UPGRADE_3_5.md) for setup and results
 
 | | Demo | Description |
 |---|---|---|
+| <img src="./CLibraryIntegration/assets/icon.svg" width="48"/> | [**CLibraryIntegration**](./CLibraryIntegration/) | Six small stages for bringing a C tire library into Julia and Dyad, including derivatives and stateful co-simulation. |
 | <img src="./FrictionBrakeDemo/assets/icon.svg" width="48"/> | [**FrictionBrakeDemo**](./FrictionBrakeDemo/) | A vehicle friction brake system with thermal effects and a cycle test. |
 | <img src="./TurkeyDemo/assets/icon.svg" width="48"/> | [**TurkeyDemo**](./TurkeyDemo/) | A discretized thermal model of a turkey cooking in an oven, with an interactive dashboard. |
 | <img src="./CoffeeMugDemo/assets/icon.svg" width="48"/> | [**CoffeeMugDemo**](./CoffeeMugDemo/) | A modular thermal simulation of espresso cooling in a cup, with optional spoon and steam subsystems. |
