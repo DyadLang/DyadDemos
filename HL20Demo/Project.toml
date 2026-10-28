@@ -46,4 +46,4 @@ test = [
 ]
 
 [dyad]
-kernel = "3.5.0"
+kernel = "3.5.1"

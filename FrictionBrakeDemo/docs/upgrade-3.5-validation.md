@@ -1,5 +1,7 @@
 # Dyad 3.5 upgrade validation — FrictionBrakeDemo
 
+Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+
 Validated on 2026-10-26 with Dyad **3.5.0-rc2 / Julia 1.13.2**, against the original project on **Dyad 3.4.0 / Julia 1.12.7**. Both use two Julia threads and one precompile task. The original project and generated sources were preserved before editing. Each environment was instantiated in an isolated project copy to avoid concurrent top-level workspace edits; ignored manifests were regenerated and copied back.
 
 ## Migration and source review
@@ -41,8 +43,8 @@ The solver retains different equivalent PID state names between versions; BlockC
 From this project, using the Dyad 3.5 Julia channel:
 
 ```sh
-julia +dyad-3.5.0-rc2 --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
-julia +dyad-3.5.0-rc2 --project=. scripts/validate_upgrade.jl /path/to/results
+julia +dyad-3.5.1 --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
+julia +dyad-3.5.1 --project=. scripts/validate_upgrade.jl /path/to/results
 ```
 
 The validation script runs every exported concrete analysis, checks the solver result and stop time, writes `analyses.tsv` plus one sampled state trace per analysis, and exits with an error if any analysis fails. Run the same script against a preserved 3.4 project to reproduce the numerical comparison, matching trace columns by symbolic state name.
