@@ -17,6 +17,7 @@ using DyadInterface: TransientAnalysis, artifacts, ODEAlg
 using ModelingToolkit: toggle_namespacing, SymbolicT
 using CSV, DataFrames, Statistics, Printf
 using Plots
+include("workflow_checks.jl")
 
 const DATA_DIR = joinpath(@__DIR__, "..", "assets", "data")
 const OUT_DIR  = joinpath(@__DIR__, "..", "assets")
@@ -37,6 +38,7 @@ const OBS = [
 
 fitted_row = CSV.read(FITTED_CSV, DataFrame)[1, :]
 fitted = (; (k => fitted_row[k] for k in propertynames(fitted_row))...)
+all(isfinite, values(fitted)) || error("Fitted parameter file contains nonfinite values")
 @info "Loaded calibrated parameters" fitted
 
 # Run a TransientAnalysis over the tip-in harness with the six isolator knobs
@@ -52,9 +54,11 @@ function run_tipin(params; stop = 2.0, saveat = 0.0005)
     result = TransientAnalysis(; model = harness, overrides, alg = ODEAlg.Tsit5(),
         abstol = 1e-8, reltol = 1e-8, start = 0.0, stop, saveat)
     sol = artifacts(result, :RawSolution)
+    require_simulation_success(sol, stop, "Tip-in")
     df = DataFrame(timestamp = sol.t)
     for (path, _) in OBS
         df[!, path] = sol[getproperty(result, path)]
+        all(isfinite, df[!, path]) || error("Nonfinite tip-in observable $path")
     end
     return df
 end
@@ -72,15 +76,16 @@ println()
 println("══════════════════════════════════════════════════════════════════════")
 println("   Tip-in validation (unseen event) — linear vs calibrated vs truth")
 println("══════════════════════════════════════════════════════════════════════")
-@printf "  %-30s  %-12s  %-12s  %-12s\n" "observable" "linear RMSE" "calib RMSE" "improvement"
+@printf "  %-30s  %-16s  %-16s  %-12s\n" "observable" "linear RMSE" "calib RMSE" "improvement"
 @printf "  %s\n" repeat("─", 72)
 improvements = Float64[]
 for (col, label) in OBS
     e_lin = error_rms(df_lin[!, col], df_truth[!, col])
     e_cal = error_rms(df_cal[!, col], df_truth[!, col])
+    e_cal < e_lin || error("Calibrated tip-in RMSE did not improve on the linear baseline for $col")
     impr = 100 * (e_lin - e_cal) / e_lin
     push!(improvements, impr)
-    @printf "  %-30s  %-12.4g  %-12.4g  %+10.1f%%\n" label e_lin e_cal impr
+    @printf "  %-30s  %-16.10g  %-16.10g  %+10.6f%%\n" label e_lin e_cal impr
 end
 println("══════════════════════════════════════════════════════════════════════")
 

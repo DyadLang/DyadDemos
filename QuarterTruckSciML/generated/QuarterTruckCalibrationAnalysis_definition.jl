@@ -6,7 +6,7 @@
 
 using DyadInterface
 using DyadModelOptimizer: AbstractCalibrationAnalysisSpec, CalibrationAnalysisSpec
-@component function QuarterTruckCalibrationAnalysis__System(; name = nothing, var"alg"=ODEAlg.Auto(), var"start"=0.0, var"stop"=10.0, var"abstol"=1e-8, var"reltol"=1e-8, var"saveat"=0.01, var"dtmax"=0, var"data"=DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/calibration_measurements.csv"; independent_var="timestamp", dependent_vars=["tire_F(t)", "suspension_travel(t)", "seat_a(t)"]), var"depvars_names"=["model.tire_to_road.f", "model.tire_to_body.s_rel", "model.seat.a"], var"loss_func"=DyadModelOptimizer.LossFunc.L2Loss(), var"search_space_names"=["model.body_m", "model.tire_to_body_c", "model.tire_to_body_d", "model.friction_Fc"], var"search_space_lb"=[270.0, 16000.0, 900.0, 0.0], var"search_space_ub"=[330.0, 24000.0, 2100.0, 1000.0], var"calibration_alg"="SingleShooting", var"multiple_shooting_trajectories"=0, var"pem_gain"=0.0, var"optimizer"="auto", var"adtype"=DyadModelOptimizer.ADChoice.Auto(), var"optimizer_abstol"=0.0001, var"optimizer_maxiters"=100, var"optimizer_maxtime"=0.0, var"optimizer_verbose"=false, var"diagnostics"=DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking(), var"results_path"="", __overrides = Dict{String, Any}())
+@component function QuarterTruckCalibrationAnalysis__System(; name = nothing, var"alg"=ODEAlg.Auto(), var"start"=0.0, var"stop"=10.0, var"abstol"=1e-8, var"reltol"=1e-8, var"saveat"=0.01, var"dtmax"=0, var"data"=DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/calibration_measurements.csv"; independent_var="timestamp", dependent_vars=["tire_F(t)", "suspension_travel(t)", "seat_a(t)"]), var"depvars_names"=["model.tire_to_road.f", "model.tire_to_body.s_rel", "model.seat.a"], var"loss_func"=DyadModelOptimizer.LossFunc.SquaredL2Loss(), var"search_space_names"=["model.body_m", "model.tire_to_body_c", "model.tire_to_body_d", "model.friction_Fc"], var"search_space_lb"=[270.0, 16000.0, 900.0, 0.0], var"search_space_ub"=[330.0, 24000.0, 2100.0, 1000.0], var"calibration_alg"="SingleShooting", var"multiple_shooting_trajectories"=0, var"pem_gain"=0.0, var"optimizer"="auto", var"adtype"=DyadModelOptimizer.ADChoice.Auto(), var"optimizer_abstol"=1e-8, var"optimizer_maxiters"=100, var"optimizer_maxtime"=0.0, var"optimizer_verbose"=false, var"diagnostics"=DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking(), var"results_path"="", __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -181,7 +181,7 @@ export QuarterTruckCalibrationAnalysis__System
   var"dtmax"::Float64 = 0
   var"data"::DyadData.DyadTimeseries = DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/calibration_measurements.csv"; independent_var="timestamp", dependent_vars=["tire_F(t)", "suspension_travel(t)", "seat_a(t)"])
   var"depvars_names"::Array{String, 1} = ["model.tire_to_road.f", "model.tire_to_body.s_rel", "model.seat.a"]
-  var"loss_func"::DyadModelOptimizer.LossFunc.Type = DyadModelOptimizer.LossFunc.L2Loss()
+  var"loss_func"::DyadModelOptimizer.LossFunc.Type = DyadModelOptimizer.LossFunc.SquaredL2Loss()
   var"search_space_names"::Array{String, 1} = ["model.body_m", "model.tire_to_body_c", "model.tire_to_body_d", "model.friction_Fc"]
   var"search_space_lb"::Array{Float64, 1} = [270.0, 16000.0, 900.0, 0.0]
   var"search_space_ub"::Array{Float64, 1} = [330.0, 24000.0, 2100.0, 1000.0]
@@ -190,7 +190,7 @@ export QuarterTruckCalibrationAnalysis__System
   var"pem_gain"::Float64 = 0.0
   var"optimizer"::DyadModelOptimizer.OptimizerAlg.Type = "auto"
   var"adtype"::DyadModelOptimizer.ADChoice.Type = DyadModelOptimizer.ADChoice.Auto()
-  var"optimizer_abstol"::Float64 = 0.0001
+  var"optimizer_abstol"::Float64 = 1e-8
   var"optimizer_maxiters"::Int = 100
   var"optimizer_maxtime"::Float64 = 0.0
   var"optimizer_verbose"::Bool = false

@@ -127,6 +127,20 @@ julia +dyad-3.5.1 --project scripts/run_calibration.jl   # both stages, ~2 min
 julia +dyad-3.5.1 --project scripts/validate.jl          # → assets/validation_tipin.png
 ```
 
+Stage 1 limits the ODE step to 0.1 ms (at least 20 steps per 500 Hz chirp
+cycle). This makes the objective reliable enough for optimizer convergence;
+the original unrestricted adaptive solve returned `Infeasible` on both Dyad
+3.4 and 3.5. Stage 2 uses a 1 ms limit to resolve the fitted internal dynamics.
+The loss, bounds, tolerances, data, and iteration budgets are unchanged.
+Both stages must return a successful status before the workflow
+chains or writes parameters. See [follow-up validation](docs/followup-validation.md)
+for residuals, step refinement, and measured runtimes.
+
+Run the two-stage script for physical calibration. Running Stage 2 by itself
+keeps the nominal Maxwell branch: its optimizer succeeds, but gamma fits near
+its lower bound (0.0513 versus truth 0.5). The chained fit gives gamma 0.4437,
+still 11.27% below truth; successful optimization does not imply exact recovery.
+
 To regenerate the synthetic measurements from the truth model:
 
 ```bash
@@ -177,8 +191,10 @@ baseline:
 `scripts/diagnose_calibration.jl` shows the reasoning behind the search-space
 choice. It reports optimizer health (`assess_health`) and rebuilds the exact
 objective (`objective(prob, alg)`), then checks whether the true parameters are
-actually the lowest point of that objective. When they are not, the model's
-structure is at fault rather than the optimizer.
+actually the lowest point of that objective. A lower loss away from truth
+shows that the fixed nominal parameters introduce model mismatch; it does
+not establish convergence. The script reports the optimizer's status and
+feasibility residuals separately and rejects failed fits before chaining.
 
 ### Smoke tests
 

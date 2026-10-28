@@ -5,7 +5,7 @@ Stage 1  chirp data       → Maxwell branch (k1, c1) + Bouc-Wen scale (alpha),
                             fitting the FULL model so alpha absorbs the Bouc-Wen
                             tangent stiffness instead of biasing k1/c1
 Stage 2  slow-cycle data  → Bouc-Wen (alpha, beta_bw, gamma_bw), Maxwell frozen
-                            to the (de-biased) Stage 1 fit, alpha seeded from it
+                            to Stage 1; its alpha is a cross-check, not a seed
 
 Reads the measurement CSVs produced by `generate_calibration_data.jl`,
 invokes the generated calibration analyses, prints a side-by-side comparison
@@ -17,6 +17,7 @@ using DrivelineSciML
 using DyadInterface
 using CSV, DataFrames
 using Printf
+include("workflow_checks.jl")
 
 # Keep in sync with `generate_calibration_data.jl` (truth) and the component
 # defaults in `dyad/driveline_model.dyad` (nominal). Order matches
@@ -54,6 +55,7 @@ end
 
 @info "Stage 1: Maxwell branch + Bouc-Wen scale from chirp (k1, c1, alpha)"
 res1 = DrivelineSciML.DrivelineStage1CalibrationAnalysis(; name = :stage1)
+require_calibration_success(res1.r, "Stage 1")
 # `CalibrationAnalysisSolution` wraps `(spec, r::CalibrationResult)`; map the
 # recovered values to parameter names (order-independent).
 f1 = fitdict(res1.r)
@@ -70,6 +72,7 @@ report("Stage 1", ["model.k1", "model.c1", "model.alpha"], [k1_fit, c1_fit, alph
 stage2_model = DrivelineSciML.TestDrivelineSlowCycle(;
     name = :TestDrivelineSlowCycle, k1 = k1_fit, c1 = c1_fit)
 res2 = DrivelineSciML.DrivelineStage2CalibrationAnalysis(; name = :stage2, model = stage2_model)
+require_calibration_success(res2.r, "Stage 2")
 f2 = fitdict(res2.r)
 alpha_fit, beta_fit, gamma_fit = f2[:alpha], f2[:beta_bw], f2[:gamma_bw]
 A_fit = 1.0

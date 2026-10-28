@@ -1,21 +1,22 @@
 ```@cardmeta
-Title = "HL-20 Flight Simulator — agent-built 6-DOF lifting body"
-Description = "A 6-DOF flight simulation of the NASA HL-20 lifting body, generated end-to-end by the Dyad Agent from an engineering spec."
+Title = "HL-20 Aerodynamic Core and Flight Simulator Prompts"
+Description = "The NASA HL-20 aerodynamic core, engineering spec, and Dyad Agent prompts for building a 6-DOF flight simulator. Flight analyses are not included."
 Tags = ["aerospace", "flight-dynamics", "control", "agent-built"]
 Cover = "assets/icon.svg"
 ```
 
 # HL-20 Flight Simulator
 
-The **Dyad Agent** wrote this entire flight simulator — the vehicle, its
-autopilot, and the logic that moves its control surfaces — from a written
-engineering spec (`assets/shared/hl20_spec.md`) and two prompts in `scripts/`.
-No model code was typed by hand.
+This checkout provides the aerodynamic core, atmosphere/table helpers, an
+engineering spec (`assets/shared/hl20_spec.md`), and two Dyad Agent prompts in
+`scripts/`. The prompts describe how to build a full flight simulator; the
+closed-loop vehicle and flight analyses are not present in this checkout.
 
 The vehicle is the **NASA HL-20**, a proposed crew-carrying spaceplane that
-flies on the shape of its own body rather than on wings. The model follows its
+flies on the shape of its own body rather than on wings. The requested
+simulator would follow its
 motion through the air — where it is, how fast it is going, and which way it is
-pointing — from these parts:
+pointing — using these parts:
 
 | Part | What it does |
 |---|---|
@@ -25,8 +26,9 @@ pointing — from these parts:
 | Flight-control laws | Steers pitch, roll, yaw, and speed toward the commanded values |
 | Surface mixer and actuators | Spreads each command across the seven moving surfaces |
 
-Two references check the result: a golden solution, and NASA's own published
-pitch-pulse test case from TM-107580 Appendix F.
+The spec requests comparison with a golden solution and NASA's published
+pitch-pulse test case from TM-107580 Appendix F. No flight result or such
+comparison is included here.
 
 !!! note
     This is a heavy, agent-generated demo. The aerodynamic core's Dyad source is

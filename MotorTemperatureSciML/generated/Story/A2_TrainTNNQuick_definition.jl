@@ -6,7 +6,7 @@
 
 using DyadInterface
 using MotorTemperatureSciML: AbstractTNNTrainingAnalysisSpec, TNNTrainingAnalysisSpec
-@component function A2_TrainTNNQuick__System(; name = nothing, var"train_horizon"=7200.0, var"window"=75.0, var"batch_size"=32, var"block_size"=4, var"learning_rate"=0.001, var"inner_epochs"=2, var"outer_maxiters"=1, var"continuity_tol"=0.2, var"results_path"="dyad://MotorTemperatureSciML/story/calibrated_params.csv", var"abstol"=0.000001, var"reltol"=0.000001, __overrides = Dict{String, Any}())
+@component function A2_TrainTNNQuick__System(; name = nothing, var"train_horizon"=7200.0, var"window"=75.0, var"batch_size"=32, var"block_size"=4, var"learning_rate"=0.001, var"inner_epochs"=12, var"outer_maxiters"=30, var"continuity_tol"=0.2, var"results_path"="dyad://MotorTemperatureSciML/story/calibrated_params.csv", var"abstol"=0.000001, var"reltol"=0.000001, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -63,7 +63,7 @@ using MotorTemperatureSciML: AbstractTNNTrainingAnalysisSpec, TNNTrainingAnalysi
   append!(__params, @parameters (block_size::Int), [description = "Segments are sampled in contiguous blocks of this size (must divide batch_size)"])
   __dyad_seed_parameter!(__initial_conditions, __bindings, block_size, __local__block_size)
   __local__learning_rate = learning_rate
-  append!(__params, @parameters (learning_rate::Float64), [description = "Adam step size"])
+  append!(__params, @parameters (learning_rate::Float64), [description = "Initial Adam step size; decays after 50 epochs for continuity refinement"])
   __dyad_seed_parameter!(__initial_conditions, __bindings, learning_rate, __local__learning_rate)
   __local__inner_epochs = inner_epochs
   append!(__params, @parameters (inner_epochs::Int), [description = "Adam epochs (passes over all segments) per outer iteration"])
@@ -128,12 +128,12 @@ export A2_TrainTNNQuick__System
   var"batch_size"::Int = 32
   # Segments are sampled in contiguous blocks of this size (must divide batch_size)
   var"block_size"::Int = 4
-  # Adam step size
+  # Initial Adam step size; decays after 50 epochs for continuity refinement
   var"learning_rate"::Float64 = 0.001
   # Adam epochs (passes over all segments) per outer iteration
-  var"inner_epochs"::Int = 2
+  var"inner_epochs"::Int = 12
   # Augmented-Lagrangian outer iterations (upper bound)
-  var"outer_maxiters"::Int = 1
+  var"outer_maxiters"::Int = 30
   # Stopping test: largest junction gap [degC]
   var"continuity_tol"::Float64 = 0.2
   # Where to write the calibrated parameters (dyad:// URI or path); empty skips

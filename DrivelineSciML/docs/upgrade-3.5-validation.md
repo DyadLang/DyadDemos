@@ -1,10 +1,15 @@
 # DrivelineSciML: Dyad 3.5 upgrade validation
 
-Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+Current target: Dyad **3.5.1**. Forward-looking reproduction commands use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
 
 Target: Dyad `3.5.0` language with runtime `dyad-3.5.0-rc2` (Julia 1.13.2).
 Baseline: the original project on `dyad-3.4.0` (Julia 1.12.7).
 Runs use two Julia threads and one precompile task.
+
+**Follow-up:** [calibration validation](followup-validation.md) supersedes the
+Stage 1 nonconvergence limitation below. Resolving the chirp with a 0.1 ms
+maximum integration step produces successful convergence on both runtimes,
+with the original tolerances, data, bounds, and optimizer budget.
 
 ## References read before editing
 
@@ -21,7 +26,7 @@ Instantiate this project, regenerate with the Dyad 3.5 CLI, then run the existin
 
 ```sh
 julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
-../.ci/compiler/dyad --version
+dyad --version
 JULIA_EXECUTABLE="julia +dyad-3.5.1" dyad compile "$PWD"
 julia +dyad-3.5.1 --project scripts/fix_analysis_codegen.jl
 JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1 julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
@@ -35,11 +40,10 @@ metrics and state trajectories. Training output goes to the validation directory
 
 ## RC2 compiler verification (2026-10-26)
 
-Regenerated this project with the repository's `../.ci/compiler/dyad`, reporting
+Regenerated this project with the repository's then-present RC2 compiler wrapper (since removed), reporting
 `3.5.0-rc2 (a24a224; compiler-only source build)`. Its source checkout is exactly
 `a24a2240667872d432a3b86c4db1240d77150e35` (`v3.5.0-rc2`).
-Then ran `scripts/fix_analysis_codegen.jl` with the RC2 Julia runtime, as shown
-above. The generated tree now preserves the compiler's exact output, including
+Then ran `scripts/fix_analysis_codegen.jl` with the RC2 Julia runtime. The generated tree now preserves the compiler's exact output, including
 blank-line whitespace, except for the required `DyadTimeseries` annotation
 correction. The script's former whitespace replacement has been removed.
 A byte comparison against raw compiler output verified that the annotation
@@ -50,7 +54,7 @@ Every Dyad Studio recompile, including compile on save, also requires rerunning
 the script before loading the project again; see the
 [README workflow](../README.md#recompiling-with-dyad-studio-or-cli).
 
-Re-ran `julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'` after regeneration,
+Re-ran `julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'` after regeneration,
 with two Julia threads and one precompile task: **15/15 assertions passed**,
 including the calibration/training analysis-construction regressions.
 

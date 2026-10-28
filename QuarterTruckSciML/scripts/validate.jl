@@ -13,14 +13,16 @@ and NN-vs-truth, and renders overlay plots showing all three predictions.
 =#
 
 using QuarterTruckSciML
+include("result_checks.jl")
+import DyadInterface
 using DyadInterface: TransientAnalysis, artifacts, ODEAlg
 using ModelingToolkit: toggle_namespacing, SymbolicT
 using CSV, DataFrames, Statistics, Printf
 using Plots
 
 const DATA_DIR = joinpath(@__DIR__, "..", "assets", "data")
-const OUT_DIR  = joinpath(@__DIR__, "..", "assets")
-const WEIGHTS_CSV = joinpath(DATA_DIR, "nn_weights_full_sin_lbfgs.csv")
+const OUT_DIR = mkpath(get(ENV, "QUARTERTRUCK_VALIDATION_OUTPUT", joinpath(@__DIR__, "..", "assets")))
+const WEIGHTS_CSV = get(ENV, "QUARTERTRUCK_WEIGHTS", joinpath(DATA_DIR, "nn_weights_full_sin_lbfgs.csv"))
 
 # (path, axis label, unit) for each compared observable. The path doubles as the
 # DataFrame column name and the symbolic lookup key into the analysis solution.
@@ -31,6 +33,7 @@ const OBS = [
 ]
 
 weights_flat = Vector{Float64}(collect(CSV.read(WEIGHTS_CSV, DataFrame)[1, :]))
+all(isfinite, weights_flat) || error("Nonfinite NN weights")
 @info "Loaded $(length(weights_flat)) NN weights from $(basename(WEIGHTS_CSV))"
 
 # Run a TransientAnalysis over `harness` and collect the OBS observables.
@@ -44,10 +47,15 @@ function run_transient(harness; nn_weights=nothing, tspan=(0.0, 10.0), saveat=0.
     result = TransientAnalysis(; model=harness, overrides, alg=ODEAlg.Auto(),
                                start=tspan[1], stop=tspan[2], saveat)
     sol = artifacts(result, :RawSolution)
+    check_transient(sol, tspan...)
+    expected_times = collect(tspan[1]:saveat:tspan[2])
+    length(sol.t) == length(expected_times) && isapprox(sol.t, expected_times; rtol=0, atol=1e-12) ||
+        error("Transient did not return the requested sample grid")
     df = DataFrame(timestamp = sol.t)
     for (path, _, _) in OBS
         df[!, path] = sol[getproperty(result, path)]
     end
+    all(c -> all(isfinite, c), eachcol(df)) || error("Nonfinite validation observables")
     return df
 end
 
@@ -73,6 +81,13 @@ for (col, _, _) in OBS
                    pct_lin = r > 0 ? 100 * e_lin / r : NaN,
                    pct_nn  = r > 0 ? 100 * e_nn  / r : NaN)
 end
+
+# Preserve full precision alongside the rounded console table and overlay plot.
+metrics_path = joinpath(OUT_DIR, "validation_iso_a_metrics.csv")
+CSV.write(metrics_path, DataFrame([
+    (; observable=col, signal_rms=errs[col].r, linear_rmse=errs[col].e_lin,
+       nn_rmse=errs[col].e_nn, linear_error_percent=errs[col].pct_lin,
+       nn_error_percent=errs[col].pct_nn) for (col, _, _) in OBS]))
 
 println()
 println("══════════════════════════════════════════════════════════════════════")

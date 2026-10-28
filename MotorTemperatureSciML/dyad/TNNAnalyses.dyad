@@ -54,12 +54,12 @@ partial analysis TNNTrainingAnalysis
   parameter batch_size::Integer = 32
   "Segments are sampled in contiguous blocks of this size (must divide batch_size)"
   parameter block_size::Integer = 4
-  "Adam step size"
+  "Initial Adam step size; decays after 50 epochs for continuity refinement"
   parameter learning_rate::Real = 1e-3
   "Adam epochs (passes over all segments) per outer iteration"
-  parameter inner_epochs::Integer = 2
+  parameter inner_epochs::Integer = 12
   "Augmented-Lagrangian outer iterations (upper bound)"
-  parameter outer_maxiters::Integer = 1
+  parameter outer_maxiters::Integer = 30
   "Stopping test: largest junction gap [degC]"
   parameter continuity_tol::Real = 0.2
   "Where to write the calibrated parameters (dyad:// URI or path); empty skips"

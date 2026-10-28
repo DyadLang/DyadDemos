@@ -18,6 +18,8 @@
 
 include("common.jl")
 using Printf
+using SciMLBase: successful_retcode
+using DyadModelOptimizer: compute_residual, calibration_parameters
 using Base.Threads: nthreads
 using ADTypes, ForwardDiff
 
@@ -29,12 +31,12 @@ training_csv = joinpath(training_paths.out_dir, "calibrated_params.csv")
 # One "epoch" is a pass over all N_SEGMENTS segments, i.e. N_SEGMENTS ÷
 # BATCH_SIZE Adam steps (3 at the defaults). The reference PyTorch run does
 # 100 epochs of truncated BPTT over 512-sample chunks on the same 7200 s horizon
-# (2900 cheap updates); 5 × 100 epochs here is 1500 much larger steps, each
+# (2900 cheap updates); 10 × 100 epochs here is up to 3000 larger steps, each
 # integrating 32 segments and differentiating through them.
 #
-# INNER_LR       — Adam step size. AugLag's penalty ρ grows over outer
-#                  iterations, so a step size that is fine at ρ = 1 can
-#                  diverge later; 1e-3 is safe.
+# INNER_LR       — initial Adam step size. After 50 epochs, make_sms decays
+#                  the rate inversely with epoch squared to refine junctions
+#                  below the 0.2 °C scale of a 1e-3 normalized-state update.
 # INNER_EPOCHS   — Adam epochs per outer iteration (per multiplier update).
 # OUTER_MAXITERS — AugLag outer iterations (upper bound; the loop stops as
 #                  soon as the junction gaps are below CONTINUITY_TOL_C). Each
@@ -42,18 +44,15 @@ training_csv = joinpath(training_paths.out_dir, "calibrated_params.csv")
 #                  systematic gap at the junctions that a free-running
 #                  simulation integrates into a large bias.
 #
-# Measured at 8 threads (free-running RMS on the training horizon, °C):
-#   quick  1 ×   2 epochs,    6 steps, ~1 min incl. compile — pipeline check only
-#   short 10 ×  12 epochs,  360 steps, ~5 min  — 4.1 / 0.8 / 0.9 / 3.1
-#   full   5 × 100 epochs, 1500 steps, ~21 min — 0.42 / 0.42 / 0.37 / 0.60
-# At the short budget, many cheap multiplier updates beat few long inner
-# solves (3 × 38 epochs: 5.4 / 1.2 / 1.9 / 5.9 with a biased junction gap).
+# Budgets are upper bounds; all presets use the same 0.2 °C continuity
+# criterion. The former six-update quick preset could never support a
+# convergence claim. See docs/followup-validation.md for measured results.
 const BUDGET   = get(ENV, "TNN_BUDGET", "full")
 const INNER_LR = 1e-3
 const (INNER_EPOCHS, OUTER_MAXITERS) =
-    BUDGET == "quick" ? (2, 1) :
-    BUDGET == "short" ? (12, 10) :
-    BUDGET == "full"  ? (100, 5) :
+    BUDGET == "quick" ? (12, 30) :
+    BUDGET == "short" ? (50, 10) :
+    BUDGET == "full"  ? (100, 10) :
     error("TNN_BUDGET must be quick, short or full; got \"$BUDGET\"")
 
 # ── Problem ──────────────────────────────────────────────────────────────────
@@ -63,9 +62,19 @@ df  = load_profile(TRAIN_PROFILE)
 sys        = build_system(TRAIN_PROFILE)
 experiment = training_experiment(sys; name = "profile_$(TRAIN_PROFILE)")
 invprob    = build_invprob(experiment, build_search_space(sys))
+training_steps = Ref(0)
+function training_progress(state, loss)
+    training_steps[] += 1
+    if training_steps[] % (N_SEGMENTS ÷ BATCH_SIZE) == 0
+        @info "Training epoch" epoch = training_steps[] ÷ (N_SEGMENTS ÷ BATCH_SIZE) loss learning_rate = state.original.rule.eta
+        flush(stderr)
+    end
+    return false
+end
 alg        = make_sms(; n_segments = N_SEGMENTS, batch_size = BATCH_SIZE,
     block_size = BLOCK_SIZE, learning_rate = INNER_LR, inner_epochs = INNER_EPOCHS,
-    outer_maxiters = OUTER_MAXITERS, continuity_tol = CONTINUITY_TOL_C)
+    outer_maxiters = OUTER_MAXITERS, continuity_tol = CONTINUITY_TOL_C,
+    inner_kwargs = (; callback = training_progress))
 
 n_params = length(search_space_names(invprob))
 steps_per_epoch = N_SEGMENTS ÷ BATCH_SIZE
@@ -73,6 +82,7 @@ steps_per_epoch = N_SEGMENTS ÷ BATCH_SIZE
 
 # ── Calibrate ────────────────────────────────────────────────────────────────
 @info "Calibrating…"
+flush(stderr)
 calres = calibrate(invprob, alg; adtype = AutoForwardDiff())
 
 # `Success` means every segment junction closed to within CONTINUITY_TOL_C
@@ -81,6 +91,7 @@ println()
 @info "Calibration finished" elapsed_s = round(calres.elapsed; digits = 1) retcode = calres.retcode
 @printf("  final AugLag objective = %.6e\n", calres.original.objective)
 @printf("  outer iterations       = %d\n",   calres.original.stats.iterations)
+@printf("  Adam updates           = %d\n",   training_steps[])
 @printf("  inner f-evals          = %d\n",   calres.original.stats.fevals)
 if !isnothing(calres.loss_history) && !isempty(calres.loss_history)
     println("  AugLag objective per outer iteration:")
@@ -95,6 +106,13 @@ end
 # accuracy. validate_calibration.jl simulates the calibrated model free-running
 # over the full profile and the held-out profiles, which is the number that
 # matters.
+g = zeros(4 * (N_SEGMENTS - 1))
+compute_residual(alg)(g, collect(calres.original.u), calibration_parameters(alg, invprob))
+max_gap_C = maximum(abs, g) * MAX_TEMP
+@info "Independent continuity check" max_gap_C tolerance_C = CONTINUITY_TOL_C
+successful_retcode(calres.retcode) || error("Training failed: $(calres.retcode); no calibration exported")
+all(isfinite, calres.original.u) || error("Training produced nonfinite parameters")
+max_gap_C < CONTINUITY_TOL_C || error("Independent continuity check failed; no calibration exported")
 save_calibration(training_csv, calres, invprob)
 @info "Saved calibrated parameters" path = training_csv
 @info "Validate this fit with scripts/validate_calibration.jl --calibration <file> --out-dir <directory>" file = training_csv directory = training_paths.out_dir

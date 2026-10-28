@@ -26,12 +26,17 @@ height = "480px"
 
 ## Running it
 
-Simulate the drive cycle and plot the reference and actual vehicle speed:
+Simulate the drive cycle with a stiff solver and plot the reference and actual
+vehicle speed. The fast PID dynamics make the default method exhaust its step
+budget before 2000 s; check the return code and full horizon before plotting:
 
 ```@example frictionbrake
 using FrictionBrakeDemo, ModelingToolkit, DyadInterface, Plots
 
 @named model = VehicleCycleTest()
-res = TransientAnalysis(; model, stop = 2000)
+res = TransientAnalysis(; model, alg = ODEAlg.Rodas5P(), stop = 2000)
+sol = rebuild_sol(res)
+@assert ModelingToolkit.SciMLBase.successful_retcode(sol)
+@assert last(sol.t) == 2000
 plot(res, idxs = [model.vehicle_speed_ref.y, model.vehicle.vehicle_speed])
 ```

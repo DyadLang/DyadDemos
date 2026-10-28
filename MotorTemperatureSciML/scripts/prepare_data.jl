@@ -18,6 +18,7 @@
 #   julia +dyad-3.5.1 --project scripts/prepare_data.jl --source ... --profiles 17,60
 #   julia +dyad-3.5.1 --project scripts/prepare_data.jl --source ... --truncate-seconds 7200
 #
+# Add --out-dir <directory> to inspect regenerated files outside assets/data.
 # The source path can also be given via the MEASURES_V2 environment variable.
 # The default profile set (17, 60, 62, 74) regenerates the shipped files.
 #
@@ -35,6 +36,7 @@ function parse_args(argv)
     profiles = [17, 60, 62, 74]
     truncate = nothing
     source   = get(ENV, "MEASURES_V2", "")
+    out_dir  = DST_DIR
     i = 1
     while i ≤ length(argv)
         a = argv[i]
@@ -42,13 +44,15 @@ function parse_args(argv)
             profiles = parse.(Int, split(argv[i + 1], ',')); i += 2
         elseif a == "--truncate-seconds"
             truncate = parse(Float64, argv[i + 1]); i += 2
+        elseif a == "--out-dir"
+            out_dir = abspath(argv[i + 1]); i += 2
         elseif a == "--source"
             source = argv[i + 1]; i += 2
         else
             error("unknown argument: $a")
         end
     end
-    return (; profiles, truncate, source)
+    return (; profiles, truncate, source, out_dir)
 end
 
 opts = parse_args(ARGS)
@@ -71,10 +75,12 @@ const TEMPERATURE_COLS     = [:pm, :stator_yoke, :stator_tooth, :stator_winding,
                               :ambient, :coolant]
 const NON_TEMPERATURE_COLS = [:u_q, :u_d, :motor_speed, :i_d, :i_q, :torque]
 
+mkpath(opts.out_dir)
+
 max_abs = Dict(String(c) => maximum(abs, skipmissing(df_all[!, c]))
                for c in NON_TEMPERATURE_COLS)
 
-let path = joinpath(DST_DIR, "normalization.toml")
+let path = joinpath(opts.out_dir, "normalization.toml")
     open(path, "w") do io
         println(io, "# Normalisation denominators derived from the source dataset by")
         println(io, "# scripts/prepare_data.jl. Do not edit by hand: regenerating the")
@@ -106,7 +112,7 @@ for pid in opts.profiles
     end
     select!(df, [:time, :u_q, :coolant, :u_d, :motor_speed, :i_d, :i_q, :ambient,
                  :torque, :i_s, :u_s, :pm, :stator_yoke, :stator_tooth, :stator_winding])
-    dst = joinpath(DST_DIR, "profile_$(pid).parquet")
+    dst = joinpath(opts.out_dir, "profile_$(pid).parquet")
     Parquet2.writefile(dst, df; compression_codec = :zstd)
     @info "Wrote profile" profile_id = pid dst rows = nrow(df) span_s = (df.time[1], df.time[end])
 end
