@@ -17,12 +17,12 @@ using MotorTemperatureSciML: AbstractTNNTrainingAnalysisSpec, TNNTrainingAnalysi
   var"batch_size"::Int = 32
   # Segments are sampled in contiguous blocks of this size (must divide batch_size)
   var"block_size"::Int = 4
-  # Adam step size
+  # Initial Adam step size; decays after 50 epochs for continuity refinement
   var"learning_rate"::Float64 = 0.001
   # Adam epochs (passes over all segments) per outer iteration
-  var"inner_epochs"::Int = 2
+  var"inner_epochs"::Int = 12
   # Augmented-Lagrangian outer iterations (upper bound)
-  var"outer_maxiters"::Int = 1
+  var"outer_maxiters"::Int = 30
   # Stopping test: largest junction gap [degC]
   var"continuity_tol"::Float64 = 0.2
   # Where to write the calibrated parameters (dyad:// URI or path); empty skips

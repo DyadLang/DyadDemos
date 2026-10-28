@@ -20,7 +20,7 @@ using DyadModelOptimizer
 using DyadModelOptimizer: search_space_names, compute_residual, calibration_parameters
 using ModelingToolkit: ModelingToolkit, SymbolicT, System
 using OrdinaryDiffEqTsit5: Tsit5
-using OptimizationOptimisers: Adam
+using OptimizationOptimisers: Adam, Optimisers
 using ADTypes: AutoForwardDiff
 using ForwardDiff: ForwardDiff
 using DataFrames: DataFrame, nrow
@@ -29,6 +29,7 @@ using DyadData: DyadData
 using Statistics: mean
 using LinearAlgebra: norm
 using Logging
+using SciMLBase: successful_retcode
 
 # `TNNModel.MAX_TEMP` (structural, default 200): the thermal states are T / MAX_TEMP.
 const STORY_MAX_TEMP = 200.0
@@ -54,6 +55,32 @@ function profile_data(sys)
 end
 
 temperature_states(sys) = ntuple(i -> sys.model.thermal.T[i], 4)
+
+# Elimination can keep a connector alias (e.g. cond_net.T) as the ODE state
+# and make thermal.T an observed variable. DataInitialization matches actual
+# states, and currently assumes its data rows follow the ODE state order.
+# Resolve only exact symbolic aliases and retain each channel's data mapping.
+function temperature_depvars(sys)
+    S = ModelingToolkit.Symbolics
+    states = DyadModelOptimizer.get_diff_variables(sys)
+    canonical = S.unwrap.(collect(temperature_states(sys)))
+    aliases = Dict(eq.lhs => eq.rhs for eq in ModelingToolkit.observed(sys))
+    for _ in 1:(length(aliases) + 1)
+        all(x -> any(isequal(x), states), canonical) && break
+        next = S.substitute.(canonical, Ref(aliases))
+        isequal(next, canonical) && error("Cannot resolve measured temperatures to ODE states")
+        canonical = next
+    end
+    length(states) == 4 || error("Expected four thermal ODE states")
+    return [state => CHANNEL_KEYS[only(findall(isequal(state), canonical))] for state in states]
+end
+
+# Shooting residuals use ODE state order; plots and tables use CHANNEL_KEYS.
+function temperature_channel_order(sys, values)
+    state_keys = last.(temperature_depvars(sys))
+    rows = [only(findall(==(key), state_keys)) for key in CHANNEL_KEYS]
+    return values[rows, :]
+end
 
 function normalized_targets(t, meas)
     DataFrame("timestamp" => t,
@@ -81,13 +108,12 @@ function build_experiment(sys; tspan = nothing, name,
     span = something(tspan, (0.0, t[end]))
     keep = t .<= span[2]
     data = normalized_targets(t[keep], meas[:, keep])
-    T = temperature_states(sys)
     T0 = meas[:, 1] ./ STORY_MAX_TEMP
     all_overrides = vcat([sys.model.thermal.T_init[i] => T0[i] for i in 1:4],
                          [k => v for (k, v) in overrides])
     Experiment(data, sys;
         tspan = span, alg = Tsit5(), abstol, reltol, name,
-        depvars = [T[i] => k for (i, k) in enumerate(CHANNEL_KEYS)],
+        depvars = temperature_depvars(sys),
         # Mean (not sum) of squares: keeps the loss O(1), matches nn.MSELoss,
         # and doesn't scramble AugLag's penalty schedule.
         loss = meansquaredl2loss,
@@ -155,23 +181,51 @@ Lagrangian outer loop (at most `outer_maxiters` multiplier updates of
 `inner_epochs` passes over the segments each, stopping early once every junction
 gap is below `continuity_tol` °C). Extra `inner_kwargs`/`auglag_kwargs` are
 merged over the defaults; remaining `kwargs` go to the algorithm (e.g. an outer
-`callback`).
+`callback`). Segment initial states come from measured training temperatures
+by default. `build_experiment` resolves state aliases and orders the target
+pairs so `DataInitialization` assigns every measured channel correctly. The
+base learning rate is held for 50 epochs, then decays inversely with epoch
+squared, down to a state step one tenth of the requested junction tolerance.
 """
 function make_sms(; n_segments, batch_size, block_size, learning_rate, inner_epochs,
         outer_maxiters, continuity_tol = 0.2, inner_kwargs = (;), auglag_kwargs = (;),
-        kwargs...)
+        initialization = DataInitialization(), callback = (args...) -> false, kwargs...)
+    # Adam's 1e-3 normalized-state step is 0.2 °C: as large as the default
+    # junction criterion. Retain it for fitting, then reduce the stochastic
+    # noise floor for continuity refinement, without changing the criterion.
+    step = Ref(0)
+    steps_per_epoch = n_segments / batch_size
+    user_inner_callback = get(inner_kwargs, :callback, (args...) -> false)
+    function scheduled_inner_callback(state, loss, args...)
+        step[] += 1
+        epoch = step[] / steps_per_epoch
+        rate = shooting_learning_rate(learning_rate, epoch, continuity_tol)
+        Optimisers.adjust!(state.original, rate)
+        return user_inner_callback(state, loss, args...)
+    end
     StochasticMultipleShooting(;
+        # All four thermal states are measured. Start shooting states on the
+        # training data, rather than on the cold, untrained free-running model.
+        # These remain optimization variables, with the same continuity test.
+        initialization,
         trajectories  = n_segments,
         batch_size, block_size,
         sampling      = :stratified_pairs,
         inner         = Adam(learning_rate),
-        inner_kwargs  = merge((; epochs = inner_epochs), inner_kwargs),
+        inner_kwargs  = merge((; epochs = inner_epochs), inner_kwargs, (; callback = scheduled_inner_callback)),
         maxiters      = outer_maxiters,
         # The constraint is in normalized units; the OptimizationAuglag default
-        # (1e-8, i.e. 2 µK) sits below the ODE tolerance and can never be met.
+        # (1e-8, i.e. 2 µK) sits below the configured ODE accuracy.
         auglag_kwargs = merge((; ϵ_primal = continuity_tol / STORY_MAX_TEMP), auglag_kwargs),
         ensemblealg   = DyadModelOptimizer.EnsemblePooled(),
-        kwargs...)
+        callback, kwargs...)
+end
+
+# Fifty warm-up epochs, then inverse-square decay. The floor corresponds to
+# one tenth of the requested physical junction tolerance, at most the base rate.
+function shooting_learning_rate(base_rate, epoch, continuity_tol)
+    floor_rate = min(base_rate, continuity_tol / (10 * STORY_MAX_TEMP))
+    return max(floor_rate, base_rate * min(1.0, (50 / epoch)^2))
 end
 
 """Free-running simulation sampled on `t`, as a 4 × N matrix in °C."""
@@ -180,6 +234,7 @@ function free_running(sys, experiment, invprob, x, t)
     tspan = (0.0, t[end])
     sol = isnothing(x) ? simulate(experiment, invprob; tspan, saveat = t) :
                          simulate(experiment, invprob, x; tspan, saveat = t)
+    successful_retcode(sol) || error("Free-running solve failed: $(sol.retcode)")
     pred = Matrix{Float64}(undef, 4, length(t))
     for i in 1:4
         pred[i, :] .= sol(t; idxs = T[i]).u .* STORY_MAX_TEMP
@@ -400,8 +455,8 @@ abstract type AbstractTNNTrainingAnalysisSpec <: AbstractAnalysisSpec end
 
 """
     TNNTrainingAnalysis(; model, train_horizon = 7200, window = 75, batch_size = 32,
-                          block_size = 4, learning_rate = 1e-3, inner_epochs = 2,
-                          outer_maxiters = 1, continuity_tol = 0.2, results_path = "",
+                          block_size = 4, learning_rate = 1e-3, inner_epochs = 12,
+                          outer_maxiters = 30, continuity_tol = 0.2, results_path = "",
                           abstol = 1e-6, reltol = 1e-6)
 
 Calibrate the Thermal Neural Network on the profile its harness is built with,
@@ -428,8 +483,8 @@ the calibrated parameters are written there (CSV), ready for a
     batch_size::Int = 32
     block_size::Int = 4
     learning_rate::Float64 = 1e-3
-    inner_epochs::Int = 2
-    outer_maxiters::Int = 1
+    inner_epochs::Int = 12
+    outer_maxiters::Int = 30
     continuity_tol::Float64 = 0.2
     results_path::String = ""
     abstol::Float64 = 1e-6
@@ -455,7 +510,15 @@ end
 n_segments(spec::TNNTrainingAnalysisSpec) = round(Int, spec.train_horizon / spec.window)
 
 function check_schedule(spec::TNNTrainingAnalysisSpec)
+    all(isfinite, (spec.train_horizon, spec.window, spec.learning_rate, spec.continuity_tol)) ||
+        error("Training horizon, window, learning rate and continuity tolerance must be finite")
+    min(spec.train_horizon, spec.window, spec.learning_rate, spec.continuity_tol) > 0 ||
+        error("Training horizon, window, learning rate and continuity tolerance must be positive")
+    min(spec.batch_size, spec.block_size, spec.inner_epochs, spec.outer_maxiters) > 0 ||
+        error("Batch size, block size and iteration budgets must be positive")
     n = n_segments(spec)
+    isapprox(n * spec.window, spec.train_horizon) ||
+        error("window must divide train_horizon exactly")
     n >= 2 || error("train_horizon / window must give at least 2 segments, got $n")
     n % spec.batch_size == 0 ||
         error("batch_size ($(spec.batch_size)) must divide the number of segments ($n)")
@@ -468,20 +531,21 @@ function DyadInterface.run_analysis(spec::TNNTrainingAnalysisSpec)
     n_seg = check_schedule(spec)
     sys = simplify_model(spec.model)
     (; t, meas) = profile_data(sys)
-    horizon = min(spec.train_horizon, t[end])
+    spec.train_horizon <= t[end] || error("Training profile does not cover train_horizon")
+    horizon = spec.train_horizon
 
     experiment = build_experiment(sys; tspan = (0.0, horizon), name = "training",
         experiment_kwargs(spec)...)
     invprob = build_invprob(experiment, build_search_space(sys))
 
     # Per-Adam-step and per-outer-iteration records.
-    steps = DataFrame(step = Int[], outer = Int[], loss = Float64[], grad_norm = Float64[])
+    steps = DataFrame(step = Int[], outer = Int[], loss = Float64[], grad_norm = Float64[], learning_rate = Float64[])
     outer = DataFrame(outer = Int[], loss = Float64[], r_primal = Float64[],
         r_dual = Float64[], rho = Float64[], lambda_norm = Float64[])
     outer_idx = Ref(1)
     function inner_cb(state, loss)
         gnorm = try norm(state.grad) catch; NaN end
-        push!(steps, (nrow(steps) + 1, outer_idx[], float(loss), float(gnorm)))
+        push!(steps, (nrow(steps) + 1, outer_idx[], float(loss), float(gnorm), float(state.original.rule.eta)))
         return false
     end
     function outer_cb(state, loss, args...)
@@ -507,7 +571,14 @@ function DyadInterface.run_analysis(spec::TNNTrainingAnalysisSpec)
     # Junction gaps g_k = T_end[k] − T_0[k+1] of the shooting fit, in °C.
     g = zeros(4 * (n_seg - 1))
     compute_residual(alg)(g, collect(calres.original.u), calibration_parameters(alg, invprob))
-    continuity = reshape(g, 4, n_seg - 1) .* STORY_MAX_TEMP
+    continuity = temperature_channel_order(sys, reshape(g, 4, n_seg - 1)) .* STORY_MAX_TEMP
+    successful_retcode(calres.retcode) || error(
+        "Training failed: $(calres.retcode); maximum junction gap " *
+        "$(maximum(abs, continuity)) °C (required < $(spec.continuity_tol) °C). " *
+        "Increase the training budget; no calibration was exported.")
+    all(isfinite, calres.original.u) || error("Training produced nonfinite parameters")
+    maximum(abs, continuity) < spec.continuity_tol ||
+        error("Training returned success but the independently recomputed continuity check failed")
 
     # Free-running check over the whole profile with the calibrated parameters.
     sol, pred = free_running(sys, experiment, invprob, collect(calres.u), t)

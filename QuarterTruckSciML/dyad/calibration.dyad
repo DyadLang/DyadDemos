@@ -46,6 +46,10 @@ analysis QuarterTruckCalibrationAnalysis
     search_space_ub    = [330.0,  24e3, 2100.0, 1000.0],
     calibration_alg = "SingleShooting",
     optimizer = "auto",
+    # Squared residuals avoid the L2 norm cusp; retain a strict gradient tolerance
+    # so the small damping/friction sensitivities also reach the optimum.
+    loss_func = DyadModelOptimizer.LossFunc.SquaredL2Loss(),
+    optimizer_abstol = 1e-8,
     optimizer_maxiters = 100)
   model = TestQuarterTruckNonlinearISOA()
 end

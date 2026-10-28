@@ -19,7 +19,8 @@
 #   validation_test_profiles.png    — 3 × 4 grid over the held-out profiles
 
 include("common.jl")
-using Plots
+using CairoMakie
+using SciMLBase: successful_retcode
 using Statistics: mean
 using LinearAlgebra: norm
 using Printf
@@ -28,7 +29,6 @@ using DyadModelOptimizer: compute_residual, calibration_parameters
 validation_paths = output_paths(ARGS; default_dir = joinpath(RUNS_DIR, "validation"),
     default_calibration = CALIBRATED_CSV)
 mkpath(validation_paths.out_dir)
-gr()
 
 # ── Calibrated parameters ────────────────────────────────────────────────────
 if @isdefined(calres) && !("--calibration" in ARGS)
@@ -56,6 +56,7 @@ end
 function free_running(sys, experiment, invprob, x, df)
     T = temperature_states(sys)
     sol = simulate(experiment, invprob, x; tspan = (0.0, df.time[end]), saveat = df.time)
+    successful_retcode(sol) || error("Free-running solve failed: $(sol.retcode)")
     return [sol(df.time; idxs = T[i]).u .* MAX_TEMP for i in 1:4]
 end
 
@@ -71,23 +72,24 @@ end
 
 rms(r) = sqrt(mean(abs2, r))
 
-# Overlay measured / Julia / PyTorch for one channel on a Plots subplot.
-function channel_plot!(p, sub, t, meas, pred, pt; title, first_legend)
-    plot!(p, t, meas; subplot = sub, color = :black, lw = 1, alpha = 0.8,
-        label = first_legend ? "measured" : "")
-    plot!(p, t, pred; subplot = sub, color = :red, lw = 1, alpha = 0.8,
-        label = first_legend ? "Dyad (SMS + AugLag)" : "")
+# CairoMakie is also the Builder artifact backend. It renders headlessly and
+# avoids Plots' optional GR backend, which is absent from the Dyad runtime.
+function channel_plot!(slot, t, meas, pred, pt; title, first_legend)
+    ax = Axis(slot; title, xlabel = "t [s]", ylabel = "T [°C]")
+    lines!(ax, t, meas; color = :black, linewidth = 1, label = "measured")
+    lines!(ax, t, pred; color = :red, linewidth = 1, label = "Dyad (SMS + AugLag)")
     if !isnothing(pt)
         n = min(length(t), length(pt))
-        plot!(p, t[1:n], pt[1:n]; subplot = sub, color = :blue, lw = 1, alpha = 0.6,
-            label = first_legend ? "PyTorch reference" : "")
+        lines!(ax, t[1:n], pt[1:n]; color = :blue, linewidth = 1, label = "PyTorch reference")
     end
-    # Axis range from the measurement and the Dyad prediction only: a reference
-    # that diverges leaves the frame instead of squashing the comparison.
+    # Keep the fitted model readable when the reference diverges; its full
+    # RMS errors are still printed in the summary.
     lo, hi = min(minimum(meas), minimum(pred)), max(maximum(meas), maximum(pred))
-    ylims!(p, lo - 0.1 * (hi - lo), hi + 0.25 * (hi - lo); subplot = sub)
-    xlims!(p, 0, t[end]; subplot = sub)
-    title!(p, title; subplot = sub, titlefontsize = 10)
+    pad = max(hi - lo, 1.0)
+    ylims!(ax, lo - 0.1pad, hi + 0.25pad)
+    xlims!(ax, 0, t[end])
+    first_legend && axislegend(ax; position = :rb, labelsize = 10)
+    return ax
 end
 
 # ── Training profile, free-running over its full length ─────────────────────
@@ -97,30 +99,24 @@ pt   = pytorch_predictions(TRAIN_PROFILE)
 t    = df.time
 in_train = t .<= TRAIN_HORIZON_S
 
-p1 = plot(layout = (2, 2), size = (1100, 700), link = :x, legend = :bottomright,
-    suptitle = "Profile $(TRAIN_PROFILE): free-running prediction vs measured")
+p1 = Figure(size = (1100, 700))
 for i in 1:4
-    channel_plot!(p1, i, t, meas[i], pred[i], isnothing(pt) ? nothing : pt[i];
-        title = TARGET_LABELS[i], first_legend = i == 1)
-    vline!(p1, [TRAIN_HORIZON_S]; subplot = i, color = :gray, ls = :dash, lw = 1,
-        label = i == 1 ? "end of training horizon" : "")
-    xlabel!(p1, "t [s]"; subplot = i)
-    ylabel!(p1, "T [°C]"; subplot = i)
+    ax = channel_plot!(p1[(i - 1) ÷ 2 + 1, (i - 1) % 2 + 1], t, meas[i], pred[i],
+        isnothing(pt) ? nothing : pt[i]; title = TARGET_LABELS[i], first_legend = i == 1)
+    vlines!(ax, [TRAIN_HORIZON_S]; color = :gray, linestyle = :dash)
 end
-savefig(p1, joinpath(validation_paths.out_dir, "validation_training_profile.png"))
+save(joinpath(validation_paths.out_dir, "validation_training_profile.png"), p1)
 
-p2 = plot(layout = (2, 2), size = (1100, 700), link = :x, legend = false,
-    suptitle = "Profile $(TRAIN_PROFILE): prediction error (Dyad − measured)")
+p2 = Figure(size = (1100, 700))
 for i in 1:4
     r = pred[i] .- meas[i]
-    plot!(p2, t, r; subplot = i, lw = 0.7, color = :steelblue)
-    hline!(p2, [0]; subplot = i, color = :black, ls = :dash, lw = 1)
-    vline!(p2, [TRAIN_HORIZON_S]; subplot = i, color = :gray, ls = :dash, lw = 1)
-    title!(p2, @sprintf("%s   RMS %.2f °C", TARGET_LABELS[i], rms(r)); subplot = i, titlefontsize = 10)
-    xlabel!(p2, "t [s]"; subplot = i)
-    ylabel!(p2, "error [°C]"; subplot = i)
+    ax = Axis(p2[(i - 1) ÷ 2 + 1, (i - 1) % 2 + 1]; xlabel = "t [s]", ylabel = "error [°C]",
+        title = @sprintf("%s   RMS %.2f °C", TARGET_LABELS[i], rms(r)))
+    lines!(ax, t, r; linewidth = 0.7, color = :steelblue)
+    hlines!(ax, [0]; color = :black, linestyle = :dash)
+    vlines!(ax, [TRAIN_HORIZON_S]; color = :gray, linestyle = :dash)
 end
-savefig(p2, joinpath(validation_paths.out_dir, "validation_residuals.png"))
+save(joinpath(validation_paths.out_dir, "validation_residuals.png"), p2)
 
 # ── Segment-continuity residuals of the shooting fit ─────────────────────────
 # g_k = (end of segment k) − (initial state of segment k+1), per state, in °C.
@@ -131,17 +127,18 @@ savefig(p2, joinpath(validation_paths.out_dir, "validation_residuals.png"))
 n_junctions = N_SEGMENTS - 1
 g = zeros(4 * n_junctions)
 compute_residual(alg)(g, x_full, calibration_parameters(alg, invprob))
-G = reshape(g, 4, n_junctions) .* MAX_TEMP
+G = MotorTemperatureSciML.temperature_channel_order(sys, reshape(g, 4, n_junctions)) .* MAX_TEMP
 
-p3 = plot(size = (1000, 550), xlabel = "junction k", ylabel = "T_end[k] − T_0[k+1]  [°C]",
-    title = "Segment-continuity residuals after calibration ($(N_SEGMENTS) × $(Int(WINDOW_S)) s segments)",
-    titlefontsize = 11, legend = :topright)
+p3 = Figure(size = (1000, 550))
+ax3 = Axis(p3[1, 1]; xlabel = "junction k", ylabel = "T_end[k] − T_0[k+1] [°C]",
+    title = "Segment-continuity residuals after calibration ($(N_SEGMENTS) × $(Int(WINDOW_S)) s segments)")
 for i in 1:4
-    plot!(p3, 1:n_junctions, G[i, :]; marker = :circle, ms = 3, lw = 1, alpha = 0.8,
+    scatterlines!(ax3, 1:n_junctions, G[i, :]; markersize = 5, linewidth = 1,
         label = TARGET_LABELS[i])
 end
-hline!(p3, [0]; color = :black, ls = :dash, lw = 1, label = "")
-savefig(p3, joinpath(validation_paths.out_dir, "validation_continuity.png"))
+hlines!(ax3, [0]; color = :black, linestyle = :dash)
+axislegend(ax3; position = :rt)
+save(joinpath(validation_paths.out_dir, "validation_continuity.png"), p3)
 
 # ── Held-out profiles ────────────────────────────────────────────────────────
 # Same harness, different profile: `TestTNNProfile(data_file = ...)` rebuilds the
@@ -157,18 +154,13 @@ test_runs = map(TEST_PROFILES) do pid
         meas = measured(df_p), pt = pytorch_predictions(pid))
 end
 
-p4 = plot(layout = (length(TEST_PROFILES), 4), size = (1500, 800), legend = :topleft,
-    legendfontsize = 6, xformatter = x -> string(round(Int, x)),
-    suptitle = "Held-out profiles: free-running prediction vs measured")
+p4 = Figure(size = (1500, 800))
 for (row, r) in enumerate(test_runs), col in 1:4
-    sub = (row - 1) * 4 + col
-    channel_plot!(p4, sub, r.df.time, r.meas[col], r.pred[col],
+    channel_plot!(p4[row, col], r.df.time, r.meas[col], r.pred[col],
         isnothing(r.pt) ? nothing : r.pt[col];
-        title = row == 1 ? TARGET_LABELS[col] : "", first_legend = sub == 1)
-    col == 1 && ylabel!(p4, "Profile $(r.pid)\nT [°C]"; subplot = sub)
-    row == length(TEST_PROFILES) && xlabel!(p4, "t [s]"; subplot = sub)
+        title = "Profile $(r.pid): $(TARGET_LABELS[col])", first_legend = row == col == 1)
 end
-savefig(p4, joinpath(validation_paths.out_dir, "validation_test_profiles.png"))
+save(joinpath(validation_paths.out_dir, "validation_test_profiles.png"), p4)
 
 # ── Summary ──────────────────────────────────────────────────────────────────
 function report(label, t_mask, meas, pred, pt)

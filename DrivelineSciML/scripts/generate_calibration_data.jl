@@ -30,6 +30,7 @@ using DrivelineSciML
 using ModelingToolkit
 using OrdinaryDiffEqDefault
 using CSV, DataFrames
+include("workflow_checks.jl")
 
 const OUTDIR = joinpath(@__DIR__, "..", "assets", "data")
 isdir(OUTDIR) || mkpath(OUTDIR)
@@ -44,6 +45,7 @@ function simulate_and_export(harness, overrides_fn, stop, saveat, filename)
     # `isolator.*` parameters.
     prob = ODEProblem(sys, overrides_fn(sys), (0.0, stop); fully_determined = true)
     sol = solve(prob; abstol = 1e-9, reltol = 1e-9, saveat)
+    require_simulation_success(sol, stop, filename)
     df = DataFrame(
         timestamp          = sol.t,
         var"omega_eng(t)"  = sol[sys.model.J_eng.w],

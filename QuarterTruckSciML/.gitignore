@@ -13,5 +13,9 @@
 # nn_weights_full_sin.csv is only the intermediate Adam stage of training.
 /assets/validation_iso_a.png
 /assets/validation_iso_a.csv
+/assets/validation_iso_a_metrics.csv
 /assets/data/nn_weights_full_sin.csv
 /.dyadcache
+
+# Direct training-analysis exports must not replace shipped pretrained weights.
+/training-results/

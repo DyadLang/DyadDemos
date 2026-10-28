@@ -3,10 +3,13 @@
 # The two-stage training is:
 #   1. Adam (TruckFullNNTrainingAnalysis) for fast global descent
 #   2. LBFGS (TruckFullNNTrainingAnalysisLBFGS) starting from Adam's weights
-#      for high-precision refinement
+#      for candidate refinement
 #
 # Both consume the same sin-excited training set; the LBFGS analysis reads the
 # Adam-trained weights via `initial_values_path`.
+# RC2 maps optimizer_abstol to Optim's function-change tolerance. A Success
+# code can therefore precede gradient convergence. Use scripts/train.jl to
+# check raw gradient optimality before exporting accepted LBFGS weights.
 
 "Sanity: sin-driven gray-box truck with random NN init (should integrate cleanly but NOT match the GT)."
 analysis AnalysisFullNNSin
@@ -27,10 +30,12 @@ analysis TruckFullNNTrainingAnalysis
     alg = ODEAlg.Tsit5(),
     calibration_alg = "SingleShooting",
     optimizer = "Adam",
+    # ForwardDiff is faster for this small 68-parameter network on RC2.
+    adtype = DyadModelOptimizer.ADChoice.ForwardDiff(),
     optimizer_maxiters = 5000,
     learning_rate = 1e-3,
     network_component = "model.scaled_nn.nn",
-    results_path = "assets/data/nn_weights_full_sin.csv")
+    results_path = "training-results/adam_weights.csv")
   model = TestQuarterTruckFullNNSin()
 end
 
@@ -45,9 +50,10 @@ analysis TruckFullNNTrainingAnalysisLBFGS
     alg = ODEAlg.Tsit5(),
     calibration_alg = "SingleShooting",
     optimizer = "LBFGS",
+    adtype = DyadModelOptimizer.ADChoice.ForwardDiff(),
     optimizer_maxiters = 200,
     network_component = "model.scaled_nn.nn",
-    initial_values_path = "assets/data/nn_weights_full_sin.csv",
-    results_path = "assets/data/nn_weights_full_sin_lbfgs.csv")
+    initial_values_path = "training-results/adam_weights.csv",
+    results_path = "training-results/lbfgs_weights.csv")
   model = TestQuarterTruckFullNNSin()
 end

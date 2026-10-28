@@ -3,6 +3,21 @@ using Test
 using ModelingToolkit
 using OrdinaryDiffEqDefault
 using CSV, DataFrames
+include("../scripts/workflow_checks.jl")
+
+@testset "Workflows reject failed results before chaining or export" begin
+    fit(; retcode = ReturnCode.Success, u = [300.0, 1.0, 50.0], objective = 0.01,
+        likely_wrong = false) = (; retcode, u, original = (; objective), likely_wrong)
+    @test require_calibration_success(fit(), "test") !== nothing
+    for code in (ReturnCode.Infeasible, ReturnCode.MaxIters, ReturnCode.Failure)
+        @test_throws ErrorException require_calibration_success(fit(; retcode = code), "test")
+    end
+    @test_throws ErrorException require_calibration_success(fit(; u = [NaN]), "test")
+    @test_throws ErrorException require_calibration_success(fit(; objective = Inf), "test")
+    @test_throws ErrorException require_calibration_success(fit(; likely_wrong = true), "test")
+    @test_throws ErrorException require_simulation_success(
+        (; retcode = ReturnCode.Success, t = [0.0, 0.5], u = [[0.0], [1.0]]), 1.0, "test")
+end
 
 # Generated test-component smoke tests (mtkcompile + initial-condition checks)
 include("../generated/tests.jl")
@@ -64,4 +79,19 @@ end
 @testset "Calibration/training analyses construct through the Dyad pipeline" begin
     @test DrivelineSciML.DrivelineStage1CalibrationAnalysis__Spec().__system isa ModelingToolkit.System
     @test DrivelineSciML.DrivelineStage2CalibrationAnalysis__Spec().__system isa ModelingToolkit.System
+end
+
+@testset "Two-stage calibration converges with resolved dynamics" begin
+    result = DrivelineSciML.DrivelineStage1CalibrationAnalysis(; name = :stage1_regression)
+    @test SciMLBase.successful_retcode(result.r.retcode)
+    # The remaining residual comes from the nominal fixed beta/gamma, rather
+    # than measurement noise. Guard the accuracy as well as the return status.
+    @test result.r.original.objective / sqrt(5001) < 0.0015
+    row = DataFrame(result.r)[1, :]
+    fitted = Dict(Symbol(last(split(string(k), ['.', '₊']))) => row[k] for k in propertynames(row))
+    model = DrivelineSciML.TestDrivelineSlowCycle(; name = :TestDrivelineSlowCycle,
+        k1 = fitted[:k1], c1 = fitted[:c1])
+    stage2 = DrivelineSciML.DrivelineStage2CalibrationAnalysis(; name = :stage2_regression, model)
+    @test SciMLBase.successful_retcode(stage2.r.retcode)
+    @test stage2.r.original.objective / sqrt(1001) < 0.0005
 end

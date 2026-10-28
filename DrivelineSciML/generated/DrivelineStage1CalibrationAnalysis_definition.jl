@@ -6,7 +6,7 @@
 
 using DyadInterface
 using DyadModelOptimizer: AbstractCalibrationAnalysisSpec, CalibrationAnalysisSpec
-@component function DrivelineStage1CalibrationAnalysis__System(; name = nothing, var"alg"=ODEAlg.Tsit5(), var"start"=0.0, var"stop"=5.0, var"abstol"=1e-8, var"reltol"=1e-8, var"saveat"=0.001, var"dtmax"=0, var"data"=DyadData.DyadTimeseries("dyad://DrivelineSciML/data/chirp_measurements.csv"; independent_var="timestamp", dependent_vars=["delta_w(t)"]), var"depvars_names"=["model.delta_w"], var"loss_func"=DyadModelOptimizer.LossFunc.L2Loss(), var"search_space_names"=["model.k1", "model.c1", "model.alpha"], var"search_space_lb"=[50.0, 0.1, 10.0], var"search_space_ub"=[500.0, 10.0, 120.0], var"calibration_alg"="SingleShooting", var"multiple_shooting_trajectories"=0, var"pem_gain"=0.0, var"optimizer"="auto", var"adtype"=DyadModelOptimizer.ADChoice.Auto(), var"optimizer_abstol"=0.0001, var"optimizer_maxiters"=400, var"optimizer_maxtime"=0.0, var"optimizer_verbose"=false, var"diagnostics"=DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking(), var"results_path"="", __overrides = Dict{String, Any}())
+@component function DrivelineStage1CalibrationAnalysis__System(; name = nothing, var"alg"=ODEAlg.Tsit5(), var"start"=0.0, var"stop"=5.0, var"abstol"=1e-8, var"reltol"=1e-8, var"saveat"=0.001, var"dtmax"=0.0001, var"data"=DyadData.DyadTimeseries("dyad://DrivelineSciML/data/chirp_measurements.csv"; independent_var="timestamp", dependent_vars=["delta_w(t)"]), var"depvars_names"=["model.delta_w"], var"loss_func"=DyadModelOptimizer.LossFunc.L2Loss(), var"search_space_names"=["model.k1", "model.c1", "model.alpha"], var"search_space_lb"=[50.0, 0.1, 10.0], var"search_space_ub"=[500.0, 10.0, 120.0], var"calibration_alg"="SingleShooting", var"multiple_shooting_trajectories"=0, var"pem_gain"=0.0, var"optimizer"="auto", var"adtype"=DyadModelOptimizer.ADChoice.Auto(), var"optimizer_abstol"=0.0001, var"optimizer_maxiters"=400, var"optimizer_maxtime"=0.0, var"optimizer_verbose"=false, var"diagnostics"=DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking(), var"results_path"="", __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -178,7 +178,7 @@ export DrivelineStage1CalibrationAnalysis__System
   var"abstol"::Float64 = 1e-8
   var"reltol"::Float64 = 1e-8
   var"saveat"::Float64 = 0.001
-  var"dtmax"::Float64 = 0
+  var"dtmax"::Float64 = 0.0001
   var"data"::DyadData.DyadTimeseries = DyadData.DyadTimeseries("dyad://DrivelineSciML/data/chirp_measurements.csv"; independent_var="timestamp", dependent_vars=["delta_w(t)"])
   var"depvars_names"::Array{String, 1} = ["model.delta_w"]
   var"loss_func"::DyadModelOptimizer.LossFunc.Type = DyadModelOptimizer.LossFunc.L2Loss()

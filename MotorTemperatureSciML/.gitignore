@@ -16,3 +16,5 @@
 
 # Parameters written by the TrainTNN* story analyses (dyad://MotorTemperatureSciML/story/...).
 /assets/story/
+# Python reference script/test bytecode caches.
+__pycache__/

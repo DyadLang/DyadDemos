@@ -43,6 +43,10 @@ jobs:
           enable-JuliaHubRegistry: "true"
           # ssh-key: "${{ secrets.JULIASIM_REGISTRY_SSH_KEY }}"
 
+      - name: "Install and verify Dyad 3.5.1 CLI"
+        shell: bash
+        run: bash .ci/setup-dyad-cli.sh
+
       - name: "Instantiate CI environment"
         run: julia --project=.ci -e 'using Pkg; Pkg.instantiate()'
 

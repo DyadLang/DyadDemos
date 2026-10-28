@@ -40,6 +40,7 @@ produced them:
 | `src/QuarterTruckSciML.jl`            | ISO 8608 spectrum helpers (Julia)                        |
 | `scripts/generate_training_data.jl`   | Produce `assets/data/truck_sin_full_train.csv`           |
 | `scripts/train.jl`                    | Run Adam + LBFGS to retrain the NN                       |
+| `scripts/evaluate_training_fit.jl`    | Replay exported NN weights against all training samples |
 | `scripts/validate.jl`                 | 3-panel overlay PNG (linear / NN / truth) on ISO 8608    |
 | `scripts/export_validation_csv.jl`    | Same data as `validate.jl` but as a tidy CSV             |
 | `scripts/generate_calibration_data.jl`| Simulate perturbed truth → synthetic measurements        |
@@ -106,24 +107,68 @@ Expected output: 3-panel overlay (tire position, driver position, driver
 acceleration) showing the NN-augmented model tracking the nonlinear truth
 several times more accurately than the linear baseline.
 
-To retrain from scratch (~5 min):
+To retrain from scratch at the declared 5000 Adam / 200 LBFGS budgets
+(runtime depends on the machine and backend; see the measured follow-up report):
 
 ```bash
-julia +dyad-3.5.1 --project scripts/generate_training_data.jl  # regenerate sin training set
-julia +dyad-3.5.1 --project scripts/train.jl                   # Adam → LBFGS
+julia +dyad-3.5.1 --project scripts/train.jl /path/to/fresh-training-output  # Adam → LBFGS
 ```
+
+The training script preserves the committed dataset and pretrained weights. It
+records actual optimizer return codes, losses, raw stopping criteria and timings
+in `training-results.txt`. Adam's full-budget finite checkpoint is written as
+`adam_weights.csv`; accepted LBFGS weights are exported only after checking both
+the success code and Optim's gradient criterion (`|g| ≤ 1e-8`).
+
+The measured RC2 full run took 82 min 38.64 s. Adam completed 5000 iterations
+with `Default`. LBFGS returned `Success` after two iterations because its
+function change was `6.05e-5 ≤ f_abstol=1e-4`; its gradient residual was
+`0.0943 > 1e-8`. **This fit is not stationary.** The current script rejects that
+result, exits nonzero and does not export `lbfgs_weights.csv`. The optimizer
+configuration and budgets remain unchanged; successful optimality-based training
+is still unresolved. See the [follow-up report](docs/followup-validation.md) and
+[unfiled adapter note](docs/followup-upstream-issues.md).
+
+Direct analysis exports default to the ignored `training-results/` directory,
+with LBFGS reading Adam's checkpoint there. Direct `ResultsExport` requests
+bypass the script's acceptance checks; a CSV alone does not certify optimality.
+Historical task-local weights remain useful for diagnostic replay. To evaluate
+an explicitly selected exported file against the training samples and held-out road:
+
+```bash
+julia +dyad-3.5.1 --project scripts/evaluate_training_fit.jl /path/to/fresh-training-output/lbfgs_weights.csv
+QUARTERTRUCK_WEIGHTS=/path/to/fresh-training-output/lbfgs_weights.csv \
+QUARTERTRUCK_VALIDATION_OUTPUT=/path/to/validation-output \
+julia +dyad-3.5.1 --project scripts/validate.jl
+```
+
+The validation output directory receives a PNG and
+`validation_iso_a_metrics.csv` with full-precision errors.
+
+Regenerate `assets/data/truck_sin_full_train.csv` only deliberately with
+`scripts/generate_training_data.jl`; an optional output filename keeps the
+committed dataset untouched.
 
 ### Parameter calibration
 
-Generate synthetic measurements from the perturbed nonlinear truth (mass +5%,
-stiffness +10%, damping +20%, friction +50%) and run the calibrator:
+Run the calibrator against the committed synthetic measurements from the
+perturbed nonlinear truth (mass +5%, stiffness +10%, damping +20%, friction +50%):
 
 ```bash
-julia +dyad-3.5.1 --project scripts/generate_calibration_data.jl
 julia +dyad-3.5.1 --project scripts/run_calibration.jl
 ```
 
-The calibration recovers all four parameters to within ~0.1% of the truth:
+The calibration uses squared residuals and a strict optimizer tolerance to recover
+all four parameters within 0.1% of truth and return `Success` in 43 iterations on
+RC2. The weak damping/friction distinction makes a loose stopping tolerance
+inadequate. See [follow-up validation](docs/followup-validation.md) for residuals
+and limitations. To deliberately regenerate the synthetic measurements, use
+`scripts/generate_calibration_data.jl`; an optional output filename preserves
+the committed file. The generator checks integration success and uses explicit
+`1e-10` solver tolerances for future regeneration. The committed measurements
+retain error from the older generation settings; they were not regenerated.
+
+The ground-truth parameters are:
 
 | parameter              | nominal | truth |
 |------------------------|---------|-------|
@@ -145,12 +190,17 @@ Verifies that:
 - all three ISO 8608 test harnesses simulate
 - the pre-trained NN weights load, and beat a zero-weight NN against the
   nonlinear truth
+- physical calibration returns success and recovers the synthetic parameters
+  within 0.1%
 
-Takes ~2 minutes including precompilation.
+The follow-up validation records measured test-set times, including the full
+physical-calibration regression.
 
 ## Dyad 3.5 validation
 
 See [the upgrade validation report](docs/upgrade-3.5-validation.md) for the
 full analysis inventory, old/new numerical comparisons, and regeneration steps.
+See also [follow-up validation](docs/followup-validation.md) and
+[unfiled upstream issue drafts](docs/followup-upstream-issues.md).
 Follow the [recompile workflow](#recompiling-with-dyad-studio-or-cli) after
 every Studio or CLI compile to reapply the required annotation workaround.

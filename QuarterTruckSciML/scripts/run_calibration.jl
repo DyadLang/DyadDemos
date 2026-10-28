@@ -8,6 +8,7 @@ ground-truth perturbed values, and what the optimizer recovered.
 =#
 
 using QuarterTruckSciML
+include("result_checks.jl")
 using DyadInterface
 using Printf
 
@@ -23,11 +24,14 @@ const TRUTH   = (var"body_m" = 315.0,         var"tire_to_body_c" = 22e3,
 const PARAMS  = ["model.body_m", "model.tire_to_body_c",
                  "model.tire_to_body_d", "model.friction_Fc"]
 
-@info "Running QuarterTruckCalibrationAnalysis (LBFGS, ≤100 iters)"
+@info "Running QuarterTruckCalibrationAnalysis (≤100 iters)"
 # The generated `QuarterTruckCalibrationAnalysis(; kwargs...)` shorthand already
 # calls `run_analysis(QuarterTruckCalibrationAnalysisSpec(; kwargs...))`, so we
 # get the solution back directly.
 result = QuarterTruckSciML.QuarterTruckCalibrationAnalysis(; name=:cal)
+@info "Calibration optimizer result" retcode=result.r.retcode objective=result.r.original.objective stats=result.r.original.stats
+report_optimizer(stdout, result.r)
+check_calibration(result.r)
 
 # `CalibrationAnalysisSolution` wraps `(spec, r::CalibrationResult)`; the
 # recovered parameter vector is `result.r.u`, in the order of

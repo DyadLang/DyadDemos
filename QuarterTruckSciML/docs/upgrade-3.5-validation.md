@@ -1,10 +1,15 @@
 # QuarterTruckSciML: Dyad 3.5 upgrade validation
 
-Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+Current target: Dyad **3.5.1**. Forward-looking reproduction commands use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
 
 Target: Dyad `3.5.0` language with runtime `dyad-3.5.0-rc2` (Julia 1.13.2).
 Baseline: the original project on `dyad-3.4.0` (Julia 1.12.7).
 Runs use two Julia threads and one precompile task.
+
+This is the historical upgrade comparison. The [follow-up report](followup-validation.md)
+supersedes the calibration outcome, full-training timing and training acceptance
+claims: LBFGS `Success` can be a function-change stop without stationarity. The
+current scripts require its raw gradient criterion before accepted weight export.
 
 ## References read before editing
 
@@ -20,11 +25,18 @@ Runs use two Julia threads and one precompile task.
 
 ## Reproduction
 
+The follow-up validator now rejects Adam’s non-success `Default` before export.
+An unfiltered run therefore exits 1 by design, and its dependent LBFGS stage
+has no checkpoint to load. Use `scripts/train.jl` for staged training: it
+retains a completed Adam budget as a non-converged checkpoint and requires
+LBFGS gradient optimality before accepted export. Historical bounded-training
+commands and results below predate these stricter guards.
+
 Instantiate this project, regenerate with the Dyad 3.5 CLI, then run the existing tests and all concrete analyses:
 
 ```sh
 julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
-../.ci/compiler/dyad --version
+dyad --version
 JULIA_EXECUTABLE="julia +dyad-3.5.1" dyad compile "$PWD"
 julia +dyad-3.5.1 --project scripts/fix_analysis_codegen.jl
 JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1 julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
@@ -38,11 +50,10 @@ metrics and state trajectories. Training output goes to the validation directory
 
 ## RC2 compiler verification (2026-10-26)
 
-Regenerated this project with the repository's `../.ci/compiler/dyad`, reporting
+Regenerated this project with the repository's then-present RC2 compiler wrapper (since removed), reporting
 `3.5.0-rc2 (a24a224; compiler-only source build)`. Its source checkout is exactly
 `a24a2240667872d432a3b86c4db1240d77150e35` (`v3.5.0-rc2`).
-Then ran `scripts/fix_analysis_codegen.jl` with the RC2 Julia runtime, as shown
-above. The generated tree now preserves the compiler's exact output, including
+Then ran `scripts/fix_analysis_codegen.jl` with the RC2 Julia runtime. The generated tree now preserves the compiler's exact output, including
 blank-line whitespace, except for the required `DyadTimeseries` annotation
 correction. The script's former whitespace replacement has been removed.
 A byte comparison against raw compiler output verified that the annotation
@@ -53,7 +64,7 @@ Every Dyad Studio recompile, including compile on save, also requires rerunning
 the script before loading the project again; see the
 [README workflow](../README.md#recompiling-with-dyad-studio-or-cli).
 
-Re-ran `julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'` after regeneration,
+Re-ran `julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'` after regeneration,
 with two Julia threads and one precompile task: **15/15 assertions passed**,
 including the calibration/training analysis-construction regressions.
 
@@ -136,7 +147,7 @@ defaults remain 5000/200. To reproduce the bounded training validation, set:
 DYAD_UPGRADE_ADAM_MAXITERS=25 DYAD_UPGRADE_LBFGS_MAXITERS=10 \
 DYAD_UPGRADE_ONLY=TruckFullNNTrainingAnalysis,TruckFullNNTrainingAnalysisLBFGS \
 DYAD_UPGRADE_OUTPUT=/path/to/results JULIA_NUM_THREADS=2 \
-julia +dyad-3.5.1 --project scripts/validate_upgrade.jl
+julia +dyad-3.5.0-rc2 --project scripts/validate_upgrade.jl
 ```
 
 | Analysis | Actual iterations (3.4 / 3.5) | Optimizer status (3.4 / 3.5) | Objective 3.4 | Objective 3.5 | Absolute change |
