@@ -1,6 +1,6 @@
 # Follow-up workflow audit
 
-Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+Current Julia distribution: **dyad-3.5.0**; Dyad CLI target: **3.5.1**. Commands below use the 3.5.0 Julia channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
 
 Evidence paths and helper commands under `.task/` refer to the retained
 validation workspace; those logs and investigation helpers are not shipped
@@ -94,12 +94,12 @@ export JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1
 export JULIA_PKG_PRECOMPILE_AUTO=0 JULIA_PKG_USE_CLI_GIT=true
 export OPENBLAS_NUM_THREADS=1 GKSwstype=100
 export XDG_CACHE_HOME="$PWD/.task/workflows/cache"
-export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.1"
+export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.0"
 julia_worker="$PWD/.toolchain/juliaup/bin/julia"
 repo="$PWD/DyadDemos"
-"$julia_worker" +dyad-3.5.1 --startup-file=no -O0 --project="$repo/FrictionBrakeDemo/docs" "$repo/FrictionBrakeDemo/scripts/simulate_vehicle_cycle_test.jl"
-"$julia_worker" +dyad-3.5.1 --startup-file=no -O0 --project="$repo/MakieWebinar/docs" .task/workflows/doc-MakieWebinar-export.jl .task/workflows/makie-doc.svg
-"$julia_worker" +dyad-3.5.1 --startup-file=no -O0 --project="$repo/HybridTransmission" .task/workflows/notebook-HybridTransmission-exact.jl
+"$julia_worker" +dyad-3.5.0 --startup-file=no -O0 --project="$repo/FrictionBrakeDemo/docs" "$repo/FrictionBrakeDemo/scripts/simulate_vehicle_cycle_test.jl"
+"$julia_worker" +dyad-3.5.0 --startup-file=no -O0 --project="$repo/MakieWebinar/docs" .task/workflows/doc-MakieWebinar-export.jl .task/workflows/makie-doc.svg
+"$julia_worker" +dyad-3.5.0 --startup-file=no -O0 --project="$repo/HybridTransmission" .task/workflows/notebook-HybridTransmission-exact.jl
 ```
 
 All task-local harnesses and per-attempt logs are retained in workspace `.task/workflows/`. `jobs.py` executes subprocesses in the foreground, enforces only process time limits, and appends exact wall times/exit codes to `results.jsonl`. Catch-and-print diagnostic probes intentionally exit zero after recording expected old/new errors; their printed failure is the result, not their process exit code. The `jobs-*.json` files retain exact argv/cwd/time-limit records.

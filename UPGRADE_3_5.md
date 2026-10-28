@@ -1,6 +1,7 @@
 # Dyad 3.5 upgrade
 
-The demos target Dyad **3.5.1**, using the `dyad-3.5.1` JuliaHub channel.
+The demos use the `dyad-3.5.0` JuliaHub distribution and target the Dyad **3.5.1** CLI.
+There is no newer Julia distribution channel; kernel and editor pins remain at 3.5.0.
 This is a text-only update from the RC2 stack: generated code and manifests
 have not been regenerated. The results below record the original RC2 validation,
 not a new 3.5.1 test run.
@@ -13,8 +14,8 @@ Use a task-local juliaup installation and depot:
 export JULIAUP_DEPOT_PATH="$PWD/.toolchain/juliaup"
 export JULIAUP_SERVER=https://juliahub.com/juliabin
 export JULIA_DEPOT_PATH="$PWD/.toolchain/depot"
-juliaup add dyad-3.5.1
-export JULIA_EXECUTABLE="julia +dyad-3.5.1"
+juliaup add dyad-3.5.0
+export JULIA_EXECUTABLE="julia +dyad-3.5.0"
 ```
 
 Private Dyad packages require the existing JuliaHub credentials. Keep credentials
@@ -27,10 +28,10 @@ The self-hosted runner needs GitHub CLI credentials with access to that private
 repository. There is no fallback to its preinstalled CLI. The temporary RC2-only
 compiler source build has been removed.
 
-At the time of this update, the 3.5.1 CLI release and JuliaHub runtime channel
-are not published. CI will fail at provisioning until they become available.
+At the time of this update, the 3.5.1 CLI release is not published.
+CI will fail at CLI provisioning until it is published.
 
-CI selects the 3.5.1 distribution, compiles before testing, and fails if any
+CI selects the 3.5.0 distribution, compiles before testing, and fails if any
 project's validation fails while continuing to check the other projects.
 It no longer requires patch-release compiler output to match RC2 snapshots
 byte for byte. The analysis annotation correction below remains until its

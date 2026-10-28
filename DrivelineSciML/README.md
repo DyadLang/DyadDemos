@@ -85,7 +85,7 @@ REPL command), then activate this project:
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd DrivelineSciML
-julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 ### Recompiling with Dyad Studio or CLI
@@ -96,7 +96,7 @@ applies after every CLI compile:
 
 ```bash
 dyad compile .  # use the 3.5.1 compiler
-julia +dyad-3.5.1 --project scripts/fix_analysis_codegen.jl
+julia +dyad-3.5.0 --project scripts/fix_analysis_codegen.jl
 ```
 
 The RC2 compiler emitted `@parameters (data::DyadData.DyadTimeseries)`, whose
@@ -113,7 +113,7 @@ directory, with a fresh Julia process and deliberately before applying the fix:
 
 ```bash
 dyad compile .
-julia +dyad-3.5.1 --project -e 'using DrivelineSciML; DrivelineSciML.DrivelineStage1CalibrationAnalysis__Spec()'
+julia +dyad-3.5.0 --project -e 'using DrivelineSciML; DrivelineSciML.DrivelineStage1CalibrationAnalysis__Spec()'
 ```
 
 On RC2 this failed with `Cannot convert an object of type Type{DyadData.DyadTimeseries}
@@ -123,8 +123,8 @@ construct every affected analysis without running calibration or training.
 The measurement CSVs are committed, so calibration runs immediately:
 
 ```bash
-julia +dyad-3.5.1 --project scripts/run_calibration.jl   # both stages, ~2 min
-julia +dyad-3.5.1 --project scripts/validate.jl          # → assets/validation_tipin.png
+julia +dyad-3.5.0 --project scripts/run_calibration.jl   # both stages, ~2 min
+julia +dyad-3.5.0 --project scripts/validate.jl          # → assets/validation_tipin.png
 ```
 
 Stage 1 limits the ODE step to 0.1 ms (at least 20 steps per 500 Hz chirp
@@ -144,7 +144,7 @@ still 11.27% below truth; successful optimization does not imply exact recovery.
 To regenerate the synthetic measurements from the truth model:
 
 ```bash
-julia +dyad-3.5.1 --project scripts/generate_calibration_data.jl
+julia +dyad-3.5.0 --project scripts/generate_calibration_data.jl
 ```
 
 ### Expected results
@@ -199,7 +199,7 @@ feasibility residuals separately and rejects failed fits before chaining.
 ### Smoke tests
 
 ```bash
-julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.test()'
 ```
 
 Verifies four things:

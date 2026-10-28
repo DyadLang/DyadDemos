@@ -93,5 +93,5 @@ include("scripts/simulate_coffee_mug.jl")
 
 ## Dyad version
 
-Use Dyad 3.5 (Julia 1.13.2), using `dyad-3.5.1`.
+Use Dyad 3.5 (Julia 1.13.2), using `dyad-3.5.0`.
 See [upgrade validation](docs/upgrade-3.5-validation.md) for analysis coverage and results.

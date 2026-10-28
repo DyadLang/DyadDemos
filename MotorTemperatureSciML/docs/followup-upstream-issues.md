@@ -1,6 +1,6 @@
 # MotorTemperatureSciML upstream follow-up
 
-Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+Current Julia distribution: **dyad-3.5.0**; Dyad CLI target: **3.5.1**. Commands below use the 3.5.0 Julia channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
 
 ## Draft: DataInitialization permutes measured states when depvars order differs
 
@@ -81,7 +81,7 @@ The historical optional MultibodyComponents.Render load error did **not**
 reproduce in this follow-up. Exact probe on RC2:
 
 ```sh
-julia +dyad-3.5.1 --project=MotorTemperatureSciML -e \
+julia +dyad-3.5.0 --project=MotorTemperatureSciML -e \
   'using MultibodyComponents; using CairoMakie; println(Base.get_extension(MultibodyComponents, :Render))'
 ```
 
@@ -110,7 +110,7 @@ Reproduction from this project, using the environment in
 [followup-validation.md](followup-validation.md):
 
 ```sh
-TNN_BUDGET=full JULIA_NUM_THREADS=2 julia +dyad-3.5.1 --project \
+TNN_BUDGET=full JULIA_NUM_THREADS=2 julia +dyad-3.5.0 --project \
   scripts/train_stochastic_ms.jl --out-dir runs/compiler-probe
 # From another terminal: kill -USR1 <julia-pid>
 ```

@@ -56,7 +56,7 @@ REPL command), then activate this project:
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd QuarterTruckSciML
-julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 ### Recompiling with Dyad Studio or CLI
@@ -67,7 +67,7 @@ applies after every CLI compile:
 
 ```bash
 dyad compile .  # use the 3.5.1 compiler
-julia +dyad-3.5.1 --project scripts/fix_analysis_codegen.jl
+julia +dyad-3.5.0 --project scripts/fix_analysis_codegen.jl
 ```
 
 The RC2 compiler emitted `@parameters (data::DyadData.DyadTimeseries)`, whose
@@ -85,7 +85,7 @@ directory, with a fresh Julia process and deliberately before applying the fix:
 
 ```bash
 dyad compile .
-julia +dyad-3.5.1 --project -e 'using QuarterTruckSciML; QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec()'
+julia +dyad-3.5.0 --project -e 'using QuarterTruckSciML; QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec()'
 ```
 
 On RC2 this failed with `Cannot convert an object of type Type{DyadData.DyadTimeseries}
@@ -99,8 +99,8 @@ The pre-trained LBFGS weights are checked in at
 so validation runs immediately:
 
 ```bash
-julia +dyad-3.5.1 --project scripts/validate.jl              # → assets/validation_iso_a.png
-julia +dyad-3.5.1 --project scripts/export_validation_csv.jl # → assets/validation_iso_a.csv
+julia +dyad-3.5.0 --project scripts/validate.jl              # → assets/validation_iso_a.png
+julia +dyad-3.5.0 --project scripts/export_validation_csv.jl # → assets/validation_iso_a.csv
 ```
 
 Expected output: 3-panel overlay (tire position, driver position, driver
@@ -111,7 +111,7 @@ To retrain from scratch at the declared 5000 Adam / 200 LBFGS budgets
 (runtime depends on the machine and backend; see the measured follow-up report):
 
 ```bash
-julia +dyad-3.5.1 --project scripts/train.jl /path/to/fresh-training-output  # Adam → LBFGS
+julia +dyad-3.5.0 --project scripts/train.jl /path/to/fresh-training-output  # Adam → LBFGS
 ```
 
 The training script preserves the committed dataset and pretrained weights. It
@@ -136,10 +136,10 @@ Historical task-local weights remain useful for diagnostic replay. To evaluate
 an explicitly selected exported file against the training samples and held-out road:
 
 ```bash
-julia +dyad-3.5.1 --project scripts/evaluate_training_fit.jl /path/to/fresh-training-output/lbfgs_weights.csv
+julia +dyad-3.5.0 --project scripts/evaluate_training_fit.jl /path/to/fresh-training-output/lbfgs_weights.csv
 QUARTERTRUCK_WEIGHTS=/path/to/fresh-training-output/lbfgs_weights.csv \
 QUARTERTRUCK_VALIDATION_OUTPUT=/path/to/validation-output \
-julia +dyad-3.5.1 --project scripts/validate.jl
+julia +dyad-3.5.0 --project scripts/validate.jl
 ```
 
 The validation output directory receives a PNG and
@@ -155,7 +155,7 @@ Run the calibrator against the committed synthetic measurements from the
 perturbed nonlinear truth (mass +5%, stiffness +10%, damping +20%, friction +50%):
 
 ```bash
-julia +dyad-3.5.1 --project scripts/run_calibration.jl
+julia +dyad-3.5.0 --project scripts/run_calibration.jl
 ```
 
 The calibration uses squared residuals and a strict optimizer tolerance to recover
@@ -180,7 +180,7 @@ The ground-truth parameters are:
 ### Smoke tests
 
 ```bash
-julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.test()'
 ```
 
 Verifies that:

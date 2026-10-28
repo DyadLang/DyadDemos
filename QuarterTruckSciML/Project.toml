@@ -39,7 +39,7 @@ TranslationalComponents = "3.0.0"
 julia = "1.13.2"
 
 [dyad]
-kernel = "3.5.1"
+kernel = "3.5.0"
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
