@@ -97,9 +97,9 @@ export XDG_CACHE_HOME="$PWD/.task/workflows/cache"
 export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.1"
 julia_worker="$PWD/.toolchain/juliaup/bin/julia"
 repo="$PWD/DyadDemos"
-"$julia_worker" +dyad-3.5.0-rc2 --startup-file=no -O0 --project="$repo/FrictionBrakeDemo/docs" "$repo/FrictionBrakeDemo/scripts/simulate_vehicle_cycle_test.jl"
-"$julia_worker" +dyad-3.5.0-rc2 --startup-file=no -O0 --project="$repo/MakieWebinar/docs" .task/workflows/doc-MakieWebinar-export.jl .task/workflows/makie-doc.svg
-"$julia_worker" +dyad-3.5.0-rc2 --startup-file=no -O0 --project="$repo/HybridTransmission" .task/workflows/notebook-HybridTransmission-exact.jl
+"$julia_worker" +dyad-3.5.1 --startup-file=no -O0 --project="$repo/FrictionBrakeDemo/docs" "$repo/FrictionBrakeDemo/scripts/simulate_vehicle_cycle_test.jl"
+"$julia_worker" +dyad-3.5.1 --startup-file=no -O0 --project="$repo/MakieWebinar/docs" .task/workflows/doc-MakieWebinar-export.jl .task/workflows/makie-doc.svg
+"$julia_worker" +dyad-3.5.1 --startup-file=no -O0 --project="$repo/HybridTransmission" .task/workflows/notebook-HybridTransmission-exact.jl
 ```
 
 All task-local harnesses and per-attempt logs are retained in workspace `.task/workflows/`. `jobs.py` executes subprocesses in the foreground, enforces only process time limits, and appends exact wall times/exit codes to `results.jsonl`. Catch-and-print diagnostic probes intentionally exit zero after recording expected old/new errors; their printed failure is the result, not their process exit code. The `jobs-*.json` files retain exact argv/cwd/time-limit records.

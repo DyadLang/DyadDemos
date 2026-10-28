@@ -376,26 +376,26 @@ copies and helper drivers are retained in the shared workspace.
 MOTOR_ORIGINAL=1 "$JULIA" +dyad-3.4.0 \
   --project="$PWD/.task/sciml/baseline/MotorTemperatureSciML" \
   .task/motor-followup/probe.jl .task/motor-followup/baseline
-MOTOR_ORIGINAL=1 "$JULIA" +dyad-3.5.0-rc2 \
+MOTOR_ORIGINAL=1 "$JULIA" +dyad-3.5.1 \
   --project="$PWD/.task/motor-followup/original-rc2" \
   .task/motor-followup/probe.jl .task/motor-followup/original-rc2-output
 
 # Corrected problem on both distributions (12 epochs x 30 outer maximum).
 "$JULIA" +dyad-3.4.0 --project="$PWD/.task/motor-followup/baseline-fixed" \
   .task/motor-followup/probe.jl .task/motor-followup/baseline-scheduled
-"$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" \
+"$JULIA" +dyad-3.5.1 --project="$PROJECT" \
   .task/motor-followup/probe.jl .task/motor-followup/scheduled
 
 # All seven concrete story analyses, real training and A3 reload, all plot artifacts.
-"$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" \
+"$JULIA" +dyad-3.5.1 --project="$PROJECT" \
   "$PROJECT/scripts/story.jl" --out-dir .task/motor-followup/story-scheduled
-"$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" \
+"$JULIA" +dyad-3.5.1 --project="$PROJECT" \
   "$PROJECT/scripts/validate_calibration.jl" \
   --calibration .task/motor-followup/story-scheduled/calibrated_params.csv \
   --out-dir .task/motor-followup/quick-validation
 
 # Tighter independent constraint check on all three saved fits.
-"$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" \
+"$JULIA" +dyad-3.5.1 --project="$PROJECT" \
   .task/motor-followup/check-precision.jl \
   .task/motor-followup/story-scheduled/calibrated_params.csv \
   .task/motor-followup/scheduled/params.csv \
@@ -404,26 +404,26 @@ MOTOR_ORIGINAL=1 "$JULIA" +dyad-3.5.0-rc2 \
 # Nine remaining concrete analyses; A2/A3 are covered by the story above.
 DYAD_UPGRADE_OUTPUT="$PWD/.task/motor-followup/analyses" \
 DYAD_UPGRADE_ONLY="Networks.Tests.TestConductanceNetAnalysis,Networks.Tests.TestPowerLossNetAnalysis,Models.Tests.TestTNNModelAnalysis,Models.Tests.TestTNNProfileAnalysis,Story.A1_UntrainedTNN,Story.A4_CalibratedTNN,Story.A5_CalibratedTNNProfile60,Story.A6_CalibratedTNNProfile62,Story.A7_CalibratedTNNProfile74" \
-  "$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" "$PROJECT/scripts/validate_upgrade.jl"
+  "$JULIA" +dyad-3.5.1 --project="$PROJECT" "$PROJECT/scripts/validate_upgrade.jl"
 
 # Data fixture and the six-update failure/no-export check.
-"$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" "$PROJECT/scripts/prepare_data.jl" \
+"$JULIA" +dyad-3.5.1 --project="$PROJECT" "$PROJECT/scripts/prepare_data.jl" \
   --source .task/motor-followup/measures_subset.csv --out-dir .task/motor-followup/prepared
-"$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" .task/motor-followup/check-failure.jl
+"$JULIA" +dyad-3.5.1 --project="$PROJECT" .task/motor-followup/check-failure.jl
 
 # Full diagnostic animation budget; three captured frames, unchanged threshold.
 TNN_ANIMATION_MAX_FRAMES=3 TNN_ANIMATION_CAPTURE_EVERY=100 \
-  "$JULIA" +dyad-3.5.0-rc2 --project="$PROJECT" \
+  "$JULIA" +dyad-3.5.1 --project="$PROJECT" \
   "$PROJECT/scripts/animate_sms_training.jl" --out-dir .task/motor-followup/animation-scheduled
 # Repeat the command to test replay from its real cache; FORCE_RETRAIN=1 retrains.
 
 # Standalone full preset: interrupted, no completed calibration claim.
 # The task-local helper runs this same production script with additional
 # checkpoint serialization and flushed progress only.
-TNN_BUDGET=full "$JULIA" +dyad-3.5.0-rc2 -O1 --project="$PROJECT" \
+TNN_BUDGET=full "$JULIA" +dyad-3.5.1 -O1 --project="$PROJECT" \
   .task/motor-followup/full-checkpoint.jl --out-dir .task/motor-followup/full-checkpoint
 # Independent check of the retained final diagnostic snapshot (not a calibration).
-"$JULIA" +dyad-3.5.0-rc2 -O1 --project="$PROJECT" \
+"$JULIA" +dyad-3.5.1 -O1 --project="$PROJECT" \
   .task/motor-followup/inspect-checkpoint.jl \
   .task/motor-followup/checkpoint-final-interrupted.bin
 
