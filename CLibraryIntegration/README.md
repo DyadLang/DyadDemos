@@ -2,13 +2,13 @@
 
 A small tire library, called from Julia and used by two Dyad sliding-axle
 models. Read the six stages in order. The C model is a teaching stand-in,
-not a validated tire model. Requires Dyad **3.5.1**, Julia **1.13.2**,
+not a validated tire model. Requires the Dyad **3.5.0** Julia distribution, Julia **1.13.2**,
 a C compiler and `make`.
 
 Run commands from this directory. Start with:
 
 ```sh
-julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 ## 1. Write and build the C API
@@ -34,7 +34,7 @@ No binaries are committed.
 `Libdl.find_library`, `dlopen` and `dlsym`.
 
 ```sh
-LD_LIBRARY_PATH="$PWD/csrc/build" julia +dyad-3.5.1 --project scripts/a_system_library.jl
+LD_LIBRARY_PATH="$PWD/csrc/build" julia +dyad-3.5.0 --project scripts/a_system_library.jl
 ```
 
 Set the loader path **before Julia starts** (`DYLD_LIBRARY_PATH` on macOS).
@@ -51,7 +51,7 @@ the main project's `[sources]` path. It builds into its development
 Its `__init__` opens the library; Julia wrappers call the library product.
 
 ```sh
-julia +dyad-3.5.1 --project scripts/b_local_jll.jl
+julia +dyad-3.5.0 --project scripts/b_local_jll.jl
 ```
 
 JLLWrappers 1.8 needs `Artifacts.toml` to select a wrapper even
@@ -124,7 +124,7 @@ external component implemented by stage 5.
 
 ```sh
 dyad compile .
-julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.test()'
 dyad document CLibraryIntegration
 ```
 

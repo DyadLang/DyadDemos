@@ -1,6 +1,6 @@
 # Calibration follow-up validation (2026-10-26)
 
-Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+Current Julia distribution: **dyad-3.5.0**; Dyad CLI target: **3.5.1**. Commands below use the 3.5.0 Julia channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
 
 Evidence paths and helper commands under `.task/` refer to the retained
 validation workspace; those logs and investigation helpers are not shipped
@@ -167,16 +167,16 @@ export JULIAUP_SERVER=https://juliahub.com/juliabin
 export JULIA_DEPOT_PATH="$PWD/.toolchain/depot"
 export JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1
 export JULIA_PKG_PRECOMPILE_AUTO=0 JULIA_PKG_USE_CLI_GIT=true
-export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.1"
+export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.0"
 export DRIVELINE_PROJECT="$PWD/DyadDemos/DrivelineSciML"
 .toolchain/compiler-build/dyad compile "$DRIVELINE_PROJECT"
-.toolchain/juliaup/bin/julia +dyad-3.5.1 --project="$DRIVELINE_PROJECT" "$DRIVELINE_PROJECT/scripts/fix_analysis_codegen.jl"
-.toolchain/juliaup/bin/julia +dyad-3.5.1 --project="$DRIVELINE_PROJECT" -e 'using Pkg; @time Pkg.test()'
+.toolchain/juliaup/bin/julia +dyad-3.5.0 --project="$DRIVELINE_PROJECT" "$DRIVELINE_PROJECT/scripts/fix_analysis_codegen.jl"
+.toolchain/juliaup/bin/julia +dyad-3.5.0 --project="$DRIVELINE_PROJECT" -e 'using Pkg; @time Pkg.test()'
 export DYAD_UPGRADE_OUTPUT="$PWD/.task/driveline-followup/all-analyses-final"
-.toolchain/juliaup/bin/julia +dyad-3.5.1 --project="$DRIVELINE_PROJECT" "$DRIVELINE_PROJECT/scripts/validate_upgrade.jl"
+.toolchain/juliaup/bin/julia +dyad-3.5.0 --project="$DRIVELINE_PROJECT" "$DRIVELINE_PROJECT/scripts/validate_upgrade.jl"
 export GKSwstype=100
-.toolchain/juliaup/bin/julia +dyad-3.5.1 --project="$DRIVELINE_PROJECT" -e '@time include("DyadDemos/DrivelineSciML/scripts/run_calibration.jl"); @time include("DyadDemos/DrivelineSciML/scripts/validate.jl")'
-.toolchain/juliaup/bin/julia +dyad-3.5.1 --project="$DRIVELINE_PROJECT" "$DRIVELINE_PROJECT/scripts/diagnose_calibration.jl"
+.toolchain/juliaup/bin/julia +dyad-3.5.0 --project="$DRIVELINE_PROJECT" -e '@time include("DyadDemos/DrivelineSciML/scripts/run_calibration.jl"); @time include("DyadDemos/DrivelineSciML/scripts/validate.jl")'
+.toolchain/juliaup/bin/julia +dyad-3.5.0 --project="$DRIVELINE_PROJECT" "$DRIVELINE_PROJECT/scripts/diagnose_calibration.jl"
 ```
 
 Original baseline command (the preserved project is not modified):
@@ -194,8 +194,8 @@ For example, the refinement commands actually used were:
 
 ```sh
 .toolchain/juliaup/bin/julia +dyad-3.4.0 --project="$PWD/.task/sciml/baseline/DrivelineSciML" .task/driveline-followup/refine.jl
-.toolchain/juliaup/bin/julia +dyad-3.5.1 --project="$DRIVELINE_PROJECT" .task/driveline-followup/refine.jl
-.toolchain/juliaup/bin/julia +dyad-3.5.1 --project="$DRIVELINE_PROJECT" .task/driveline-followup/stage2-probe.jl
+.toolchain/juliaup/bin/julia +dyad-3.5.0 --project="$DRIVELINE_PROJECT" .task/driveline-followup/refine.jl
+.toolchain/juliaup/bin/julia +dyad-3.5.0 --project="$DRIVELINE_PROJECT" .task/driveline-followup/stage2-probe.jl
 ```
 
 Failure-path checks `reject-unresolved.jl` and

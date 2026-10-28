@@ -1,6 +1,6 @@
 # Dyad 3.5 upgrade validation
 
-Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+Current Julia distribution: **dyad-3.5.0**; Dyad CLI target: **3.5.1**. Commands below use the 3.5.0 Julia channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
 
 Target: Dyad 3.5.0, tested with distribution `dyad-3.5.0-rc2` (Julia 1.13.2).
 Validated library versions: BlockComponents 5.0.0, ThermalComponents 3.0.0,
@@ -76,7 +76,7 @@ physical bounds or sizing fixtures appropriate to this project.
 Re-run the tests from the repository root after instantiation:
 
 ```sh
-julia +dyad-3.5.1 --startup-file=no -O0 --project=ThermalHouseDemo ThermalHouseDemo/test/runtests.jl
+julia +dyad-3.5.0 --startup-file=no -O0 --project=ThermalHouseDemo ThermalHouseDemo/test/runtests.jl
 ```
 
 Not run: documentation rendering, graphical dashboards/animation export, or
