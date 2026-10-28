@@ -18,9 +18,17 @@ export JULIA_EXECUTABLE="julia +dyad-3.5.1"
 ```
 
 Private Dyad packages require the existing JuliaHub credentials. Keep credentials
-outside tracked files. Install the Dyad CLI separately and put `dyad` on PATH
-(or set `DYAD_CLI_PATH`), as required by DyadHarness. The temporary RC2-only
+outside tracked files. For local use, install the Dyad 3.5.1 CLI separately
+and put `dyad` on PATH (or set `DYAD_CLI_PATH`), as required by DyadHarness.
+CI explicitly downloads the Linux x64 CLI and checksums from the `v3.5.1`
+GitHub release of `JuliaComputing/dyad-lang`, verifies the checksum and
+`dyad --version`, and sets `DYAD_CLI_PATH` to that verified executable.
+The self-hosted runner needs GitHub CLI credentials with access to that private
+repository. There is no fallback to its preinstalled CLI. The temporary RC2-only
 compiler source build has been removed.
+
+At the time of this update, the 3.5.1 CLI release and JuliaHub runtime channel
+are not published. CI will fail at provisioning until they become available.
 
 CI selects the 3.5.1 distribution, compiles before testing, and fails if any
 project's validation fails while continuing to check the other projects.
