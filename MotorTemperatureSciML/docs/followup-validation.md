@@ -1,5 +1,7 @@
 # MotorTemperatureSciML convergence follow-up
 
+Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+
 Evidence paths and helper commands under `.task/` refer to the retained
 validation workspace; those logs and investigation helpers are not shipped
 with this repository. The demo entry points under `scripts/` are committed.
@@ -360,7 +362,7 @@ training-analysis defaults now match the source schedule. No manual generated
 code patch is required.
 
 ```sh
-export JULIA_EXECUTABLE="$JULIA +dyad-3.5.0-rc2"
+export JULIA_EXECUTABLE="$JULIA +dyad-3.5.1"
 .toolchain/compiler-build/dyad compile "$PROJECT"
 ```
 

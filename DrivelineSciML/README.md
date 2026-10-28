@@ -85,7 +85,7 @@ REPL command), then activate this project:
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd DrivelineSciML
-julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 ### Recompiling with Dyad Studio or CLI
@@ -95,11 +95,11 @@ julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
 applies after every CLI compile:
 
 ```bash
-dyad compile .  # use the 3.5.0-rc2 compiler
-julia +dyad-3.5.0-rc2 --project scripts/fix_analysis_codegen.jl
+dyad compile .  # use the 3.5.1 compiler
+julia +dyad-3.5.1 --project scripts/fix_analysis_codegen.jl
 ```
 
-The rc2 compiler emits `@parameters (data::DyadData.DyadTimeseries)`, whose
+The RC2 compiler emitted `@parameters (data::DyadData.DyadTimeseries)`, whose
 `UnionAll` type causes a `MethodError` converting to `DataType` when constructing
 both calibration analyses. The script changes only that annotation to
 `typeof(__local__data)`, preserving compiler whitespace. See the matching
@@ -107,24 +107,24 @@ both calibration analyses. The script changes only that annotation to
 Keep the workaround until regeneration and the analysis construction tests pass
 without it on a compiler containing an upstream fix.
 
-The affected compiler is tag `v3.5.0-rc2`, commit
+The workaround is retained pending validation with 3.5.1. The affected compiler was tag `v3.5.0-rc2`, commit
 `a24a2240667872d432a3b86c4db1240d77150e35`. A reproduction from this project
 directory, with a fresh Julia process and deliberately before applying the fix:
 
 ```bash
-../.ci/compiler/dyad compile .
-julia +dyad-3.5.0-rc2 --project -e 'using DrivelineSciML; DrivelineSciML.DrivelineStage1CalibrationAnalysis__Spec()'
+dyad compile .
+julia +dyad-3.5.1 --project -e 'using DrivelineSciML; DrivelineSciML.DrivelineStage1CalibrationAnalysis__Spec()'
 ```
 
-This fails with `Cannot convert an object of type Type{DyadData.DyadTimeseries}
+On RC2 this failed with `Cannot convert an object of type Type{DyadData.DyadTimeseries}
 to an object of type DataType`. Run the fix script before retrying. The tests
 construct every affected analysis without running calibration or training.
 
 The measurement CSVs are committed, so calibration runs immediately:
 
 ```bash
-julia +dyad-3.5.0-rc2 --project scripts/run_calibration.jl   # both stages, ~2 min
-julia +dyad-3.5.0-rc2 --project scripts/validate.jl          # → assets/validation_tipin.png
+julia +dyad-3.5.1 --project scripts/run_calibration.jl   # both stages, ~2 min
+julia +dyad-3.5.1 --project scripts/validate.jl          # → assets/validation_tipin.png
 ```
 
 Stage 1 limits the ODE step to 0.1 ms (at least 20 steps per 500 Hz chirp
@@ -144,7 +144,7 @@ still 11.27% below truth; successful optimization does not imply exact recovery.
 To regenerate the synthetic measurements from the truth model:
 
 ```bash
-julia +dyad-3.5.0-rc2 --project scripts/generate_calibration_data.jl
+julia +dyad-3.5.1 --project scripts/generate_calibration_data.jl
 ```
 
 ### Expected results
@@ -199,7 +199,7 @@ feasibility residuals separately and rejects failed fits before chaining.
 ### Smoke tests
 
 ```bash
-julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
 ```
 
 Verifies four things:

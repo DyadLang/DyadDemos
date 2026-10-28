@@ -1,5 +1,7 @@
 # DrivelineSciML: Dyad 3.5 upgrade validation
 
+Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+
 Target: Dyad `3.5.0` language with runtime `dyad-3.5.0-rc2` (Julia 1.13.2).
 Baseline: the original project on `dyad-3.4.0` (Julia 1.12.7).
 Runs use two Julia threads and one precompile task.
@@ -23,12 +25,12 @@ with the original tolerances, data, bounds, and optimizer budget.
 Instantiate this project, regenerate with the Dyad 3.5 CLI, then run the existing tests and all concrete analyses:
 
 ```sh
-julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
 ../.ci/compiler/dyad --version
-JULIA_EXECUTABLE="julia +dyad-3.5.0-rc2" ../.ci/compiler/dyad compile "$PWD"
-julia +dyad-3.5.0-rc2 --project scripts/fix_analysis_codegen.jl
-JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1 julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'
-DYAD_UPGRADE_OUTPUT=/path/to/results JULIA_NUM_THREADS=2 julia +dyad-3.5.0-rc2 --project scripts/validate_upgrade.jl
+JULIA_EXECUTABLE="julia +dyad-3.5.1" dyad compile "$PWD"
+julia +dyad-3.5.1 --project scripts/fix_analysis_codegen.jl
+JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1 julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
+DYAD_UPGRADE_OUTPUT=/path/to/results JULIA_NUM_THREADS=2 julia +dyad-3.5.1 --project scripts/validate_upgrade.jl
 ```
 
 The validation driver uses the declared simulation horizons and training budgets,
@@ -53,7 +55,7 @@ Every Dyad Studio recompile, including compile on save, also requires rerunning
 the script before loading the project again; see the
 [README workflow](../README.md#recompiling-with-dyad-studio-or-cli).
 
-Re-ran `julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'` after regeneration,
+Re-ran `julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'` after regeneration,
 with two Julia threads and one precompile task: **15/15 assertions passed**,
 including the calibration/training analysis-construction regressions.
 

@@ -56,7 +56,7 @@ REPL command), then activate this project:
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd QuarterTruckSciML
-julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 ### Recompiling with Dyad Studio or CLI
@@ -66,11 +66,11 @@ julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
 applies after every CLI compile:
 
 ```bash
-dyad compile .  # use the 3.5.0-rc2 compiler
-julia +dyad-3.5.0-rc2 --project scripts/fix_analysis_codegen.jl
+dyad compile .  # use the 3.5.1 compiler
+julia +dyad-3.5.1 --project scripts/fix_analysis_codegen.jl
 ```
 
-The rc2 compiler emits `@parameters (data::DyadData.DyadTimeseries)`, whose
+The RC2 compiler emitted `@parameters (data::DyadData.DyadTimeseries)`, whose
 `UnionAll` type causes a `MethodError` converting to `DataType` when constructing
 the calibration analysis and both NN training analyses. The script changes only
 that annotation to
@@ -79,16 +79,16 @@ that annotation to
 Keep the workaround until regeneration and the analysis construction tests pass
 without it on a compiler containing an upstream fix.
 
-The affected compiler is tag `v3.5.0-rc2`, commit
+The workaround is retained pending validation with 3.5.1. The affected compiler was tag `v3.5.0-rc2`, commit
 `a24a2240667872d432a3b86c4db1240d77150e35`. A reproduction from this project
 directory, with a fresh Julia process and deliberately before applying the fix:
 
 ```bash
-../.ci/compiler/dyad compile .
-julia +dyad-3.5.0-rc2 --project -e 'using QuarterTruckSciML; QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec()'
+dyad compile .
+julia +dyad-3.5.1 --project -e 'using QuarterTruckSciML; QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec()'
 ```
 
-This fails with `Cannot convert an object of type Type{DyadData.DyadTimeseries}
+On RC2 this failed with `Cannot convert an object of type Type{DyadData.DyadTimeseries}
 to an object of type DataType`. Run the fix script before retrying. The tests
 construct every affected analysis without running calibration or training.
 
@@ -99,8 +99,8 @@ The pre-trained LBFGS weights are checked in at
 so validation runs immediately:
 
 ```bash
-julia +dyad-3.5.0-rc2 --project scripts/validate.jl              # → assets/validation_iso_a.png
-julia +dyad-3.5.0-rc2 --project scripts/export_validation_csv.jl # → assets/validation_iso_a.csv
+julia +dyad-3.5.1 --project scripts/validate.jl              # → assets/validation_iso_a.png
+julia +dyad-3.5.1 --project scripts/export_validation_csv.jl # → assets/validation_iso_a.csv
 ```
 
 Expected output: 3-panel overlay (tire position, driver position, driver
@@ -111,7 +111,7 @@ To retrain from scratch at the declared 5000 Adam / 200 LBFGS budgets
 (runtime depends on the machine and backend; see the measured follow-up report):
 
 ```bash
-julia +dyad-3.5.0-rc2 --project scripts/train.jl /path/to/fresh-training-output  # Adam → LBFGS
+julia +dyad-3.5.1 --project scripts/train.jl /path/to/fresh-training-output  # Adam → LBFGS
 ```
 
 The training script preserves the committed dataset and pretrained weights. It
@@ -136,10 +136,10 @@ Historical task-local weights remain useful for diagnostic replay. To evaluate
 an explicitly selected exported file against the training samples and held-out road:
 
 ```bash
-julia +dyad-3.5.0-rc2 --project scripts/evaluate_training_fit.jl /path/to/fresh-training-output/lbfgs_weights.csv
+julia +dyad-3.5.1 --project scripts/evaluate_training_fit.jl /path/to/fresh-training-output/lbfgs_weights.csv
 QUARTERTRUCK_WEIGHTS=/path/to/fresh-training-output/lbfgs_weights.csv \
 QUARTERTRUCK_VALIDATION_OUTPUT=/path/to/validation-output \
-julia +dyad-3.5.0-rc2 --project scripts/validate.jl
+julia +dyad-3.5.1 --project scripts/validate.jl
 ```
 
 The validation output directory receives a PNG and
@@ -155,7 +155,7 @@ Run the calibrator against the committed synthetic measurements from the
 perturbed nonlinear truth (mass +5%, stiffness +10%, damping +20%, friction +50%):
 
 ```bash
-julia +dyad-3.5.0-rc2 --project scripts/run_calibration.jl
+julia +dyad-3.5.1 --project scripts/run_calibration.jl
 ```
 
 The calibration uses squared residuals and a strict optimizer tolerance to recover
@@ -180,7 +180,7 @@ The ground-truth parameters are:
 ### Smoke tests
 
 ```bash
-julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
 ```
 
 Verifies that:

@@ -14,9 +14,9 @@
 # implementation derives as extra features.
 #
 # Usage (from the package root):
-#   julia +dyad-3.5.0-rc2 --project scripts/prepare_data.jl --source <path>/measures_v2.csv
-#   julia +dyad-3.5.0-rc2 --project scripts/prepare_data.jl --source ... --profiles 17,60
-#   julia +dyad-3.5.0-rc2 --project scripts/prepare_data.jl --source ... --truncate-seconds 7200
+#   julia +dyad-3.5.1 --project scripts/prepare_data.jl --source <path>/measures_v2.csv
+#   julia +dyad-3.5.1 --project scripts/prepare_data.jl --source ... --profiles 17,60
+#   julia +dyad-3.5.1 --project scripts/prepare_data.jl --source ... --truncate-seconds 7200
 #
 # Add --out-dir <directory> to inspect regenerated files outside assets/data.
 # The source path can also be given via the MEASURES_V2 environment variable.

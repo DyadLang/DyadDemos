@@ -71,8 +71,8 @@ something to show:
 
 ## Getting Started
 
-The models use Dyad 3.5.0-rc2. For tutorial scripts, activate `scripts/`
-(`julia +dyad-3.5.0-rc2 --project=scripts`) and instantiate that environment.
+The models use Dyad 3.5.1. For tutorial scripts, activate `scripts/`
+(`julia +dyad-3.5.1 --project=scripts`) and instantiate that environment.
 [Upgrade validation](docs/upgrade-3.5-validation.md) records the headless checks.
 
 

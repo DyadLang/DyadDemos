@@ -1,5 +1,7 @@
 # Follow-up workflow audit
 
+Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+
 Evidence paths and helper commands under `.task/` refer to the retained
 validation workspace; those logs and investigation helpers are not shipped
 with this repository. The demo entry points under `scripts/` are committed.
@@ -92,7 +94,7 @@ export JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1
 export JULIA_PKG_PRECOMPILE_AUTO=0 JULIA_PKG_USE_CLI_GIT=true
 export OPENBLAS_NUM_THREADS=1 GKSwstype=100
 export XDG_CACHE_HOME="$PWD/.task/workflows/cache"
-export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.0-rc2"
+export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.1"
 julia_worker="$PWD/.toolchain/juliaup/bin/julia"
 repo="$PWD/DyadDemos"
 "$julia_worker" +dyad-3.5.0-rc2 --startup-file=no -O0 --project="$repo/FrictionBrakeDemo/docs" "$repo/FrictionBrakeDemo/scripts/simulate_vehicle_cycle_test.jl"
@@ -111,7 +113,7 @@ python3 .task/workflows/jobs.py .task/workflows/jobs-issues.json
 python3 .task/workflows/jobs.py .task/workflows/jobs-baseline-remainder.json
 ```
 
-For a clean manual documentation rerun, copy one project to a task-local directory, invoke `node "$repo/.ci/compiler/compiler.mjs" document <ProjectName>` with that copy as cwd, activate its docs environment, `Pkg.resolve(); Pkg.instantiate()`, remove only `:example_block` from the generated `make.jl` warning list, and include `make.jl`. The compiler-only CLI is the exact rc2/a24a224 build. Original handmade `docs/index.md` examples are extracted and executed separately by `docs.jl`; each result is rebuilt and checked with `successful_retcode`, the problem’s actual stop time, and finite states. The initial notebook scripts concatenate code cells with `@__DIR__` replaced by the copied scripts path, a concrete selected analysis, and appended result/HTML checks. The review follow-up below instead executes the checks shipped inside the five notebooks against the actual checkout.
+For a clean manual documentation rerun, copy one project to a task-local directory, invoke `dyad document <ProjectName>` with that copy as cwd, activate its docs environment, `Pkg.resolve(); Pkg.instantiate()`, remove only `:example_block` from the generated `make.jl` warning list, and include `make.jl`. The original validation used the exact rc2/a24a224 compiler-only CLI build; current reruns require a separately installed Dyad CLI. Original handmade `docs/index.md` examples are extracted and executed separately by `docs.jl`; each result is rebuilt and checked with `successful_retcode`, the problem’s actual stop time, and finite states. The initial notebook scripts concatenate code cells with `@__DIR__` replaced by the copied scripts path, a concrete selected analysis, and appended result/HTML checks. The review follow-up below instead executes the checks shipped inside the five notebooks against the actual checkout.
 
 Per-project reports link the relevant results and limitations. No generated HTML, generated Julia, snapshots or upstream source modifications are committed by this worker.
 

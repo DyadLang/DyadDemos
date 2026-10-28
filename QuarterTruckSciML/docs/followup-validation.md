@@ -1,5 +1,7 @@
 # QuarterTruck follow-up validation
 
+Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+
 Evidence paths and helper commands under `.task/` refer to the retained
 validation workspace; those logs and investigation helpers are not shipped
 with this repository. The demo entry points under `scripts/` are committed.
@@ -23,22 +25,22 @@ export JULIAUP_SERVER=https://juliahub.com/juliabin
 export JULIA_DEPOT_PATH="$PWD/.toolchain/depot"
 export JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1
 export JULIA_PKG_PRECOMPILE_AUTO=0 JULIA_PKG_USE_CLI_GIT=true
-export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.0-rc2"
+export JULIA_EXECUTABLE="$PWD/.toolchain/juliaup/bin/julia +dyad-3.5.1"
 .toolchain/compiler-build/dyad compile "$PWD/DyadDemos/QuarterTruckSciML"
-.toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
+.toolchain/juliaup/bin/julia +dyad-3.5.1 --project=DyadDemos/QuarterTruckSciML \
   DyadDemos/QuarterTruckSciML/scripts/fix_analysis_codegen.jl
-.toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
+.toolchain/juliaup/bin/julia +dyad-3.5.1 --project=DyadDemos/QuarterTruckSciML \
   -e 'using Pkg; Pkg.test()'
-.toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
+.toolchain/juliaup/bin/julia +dyad-3.5.1 --project=DyadDemos/QuarterTruckSciML \
   DyadDemos/QuarterTruckSciML/scripts/run_calibration.jl
-/usr/bin/time -p .toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
+/usr/bin/time -p .toolchain/juliaup/bin/julia +dyad-3.5.1 --project=DyadDemos/QuarterTruckSciML \
   DyadDemos/QuarterTruckSciML/scripts/train.jl "$PWD/.task/quarter-followup/full-training-restart"
-.toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
+.toolchain/juliaup/bin/julia +dyad-3.5.1 --project=DyadDemos/QuarterTruckSciML \
   DyadDemos/QuarterTruckSciML/scripts/evaluate_training_fit.jl \
   "$PWD/.task/quarter-followup/full-training-restart/lbfgs_weights.csv"
 QUARTERTRUCK_WEIGHTS="$PWD/.task/quarter-followup/full-training-restart/lbfgs_weights.csv" \
 QUARTERTRUCK_VALIDATION_OUTPUT="$PWD/.task/quarter-followup/retrained-heldout" \
-  .toolchain/juliaup/bin/julia +dyad-3.5.0-rc2 --project=DyadDemos/QuarterTruckSciML \
+  .toolchain/juliaup/bin/julia +dyad-3.5.1 --project=DyadDemos/QuarterTruckSciML \
   DyadDemos/QuarterTruckSciML/scripts/validate.jl
 ```
 
