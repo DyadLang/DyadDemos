@@ -103,11 +103,13 @@ probes never advance C. The continuous RHS reads only the held force.
 An `InitClock` equation frees and recreates the C session before the first
 tick, including after `remake` or `reinit!`. A finalize-only hook frees it
 after the solve; a Julia finalizer is the backstop. Problems built from one
-compiled system share the synchronous runtime; run them sequentially.
+compiled system share the synchronous runtime; run them sequentially
+([shared runtime](https://github.com/JuliaComputing/SynchToolkit.jl/issues/265)).
 
 Use `t` for timestamps: `SampleTime()` is the period.
 An aligned final time does not tick.
-Use zero-start sessions: fresh nonzero starts can miss the initial tick.
+Use zero-start sessions: fresh nonzero starts can miss the initial tick
+([clock start timing](https://github.com/SciML/ModelingToolkit.jl/issues/5334)).
 
 Stage 5 is 73 lines versus 83 in PR #43. Output-then-update removes the
 cached previous inputs; both versions keep C ownership, snapshot calls
