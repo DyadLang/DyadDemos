@@ -1,5 +1,7 @@
 # MotorTemperatureSciML: Dyad 3.5 upgrade validation
 
+Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+
 Target: Dyad `3.5.0` language with runtime `dyad-3.5.0-rc2` (Julia 1.13.2).
 Baseline: the original project on `dyad-3.4.0` (Julia 1.12.7).
 Runs use two Julia threads and one precompile task.
@@ -22,11 +24,11 @@ failure. CSV now permits 1.1, matching the distribution.
 Instantiate this project, regenerate with the Dyad 3.5 CLI, then run the existing tests and all concrete analyses:
 
 ```sh
-julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
 ../.ci/compiler/dyad --version
-JULIA_EXECUTABLE="julia +dyad-3.5.0-rc2" ../.ci/compiler/dyad compile "$PWD"
-JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1 julia +dyad-3.5.0-rc2 --project -e 'using Pkg; Pkg.test()'
-DYAD_UPGRADE_OUTPUT=/path/to/results JULIA_NUM_THREADS=2 julia +dyad-3.5.0-rc2 --project scripts/validate_upgrade.jl
+JULIA_EXECUTABLE="julia +dyad-3.5.1" dyad compile "$PWD"
+JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1 julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
+DYAD_UPGRADE_OUTPUT=/path/to/results JULIA_NUM_THREADS=2 julia +dyad-3.5.1 --project scripts/validate_upgrade.jl
 ```
 
 The validation driver uses the declared simulation horizons and training budgets,
@@ -46,7 +48,7 @@ blank-line whitespace. The final review fixes retain that compiler-emitted
 whitespace, so the committed generated tree now matches the compiler byte for byte. This project has no
 `scripts/fix_analysis_codegen.jl` and needs no parametric-dataset annotation fix.
 
-Re-ran `julia +dyad-3.5.0-rc2 --project test/runtests.jl` after regeneration,
+Re-ran `julia +dyad-3.5.1 --project test/runtests.jl` after regeneration,
 with two Julia threads and one precompile task: **79/79 assertions passed**,
 including the full training-profile transient check. No extension-load error
 was emitted in this test rerun.

@@ -55,7 +55,7 @@ WGLMakie = "0.13.8"
 julia = "1.13.2"
 
 [dyad]
-kernel = "3.5.0"
+kernel = "3.5.1"
 
 [workspace]
 projects = [

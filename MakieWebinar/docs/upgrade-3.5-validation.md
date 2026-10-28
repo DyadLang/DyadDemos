@@ -1,5 +1,7 @@
 # Dyad 3.5 upgrade validation
 
+Current target: Dyad **3.5.1**. Commands below use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+
 Validated with Dyad 3.5.0-rc2 (Julia 1.13.2-dyad), 2026-10-26. Generated Julia comes from the `v3.5.0-rc2` compiler (a24a224), using its compiler-only CLI build. Package manifests were instantiated and remain ignored.
 
 ## Migration and research
@@ -81,8 +83,8 @@ No machine-learning training is defined or run. GUI interaction, GLMakie windows
 ## Reproduction
 
 ```sh
-julia +dyad-3.5.0-rc2 --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test(;allow_reresolve=false)'
-julia +dyad-3.5.0-rc2 --project=. test/validate_upgrade.jl results.toml
+julia +dyad-3.5.1 --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test(;allow_reresolve=false)'
+julia +dyad-3.5.1 --project=. test/validate_upgrade.jl results.toml
 ```
 
 Run from the project directory. The runner discovers analyses from `.dyad` files, preserves default horizons and tolerances, and records solver return codes, finite samples and 51-point state trajectories. Use `JULIA_NUM_THREADS=2`, `JULIA_NUM_PRECOMPILE_TASKS=1` and `JULIA_PKG_PRECOMPILE_AUTO=0` for the validation resource limits.
