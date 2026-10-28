@@ -1,56 +1,35 @@
 # Dyad 3.5 upgrade
 
-The demos previously targeted Dyad 3.4.0. This upgrade uses the newest available
-3.5 release candidate channel, **`dyad-3.5.0-rc2`**, based on **Julia 1.13.2**.
-The compiler source is tag `v3.5.0-rc2`, commit
-`a24a2240667872d432a3b86c4db1240d77150e35`.
-The comparison distribution is `dyad-3.4.0` (Julia 1.12.7).
+The demos target Dyad **3.5.1**, using the `dyad-3.5.1` JuliaHub channel.
+This is a text-only update from the RC2 stack: generated code and manifests
+have not been regenerated. The results below record the original RC2 validation,
+not a new 3.5.1 test run.
 
 ## Toolchain
 
-Install juliaup into a local directory and select JuliaHub's distribution server:
+Use a task-local juliaup installation and depot:
 
 ```sh
 export JULIAUP_DEPOT_PATH="$PWD/.toolchain/juliaup"
 export JULIAUP_SERVER=https://juliahub.com/juliabin
 export JULIA_DEPOT_PATH="$PWD/.toolchain/depot"
-export JULIA_PKG_USE_CLI_GIT=true
-export JULIA_NUM_THREADS=2
-export JULIA_NUM_PRECOMPILE_TASKS=1
-# Use the juliaup executable from your local installation:
-juliaup list
-juliaup add dyad-3.5.0-rc2
-export JULIA_EXECUTABLE="julia +dyad-3.5.0-rc2"
+juliaup add dyad-3.5.1
+export JULIA_EXECUTABLE="julia +dyad-3.5.1"
 ```
 
-Private Dyad Julia packages and the compiler source require the existing
-JuliaHub/GitHub credentials. Keep credentials outside tracked files.
+Private Dyad packages require the existing JuliaHub credentials. Keep credentials
+outside tracked files. Install the Dyad CLI separately and put `dyad` on PATH
+(or set `DYAD_CLI_PATH`), as required by DyadHarness. The temporary RC2-only
+compiler source build has been removed.
 
-The rc2 tag has no prebuilt GitHub release asset. The pinned compiler-only build
-in `.ci/compiler` uses the original compiler and documentation code with public
-npm dependencies. It avoids the private layout, data CLI, and agent-resource
-packages needed by the full CLI, without changing compiler semantics.
-Node.js 22 or newer and npm are required:
+CI selects the 3.5.1 distribution, compiles before testing, and fails if any
+project's validation fails while continuing to check the other projects.
+It no longer requires patch-release compiler output to match RC2 snapshots
+byte for byte. The analysis annotation correction below remains until its
+necessity with the new compiler can be checked.
 
-```sh
-.ci/compiler/setup.sh
-export DYAD_CLI_PATH="$PWD/.ci/compiler/dyad"
-"$DYAD_CLI_PATH" --version
-"$DYAD_CLI_PATH" compile "$PWD/CoffeeMugDemo"
-julia +dyad-3.5.0-rc2 --project=CoffeeMugDemo -e 'using Pkg; Pkg.test()'
-```
-
-The wrapper supports `compile [directory]`, `document [library]`, and `--version`.
-For other commands, install the full Dyad CLI separately. CI builds this pinned
-compiler, selects the rc2 distribution, regenerates before testing, and fails
-if any project's validation fails while continuing to check the other projects.
-CI also requires the regenerated files to match the committed tree, including
-the two documented RC2 corrections below. Compiler-emitted whitespace is kept.
-
-Project compatibility bounds allow compatible library and Julia patch releases;
-the distribution and compiler channel remain pinned for reproducible validation.
-The explicit OptimizationMOI pin is retained for the documented optimizer API
-regression in the Makie webinar tuning environment.
+Project compatibility bounds allow compatible library and Julia patch releases.
+The OptimizationMOI pin remains for the documented optimizer API regression.
 
 ## Migration research
 
