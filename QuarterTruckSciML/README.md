@@ -55,7 +55,7 @@ REPL command), then activate this project:
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd QuarterTruckSciML
-julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.instantiate()'
 ```
 
 ### Recompiling with Dyad Studio or CLI
@@ -66,7 +66,7 @@ applies after every CLI compile:
 
 ```bash
 dyad compile .  # use the 3.5.1 compiler
-julia +dyad-3.5.1 --project scripts/fix_analysis_codegen.jl
+julia +dyad-3.5.0 --project scripts/fix_analysis_codegen.jl
 ```
 
 The RC2 compiler emitted `@parameters (data::DyadData.DyadTimeseries)`, whose
@@ -84,7 +84,7 @@ directory, with a fresh Julia process and deliberately before applying the fix:
 
 ```bash
 dyad compile .
-julia +dyad-3.5.1 --project -e 'using QuarterTruckSciML; QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec()'
+julia +dyad-3.5.0 --project -e 'using QuarterTruckSciML; QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec()'
 ```
 
 On RC2 this failed with `Cannot convert an object of type Type{DyadData.DyadTimeseries}
@@ -98,8 +98,8 @@ The pre-trained LBFGS weights are checked in at
 so validation runs immediately:
 
 ```bash
-julia +dyad-3.5.1 --project scripts/validate.jl              # → assets/validation_iso_a.png
-julia +dyad-3.5.1 --project scripts/export_validation_csv.jl # → assets/validation_iso_a.csv
+julia +dyad-3.5.0 --project scripts/validate.jl              # → assets/validation_iso_a.png
+julia +dyad-3.5.0 --project scripts/export_validation_csv.jl # → assets/validation_iso_a.csv
 ```
 
 Expected output: 3-panel overlay (tire position, driver position, driver
@@ -109,8 +109,8 @@ several times more accurately than the linear baseline.
 To retrain from scratch (~5 min):
 
 ```bash
-julia +dyad-3.5.1 --project scripts/generate_training_data.jl  # regenerate sin training set
-julia +dyad-3.5.1 --project scripts/train.jl                   # Adam → LBFGS
+julia +dyad-3.5.0 --project scripts/generate_training_data.jl  # regenerate sin training set
+julia +dyad-3.5.0 --project scripts/train.jl                   # Adam → LBFGS
 ```
 
 ### Parameter calibration
@@ -119,8 +119,8 @@ Generate synthetic measurements from the perturbed nonlinear truth (mass +5%,
 stiffness +10%, damping +20%, friction +50%) and run the calibrator:
 
 ```bash
-julia +dyad-3.5.1 --project scripts/generate_calibration_data.jl
-julia +dyad-3.5.1 --project scripts/run_calibration.jl
+julia +dyad-3.5.0 --project scripts/generate_calibration_data.jl
+julia +dyad-3.5.0 --project scripts/run_calibration.jl
 ```
 
 The calibration recovers all four parameters to within ~0.1% of the truth:
@@ -135,7 +135,7 @@ The calibration recovers all four parameters to within ~0.1% of the truth:
 ### Smoke tests
 
 ```bash
-julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.test()'
 ```
 
 Verifies that:

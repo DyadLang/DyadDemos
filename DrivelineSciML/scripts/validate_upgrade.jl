@@ -1,6 +1,6 @@
 # Run every concrete Dyad analysis at its declared budget. Training writes only
 # into the requested output directory; shipped calibration files stay reusable.
-# JULIA_NUM_THREADS=2 julia +dyad-3.5.1 --project scripts/validate_upgrade.jl
+# JULIA_NUM_THREADS=2 julia +dyad-3.5.0 --project scripts/validate_upgrade.jl
 # DYAD_UPGRADE_OUTPUT selects the output directory; DYAD_UPGRADE_ONLY is a
 # comma-separated subset for retrying analyses after a failure.
 using DrivelineSciML
