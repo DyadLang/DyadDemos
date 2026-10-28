@@ -71,6 +71,11 @@ something to show:
 
 ## Getting Started
 
+The models use the Dyad 3.5.0 Julia distribution. For tutorial scripts, activate `scripts/`
+(`julia +dyad-3.5.0 --project=scripts`) and instantiate that environment.
+[Upgrade validation](docs/upgrade-3.5-validation.md) records the headless checks.
+
+
 Download this folder to your machine and open it in VS Code with the [Dyad
 extension](https://help.juliahub.com/dyad/dev/getting_started/).
 

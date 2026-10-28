@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TestQuarterTruckConfigurableFullSin(; name, amplitude, frequency, tire_k3, tire_compression_only, friction_Fc, friction_v0, seat_driver_n)
+   TestQuarterTruckConfigurableFullSin(; name, amplitude, frequency, tire_k3, tire_compression_only, friction_Fc, friction_v0, seat_driver_n, __overrides)
 
 Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-body Coulomb friction, AND seat-driver viscoelastic damping all active. Sin road excitation — used to generate training data.
 
@@ -21,7 +21,7 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
 | `friction_v0`         |                          | m/s  |   0.1 |
 | `seat_driver_n`         |                          | --  |   0.5 |
 """
-@component function TestQuarterTruckConfigurableFullSin(; name = nothing, amplitude=0.03, frequency=Float64(2.0), tire_k3=Float64(10000000.0), tire_compression_only=Float64(1.0), friction_Fc=Float64(500.0), friction_v0=0.1, seat_driver_n=0.5, kwargs...)
+@component function TestQuarterTruckConfigurableFullSin(; name = nothing, var"amplitude"=0.03, var"frequency"=Float64(2.0), var"tire_k3"=Float64(10000000.0), var"tire_compression_only"=Float64(1.0), var"friction_Fc"=Float64(500.0), var"friction_v0"=0.1, var"seat_driver_n"=0.5, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -29,7 +29,7 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
     @named model = TestQuarterTruckConfigurableFullSin()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -38,6 +38,15 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "amplitude") && (amplitude = pop!(__overrides, "amplitude"))
+  haskey(__overrides, "frequency") && (frequency = pop!(__overrides, "frequency"))
+  haskey(__overrides, "tire_k3") && (tire_k3 = pop!(__overrides, "tire_k3"))
+  haskey(__overrides, "tire_compression_only") && (tire_compression_only = pop!(__overrides, "tire_compression_only"))
+  haskey(__overrides, "friction_Fc") && (friction_Fc = pop!(__overrides, "friction_Fc"))
+  haskey(__overrides, "friction_v0") && (friction_v0 = pop!(__overrides, "friction_v0"))
+  haskey(__overrides, "seat_driver_n") && (seat_driver_n = pop!(__overrides, "seat_driver_n"))
 
   ### Structural Parameters (functions)
 
@@ -54,25 +63,25 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
   ### Symbolic Parameters
   __local__amplitude = amplitude
   append!(__params, @parameters (amplitude::Real), [bounds = (0, Inf)])
-  __initial_conditions[amplitude] = __local__amplitude
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amplitude, __local__amplitude)
   __local__frequency = frequency
   append!(__params, @parameters (frequency::Real))
-  __initial_conditions[frequency] = __local__frequency
+  __dyad_seed_parameter!(__initial_conditions, __bindings, frequency, __local__frequency)
   __local__tire_k3 = tire_k3
   append!(__params, @parameters (tire_k3::Real))
-  __initial_conditions[tire_k3] = __local__tire_k3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tire_k3, __local__tire_k3)
   __local__tire_compression_only = tire_compression_only
   append!(__params, @parameters (tire_compression_only::Real))
-  __initial_conditions[tire_compression_only] = __local__tire_compression_only
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tire_compression_only, __local__tire_compression_only)
   __local__friction_Fc = friction_Fc
   append!(__params, @parameters (friction_Fc::Real))
-  __initial_conditions[friction_Fc] = __local__friction_Fc
+  __dyad_seed_parameter!(__initial_conditions, __bindings, friction_Fc, __local__friction_Fc)
   __local__friction_v0 = friction_v0
   append!(__params, @parameters (friction_v0::Real))
-  __initial_conditions[friction_v0] = __local__friction_v0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, friction_v0, __local__friction_v0)
   __local__seat_driver_n = seat_driver_n
   append!(__params, @parameters (seat_driver_n::Real))
-  __initial_conditions[seat_driver_n] = __local__seat_driver_n
+  __dyad_seed_parameter!(__initial_conditions, __bindings, seat_driver_n, __local__seat_driver_n)
 
   ### Final Parameters (assignments)
 
@@ -88,13 +97,13 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckConfigurable
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(; tire_k3=tire_k3, tire_compression_only=tire_compression_only, friction_Fc=friction_Fc, friction_v0=friction_v0, seat_driver_n=seat_driver_n, model_overrides...))
+  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(; tire_k3=tire_k3, tire_compression_only=tire_compression_only, friction_Fc=friction_Fc, friction_v0=friction_v0, seat_driver_n=seat_driver_n, __overrides = model_overrides))
   # Subcomponent sin_signal of type BlockComponents.Sources.Sine
   sin_signal_overrides = __pop_subcomponent_overrides!(__overrides, "sin_signal")
-  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(; amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
+  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(; amplitude=amplitude, frequency=frequency, start_time=0.1, __overrides = sin_signal_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -107,6 +116,6 @@ Nonlinear ground-truth quarter truck with tire cubic (compression-only), tire-bo
   push!(__eqs, connect(sin_signal.y, model.road.s_ref))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestQuarterTruckConfigurableFullSin

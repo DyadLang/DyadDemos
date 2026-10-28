@@ -4,7 +4,7 @@
     # output states back to degrees at a different scale.
     for scale in (100.0, 200.0)
         harness = MotorTemperatureSciML.Models.Tests.TestTNNProfile(;
-            name = :scale_test, model__MAX_TEMP = scale)
+            name = :scale_test, __overrides = Dict{String,Any}("model.MAX_TEMP" => scale))
         result = MotorTemperatureSciML.Models.Tests.TestTNNProfileAnalysis(;
             model = harness, stop = 1.0)
         @test successful_retcode(result.sol)

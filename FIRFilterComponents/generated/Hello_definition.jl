@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   Hello(; name, T_inf, T0, h, A, m, c_p)
+   Hello(; name, T_inf, T0, h, A, m, c_p, __overrides)
 
 A simple lumped thermal model
 
@@ -28,7 +26,7 @@ A simple lumped thermal model
 | ------------ | ----------------------------------- | ------ |
 | `T`         |                          | K  |
 """
-@component function Hello(; name = nothing, T_inf=Float64(300), T0=Float64(320), h=0.7, A=Float64(1.0), m=0.1, c_p=1.2, kwargs...)
+@component function Hello(; name = nothing, var"T_inf"=Float64(300), var"T0"=Float64(320), var"h"=0.7, var"A"=Float64(1.0), var"m"=0.1, var"c_p"=1.2, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -36,7 +34,7 @@ A simple lumped thermal model
     @named model = Hello()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -45,6 +43,14 @@ A simple lumped thermal model
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "T_inf") && (T_inf = pop!(__overrides, "T_inf"))
+  haskey(__overrides, "T0") && (T0 = pop!(__overrides, "T0"))
+  haskey(__overrides, "h") && (h = pop!(__overrides, "h"))
+  haskey(__overrides, "A") && (A = pop!(__overrides, "A"))
+  haskey(__overrides, "m") && (m = pop!(__overrides, "m"))
+  haskey(__overrides, "c_p") && (c_p = pop!(__overrides, "c_p"))
 
   ### Structural Parameters (functions)
 
@@ -61,22 +67,22 @@ A simple lumped thermal model
   ### Symbolic Parameters
   __local__T_inf = T_inf
   append!(__params, @parameters (T_inf::Real), [description = "Ambient temperature", bounds = (0, Inf)])
-  __initial_conditions[T_inf] = __local__T_inf
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_inf, __local__T_inf)
   __local__T0 = T0
   append!(__params, @parameters (T0::Real), [description = "Initial temperature", bounds = (0, Inf)])
-  __initial_conditions[T0] = __local__T0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0, __local__T0)
   __local__h = h
   append!(__params, @parameters (h::Real), [description = "Convective heat transfer coefficient"])
-  __initial_conditions[h] = __local__h
+  __dyad_seed_parameter!(__initial_conditions, __bindings, h, __local__h)
   __local__A = A
   append!(__params, @parameters (A::Real), [description = "Surface area"])
-  __initial_conditions[A] = __local__A
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A, __local__A)
   __local__m = m
   append!(__params, @parameters (m::Real), [description = "Mass of thermal capacitance", bounds = (0, Inf)])
-  __initial_conditions[m] = __local__m
+  __dyad_seed_parameter!(__initial_conditions, __bindings, m, __local__m)
   __local__c_p = c_p
   append!(__params, @parameters (c_p::Real), [description = "Specific Heat"])
-  __initial_conditions[c_p] = __local__c_p
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c_p, __local__c_p)
 
   ### Final Parameters (assignments)
 
@@ -87,8 +93,8 @@ A simple lumped thermal model
 
   ### Variables (assignments)
   __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
-  __ovr_T__initial = pop!(__overrides, "T__initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
-  __ovr_T__guess = pop!(__overrides, "T__guess", nothing)
+  __ovr_T__initial = pop!(__overrides, "T.initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
+  __ovr_T__guess = pop!(__overrides, "T.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -96,7 +102,7 @@ A simple lumped thermal model
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_T__guess) || (__guesses[T] = __ovr_T__guess)
@@ -113,6 +119,6 @@ A simple lumped thermal model
   push!(__eqs, m * c_p * ModelingToolkit.D_nounits(T) ~ h * A * (T_inf - T))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export Hello

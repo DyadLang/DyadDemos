@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ThrusterAllocator(; name, F_max)
+   ThrusterAllocator(; name, F_max, __overrides)
 
 Thruster allocator for an 8-jet CubeSat configuration.
 
@@ -63,7 +63,7 @@ with 2 degrees of redundancy.
 | `t7`         |                          | --  |
 | `t8`         |                          | --  |
 """
-@component function ThrusterAllocator(; name = nothing, F_max=0.1, kwargs...)
+@component function ThrusterAllocator(; name = nothing, var"F_max"=0.1, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -71,7 +71,7 @@ with 2 degrees of redundancy.
     @named model = ThrusterAllocator()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -80,6 +80,9 @@ with 2 degrees of redundancy.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "F_max") && (F_max = pop!(__overrides, "F_max"))
 
   ### Structural Parameters (functions)
 
@@ -96,7 +99,7 @@ with 2 degrees of redundancy.
   ### Symbolic Parameters
   __local__F_max = F_max
   append!(__params, @parameters (F_max::Real), [description = "Maximum thrust per jet (N) — used for normalization"])
-  __initial_conditions[F_max] = __local__F_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, F_max, __local__F_max)
 
   ### Final Parameters (assignments)
 
@@ -128,29 +131,29 @@ with 2 degrees of redundancy.
 
   ### Variables (assignments)
   __ovr_t1 = pop!(__overrides, "t1", nothing); isnothing(__ovr_t1) || push!(__eqs, t1 ~ __ovr_t1)
-  __ovr_t1__initial = pop!(__overrides, "t1__initial", nothing); isnothing(__ovr_t1__initial) || (__initial_conditions[t1] = __ovr_t1__initial)
-  __ovr_t1__guess = pop!(__overrides, "t1__guess", nothing)
+  __ovr_t1__initial = pop!(__overrides, "t1.initial", nothing); isnothing(__ovr_t1__initial) || (__initial_conditions[t1] = __ovr_t1__initial)
+  __ovr_t1__guess = pop!(__overrides, "t1.guess", nothing)
   __ovr_t2 = pop!(__overrides, "t2", nothing); isnothing(__ovr_t2) || push!(__eqs, t2 ~ __ovr_t2)
-  __ovr_t2__initial = pop!(__overrides, "t2__initial", nothing); isnothing(__ovr_t2__initial) || (__initial_conditions[t2] = __ovr_t2__initial)
-  __ovr_t2__guess = pop!(__overrides, "t2__guess", nothing)
+  __ovr_t2__initial = pop!(__overrides, "t2.initial", nothing); isnothing(__ovr_t2__initial) || (__initial_conditions[t2] = __ovr_t2__initial)
+  __ovr_t2__guess = pop!(__overrides, "t2.guess", nothing)
   __ovr_t3 = pop!(__overrides, "t3", nothing); isnothing(__ovr_t3) || push!(__eqs, t3 ~ __ovr_t3)
-  __ovr_t3__initial = pop!(__overrides, "t3__initial", nothing); isnothing(__ovr_t3__initial) || (__initial_conditions[t3] = __ovr_t3__initial)
-  __ovr_t3__guess = pop!(__overrides, "t3__guess", nothing)
+  __ovr_t3__initial = pop!(__overrides, "t3.initial", nothing); isnothing(__ovr_t3__initial) || (__initial_conditions[t3] = __ovr_t3__initial)
+  __ovr_t3__guess = pop!(__overrides, "t3.guess", nothing)
   __ovr_t4 = pop!(__overrides, "t4", nothing); isnothing(__ovr_t4) || push!(__eqs, t4 ~ __ovr_t4)
-  __ovr_t4__initial = pop!(__overrides, "t4__initial", nothing); isnothing(__ovr_t4__initial) || (__initial_conditions[t4] = __ovr_t4__initial)
-  __ovr_t4__guess = pop!(__overrides, "t4__guess", nothing)
+  __ovr_t4__initial = pop!(__overrides, "t4.initial", nothing); isnothing(__ovr_t4__initial) || (__initial_conditions[t4] = __ovr_t4__initial)
+  __ovr_t4__guess = pop!(__overrides, "t4.guess", nothing)
   __ovr_t5 = pop!(__overrides, "t5", nothing); isnothing(__ovr_t5) || push!(__eqs, t5 ~ __ovr_t5)
-  __ovr_t5__initial = pop!(__overrides, "t5__initial", nothing); isnothing(__ovr_t5__initial) || (__initial_conditions[t5] = __ovr_t5__initial)
-  __ovr_t5__guess = pop!(__overrides, "t5__guess", nothing)
+  __ovr_t5__initial = pop!(__overrides, "t5.initial", nothing); isnothing(__ovr_t5__initial) || (__initial_conditions[t5] = __ovr_t5__initial)
+  __ovr_t5__guess = pop!(__overrides, "t5.guess", nothing)
   __ovr_t6 = pop!(__overrides, "t6", nothing); isnothing(__ovr_t6) || push!(__eqs, t6 ~ __ovr_t6)
-  __ovr_t6__initial = pop!(__overrides, "t6__initial", nothing); isnothing(__ovr_t6__initial) || (__initial_conditions[t6] = __ovr_t6__initial)
-  __ovr_t6__guess = pop!(__overrides, "t6__guess", nothing)
+  __ovr_t6__initial = pop!(__overrides, "t6.initial", nothing); isnothing(__ovr_t6__initial) || (__initial_conditions[t6] = __ovr_t6__initial)
+  __ovr_t6__guess = pop!(__overrides, "t6.guess", nothing)
   __ovr_t7 = pop!(__overrides, "t7", nothing); isnothing(__ovr_t7) || push!(__eqs, t7 ~ __ovr_t7)
-  __ovr_t7__initial = pop!(__overrides, "t7__initial", nothing); isnothing(__ovr_t7__initial) || (__initial_conditions[t7] = __ovr_t7__initial)
-  __ovr_t7__guess = pop!(__overrides, "t7__guess", nothing)
+  __ovr_t7__initial = pop!(__overrides, "t7.initial", nothing); isnothing(__ovr_t7__initial) || (__initial_conditions[t7] = __ovr_t7__initial)
+  __ovr_t7__guess = pop!(__overrides, "t7.guess", nothing)
   __ovr_t8 = pop!(__overrides, "t8", nothing); isnothing(__ovr_t8) || push!(__eqs, t8 ~ __ovr_t8)
-  __ovr_t8__initial = pop!(__overrides, "t8__initial", nothing); isnothing(__ovr_t8__initial) || (__initial_conditions[t8] = __ovr_t8__initial)
-  __ovr_t8__guess = pop!(__overrides, "t8__guess", nothing)
+  __ovr_t8__initial = pop!(__overrides, "t8.initial", nothing); isnothing(__ovr_t8__initial) || (__initial_conditions[t8] = __ovr_t8__initial)
+  __ovr_t8__guess = pop!(__overrides, "t8.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -158,7 +161,7 @@ with 2 degrees of redundancy.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_t1__guess) || (__guesses[t1] = __ovr_t1__guess)
@@ -194,6 +197,6 @@ with 2 degrees of redundancy.
   push!(__eqs, cmd8 ~ t8 / F_max)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ThrusterAllocator

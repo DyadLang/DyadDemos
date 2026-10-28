@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   TestSingleJet(; name)
+   TestSingleJet(; name, __overrides)
 """
-@component function TestSingleJet(; name = nothing, kwargs...)
+@component function TestSingleJet(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -15,7 +15,7 @@
     @named model = TestSingleJet()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,10 +53,10 @@
   ### Components
   # Subcomponent jet of type SatelliteGNC.ReactionJet
   jet_overrides = __pop_subcomponent_overrides!(__overrides, "jet")
-  push!(__systems, @named jet = SatelliteGNC.ReactionJet(; rx=0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=Float64(1.0), jet_overrides...))
+  push!(__systems, @named jet = SatelliteGNC.ReactionJet(; rx=0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=Float64(1.0), __overrides = jet_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -69,6 +69,6 @@
   push!(__eqs, jet.cmd ~ 0.5)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestSingleJet

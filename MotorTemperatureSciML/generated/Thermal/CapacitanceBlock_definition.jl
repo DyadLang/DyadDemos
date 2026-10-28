@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   CapacitanceBlock(; name, n_out, caps)
+   CapacitanceBlock(; name, n_out, caps, __overrides)
 
 Thermal capacitance block for the Thermal Neural Network (TNN).
 
@@ -23,7 +23,7 @@ The log-space parameterisation ensures positivity.
 
  * `out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function CapacitanceBlock(; name = nothing, n_out=4, caps=fill(-5.0, 4), kwargs...)
+@component function CapacitanceBlock(; name = nothing, var"n_out"=4, var"caps"=fill(-5.0, 4), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -31,7 +31,7 @@ The log-space parameterisation ensures positivity.
     @named model = CapacitanceBlock()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,6 +40,10 @@ The log-space parameterisation ensures positivity.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "n_out") && (n_out = pop!(__overrides, "n_out"))
+  haskey(__overrides, "caps") && (caps = pop!(__overrides, "caps"))
 
   ### Structural Parameters (functions)
 
@@ -56,7 +60,7 @@ The log-space parameterisation ensures positivity.
   ### Symbolic Parameters
   __local__caps = caps
   append!(__params, @parameters (caps[1:4]::Real), [description = "Log-space thermal capacitance parameters"])
-  __initial_conditions[caps] = __local__caps
+  __dyad_seed_parameter!(__initial_conditions, __bindings, caps, __local__caps)
 
   ### Final Parameters (assignments)
 
@@ -73,7 +77,7 @@ The log-space parameterisation ensures positivity.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -90,6 +94,6 @@ The log-space parameterisation ensures positivity.
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export CapacitanceBlock

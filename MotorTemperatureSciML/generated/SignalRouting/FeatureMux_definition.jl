@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   FeatureMux(; name, n_x, n_T, n_out)
+   FeatureMux(; name, n_x, n_T, n_out, __overrides)
 
 Concatenate operating conditions and estimated temperatures, in the order [x; T].
 
@@ -23,7 +23,7 @@ Concatenate operating conditions and estimated temperatures, in the order [x; T]
  * `T` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function FeatureMux(; name = nothing, n_x=10, n_T=4, n_out=n_x + n_T, kwargs...)
+@component function FeatureMux(; name = nothing, var"n_x"=10, var"n_T"=4, var"n_out"=nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -31,7 +31,7 @@ Concatenate operating conditions and estimated temperatures, in the order [x; T]
     @named model = FeatureMux()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,6 +40,14 @@ Concatenate operating conditions and estimated temperatures, in the order [x; T]
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "n_x") && (n_x = pop!(__overrides, "n_x"))
+  haskey(__overrides, "n_T") && (n_T = pop!(__overrides, "n_T"))
+  haskey(__overrides, "n_out") && (n_out = pop!(__overrides, "n_out"))
+
+  ### Deferred keyword defaults (defaults referencing other keyword arguments)
+  isnothing(n_out) && (n_out = n_x + n_T)
 
   ### Structural Parameters (functions)
 
@@ -72,7 +80,7 @@ Concatenate operating conditions and estimated temperatures, in the order [x; T]
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -92,6 +100,6 @@ Concatenate operating conditions and estimated temperatures, in the order [x; T]
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FeatureMux

@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ScaledNeuralNetworkBlock(; name, n_input, n_output, nn_depth, nn_width, chain, s_rel0_tire, s_scale_tire, v_friction_scale, v_seat_scale, f_scale_tire, f_scale_friction, d_seat)
+   ScaledNeuralNetworkBlock(; name, n_input, n_output, nn_depth, nn_width, chain, s_rel0_tire, s_scale_tire, v_friction_scale, v_seat_scale, f_scale_tire, f_scale_friction, d_seat, __overrides)
 
 Neural network that supplies the truck's missing forces: three raw physics signals in, three forces in Newtons out. The surrounding Gain and Product blocks do the scaling that keeps the network working on numbers near 1.
 
@@ -35,7 +35,7 @@ Neural network that supplies the truck's missing forces: three raw physics signa
  * `out_friction` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `out_seat` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function ScaledNeuralNetworkBlock(; name = nothing, n_input=3, n_output=3, nn_depth=1, nn_width=5, s_rel0_tire=0.2, s_scale_tire=0.05, v_friction_scale=0.1, v_seat_scale=0.2, f_scale_tire=Float64(1000.0), f_scale_friction=Float64(500.0), d_seat=Float64(500.0), chain=DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output; depth=nn_depth, width=nn_width, activation=Lux.tanh), kwargs...)
+@component function ScaledNeuralNetworkBlock(; name = nothing, var"n_input"=3, var"n_output"=3, var"nn_depth"=1, var"nn_width"=5, var"s_rel0_tire"=0.2, var"s_scale_tire"=0.05, var"v_friction_scale"=0.1, var"v_seat_scale"=0.2, var"f_scale_tire"=Float64(1000.0), var"f_scale_friction"=Float64(500.0), var"d_seat"=Float64(500.0), var"chain"=nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -43,7 +43,7 @@ Neural network that supplies the truck's missing forces: three raw physics signa
     @named model = ScaledNeuralNetworkBlock()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -52,6 +52,23 @@ Neural network that supplies the truck's missing forces: three raw physics signa
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "n_input") && (n_input = pop!(__overrides, "n_input"))
+  haskey(__overrides, "n_output") && (n_output = pop!(__overrides, "n_output"))
+  haskey(__overrides, "nn_depth") && (nn_depth = pop!(__overrides, "nn_depth"))
+  haskey(__overrides, "nn_width") && (nn_width = pop!(__overrides, "nn_width"))
+  haskey(__overrides, "s_rel0_tire") && (s_rel0_tire = pop!(__overrides, "s_rel0_tire"))
+  haskey(__overrides, "s_scale_tire") && (s_scale_tire = pop!(__overrides, "s_scale_tire"))
+  haskey(__overrides, "v_friction_scale") && (v_friction_scale = pop!(__overrides, "v_friction_scale"))
+  haskey(__overrides, "v_seat_scale") && (v_seat_scale = pop!(__overrides, "v_seat_scale"))
+  haskey(__overrides, "f_scale_tire") && (f_scale_tire = pop!(__overrides, "f_scale_tire"))
+  haskey(__overrides, "f_scale_friction") && (f_scale_friction = pop!(__overrides, "f_scale_friction"))
+  haskey(__overrides, "d_seat") && (d_seat = pop!(__overrides, "d_seat"))
+  haskey(__overrides, "chain") && (chain = pop!(__overrides, "chain"))
+
+  ### Deferred keyword defaults (defaults referencing other keyword arguments)
+  isnothing(chain) && (chain = DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output; depth=nn_depth, width=nn_width, activation=Lux.tanh))
 
   ### Structural Parameters (functions)
 
@@ -68,25 +85,25 @@ Neural network that supplies the truck's missing forces: three raw physics signa
   ### Symbolic Parameters
   __local__s_rel0_tire = s_rel0_tire
   append!(__params, @parameters (s_rel0_tire::Real), [description = "Tire unstretched length [m]"])
-  __initial_conditions[s_rel0_tire] = __local__s_rel0_tire
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0_tire, __local__s_rel0_tire)
   __local__s_scale_tire = s_scale_tire
   append!(__params, @parameters (s_scale_tire::Real), [description = "Tire deflection normalization [m]"])
-  __initial_conditions[s_scale_tire] = __local__s_scale_tire
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_scale_tire, __local__s_scale_tire)
   __local__v_friction_scale = v_friction_scale
   append!(__params, @parameters (v_friction_scale::Real), [description = "Friction velocity normalization [m/s]"])
-  __initial_conditions[v_friction_scale] = __local__v_friction_scale
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v_friction_scale, __local__v_friction_scale)
   __local__v_seat_scale = v_seat_scale
   append!(__params, @parameters (v_seat_scale::Real), [description = "Seat-driver velocity normalization [m/s]"])
-  __initial_conditions[v_seat_scale] = __local__v_seat_scale
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v_seat_scale, __local__v_seat_scale)
   __local__f_scale_tire = f_scale_tire
   append!(__params, @parameters (f_scale_tire::Real), [description = "Force scale for tire NN output [N]"])
-  __initial_conditions[f_scale_tire] = __local__f_scale_tire
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_scale_tire, __local__f_scale_tire)
   __local__f_scale_friction = f_scale_friction
   append!(__params, @parameters (f_scale_friction::Real), [description = "Force scale for friction NN output [N]"])
-  __initial_conditions[f_scale_friction] = __local__f_scale_friction
+  __dyad_seed_parameter!(__initial_conditions, __bindings, f_scale_friction, __local__f_scale_friction)
   __local__d_seat = d_seat
   append!(__params, @parameters (d_seat::Real), [description = "Seat-driver damping coefficient [N*s/m] (d*v prefactor)"])
-  __initial_conditions[d_seat] = __local__d_seat
+  __dyad_seed_parameter!(__initial_conditions, __bindings, d_seat, __local__d_seat)
 
   ### Final Parameters (assignments)
 
@@ -108,40 +125,40 @@ Neural network that supplies the truck's missing forces: three raw physics signa
   ### Components
   # Subcomponent nn of type DyadModelDiscovery.NeuralNetworkBlock
   nn_overrides = __pop_subcomponent_overrides!(__overrides, "nn")
-  push!(__systems, @named nn = DyadModelDiscovery.NeuralNetworkBlock(; n_input=n_input, n_output=n_output, chain=chain, nn_overrides...))
+  push!(__systems, @named nn = DyadModelDiscovery.NeuralNetworkBlock(; n_input=n_input, n_output=n_output, chain=chain, __symbol_overrides(nn_overrides)...))
   # Subcomponent mux of type QuarterTruckSciML.Mux3
   mux_overrides = __pop_subcomponent_overrides!(__overrides, "mux")
-  push!(__systems, @named mux = QuarterTruckSciML.Mux3(; mux_overrides...))
+  push!(__systems, @named mux = QuarterTruckSciML.Mux3(; __overrides = mux_overrides))
   # Subcomponent demux of type QuarterTruckSciML.Demux3
   demux_overrides = __pop_subcomponent_overrides!(__overrides, "demux")
-  push!(__systems, @named demux = QuarterTruckSciML.Demux3(; demux_overrides...))
+  push!(__systems, @named demux = QuarterTruckSciML.Demux3(; __overrides = demux_overrides))
   # Subcomponent s_rel0_src of type BlockComponents.Sources.Constant
   s_rel0_src_overrides = __pop_subcomponent_overrides!(__overrides, "s_rel0_src")
-  push!(__systems, @named s_rel0_src = BlockComponents.Sources.Constant(; k=s_rel0_tire, s_rel0_src_overrides...))
+  push!(__systems, @named s_rel0_src = BlockComponents.Sources.Constant(; k=s_rel0_tire, __overrides = s_rel0_src_overrides))
   # Subcomponent norm_tire of type BlockComponents.Math.Add
   norm_tire_overrides = __pop_subcomponent_overrides!(__overrides, "norm_tire")
-  push!(__systems, @named norm_tire = BlockComponents.Math.Add(; k1=1.0 / s_scale_tire, k2=-1.0 / s_scale_tire, norm_tire_overrides...))
+  push!(__systems, @named norm_tire = BlockComponents.Math.Add(; k1=1.0 / s_scale_tire, k2=-1.0 / s_scale_tire, __overrides = norm_tire_overrides))
   # Subcomponent norm_friction of type BlockComponents.Math.Gain
   norm_friction_overrides = __pop_subcomponent_overrides!(__overrides, "norm_friction")
-  push!(__systems, @named norm_friction = BlockComponents.Math.Gain(; k=1.0 / v_friction_scale, norm_friction_overrides...))
+  push!(__systems, @named norm_friction = BlockComponents.Math.Gain(; k=1.0 / v_friction_scale, __overrides = norm_friction_overrides))
   # Subcomponent norm_seat of type BlockComponents.Math.Gain
   norm_seat_overrides = __pop_subcomponent_overrides!(__overrides, "norm_seat")
-  push!(__systems, @named norm_seat = BlockComponents.Math.Gain(; k=1.0 / v_seat_scale, norm_seat_overrides...))
+  push!(__systems, @named norm_seat = BlockComponents.Math.Gain(; k=1.0 / v_seat_scale, __overrides = norm_seat_overrides))
   # Subcomponent scale_tire of type BlockComponents.Math.Gain
   scale_tire_overrides = __pop_subcomponent_overrides!(__overrides, "scale_tire")
-  push!(__systems, @named scale_tire = BlockComponents.Math.Gain(; k=f_scale_tire, scale_tire_overrides...))
+  push!(__systems, @named scale_tire = BlockComponents.Math.Gain(; k=f_scale_tire, __overrides = scale_tire_overrides))
   # Subcomponent scale_friction of type BlockComponents.Math.Gain
   scale_friction_overrides = __pop_subcomponent_overrides!(__overrides, "scale_friction")
-  push!(__systems, @named scale_friction = BlockComponents.Math.Gain(; k=f_scale_friction, scale_friction_overrides...))
+  push!(__systems, @named scale_friction = BlockComponents.Math.Gain(; k=f_scale_friction, __overrides = scale_friction_overrides))
   # Subcomponent seat_prod of type BlockComponents.Math.Product
   seat_prod_overrides = __pop_subcomponent_overrides!(__overrides, "seat_prod")
-  push!(__systems, @named seat_prod = BlockComponents.Math.Product(; seat_prod_overrides...))
+  push!(__systems, @named seat_prod = BlockComponents.Math.Product(; __overrides = seat_prod_overrides))
   # Subcomponent scale_seat of type BlockComponents.Math.Gain
   scale_seat_overrides = __pop_subcomponent_overrides!(__overrides, "scale_seat")
-  push!(__systems, @named scale_seat = BlockComponents.Math.Gain(; k=d_seat * v_seat_scale, scale_seat_overrides...))
+  push!(__systems, @named scale_seat = BlockComponents.Math.Gain(; k=d_seat * v_seat_scale, __overrides = scale_seat_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -169,6 +186,6 @@ Neural network that supplies the truck's missing forces: three raw physics signa
   push!(__eqs, connect(scale_seat.y, out_seat))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ScaledNeuralNetworkBlock

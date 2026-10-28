@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   SteamSubsystem(; name, Gc_top, Gr_top)
+   SteamSubsystem(; name, Gc_top, Gr_top, __overrides)
 
 ## Parameters:
 
@@ -19,7 +19,7 @@
  * `liquidInterface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `ambient` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function SteamSubsystem(; name = nothing, Gc_top=0.01, Gr_top=0.001, kwargs...)
+@component function SteamSubsystem(; name = nothing, var"Gc_top"=0.01, var"Gr_top"=0.001, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -27,7 +27,7 @@
     @named model = SteamSubsystem()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -36,6 +36,10 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "Gc_top") && (Gc_top = pop!(__overrides, "Gc_top"))
+  haskey(__overrides, "Gr_top") && (Gr_top = pop!(__overrides, "Gr_top"))
 
   ### Structural Parameters (functions)
 
@@ -52,10 +56,10 @@
   ### Symbolic Parameters
   __local__Gc_top = Gc_top
   append!(__params, @parameters (Gc_top::Real))
-  __initial_conditions[Gc_top] = __local__Gc_top
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_top, __local__Gc_top)
   __local__Gr_top = Gr_top
   append!(__params, @parameters (Gr_top::Real))
-  __initial_conditions[Gr_top] = __local__Gr_top
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gr_top, __local__Gr_top)
 
   ### Final Parameters (assignments)
 
@@ -73,16 +77,16 @@
   push!(__systems, @named ambient = __Dyad__HeatPort())
   # Subcomponent convTop of type ThermalComponents.Components.Convection
   convTop_overrides = __pop_subcomponent_overrides!(__overrides, "convTop")
-  push!(__systems, @named convTop = ThermalComponents.Components.Convection(; convTop_overrides...))
+  push!(__systems, @named convTop = ThermalComponents.Components.Convection(; __overrides = convTop_overrides))
   # Subcomponent gcTop of type BlockComponents.Sources.Constant
   gcTop_overrides = __pop_subcomponent_overrides!(__overrides, "gcTop")
-  push!(__systems, @named gcTop = BlockComponents.Sources.Constant(; k=Gc_top, gcTop_overrides...))
+  push!(__systems, @named gcTop = BlockComponents.Sources.Constant(; k=Gc_top, __overrides = gcTop_overrides))
   # Subcomponent radTop of type ThermalComponents.Components.BodyRadiation
   radTop_overrides = __pop_subcomponent_overrides!(__overrides, "radTop")
-  push!(__systems, @named radTop = ThermalComponents.Components.BodyRadiation(; Gr=Gr_top, radTop_overrides...))
+  push!(__systems, @named radTop = ThermalComponents.Components.BodyRadiation(; Gr=Gr_top, __overrides = radTop_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -99,6 +103,6 @@
   push!(__eqs, connect(radTop.port_b, ambient))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SteamSubsystem

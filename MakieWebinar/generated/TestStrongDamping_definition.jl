@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   TestStrongDamping(; name)
+   TestStrongDamping(; name, __overrides)
 """
-@component function TestStrongDamping(; name = nothing, kwargs...)
+@component function TestStrongDamping(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -15,7 +15,7 @@
     @named model = TestStrongDamping()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,10 +53,10 @@
   ### Components
   # Subcomponent system of type MakieWebinar.ControlledOscillator
   system_overrides = __pop_subcomponent_overrides!(__overrides, "system")
-  push!(__systems, @named system = MakieWebinar.ControlledOscillator(; system_overrides...))
+  push!(__systems, @named system = MakieWebinar.ControlledOscillator(; __overrides = system_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -68,6 +68,6 @@
   ### Equations
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestStrongDamping

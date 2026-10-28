@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   TestAllocatorJets(; name)
+   TestAllocatorJets(; name, __overrides)
 """
-@component function TestAllocatorJets(; name = nothing, kwargs...)
+@component function TestAllocatorJets(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -15,7 +15,7 @@
     @named model = TestAllocatorJets()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,34 +53,34 @@
   ### Components
   # Subcomponent alloc of type SatelliteGNC.ThrusterAllocator
   alloc_overrides = __pop_subcomponent_overrides!(__overrides, "alloc")
-  push!(__systems, @named alloc = SatelliteGNC.ThrusterAllocator(; F_max=0.1, alloc_overrides...))
+  push!(__systems, @named alloc = SatelliteGNC.ThrusterAllocator(; F_max=0.1, __overrides = alloc_overrides))
   # Subcomponent jet1 of type SatelliteGNC.ReactionJet
   jet1_overrides = __pop_subcomponent_overrides!(__overrides, "jet1")
-  push!(__systems, @named jet1 = SatelliteGNC.ReactionJet(; rx=0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.1, jet1_overrides...))
+  push!(__systems, @named jet1 = SatelliteGNC.ReactionJet(; rx=0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.1, __overrides = jet1_overrides))
   # Subcomponent jet2 of type SatelliteGNC.ReactionJet
   jet2_overrides = __pop_subcomponent_overrides!(__overrides, "jet2")
-  push!(__systems, @named jet2 = SatelliteGNC.ReactionJet(; rx=0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.1, jet2_overrides...))
+  push!(__systems, @named jet2 = SatelliteGNC.ReactionJet(; rx=0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.1, __overrides = jet2_overrides))
   # Subcomponent jet3 of type SatelliteGNC.ReactionJet
   jet3_overrides = __pop_subcomponent_overrides!(__overrides, "jet3")
-  push!(__systems, @named jet3 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.1, jet3_overrides...))
+  push!(__systems, @named jet3 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.1, __overrides = jet3_overrides))
   # Subcomponent jet4 of type SatelliteGNC.ReactionJet
   jet4_overrides = __pop_subcomponent_overrides!(__overrides, "jet4")
-  push!(__systems, @named jet4 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.1, jet4_overrides...))
+  push!(__systems, @named jet4 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.1, __overrides = jet4_overrides))
   # Subcomponent jet5 of type SatelliteGNC.ReactionJet
   jet5_overrides = __pop_subcomponent_overrides!(__overrides, "jet5")
-  push!(__systems, @named jet5 = SatelliteGNC.ReactionJet(; rx=0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.1, jet5_overrides...))
+  push!(__systems, @named jet5 = SatelliteGNC.ReactionJet(; rx=0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.1, __overrides = jet5_overrides))
   # Subcomponent jet6 of type SatelliteGNC.ReactionJet
   jet6_overrides = __pop_subcomponent_overrides!(__overrides, "jet6")
-  push!(__systems, @named jet6 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.1, jet6_overrides...))
+  push!(__systems, @named jet6 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.1, __overrides = jet6_overrides))
   # Subcomponent jet7 of type SatelliteGNC.ReactionJet
   jet7_overrides = __pop_subcomponent_overrides!(__overrides, "jet7")
-  push!(__systems, @named jet7 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.1, jet7_overrides...))
+  push!(__systems, @named jet7 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.1, __overrides = jet7_overrides))
   # Subcomponent jet8 of type SatelliteGNC.ReactionJet
   jet8_overrides = __pop_subcomponent_overrides!(__overrides, "jet8")
-  push!(__systems, @named jet8 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=-0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.1, jet8_overrides...))
+  push!(__systems, @named jet8 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=-0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.1, __overrides = jet8_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -106,6 +106,6 @@
   push!(__eqs, connect(alloc.cmd8, jet8.cmd))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestAllocatorJets

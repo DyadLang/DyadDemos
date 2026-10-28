@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   DenseISO8608Road(; name, N, roughness, lambda_min, lambda_max, speed, start_time, offset, amp, freq, phase)
+   DenseISO8608Road(; name, N, roughness, lambda_min, lambda_max, speed, start_time, offset, amp, freq, phase, __overrides)
 
 Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
 
@@ -34,7 +34,7 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
 | ------------ | ----------------------------------- | ------ |
 | `s`         | Partial sums for harmonic accumulation                         | --  |
 """
-@component function DenseISO8608Road(; name = nothing, N=50, roughness=0.000016, lambda_min=0.3, lambda_max=Float64(30.0), speed=13.89, start_time=Float64(0.0), offset=Float64(0.0), phase=QuarterTruckSciML.iso8608_phases(N), amp=QuarterTruckSciML.iso8608_amplitudes(N, lambda_min, lambda_max, roughness), freq=QuarterTruckSciML.iso8608_frequencies(N, lambda_min, lambda_max), kwargs...)
+@component function DenseISO8608Road(; name = nothing, var"N"=50, var"roughness"=0.000016, var"lambda_min"=0.3, var"lambda_max"=Float64(30.0), var"speed"=13.89, var"start_time"=Float64(0.0), var"offset"=Float64(0.0), var"phase"=nothing, var"amp"=nothing, var"freq"=nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -42,7 +42,7 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
     @named model = DenseISO8608Road()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -51,6 +51,23 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "N") && (N = pop!(__overrides, "N"))
+  haskey(__overrides, "roughness") && (roughness = pop!(__overrides, "roughness"))
+  haskey(__overrides, "lambda_min") && (lambda_min = pop!(__overrides, "lambda_min"))
+  haskey(__overrides, "lambda_max") && (lambda_max = pop!(__overrides, "lambda_max"))
+  haskey(__overrides, "speed") && (speed = pop!(__overrides, "speed"))
+  haskey(__overrides, "start_time") && (start_time = pop!(__overrides, "start_time"))
+  haskey(__overrides, "offset") && (offset = pop!(__overrides, "offset"))
+  haskey(__overrides, "phase") && (phase = pop!(__overrides, "phase"))
+  haskey(__overrides, "amp") && (amp = pop!(__overrides, "amp"))
+  haskey(__overrides, "freq") && (freq = pop!(__overrides, "freq"))
+
+  ### Deferred keyword defaults (defaults referencing other keyword arguments)
+  isnothing(phase) && (phase = QuarterTruckSciML.iso8608_phases(N))
+  isnothing(amp) && (amp = QuarterTruckSciML.iso8608_amplitudes(N, lambda_min, lambda_max, roughness))
+  isnothing(freq) && (freq = QuarterTruckSciML.iso8608_frequencies(N, lambda_min, lambda_max))
 
   ### Structural Parameters (functions)
 
@@ -67,22 +84,22 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   ### Symbolic Parameters
   __local__speed = speed
   append!(__params, @parameters (speed::Real), [description = "Vehicle speed [m/s]"])
-  __initial_conditions[speed] = __local__speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, speed, __local__speed)
   __local__start_time = start_time
   append!(__params, @parameters (start_time::Real), [description = "Time at which signal begins [s]"])
-  __initial_conditions[start_time] = __local__start_time
+  __dyad_seed_parameter!(__initial_conditions, __bindings, start_time, __local__start_time)
   __local__offset = offset
   append!(__params, @parameters (offset::Real), [description = "Baseline offset [m]", bounds = (0, Inf)])
-  __initial_conditions[offset] = __local__offset
+  __dyad_seed_parameter!(__initial_conditions, __bindings, offset, __local__offset)
   __local__amp = amp
   append!(__params, @parameters (amp[1:N]::Real), [description = "Harmonic amplitudes [m]"])
-  __initial_conditions[amp] = __local__amp
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amp, __local__amp)
   __local__freq = freq
   append!(__params, @parameters (freq[1:N]::Real), [description = "Spatial frequencies [cycles/m]"])
-  __initial_conditions[freq] = __local__freq
+  __dyad_seed_parameter!(__initial_conditions, __bindings, freq, __local__freq)
   __local__phase = phase
   append!(__params, @parameters (phase[1:N]::Real), [description = "Phase offsets [rad]"])
-  __initial_conditions[phase] = __local__phase
+  __dyad_seed_parameter!(__initial_conditions, __bindings, phase, __local__phase)
 
   ### Final Parameters (assignments)
 
@@ -94,8 +111,8 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
 
   ### Variables (assignments)
   __ovr_s = pop!(__overrides, "s", nothing); isnothing(__ovr_s) || push!(__eqs, s ~ __ovr_s)
-  __ovr_s__initial = pop!(__overrides, "s__initial", nothing); isnothing(__ovr_s__initial) || (__initial_conditions[s] = __ovr_s__initial)
-  __ovr_s__guess = pop!(__overrides, "s__guess", nothing)
+  __ovr_s__initial = pop!(__overrides, "s.initial", nothing); isnothing(__ovr_s__initial) || (__initial_conditions[s] = __ovr_s__initial)
+  __ovr_s__guess = pop!(__overrides, "s.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -103,7 +120,7 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_s__guess) || (__guesses[s] = __ovr_s__guess)
@@ -122,6 +139,6 @@ Dense ISO 8608 road profile with N harmonics for broadband spectral excitation.
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export DenseISO8608Road

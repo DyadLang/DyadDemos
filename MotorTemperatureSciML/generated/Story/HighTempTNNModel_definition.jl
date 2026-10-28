@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   HighTempTNNModel(; name, MAX_TEMP)
+   HighTempTNNModel(; name, MAX_TEMP, __overrides)
 
 `TNNModel` for a machine rated to 250 °C: the same normaliser, conductance and
 power-loss blocks, with the de-normalisation ceiling raised from the 200 °C the
@@ -40,7 +40,7 @@ variant wants a training run of its own.
  * `T_stator_tooth` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `T_stator_winding` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function HighTempTNNModel(; name = nothing, MAX_TEMP=Float64(250.0), kwargs...)
+@component function HighTempTNNModel(; name = nothing, var"MAX_TEMP"=Float64(250.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -48,7 +48,7 @@ variant wants a training run of its own.
     @named model = HighTempTNNModel()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -57,6 +57,9 @@ variant wants a training run of its own.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "MAX_TEMP") && (MAX_TEMP = pop!(__overrides, "MAX_TEMP"))
 
   ### Structural Parameters (functions)
 
@@ -100,28 +103,28 @@ variant wants a training run of its own.
   ### Components
   # Subcomponent normalizer of type MotorTemperatureSciML.Thermal.Normalizer
   normalizer_overrides = __pop_subcomponent_overrides!(__overrides, "normalizer")
-  push!(__systems, @named normalizer = MotorTemperatureSciML.Thermal.Normalizer(; MAX_TEMP=MAX_TEMP, normalizer_overrides...))
+  push!(__systems, @named normalizer = MotorTemperatureSciML.Thermal.Normalizer(; MAX_TEMP=MAX_TEMP, __overrides = normalizer_overrides))
   # Subcomponent cond_net of type MotorTemperatureSciML.Networks.ConductanceNet
   cond_net_overrides = __pop_subcomponent_overrides!(__overrides, "cond_net")
-  push!(__systems, @named cond_net = MotorTemperatureSciML.Networks.ConductanceNet(; cond_net_overrides...))
+  push!(__systems, @named cond_net = MotorTemperatureSciML.Networks.ConductanceNet(; __overrides = cond_net_overrides))
   # Subcomponent ploss_net of type MotorTemperatureSciML.Networks.PowerLossNet
   ploss_net_overrides = __pop_subcomponent_overrides!(__overrides, "ploss_net")
-  push!(__systems, @named ploss_net = MotorTemperatureSciML.Networks.PowerLossNet(; ploss_net_overrides...))
+  push!(__systems, @named ploss_net = MotorTemperatureSciML.Networks.PowerLossNet(; __overrides = ploss_net_overrides))
   # Subcomponent cap_block of type MotorTemperatureSciML.Thermal.CapacitanceBlock
   cap_block_overrides = __pop_subcomponent_overrides!(__overrides, "cap_block")
-  push!(__systems, @named cap_block = MotorTemperatureSciML.Thermal.CapacitanceBlock(; cap_block_overrides...))
+  push!(__systems, @named cap_block = MotorTemperatureSciML.Thermal.CapacitanceBlock(; __overrides = cap_block_overrides))
   # Subcomponent thermal of type MotorTemperatureSciML.Thermal.ThermalDynamics
   thermal_overrides = __pop_subcomponent_overrides!(__overrides, "thermal")
-  push!(__systems, @named thermal = MotorTemperatureSciML.Thermal.ThermalDynamics(; thermal_overrides...))
+  push!(__systems, @named thermal = MotorTemperatureSciML.Thermal.ThermalDynamics(; __overrides = thermal_overrides))
   # Subcomponent boundaries of type MotorTemperatureSciML.SignalRouting.BoundaryTemperatures
   boundaries_overrides = __pop_subcomponent_overrides!(__overrides, "boundaries")
-  push!(__systems, @named boundaries = MotorTemperatureSciML.SignalRouting.BoundaryTemperatures(; boundaries_overrides...))
+  push!(__systems, @named boundaries = MotorTemperatureSciML.SignalRouting.BoundaryTemperatures(; __overrides = boundaries_overrides))
   # Subcomponent outputs of type MotorTemperatureSciML.Thermal.TemperatureOutputs
   outputs_overrides = __pop_subcomponent_overrides!(__overrides, "outputs")
-  push!(__systems, @named outputs = MotorTemperatureSciML.Thermal.TemperatureOutputs(; MAX_TEMP=MAX_TEMP, outputs_overrides...))
+  push!(__systems, @named outputs = MotorTemperatureSciML.Thermal.TemperatureOutputs(; MAX_TEMP=MAX_TEMP, __overrides = outputs_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -154,6 +157,6 @@ variant wants a training run of its own.
   push!(__eqs, connect(outputs.T_stator_winding, T_stator_winding))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HighTempTNNModel

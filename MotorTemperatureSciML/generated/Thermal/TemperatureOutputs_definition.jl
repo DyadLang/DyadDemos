@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TemperatureOutputs(; name, MAX_TEMP)
+   TemperatureOutputs(; name, MAX_TEMP, __overrides)
 
 Convert the four normalized temperature states to named outputs in degrees Celsius.
 
@@ -23,7 +23,7 @@ Convert the four normalized temperature states to named outputs in degrees Celsi
  * `T_stator_tooth` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `T_stator_winding` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function TemperatureOutputs(; name = nothing, MAX_TEMP=Float64(200.0), kwargs...)
+@component function TemperatureOutputs(; name = nothing, var"MAX_TEMP"=Float64(200.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -31,7 +31,7 @@ Convert the four normalized temperature states to named outputs in degrees Celsi
     @named model = TemperatureOutputs()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,6 +40,9 @@ Convert the four normalized temperature states to named outputs in degrees Celsi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "MAX_TEMP") && (MAX_TEMP = pop!(__overrides, "MAX_TEMP"))
 
   ### Structural Parameters (functions)
 
@@ -74,7 +77,7 @@ Convert the four normalized temperature states to named outputs in degrees Celsi
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -90,6 +93,6 @@ Convert the four normalized temperature states to named outputs in degrees Celsi
   push!(__eqs, T_stator_winding ~ MAX_TEMP * T[4])
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TemperatureOutputs

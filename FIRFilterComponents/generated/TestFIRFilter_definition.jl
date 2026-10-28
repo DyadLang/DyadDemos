@@ -4,14 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TestFIRFilter(; name)
+   TestFIRFilter(; name, __overrides)
 
 short TestFIRFilter component description
 """
-@component function TestFIRFilter(; name = nothing, kwargs...)
+@component function TestFIRFilter(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -19,7 +17,7 @@ short TestFIRFilter component description
     @named model = TestFIRFilter()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -57,22 +55,22 @@ short TestFIRFilter component description
   ### Components
   # Subcomponent firfilter of type FIRFilterComponents.FIRFilter
   firfilter_overrides = __pop_subcomponent_overrides!(__overrides, "firfilter")
-  push!(__systems, @named firfilter = FIRFilterComponents.FIRFilter(; firfilter_overrides...))
+  push!(__systems, @named firfilter = FIRFilterComponents.FIRFilter(; __overrides = firfilter_overrides))
   # Subcomponent sine of type BlockComponents.Sources.Sine
   sine_overrides = __pop_subcomponent_overrides!(__overrides, "sine")
-  push!(__systems, @named sine = BlockComponents.Sources.Sine(; amplitude=Float64(1.0), frequency=Float64(1), sine_overrides...))
+  push!(__systems, @named sine = BlockComponents.Sources.Sine(; amplitude=Float64(1.0), frequency=Float64(1), __overrides = sine_overrides))
   # Subcomponent integrator of type BlockComponents.Continuous.Integrator
   integrator_overrides = __pop_subcomponent_overrides!(__overrides, "integrator")
-  push!(__systems, @named integrator = BlockComponents.Continuous.Integrator(; integrator_overrides...))
+  push!(__systems, @named integrator = BlockComponents.Continuous.Integrator(; __overrides = integrator_overrides))
   # Subcomponent periodicclock of type DiscreteComponents.PeriodicClock
   periodicclock_overrides = __pop_subcomponent_overrides!(__overrides, "periodicclock")
-  push!(__systems, @named periodicclock = DiscreteComponents.PeriodicClock(; dt=0.25, periodicclock_overrides...))
+  push!(__systems, @named periodicclock = DiscreteComponents.PeriodicClock(; dt=0.25, __symbol_overrides(periodicclock_overrides)...))
   # Subcomponent sampler of type DiscreteComponents.Sampler
   sampler_overrides = __pop_subcomponent_overrides!(__overrides, "sampler")
-  push!(__systems, @named sampler = DiscreteComponents.Sampler(; sampler_overrides...))
+  push!(__systems, @named sampler = DiscreteComponents.Sampler(; __overrides = sampler_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -88,6 +86,6 @@ short TestFIRFilter component description
   push!(__eqs, connect(sampler.y, firfilter.realinput))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestFIRFilter

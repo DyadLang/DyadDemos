@@ -37,3 +37,8 @@ validates each piece in Julia before moving on.
 2. Open the Dyad Agent and configure the Context setting to 1M tokens
 3. Paste the contents of `scripts/prompt.md` to build the models.
 4. Paste the contents of `scripts/prompt_pitchpulsesim.md` to simulate and plot.
+
+
+## Dyad 3.5 validation
+
+See the [upgrade validation report](docs/upgrade-3.5-validation.md) for toolchain pins, executed checks and numerical comparisons.

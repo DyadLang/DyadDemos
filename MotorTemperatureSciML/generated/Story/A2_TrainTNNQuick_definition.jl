@@ -5,11 +5,121 @@
 
 
 using DyadInterface
-using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
-using ModelingToolkit: SymbolicT, toggle_namespacing
 using MotorTemperatureSciML: AbstractTNNTrainingAnalysisSpec, TNNTrainingAnalysisSpec
-@kwdef mutable struct A2_TrainTNNQuickSpec <: AbstractTNNTrainingAnalysisSpec
+@component function A2_TrainTNNQuick__System(; name = nothing, var"train_horizon"=7200.0, var"window"=75.0, var"batch_size"=32, var"block_size"=4, var"learning_rate"=0.001, var"inner_epochs"=12, var"outer_maxiters"=30, var"continuity_tol"=0.2, var"results_path"="dyad://MotorTemperatureSciML/story/calibrated_params.csv", var"abstol"=0.000001, var"reltol"=0.000001, __overrides = Dict{String, Any}())
+  isnothing(name) && throw(ArgumentError("""
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = A2_TrainTNNQuick__System()
+  """))
+
+  __overrides = Dict{String, Any}(__overrides)
+  __params = Symbolics.SymbolicT[]
+  __vars = Symbolics.SymbolicT[]
+  __systems = System[]
+  __guesses = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+  __initialization_eqs = Equation[]
+  __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "train_horizon") && (train_horizon = pop!(__overrides, "train_horizon"))
+  haskey(__overrides, "window") && (window = pop!(__overrides, "window"))
+  haskey(__overrides, "batch_size") && (batch_size = pop!(__overrides, "batch_size"))
+  haskey(__overrides, "block_size") && (block_size = pop!(__overrides, "block_size"))
+  haskey(__overrides, "learning_rate") && (learning_rate = pop!(__overrides, "learning_rate"))
+  haskey(__overrides, "inner_epochs") && (inner_epochs = pop!(__overrides, "inner_epochs"))
+  haskey(__overrides, "outer_maxiters") && (outer_maxiters = pop!(__overrides, "outer_maxiters"))
+  haskey(__overrides, "continuity_tol") && (continuity_tol = pop!(__overrides, "continuity_tol"))
+  haskey(__overrides, "results_path") && (results_path = pop!(__overrides, "results_path"))
+  haskey(__overrides, "abstol") && (abstol = pop!(__overrides, "abstol"))
+  haskey(__overrides, "reltol") && (reltol = pop!(__overrides, "reltol"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
+
+  ### Symbolic Parameters
+  __local__train_horizon = train_horizon
+  append!(__params, @parameters (train_horizon::Float64), [description = "Training horizon [s]; the rest of the profile is a held-out tail"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, train_horizon, __local__train_horizon)
+  __local__window = window
+  append!(__params, @parameters (window::Float64), [description = "Shooting segment length [s]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, window, __local__window)
+  __local__batch_size = batch_size
+  append!(__params, @parameters (batch_size::Int), [description = "Segments per Adam step (must divide the number of segments)"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, batch_size, __local__batch_size)
+  __local__block_size = block_size
+  append!(__params, @parameters (block_size::Int), [description = "Segments are sampled in contiguous blocks of this size (must divide batch_size)"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, block_size, __local__block_size)
+  __local__learning_rate = learning_rate
+  append!(__params, @parameters (learning_rate::Float64), [description = "Initial Adam step size; decays after 50 epochs for continuity refinement"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, learning_rate, __local__learning_rate)
+  __local__inner_epochs = inner_epochs
+  append!(__params, @parameters (inner_epochs::Int), [description = "Adam epochs (passes over all segments) per outer iteration"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, inner_epochs, __local__inner_epochs)
+  __local__outer_maxiters = outer_maxiters
+  append!(__params, @parameters (outer_maxiters::Int), [description = "Augmented-Lagrangian outer iterations (upper bound)"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, outer_maxiters, __local__outer_maxiters)
+  __local__continuity_tol = continuity_tol
+  append!(__params, @parameters (continuity_tol::Float64), [description = "Stopping test: largest junction gap [degC]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, continuity_tol, __local__continuity_tol)
+  __local__results_path = results_path
+  append!(__params, @parameters (results_path::String), [description = "Where to write the calibrated parameters (dyad:// URI or path); empty skips"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, results_path, __local__results_path)
+  __local__abstol = abstol
+  append!(__params, @parameters (abstol::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, abstol, __local__abstol)
+  __local__reltol = reltol
+  append!(__params, @parameters (reltol::Float64))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, reltol, __local__reltol)
+
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
+
+  ### Constants
+  __constants = Any[]
+
+  ### Components
+  # Subcomponent model of type MotorTemperatureSciML.Models.Tests.TestTNNProfile
+  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
+  push!(__systems, @named model = MotorTemperatureSciML.Models.Tests.TestTNNProfile(; __overrides = model_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
+
+  ### Guesses
+
+  ### Initialization Equations
+
+  ### Assertions
+  __assertions = []
+
+  ### Equations
+
+  # Return completely constructed System
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+end
+export A2_TrainTNNQuick__System
+
+@kwdef struct A2_TrainTNNQuick__Spec <: AbstractTNNTrainingAnalysisSpec
   name::Symbol = :A2_TrainTNNQuick
+  __overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
   # Training horizon [s]; the rest of the profile is a held-out tail
   var"train_horizon"::Float64 = 7200.0
   # Shooting segment length [s]
@@ -18,12 +128,12 @@ using MotorTemperatureSciML: AbstractTNNTrainingAnalysisSpec, TNNTrainingAnalysi
   var"batch_size"::Int = 32
   # Segments are sampled in contiguous blocks of this size (must divide batch_size)
   var"block_size"::Int = 4
-  # Adam step size
+  # Initial Adam step size; decays after 50 epochs for continuity refinement
   var"learning_rate"::Float64 = 0.001
   # Adam epochs (passes over all segments) per outer iteration
-  var"inner_epochs"::Int = 2
+  var"inner_epochs"::Int = 12
   # Augmented-Lagrangian outer iterations (upper bound)
-  var"outer_maxiters"::Int = 1
+  var"outer_maxiters"::Int = 30
   # Stopping test: largest junction gap [degC]
   var"continuity_tol"::Float64 = 0.2
   # Where to write the calibrated parameters (dyad:// URI or path); empty skips
@@ -41,17 +151,26 @@ using MotorTemperatureSciML: AbstractTNNTrainingAnalysisSpec, TNNTrainingAnalysi
   # the model — one shared time search per RHS call, no FunctionWrapper boxing on
   # the parameter slot.
   var"model"::Union{Nothing, System} = MotorTemperatureSciML.Models.Tests.TestTNNProfile(; name=:TestTNNProfile)
+  __system::System = A2_TrainTNNQuick__System(; name, var"train_horizon"=var"train_horizon", var"window"=var"window", var"batch_size"=var"batch_size", var"block_size"=var"block_size", var"learning_rate"=var"learning_rate", var"inner_epochs"=var"inner_epochs", var"outer_maxiters"=var"outer_maxiters", var"continuity_tol"=var"continuity_tol", var"results_path"=var"results_path", var"abstol"=var"abstol", var"reltol"=var"reltol")
 end
 
-function DyadInterface.run_analysis(spec::A2_TrainTNNQuickSpec)
+function __dyad_base_analysis_spec(spec::A2_TrainTNNQuick__Spec)
   overrides = Dict{SymbolicT, SymbolicT}()
   no_namespace_model = toggle_namespacing(spec.model, false)
   
-  base_spec = TNNTrainingAnalysisSpec(;
-    name=:TNNTrainingAnalysis, overrides, train_horizon=spec.train_horizon, window=spec.window, batch_size=spec.batch_size, block_size=spec.block_size, learning_rate=spec.learning_rate, inner_epochs=spec.inner_epochs, outer_maxiters=spec.outer_maxiters, continuity_tol=spec.continuity_tol, results_path=spec.results_path, abstol=spec.abstol, reltol=spec.reltol, model=spec.model
+  merge!(overrides, spec.__overrides)
+  TNNTrainingAnalysisSpec(;
+    name=spec.name, overrides, __system=spec.__system, var"train_horizon"=spec.var"train_horizon", var"window"=spec.var"window", var"batch_size"=spec.var"batch_size", var"block_size"=spec.var"block_size", var"learning_rate"=spec.var"learning_rate", var"inner_epochs"=spec.var"inner_epochs", var"outer_maxiters"=spec.var"outer_maxiters", var"continuity_tol"=spec.var"continuity_tol", var"results_path"=spec.var"results_path", var"abstol"=spec.var"abstol", var"reltol"=spec.var"reltol", var"model"=spec.var"model"
   )
-  run_analysis(base_spec)
 end
 
-A2_TrainTNNQuick(;kwargs...) = run_analysis(A2_TrainTNNQuickSpec(;kwargs...))
-export A2_TrainTNNQuick, A2_TrainTNNQuickSpec
+function DyadInterface.run_analysis(spec::A2_TrainTNNQuick__Spec)
+  run_analysis(__dyad_base_analysis_spec(spec))
+end
+
+function DyadInterface.setup_analysis(spec::A2_TrainTNNQuick__Spec; kwargs...)
+  DyadInterface.setup_analysis(__dyad_base_analysis_spec(spec); kwargs...)
+end
+
+A2_TrainTNNQuick(;kwargs...) = run_analysis(A2_TrainTNNQuick__Spec(;kwargs...))
+export A2_TrainTNNQuick, A2_TrainTNNQuick__Spec

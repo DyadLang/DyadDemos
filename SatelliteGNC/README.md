@@ -116,3 +116,8 @@ the `list_analyses` cell, then run the cells. The two full maneuvers are
   Per-component specification:
   I/O tables, equations, literature references, and the test plan behind each
   component's tests.
+
+
+## Dyad 3.5 validation
+
+See the [upgrade validation report](docs/upgrade-3.5-validation.md) for toolchain pins, executed checks and numerical comparisons.

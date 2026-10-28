@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   Normalizer(; name, MAX_TEMP, max_abs_u_q, max_abs_u_d, max_abs_motor_speed, max_abs_i_d, max_abs_i_q, max_abs_torque)
+   Normalizer(; name, MAX_TEMP, max_abs_u_q, max_abs_u_d, max_abs_motor_speed, max_abs_i_d, max_abs_i_q, max_abs_torque, __overrides)
 
 Input normalisation block for the TNN.
 
@@ -47,7 +47,7 @@ equations that turn the system into a DAE — precomputing them avoids that.
  * `u_s_raw` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function Normalizer(; name = nothing, MAX_TEMP=Float64(200.0), max_abs_u_q=MotorTemperatureSciML.REFERENCE_MAX_ABS.u_q, max_abs_u_d=MotorTemperatureSciML.REFERENCE_MAX_ABS.u_d, max_abs_motor_speed=MotorTemperatureSciML.REFERENCE_MAX_ABS.motor_speed, max_abs_i_d=MotorTemperatureSciML.REFERENCE_MAX_ABS.i_d, max_abs_i_q=MotorTemperatureSciML.REFERENCE_MAX_ABS.i_q, max_abs_torque=MotorTemperatureSciML.REFERENCE_MAX_ABS.torque, kwargs...)
+@component function Normalizer(; name = nothing, var"MAX_TEMP"=Float64(200.0), var"max_abs_u_q"=MotorTemperatureSciML.REFERENCE_MAX_ABS.u_q, var"max_abs_u_d"=MotorTemperatureSciML.REFERENCE_MAX_ABS.u_d, var"max_abs_motor_speed"=MotorTemperatureSciML.REFERENCE_MAX_ABS.motor_speed, var"max_abs_i_d"=MotorTemperatureSciML.REFERENCE_MAX_ABS.i_d, var"max_abs_i_q"=MotorTemperatureSciML.REFERENCE_MAX_ABS.i_q, var"max_abs_torque"=MotorTemperatureSciML.REFERENCE_MAX_ABS.torque, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -55,7 +55,7 @@ equations that turn the system into a DAE — precomputing them avoids that.
     @named model = Normalizer()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -64,6 +64,15 @@ equations that turn the system into a DAE — precomputing them avoids that.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "MAX_TEMP") && (MAX_TEMP = pop!(__overrides, "MAX_TEMP"))
+  haskey(__overrides, "max_abs_u_q") && (max_abs_u_q = pop!(__overrides, "max_abs_u_q"))
+  haskey(__overrides, "max_abs_u_d") && (max_abs_u_d = pop!(__overrides, "max_abs_u_d"))
+  haskey(__overrides, "max_abs_motor_speed") && (max_abs_motor_speed = pop!(__overrides, "max_abs_motor_speed"))
+  haskey(__overrides, "max_abs_i_d") && (max_abs_i_d = pop!(__overrides, "max_abs_i_d"))
+  haskey(__overrides, "max_abs_i_q") && (max_abs_i_q = pop!(__overrides, "max_abs_i_q"))
+  haskey(__overrides, "max_abs_torque") && (max_abs_torque = pop!(__overrides, "max_abs_torque"))
 
   ### Structural Parameters (functions)
 
@@ -104,7 +113,7 @@ equations that turn the system into a DAE — precomputing them avoids that.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -126,6 +135,6 @@ equations that turn the system into a DAE — precomputing them avoids that.
   push!(__eqs, out[10] ~ u_s_raw)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export Normalizer

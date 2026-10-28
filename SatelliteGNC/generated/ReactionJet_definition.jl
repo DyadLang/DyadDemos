@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ReactionJet(; name, rx, ry, rz, dx, dy, dz, F_max)
+   ReactionJet(; name, rx, ry, rz, dx, dy, dz, F_max, __overrides)
 
 Single bipropellant reaction jet (thruster) model.
 
@@ -50,7 +50,7 @@ with different positions/directions for a full thruster configuration.
 | `force_y`         |                          | --  |
 | `force_z`         |                          | --  |
 """
-@component function ReactionJet(; name = nothing, rx=Float64(0.0), ry=Float64(0.0), rz=Float64(0.0), dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.1, kwargs...)
+@component function ReactionJet(; name = nothing, var"rx"=Float64(0.0), var"ry"=Float64(0.0), var"rz"=Float64(0.0), var"dx"=Float64(1.0), var"dy"=Float64(0.0), var"dz"=Float64(0.0), var"F_max"=0.1, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -58,7 +58,7 @@ with different positions/directions for a full thruster configuration.
     @named model = ReactionJet()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -67,6 +67,15 @@ with different positions/directions for a full thruster configuration.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "rx") && (rx = pop!(__overrides, "rx"))
+  haskey(__overrides, "ry") && (ry = pop!(__overrides, "ry"))
+  haskey(__overrides, "rz") && (rz = pop!(__overrides, "rz"))
+  haskey(__overrides, "dx") && (dx = pop!(__overrides, "dx"))
+  haskey(__overrides, "dy") && (dy = pop!(__overrides, "dy"))
+  haskey(__overrides, "dz") && (dz = pop!(__overrides, "dz"))
+  haskey(__overrides, "F_max") && (F_max = pop!(__overrides, "F_max"))
 
   ### Structural Parameters (functions)
 
@@ -83,25 +92,25 @@ with different positions/directions for a full thruster configuration.
   ### Symbolic Parameters
   __local__rx = rx
   append!(__params, @parameters (rx::Real), [description = "Thruster mounting position from CoM (body frame, m)"])
-  __initial_conditions[rx] = __local__rx
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rx, __local__rx)
   __local__ry = ry
   append!(__params, @parameters (ry::Real))
-  __initial_conditions[ry] = __local__ry
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ry, __local__ry)
   __local__rz = rz
   append!(__params, @parameters (rz::Real))
-  __initial_conditions[rz] = __local__rz
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rz, __local__rz)
   __local__dx = dx
   append!(__params, @parameters (dx::Real), [description = "Thrust direction (body frame, unit vector)"])
-  __initial_conditions[dx] = __local__dx
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dx, __local__dx)
   __local__dy = dy
   append!(__params, @parameters (dy::Real))
-  __initial_conditions[dy] = __local__dy
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dy, __local__dy)
   __local__dz = dz
   append!(__params, @parameters (dz::Real))
-  __initial_conditions[dz] = __local__dz
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dz, __local__dz)
   __local__F_max = F_max
   append!(__params, @parameters (F_max::Real), [description = "Maximum thrust (N)"])
-  __initial_conditions[F_max] = __local__F_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, F_max, __local__F_max)
 
   ### Final Parameters (assignments)
 
@@ -122,17 +131,17 @@ with different positions/directions for a full thruster configuration.
 
   ### Variables (assignments)
   __ovr_cmd_clamped = pop!(__overrides, "cmd_clamped", nothing); isnothing(__ovr_cmd_clamped) || push!(__eqs, cmd_clamped ~ __ovr_cmd_clamped)
-  __ovr_cmd_clamped__initial = pop!(__overrides, "cmd_clamped__initial", nothing); isnothing(__ovr_cmd_clamped__initial) || (__initial_conditions[cmd_clamped] = __ovr_cmd_clamped__initial)
-  __ovr_cmd_clamped__guess = pop!(__overrides, "cmd_clamped__guess", nothing)
+  __ovr_cmd_clamped__initial = pop!(__overrides, "cmd_clamped.initial", nothing); isnothing(__ovr_cmd_clamped__initial) || (__initial_conditions[cmd_clamped] = __ovr_cmd_clamped__initial)
+  __ovr_cmd_clamped__guess = pop!(__overrides, "cmd_clamped.guess", nothing)
   __ovr_force_x = pop!(__overrides, "force_x", nothing); isnothing(__ovr_force_x) || push!(__eqs, force_x ~ __ovr_force_x)
-  __ovr_force_x__initial = pop!(__overrides, "force_x__initial", nothing); isnothing(__ovr_force_x__initial) || (__initial_conditions[force_x] = __ovr_force_x__initial)
-  __ovr_force_x__guess = pop!(__overrides, "force_x__guess", nothing)
+  __ovr_force_x__initial = pop!(__overrides, "force_x.initial", nothing); isnothing(__ovr_force_x__initial) || (__initial_conditions[force_x] = __ovr_force_x__initial)
+  __ovr_force_x__guess = pop!(__overrides, "force_x.guess", nothing)
   __ovr_force_y = pop!(__overrides, "force_y", nothing); isnothing(__ovr_force_y) || push!(__eqs, force_y ~ __ovr_force_y)
-  __ovr_force_y__initial = pop!(__overrides, "force_y__initial", nothing); isnothing(__ovr_force_y__initial) || (__initial_conditions[force_y] = __ovr_force_y__initial)
-  __ovr_force_y__guess = pop!(__overrides, "force_y__guess", nothing)
+  __ovr_force_y__initial = pop!(__overrides, "force_y.initial", nothing); isnothing(__ovr_force_y__initial) || (__initial_conditions[force_y] = __ovr_force_y__initial)
+  __ovr_force_y__guess = pop!(__overrides, "force_y.guess", nothing)
   __ovr_force_z = pop!(__overrides, "force_z", nothing); isnothing(__ovr_force_z) || push!(__eqs, force_z ~ __ovr_force_z)
-  __ovr_force_z__initial = pop!(__overrides, "force_z__initial", nothing); isnothing(__ovr_force_z__initial) || (__initial_conditions[force_z] = __ovr_force_z__initial)
-  __ovr_force_z__guess = pop!(__overrides, "force_z__guess", nothing)
+  __ovr_force_z__initial = pop!(__overrides, "force_z.initial", nothing); isnothing(__ovr_force_z__initial) || (__initial_conditions[force_z] = __ovr_force_z__initial)
+  __ovr_force_z__guess = pop!(__overrides, "force_z.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -140,7 +149,7 @@ with different positions/directions for a full thruster configuration.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_cmd_clamped__guess) || (__guesses[cmd_clamped] = __ovr_cmd_clamped__guess)
@@ -166,6 +175,6 @@ with different positions/directions for a full thruster configuration.
   push!(__eqs, fz_out ~ force_z)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ReactionJet

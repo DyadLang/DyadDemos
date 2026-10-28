@@ -11,9 +11,9 @@ different failure modes:
 
 The key test is (B): rebuild the exact objective the optimizer minimized and
 evaluate it at the recovered optimum vs. at the ground-truth parameters. If
-loss(truth) > loss(fitted), the optimizer did its job — the gap to truth is
-NOT an optimization problem but a property of the data/model (decoupling bias,
-flat valleys). A 1-D sweep of each parameter then shows which directions are
+loss(truth) > loss(fitted), the gap to truth can reflect the data/model
+(decoupling bias, flat valleys); this does not prove optimizer convergence.
+A 1-D sweep of each parameter then shows which directions are
 well-determined (sharp minimum near truth) vs. weakly identifiable (flat).
 =#
 
@@ -26,8 +26,9 @@ using DyadModelOptimizer: objective, get_diagnostics, get_optimizer, get_losses,
 using LinearAlgebra: norm
 using Printf
 using Tables
+include("workflow_checks.jl")
 
-const NOMINAL = (k1 = 200.0, c1 = 2.0, alpha = 30.0, A_bw = 1.0, beta_bw = 3.0, gamma_bw = 0.5)
+const NOMINAL = (k1 = 200.0, c1 = 2.0, alpha = 30.0, A_bw = 1.0, beta_bw = 3.0, gamma_bw = 0.3)
 const TRUTH   = (k1 = 300.0, c1 = 1.0, alpha = 50.0, A_bw = 1.0, beta_bw = 5.0, gamma_bw = 0.5)
 
 const FULL_DIAG = DyadModelOptimizer.DiagnosticsLevel.CalibrationTracking(
@@ -50,6 +51,11 @@ function report_convergence(label, r)
     @printf "  optimizer        : %s\n" nameof(typeof(opt))
     @printf "  retcode          : %s   likely_wrong = %s\n" r.retcode r.likely_wrong
     @printf "  elapsed          : %.1f s   recorded states = %d\n" r.elapsed length(losses)
+    original = r.original.original
+    if hasproperty(original, :dual_feas)
+        @printf "  MadNLP status    : %s   iterations = %d\n" original.status original.iter
+        @printf "  feasibility      : primal %.6g   dual %.6g\n" original.primal_feas original.dual_feas
+    end
     if !isempty(losses)
         @printf "  loss             : %.6g  →  %.6g   (×%.2g reduction)\n" first(losses) last(losses) (first(losses) / max(last(losses), eps()))
     end
@@ -93,11 +99,14 @@ function probe_identifiability(label, r, stage_truth)
     rule()
     @printf "  loss at fitted optimum : %.6g\n" L_fit
     @printf "  loss at ground truth   : %.6g\n" L_truth
+    # Both datasets use one measured output; L2 / sqrt(N) is its RMSE.
+    samples = label == "STAGE 1" ? 5001 : 1001
+    @printf "  output residual RMSE   : %.8g rad/s (%d samples)\n" L_fit / sqrt(samples) samples
     if L_truth > L_fit
         @printf "  →  truth fits the data %.2g× WORSE than the recovered optimum.\n" (L_truth / max(L_fit, eps()))
-        println("     The optimizer is NOT the problem — truth is not the loss minimizer")
-        println("     here (decoupling bias / unmodeled dynamics). Recovering it exactly")
-        println("     would require fitting the data WORSE.")
+        println("     Truth is not the loss minimizer for this stage's fixed parameters.")
+        println("     This indicates model mismatch; convergence must still be checked")
+        println("     independently using the return status and optimality residuals.")
     else
         @printf "  →  truth fits AT LEAST AS WELL (%.2g×). The optimizer stopped short of\n" (L_truth / max(L_fit, eps()))
         println("     truth despite a lower loss being available — suspect optimizer/bounds.")
@@ -133,12 +142,13 @@ function probe_identifiability(label, r, stage_truth)
     end
 end
 
-# ══ Stage 1: Maxwell branch (k1, c1) from chirp ═══════════════════════════════
-@info "Stage 1: Maxwell branch (k1, c1) from chirp — running with full diagnostics"
+# ══ Stage 1: Maxwell branch + Bouc-Wen scale from chirp ═══════════════════════
+@info "Stage 1: Maxwell branch + Bouc-Wen scale (k1, c1, alpha) from chirp"
 res1 = DrivelineSciML.DrivelineStage1CalibrationAnalysis(; name = :stage1, diagnostics = FULL_DIAG)
 r1 = res1.r
 report_convergence("STAGE 1", r1)
 probe_identifiability("STAGE 1", r1, TRUTH)
+require_calibration_success(r1, "Stage 1")
 
 # ══ Stage 2: Bouc-Wen (alpha, beta_bw, gamma_bw), Maxwell frozen to Stage 1 ═══
 @info "Stage 2: Bouc-Wen (alpha, beta_bw, gamma_bw), Maxwell frozen to Stage 1 fit"
@@ -152,6 +162,7 @@ res2 = DrivelineSciML.DrivelineStage2CalibrationAnalysis(;
 r2 = res2.r
 report_convergence("STAGE 2", r2)
 probe_identifiability("STAGE 2", r2, TRUTH)
+require_calibration_success(r2, "Stage 2")
 
 println()
 @info "Diagnosis complete. Stage 1 Maxwell frozen for Stage 2: k1=$(round(fit1[:k1],digits=3)), c1=$(round(fit1[:c1],digits=3))"

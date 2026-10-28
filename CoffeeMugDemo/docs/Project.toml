@@ -1,8 +1,15 @@
 [deps]
 CoffeeMugDemo = "8d88ce76-d926-468d-a908-63a303d9f06f"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DyadInterface = "99806f68-afab-45ca-9d8c-ceff6bc61f54"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [sources]
 CoffeeMugDemo = {path = ".."}
+
+[compat]
+Documenter = "1"
+DyadInterface = "7.5.1"
+ModelingToolkit = "11.45.3"
+julia = "1.13.2"

@@ -5,11 +5,11 @@
 
 
 @doc Markdown.doc"""
-   TestDrivelineChirp(; name)
+   TestDrivelineChirp(; name, __overrides)
 
 Event 1 harness: low-amplitude linear chirp (1 -> 500 Hz, +/-2 Nm) on a 30 Nm mean torque. Used to generate the Stage 1 measurement data from the truth parameters.
 """
-@component function TestDrivelineChirp(; name = nothing, kwargs...)
+@component function TestDrivelineChirp(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -17,7 +17,7 @@ Event 1 harness: low-amplitude linear chirp (1 -> 500 Hz, +/-2 Nm) on a 30 Nm me
     @named model = TestDrivelineChirp()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,19 +55,19 @@ Event 1 harness: low-amplitude linear chirp (1 -> 500 Hz, +/-2 Nm) on a 30 Nm me
   ### Components
   # Subcomponent model of type DrivelineSciML.DrivelineSystem
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; model_overrides...))
+  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; __overrides = model_overrides))
   # Subcomponent chirp of type BlockComponents.Sources.Chirp
   chirp_overrides = __pop_subcomponent_overrides!(__overrides, "chirp")
-  push!(__systems, @named chirp = BlockComponents.Sources.Chirp(; fmin=Float64(1.0), fmax=Float64(500.0), T=Float64(5.0), amplitude=Float64(2.0), law=BlockComponents.Sources.ChirpLaw.Linear(), chirp_overrides...))
+  push!(__systems, @named chirp = BlockComponents.Sources.Chirp(; fmin=Float64(1.0), fmax=Float64(500.0), T=Float64(5.0), amplitude=Float64(2.0), law=BlockComponents.Sources.ChirpLaw.Linear(), __overrides = chirp_overrides))
   # Subcomponent mean_torque of type BlockComponents.Sources.Constant
   mean_torque_overrides = __pop_subcomponent_overrides!(__overrides, "mean_torque")
-  push!(__systems, @named mean_torque = BlockComponents.Sources.Constant(; k=Float64(30.0), mean_torque_overrides...))
+  push!(__systems, @named mean_torque = BlockComponents.Sources.Constant(; k=Float64(30.0), __overrides = mean_torque_overrides))
   # Subcomponent torque_sum of type BlockComponents.Math.Add
   torque_sum_overrides = __pop_subcomponent_overrides!(__overrides, "torque_sum")
-  push!(__systems, @named torque_sum = BlockComponents.Math.Add(; torque_sum_overrides...))
+  push!(__systems, @named torque_sum = BlockComponents.Math.Add(; __overrides = torque_sum_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -82,6 +82,6 @@ Event 1 harness: low-amplitude linear chirp (1 -> 500 Hz, +/-2 Nm) on a 30 Nm me
   push!(__eqs, connect(torque_sum.y, model.torque.tau))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestDrivelineChirp

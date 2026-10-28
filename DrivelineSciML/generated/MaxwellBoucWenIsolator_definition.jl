@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   MaxwellBoucWenIsolator(; name, k0, c0, k1, c1, alpha, A_bw, beta_bw, gamma_bw, eps_bw)
+   MaxwellBoucWenIsolator(; name, k0, c0, k1, c1, alpha, A_bw, beta_bw, gamma_bw, eps_bw, __overrides)
 
 Torsional isolator with three parallel torque paths: a quasi-static spring-damper baseline (k0, c0), a Maxwell branch (spring k1 in series with damper c1) giving frequency-dependent stiffness with relaxation time c1/k1, and a Bouc-Wen element (alpha*z) giving rate-independent hysteresis. |x| is smoothed as sqrt(x^2 + eps_bw) to keep the Bouc-Wen flow rule differentiable.
 
@@ -39,7 +39,7 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
 | `theta_m`         | Maxwell internal (series-element) angle [rad]                         | rad  |
 | `z`         | Bouc-Wen dimensionless hysteretic state                         | --  |
 """
-@component function MaxwellBoucWenIsolator(; name = nothing, k0=Float64(500.0), c0=0.5, k1=Float64(200.0), c1=Float64(2.0), alpha=Float64(30.0), A_bw=Float64(1.0), beta_bw=Float64(3.0), gamma_bw=0.3, eps_bw=1e-10, kwargs...)
+@component function MaxwellBoucWenIsolator(; name = nothing, var"k0"=Float64(500.0), var"c0"=0.5, var"k1"=Float64(200.0), var"c1"=Float64(2.0), var"alpha"=Float64(30.0), var"A_bw"=Float64(1.0), var"beta_bw"=Float64(3.0), var"gamma_bw"=0.3, var"eps_bw"=1e-10, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -47,7 +47,7 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
     @named model = MaxwellBoucWenIsolator()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -56,6 +56,17 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "k0") && (k0 = pop!(__overrides, "k0"))
+  haskey(__overrides, "c0") && (c0 = pop!(__overrides, "c0"))
+  haskey(__overrides, "k1") && (k1 = pop!(__overrides, "k1"))
+  haskey(__overrides, "c1") && (c1 = pop!(__overrides, "c1"))
+  haskey(__overrides, "alpha") && (alpha = pop!(__overrides, "alpha"))
+  haskey(__overrides, "A_bw") && (A_bw = pop!(__overrides, "A_bw"))
+  haskey(__overrides, "beta_bw") && (beta_bw = pop!(__overrides, "beta_bw"))
+  haskey(__overrides, "gamma_bw") && (gamma_bw = pop!(__overrides, "gamma_bw"))
+  haskey(__overrides, "eps_bw") && (eps_bw = pop!(__overrides, "eps_bw"))
 
   ### Structural Parameters (functions)
 
@@ -72,31 +83,31 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
   ### Symbolic Parameters
   __local__k0 = k0
   append!(__params, @parameters (k0::Real), [description = "Baseline (quasi-static) stiffness [N*m/rad]"])
-  __initial_conditions[k0] = __local__k0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k0, __local__k0)
   __local__c0 = c0
   append!(__params, @parameters (c0::Real), [description = "Baseline viscous damping [N*m*s/rad]"])
-  __initial_conditions[c0] = __local__c0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c0, __local__c0)
   __local__k1 = k1
   append!(__params, @parameters (k1::Real), [description = "Maxwell branch stiffness [N*m/rad]"])
-  __initial_conditions[k1] = __local__k1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k1, __local__k1)
   __local__c1 = c1
   append!(__params, @parameters (c1::Real), [description = "Maxwell branch damping [N*m*s/rad]"])
-  __initial_conditions[c1] = __local__c1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c1, __local__c1)
   __local__alpha = alpha
   append!(__params, @parameters (alpha::Real), [description = "Bouc-Wen hysteretic torque scale [N*m]"])
-  __initial_conditions[alpha] = __local__alpha
+  __dyad_seed_parameter!(__initial_conditions, __bindings, alpha, __local__alpha)
   __local__A_bw = A_bw
   append!(__params, @parameters (A_bw::Real), [description = "Bouc-Wen flow gain"])
-  __initial_conditions[A_bw] = __local__A_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_bw, __local__A_bw)
   __local__beta_bw = beta_bw
   append!(__params, @parameters (beta_bw::Real), [description = "Bouc-Wen saturation coefficient (z_sat = A_bw/beta_bw)"])
-  __initial_conditions[beta_bw] = __local__beta_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, beta_bw, __local__beta_bw)
   __local__gamma_bw = gamma_bw
   append!(__params, @parameters (gamma_bw::Real), [description = "Bouc-Wen shape coefficient"])
-  __initial_conditions[gamma_bw] = __local__gamma_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, gamma_bw, __local__gamma_bw)
   __local__eps_bw = eps_bw
   append!(__params, @parameters (eps_bw::Real), [description = "Smoothing epsilon for |x| ~ sqrt(x^2 + eps_bw)"])
-  __initial_conditions[eps_bw] = __local__eps_bw
+  __dyad_seed_parameter!(__initial_conditions, __bindings, eps_bw, __local__eps_bw)
 
   ### Final Parameters (assignments)
 
@@ -112,23 +123,23 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
 
   ### Variables (assignments)
   __ovr_phi_rel = pop!(__overrides, "phi_rel", nothing); isnothing(__ovr_phi_rel) || push!(__eqs, phi_rel ~ __ovr_phi_rel)
-  __ovr_phi_rel__initial = pop!(__overrides, "phi_rel__initial", nothing); isnothing(__ovr_phi_rel__initial) || (__initial_conditions[phi_rel] = __ovr_phi_rel__initial)
-  __ovr_phi_rel__guess = pop!(__overrides, "phi_rel__guess", nothing)
+  __ovr_phi_rel__initial = pop!(__overrides, "phi_rel.initial", nothing); isnothing(__ovr_phi_rel__initial) || (__initial_conditions[phi_rel] = __ovr_phi_rel__initial)
+  __ovr_phi_rel__guess = pop!(__overrides, "phi_rel.guess", nothing)
   __ovr_tau = pop!(__overrides, "tau", nothing); isnothing(__ovr_tau) || push!(__eqs, tau ~ __ovr_tau)
-  __ovr_tau__initial = pop!(__overrides, "tau__initial", nothing); isnothing(__ovr_tau__initial) || (__initial_conditions[tau] = __ovr_tau__initial)
-  __ovr_tau__guess = pop!(__overrides, "tau__guess", nothing)
+  __ovr_tau__initial = pop!(__overrides, "tau.initial", nothing); isnothing(__ovr_tau__initial) || (__initial_conditions[tau] = __ovr_tau__initial)
+  __ovr_tau__guess = pop!(__overrides, "tau.guess", nothing)
   __ovr_w_rel = pop!(__overrides, "w_rel", nothing); isnothing(__ovr_w_rel) || push!(__eqs, w_rel ~ __ovr_w_rel)
-  __ovr_w_rel__initial = pop!(__overrides, "w_rel__initial", nothing); isnothing(__ovr_w_rel__initial) || (__initial_conditions[w_rel] = __ovr_w_rel__initial)
-  __ovr_w_rel__guess = pop!(__overrides, "w_rel__guess", nothing)
+  __ovr_w_rel__initial = pop!(__overrides, "w_rel.initial", nothing); isnothing(__ovr_w_rel__initial) || (__initial_conditions[w_rel] = __ovr_w_rel__initial)
+  __ovr_w_rel__guess = pop!(__overrides, "w_rel.guess", nothing)
   __ovr_a_rel = pop!(__overrides, "a_rel", nothing); isnothing(__ovr_a_rel) || push!(__eqs, a_rel ~ __ovr_a_rel)
-  __ovr_a_rel__initial = pop!(__overrides, "a_rel__initial", nothing); isnothing(__ovr_a_rel__initial) || (__initial_conditions[a_rel] = __ovr_a_rel__initial)
-  __ovr_a_rel__guess = pop!(__overrides, "a_rel__guess", nothing)
+  __ovr_a_rel__initial = pop!(__overrides, "a_rel.initial", nothing); isnothing(__ovr_a_rel__initial) || (__initial_conditions[a_rel] = __ovr_a_rel__initial)
+  __ovr_a_rel__guess = pop!(__overrides, "a_rel.guess", nothing)
   __ovr_theta_m = pop!(__overrides, "theta_m", nothing); isnothing(__ovr_theta_m) || push!(__eqs, theta_m ~ __ovr_theta_m)
-  __ovr_theta_m__initial = pop!(__overrides, "theta_m__initial", nothing); isnothing(__ovr_theta_m__initial) || (__initial_conditions[theta_m] = __ovr_theta_m__initial)
-  __ovr_theta_m__guess = pop!(__overrides, "theta_m__guess", nothing)
+  __ovr_theta_m__initial = pop!(__overrides, "theta_m.initial", nothing); isnothing(__ovr_theta_m__initial) || (__initial_conditions[theta_m] = __ovr_theta_m__initial)
+  __ovr_theta_m__guess = pop!(__overrides, "theta_m.guess", nothing)
   __ovr_z = pop!(__overrides, "z", nothing); isnothing(__ovr_z) || push!(__eqs, z ~ __ovr_z)
-  __ovr_z__initial = pop!(__overrides, "z__initial", nothing); isnothing(__ovr_z__initial) || (__initial_conditions[z] = __ovr_z__initial)
-  __ovr_z__guess = pop!(__overrides, "z__guess", nothing)
+  __ovr_z__initial = pop!(__overrides, "z.initial", nothing); isnothing(__ovr_z__initial) || (__initial_conditions[z] = __ovr_z__initial)
+  __ovr_z__guess = pop!(__overrides, "z.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -138,7 +149,7 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
   push!(__systems, @named spline_b = __Dyad__Spline())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_phi_rel__guess) || (__guesses[phi_rel] = __ovr_phi_rel__guess)
@@ -164,6 +175,6 @@ Torsional isolator with three parallel torque paths: a quasi-static spring-dampe
   push!(__eqs, tau ~ k0 * phi_rel + c0 * w_rel + k1 * (phi_rel - theta_m) + alpha * z)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export MaxwellBoucWenIsolator

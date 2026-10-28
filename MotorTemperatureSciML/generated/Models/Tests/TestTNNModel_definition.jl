@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TestTNNModel(; name)
+   TestTNNModel(; name, __overrides)
 
 Test harness for the full `TNNModel` driven with constant inputs.
 
@@ -14,7 +14,7 @@ chains), `ConductanceNet.out ≈ sigmoid(0) = 0.5` and `PowerLossNet.out ≈ 0`,
 so the temperature states drift toward the mean of the coolant and ambient
 inputs.
 """
-@component function TestTNNModel(; name = nothing, kwargs...)
+@component function TestTNNModel(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -22,7 +22,7 @@ inputs.
     @named model = TestTNNModel()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -60,40 +60,40 @@ inputs.
   ### Components
   # Subcomponent model of type MotorTemperatureSciML.Models.TNNModel
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = MotorTemperatureSciML.Models.TNNModel(; model_overrides...))
+  push!(__systems, @named model = MotorTemperatureSciML.Models.TNNModel(; __overrides = model_overrides))
   # Subcomponent src_u_q of type BlockComponents.Sources.Constant
   src_u_q_overrides = __pop_subcomponent_overrides!(__overrides, "src_u_q")
-  push!(__systems, @named src_u_q = BlockComponents.Sources.Constant(; k=Float64(50.0), src_u_q_overrides...))
+  push!(__systems, @named src_u_q = BlockComponents.Sources.Constant(; k=Float64(50.0), __overrides = src_u_q_overrides))
   # Subcomponent src_coolant of type BlockComponents.Sources.Constant
   src_coolant_overrides = __pop_subcomponent_overrides!(__overrides, "src_coolant")
-  push!(__systems, @named src_coolant = BlockComponents.Sources.Constant(; k=Float64(60.0), src_coolant_overrides...))
+  push!(__systems, @named src_coolant = BlockComponents.Sources.Constant(; k=Float64(60.0), __overrides = src_coolant_overrides))
   # Subcomponent src_u_d of type BlockComponents.Sources.Constant
   src_u_d_overrides = __pop_subcomponent_overrides!(__overrides, "src_u_d")
-  push!(__systems, @named src_u_d = BlockComponents.Sources.Constant(; k=-30.0, src_u_d_overrides...))
+  push!(__systems, @named src_u_d = BlockComponents.Sources.Constant(; k=-30.0, __overrides = src_u_d_overrides))
   # Subcomponent src_motor_speed of type BlockComponents.Sources.Constant
   src_motor_speed_overrides = __pop_subcomponent_overrides!(__overrides, "src_motor_speed")
-  push!(__systems, @named src_motor_speed = BlockComponents.Sources.Constant(; k=Float64(500.0), src_motor_speed_overrides...))
+  push!(__systems, @named src_motor_speed = BlockComponents.Sources.Constant(; k=Float64(500.0), __overrides = src_motor_speed_overrides))
   # Subcomponent src_i_d of type BlockComponents.Sources.Constant
   src_i_d_overrides = __pop_subcomponent_overrides!(__overrides, "src_i_d")
-  push!(__systems, @named src_i_d = BlockComponents.Sources.Constant(; k=-100.0, src_i_d_overrides...))
+  push!(__systems, @named src_i_d = BlockComponents.Sources.Constant(; k=-100.0, __overrides = src_i_d_overrides))
   # Subcomponent src_i_q of type BlockComponents.Sources.Constant
   src_i_q_overrides = __pop_subcomponent_overrides!(__overrides, "src_i_q")
-  push!(__systems, @named src_i_q = BlockComponents.Sources.Constant(; k=Float64(150.0), src_i_q_overrides...))
+  push!(__systems, @named src_i_q = BlockComponents.Sources.Constant(; k=Float64(150.0), __overrides = src_i_q_overrides))
   # Subcomponent src_ambient of type BlockComponents.Sources.Constant
   src_ambient_overrides = __pop_subcomponent_overrides!(__overrides, "src_ambient")
-  push!(__systems, @named src_ambient = BlockComponents.Sources.Constant(; k=Float64(25.0), src_ambient_overrides...))
+  push!(__systems, @named src_ambient = BlockComponents.Sources.Constant(; k=Float64(25.0), __overrides = src_ambient_overrides))
   # Subcomponent src_torque of type BlockComponents.Sources.Constant
   src_torque_overrides = __pop_subcomponent_overrides!(__overrides, "src_torque")
-  push!(__systems, @named src_torque = BlockComponents.Sources.Constant(; k=Float64(100.0), src_torque_overrides...))
+  push!(__systems, @named src_torque = BlockComponents.Sources.Constant(; k=Float64(100.0), __overrides = src_torque_overrides))
   # Subcomponent src_i_s of type BlockComponents.Sources.Constant
   src_i_s_overrides = __pop_subcomponent_overrides!(__overrides, "src_i_s")
-  push!(__systems, @named src_i_s = BlockComponents.Sources.Constant(; k=0.4764, src_i_s_overrides...))
+  push!(__systems, @named src_i_s = BlockComponents.Sources.Constant(; k=0.4764, __overrides = src_i_s_overrides))
   # Subcomponent src_u_s of type BlockComponents.Sources.Constant
   src_u_s_overrides = __pop_subcomponent_overrides!(__overrides, "src_u_s")
-  push!(__systems, @named src_u_s = BlockComponents.Sources.Constant(; k=0.358, src_u_s_overrides...))
+  push!(__systems, @named src_u_s = BlockComponents.Sources.Constant(; k=0.358, __overrides = src_u_s_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -115,6 +115,6 @@ inputs.
   push!(__eqs, connect(src_u_s.y, model.u_s_raw))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestTNNModel

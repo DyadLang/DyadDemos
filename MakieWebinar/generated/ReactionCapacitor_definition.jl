@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   ReactionCapacitor(; name, V, growth_rate)
+   ReactionCapacitor(; name, V, growth_rate, __overrides)
 
 Reaction-Diffusion Models with Interesting Dynamics
 Uses DiffusionPort and other components from diffusion_2d.dyad
@@ -41,7 +41,7 @@ Supported dynamics:
 | ------------ | ----------------------------------- | ------ |
 | `C`         |                          | --  |
 """
-@component function ReactionCapacitor(; name = nothing, V=Float64(1.0), growth_rate=Float64(1.0), kwargs...)
+@component function ReactionCapacitor(; name = nothing, var"V"=Float64(1.0), var"growth_rate"=Float64(1.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -49,7 +49,7 @@ Supported dynamics:
     @named model = ReactionCapacitor()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -58,6 +58,10 @@ Supported dynamics:
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "V") && (V = pop!(__overrides, "V"))
+  haskey(__overrides, "growth_rate") && (growth_rate = pop!(__overrides, "growth_rate"))
 
   ### Structural Parameters (functions)
 
@@ -74,10 +78,10 @@ Supported dynamics:
   ### Symbolic Parameters
   __local__V = V
   append!(__params, @parameters (V::Real))
-  __initial_conditions[V] = __local__V
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V, __local__V)
   __local__growth_rate = growth_rate
   append!(__params, @parameters (growth_rate::Real))
-  __initial_conditions[growth_rate] = __local__growth_rate
+  __dyad_seed_parameter!(__initial_conditions, __bindings, growth_rate, __local__growth_rate)
 
   ### Final Parameters (assignments)
 
@@ -88,8 +92,8 @@ Supported dynamics:
 
   ### Variables (assignments)
   __ovr_C = pop!(__overrides, "C", nothing); isnothing(__ovr_C) || push!(__eqs, C ~ __ovr_C)
-  __ovr_C__initial = pop!(__overrides, "C__initial", nothing); isnothing(__ovr_C__initial) || (__initial_conditions[C] = __ovr_C__initial)
-  __ovr_C__guess = pop!(__overrides, "C__guess", nothing)
+  __ovr_C__initial = pop!(__overrides, "C.initial", nothing); isnothing(__ovr_C__initial) || (__initial_conditions[C] = __ovr_C__initial)
+  __ovr_C__guess = pop!(__overrides, "C.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -98,7 +102,7 @@ Supported dynamics:
   push!(__systems, @named port = MakieWebinar.DiffusionPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_C__guess) || (__guesses[C] = __ovr_C__guess)
@@ -113,6 +117,6 @@ Supported dynamics:
   push!(__eqs, V * ModelingToolkit.D_nounits(C) ~ port.J + V * growth_rate * C)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ReactionCapacitor

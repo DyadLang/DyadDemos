@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   FIRFilter(; name)
+   FIRFilter(; name, __overrides)
 
 short FIRFilter component description
 
@@ -16,7 +14,7 @@ short FIRFilter component description
  * `realinput` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `realoutput` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function FIRFilter(; name = nothing, kwargs...)
+@component function FIRFilter(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -24,7 +22,7 @@ short FIRFilter component description
     @named model = FIRFilter()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -64,40 +62,40 @@ short FIRFilter component description
   ### Components
   # Subcomponent unitdelay of type DiscreteComponents.UnitDelay
   unitdelay_overrides = __pop_subcomponent_overrides!(__overrides, "unitdelay")
-  push!(__systems, @named unitdelay = DiscreteComponents.UnitDelay(; unitdelay_overrides...))
+  push!(__systems, @named unitdelay = DiscreteComponents.UnitDelay(; __overrides = unitdelay_overrides))
   # Subcomponent unitdelay1 of type DiscreteComponents.UnitDelay
   unitdelay1_overrides = __pop_subcomponent_overrides!(__overrides, "unitdelay1")
-  push!(__systems, @named unitdelay1 = DiscreteComponents.UnitDelay(; unitdelay1_overrides...))
+  push!(__systems, @named unitdelay1 = DiscreteComponents.UnitDelay(; __overrides = unitdelay1_overrides))
   # Subcomponent unitdelay2 of type DiscreteComponents.UnitDelay
   unitdelay2_overrides = __pop_subcomponent_overrides!(__overrides, "unitdelay2")
-  push!(__systems, @named unitdelay2 = DiscreteComponents.UnitDelay(; unitdelay2_overrides...))
+  push!(__systems, @named unitdelay2 = DiscreteComponents.UnitDelay(; __overrides = unitdelay2_overrides))
   # Subcomponent unitdelay3 of type DiscreteComponents.UnitDelay
   unitdelay3_overrides = __pop_subcomponent_overrides!(__overrides, "unitdelay3")
-  push!(__systems, @named unitdelay3 = DiscreteComponents.UnitDelay(; unitdelay3_overrides...))
+  push!(__systems, @named unitdelay3 = DiscreteComponents.UnitDelay(; __overrides = unitdelay3_overrides))
   # Subcomponent gain of type BlockComponents.Math.Gain
   gain_overrides = __pop_subcomponent_overrides!(__overrides, "gain")
-  push!(__systems, @named gain = BlockComponents.Math.Gain(; k=Float64(-3 / 16), gain_overrides...))
+  push!(__systems, @named gain = BlockComponents.Math.Gain(; k=Float64(-3 / 16), __overrides = gain_overrides))
   # Subcomponent gain1 of type BlockComponents.Math.Gain
   gain1_overrides = __pop_subcomponent_overrides!(__overrides, "gain1")
-  push!(__systems, @named gain1 = BlockComponents.Math.Gain(; k=Float64(31 / 32), gain1_overrides...))
+  push!(__systems, @named gain1 = BlockComponents.Math.Gain(; k=Float64(31 / 32), __overrides = gain1_overrides))
   # Subcomponent gain2 of type BlockComponents.Math.Gain
   gain2_overrides = __pop_subcomponent_overrides!(__overrides, "gain2")
-  push!(__systems, @named gain2 = BlockComponents.Math.Gain(; k=Float64(-31 / 32), gain2_overrides...))
+  push!(__systems, @named gain2 = BlockComponents.Math.Gain(; k=Float64(-31 / 32), __overrides = gain2_overrides))
   # Subcomponent gain3 of type BlockComponents.Math.Gain
   gain3_overrides = __pop_subcomponent_overrides!(__overrides, "gain3")
-  push!(__systems, @named gain3 = BlockComponents.Math.Gain(; k=Float64(3 / 16), gain3_overrides...))
+  push!(__systems, @named gain3 = BlockComponents.Math.Gain(; k=Float64(3 / 16), __overrides = gain3_overrides))
   # Subcomponent add of type BlockComponents.Math.Add
   add_overrides = __pop_subcomponent_overrides!(__overrides, "add")
-  push!(__systems, @named add = BlockComponents.Math.Add(; add_overrides...))
+  push!(__systems, @named add = BlockComponents.Math.Add(; __overrides = add_overrides))
   # Subcomponent add1 of type BlockComponents.Math.Add
   add1_overrides = __pop_subcomponent_overrides!(__overrides, "add1")
-  push!(__systems, @named add1 = BlockComponents.Math.Add(; add1_overrides...))
+  push!(__systems, @named add1 = BlockComponents.Math.Add(; __overrides = add1_overrides))
   # Subcomponent add3 of type BlockComponents.Math.Add
   add3_overrides = __pop_subcomponent_overrides!(__overrides, "add3")
-  push!(__systems, @named add3 = BlockComponents.Math.Add(; add3_overrides...))
+  push!(__systems, @named add3 = BlockComponents.Math.Add(; __overrides = add3_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -122,6 +120,6 @@ short FIRFilter component description
   push!(__eqs, connect(realinput, gain.u))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FIRFilter

@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   EspressoCupSystemWithSpoon(; name)
+   EspressoCupSystemWithSpoon(; name, __overrides)
 """
-@component function EspressoCupSystemWithSpoon(; name = nothing, kwargs...)
+@component function EspressoCupSystemWithSpoon(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -15,7 +15,7 @@
     @named model = EspressoCupSystemWithSpoon()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,22 +53,22 @@
   ### Components
   # Subcomponent coffeeMug of type CoffeeMugDemo.CoffeeMugSubsystem
   coffeeMug_overrides = __pop_subcomponent_overrides!(__overrides, "coffeeMug")
-  push!(__systems, @named coffeeMug = CoffeeMugDemo.CoffeeMugSubsystem(; coffeeMug_overrides...))
+  push!(__systems, @named coffeeMug = CoffeeMugDemo.CoffeeMugSubsystem(; __overrides = coffeeMug_overrides))
   # Subcomponent steam of type CoffeeMugDemo.SteamSubsystem
   steam_overrides = __pop_subcomponent_overrides!(__overrides, "steam")
-  push!(__systems, @named steam = CoffeeMugDemo.SteamSubsystem(; steam_overrides...))
+  push!(__systems, @named steam = CoffeeMugDemo.SteamSubsystem(; __overrides = steam_overrides))
   # Subcomponent spoon of type CoffeeMugDemo.SpoonSubsystem
   spoon_overrides = __pop_subcomponent_overrides!(__overrides, "spoon")
-  push!(__systems, @named spoon = CoffeeMugDemo.SpoonSubsystem(; spoon_overrides...))
+  push!(__systems, @named spoon = CoffeeMugDemo.SpoonSubsystem(; __overrides = spoon_overrides))
   # Subcomponent hand of type CoffeeMugDemo.HandSubsystem
   hand_overrides = __pop_subcomponent_overrides!(__overrides, "hand")
-  push!(__systems, @named hand = CoffeeMugDemo.HandSubsystem(; hand_overrides...))
+  push!(__systems, @named hand = CoffeeMugDemo.HandSubsystem(; __overrides = hand_overrides))
   # Subcomponent environment of type ThermalComponents.Sources.FixedTemperature
   environment_overrides = __pop_subcomponent_overrides!(__overrides, "environment")
-  push!(__systems, @named environment = ThermalComponents.Sources.FixedTemperature(; T=293.15, environment_overrides...))
+  push!(__systems, @named environment = ThermalComponents.Sources.FixedTemperature(; T=293.15, __overrides = environment_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   __guesses[coffeeMug.outerSurface.T] = (330.0)
@@ -90,6 +90,6 @@
   push!(__eqs, connect(spoon.ambient, environment.port))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export EspressoCupSystemWithSpoon

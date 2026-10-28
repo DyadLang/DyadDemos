@@ -20,12 +20,12 @@
 # retrain.
 #
 # Run from the package root:
-#   JULIA_NUM_THREADS=8 julia +dyad-3.4.0 --project scripts/animate_sms_training.jl
+#   JULIA_NUM_THREADS=8 julia +dyad-3.5.0 --project scripts/animate_sms_training.jl
 
 include("common.jl")
 using DyadModelOptimizer: setup_problem, internal_params_part, split_timespan,
                           get_uuid, timespan, get_saveat
-using SciMLBase: init, reinit!, solve!
+using SciMLBase: init, reinit!, solve!, successful_retcode
 using Setfield: @set
 using Statistics: mean
 using LinearAlgebra: norm
@@ -46,9 +46,10 @@ const ANIM_BATCH_SIZE  = 8
 const ANIM_BLOCK_SIZE  = 2
 const ANIM_INNER_LR    = 1e-3
 const ANIM_INNER_EPOCHS = 33     # 3 batches/epoch → 99 inner steps per outer iteration
-const ANIM_OUTER_ITERS = 10      # 990 steps; ends 2–3 °C off the plateau (README explains)
-const CAPTURE_EVERY    = 10      # inner steps between snapshots → ~99 frames
-const MAX_FRAMES       = 120
+const ANIM_OUTER_ITERS = 10      # fixed 990-update diagnostic animation budget
+const CAPTURE_EVERY    = parse(Int, get(ENV, "TNN_ANIMATION_CAPTURE_EVERY", "10"))      # inner steps between snapshots → ~99 frames
+const MAX_FRAMES       = parse(Int, get(ENV, "TNN_ANIMATION_MAX_FRAMES", "120"))
+CAPTURE_EVERY > 0 && MAX_FRAMES >= 2 || error("Capture interval must be positive and frame limit at least two")
 const FPS              = 8
 const SAVEAT           = 0.5
 
@@ -86,11 +87,13 @@ const UUID = get_uuid(experiment)
 # (search-space values + segment initial states), the current mini-batch and
 # the gradient of the AugLag objective.
 const SNAPSHOTS = NamedTuple[]
+const STEP_COUNT = Ref(0)
 function snap_cb(state, loss)
-    if state.iter % CAPTURE_EVERY == 0 && length(SNAPSHOTS) < MAX_FRAMES
+    STEP_COUNT[] += 1
+    if (STEP_COUNT[] == 1 || STEP_COUNT[] % CAPTURE_EVERY == 0) && length(SNAPSHOTS) < MAX_FRAMES - 1
         batch = try collect(state.p.indices[UUID]) catch; Int[] end
         gnorm = try norm(state.grad) catch; NaN end
-        push!(SNAPSHOTS, (; iter = state.iter, u = copy(state.u), loss = float(loss),
+        push!(SNAPSHOTS, (; iter = STEP_COUNT[], u = copy(state.u), loss = float(loss),
             batch, grad_norm = float(gnorm)))
         length(SNAPSHOTS) % 10 == 0 &&
             @info "snapshot $(length(SNAPSHOTS))" iter = state.iter loss = round(loss; sigdigits = 4) grad_norm = round(gnorm; sigdigits = 4)
@@ -114,21 +117,27 @@ alg = make_sms(; n_segments = ANIM_N_SEGMENTS, batch_size = ANIM_BATCH_SIZE,
     block_size = ANIM_BLOCK_SIZE, learning_rate = ANIM_INNER_LR,
     inner_epochs = ANIM_INNER_EPOCHS, outer_maxiters = ANIM_OUTER_ITERS,
     inner_kwargs = (; callback = snap_cb),
-    # Run the whole budget: with 300 s segments the junction gaps close to the
-    # 0.2 °C tolerance long before the data fit has settled, and the stopping
-    # test only certifies continuity.
+    # Preserve the original strict threshold used to show a fixed-budget
+    # training trajectory. Nonconvergence is recorded and displayed explicitly;
+    # rendering these diagnostic snapshots is not a calibration success claim.
     auglag_kwargs = (; ϵ_primal = 1e-8),
     callback = outer_cb)   # forwarded to the AugLag solve by `calibrate`
 
 # ── Train (or load the cached snapshots) ─────────────────────────────────────
 if isfile(CACHE_PATH) && get(ENV, "FORCE_RETRAIN", "0") != "1"
     cached = deserialize(CACHE_PATH)
+    length(cached.snapshots) >= 2 && last(cached.snapshots).loss == cached.final_loss ||
+        error("Snapshot cache lacks the final optimizer state; use FORCE_RETRAIN=1")
+    training_retcode = cached.retcode
     append!(SNAPSHOTS, cached.snapshots)
     append!(OUTER_SNAPSHOTS, cached.outer_snapshots)
     @info "Loaded cached snapshots" path = CACHE_PATH n_frames = length(SNAPSHOTS) final_loss = cached.final_loss
 else
     @info "Calibrating for the animation…" julia_threads = nthreads() ANIM_N_SEGMENTS ANIM_BATCH_SIZE ANIM_INNER_EPOCHS ANIM_OUTER_ITERS
     calres = calibrate(invprob, alg; adtype = AutoForwardDiff())
+    training_retcode = calres.retcode
+    push!(SNAPSHOTS, (; iter = STEP_COUNT[], u = collect(calres.original.u),
+        loss = float(calres.original.objective), batch = Int[], grad_norm = NaN))
     @info "Calibration done" elapsed_s = round(calres.elapsed; digits = 1) retcode = calres.retcode n_frames = length(SNAPSHOTS)
     serialize(CACHE_PATH, (; snapshots = SNAPSHOTS, outer_snapshots = OUTER_SNAPSHOTS,
         final_loss = calres.original.objective, retcode = calres.retcode))
@@ -155,6 +164,7 @@ function solve_segment!(integ, x, k, u0_first)
     reinit!(integ, u0; t0, tf = t1)
     solve!(integ)
     sol = integ.sol
+    successful_retcode(sol) || error("Animation segment $k failed: $(sol.retcode)")
     return (; t = collect(sol.t), (Symbol(TARGET_COLS[i]) => sol[T[i]] .* MAX_TEMP for i in 1:4)...)
 end
 
@@ -182,6 +192,11 @@ const FRAMES = map(enumerate(SNAPSHOTS)) do (i, snap)
         constraint_norm = norm(defects), loss = snap.loss, iter = snap.iter,
         batch = snap.batch, grad_norm = snap.grad_norm)
 end
+
+const FINAL_GAP_C = maximum(abs, last(FRAMES).defects)
+@info "Final reconstructed continuity" training_retcode max_gap_C = FINAL_GAP_C criterion_C = 2e-6
+const TRAINING_STATUS = @sprintf("Diagnostic training: %s; max gap %.4g °C (criterion 2e-6 °C)",
+    string(training_retcode), FINAL_GAP_C)
 
 # ── Rendering ────────────────────────────────────────────────────────────────
 set_theme!(theme_dark())
@@ -237,7 +252,8 @@ function segments_panel!(ax)
 end
 
 # ── Figure 1: segments only ──────────────────────────────────────────────────
-fig1 = Figure(size = (900, 620), backgroundcolor = BG, figure_padding = 20)
+fig1 = Figure(size = (900, 660), backgroundcolor = BG, figure_padding = 20)
+Label(fig1[0, 1:3], TRAINING_STATUS; color = TXT, fontsize = 14)
 ax1 = Axis(fig1[1, 1:3]; AXIS_KW..., xlabel = "t [s]", ylabel = "T_pm [°C]",
     xticklabelsize = 13, yticklabelsize = 13)
 update_segments1! = segments_panel!(ax1)
@@ -262,14 +278,15 @@ function set_frame1!(f)
 end
 
 # ── Figure 2: segments + training internals ──────────────────────────────────
-fig2 = Figure(size = (1500, 1000), backgroundcolor = BG, figure_padding = 18)
+fig2 = Figure(size = (1500, 1040), backgroundcolor = BG, figure_padding = 18)
+Label(fig2[0, 1:3], TRAINING_STATUS; color = TXT, fontsize = 16)
 ax_main = Axis(fig2[1, 1:2]; AXIS_KW..., xlabel = "t [s]", ylabel = "T_pm [°C]",
     title = "Segment predictions vs measured (T_pm)")
 update_segments2! = segments_panel!(ax_main)
 ax_mse = Axis(fig2[1, 3]; AXIS_KW..., xlabel = "segment", ylabel = "T_pm MSE [°C²]",
     title = "Per-segment fit")
-ax_loss = Axis(fig2[2, 1:2]; AXIS_KW..., xlabel = "snapshot", ylabel = "value (log)",
-    yscale = log10, title = "Training curves")
+ax_loss = Axis(fig2[2, 1:2]; AXIS_KW..., xlabel = "snapshot", ylabel = "value (symmetric log)",
+    yscale = Makie.Symlog10(1e-6), title = "Training curves")
 ax_def = Axis(fig2[2, 3]; AXIS_KW..., xlabel = "junction", ylabel = "defect [°C]",
     title = "Per-junction defect by state")
 
@@ -291,8 +308,9 @@ end
 marker_x = Observable([1]); marker_y = Observable([SERIES[1].values[1]])
 scatter!(ax_loss, marker_x, marker_y; color = SAMPLED, markersize = 8, strokecolor = TXT, strokewidth = 1)
 xlims!(ax_loss, 1, N_FRAMES)
-let vals = filter(v -> isfinite(v) && v > 0, reduce(vcat, [s.values for s in SERIES]))
-    ylims!(ax_loss, 0.5 * minimum(vals), 2.0 * maximum(vals))
+let vals = filter(isfinite, reduce(vcat, [s.values for s in SERIES]))
+    lo, hi = extrema(vals)
+    ylims!(ax_loss, min(0.0, lo * 1.2), max(1e-6, hi * 1.2))
 end
 axislegend(ax_loss, [LineElement(color = s.color, linewidth = 2) for s in SERIES],
     [s.label for s in SERIES]; position = :rt, framevisible = false, labelcolor = TXT,

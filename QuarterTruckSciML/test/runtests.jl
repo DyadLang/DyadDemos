@@ -58,3 +58,22 @@ include("../generated/tests.jl")
     end
 
 end
+
+@testset "Calibration/training analyses construct through the Dyad pipeline" begin
+    @test QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec().__system isa ModelingToolkit.System
+    @test QuarterTruckSciML.TruckFullNNTrainingAnalysis__Spec().__system isa ModelingToolkit.System
+    @test QuarterTruckSciML.TruckFullNNTrainingAnalysisLBFGS__Spec().__system isa ModelingToolkit.System
+end
+
+@testset "Physical calibration converges and recovers the synthetic truth" begin
+    result = QuarterTruckSciML.QuarterTruckCalibrationAnalysis()
+    @test QuarterTruckSciML.DyadInterface.SciMLBase.successful_retcode(result.r.retcode)
+    @test all(isfinite, result.r.u)
+    truth = [315.0, 22000.0, 1800.0, 750.0]
+    @test maximum(abs.((collect(result.r.u) .- truth) ./ truth)) < 1e-3
+    # The committed measurements retain error from their older generator settings;
+    # this bound is a regression check against that fixed dataset.
+    @test result.r.original.objective < 0.006
+end
+
+include("result_checks.jl")

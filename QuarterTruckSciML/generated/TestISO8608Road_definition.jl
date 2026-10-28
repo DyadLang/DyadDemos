@@ -5,11 +5,11 @@
 
 
 @doc Markdown.doc"""
-   TestISO8608Road(; name)
+   TestISO8608Road(; name, __overrides)
 
 Test harness for ISO8608Road.
 """
-@component function TestISO8608Road(; name = nothing, kwargs...)
+@component function TestISO8608Road(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -17,7 +17,7 @@ Test harness for ISO8608Road.
     @named model = TestISO8608Road()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,10 +55,10 @@ Test harness for ISO8608Road.
   ### Components
   # Subcomponent road of type QuarterTruckSciML.ISO8608Road
   road_overrides = __pop_subcomponent_overrides!(__overrides, "road")
-  push!(__systems, @named road = QuarterTruckSciML.ISO8608Road(; roughness=0.000016, speed=13.89, start_time=Float64(0.0), road_overrides...))
+  push!(__systems, @named road = QuarterTruckSciML.ISO8608Road(; roughness=0.000016, speed=13.89, start_time=Float64(0.0), __overrides = road_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -70,6 +70,6 @@ Test harness for ISO8608Road.
   ### Equations
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestISO8608Road

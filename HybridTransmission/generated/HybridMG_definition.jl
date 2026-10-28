@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   HybridMG(; name, Kt, b_friction, max_torque)
+   HybridMG(; name, Kt, b_friction, max_torque, __overrides)
 
 ## Parameters:
 
@@ -28,7 +28,7 @@
 | ------------ | ----------------------------------- | ------ |
 | `omega`         |                          | rad/s  |
 """
-@component function HybridMG(; name = nothing, Kt=Float64(1.0), b_friction=0.005, max_torque=Float64(200.0), kwargs...)
+@component function HybridMG(; name = nothing, var"Kt"=Float64(1.0), var"b_friction"=0.005, var"max_torque"=Float64(200.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -36,7 +36,7 @@
     @named model = HybridMG()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -45,6 +45,11 @@
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "Kt") && (Kt = pop!(__overrides, "Kt"))
+  haskey(__overrides, "b_friction") && (b_friction = pop!(__overrides, "b_friction"))
+  haskey(__overrides, "max_torque") && (max_torque = pop!(__overrides, "max_torque"))
 
   ### Structural Parameters (functions)
 
@@ -61,13 +66,13 @@
   ### Symbolic Parameters
   __local__Kt = Kt
   append!(__params, @parameters (Kt::Real))
-  __initial_conditions[Kt] = __local__Kt
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kt, __local__Kt)
   __local__b_friction = b_friction
   append!(__params, @parameters (b_friction::Real))
-  __initial_conditions[b_friction] = __local__b_friction
+  __dyad_seed_parameter!(__initial_conditions, __bindings, b_friction, __local__b_friction)
   __local__max_torque = max_torque
   append!(__params, @parameters (max_torque::Real))
-  __initial_conditions[max_torque] = __local__max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, max_torque, __local__max_torque)
 
   ### Final Parameters (assignments)
 
@@ -81,8 +86,8 @@
 
   ### Variables (assignments)
   __ovr_omega = pop!(__overrides, "omega", nothing); isnothing(__ovr_omega) || push!(__eqs, omega ~ __ovr_omega)
-  __ovr_omega__initial = pop!(__overrides, "omega__initial", nothing); isnothing(__ovr_omega__initial) || (__initial_conditions[omega] = __ovr_omega__initial)
-  __ovr_omega__guess = pop!(__overrides, "omega__guess", nothing)
+  __ovr_omega__initial = pop!(__overrides, "omega.initial", nothing); isnothing(__ovr_omega__initial) || (__initial_conditions[omega] = __ovr_omega__initial)
+  __ovr_omega__guess = pop!(__overrides, "omega.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -91,7 +96,7 @@
   push!(__systems, @named flange = __Dyad__Spline())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_omega__guess) || (__guesses[omega] = __ovr_omega__guess)
@@ -108,6 +113,6 @@
   push!(__eqs, power_elec ~ flange.tau * omega)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HybridMG

@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   TestFullGNC6DOF(; name)
+   TestFullGNC6DOF(; name, __overrides)
 """
-@component function TestFullGNC6DOF(; name = nothing, kwargs...)
+@component function TestFullGNC6DOF(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -15,7 +15,7 @@
     @named model = TestFullGNC6DOF()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,52 +53,52 @@
   ### Components
   # Subcomponent sat of type SatelliteGNC.SatelliteBody6DOF
   sat_overrides = __pop_subcomponent_overrides!(__overrides, "sat")
-  push!(__systems, @named sat = SatelliteGNC.SatelliteBody6DOF(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), m=Float64(4.0), sat_overrides...))
+  push!(__systems, @named sat = SatelliteGNC.SatelliteBody6DOF(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), m=Float64(4.0), __overrides = sat_overrides))
   # Subcomponent traj_phi of type SatelliteGNC.TrapezoidalProfile
   traj_phi_overrides = __pop_subcomponent_overrides!(__overrides, "traj_phi")
-  push!(__systems, @named traj_phi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.3491, w_max=0.0349, a_max=0.00873, traj_phi_overrides...))
+  push!(__systems, @named traj_phi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.3491, w_max=0.0349, a_max=0.00873, __overrides = traj_phi_overrides))
   # Subcomponent traj_theta of type SatelliteGNC.TrapezoidalProfile
   traj_theta_overrides = __pop_subcomponent_overrides!(__overrides, "traj_theta")
-  push!(__systems, @named traj_theta = SatelliteGNC.TrapezoidalProfile(; target_angle=0.1745, w_max=0.0349, a_max=0.00873, traj_theta_overrides...))
+  push!(__systems, @named traj_theta = SatelliteGNC.TrapezoidalProfile(; target_angle=0.1745, w_max=0.0349, a_max=0.00873, __overrides = traj_theta_overrides))
   # Subcomponent traj_psi of type SatelliteGNC.TrapezoidalProfile
   traj_psi_overrides = __pop_subcomponent_overrides!(__overrides, "traj_psi")
-  push!(__systems, @named traj_psi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.5236, w_max=0.0349, a_max=0.00873, traj_psi_overrides...))
+  push!(__systems, @named traj_psi = SatelliteGNC.TrapezoidalProfile(; target_angle=0.5236, w_max=0.0349, a_max=0.00873, __overrides = traj_psi_overrides))
   # Subcomponent obs of type SatelliteGNC.LuenbergerObserver
   obs_overrides = __pop_subcomponent_overrides!(__overrides, "obs")
-  push!(__systems, @named obs = SatelliteGNC.LuenbergerObserver(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), p=Float64(2.0), La_x=Float64(4.0), La_y=Float64(4.0), La_z=Float64(4.0), Lw_x=Float64(40.0), Lw_y=Float64(32.0), Lw_z=Float64(24.0), obs_overrides...))
+  push!(__systems, @named obs = SatelliteGNC.LuenbergerObserver(; Ixx=Float64(10.0), Iyy=Float64(8.0), Izz=Float64(6.0), p=Float64(2.0), La_x=Float64(4.0), La_y=Float64(4.0), La_z=Float64(4.0), Lw_x=Float64(40.0), Lw_y=Float64(32.0), Lw_z=Float64(24.0), __overrides = obs_overrides))
   # Subcomponent ctrl of type SatelliteGNC.AttitudeController
   ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "ctrl")
-  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(; Kp_x=Float64(5.0), Kd_x=Float64(20.0), Kp_y=Float64(4.0), Kd_y=Float64(16.0), Kp_z=Float64(3.0), Kd_z=Float64(12.0), Ixx_ff=Float64(10.0), Iyy_ff=Float64(8.0), Izz_ff=Float64(6.0), ctrl_overrides...))
+  push!(__systems, @named ctrl = SatelliteGNC.AttitudeController(; Kp_x=Float64(5.0), Kd_x=Float64(20.0), Kp_y=Float64(4.0), Kd_y=Float64(16.0), Kp_z=Float64(3.0), Kd_z=Float64(12.0), Ixx_ff=Float64(10.0), Iyy_ff=Float64(8.0), Izz_ff=Float64(6.0), __overrides = ctrl_overrides))
   # Subcomponent alloc of type SatelliteGNC.ThrusterAllocator
   alloc_overrides = __pop_subcomponent_overrides!(__overrides, "alloc")
-  push!(__systems, @named alloc = SatelliteGNC.ThrusterAllocator(; F_max=0.5, alloc_overrides...))
+  push!(__systems, @named alloc = SatelliteGNC.ThrusterAllocator(; F_max=0.5, __overrides = alloc_overrides))
   # Subcomponent jet1 of type SatelliteGNC.ReactionJet
   jet1_overrides = __pop_subcomponent_overrides!(__overrides, "jet1")
-  push!(__systems, @named jet1 = SatelliteGNC.ReactionJet(; rx=0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, jet1_overrides...))
+  push!(__systems, @named jet1 = SatelliteGNC.ReactionJet(; rx=0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, __overrides = jet1_overrides))
   # Subcomponent jet2 of type SatelliteGNC.ReactionJet
   jet2_overrides = __pop_subcomponent_overrides!(__overrides, "jet2")
-  push!(__systems, @named jet2 = SatelliteGNC.ReactionJet(; rx=0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, jet2_overrides...))
+  push!(__systems, @named jet2 = SatelliteGNC.ReactionJet(; rx=0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, __overrides = jet2_overrides))
   # Subcomponent jet3 of type SatelliteGNC.ReactionJet
   jet3_overrides = __pop_subcomponent_overrides!(__overrides, "jet3")
-  push!(__systems, @named jet3 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, jet3_overrides...))
+  push!(__systems, @named jet3 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, __overrides = jet3_overrides))
   # Subcomponent jet4 of type SatelliteGNC.ReactionJet
   jet4_overrides = __pop_subcomponent_overrides!(__overrides, "jet4")
-  push!(__systems, @named jet4 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, jet4_overrides...))
+  push!(__systems, @named jet4 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=-0.1, rz=Float64(0.0), dx=Float64(0.0), dy=Float64(0.0), dz=Float64(1.0), F_max=0.5, __overrides = jet4_overrides))
   # Subcomponent jet5 of type SatelliteGNC.ReactionJet
   jet5_overrides = __pop_subcomponent_overrides!(__overrides, "jet5")
-  push!(__systems, @named jet5 = SatelliteGNC.ReactionJet(; rx=0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.5, jet5_overrides...))
+  push!(__systems, @named jet5 = SatelliteGNC.ReactionJet(; rx=0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.5, __overrides = jet5_overrides))
   # Subcomponent jet6 of type SatelliteGNC.ReactionJet
   jet6_overrides = __pop_subcomponent_overrides!(__overrides, "jet6")
-  push!(__systems, @named jet6 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.5, jet6_overrides...))
+  push!(__systems, @named jet6 = SatelliteGNC.ReactionJet(; rx=-0.15, ry=Float64(0.0), rz=0.05, dx=Float64(0.0), dy=Float64(1.0), dz=Float64(0.0), F_max=0.5, __overrides = jet6_overrides))
   # Subcomponent jet7 of type SatelliteGNC.ReactionJet
   jet7_overrides = __pop_subcomponent_overrides!(__overrides, "jet7")
-  push!(__systems, @named jet7 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.5, jet7_overrides...))
+  push!(__systems, @named jet7 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.5, __overrides = jet7_overrides))
   # Subcomponent jet8 of type SatelliteGNC.ReactionJet
   jet8_overrides = __pop_subcomponent_overrides!(__overrides, "jet8")
-  push!(__systems, @named jet8 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=-0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.5, jet8_overrides...))
+  push!(__systems, @named jet8 = SatelliteGNC.ReactionJet(; rx=Float64(0.0), ry=-0.1, rz=0.05, dx=Float64(1.0), dy=Float64(0.0), dz=Float64(0.0), F_max=0.5, __overrides = jet8_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -169,6 +169,6 @@
   push!(__eqs, connect(ctrl.tau_z, obs.tau_z))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestFullGNC6DOF

@@ -19,6 +19,7 @@ Output: `assets/data/calibration_measurements.csv` (1001 rows over 10 s @ 100 Hz
 =#
 
 using QuarterTruckSciML
+import DyadInterface
 using ModelingToolkit
 using OrdinaryDiffEqDefault
 using CSV, DataFrames
@@ -43,7 +44,9 @@ overrides = [
 ]
 
 prob = ODEProblem(sys, overrides, (0.0, 10.0); fully_determined=true)
-sol = solve(prob; saveat=0.01)
+sol = solve(prob; saveat=0.01, abstol=1e-10, reltol=1e-10)
+DyadInterface.SciMLBase.successful_retcode(sol) || error("Truth simulation failed: $(sol.retcode)")
+all(u -> all(isfinite, u), sol.u) || error("Nonfinite truth trajectory")
 
 df = DataFrame(
     timestamp            = sol.t,
@@ -52,7 +55,8 @@ df = DataFrame(
     var"seat_a(t)"             = sol[sys.model.seat.a],
 )
 
-outpath = joinpath(OUTDIR, "calibration_measurements.csv")
+all(c -> all(isfinite, c), eachcol(df)) || error("Nonfinite generated observables")
+outpath = isempty(ARGS) ? joinpath(OUTDIR, "calibration_measurements.csv") : abspath(only(ARGS))
 CSV.write(outpath, df)
 @info "Wrote $(nrow(df)) rows × $(ncol(df)) cols → $outpath"
 @info "Truth values to recover: body_m=315, tire_to_body_c=22000, tire_to_body_d=1800, friction_Fc=750"

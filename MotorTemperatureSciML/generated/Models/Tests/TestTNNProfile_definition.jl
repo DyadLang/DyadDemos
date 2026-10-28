@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TestTNNProfile(; name, data_file, ds_inputs, ds_meas)
+   TestTNNProfile(; name, data_file, ds_inputs, ds_meas, __overrides)
 
 Data-driven harness for `TNNModel`: one drive profile of the Paderborn PMSM
 temperature dataset ("Electric Motor Temperature" on Kaggle) feeds the model.
@@ -35,7 +35,7 @@ the parameter slot.
 | `T_st_meas`         |                          | --  |
 | `T_sw_meas`         |                          | --  |
 """
-@component function TestTNNProfile(; name = nothing, data_file="dyad://MotorTemperatureSciML/data/profile_17.parquet", ds_inputs=DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file); independent_var="time", dependent_vars=["u_q", "coolant", "u_d", "motor_speed", "i_d", "i_q", "ambient", "torque", "i_s", "u_s"]), ds_meas=DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file); independent_var="time", dependent_vars=["pm", "stator_yoke", "stator_tooth", "stator_winding"]), kwargs...)
+@component function TestTNNProfile(; name = nothing, var"data_file"="dyad://MotorTemperatureSciML/data/profile_17.parquet", var"ds_inputs"=nothing, var"ds_meas"=nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -43,7 +43,7 @@ the parameter slot.
     @named model = TestTNNProfile()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -52,6 +52,15 @@ the parameter slot.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "data_file") && (data_file = pop!(__overrides, "data_file"))
+  haskey(__overrides, "ds_inputs") && (ds_inputs = pop!(__overrides, "ds_inputs"))
+  haskey(__overrides, "ds_meas") && (ds_meas = pop!(__overrides, "ds_meas"))
+
+  ### Deferred keyword defaults (defaults referencing other keyword arguments)
+  isnothing(ds_inputs) && (ds_inputs = DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file); independent_var="time", dependent_vars=["u_q", "coolant", "u_d", "motor_speed", "i_d", "i_q", "ambient", "torque", "i_s", "u_s"]))
+  isnothing(ds_meas) && (ds_meas = DyadData.DyadTimeseries(MotorTemperatureSciML.profile_table(data_file); independent_var="time", dependent_vars=["pm", "stator_yoke", "stator_tooth", "stator_winding"]))
 
   ### Structural Parameters (functions)
 
@@ -79,17 +88,17 @@ the parameter slot.
 
   ### Variables (assignments)
   __ovr_T_pm_meas = pop!(__overrides, "T_pm_meas", nothing); isnothing(__ovr_T_pm_meas) || push!(__eqs, T_pm_meas ~ __ovr_T_pm_meas)
-  __ovr_T_pm_meas__initial = pop!(__overrides, "T_pm_meas__initial", nothing); isnothing(__ovr_T_pm_meas__initial) || (__initial_conditions[T_pm_meas] = __ovr_T_pm_meas__initial)
-  __ovr_T_pm_meas__guess = pop!(__overrides, "T_pm_meas__guess", nothing)
+  __ovr_T_pm_meas__initial = pop!(__overrides, "T_pm_meas.initial", nothing); isnothing(__ovr_T_pm_meas__initial) || (__initial_conditions[T_pm_meas] = __ovr_T_pm_meas__initial)
+  __ovr_T_pm_meas__guess = pop!(__overrides, "T_pm_meas.guess", nothing)
   __ovr_T_sy_meas = pop!(__overrides, "T_sy_meas", nothing); isnothing(__ovr_T_sy_meas) || push!(__eqs, T_sy_meas ~ __ovr_T_sy_meas)
-  __ovr_T_sy_meas__initial = pop!(__overrides, "T_sy_meas__initial", nothing); isnothing(__ovr_T_sy_meas__initial) || (__initial_conditions[T_sy_meas] = __ovr_T_sy_meas__initial)
-  __ovr_T_sy_meas__guess = pop!(__overrides, "T_sy_meas__guess", nothing)
+  __ovr_T_sy_meas__initial = pop!(__overrides, "T_sy_meas.initial", nothing); isnothing(__ovr_T_sy_meas__initial) || (__initial_conditions[T_sy_meas] = __ovr_T_sy_meas__initial)
+  __ovr_T_sy_meas__guess = pop!(__overrides, "T_sy_meas.guess", nothing)
   __ovr_T_st_meas = pop!(__overrides, "T_st_meas", nothing); isnothing(__ovr_T_st_meas) || push!(__eqs, T_st_meas ~ __ovr_T_st_meas)
-  __ovr_T_st_meas__initial = pop!(__overrides, "T_st_meas__initial", nothing); isnothing(__ovr_T_st_meas__initial) || (__initial_conditions[T_st_meas] = __ovr_T_st_meas__initial)
-  __ovr_T_st_meas__guess = pop!(__overrides, "T_st_meas__guess", nothing)
+  __ovr_T_st_meas__initial = pop!(__overrides, "T_st_meas.initial", nothing); isnothing(__ovr_T_st_meas__initial) || (__initial_conditions[T_st_meas] = __ovr_T_st_meas__initial)
+  __ovr_T_st_meas__guess = pop!(__overrides, "T_st_meas.guess", nothing)
   __ovr_T_sw_meas = pop!(__overrides, "T_sw_meas", nothing); isnothing(__ovr_T_sw_meas) || push!(__eqs, T_sw_meas ~ __ovr_T_sw_meas)
-  __ovr_T_sw_meas__initial = pop!(__overrides, "T_sw_meas__initial", nothing); isnothing(__ovr_T_sw_meas__initial) || (__initial_conditions[T_sw_meas] = __ovr_T_sw_meas__initial)
-  __ovr_T_sw_meas__guess = pop!(__overrides, "T_sw_meas__guess", nothing)
+  __ovr_T_sw_meas__initial = pop!(__overrides, "T_sw_meas.initial", nothing); isnothing(__ovr_T_sw_meas__initial) || (__initial_conditions[T_sw_meas] = __ovr_T_sw_meas__initial)
+  __ovr_T_sw_meas__guess = pop!(__overrides, "T_sw_meas.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -97,22 +106,22 @@ the parameter slot.
   ### Components
   # Subcomponent model of type MotorTemperatureSciML.Models.TNNModel
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = MotorTemperatureSciML.Models.TNNModel(; model_overrides...))
+  push!(__systems, @named model = MotorTemperatureSciML.Models.TNNModel(; __overrides = model_overrides))
   # Subcomponent interp_inputs of type MotorTemperatureSciML.FastVectorInterpolation
   interp_inputs_overrides = __pop_subcomponent_overrides!(__overrides, "interp_inputs")
-  push!(__systems, @named interp_inputs = MotorTemperatureSciML.FastVectorInterpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=ds_inputs, extrapolation_type=BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs=10, interp_inputs_overrides...))
+  push!(__systems, @named interp_inputs = MotorTemperatureSciML.FastVectorInterpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=ds_inputs, extrapolation_type=BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs=10, __symbol_overrides(interp_inputs_overrides)...))
   # Subcomponent interp_meas of type MotorTemperatureSciML.FastVectorInterpolation
   interp_meas_overrides = __pop_subcomponent_overrides!(__overrides, "interp_meas")
-  push!(__systems, @named interp_meas = MotorTemperatureSciML.FastVectorInterpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=ds_meas, extrapolation_type=BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs=4, interp_meas_overrides...))
+  push!(__systems, @named interp_meas = MotorTemperatureSciML.FastVectorInterpolation(; interpolation_type=BlockComponents.Tables.InterpolationType.LinearInterpolation(), dataset=ds_meas, extrapolation_type=BlockComponents.Tables.ExtrapolationType.Constant(), n_outputs=4, __symbol_overrides(interp_meas_overrides)...))
   # Subcomponent inputs of type MotorTemperatureSciML.SignalRouting.OperatingConditionsDemux
   inputs_overrides = __pop_subcomponent_overrides!(__overrides, "inputs")
-  push!(__systems, @named inputs = MotorTemperatureSciML.SignalRouting.OperatingConditionsDemux(; inputs_overrides...))
+  push!(__systems, @named inputs = MotorTemperatureSciML.SignalRouting.OperatingConditionsDemux(; __overrides = inputs_overrides))
   # Subcomponent measurements of type MotorTemperatureSciML.SignalRouting.TemperatureDemux
   measurements_overrides = __pop_subcomponent_overrides!(__overrides, "measurements")
-  push!(__systems, @named measurements = MotorTemperatureSciML.SignalRouting.TemperatureDemux(; measurements_overrides...))
+  push!(__systems, @named measurements = MotorTemperatureSciML.SignalRouting.TemperatureDemux(; __overrides = measurements_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   isnothing(__ovr_T_pm_meas__guess) || (__guesses[T_pm_meas] = __ovr_T_pm_meas__guess)
@@ -146,6 +155,6 @@ the parameter slot.
   push!(__eqs, connect(inputs.u_s, model.u_s_raw))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestTNNProfile

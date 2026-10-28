@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   FrictionBrakeTest(; name)
+   FrictionBrakeTest(; name, __overrides)
 """
-@component function FrictionBrakeTest(; name = nothing, kwargs...)
+@component function FrictionBrakeTest(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -15,7 +15,7 @@
     @named model = FrictionBrakeTest()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -53,31 +53,31 @@
   ### Components
   # Subcomponent brake of type FrictionBrakeDemo.FrictionBrake
   brake_overrides = __pop_subcomponent_overrides!(__overrides, "brake")
-  push!(__systems, @named brake = FrictionBrakeDemo.FrictionBrake(; N_wheels=1, N_surfaces=1, brake_overrides...))
+  push!(__systems, @named brake = FrictionBrakeDemo.FrictionBrake(; N_wheels=1, N_surfaces=1, __overrides = brake_overrides))
   # Subcomponent inertia of type RotationalComponents.Components.Inertia
   inertia_overrides = __pop_subcomponent_overrides!(__overrides, "inertia")
-  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(; J=Float64(2.0), inertia_overrides...))
+  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(; J=Float64(2.0), __overrides = inertia_overrides))
   # Subcomponent torque_source of type RotationalComponents.Sources.TorqueSource
   torque_source_overrides = __pop_subcomponent_overrides!(__overrides, "torque_source")
-  push!(__systems, @named torque_source = RotationalComponents.Sources.TorqueSource(; torque_source_overrides...))
+  push!(__systems, @named torque_source = RotationalComponents.Sources.TorqueSource(; __overrides = torque_source_overrides))
   # Subcomponent fixed_support of type RotationalComponents.Components.Fixed
   fixed_support_overrides = __pop_subcomponent_overrides!(__overrides, "fixed_support")
-  push!(__systems, @named fixed_support = RotationalComponents.Components.Fixed(; fixed_support_overrides...))
+  push!(__systems, @named fixed_support = RotationalComponents.Components.Fixed(; __overrides = fixed_support_overrides))
   # Subcomponent disk_boundary of type ThermalComponents.Sources.FixedTemperature
   disk_boundary_overrides = __pop_subcomponent_overrides!(__overrides, "disk_boundary")
-  push!(__systems, @named disk_boundary = ThermalComponents.Sources.FixedTemperature(; T=293.15, disk_boundary_overrides...))
+  push!(__systems, @named disk_boundary = ThermalComponents.Sources.FixedTemperature(; T=293.15, __overrides = disk_boundary_overrides))
   # Subcomponent pad_boundary of type ThermalComponents.Sources.FixedTemperature
   pad_boundary_overrides = __pop_subcomponent_overrides!(__overrides, "pad_boundary")
-  push!(__systems, @named pad_boundary = ThermalComponents.Sources.FixedTemperature(; T=293.15, pad_boundary_overrides...))
+  push!(__systems, @named pad_boundary = ThermalComponents.Sources.FixedTemperature(; T=293.15, __overrides = pad_boundary_overrides))
   # Subcomponent brake_command of type BlockComponents.Sources.Step
   brake_command_overrides = __pop_subcomponent_overrides!(__overrides, "brake_command")
-  push!(__systems, @named brake_command = BlockComponents.Sources.Step(; height=Float64(1.0), start_time=Float64(4.0), offset=Float64(0.0), brake_command_overrides...))
+  push!(__systems, @named brake_command = BlockComponents.Sources.Step(; height=Float64(1.0), start_time=Float64(4.0), offset=Float64(0.0), __overrides = brake_command_overrides))
   # Subcomponent torque_input of type BlockComponents.Sources.Constant
   torque_input_overrides = __pop_subcomponent_overrides!(__overrides, "torque_input")
-  push!(__systems, @named torque_input = BlockComponents.Sources.Constant(; k=Float64(50.0), torque_input_overrides...))
+  push!(__systems, @named torque_input = BlockComponents.Sources.Constant(; k=Float64(50.0), __overrides = torque_input_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   __guesses[brake.T_interface] = (293.15)
@@ -99,6 +99,6 @@
   push!(__eqs, connect(brake.shaft, inertia.spline_b))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FrictionBrakeTest

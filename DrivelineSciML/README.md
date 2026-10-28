@@ -85,26 +85,66 @@ REPL command), then activate this project:
 export JULIAUP_SERVER="https://juliahub.com/juliabin"
 export JULIAUP_DEPOT_PATH="$HOME/.julia/juliaup-depots/juliahub.com"
 cd DrivelineSciML
-julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.instantiate()'
 ```
+
+### Recompiling with Dyad Studio or CLI
+
+**Every Dyad Studio recompile, including compile on save, requires rerunning
+`scripts/fix_analysis_codegen.jl` before loading the project again.** The same
+applies after every CLI compile:
+
+```bash
+dyad compile .  # use the 3.5.1 compiler
+julia +dyad-3.5.0 --project scripts/fix_analysis_codegen.jl
+```
+
+The RC2 compiler emitted `@parameters (data::DyadData.DyadTimeseries)`, whose
+`UnionAll` type causes a `MethodError` converting to `DataType` when constructing
+both calibration analyses. The script changes only that annotation to
+`typeof(__local__data)`, preserving compiler whitespace. See the matching
+[upstream compiler issue #1958](https://github.com/JuliaComputing/dyad-lang/issues/1958).
+Keep the workaround until regeneration and the analysis construction tests pass
+without it on a compiler containing an upstream fix.
+
+The workaround is retained pending validation with 3.5.1. The affected compiler was tag `v3.5.0-rc2`, commit
+`a24a2240667872d432a3b86c4db1240d77150e35`. A reproduction from this project
+directory, with a fresh Julia process and deliberately before applying the fix:
+
+```bash
+dyad compile .
+julia +dyad-3.5.0 --project -e 'using DrivelineSciML; DrivelineSciML.DrivelineStage1CalibrationAnalysis__Spec()'
+```
+
+On RC2 this failed with `Cannot convert an object of type Type{DyadData.DyadTimeseries}
+to an object of type DataType`. Run the fix script before retrying. The tests
+construct every affected analysis without running calibration or training.
 
 The measurement CSVs are committed, so calibration runs immediately:
 
 ```bash
-julia +dyad-3.3.0-rc2 --project scripts/run_calibration.jl   # both stages, ~2 min
-julia +dyad-3.3.0-rc2 --project scripts/validate.jl          # → assets/validation_tipin.png
+julia +dyad-3.5.0 --project scripts/run_calibration.jl   # both stages, ~2 min
+julia +dyad-3.5.0 --project scripts/validate.jl          # → assets/validation_tipin.png
 ```
+
+Stage 1 limits the ODE step to 0.1 ms (at least 20 steps per 500 Hz chirp
+cycle). This makes the objective reliable enough for optimizer convergence;
+the original unrestricted adaptive solve returned `Infeasible` on both Dyad
+3.4 and 3.5. Stage 2 uses a 1 ms limit to resolve the fitted internal dynamics.
+The loss, bounds, tolerances, data, and iteration budgets are unchanged.
+Both stages must return a successful status before the workflow
+chains or writes parameters. See [follow-up validation](docs/followup-validation.md)
+for residuals, step refinement, and measured runtimes.
+
+Run the two-stage script for physical calibration. Running Stage 2 by itself
+keeps the nominal Maxwell branch: its optimizer succeeds, but gamma fits near
+its lower bound (0.0513 versus truth 0.5). The chained fit gives gamma 0.4437,
+still 11.27% below truth; successful optimization does not imply exact recovery.
 
 To regenerate the synthetic measurements from the truth model:
 
 ```bash
-julia +dyad-3.3.0-rc2 --project scripts/generate_calibration_data.jl
-```
-
-After editing any `.dyad` file, regenerate `generated/` with the Dyad CLI:
-
-```bash
-dyad compile .
+julia +dyad-3.5.0 --project scripts/generate_calibration_data.jl
 ```
 
 ### Expected results
@@ -151,13 +191,15 @@ baseline:
 `scripts/diagnose_calibration.jl` shows the reasoning behind the search-space
 choice. It reports optimizer health (`assess_health`) and rebuilds the exact
 objective (`objective(prob, alg)`), then checks whether the true parameters are
-actually the lowest point of that objective. When they are not, the model's
-structure is at fault rather than the optimizer.
+actually the lowest point of that objective. A lower loss away from truth
+shows that the fixed nominal parameters introduce model mismatch; it does
+not establish convergence. The script reports the optimizer's status and
+feasibility residuals separately and rejects failed fits before chaining.
 
 ### Smoke tests
 
 ```bash
-julia +dyad-3.3.0-rc2 --project -e 'using Pkg; Pkg.test()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.test()'
 ```
 
 Verifies four things:
@@ -178,3 +220,10 @@ The natural Dyad port adds a gray-box `DrivelineSystem` variant — known physic
 `DyadModelDiscovery.NeuralNetworkBlock` for `der(z)`, plus an
 `NNTrainingAnalysis` on the slow-cycle data. That mirrors the
 `QuarterTruckSciML` NN-discovery demo.
+
+## Dyad 3.5 validation
+
+See [the upgrade validation report](docs/upgrade-3.5-validation.md) for the
+full analysis inventory, old/new numerical comparisons, and regeneration steps.
+Follow the [recompile workflow](#recompiling-with-dyad-studio-or-cli) after
+every Studio or CLI compile to reapply the required annotation workaround.
