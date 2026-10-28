@@ -1,6 +1,6 @@
 # QuarterTruckSciML: Dyad 3.5 upgrade validation
 
-Current target: Dyad **3.5.1**. Forward-looking reproduction commands use that channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
+Current Julia distribution: **dyad-3.5.0**; Dyad CLI target: **3.5.1**. Forward-looking reproduction commands use the 3.5.0 Julia channel; recorded results and compiler hashes describe the original RC2 validation and have not been rerun on 3.5.1.
 
 Target: Dyad `3.5.0` language with runtime `dyad-3.5.0-rc2` (Julia 1.13.2).
 Baseline: the original project on `dyad-3.4.0` (Julia 1.12.7).
@@ -35,12 +35,12 @@ commands and results below predate these stricter guards.
 Instantiate this project, regenerate with the Dyad 3.5 CLI, then run the existing tests and all concrete analyses:
 
 ```sh
-julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.instantiate()'
 dyad --version
-JULIA_EXECUTABLE="julia +dyad-3.5.1" dyad compile "$PWD"
-julia +dyad-3.5.1 --project scripts/fix_analysis_codegen.jl
-JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1 julia +dyad-3.5.1 --project -e 'using Pkg; Pkg.test()'
-DYAD_UPGRADE_OUTPUT=/path/to/results JULIA_NUM_THREADS=2 julia +dyad-3.5.1 --project scripts/validate_upgrade.jl
+JULIA_EXECUTABLE="julia +dyad-3.5.0" dyad compile "$PWD"
+julia +dyad-3.5.0 --project scripts/fix_analysis_codegen.jl
+JULIA_NUM_THREADS=2 JULIA_NUM_PRECOMPILE_TASKS=1 julia +dyad-3.5.0 --project -e 'using Pkg; Pkg.test()'
+DYAD_UPGRADE_OUTPUT=/path/to/results JULIA_NUM_THREADS=2 julia +dyad-3.5.0 --project scripts/validate_upgrade.jl
 ```
 
 The validation driver uses the declared simulation horizons and training budgets,

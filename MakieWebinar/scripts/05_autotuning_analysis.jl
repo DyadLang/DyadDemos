@@ -1,4 +1,4 @@
-# Run with julia +dyad-3.5.1 --project=scripts scripts/05_autotuning_analysis.jl
+# Run with julia +dyad-3.5.0 --project=scripts scripts/05_autotuning_analysis.jl
 using DyadExampleComponents, DyadControlSystems
 using ModelingToolkit: @named
 
