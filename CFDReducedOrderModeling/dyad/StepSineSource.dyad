@@ -12,11 +12,37 @@ metadata {
     "y": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
+          "icon": {
+            "x1": 950,
+            "x2": 1050,
+            "y1": 450,
+            "y2": 550
+          },
+          "diagram": {
+            "x1": 950,
+            "x2": 1050,
+            "y1": 450,
+            "y2": 550
+          }
         },
         "tags": []
       }
     }
+  },
+  "Dyad": {
+    "icons": {
+      "default": "dyad://CFDReducedOrderModeling/StepSineSource.svg"
+    },
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1100,
+        "rot": 0,
+        "layer": "icon",
+        "attrs": {}
+      }
+    ]
   }
 }
 end

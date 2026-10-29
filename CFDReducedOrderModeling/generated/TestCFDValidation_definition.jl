@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TestCFDValidation(; name)
+   TestCFDValidation(; name, __overrides)
 
 Test harness for generating synthetic "CFD" validation data.
 
@@ -14,13 +14,15 @@ Drives the high-fidelity model with a DIFFERENT input profile than training:
 
 This tests whether the ROMs generalize beyond their training data.
 """
-@component function TestCFDValidation(; name = nothing)
+@component function TestCFDValidation(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestCFDValidation()
+  """))
 
-        @named model = TestCFDValidation()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -28,21 +30,45 @@ This tests whether the ROMs generalize beyond their training data.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named model = CFDReducedOrderModeling.HighFidelityOilPassage())
-  push!(__systems, @named source = CFDReducedOrderModeling.RampSource(height=400, duration=50, start_time=5))
+  # Subcomponent model of type CFDReducedOrderModeling.HighFidelityOilPassage
+  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
+  push!(__systems, @named model = CFDReducedOrderModeling.HighFidelityOilPassage(; __overrides = model_overrides))
+  # Subcomponent source of type CFDReducedOrderModeling.RampSource
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
+  push!(__systems, @named source = CFDReducedOrderModeling.RampSource(; height=Float64(400.0), duration=Float64(50.0), start_time=Float64(5.0), __overrides = source_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -53,6 +79,6 @@ This tests whether the ROMs generalize beyond their training data.
   push!(__eqs, connect(source.y, model.Q_in))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestCFDValidation

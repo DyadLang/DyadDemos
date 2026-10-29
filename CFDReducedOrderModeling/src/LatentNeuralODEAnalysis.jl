@@ -228,7 +228,7 @@ function DyadInterface.artifacts(sol::LatentNeuralODESolution, name::Symbol)
         return r
 
     else
-        error("Unknown artifact: $name. Available: $(first.(getfield.(_NODE_ARTIFACT_META, :name)))")
+        error("Unknown artifact: $name. Available: $(getfield.(_NODE_ARTIFACT_META, :name))")
     end
 end
 

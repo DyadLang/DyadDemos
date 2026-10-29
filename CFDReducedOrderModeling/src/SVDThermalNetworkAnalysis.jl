@@ -214,7 +214,7 @@ function DyadInterface.artifacts(sol::SVDThermalNetworkSolution, name::Symbol)
         return r
 
     else
-        error("Unknown artifact: $name. Available: $(first.(getfield.(_SVD_NET_ARTIFACT_META, :name)))")
+        error("Unknown artifact: $name. Available: $(getfield.(_SVD_NET_ARTIFACT_META, :name))")
     end
 end
 

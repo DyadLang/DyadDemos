@@ -15,7 +15,7 @@ Zone assignments (data-driven, energy-weighted k-means):
 """
 component PODDMDcROM
   "Heat input [W]"
-  Q_in = RealInput()
+  Q_in = RealInput() {^Q_in}
   "Dynamics matrix coefficients"
   parameter A11::Real = -0.007367
   parameter A12::Real = -0.01624
@@ -46,4 +46,41 @@ relations
   theta1 = C11 * z1 + C12 * z2
   theta2 = C21 * z1 + C22 * z2
   theta3 = C31 * z1 + C32 * z2
+metadata {
+  "Dyad": {
+    "icons": {
+      "default": "dyad://CFDReducedOrderModeling/PODDMDcROM.svg"
+    },
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1100,
+        "rot": 0,
+        "layer": "icon",
+        "attrs": {}
+      }
+    ]
+  },
+  "_links": {
+    "Q_in": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "x1": -50,
+            "x2": 50,
+            "y1": 450,
+            "y2": 550
+          },
+          "diagram": {
+            "x1": -50,
+            "x2": 50,
+            "y1": 450,
+            "y2": 550
+          }
+        }
+      }
+    }
+  }
+}
 end

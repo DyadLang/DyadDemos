@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   TestCFDTraining(; name)
+   TestCFDTraining(; name, __overrides)
 
 Test harness for generating synthetic "CFD" training data.
 
@@ -16,13 +16,15 @@ Drives the high-fidelity 20-node model with a rich input signal:
 This step + sine combination excites multiple frequencies,
 producing snapshots suitable for POD basis extraction and system ID.
 """
-@component function TestCFDTraining(; name = nothing)
+@component function TestCFDTraining(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestCFDTraining()
+  """))
 
-        @named model = TestCFDTraining()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -30,21 +32,45 @@ producing snapshots suitable for POD basis extraction and system ID.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named model = CFDReducedOrderModeling.HighFidelityOilPassage())
-  push!(__systems, @named source = CFDReducedOrderModeling.StepSineSource(height=300, amplitude=200, frequency=0.02, start_time=5))
+  # Subcomponent model of type CFDReducedOrderModeling.HighFidelityOilPassage
+  model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
+  push!(__systems, @named model = CFDReducedOrderModeling.HighFidelityOilPassage(; __overrides = model_overrides))
+  # Subcomponent source of type CFDReducedOrderModeling.StepSineSource
+  source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
+  push!(__systems, @named source = CFDReducedOrderModeling.StepSineSource(; height=Float64(300.0), amplitude=Float64(200.0), frequency=0.02, start_time=Float64(5.0), __overrides = source_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -55,6 +81,6 @@ producing snapshots suitable for POD basis extraction and system ID.
   push!(__eqs, connect(source.y, model.Q_in))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestCFDTraining

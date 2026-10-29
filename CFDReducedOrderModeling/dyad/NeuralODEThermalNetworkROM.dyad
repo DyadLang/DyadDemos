@@ -13,7 +13,7 @@ All variables are in deviation coordinates: θ = T - T_cool.
 """
 component NeuralODEThermalNetworkROM
   "Heat input at oil side [W]"
-  Q_in = RealInput()
+  Q_in = RealInput() {^Q_in}
   "Zone thermal capacitances [J/K] (C_per_node × zone_size)"
   parameter C1::Real = 168.2
   parameter C2::Real = 336.5
@@ -39,4 +39,41 @@ relations
   C2 * der(theta2) = G12 * (theta1 - theta2) + G23 * (theta3 - theta2)
   C3 * der(theta3) = G23 * (theta2 - theta3) + G34 * (theta4 - theta3)
   C4 * der(theta4) = G34 * (theta3 - theta4) - Gc * theta4
+metadata {
+  "Dyad": {
+    "icons": {
+      "default": "dyad://CFDReducedOrderModeling/NeuralODEThermalNetworkROM.svg"
+    },
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1100,
+        "rot": 0,
+        "layer": "icon",
+        "attrs": {}
+      }
+    ]
+  },
+  "_links": {
+    "Q_in": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "x1": -50,
+            "x2": 50,
+            "y1": 450,
+            "y2": 550
+          },
+          "diagram": {
+            "x1": -50,
+            "x2": 50,
+            "y1": 450,
+            "y2": 550
+          }
+        }
+      }
+    }
+  }
+}
 end

@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   NeuralODEThermalNetworkROM(; name, C1, C2, C3, C4, G12, G23, G34, Gc)
+   NeuralODEThermalNetworkROM(; name, C1, C2, C3, C4, G12, G23, G34, Gc, __overrides)
 
 4-zone thermal network ROM discovered via Latent Neural ODE.
 
@@ -19,14 +19,14 @@ latent dimension discovered by neural ODE sweep):
 Calibrated against CFD training data via Nelder-Mead optimization.
 All variables are in deviation coordinates: θ = T - T_cool.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `C1`         | Zone thermal capacitances [J/K] (C_per_node × zone_size)                         | --  |   168.2 |
 | `C2`         |                          | --  |   336.5 |
 | `C3`         |                          | --  |   504.7 |
-| `C4`         |                          | --  |   673 |
+| `C4`         |                          | --  |   673.0 |
 | `G12`         | Inter-zone conductances [W/K]                         | --  |   64.73 |
 | `G23`         |                          | --  |   42.54 |
 | `G34`         |                          | --  |   28.24 |
@@ -39,19 +39,21 @@ All variables are in deviation coordinates: θ = T - T_cool.
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `theta1`         | Zone temperature deviations [K]                         | --  | 
-| `theta2`         |                          | --  | 
-| `theta3`         |                          | --  | 
-| `theta4`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `theta1`         | Zone temperature deviations [K]                         | --  |
+| `theta2`         |                          | --  |
+| `theta3`         |                          | --  |
+| `theta4`         |                          | --  |
 """
-@component function NeuralODEThermalNetworkROM(; name = nothing, C1=168.2, C2=336.5, C3=504.7, C4=673, G12=64.73, G23=42.54, G34=28.24, Gc=7.65)
+@component function NeuralODEThermalNetworkROM(; name = nothing, var"C1"=168.2, var"C2"=336.5, var"C3"=504.7, var"C4"=Float64(673.0), var"G12"=64.73, var"G23"=42.54, var"G34"=28.24, var"Gc"=7.65, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = NeuralODEThermalNetworkROM()
+  """))
 
-        @named model = NeuralODEThermalNetworkROM()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -59,38 +61,100 @@ All variables are in deviation coordinates: θ = T - T_cool.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "C1") && (C1 = pop!(__overrides, "C1"))
+  haskey(__overrides, "C2") && (C2 = pop!(__overrides, "C2"))
+  haskey(__overrides, "C3") && (C3 = pop!(__overrides, "C3"))
+  haskey(__overrides, "C4") && (C4 = pop!(__overrides, "C4"))
+  haskey(__overrides, "G12") && (G12 = pop!(__overrides, "G12"))
+  haskey(__overrides, "G23") && (G23 = pop!(__overrides, "G23"))
+  haskey(__overrides, "G34") && (G34 = pop!(__overrides, "G34"))
+  haskey(__overrides, "Gc") && (Gc = pop!(__overrides, "Gc"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (C1::Real = C1), [description = "Zone thermal capacitances [J/K] (C_per_node × zone_size)"])
-  append!(__params, @parameters (C2::Real = C2))
-  append!(__params, @parameters (C3::Real = C3))
-  append!(__params, @parameters (C4::Real = C4))
-  append!(__params, @parameters (G12::Real = G12), [description = "Inter-zone conductances [W/K]"])
-  append!(__params, @parameters (G23::Real = G23))
-  append!(__params, @parameters (G34::Real = G34))
-  append!(__params, @parameters (Gc::Real = Gc), [description = "Coolant-side conductance [W/K]"])
+  __local__C1 = C1
+  append!(__params, @parameters (C1::Real), [description = "Zone thermal capacitances [J/K] (C_per_node × zone_size)"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C1, __local__C1)
+  __local__C2 = C2
+  append!(__params, @parameters (C2::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C2, __local__C2)
+  __local__C3 = C3
+  append!(__params, @parameters (C3::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C3, __local__C3)
+  __local__C4 = C4
+  append!(__params, @parameters (C4::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C4, __local__C4)
+  __local__G12 = G12
+  append!(__params, @parameters (G12::Real), [description = "Inter-zone conductances [W/K]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G12, __local__G12)
+  __local__G23 = G23
+  append!(__params, @parameters (G23::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G23, __local__G23)
+  __local__G34 = G34
+  append!(__params, @parameters (G34::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G34, __local__G34)
+  __local__Gc = Gc
+  append!(__params, @parameters (Gc::Real), [description = "Coolant-side conductance [W/K]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc, __local__Gc)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (Q_in(t)::Real), [input = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (theta1(t)::Real), [description = "Zone temperature deviations [K]"])
   append!(__vars, @variables (theta2(t)::Real))
   append!(__vars, @variables (theta3(t)::Real))
   append!(__vars, @variables (theta4(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_theta1 = pop!(__overrides, "theta1", nothing); isnothing(__ovr_theta1) || push!(__eqs, theta1 ~ __ovr_theta1)
+  __ovr_theta1__initial = pop!(__overrides, "theta1.initial", nothing); isnothing(__ovr_theta1__initial) || (__initial_conditions[theta1] = __ovr_theta1__initial)
+  __ovr_theta1__guess = pop!(__overrides, "theta1.guess", nothing)
+  __ovr_theta2 = pop!(__overrides, "theta2", nothing); isnothing(__ovr_theta2) || push!(__eqs, theta2 ~ __ovr_theta2)
+  __ovr_theta2__initial = pop!(__overrides, "theta2.initial", nothing); isnothing(__ovr_theta2__initial) || (__initial_conditions[theta2] = __ovr_theta2__initial)
+  __ovr_theta2__guess = pop!(__overrides, "theta2.guess", nothing)
+  __ovr_theta3 = pop!(__overrides, "theta3", nothing); isnothing(__ovr_theta3) || push!(__eqs, theta3 ~ __ovr_theta3)
+  __ovr_theta3__initial = pop!(__overrides, "theta3.initial", nothing); isnothing(__ovr_theta3__initial) || (__initial_conditions[theta3] = __ovr_theta3__initial)
+  __ovr_theta3__guess = pop!(__overrides, "theta3.guess", nothing)
+  __ovr_theta4 = pop!(__overrides, "theta4", nothing); isnothing(__ovr_theta4) || push!(__eqs, theta4 ~ __ovr_theta4)
+  __ovr_theta4__initial = pop!(__overrides, "theta4.initial", nothing); isnothing(__ovr_theta4__initial) || (__initial_conditions[theta4] = __ovr_theta4__initial)
+  __ovr_theta4__guess = pop!(__overrides, "theta4.guess", nothing)
 
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
-  ### Defaults
-  __initial_conditions[theta1] = (0)
-  __initial_conditions[theta2] = (0)
-  __initial_conditions[theta3] = (0)
-  __initial_conditions[theta4] = (0)
+  ### Guesses
+  isnothing(__ovr_theta1__guess) || (__guesses[theta1] = __ovr_theta1__guess)
+  isnothing(__ovr_theta2__guess) || (__guesses[theta2] = __ovr_theta2__guess)
+  isnothing(__ovr_theta3__guess) || (__guesses[theta3] = __ovr_theta3__guess)
+  isnothing(__ovr_theta4__guess) || (__guesses[theta4] = __ovr_theta4__guess)
 
   ### Initialization Equations
+  push!(__initialization_eqs, theta1 ~ 0.0)
+  push!(__initialization_eqs, theta2 ~ 0.0)
+  push!(__initialization_eqs, theta3 ~ 0.0)
+  push!(__initialization_eqs, theta4 ~ 0.0)
 
   ### Assertions
   __assertions = []
@@ -102,6 +166,6 @@ All variables are in deviation coordinates: θ = T - T_cool.
   push!(__eqs, C4 * ModelingToolkit.D_nounits(theta4) ~ G34 * (theta3 - theta4) - Gc * theta4)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export NeuralODEThermalNetworkROM

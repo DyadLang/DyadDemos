@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   HighFidelityOilPassage(; name, N, k_wall, rho_wall, cp_wall, L_wall, A_wall, Gc_cool, T_cool, T0_arr)
+   HighFidelityOilPassage(; name, N, k_wall, rho_wall, cp_wall, L_wall, A_wall, Gc_cool, T_cool, T0_arr, __overrides)
 
 High-fidelity 1D thermal model of a hydraulic oil passage wall.
 
@@ -24,19 +24,19 @@ Material: Cast iron manifold block
   k  = 50 W/(m·K), ρ = 7200 kg/m³, cp = 460 J/(kg·K)
   L  = 50 mm wall thickness, A = 100 cm² cross-section
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `N`         | Number of nodes through the wall                         | --  |   20 |
-| `k_wall`         | Wall thermal conductivity [W/(m·K)]                         | --  |   50 |
-| `rho_wall`         | Wall density [kg/m³]                         | --  |   7200 |
-| `cp_wall`         | Wall specific heat [J/(kg·K)]                         | --  |   460 |
+| `k_wall`         | Wall thermal conductivity [W/(m·K)]                         | --  |   50.0 |
+| `rho_wall`         | Wall density [kg/m³]                         | --  |   7200.0 |
+| `cp_wall`         | Wall specific heat [J/(kg·K)]                         | --  |   460.0 |
 | `L_wall`         | Wall thickness [m]                         | --  |   0.05 |
 | `A_wall`         | Cross-sectional area [m²]                         | --  |   0.01 |
-| `Gc_cool`         | Coolant-side convective conductance [W/K]                         | --  |   10 |
-| `T_cool`         | Coolant temperature [K]                         | --  |   300 |
-| `T0_arr`         | Initial temperature array [K]                         | --  |   fill(300, N) |
+| `Gc_cool`         | Coolant-side convective conductance [W/K]                         | --  |   10.0 |
+| `T_cool`         | Coolant temperature [K]                         | --  |   300.0 |
+| `T0_arr`         | Initial temperature array [K]                         | --  |   fill(300.0, N) |
 
 ## Connectors
 
@@ -45,16 +45,18 @@ Material: Cast iron manifold block
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `T`         | Temperature at each node [K]                         | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `T`         | Temperature at each node [K]                         | --  |
 """
-@component function HighFidelityOilPassage(; name = nothing, N=20, k_wall=50, rho_wall=7200, cp_wall=460, L_wall=0.05, A_wall=0.01, Gc_cool=10, T_cool=300, T0_arr=fill(300, N))
+@component function HighFidelityOilPassage(; name = nothing, var"N"=20, var"k_wall"=Float64(50.0), var"rho_wall"=Float64(7200.0), var"cp_wall"=Float64(460.0), var"L_wall"=0.05, var"A_wall"=0.01, var"Gc_cool"=Float64(10.0), var"T_cool"=Float64(300.0), var"T0_arr"=nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HighFidelityOilPassage()
+  """))
 
-        @named model = HighFidelityOilPassage()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -62,35 +64,92 @@ Material: Cast iron manifold block
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "N") && (N = pop!(__overrides, "N"))
+  haskey(__overrides, "k_wall") && (k_wall = pop!(__overrides, "k_wall"))
+  haskey(__overrides, "rho_wall") && (rho_wall = pop!(__overrides, "rho_wall"))
+  haskey(__overrides, "cp_wall") && (cp_wall = pop!(__overrides, "cp_wall"))
+  haskey(__overrides, "L_wall") && (L_wall = pop!(__overrides, "L_wall"))
+  haskey(__overrides, "A_wall") && (A_wall = pop!(__overrides, "A_wall"))
+  haskey(__overrides, "Gc_cool") && (Gc_cool = pop!(__overrides, "Gc_cool"))
+  haskey(__overrides, "T_cool") && (T_cool = pop!(__overrides, "T_cool"))
+  haskey(__overrides, "T0_arr") && (T0_arr = pop!(__overrides, "T0_arr"))
+
+  ### Deferred keyword defaults (defaults referencing other keyword arguments)
+  isnothing(T0_arr) && (T0_arr = fill(300.0, N))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+  append!(__params, @parameters (dx::Real), [description = "Node spacing [m]", misc = "final"])
+  append!(__params, @parameters (C_node::Real), [description = "Thermal capacitance per node [J/K]", misc = "final"])
+  append!(__params, @parameters (G_cond::Real), [description = "Thermal conductance between adjacent nodes [W/K]", misc = "final"])
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (k_wall::Real = k_wall), [description = "Wall thermal conductivity [W/(m·K)]"])
-  append!(__params, @parameters (rho_wall::Real = rho_wall), [description = "Wall density [kg/m³]"])
-  append!(__params, @parameters (cp_wall::Real = cp_wall), [description = "Wall specific heat [J/(kg·K)]"])
-  append!(__params, @parameters (L_wall::Real = L_wall), [description = "Wall thickness [m]"])
-  append!(__params, @parameters (A_wall::Real = A_wall), [description = "Cross-sectional area [m²]"])
-  append!(__params, @parameters (Gc_cool::Real = Gc_cool), [description = "Coolant-side convective conductance [W/K]"])
-  append!(__params, @parameters (T_cool::Real = T_cool), [description = "Coolant temperature [K]"])
-  append!(__params, @parameters (dx::Real = L_wall / N), [description = "Node spacing [m]"])
-  append!(__params, @parameters (C_node::Real = rho_wall * cp_wall * A_wall * dx), [description = "Thermal capacitance per node [J/K]"])
-  append!(__params, @parameters (G_cond::Real = k_wall * A_wall / dx), [description = "Thermal conductance between adjacent nodes [W/K]"])
-  append!(__params, @parameters (T0_arr[1:N]::Real = T0_arr), [description = "Initial temperature array [K]"])
+  __local__k_wall = k_wall
+  append!(__params, @parameters (k_wall::Real), [description = "Wall thermal conductivity [W/(m·K)]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_wall, __local__k_wall)
+  __local__rho_wall = rho_wall
+  append!(__params, @parameters (rho_wall::Real), [description = "Wall density [kg/m³]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rho_wall, __local__rho_wall)
+  __local__cp_wall = cp_wall
+  append!(__params, @parameters (cp_wall::Real), [description = "Wall specific heat [J/(kg·K)]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, cp_wall, __local__cp_wall)
+  __local__L_wall = L_wall
+  append!(__params, @parameters (L_wall::Real), [description = "Wall thickness [m]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, L_wall, __local__L_wall)
+  __local__A_wall = A_wall
+  append!(__params, @parameters (A_wall::Real), [description = "Cross-sectional area [m²]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_wall, __local__A_wall)
+  __local__Gc_cool = Gc_cool
+  append!(__params, @parameters (Gc_cool::Real), [description = "Coolant-side convective conductance [W/K]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_cool, __local__Gc_cool)
+  __local__T_cool = T_cool
+  append!(__params, @parameters (T_cool::Real), [description = "Coolant temperature [K]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_cool, __local__T_cool)
+  __local__T0_arr = T0_arr
+  append!(__params, @parameters (T0_arr[1:N]::Real), [description = "Initial temperature array [K]"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0_arr, __local__T0_arr)
 
-  ### Variables
+  ### Final Parameters (assignments)
+  __bindings[dx] = L_wall / N
+  __bindings[C_node] = rho_wall * cp_wall * A_wall * dx
+  __bindings[G_cond] = k_wall * A_wall / dx
+
+  ### Final Path Parameters
   append!(__vars, @variables (Q_in(t)::Real), [input = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (T(t)[1:N]::Real), [description = "Temperature at each node [K]"])
+
+  ### Variables (assignments)
+  __ovr_T = pop!(__overrides, "T", nothing); isnothing(__ovr_T) || push!(__eqs, T ~ __ovr_T)
+  __ovr_T__initial = pop!(__overrides, "T.initial", nothing); isnothing(__ovr_T__initial) || (__initial_conditions[T] = __ovr_T__initial)
+  __ovr_T__guess = pop!(__overrides, "T.guess", nothing)
 
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
-  ### Defaults
-  __initial_conditions[T] = (T0_arr)
+  ### Guesses
+  isnothing(__ovr_T__guess) || (__guesses[T] = __ovr_T__guess)
 
   ### Initialization Equations
+  push!(__initialization_eqs, T ~ T0_arr)
 
   ### Assertions
   __assertions = []
@@ -101,10 +160,10 @@ Material: Cast iron manifold block
 
   ### Control Structures
   for i in 2:(N - 1)
-      push!(__eqs, C_node * ModelingToolkit.D_nounits(T[i]) ~ G_cond * (T[i - 1] - 2 * T[i] + T[i + 1]))
+    push!(__eqs, C_node * ModelingToolkit.D_nounits(T[i]) ~ G_cond * (T[i - 1] - 2.0 * T[i] + T[i + 1]))
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HighFidelityOilPassage

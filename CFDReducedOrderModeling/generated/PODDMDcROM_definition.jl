@@ -5,7 +5,7 @@
 
 
 @doc Markdown.doc"""
-   PODDMDcROM(; name, A11, A12, A21, A22, B1, B2, C11, C12, C21, C22, C31, C32)
+   PODDMDcROM(; name, A11, A12, A21, A22, B1, B2, C11, C12, C21, C22, C31, C32, __overrides)
 
 POD/DMDc reduced-order model discovered from CFD snapshot data.
 
@@ -21,7 +21,7 @@ Zone assignments (data-driven, energy-weighted k-means):
   Zone 2: nodes [5,6,7,8,9,10,11]            — 7 nodes
   Zone 3: nodes [12,13,14,15,16,17,18,19,20] — 9 nodes
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -36,7 +36,7 @@ Zone assignments (data-driven, energy-weighted k-means):
 | `C21`         |                          | --  |   -0.2354 |
 | `C22`         |                          | --  |   0.06803 |
 | `C31`         |                          | --  |   -0.1535 |
-| `C32`         |                          | --  |   0.224 |
+| `C32`         |                          | --  |   0.2240 |
 
 ## Connectors
 
@@ -45,20 +45,22 @@ Zone assignments (data-driven, energy-weighted k-means):
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `z1`         | Latent POD coordinates                         | --  | 
-| `z2`         |                          | --  | 
-| `theta1`         | Zone temperature deviations [K]                         | --  | 
-| `theta2`         |                          | --  | 
-| `theta3`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `z1`         | Latent POD coordinates                         | --  |
+| `z2`         |                          | --  |
+| `theta1`         | Zone temperature deviations [K]                         | --  |
+| `theta2`         |                          | --  |
+| `theta3`         |                          | --  |
 """
-@component function PODDMDcROM(; name = nothing, A11=-0.007367, A12=-0.01624, A21=-0.01467, A22=-0.08904, B1=-0.003862, B2=-0.003955, C11=-0.3123, C12=-0.3177, C21=-0.2354, C22=0.06803, C31=-0.1535, C32=0.224)
+@component function PODDMDcROM(; name = nothing, var"A11"=-0.007367, var"A12"=-0.01624, var"A21"=-0.01467, var"A22"=-0.08904, var"B1"=-0.003862, var"B2"=-0.003955, var"C11"=-0.3123, var"C12"=-0.3177, var"C21"=-0.2354, var"C22"=0.06803, var"C31"=-0.1535, var"C32"=0.224, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = PODDMDcROM()
+  """))
 
-        @named model = PODDMDcROM()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -66,41 +68,119 @@ Zone assignments (data-driven, energy-weighted k-means):
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "A11") && (A11 = pop!(__overrides, "A11"))
+  haskey(__overrides, "A12") && (A12 = pop!(__overrides, "A12"))
+  haskey(__overrides, "A21") && (A21 = pop!(__overrides, "A21"))
+  haskey(__overrides, "A22") && (A22 = pop!(__overrides, "A22"))
+  haskey(__overrides, "B1") && (B1 = pop!(__overrides, "B1"))
+  haskey(__overrides, "B2") && (B2 = pop!(__overrides, "B2"))
+  haskey(__overrides, "C11") && (C11 = pop!(__overrides, "C11"))
+  haskey(__overrides, "C12") && (C12 = pop!(__overrides, "C12"))
+  haskey(__overrides, "C21") && (C21 = pop!(__overrides, "C21"))
+  haskey(__overrides, "C22") && (C22 = pop!(__overrides, "C22"))
+  haskey(__overrides, "C31") && (C31 = pop!(__overrides, "C31"))
+  haskey(__overrides, "C32") && (C32 = pop!(__overrides, "C32"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (A11::Real = A11), [description = "Dynamics matrix coefficients"])
-  append!(__params, @parameters (A12::Real = A12))
-  append!(__params, @parameters (A21::Real = A21))
-  append!(__params, @parameters (A22::Real = A22))
-  append!(__params, @parameters (B1::Real = B1), [description = "Input matrix coefficients"])
-  append!(__params, @parameters (B2::Real = B2))
-  append!(__params, @parameters (C11::Real = C11), [description = "Output matrix coefficients (3 zones × 2 states)"])
-  append!(__params, @parameters (C12::Real = C12))
-  append!(__params, @parameters (C21::Real = C21))
-  append!(__params, @parameters (C22::Real = C22))
-  append!(__params, @parameters (C31::Real = C31))
-  append!(__params, @parameters (C32::Real = C32))
+  __local__A11 = A11
+  append!(__params, @parameters (A11::Real), [description = "Dynamics matrix coefficients"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A11, __local__A11)
+  __local__A12 = A12
+  append!(__params, @parameters (A12::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A12, __local__A12)
+  __local__A21 = A21
+  append!(__params, @parameters (A21::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A21, __local__A21)
+  __local__A22 = A22
+  append!(__params, @parameters (A22::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A22, __local__A22)
+  __local__B1 = B1
+  append!(__params, @parameters (B1::Real), [description = "Input matrix coefficients"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, B1, __local__B1)
+  __local__B2 = B2
+  append!(__params, @parameters (B2::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, B2, __local__B2)
+  __local__C11 = C11
+  append!(__params, @parameters (C11::Real), [description = "Output matrix coefficients (3 zones × 2 states)"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C11, __local__C11)
+  __local__C12 = C12
+  append!(__params, @parameters (C12::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C12, __local__C12)
+  __local__C21 = C21
+  append!(__params, @parameters (C21::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C21, __local__C21)
+  __local__C22 = C22
+  append!(__params, @parameters (C22::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C22, __local__C22)
+  __local__C31 = C31
+  append!(__params, @parameters (C31::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C31, __local__C31)
+  __local__C32 = C32
+  append!(__params, @parameters (C32::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C32, __local__C32)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (Q_in(t)::Real), [input = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (z1(t)::Real), [description = "Latent POD coordinates"])
   append!(__vars, @variables (z2(t)::Real))
   append!(__vars, @variables (theta1(t)::Real), [description = "Zone temperature deviations [K]"])
   append!(__vars, @variables (theta2(t)::Real))
   append!(__vars, @variables (theta3(t)::Real))
 
+  ### Variables (assignments)
+  __ovr_z1 = pop!(__overrides, "z1", nothing); isnothing(__ovr_z1) || push!(__eqs, z1 ~ __ovr_z1)
+  __ovr_z1__initial = pop!(__overrides, "z1.initial", nothing); isnothing(__ovr_z1__initial) || (__initial_conditions[z1] = __ovr_z1__initial)
+  __ovr_z1__guess = pop!(__overrides, "z1.guess", nothing)
+  __ovr_z2 = pop!(__overrides, "z2", nothing); isnothing(__ovr_z2) || push!(__eqs, z2 ~ __ovr_z2)
+  __ovr_z2__initial = pop!(__overrides, "z2.initial", nothing); isnothing(__ovr_z2__initial) || (__initial_conditions[z2] = __ovr_z2__initial)
+  __ovr_z2__guess = pop!(__overrides, "z2.guess", nothing)
+  __ovr_theta1 = pop!(__overrides, "theta1", nothing); isnothing(__ovr_theta1) || push!(__eqs, theta1 ~ __ovr_theta1)
+  __ovr_theta1__initial = pop!(__overrides, "theta1.initial", nothing); isnothing(__ovr_theta1__initial) || (__initial_conditions[theta1] = __ovr_theta1__initial)
+  __ovr_theta1__guess = pop!(__overrides, "theta1.guess", nothing)
+  __ovr_theta2 = pop!(__overrides, "theta2", nothing); isnothing(__ovr_theta2) || push!(__eqs, theta2 ~ __ovr_theta2)
+  __ovr_theta2__initial = pop!(__overrides, "theta2.initial", nothing); isnothing(__ovr_theta2__initial) || (__initial_conditions[theta2] = __ovr_theta2__initial)
+  __ovr_theta2__guess = pop!(__overrides, "theta2.guess", nothing)
+  __ovr_theta3 = pop!(__overrides, "theta3", nothing); isnothing(__ovr_theta3) || push!(__eqs, theta3 ~ __ovr_theta3)
+  __ovr_theta3__initial = pop!(__overrides, "theta3.initial", nothing); isnothing(__ovr_theta3__initial) || (__initial_conditions[theta3] = __ovr_theta3__initial)
+  __ovr_theta3__guess = pop!(__overrides, "theta3.guess", nothing)
+
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
-  ### Defaults
-  __initial_conditions[z1] = (0)
-  __initial_conditions[z2] = (0)
+  ### Guesses
+  isnothing(__ovr_z1__guess) || (__guesses[z1] = __ovr_z1__guess)
+  isnothing(__ovr_z2__guess) || (__guesses[z2] = __ovr_z2__guess)
+  isnothing(__ovr_theta1__guess) || (__guesses[theta1] = __ovr_theta1__guess)
+  isnothing(__ovr_theta2__guess) || (__guesses[theta2] = __ovr_theta2__guess)
+  isnothing(__ovr_theta3__guess) || (__guesses[theta3] = __ovr_theta3__guess)
 
   ### Initialization Equations
+  push!(__initialization_eqs, z1 ~ 0.0)
+  push!(__initialization_eqs, z2 ~ 0.0)
 
   ### Assertions
   __assertions = []
@@ -113,6 +193,6 @@ Zone assignments (data-driven, energy-weighted k-means):
   push!(__eqs, theta3 ~ C31 * z1 + C32 * z2)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export PODDMDcROM

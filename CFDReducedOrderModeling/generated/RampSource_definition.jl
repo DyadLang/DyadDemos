@@ -5,29 +5,31 @@
 
 
 @doc Markdown.doc"""
-   RampSource(; name, height, duration, start_time)
+   RampSource(; name, height, duration, start_time, __overrides)
 
 Ramp source: ramps from 0 to height over [start_time, start_time+duration], then holds.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `height`         |                          | --  |   400 |
-| `duration`         |                          | --  |   50 |
-| `start_time`         |                          | --  |   5 |
+| `height`         |                          | --  |   400.0 |
+| `duration`         |                          | --  |   50.0 |
+| `start_time`         |                          | --  |   5.0 |
 
 ## Connectors
 
  * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function RampSource(; name = nothing, height=400, duration=50, start_time=5)
+@component function RampSource(; name = nothing, var"height"=Float64(400.0), var"duration"=Float64(50.0), var"start_time"=Float64(5.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = RampSource()
+  """))
 
-        @named model = RampSource()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -35,23 +37,54 @@ Ramp source: ramps from 0 to height over [start_time, start_time+duration], then
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "height") && (height = pop!(__overrides, "height"))
+  haskey(__overrides, "duration") && (duration = pop!(__overrides, "duration"))
+  haskey(__overrides, "start_time") && (start_time = pop!(__overrides, "start_time"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (height::Real = height))
-  append!(__params, @parameters (duration::Real = duration))
-  append!(__params, @parameters (start_time::Real = start_time))
+  __local__height = height
+  append!(__params, @parameters (height::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, height, __local__height)
+  __local__duration = duration
+  append!(__params, @parameters (duration::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, duration, __local__duration)
+  __local__start_time = start_time
+  append!(__params, @parameters (start_time::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, start_time, __local__start_time)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (y(t)::Real), [output = true])
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
 
@@ -59,9 +92,9 @@ Ramp source: ramps from 0 to height over [start_time, start_time+duration], then
   __assertions = []
 
   ### Equations
-  push!(__eqs, y ~ ifelse(t < start_time, 0, ifelse(t < start_time + duration, (t - start_time) * height / duration, height)))
+  push!(__eqs, y ~ ifelse(t < start_time, 0.0, ifelse(t < start_time + duration, (t - start_time) * height / duration, height)))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export RampSource

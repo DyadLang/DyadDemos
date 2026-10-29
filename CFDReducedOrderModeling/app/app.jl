@@ -19,6 +19,7 @@ using HTTP, JSON, LinearAlgebra, Statistics
 using CSV, DataFrames
 using CFDReducedOrderModeling
 using ModelingToolkit
+using OrdinaryDiffEqDefault
 using DyadInterface: symbolic_container
 
 # ════════════════════════════════════════════════════════════════
@@ -540,10 +541,12 @@ end
 #  Start server
 # ════════════════════════════════════════════════════════════════
 
-port = parse(Int, get(ENV, "PORT", "9000"))
-println("\n" * "=" ^ 60)
-println("  Dashboard ready at http://localhost:$port")
-println("  Data:  $(DATA_DIR)")
-println("  ROMs:  Dyad components (compiled at startup)")
-println("=" ^ 60 * "\n")
-HTTP.serve(router, "0.0.0.0", port)
+if abspath(PROGRAM_FILE) == @__FILE__
+    port = parse(Int, get(ENV, "PORT", "9000"))
+    println("\n" * "=" ^ 60)
+    println("  Dashboard ready at http://localhost:$port")
+    println("  Data:  $(DATA_DIR)")
+    println("  ROMs:  Dyad components (compiled at startup)")
+    println("=" ^ 60 * "\n")
+    HTTP.serve(router, "0.0.0.0", port)
+end

@@ -5,30 +5,32 @@
 
 
 @doc Markdown.doc"""
-   StepSineSource(; name, height, amplitude, frequency, start_time)
+   StepSineSource(; name, height, amplitude, frequency, start_time, __overrides)
 
 Step + Sine source: outputs height + amplitude*sin(2π*f*(t-t0)) for t >= t0, else 0.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `height`         |                          | --  |   300 |
-| `amplitude`         |                          | --  |   200 |
+| `height`         |                          | --  |   300.0 |
+| `amplitude`         |                          | --  |   200.0 |
 | `frequency`         |                          | --  |   0.02 |
-| `start_time`         |                          | --  |   5 |
+| `start_time`         |                          | --  |   5.0 |
 
 ## Connectors
 
  * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function StepSineSource(; name = nothing, height=300, amplitude=200, frequency=0.02, start_time=5)
+@component function StepSineSource(; name = nothing, var"height"=Float64(300.0), var"amplitude"=Float64(200.0), var"frequency"=0.02, var"start_time"=Float64(5.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = StepSineSource()
+  """))
 
-        @named model = StepSineSource()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -36,24 +38,58 @@ Step + Sine source: outputs height + amplitude*sin(2π*f*(t-t0)) for t >= t0, el
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "height") && (height = pop!(__overrides, "height"))
+  haskey(__overrides, "amplitude") && (amplitude = pop!(__overrides, "amplitude"))
+  haskey(__overrides, "frequency") && (frequency = pop!(__overrides, "frequency"))
+  haskey(__overrides, "start_time") && (start_time = pop!(__overrides, "start_time"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (height::Real = height))
-  append!(__params, @parameters (amplitude::Real = amplitude))
-  append!(__params, @parameters (frequency::Real = frequency))
-  append!(__params, @parameters (start_time::Real = start_time))
+  __local__height = height
+  append!(__params, @parameters (height::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, height, __local__height)
+  __local__amplitude = amplitude
+  append!(__params, @parameters (amplitude::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amplitude, __local__amplitude)
+  __local__frequency = frequency
+  append!(__params, @parameters (frequency::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, frequency, __local__frequency)
+  __local__start_time = start_time
+  append!(__params, @parameters (start_time::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, start_time, __local__start_time)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (y(t)::Real), [output = true])
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
 
@@ -61,9 +97,9 @@ Step + Sine source: outputs height + amplitude*sin(2π*f*(t-t0)) for t >= t0, el
   __assertions = []
 
   ### Equations
-  push!(__eqs, y ~ ifelse(t >= start_time, height + amplitude * sin(2 * π * frequency * (t - start_time)), 0))
+  push!(__eqs, y ~ ifelse(t >= start_time, height + amplitude * sin(2.0 * π * frequency * (t - start_time)), 0.0))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export StepSineSource

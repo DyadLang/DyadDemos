@@ -7,8 +7,8 @@
 #    - run_analysis(spec) → delegates to base spec
 #    - Convenience constructor RunX(; kwargs...)
 #
-#  Since the Dyad compiler doesn't support `partial analysis`
-#  definitions, these are hand-written Julia equivalents.
+#  These runners are implemented in Julia alongside the CSV/data-processing
+#  analyses and delegate to the base specifications below.
 # ════════════════════════════════════════════════════════════════
 
 using DyadInterface
@@ -23,7 +23,7 @@ using DyadInterface
 Pre-configured SVD Thermal Network ROM builder.
 Runs the complete pipeline: SVD → zone clustering → calibrated thermal network.
 
-Equivalent Dyad (if partial analysis were supported):
+Equivalent analysis configuration:
 ```
 analysis RunSVDThermalNetwork
   extends SVDThermalNetworkAnalysis(
@@ -42,9 +42,9 @@ artifacts(result)           # list available artifacts
 artifacts(result, :CalibratedNetwork)  # DataFrame of parameters
 ```
 """
-@kwdef mutable struct RunSVDThermalNetworkSpec <: AbstractSVDThermalNetworkSpec
+@kwdef struct RunSVDThermalNetworkSpec <: AbstractSVDThermalNetworkSpec
     name::Symbol = :RunSVDThermalNetwork
-    data::String = "data/cfd_training_data.csv"
+    data::String = joinpath(@__DIR__, "..", "data", "cfd_training_data.csv")
     spatial_cols::Union{Nothing, Vector{String}} = nothing
     input_col::String = "Q_in"
     time_col::String = "time"
@@ -93,7 +93,7 @@ RunSVDThermalNetwork(; kwargs...) = DyadInterface.run_analysis(RunSVDThermalNetw
 Pre-configured POD/DMDc ROM builder.
 Runs the complete pipeline: SVD → DMDc dynamics → zone clustering.
 
-Equivalent Dyad (if partial analysis were supported):
+Equivalent analysis configuration:
 ```
 analysis RunDataDrivenPOD
   extends DataDrivenPODAnalysis(
@@ -114,9 +114,9 @@ artifacts(result)           # list available artifacts
 artifacts(result, :ROMParameters)  # DataFrame of A, B, C
 ```
 """
-@kwdef mutable struct RunDataDrivenPODSpec <: AbstractDataDrivenPODSpec
+@kwdef struct RunDataDrivenPODSpec <: AbstractDataDrivenPODSpec
     name::Symbol = :RunDataDrivenPOD
-    data::String = "data/cfd_training_data.csv"
+    data::String = joinpath(@__DIR__, "..", "data", "cfd_training_data.csv")
     spatial_cols::Union{Nothing, Vector{String}} = nothing
     input_col::String = "Q_in"
     time_col::String = "time"
@@ -159,7 +159,7 @@ RunDataDrivenPOD(; kwargs...) = DyadInterface.run_analysis(RunDataDrivenPODSpec(
 Pre-configured Latent Neural ODE ROM builder.
 Runs the complete pipeline: Neural ODE sweep → zone clustering → calibrated network.
 
-Equivalent Dyad (if partial analysis were supported):
+Equivalent analysis configuration:
 ```
 analysis RunLatentNeuralODE
   extends LatentNeuralODEAnalysis(
@@ -179,9 +179,9 @@ artifacts(result)           # list available artifacts
 artifacts(result, :LatentDimSweep)  # DataFrame of RMSE per k
 ```
 """
-@kwdef mutable struct RunLatentNeuralODESpec <: AbstractLatentNeuralODESpec
+@kwdef struct RunLatentNeuralODESpec <: AbstractLatentNeuralODESpec
     name::Symbol = :RunLatentNeuralODE
-    data::String = "data/cfd_training_data.csv"
+    data::String = joinpath(@__DIR__, "..", "data", "cfd_training_data.csv")
     spatial_cols::Union{Nothing, Vector{String}} = nothing
     input_col::String = "Q_in"
     time_col::String = "time"
