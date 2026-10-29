@@ -71,7 +71,7 @@ component ScaledNeuralNetworkBlock
   structural parameter n_output::Integer = 3
   structural parameter nn_depth::Integer = 1
   structural parameter nn_width::Integer = 5
-  structural parameter chain::Native = DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output, depth = nn_depth, width = nn_width, activation = Lux.tanh)
+  structural parameter chain::Native = QuarterTruckSciML.simple_chains_feed_forward(n_input, n_output, depth = nn_depth, width = nn_width, activation = Lux.tanh)
 relations
   # Input normalization -> mux -> NN
   connect(in_tire, norm_tire.u1) {^id18}
