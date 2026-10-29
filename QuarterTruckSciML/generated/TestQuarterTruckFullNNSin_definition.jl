@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TestQuarterTruckFullNNSin(; name, amplitude, frequency)
+   TestQuarterTruckFullNNSin(; name, amplitude, frequency, __overrides)
 
 Training harness: full 3-nonlinearity gray-box truck driven by the same sin as the ground-truth. The NN learns all three nonlinear residual forces jointly.
 
@@ -18,7 +16,7 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
 | `amplitude`         |                          | m  |   0.03 |
 | `frequency`         |                          | Hz  |   2.0 |
 """
-@component function TestQuarterTruckFullNNSin(; name = nothing, amplitude=0.03, frequency=Float64(2.0), kwargs...)
+@component function TestQuarterTruckFullNNSin(; name = nothing, var"amplitude"=0.03, var"frequency"=Float64(2.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -26,7 +24,7 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
     @named model = TestQuarterTruckFullNNSin()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -35,6 +33,10 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "amplitude") && (amplitude = pop!(__overrides, "amplitude"))
+  haskey(__overrides, "frequency") && (frequency = pop!(__overrides, "frequency"))
 
   ### Structural Parameters (functions)
 
@@ -51,10 +53,10 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
   ### Symbolic Parameters
   __local__amplitude = amplitude
   append!(__params, @parameters (amplitude::Real), [bounds = (0, Inf)])
-  __initial_conditions[amplitude] = __local__amplitude
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amplitude, __local__amplitude)
   __local__frequency = frequency
   append!(__params, @parameters (frequency::Real))
-  __initial_conditions[frequency] = __local__frequency
+  __dyad_seed_parameter!(__initial_conditions, __bindings, frequency, __local__frequency)
 
   ### Final Parameters (assignments)
 
@@ -70,13 +72,13 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckFullNN
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckFullNN(; model_overrides...))
+  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckFullNN(; __overrides = model_overrides))
   # Subcomponent sin_signal of type BlockComponents.Sources.Sine
   sin_signal_overrides = __pop_subcomponent_overrides!(__overrides, "sin_signal")
-  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(; amplitude=amplitude, frequency=frequency, start_time=0.1, sin_signal_overrides...))
+  push!(__systems, @named sin_signal = BlockComponents.Sources.Sine(; amplitude=amplitude, frequency=frequency, start_time=0.1, __overrides = sin_signal_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -86,9 +88,9 @@ Training harness: full 3-nonlinearity gray-box truck driven by the same sin as t
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(sin_signal.y, model.road.s_ref))
+  push!(__eqs, connect(sin_signal.y, model.s_rel))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestQuarterTruckFullNNSin

@@ -6,9 +6,10 @@
 
 using ModelingToolkit
 import Markdown
-import Moshi
 using ModelingToolkit: t_nounits as t
 using OrdinaryDiffEqDefault
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
+using ModelingToolkit: SymbolicT, toggle_namespacing
 using RuntimeGeneratedFunctions
 RuntimeGeneratedFunctions.init(@__MODULE__)
 
@@ -17,9 +18,15 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
 end
 
 import BlockComponents
+let api = isdefined(BlockComponents, :__dyad_constructor_api) ? BlockComponents.__dyad_constructor_api : 1
+  api == 2 || error("BlockComponents was generated with Dyad constructor API version $api, but DynamicSteadyState requires version 2 (the `__overrides` dict override channel). Regenerate BlockComponents with the same Dyad compiler that generated DynamicSteadyState.")
+end
 import DyadData
 import DyadInterface
 import ThermalComponents
+let api = isdefined(ThermalComponents, :__dyad_constructor_api) ? ThermalComponents.__dyad_constructor_api : 1
+  api == 2 || error("ThermalComponents was generated with Dyad constructor API version $api, but DynamicSteadyState requires version 2 (the `__overrides` dict override channel). Regenerate ThermalComponents with the same Dyad compiler that generated DynamicSteadyState.")
+end
 @doc Markdown.doc"""
 This connector represents an electrical pin with voltage and current as the potential and flow variables, respectively.
 """
@@ -39,6 +46,7 @@ This connector represents an electrical pin with voltage and current as the pote
   )
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
+
 @doc Markdown.doc"""
 This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively.
 """
@@ -58,6 +66,7 @@ This connector represents a thermal port with temperature and heat flow as the p
   )
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
+
 @doc Markdown.doc"""
 This connector represents a mechanical flange with position and force as the potential and flow variables, respectively.
 """
@@ -77,6 +86,7 @@ This connector represents a mechanical flange with position and force as the pot
   )
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
+
 @doc Markdown.doc"""
 This connector represents a rotational spline with angle and torque as the potential and flow variables, respectively.
 """
@@ -96,6 +106,7 @@ This connector represents a rotational spline with angle and torque as the poten
   )
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
+
 @doc Markdown.doc"""
 Coordinate system (2-dim.) fixed to the component with one cut-force and cut-torque.
 All variables are resolved in the planar world frame.
@@ -120,6 +131,7 @@ All variables are resolved in the planar world frame.
   )
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
+
 @doc Markdown.doc"""
 Frame3D is the fundamental 3D connector used for 6DOF motion. Most components have one or several `Frame`
 connectors that can be connected together
@@ -147,6 +159,7 @@ connectors that can be connected together
   )
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
+
 @doc Markdown.doc"""
 While it conveys no value, because every connector must
 have a clock associated with it, instantiation of this
@@ -168,6 +181,7 @@ component.
   )
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
+
 @doc Markdown.doc"""
 While it conveys no value, because every connector must
 have a clock associated with it, instantiation of this
@@ -189,6 +203,7 @@ component.
   )
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
+
 
 include("ColdNightSizing_definition.jl")
 include("DiurnalOperation_definition.jl")

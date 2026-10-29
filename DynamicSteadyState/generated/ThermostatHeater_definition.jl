@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   ThermostatHeater(; name, K, T_set, Q_max)
+   ThermostatHeater(; name, K, T_set, Q_max, __overrides)
 
 ## Parameters:
 
@@ -19,7 +17,7 @@ import Moshi as __Ext__Moshi
 
 ## Connectors
 
- * `port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `node` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 
 ## Variables
 
@@ -28,7 +26,7 @@ import Moshi as __Ext__Moshi
 | `Q_raw`         | Raw proportional demand (W)                         | W  |
 | `Q_delivered`         | Delivered heating power (W, 0 ≤ Q ≤ Q_max)                         | W  |
 """
-@component function ThermostatHeater(; name = nothing, K=Float64(500.0), T_set=294.15, Q_max=Float64(5000.0), kwargs...)
+@component function ThermostatHeater(; name = nothing, var"K"=Float64(500.0), var"T_set"=294.15, var"Q_max"=Float64(5000.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -36,7 +34,7 @@ import Moshi as __Ext__Moshi
     @named model = ThermostatHeater()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -45,6 +43,11 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "K") && (K = pop!(__overrides, "K"))
+  haskey(__overrides, "T_set") && (T_set = pop!(__overrides, "T_set"))
+  haskey(__overrides, "Q_max") && (Q_max = pop!(__overrides, "Q_max"))
 
   ### Structural Parameters (functions)
 
@@ -61,13 +64,13 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__K = K
   append!(__params, @parameters (K::Real), [description = "Proportional gain (W/K)"])
-  __initial_conditions[K] = __local__K
+  __dyad_seed_parameter!(__initial_conditions, __bindings, K, __local__K)
   __local__T_set = T_set
   append!(__params, @parameters (T_set::Real), [description = "Heating setpoint temperature", bounds = (0, Inf)])
-  __initial_conditions[T_set] = __local__T_set
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_set, __local__T_set)
   __local__Q_max = Q_max
   append!(__params, @parameters (Q_max::Real), [description = "Maximum heating capacity (W)"])
-  __initial_conditions[Q_max] = __local__Q_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Q_max, __local__Q_max)
 
   ### Final Parameters (assignments)
 
@@ -79,20 +82,24 @@ import Moshi as __Ext__Moshi
 
   ### Variables (assignments)
   __ovr_Q_raw = pop!(__overrides, "Q_raw", nothing); isnothing(__ovr_Q_raw) || push!(__eqs, Q_raw ~ __ovr_Q_raw)
-  __ovr_Q_raw__initial = pop!(__overrides, "Q_raw__initial", nothing); isnothing(__ovr_Q_raw__initial) || (__initial_conditions[Q_raw] = __ovr_Q_raw__initial)
+  __ovr_Q_raw__initial = pop!(__overrides, "Q_raw.initial", nothing); isnothing(__ovr_Q_raw__initial) || (__initial_conditions[Q_raw] = __ovr_Q_raw__initial)
+  __ovr_Q_raw__guess = pop!(__overrides, "Q_raw.guess", nothing)
   __ovr_Q_delivered = pop!(__overrides, "Q_delivered", nothing); isnothing(__ovr_Q_delivered) || push!(__eqs, Q_delivered ~ __ovr_Q_delivered)
-  __ovr_Q_delivered__initial = pop!(__overrides, "Q_delivered__initial", nothing); isnothing(__ovr_Q_delivered__initial) || (__initial_conditions[Q_delivered] = __ovr_Q_delivered__initial)
+  __ovr_Q_delivered__initial = pop!(__overrides, "Q_delivered.initial", nothing); isnothing(__ovr_Q_delivered__initial) || (__initial_conditions[Q_delivered] = __ovr_Q_delivered__initial)
+  __ovr_Q_delivered__guess = pop!(__overrides, "Q_delivered.guess", nothing)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named port = __Dyad__HeatPort())
+  push!(__systems, @named node = __Dyad__HeatPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
+  isnothing(__ovr_Q_raw__guess) || (__guesses[Q_raw] = __ovr_Q_raw__guess)
+  isnothing(__ovr_Q_delivered__guess) || (__guesses[Q_delivered] = __ovr_Q_delivered__guess)
 
   ### Initialization Equations
 
@@ -100,11 +107,11 @@ import Moshi as __Ext__Moshi
   __assertions = []
 
   ### Equations
-  push!(__eqs, Q_raw ~ K * (T_set - port.T))
+  push!(__eqs, Q_raw ~ K * (T_set - node.T))
   push!(__eqs, Q_delivered ~ ifelse(Q_raw > Q_max, Q_max, ifelse(Q_raw < 0.0, 0.0, Q_raw)))
-  push!(__eqs, port.Q_flow ~ -Q_delivered)
+  push!(__eqs, node.Q_flow ~ -Q_delivered)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ThermostatHeater

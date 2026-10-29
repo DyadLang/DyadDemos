@@ -12,7 +12,7 @@ component TurkeyDiscretizedSphere
   parameter cp::SpecificHeatCapacity = 3500.0
   parameter k::ThermalConductivity = 0.5
   parameter T_init::Temperature = 277.0
-  "Workaround for array initial conditions"
+  "Starting temperature of every shell, expanded from T_init"
   final parameter T_inits::Temperature[N] = T_init * ones(N)
   # Physical constants
   parameter pi::Real = 3.14159265359
@@ -57,9 +57,7 @@ relations
   for i in 2:(N - 1)
     m_shell[i] * cp * der(T[i]) = Q_cond[i] - Q_cond[i + 1]
   end
-  # Surface shell - heat enters from interior and from surface connector
-  # Note: In thermal connector convention, positive surface.Q means heat entering
-  # So we ADD surface.Q 
+  # Positive surface.Q_flow is heat entering the turkey, so it adds.
   m_shell[N] * cp * der(T[N]) = Q_cond[N] + surface.Q_flow
   # Surface connector relations
   surface.T = T[N]

@@ -15,7 +15,7 @@ __dyad_run_test_case!(
   abstol=1e-6,
   reltol=1e-6,
   solver=ODEAlg.Auto(),
-  params=(;),
+  params=Dict{String, Any}(),
   initial_conditions=Tuple[],
   expected_initial=Tuple[
     (m -> m.brake_thermal.pad_mass.T, "brake_thermal.pad_mass.T", 293.15, 0.1, 1e-5),

@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   BrakeThermal(; name, C_disk, C_pad, T_disk_init, T_pad_init, T_ambient, h_disk_base, h_pad_base, k_disk_speed, k_pad_speed, A_disk, A_pad, epsilon_disk, G_rad_pad_disk)
+   BrakeThermal(; name, C_disk, C_pad, T_disk_init, T_pad_init, T_ambient, h_disk_base, h_pad_base, k_disk_speed, k_pad_speed, A_disk, A_pad, epsilon_disk, G_rad_pad_disk, __overrides)
 
 ## Parameters:
 
@@ -34,7 +32,7 @@ import Moshi as __Ext__Moshi
  * `vehicle_speed` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `wheel_speed` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
 """
-@component function BrakeThermal(; name = nothing, C_disk=Float64(4000), C_pad=Float64(1000), T_disk_init=293.15, T_pad_init=293.15, T_ambient=293.15, h_disk_base=Float64(20.0), h_pad_base=Float64(15.0), k_disk_speed=Float64(3.0), k_pad_speed=Float64(4.0), A_disk=0.15, A_pad=0.032, epsilon_disk=0.75, G_rad_pad_disk=0.012, kwargs...)
+@component function BrakeThermal(; name = nothing, var"C_disk"=Float64(4000), var"C_pad"=Float64(1000), var"T_disk_init"=293.15, var"T_pad_init"=293.15, var"T_ambient"=293.15, var"h_disk_base"=Float64(20.0), var"h_pad_base"=Float64(15.0), var"k_disk_speed"=Float64(3.0), var"k_pad_speed"=Float64(4.0), var"A_disk"=0.15, var"A_pad"=0.032, var"epsilon_disk"=0.75, var"G_rad_pad_disk"=0.012, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -42,7 +40,7 @@ import Moshi as __Ext__Moshi
     @named model = BrakeThermal()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -51,6 +49,21 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "C_disk") && (C_disk = pop!(__overrides, "C_disk"))
+  haskey(__overrides, "C_pad") && (C_pad = pop!(__overrides, "C_pad"))
+  haskey(__overrides, "T_disk_init") && (T_disk_init = pop!(__overrides, "T_disk_init"))
+  haskey(__overrides, "T_pad_init") && (T_pad_init = pop!(__overrides, "T_pad_init"))
+  haskey(__overrides, "T_ambient") && (T_ambient = pop!(__overrides, "T_ambient"))
+  haskey(__overrides, "h_disk_base") && (h_disk_base = pop!(__overrides, "h_disk_base"))
+  haskey(__overrides, "h_pad_base") && (h_pad_base = pop!(__overrides, "h_pad_base"))
+  haskey(__overrides, "k_disk_speed") && (k_disk_speed = pop!(__overrides, "k_disk_speed"))
+  haskey(__overrides, "k_pad_speed") && (k_pad_speed = pop!(__overrides, "k_pad_speed"))
+  haskey(__overrides, "A_disk") && (A_disk = pop!(__overrides, "A_disk"))
+  haskey(__overrides, "A_pad") && (A_pad = pop!(__overrides, "A_pad"))
+  haskey(__overrides, "epsilon_disk") && (epsilon_disk = pop!(__overrides, "epsilon_disk"))
+  haskey(__overrides, "G_rad_pad_disk") && (G_rad_pad_disk = pop!(__overrides, "G_rad_pad_disk"))
 
   ### Structural Parameters (functions)
 
@@ -67,43 +80,43 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__C_disk = C_disk
   append!(__params, @parameters (C_disk::Real))
-  __initial_conditions[C_disk] = __local__C_disk
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_disk, __local__C_disk)
   __local__C_pad = C_pad
   append!(__params, @parameters (C_pad::Real))
-  __initial_conditions[C_pad] = __local__C_pad
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_pad, __local__C_pad)
   __local__T_disk_init = T_disk_init
   append!(__params, @parameters (T_disk_init::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_disk_init] = __local__T_disk_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_disk_init, __local__T_disk_init)
   __local__T_pad_init = T_pad_init
   append!(__params, @parameters (T_pad_init::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_pad_init] = __local__T_pad_init
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_pad_init, __local__T_pad_init)
   __local__T_ambient = T_ambient
   append!(__params, @parameters (T_ambient::Real), [bounds = (0, Inf)])
-  __initial_conditions[T_ambient] = __local__T_ambient
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_ambient, __local__T_ambient)
   __local__h_disk_base = h_disk_base
   append!(__params, @parameters (h_disk_base::Real))
-  __initial_conditions[h_disk_base] = __local__h_disk_base
+  __dyad_seed_parameter!(__initial_conditions, __bindings, h_disk_base, __local__h_disk_base)
   __local__h_pad_base = h_pad_base
   append!(__params, @parameters (h_pad_base::Real))
-  __initial_conditions[h_pad_base] = __local__h_pad_base
+  __dyad_seed_parameter!(__initial_conditions, __bindings, h_pad_base, __local__h_pad_base)
   __local__k_disk_speed = k_disk_speed
   append!(__params, @parameters (k_disk_speed::Real))
-  __initial_conditions[k_disk_speed] = __local__k_disk_speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_disk_speed, __local__k_disk_speed)
   __local__k_pad_speed = k_pad_speed
   append!(__params, @parameters (k_pad_speed::Real))
-  __initial_conditions[k_pad_speed] = __local__k_pad_speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k_pad_speed, __local__k_pad_speed)
   __local__A_disk = A_disk
   append!(__params, @parameters (A_disk::Real))
-  __initial_conditions[A_disk] = __local__A_disk
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_disk, __local__A_disk)
   __local__A_pad = A_pad
   append!(__params, @parameters (A_pad::Real))
-  __initial_conditions[A_pad] = __local__A_pad
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_pad, __local__A_pad)
   __local__epsilon_disk = epsilon_disk
   append!(__params, @parameters (epsilon_disk::Real))
-  __initial_conditions[epsilon_disk] = __local__epsilon_disk
+  __dyad_seed_parameter!(__initial_conditions, __bindings, epsilon_disk, __local__epsilon_disk)
   __local__G_rad_pad_disk = G_rad_pad_disk
   append!(__params, @parameters (G_rad_pad_disk::Real))
-  __initial_conditions[G_rad_pad_disk] = __local__G_rad_pad_disk
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_rad_pad_disk, __local__G_rad_pad_disk)
 
   ### Final Parameters (assignments)
 
@@ -123,58 +136,58 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named heat_pad = __Dyad__HeatPort())
   # Subcomponent disk_mass of type ThermalComponents.Components.HeatCapacitor
   disk_mass_overrides = __pop_subcomponent_overrides!(__overrides, "disk_mass")
-  push!(__systems, @named disk_mass = ThermalComponents.Components.HeatCapacitor(C=C_disk, T0=T_disk_init, disk_mass_overrides...))
+  push!(__systems, @named disk_mass = ThermalComponents.Components.HeatCapacitor(; C=C_disk, T0=T_disk_init, __overrides = disk_mass_overrides))
   # Subcomponent pad_mass of type ThermalComponents.Components.HeatCapacitor
   pad_mass_overrides = __pop_subcomponent_overrides!(__overrides, "pad_mass")
-  push!(__systems, @named pad_mass = ThermalComponents.Components.HeatCapacitor(C=C_pad, T0=T_pad_init, pad_mass_overrides...))
+  push!(__systems, @named pad_mass = ThermalComponents.Components.HeatCapacitor(; C=C_pad, T0=T_pad_init, __overrides = pad_mass_overrides))
   # Subcomponent disk_convection of type ThermalComponents.Components.Convection
   disk_convection_overrides = __pop_subcomponent_overrides!(__overrides, "disk_convection")
-  push!(__systems, @named disk_convection = ThermalComponents.Components.Convection(disk_convection_overrides...))
+  push!(__systems, @named disk_convection = ThermalComponents.Components.Convection(; __overrides = disk_convection_overrides))
   # Subcomponent pad_convection of type ThermalComponents.Components.Convection
   pad_convection_overrides = __pop_subcomponent_overrides!(__overrides, "pad_convection")
-  push!(__systems, @named pad_convection = ThermalComponents.Components.Convection(pad_convection_overrides...))
+  push!(__systems, @named pad_convection = ThermalComponents.Components.Convection(; __overrides = pad_convection_overrides))
   # Subcomponent disk_radiation of type ThermalComponents.Components.BodyRadiation
   disk_radiation_overrides = __pop_subcomponent_overrides!(__overrides, "disk_radiation")
-  push!(__systems, @named disk_radiation = ThermalComponents.Components.BodyRadiation(Gr=epsilon_disk * A_disk, disk_radiation_overrides...))
+  push!(__systems, @named disk_radiation = ThermalComponents.Components.BodyRadiation(; Gr=epsilon_disk * A_disk, __overrides = disk_radiation_overrides))
   # Subcomponent pad_disk_radiation of type ThermalComponents.Components.BodyRadiation
   pad_disk_radiation_overrides = __pop_subcomponent_overrides!(__overrides, "pad_disk_radiation")
-  push!(__systems, @named pad_disk_radiation = ThermalComponents.Components.BodyRadiation(Gr=G_rad_pad_disk, pad_disk_radiation_overrides...))
+  push!(__systems, @named pad_disk_radiation = ThermalComponents.Components.BodyRadiation(; Gr=G_rad_pad_disk, __overrides = pad_disk_radiation_overrides))
   # Subcomponent ambient of type ThermalComponents.Sources.FixedTemperature
   ambient_overrides = __pop_subcomponent_overrides!(__overrides, "ambient")
-  push!(__systems, @named ambient = ThermalComponents.Sources.FixedTemperature(T=T_ambient, ambient_overrides...))
+  push!(__systems, @named ambient = ThermalComponents.Sources.FixedTemperature(; T=T_ambient, __overrides = ambient_overrides))
   # Subcomponent wheel_speed_gain of type BlockComponents.Math.Gain
   wheel_speed_gain_overrides = __pop_subcomponent_overrides!(__overrides, "wheel_speed_gain")
-  push!(__systems, @named wheel_speed_gain = BlockComponents.Math.Gain(k=k_disk_speed, wheel_speed_gain_overrides...))
+  push!(__systems, @named wheel_speed_gain = BlockComponents.Math.Gain(; k=k_disk_speed, __overrides = wheel_speed_gain_overrides))
   # Subcomponent disk_h_base_const of type BlockComponents.Sources.Constant
   disk_h_base_const_overrides = __pop_subcomponent_overrides!(__overrides, "disk_h_base_const")
-  push!(__systems, @named disk_h_base_const = BlockComponents.Sources.Constant(k=h_disk_base, disk_h_base_const_overrides...))
+  push!(__systems, @named disk_h_base_const = BlockComponents.Sources.Constant(; k=h_disk_base, __overrides = disk_h_base_const_overrides))
   # Subcomponent disk_h_calc of type BlockComponents.Math.Add
   disk_h_calc_overrides = __pop_subcomponent_overrides!(__overrides, "disk_h_calc")
-  push!(__systems, @named disk_h_calc = BlockComponents.Math.Add(k1=1.0, k2=1.0, disk_h_calc_overrides...))
+  push!(__systems, @named disk_h_calc = BlockComponents.Math.Add(; k1=Float64(1.0), k2=Float64(1.0), __overrides = disk_h_calc_overrides))
   # Subcomponent vehicle_speed_gain of type BlockComponents.Math.Gain
   vehicle_speed_gain_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_speed_gain")
-  push!(__systems, @named vehicle_speed_gain = BlockComponents.Math.Gain(k=k_pad_speed, vehicle_speed_gain_overrides...))
+  push!(__systems, @named vehicle_speed_gain = BlockComponents.Math.Gain(; k=k_pad_speed, __overrides = vehicle_speed_gain_overrides))
   # Subcomponent pad_h_base_const of type BlockComponents.Sources.Constant
   pad_h_base_const_overrides = __pop_subcomponent_overrides!(__overrides, "pad_h_base_const")
-  push!(__systems, @named pad_h_base_const = BlockComponents.Sources.Constant(k=h_pad_base, pad_h_base_const_overrides...))
+  push!(__systems, @named pad_h_base_const = BlockComponents.Sources.Constant(; k=h_pad_base, __overrides = pad_h_base_const_overrides))
   # Subcomponent pad_h_calc of type BlockComponents.Math.Add
   pad_h_calc_overrides = __pop_subcomponent_overrides!(__overrides, "pad_h_calc")
-  push!(__systems, @named pad_h_calc = BlockComponents.Math.Add(k1=1.0, k2=1.0, pad_h_calc_overrides...))
+  push!(__systems, @named pad_h_calc = BlockComponents.Math.Add(; k1=Float64(1.0), k2=Float64(1.0), __overrides = pad_h_calc_overrides))
   # Subcomponent disk_conductance of type BlockComponents.Math.Product
   disk_conductance_overrides = __pop_subcomponent_overrides!(__overrides, "disk_conductance")
-  push!(__systems, @named disk_conductance = BlockComponents.Math.Product(disk_conductance_overrides...))
+  push!(__systems, @named disk_conductance = BlockComponents.Math.Product(; __overrides = disk_conductance_overrides))
   # Subcomponent pad_conductance of type BlockComponents.Math.Product
   pad_conductance_overrides = __pop_subcomponent_overrides!(__overrides, "pad_conductance")
-  push!(__systems, @named pad_conductance = BlockComponents.Math.Product(pad_conductance_overrides...))
+  push!(__systems, @named pad_conductance = BlockComponents.Math.Product(; __overrides = pad_conductance_overrides))
   # Subcomponent disk_area_const of type BlockComponents.Sources.Constant
   disk_area_const_overrides = __pop_subcomponent_overrides!(__overrides, "disk_area_const")
-  push!(__systems, @named disk_area_const = BlockComponents.Sources.Constant(k=A_disk, disk_area_const_overrides...))
+  push!(__systems, @named disk_area_const = BlockComponents.Sources.Constant(; k=A_disk, __overrides = disk_area_const_overrides))
   # Subcomponent pad_area_const of type BlockComponents.Sources.Constant
   pad_area_const_overrides = __pop_subcomponent_overrides!(__overrides, "pad_area_const")
-  push!(__systems, @named pad_area_const = BlockComponents.Sources.Constant(k=A_pad, pad_area_const_overrides...))
+  push!(__systems, @named pad_area_const = BlockComponents.Sources.Constant(; k=A_pad, __overrides = pad_area_const_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -208,6 +221,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(pad_conductance.y, pad_convection.Gc))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export BrakeThermal

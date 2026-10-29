@@ -1,0 +1,288 @@
+"""
+3-axis PD attitude controller with feedforward.
+
+Computes torque commands from attitude error, rate error, and feedforward:
+  τ_i = -Kp_i * (angle_i - ref_i) - Kd_i * (ω_i - ω_ref_i) + I_i * α_ref_i
+
+The feedforward term (I * α_ref) eliminates steady-state tracking lag during
+ramp/coast trajectory phases.
+
+Inputs: reference angles, reference rates, feedforward accelerations,
+        measured angles, measured angular velocities.
+Outputs: commanded torques in the body frame.
+"""
+component AttitudeController
+  "Reference angle inputs"
+  phi_ref = RealInput() {^phi_ref}
+  theta_ref = RealInput() {^theta_ref}
+  psi_ref = RealInput() {^psi_ref}
+  "Reference rate inputs (for rate error damping)"
+  wx_ref = RealInput() {^wx_ref}
+  wy_ref = RealInput() {^wy_ref}
+  wz_ref = RealInput() {^wz_ref}
+  "Feedforward acceleration inputs (α_ref = dω_ref/dt)"
+  ax_ff = RealInput() {^ax_ff}
+  ay_ff = RealInput() {^ay_ff}
+  az_ff = RealInput() {^az_ff}
+  "Measured angle inputs"
+  phi_meas = RealInput() {^phi_meas}
+  theta_meas = RealInput() {^theta_meas}
+  psi_meas = RealInput() {^psi_meas}
+  "Measured angular velocity inputs"
+  wx_meas = RealInput() {^wx_meas}
+  wy_meas = RealInput() {^wy_meas}
+  wz_meas = RealInput() {^wz_meas}
+  "Torque command outputs"
+  tau_x = RealOutput() {^tau_x}
+  tau_y = RealOutput() {^tau_y}
+  tau_z = RealOutput() {^tau_z}
+  "Proportional gains"
+  parameter Kp_x::Real = 5.0
+  parameter Kp_y::Real = 4.0
+  parameter Kp_z::Real = 3.0
+  "Derivative gains"
+  parameter Kd_x::Real = 20.0
+  parameter Kd_y::Real = 16.0
+  parameter Kd_z::Real = 12.0
+  "Feedforward inertias (must match plant)"
+  parameter Ixx_ff::Real = 10.0
+  parameter Iyy_ff::Real = 8.0
+  parameter Izz_ff::Real = 6.0
+relations
+  tau_x = -Kp_x * (phi_meas - phi_ref) - Kd_x * (wx_meas - wx_ref) + Ixx_ff * ax_ff
+  tau_y = -Kp_y * (theta_meas - theta_ref) - Kd_y * (wy_meas - wy_ref) + Iyy_ff * ay_ff
+  tau_z = -Kp_z * (psi_meas - psi_ref) - Kd_z * (wz_meas - wz_ref) + Izz_ff * az_ff
+metadata {
+  "Dyad": {"icons": {"default": "dyad://SatelliteGNC/AttitudeController.svg"}},
+  "_links": {
+    "phi_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 0, "x2": 50, "y2": 100, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "theta_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 100, "x2": 50, "y2": 200, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "psi_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 200, "x2": 50, "y2": 300, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wx_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 1280, "x2": 50, "y2": 1380, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wy_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 1190, "x2": 50, "y2": 1290, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wz_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 1100, "x2": 50, "y2": 1200, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ax_ff": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 1000, "x2": 50, "y2": 1100, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ay_ff": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 900, "x2": 50, "y2": 1000, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "az_ff": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": -100, "x2": 50, "y2": 0, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "phi_meas": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 400, "x2": 50, "y2": 500, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "theta_meas": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 500, "x2": 50, "y2": 600, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "psi_meas": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 300, "x2": 50, "y2": 400, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wx_meas": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 600, "x2": 50, "y2": 700, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wy_meas": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wz_meas": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 800, "x2": 50, "y2": 900, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tau_x": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 140, "x2": 1070, "y2": 240, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tau_y": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 450, "x2": 1070, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tau_z": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 720, "x2": 1070, "y2": 820, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+# =====================================================
+# TEST: Closed-loop 3-axis slew maneuver
+#
+# Command a simultaneous repointing:
+#   φ_ref = 0.1745 rad (10°)
+#   θ_ref = 0.0873 rad (5°)
+#   ψ_ref = 0.2618 rad (15°)
+#
+# PD gains chosen for each axis:
+#   ωn = sqrt(Kp/I),  ζ = Kd/(2*sqrt(Kp*I))
+#
+#   X-axis: Kp=5, Kd=20, I=10 → ωn=0.707, ζ=1.41 (overdamped)
+#   Y-axis: Kp=4, Kd=16, I=8  → ωn=0.707, ζ=1.41 (overdamped)
+#   Z-axis: Kp=3, Kd=12, I=6  → ωn=0.707, ζ=1.41 (overdamped)
+#
+# Expected: All angles settle to their references with
+# no overshoot (overdamped). Settling time ≈ 8-12 s.
+# At t=30 s all angles should be within 1% of reference.
+# =====================================================
+test component TestSatelliteClosedLoop
+  sat = SatelliteBody(Ixx = 10.0, Iyy = 8.0, Izz = 6.0) {^sat}
+  ctrl = AttitudeController(Kp_x = 5.0, Kd_x = 20.0, Kp_y = 4.0, Kd_y = 16.0, Kp_z = 3.0, Kd_z = 12.0) {^ctrl}
+  "Reference angles (rad)"
+  parameter phi_cmd::Real = 0.1745
+  parameter theta_cmd::Real = 0.0873
+  parameter psi_cmd::Real = 0.2618
+relations
+  # Initial conditions — satellite at rest, zero attitude
+  initial sat.wx = 0.0
+  initial sat.wy = 0.0
+  initial sat.wz = 0.0
+  initial sat.phi = 0.0
+  initial sat.theta = 0.0
+  initial sat.psi = 0.0
+  # Reference commands (constant setpoints)
+  ctrl.phi_ref = phi_cmd
+  ctrl.theta_ref = theta_cmd
+  ctrl.psi_ref = psi_cmd
+  # No feedforward for step commands
+  ctrl.wx_ref = 0.0
+  ctrl.wy_ref = 0.0
+  ctrl.wz_ref = 0.0
+  ctrl.ax_ff = 0.0
+  ctrl.ay_ff = 0.0
+  ctrl.az_ff = 0.0
+  # Feedback: satellite measurements → controller
+  connect(sat.phi_out, ctrl.phi_meas)
+  connect(sat.theta_out, ctrl.theta_meas)
+  connect(sat.psi_out, ctrl.psi_meas)
+  connect(sat.wx_out, ctrl.wx_meas)
+  connect(sat.wy_out, ctrl.wy_meas)
+  connect(sat.wz_out, ctrl.wz_meas)
+  # Controller outputs → satellite torque inputs
+  connect(ctrl.tau_x, sat.tau_x)
+  connect(ctrl.tau_y, sat.tau_y)
+  connect(ctrl.tau_z, sat.tau_z)
+metadata {
+  "_links": {
+    "sat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 55, "y1": 95, "x2": 155, "y2": 195, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ctrl": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 227, "y1": 90, "x2": 327, "y2": 190, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+analysis TestSatelliteClosedLoopSim
+  extends TransientAnalysis(stop = 30.0)
+  model = TestSatelliteClosedLoop()
+relations
+end

@@ -1,76 +1,120 @@
 # DynamicSteadyState
 
-<img src="./assets/icon_three_zone_building.svg" width="96" align="right"/>
+<img src="./assets/icon.svg" width="96" align="right"/>
 
-A Dyad component library modeling a three-zone commercial office building thermal envelope. One building model serves as the single source of truth for two different analyses: a steady-state HVAC equipment sizing analysis and a 24-hour transient diurnal operation simulation with thermostat control. The three zones (south-facing, core, north-facing) are connected by inter-zone partition resistors. Each zone includes wall, window, roof, slab, and infiltration heat paths, a lumped thermal mass, and a proportional thermostat heater. Boundary conditions include a time-varying outdoor temperature, a stable ground temperature, occupancy-modulated internal gains, and solar gains.
+A three-zone commercial office building thermal library built with
+[Dyad](https://help.juliahub.com/dyad). One envelope model — a south zone, a
+core zone, and a north zone, sharing partition walls — serves two workflows that
+usually live in separate tools:
+
+- **Sizing.** A steady-state solve reads off how much heating capacity each zone
+  needs on the coldest day.
+- **Operation.** A 24-hour transient run puts thermostats sized from that answer
+  against a day of changing weather and occupancy.
+
+Doing sizing and operation off one model is the point of the demo.
+
+<img src="./assets/icon_three_zone_building.gif" width="420" alt="The ThreeZoneBuilding icon animated over the DiurnalOperation solution: zone temperatures climbing from the 12 °C cold start toward the 21 °C setpoint"/>
 
 ## Getting Started
 
-Download this folder to your machine and open it in VS Code with the [Dyad extension](https://help.juliahub.com/dyad/dev/getting_started/).
+Use Dyad 3.5 (Julia 1.13.2). The editor is pinned to the validation channel
+`dyad-3.5.0`. See [upgrade validation](docs/upgrade-3.5-validation.md)
+for analysis coverage and results.
 
-## Running Experiments
-
-Each analysis can be run from the Julia REPL after loading the library:
-
-```julia
-using DynamicSteadyState
-using Plots
-```
-
-### Steady-State HVAC Sizing
-
-Two steady-state analyses determine the required HVAC capacity by fixing zone temperatures at 21 °C and letting the solver compute the heat flow at each zone port.
-
-- **`HVACSizing`** — Design-day conditions: −5 °C outdoor, 10 °C ground, peak occupancy internal gains (600, 500, 400 W), and design-average solar gains (1500 W south, 375 W north).
-- **`ColdNightSizing`** — Cold-night conditions: −10 °C outdoor, 10 °C ground, no internal or solar gains (worst-case heating demand).
-
-```julia
-# Run the design-day sizing
-result = HVACSizing()
-sol = result.sol
-
-# Run the cold-night sizing
-result = ColdNightSizing()
-sol = result.sol
-```
-
-### 24-Hour Diurnal Operation
-
-**`DiurnalOperation`** runs the same building with time-varying boundary conditions over a full day (86 400 s). A sinusoidal outdoor temperature swings from −10 °C to 0 °C, solar gains follow a daytime sine peaking at noon, and internal gains are modulated by a representative weekday office occupancy schedule. Thermostat heaters on each zone are sized from the steady-state results with a 1.2× safety factor. Zones start cold at 12 °C.
-
-```julia
-# Run the 24-hour transient simulation
-result = DiurnalOperation()
-plot(result)
-```
+Download this folder to your machine and open it in VS Code with the [Dyad
+extension](https://help.juliahub.com/dyad/dev/getting_started/).
 
 ## Models
 
-All Dyad models are defined in two files in the `dyad/` directory:
+Everything is defined in one file,
+[`dyad/building_model.dyad`](./dyad/building_model.dyad):
 
-### `dyad/hello.dyad`
+- **`ZoneRoom`** — One lumped zone: wall, window, roof, slab, and infiltration
+  resistors running
+  from outdoor and ground boundary signals into a single thermal mass, exposed
+  as one acausal
+  `zone_port`. Interior zones set `R_wall`/`R_win` to `1e6` to remove the
+  exterior path.
 
-- **Hello** — A minimal lumped thermal model demonstrating Newton's law of cooling. A single thermal mass cools or heats toward an ambient temperature.
-- **World** — Transient analysis running `Hello` for 10 seconds.
+- **`ThreeZoneBuilding`** — Three `ZoneRoom` blocks joined by two partition
+  resistors (`R = 0.01`).
+  Zone 1 (south) and zone 3 (north) face outdoors with `C = 400 kJ/K`; zone 2
+  (core) is interior
+  with `C = 300 kJ/K`. HVAC strategy lives outside this model, which is what
+  lets every analysis
+  reuse it unchanged: each zone just exposes a `HeatPort` for HVAC and gains.
 
-### `dyad/building_model.dyad`
+- **`HeatCapacitorNoInit`** — A heat capacitor that leaves its initial condition
+  to the caller. The
+  steady-state solve then stays free of over-determined initialization while the
+  transient harness
+  supplies its own cold-start temperatures.
 
-#### Reusable Components
+- **`ThermostatHeater`** — Proportional heating-only actuator, `Q =
+  clamp(K·(T_set − T), 0, Q_max)`.
 
-- **HeatCapacitorNoInit** — Identical to `ThermalComponents.Components.HeatCapacitor` but omits the built-in initial condition, allowing the test harness to supply initial conditions for transient analysis while leaving steady-state analysis free of over-determined initialization constraints.
+- **`OfficeOccupancy`** — Representative weekday occupancy fraction, ramping
+  linearly between
+  hourly breakpoints:
 
-- **ThermostatHeater** — A proportional thermostat heater. Computes a heating demand proportional to the gap between a setpoint and the zone temperature, clamped between 0 and a maximum capacity `Q_max`.
+  - empty until 05:00
+  - 0.95 from 08:00 through the morning
+  - 0.50 lunch dip at 12:00
+  - 0.95 again from 13:00 through the afternoon
+  - decaying to 0.05 overnight
 
-- **OfficeOccupancy** — A representative weekday office occupancy schedule outputting a fraction (0–1) via piecewise-linear interpolation of hourly breakpoints. Ramping up from 6 AM, peaking at 95% during work hours with a lunch dip, and tapering off in the evening.
+  The same breakpoints are tabulated in
+  [`data/ashrae_office_occupancy.csv`](./data/ashrae_office_occupancy.csv) for
+  reference.
 
-- **ZoneRoom** — A lumped single-zone thermal model. Encapsulates per-zone envelope heat paths (wall, window, roof, slab, infiltration) and thermal mass. Outdoor and ground temperatures enter as causal signal inputs via `PrescribedTemperature`. A single `HeatPort` zone port is exposed for HVAC, gains, and inter-zone connections.
+## Analyses
 
-- **ThreeZoneBuilding** — The top-level building envelope. Three `ZoneRoom` blocks (south, core, north) connected by inter-zone partition resistors. Outdoor and ground temperatures fan out to each zone as signal inputs. Three `HeatPort` zone ports are exposed for external HVAC and gain connections.
+| Analysis | Harness | Kind | Boundary conditions |
+|---|---|---|---|
+| `HVACSizing` | `TestSteadySizing` | Steady state | Occupied design day — outdoor −5 °C, ground 10 °C, peak internal gains 600 / 500 / 400 W, design solar 1500 W south and 375 W north |
+| `ColdNightSizing` | `TestColdNightSizing` | Steady state | Unoccupied cold night — outdoor −10 °C, ground 10 °C, no internal or solar gains |
+| `DiurnalOperation` | `TestDiurnalOperation` | Transient, `stop = 86400.0` | Daily outdoor sine −10 → 0 °C, noon-peaking solar 0–3000 W south and 0–750 W north, internal gains of occupancy fraction × peak watts, 12 °C cold start |
 
-#### Test Harnesses and Analyses
+Both sizing solves pin `FixedTemperature` at 21 °C (294.15 K) on all three zone
+ports and read the
+resulting port heat flow as the required capacity — no controller or equipment
+model involved. They
+differ only in their boundary conditions, and the cold night governs every zone:
 
-- **TestSteadySizing** / **HVACSizing** — Wires the building with constant boundary conditions (−5 °C outdoor, 10 °C ground), peak internal and solar gains, and `FixedTemperature` setpoints at 21 °C on each zone. The steady-state solver determines the required heat flow at each port.
+| Zone | Design day | Cold night | Heater `Q_max` (× 1.2 safety factor) |
+|---|---|---|---|
+| 1 (south) | 4274 W | 7558 W | 9070 W |
+| 2 (core) | 1150 W | 1925 W | 2310 W |
+| 3 (north) | 5166 W | 7041 W | 8450 W |
 
-- **TestColdNightSizing** / **ColdNightSizing** — Same building with −10 °C outdoor, no internal or solar gains, and 21 °C zone setpoints. Determines worst-case heating demand.
+The transient harness sizes its three `ThermostatHeater` units from that last
+column at
+`K = 5000 W/K`, holding the same 21 °C setpoint.
 
-- **TestDiurnalOperation** / **DiurnalOperation** — Wires the building with sinusoidal outdoor temperature and solar gains, occupancy-modulated internal gains, and `ThermostatHeater` controllers sized from the steady-state results. Runs a 24-hour transient simulation starting from 12 °C.
+## Running Experiments
+
+Each analysis is exported and callable from the REPL:
+
+```julia
+using DynamicSteadyState, Plots
+plot(DiurnalOperation())              # full 24-hour cycle
+plot(DiurnalOperation(stop = 43200))  # first half of the day
+```
+
+[`scripts/analysis-notebook.ipynb`](./scripts/analysis-notebook.ipynb) loads the
+library through `DyadOrchestrator` and runs any analysis in it. Set
+`analysis_name` to one of the names the `list_analyses` cell prints —
+`"HVACSizing"`, `"ColdNightSizing"`, or `"DiurnalOperation"` — and run the
+cells.
+
+[`scripts/generate_diurnal_3d_gif.jl`](./scripts/generate_diurnal_3d_gif.jl)
+renders the diurnal
+solution as an isometric building animation with zone-temperature and
+heater-power strip charts.
+
+## Further Reading
+
+- [`docs/index.md`](./docs/index.md) — Model overview with an interactive
+  `ThreeZoneBuilding`
+  diagram viewer and a runnable diurnal example.

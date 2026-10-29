@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   DiffusionResistor(; name, D, dx, A)
+   DiffusionResistor(; name, D, dx, A, __overrides)
 
 ## Parameters:
 
@@ -57,7 +55,7 @@ Supported dynamics:
 | `ΔC`         | Concentration difference                         | --  |
 | `J`         | Mass flux through resistor                         | --  |
 """
-@component function DiffusionResistor(; name = nothing, D=Float64(1.0), dx=0.1, A=Float64(1.0), kwargs...)
+@component function DiffusionResistor(; name = nothing, var"D"=Float64(1.0), var"dx"=0.1, var"A"=Float64(1.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -65,7 +63,7 @@ Supported dynamics:
     @named model = DiffusionResistor()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -74,6 +72,11 @@ Supported dynamics:
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "D") && (D = pop!(__overrides, "D"))
+  haskey(__overrides, "dx") && (dx = pop!(__overrides, "dx"))
+  haskey(__overrides, "A") && (A = pop!(__overrides, "A"))
 
   ### Structural Parameters (functions)
 
@@ -90,13 +93,13 @@ Supported dynamics:
   ### Symbolic Parameters
   __local__D = D
   append!(__params, @parameters (D::Real), [description = "Diffusion coefficient"])
-  __initial_conditions[D] = __local__D
+  __dyad_seed_parameter!(__initial_conditions, __bindings, D, __local__D)
   __local__dx = dx
   append!(__params, @parameters (dx::Real), [description = "Distance between points"])
-  __initial_conditions[dx] = __local__dx
+  __dyad_seed_parameter!(__initial_conditions, __bindings, dx, __local__dx)
   __local__A = A
   append!(__params, @parameters (A::Real), [description = "Cross-sectional area"])
-  __initial_conditions[A] = __local__A
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A, __local__A)
 
   ### Final Parameters (assignments)
 
@@ -108,9 +111,11 @@ Supported dynamics:
 
   ### Variables (assignments)
   __ovr_ΔC = pop!(__overrides, "ΔC", nothing); isnothing(__ovr_ΔC) || push!(__eqs, ΔC ~ __ovr_ΔC)
-  __ovr_ΔC__initial = pop!(__overrides, "ΔC__initial", nothing); isnothing(__ovr_ΔC__initial) || (__initial_conditions[ΔC] = __ovr_ΔC__initial)
+  __ovr_ΔC__initial = pop!(__overrides, "ΔC.initial", nothing); isnothing(__ovr_ΔC__initial) || (__initial_conditions[ΔC] = __ovr_ΔC__initial)
+  __ovr_ΔC__guess = pop!(__overrides, "ΔC.guess", nothing)
   __ovr_J = pop!(__overrides, "J", nothing); isnothing(__ovr_J) || push!(__eqs, J ~ __ovr_J)
-  __ovr_J__initial = pop!(__overrides, "J__initial", nothing); isnothing(__ovr_J__initial) || (__initial_conditions[J] = __ovr_J__initial)
+  __ovr_J__initial = pop!(__overrides, "J.initial", nothing); isnothing(__ovr_J__initial) || (__initial_conditions[J] = __ovr_J__initial)
+  __ovr_J__guess = pop!(__overrides, "J.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -120,9 +125,11 @@ Supported dynamics:
   push!(__systems, @named port_b = MakieWebinar.DiffusionPort())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
+  isnothing(__ovr_ΔC__guess) || (__guesses[ΔC] = __ovr_ΔC__guess)
+  isnothing(__ovr_J__guess) || (__guesses[J] = __ovr_J__guess)
 
   ### Initialization Equations
 
@@ -136,6 +143,6 @@ Supported dynamics:
   push!(__eqs, port_a.J + port_b.J ~ 0)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export DiffusionResistor

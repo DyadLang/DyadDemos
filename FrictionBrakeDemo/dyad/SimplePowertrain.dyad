@@ -8,7 +8,7 @@ component SimplePowertrain
   drive = Spline() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}]
   # Maximum torque capacity
   parameter base_torque::Torque = 150.0
-  # Normalized torque coefficients as a function of vehicle speed: c[1] + c[2]*vehicle_speed + c[3]*vehicle_speed^2 + c[3]*vehicle_speed^2
+  # Ascending-power coefficients of the normalized-torque cubic in vehicle speed
   parameter c_normalized_torque::Real[4] = [1.2343E+01, -5.7128E-01, 1.0451E-02, -6.2024E-05]
   # Time constant for torque response
   parameter tau::Time = 0.1

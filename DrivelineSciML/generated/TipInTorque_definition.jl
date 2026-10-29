@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TipInTorque(; name, T_cruise, T_accel, t_tip, t_ramp, ripple_amplitude, ripple_frequency)
+   TipInTorque(; name, T_cruise, T_accel, t_tip, t_ramp, ripple_amplitude, ripple_frequency, __overrides)
 
 Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at `t_tip` (ramp time constant `t_ramp`), plus a high-frequency motor-ripple component. Used as the unseen validation event — it excites the Maxwell branch (fast ramp + ripple) and the Bouc-Wen hysteresis (large torque swing) simultaneously.
 
@@ -26,7 +24,7 @@ Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at
 
  * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function TipInTorque(; name = nothing, T_cruise=Float64(30.0), T_accel=Float64(150.0), t_tip=0.5, t_ramp=0.02, ripple_amplitude=Float64(3.0), ripple_frequency=Float64(600.0), kwargs...)
+@component function TipInTorque(; name = nothing, var"T_cruise"=Float64(30.0), var"T_accel"=Float64(150.0), var"t_tip"=0.5, var"t_ramp"=0.02, var"ripple_amplitude"=Float64(3.0), var"ripple_frequency"=Float64(600.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -34,7 +32,7 @@ Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at
     @named model = TipInTorque()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -43,6 +41,14 @@ Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "T_cruise") && (T_cruise = pop!(__overrides, "T_cruise"))
+  haskey(__overrides, "T_accel") && (T_accel = pop!(__overrides, "T_accel"))
+  haskey(__overrides, "t_tip") && (t_tip = pop!(__overrides, "t_tip"))
+  haskey(__overrides, "t_ramp") && (t_ramp = pop!(__overrides, "t_ramp"))
+  haskey(__overrides, "ripple_amplitude") && (ripple_amplitude = pop!(__overrides, "ripple_amplitude"))
+  haskey(__overrides, "ripple_frequency") && (ripple_frequency = pop!(__overrides, "ripple_frequency"))
 
   ### Structural Parameters (functions)
 
@@ -59,22 +65,22 @@ Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at
   ### Symbolic Parameters
   __local__T_cruise = T_cruise
   append!(__params, @parameters (T_cruise::Real), [description = "Cruise torque before tip-in [N*m]"])
-  __initial_conditions[T_cruise] = __local__T_cruise
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_cruise, __local__T_cruise)
   __local__T_accel = T_accel
   append!(__params, @parameters (T_accel::Real), [description = "Torque after tip-in [N*m]"])
-  __initial_conditions[T_accel] = __local__T_accel
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_accel, __local__T_accel)
   __local__t_tip = t_tip
   append!(__params, @parameters (t_tip::Real), [description = "Tip-in center time [s]"])
-  __initial_conditions[t_tip] = __local__t_tip
+  __dyad_seed_parameter!(__initial_conditions, __bindings, t_tip, __local__t_tip)
   __local__t_ramp = t_ramp
   append!(__params, @parameters (t_ramp::Real), [description = "Ramp time constant [s]"])
-  __initial_conditions[t_ramp] = __local__t_ramp
+  __dyad_seed_parameter!(__initial_conditions, __bindings, t_ramp, __local__t_ramp)
   __local__ripple_amplitude = ripple_amplitude
   append!(__params, @parameters (ripple_amplitude::Real), [description = "Motor torque ripple amplitude [N*m]"])
-  __initial_conditions[ripple_amplitude] = __local__ripple_amplitude
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ripple_amplitude, __local__ripple_amplitude)
   __local__ripple_frequency = ripple_frequency
   append!(__params, @parameters (ripple_frequency::Real), [description = "Motor torque ripple frequency [Hz]"])
-  __initial_conditions[ripple_frequency] = __local__ripple_frequency
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ripple_frequency, __local__ripple_frequency)
 
   ### Final Parameters (assignments)
 
@@ -91,7 +97,7 @@ Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -104,6 +110,6 @@ Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at
   push!(__eqs, y ~ T_cruise + (T_accel - T_cruise) * 0.5 * (1.0 + tanh((t - t_tip) / t_ramp)) + ripple_amplitude * sin(2 * π * ripple_frequency * t))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TipInTorque

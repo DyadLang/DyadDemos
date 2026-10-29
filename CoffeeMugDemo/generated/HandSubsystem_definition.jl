@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   HandSubsystem(; name, C_hand, T0_hand, G_contact)
+   HandSubsystem(; name, C_hand, T0_hand, G_contact, __overrides)
 
 ## Parameters:
 
@@ -21,7 +19,7 @@ import Moshi as __Ext__Moshi
 
  * `cupContact` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function HandSubsystem(; name = nothing, C_hand=Float64(500.0), T0_hand=310.15, G_contact=0.5, kwargs...)
+@component function HandSubsystem(; name = nothing, var"C_hand"=Float64(500.0), var"T0_hand"=310.15, var"G_contact"=0.5, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -29,7 +27,7 @@ import Moshi as __Ext__Moshi
     @named model = HandSubsystem()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -38,6 +36,11 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "C_hand") && (C_hand = pop!(__overrides, "C_hand"))
+  haskey(__overrides, "T0_hand") && (T0_hand = pop!(__overrides, "T0_hand"))
+  haskey(__overrides, "G_contact") && (G_contact = pop!(__overrides, "G_contact"))
 
   ### Structural Parameters (functions)
 
@@ -54,13 +57,13 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__C_hand = C_hand
   append!(__params, @parameters (C_hand::Real))
-  __initial_conditions[C_hand] = __local__C_hand
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_hand, __local__C_hand)
   __local__T0_hand = T0_hand
   append!(__params, @parameters (T0_hand::Real), [bounds = (0, Inf)])
-  __initial_conditions[T0_hand] = __local__T0_hand
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0_hand, __local__T0_hand)
   __local__G_contact = G_contact
   append!(__params, @parameters (G_contact::Real))
-  __initial_conditions[G_contact] = __local__G_contact
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_contact, __local__G_contact)
 
   ### Final Parameters (assignments)
 
@@ -77,13 +80,13 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named cupContact = __Dyad__HeatPort())
   # Subcomponent handMass of type ThermalComponents.Components.HeatCapacitor
   handMass_overrides = __pop_subcomponent_overrides!(__overrides, "handMass")
-  push!(__systems, @named handMass = ThermalComponents.Components.HeatCapacitor(C=C_hand, T0=T0_hand, handMass_overrides...))
+  push!(__systems, @named handMass = ThermalComponents.Components.HeatCapacitor(; C=C_hand, T0=T0_hand, __overrides = handMass_overrides))
   # Subcomponent handContact of type ThermalComponents.Components.ThermalConductor
   handContact_overrides = __pop_subcomponent_overrides!(__overrides, "handContact")
-  push!(__systems, @named handContact = ThermalComponents.Components.ThermalConductor(G=G_contact, handContact_overrides...))
+  push!(__systems, @named handContact = ThermalComponents.Components.ThermalConductor(; G=G_contact, __overrides = handContact_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -97,6 +100,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(handContact.port_b, cupContact))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HandSubsystem

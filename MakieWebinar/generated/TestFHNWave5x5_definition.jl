@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TestFHNWave5x5(; name, N, N_caps, N_h_res, N_v_res, N_bound)
+   TestFHNWave5x5(; name, N, N_caps, N_h_res, N_v_res, N_bound, __overrides)
 
 ## Parameters:
 
@@ -19,7 +17,7 @@ import Moshi as __Ext__Moshi
 | `N_v_res`         |                          | --  |   20 |
 | `N_bound`         |                          | --  |   20 |
 """
-@component function TestFHNWave5x5(; name = nothing, N=5, N_caps=25, N_h_res=20, N_v_res=20, N_bound=20, kwargs...)
+@component function TestFHNWave5x5(; name = nothing, var"N"=5, var"N_caps"=25, var"N_h_res"=20, var"N_v_res"=20, var"N_bound"=20, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -27,7 +25,7 @@ import Moshi as __Ext__Moshi
     @named model = TestFHNWave5x5()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -36,6 +34,13 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "N") && (N = pop!(__overrides, "N"))
+  haskey(__overrides, "N_caps") && (N_caps = pop!(__overrides, "N_caps"))
+  haskey(__overrides, "N_h_res") && (N_h_res = pop!(__overrides, "N_h_res"))
+  haskey(__overrides, "N_v_res") && (N_v_res = pop!(__overrides, "N_v_res"))
+  haskey(__overrides, "N_bound") && (N_bound = pop!(__overrides, "N_bound"))
 
   ### Structural Parameters (functions)
 
@@ -67,33 +72,33 @@ import Moshi as __Ext__Moshi
   caps_overrides = __pop_subcomponent_overrides!(__overrides, "caps")
   caps = System[]
   for i in 1:N_caps
-    push!(caps, MakieWebinar.FHNCapacitor(V=ModelingToolkit.default_to_parentscope(0.01), a=ModelingToolkit.default_to_parentscope(0.1), b=ModelingToolkit.default_to_parentscope(0.01), eps=ModelingToolkit.default_to_parentscope(0.01), name=Symbol("caps", "⸺", i), caps_overrides...))
+    push!(caps, MakieWebinar.FHNCapacitor(; V=ModelingToolkit.default_to_parentscope(0.01), a=ModelingToolkit.default_to_parentscope(0.1), b=ModelingToolkit.default_to_parentscope(0.01), eps=ModelingToolkit.default_to_parentscope(0.01), name=Symbol("caps", "⸺", i), __overrides = caps_overrides))
   end
   append!(__systems, caps)
   # Subcomponent r_h of type MakieWebinar.DiffusionResistor
   r_h_overrides = __pop_subcomponent_overrides!(__overrides, "r_h")
   r_h = System[]
   for i in 1:N_h_res
-    push!(r_h, MakieWebinar.DiffusionResistor(D=ModelingToolkit.default_to_parentscope(3.0), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_h", "⸺", i), r_h_overrides...))
+    push!(r_h, MakieWebinar.DiffusionResistor(; D=ModelingToolkit.default_to_parentscope(Float64(3.0)), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_h", "⸺", i), __overrides = r_h_overrides))
   end
   append!(__systems, r_h)
   # Subcomponent r_v of type MakieWebinar.DiffusionResistor
   r_v_overrides = __pop_subcomponent_overrides!(__overrides, "r_v")
   r_v = System[]
   for i in 1:N_v_res
-    push!(r_v, MakieWebinar.DiffusionResistor(D=ModelingToolkit.default_to_parentscope(3.0), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_v", "⸺", i), r_v_overrides...))
+    push!(r_v, MakieWebinar.DiffusionResistor(; D=ModelingToolkit.default_to_parentscope(Float64(3.0)), dx=ModelingToolkit.default_to_parentscope(0.1), A=ModelingToolkit.default_to_parentscope(0.1), name=Symbol("r_v", "⸺", i), __overrides = r_v_overrides))
   end
   append!(__systems, r_v)
   # Subcomponent bounds of type MakieWebinar.ZeroFluxBoundary
   bounds_overrides = __pop_subcomponent_overrides!(__overrides, "bounds")
   bounds = System[]
   for i in 1:N_bound
-    push!(bounds, MakieWebinar.ZeroFluxBoundary(name=Symbol("bounds", "⸺", i), bounds_overrides...))
+    push!(bounds, MakieWebinar.ZeroFluxBoundary(; name=Symbol("bounds", "⸺", i), __overrides = bounds_overrides))
   end
   append!(__systems, bounds)
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -133,6 +138,6 @@ import Moshi as __Ext__Moshi
   end
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestFHNWave5x5

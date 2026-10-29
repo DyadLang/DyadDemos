@@ -1,3 +1,4 @@
+# Run with julia +dyad-3.5.0 --project=scripts scripts/05_autotuning_analysis.jl
 using DyadExampleComponents, DyadControlSystems
 using ModelingToolkit: @named
 
@@ -8,8 +9,9 @@ spec = DyadControlSystems.PIDAutotuningAnalysisSpec(;
     model=model,
     measurement="y",
     control_input="u",
-    step_input="set_point.y",
-    step_output="seat_pos.s",
+    step_input="reference_input",
+    ref=1.0, # Track a unit reference step.
+    step_output="y",
     num_frequencies=200,
 )
 

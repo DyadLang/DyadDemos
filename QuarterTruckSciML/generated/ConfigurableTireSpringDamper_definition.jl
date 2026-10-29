@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   ConfigurableTireSpringDamper(; name, k1, k3, d, s_rel0, compression_only)
+   ConfigurableTireSpringDamper(; name, k1, k3, d, s_rel0, compression_only, __overrides)
 
 Configurable tire spring-damper with optional nonlinearity and compression-only behavior.
 
@@ -34,7 +32,7 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
 | `v_rel`         |                          | m/s  |
 | `f`         |                          | N  |
 """
-@component function ConfigurableTireSpringDamper(; name = nothing, k1=Float64(200000.0), k3=Float64(0.0), d=Float64(50.0), s_rel0=0.2, compression_only=Float64(0.0), kwargs...)
+@component function ConfigurableTireSpringDamper(; name = nothing, var"k1"=Float64(200000.0), var"k3"=Float64(0.0), var"d"=Float64(50.0), var"s_rel0"=0.2, var"compression_only"=Float64(0.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -42,7 +40,7 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
     @named model = ConfigurableTireSpringDamper()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -51,6 +49,13 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "k1") && (k1 = pop!(__overrides, "k1"))
+  haskey(__overrides, "k3") && (k3 = pop!(__overrides, "k3"))
+  haskey(__overrides, "d") && (d = pop!(__overrides, "d"))
+  haskey(__overrides, "s_rel0") && (s_rel0 = pop!(__overrides, "s_rel0"))
+  haskey(__overrides, "compression_only") && (compression_only = pop!(__overrides, "compression_only"))
 
   ### Structural Parameters (functions)
 
@@ -67,19 +72,19 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
   ### Symbolic Parameters
   __local__k1 = k1
   append!(__params, @parameters (k1::Real), [description = "Linear stiffness [N/m]"])
-  __initial_conditions[k1] = __local__k1
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k1, __local__k1)
   __local__k3 = k3
   append!(__params, @parameters (k3::Real), [description = "Cubic stiffness coefficient [N/m^3] - 0 disables nonlinearity"])
-  __initial_conditions[k3] = __local__k3
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k3, __local__k3)
   __local__d = d
   append!(__params, @parameters (d::Real), [description = "Damping [N*s/m]"])
-  __initial_conditions[d] = __local__d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, d, __local__d)
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [description = "Unstretched (free) length [m]", bounds = (0, Inf)])
-  __initial_conditions[s_rel0] = __local__s_rel0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0, __local__s_rel0)
   __local__compression_only = compression_only
   append!(__params, @parameters (compression_only::Real), [description = "Compression-only flag: 0.0=symmetric, 1.0=compression-only"])
-  __initial_conditions[compression_only] = __local__compression_only
+  __dyad_seed_parameter!(__initial_conditions, __bindings, compression_only, __local__compression_only)
 
   ### Final Parameters (assignments)
 
@@ -92,11 +97,14 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
 
   ### Variables (assignments)
   __ovr_s_rel = pop!(__overrides, "s_rel", nothing); isnothing(__ovr_s_rel) || push!(__eqs, s_rel ~ __ovr_s_rel)
-  __ovr_s_rel__initial = pop!(__overrides, "s_rel__initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
+  __ovr_s_rel__initial = pop!(__overrides, "s_rel.initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
+  __ovr_s_rel__guess = pop!(__overrides, "s_rel.guess", nothing)
   __ovr_v_rel = pop!(__overrides, "v_rel", nothing); isnothing(__ovr_v_rel) || push!(__eqs, v_rel ~ __ovr_v_rel)
-  __ovr_v_rel__initial = pop!(__overrides, "v_rel__initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
+  __ovr_v_rel__initial = pop!(__overrides, "v_rel.initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
+  __ovr_v_rel__guess = pop!(__overrides, "v_rel.guess", nothing)
   __ovr_f = pop!(__overrides, "f", nothing); isnothing(__ovr_f) || push!(__eqs, f ~ __ovr_f)
-  __ovr_f__initial = pop!(__overrides, "f__initial", nothing); isnothing(__ovr_f__initial) || (__initial_conditions[f] = __ovr_f__initial)
+  __ovr_f__initial = pop!(__overrides, "f.initial", nothing); isnothing(__ovr_f__initial) || (__initial_conditions[f] = __ovr_f__initial)
+  __ovr_f__guess = pop!(__overrides, "f.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -106,9 +114,12 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
   push!(__systems, @named flange_b = __Dyad__Flange())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
+  isnothing(__ovr_s_rel__guess) || (__guesses[s_rel] = __ovr_s_rel__guess)
+  isnothing(__ovr_v_rel__guess) || (__guesses[v_rel] = __ovr_v_rel__guess)
+  isnothing(__ovr_f__guess) || (__guesses[f] = __ovr_f__guess)
 
   ### Initialization Equations
 
@@ -123,6 +134,6 @@ Configurable tire spring-damper with optional nonlinearity and compression-only 
   push!(__eqs, f ~ ifelse(compression_only > 0.5, ifelse(s_rel < s_rel0, k1 * (s_rel - s_rel0) + k3 * (s_rel - s_rel0) * abs(s_rel - s_rel0) ^ 2 + d * v_rel, 0.0), k1 * (s_rel - s_rel0) + k3 * (s_rel - s_rel0) * abs(s_rel - s_rel0) ^ 2 + d * v_rel))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ConfigurableTireSpringDamper

@@ -1,0 +1,30 @@
+"A sliding mass at constant forward speed."
+component SlidingAxle
+  parameter m::Real = 400
+  structural parameter U::Real = 20
+  variable vy::Real
+  variable delta::Real
+  variable alpha::Real
+  tire = CLibraryIntegration.MagicFormulaTire()
+relations
+  initial vy = 0
+  delta = ifelse(time < 0.2, 0, 0.04 + 0.01 * sin(2 * pi * (time - 0.2)))
+  alpha = delta - atan(vy / U)
+  tire.alpha = alpha
+  m * der(vy) = tire.Fy
+metadata {
+  "Dyad": {
+    "icons": {
+      "default": "dyad://CLibraryIntegration/icon.svg"
+    },
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1100,
+        "rot": 0
+      }
+    ]
+  }
+}
+end

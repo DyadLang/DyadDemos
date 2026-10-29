@@ -11,17 +11,21 @@ component ControlledOscillator
   "Fixed reference point"
   fixed = TranslationalComponents.Components.Fixed(s0 = 0.0) {^fixed}
   "PID controller - generates damping force based on velocity"
-  pid = BlockComponents.Continuous.LimPID(k = pid_k, Ti = pid_Ti, Td = pid_Td, y_max = pid_y_max, y_min = pid_y_min) {^pid}
+  pid = BlockComponents.Continuous.LimPID(with_I = pid_with_I, with_D = pid_with_D, k = pid_k, Ti = pid_Ti, Td = pid_Td, y_max = pid_y_max, y_min = pid_y_min) {^pid}
   "Setpoint for PID (zero velocity = rest)"
   setpoint = BlockComponents.Sources.Constant(k = 0.0) {^setpoint}
   "Velocity sensor for feedback"
-  velocity_sensor = TranslationalComponents.Sensors.SpeedSensor() {^velocity_sensor}
+  velocity_sensor = TranslationalComponents.Sensors.VelocitySensor() {^velocity_sensor}
   "Control force actuator"
   control_force = TranslationalComponents.Sources.Force() {^control_force}
   "Ground for force actuator"
   ground = TranslationalComponents.Components.Fixed(s0 = 0.0) {^ground}
   "Feed-forward input (zero by default)"
   ff_input = BlockComponents.Sources.Constant(k = 0.0) {^ff_input}
+  "Include the integral branch of the controller"
+  structural parameter pid_with_I::Boolean = true
+  "Include the derivative branch of the controller"
+  structural parameter pid_with_D::Boolean = true
   "PID proportional gain"
   parameter pid_k::Real = 10.0
   "PID integral time"
@@ -179,16 +183,12 @@ test component TestWeakDamping
   "Reduced PID gain allows oscillation"
   system = ControlledOscillator(pid_k = 1.0, pid_Td = 0.1, pid_y_max = 10.0, pid_y_min = -10.0)
 relations
-  initial system.mass.s = 0.5
-  initial system.mass.v = 0.0
 end
 
 test component TestNoDamping
-  "PID gain near zero - pure oscillation (avoiding k=0 singularity in LimPID)"
-  system = ControlledOscillator(pid_k = 1e-10, pid_Td = 1e-10, pid_y_max = 1e-10, pid_y_min = -1e-10)
+  "Pure oscillation with integral and derivative branches removed"
+  system = ControlledOscillator(pid_k = 0.0, pid_with_I = false, pid_with_D = false)
 relations
-  initial system.mass.s = 0.5
-  initial system.mass.v = 0.0
 end
 
 analysis StrongDampingAnalysis

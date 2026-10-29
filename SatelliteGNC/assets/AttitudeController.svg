@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Outer block -->
+  <rect x="100" y="100" width="800" height="800" rx="30" ry="30"
+        fill="#f0fdf4" stroke="#166534" stroke-width="8"/>
+
+  <!-- Crosshair / targeting reticle (represents attitude targeting) -->
+  <!-- Outer ring -->
+  <circle cx="500" cy="460" r="220" fill="none" stroke="#166534" stroke-width="7"/>
+  <!-- Inner ring -->
+  <circle cx="500" cy="460" r="140" fill="none" stroke="#22c55e" stroke-width="5"/>
+  <!-- Innermost ring -->
+  <circle cx="500" cy="460" r="60" fill="none" stroke="#16a34a" stroke-width="4"/>
+  <!-- Center dot -->
+  <circle cx="500" cy="460" r="14" fill="#166534"/>
+
+  <!-- Crosshair lines -->
+  <line x1="500" y1="200" x2="500" y2="380" stroke="#166534" stroke-width="6"/>
+  <line x1="500" y1="540" x2="500" y2="720" stroke="#166534" stroke-width="6"/>
+  <line x1="240" y1="460" x2="420" y2="460" stroke="#166534" stroke-width="6"/>
+  <line x1="580" y1="460" x2="760" y2="460" stroke="#166534" stroke-width="6"/>
+
+  <!-- Roll arc (curved arrow around top) -->
+  <path d="M 380,260 A 160,160 0 0,1 620,260"
+        fill="none" stroke="#ef4444" stroke-width="6"/>
+  <!-- Roll arrowhead -->
+  <polygon points="615,248 635,262 612,272" fill="#ef4444"/>
+
+  <!-- Pitch arc (curved arrow on right) -->
+  <path d="M 700,340 A 160,160 0 0,1 700,580"
+        fill="none" stroke="#2563eb" stroke-width="6"/>
+  <!-- Pitch arrowhead -->
+  <polygon points="712,575 698,595 688,572" fill="#2563eb"/>
+
+  <!-- Yaw arc (curved arrow on bottom) -->
+  <path d="M 380,660 A 160,160 0 0,0 620,660"
+        fill="none" stroke="#f97316" stroke-width="6"/>
+  <!-- Yaw arrowhead -->
+  <polygon points="615,672 635,658 612,648" fill="#f97316"/>
+
+  <!-- Feedback arrow (bottom, stylized) -->
+  <path d="M 780,820 L 500,820 L 500,750"
+        fill="none" stroke="#166534" stroke-width="5" stroke-dasharray="12,8"/>
+  <polygon points="490,755 500,735 510,755" fill="#166534"/>
+
+  <!-- Sigma symbol area (gain block hint top-left) -->
+  <rect x="160" y="770" width="120" height="80" rx="10" ry="10"
+        fill="#dcfce7" stroke="#166534" stroke-width="4"/>
+  <!-- Kp text-free: proportional symbol as a simple "P" shape -->
+  <line x1="195" y1="790" x2="195" y2="840" stroke="#166534" stroke-width="6"/>
+  <path d="M 195,790 Q 235,790 235,808 Q 235,825 195,825"
+        fill="none" stroke="#166534" stroke-width="6"/>
+
+  <!-- Derivative block hint (top-right area) -->
+  <rect x="720" y="770" width="120" height="80" rx="10" ry="10"
+        fill="#dcfce7" stroke="#166534" stroke-width="4"/>
+  <!-- D symbol as simple shape -->
+  <line x1="755" y1="790" x2="755" y2="840" stroke="#166534" stroke-width="6"/>
+  <path d="M 755,790 Q 810,790 810,815 Q 810,840 755,840"
+        fill="none" stroke="#166534" stroke-width="6"/>
+</svg>

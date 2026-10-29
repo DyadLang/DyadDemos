@@ -4,12 +4,10 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TestWeakDamping(; name)
+   TestWeakDamping(; name, __overrides)
 """
-@component function TestWeakDamping(; name = nothing, kwargs...)
+@component function TestWeakDamping(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -17,7 +15,7 @@ import Moshi as __Ext__Moshi
     @named model = TestWeakDamping()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,16 +53,14 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent system of type MakieWebinar.ControlledOscillator
   system_overrides = __pop_subcomponent_overrides!(__overrides, "system")
-  push!(__systems, @named system = MakieWebinar.ControlledOscillator(pid_k=1.0, pid_Td=0.1, pid_y_max=10.0, pid_y_min=-10.0, system_overrides...))
+  push!(__systems, @named system = MakieWebinar.ControlledOscillator(; pid_k=Float64(1.0), pid_Td=0.1, pid_y_max=Float64(10.0), pid_y_min=-10.0, __overrides = system_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
   ### Initialization Equations
-  push!(__initialization_eqs, system.mass.s ~ 0.5)
-  push!(__initialization_eqs, system.mass.v ~ 0.0)
 
   ### Assertions
   __assertions = []
@@ -72,6 +68,6 @@ import Moshi as __Ext__Moshi
   ### Equations
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestWeakDamping

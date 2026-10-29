@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TunableRCCircuit(; name, R, C, V_supply)
+   TunableRCCircuit(; name, R, C, V_supply, __overrides)
 
 Simple RC charging circuit with variable time constant.
 User can adjust R and C to see different charging behaviors.
@@ -20,7 +18,7 @@ User can adjust R and C to see different charging behaviors.
 | `C`         | Capacitance (controls charge storage)                         | F  |   1e-6 |
 | `V_supply`         | Supply voltage                         | V  |   10.0 |
 """
-@component function TunableRCCircuit(; name = nothing, R=Float64(1000.0), C=0.000001, V_supply=Float64(10.0), kwargs...)
+@component function TunableRCCircuit(; name = nothing, var"R"=Float64(1000.0), var"C"=0.000001, var"V_supply"=Float64(10.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -28,7 +26,7 @@ User can adjust R and C to see different charging behaviors.
     @named model = TunableRCCircuit()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -37,6 +35,11 @@ User can adjust R and C to see different charging behaviors.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "R") && (R = pop!(__overrides, "R"))
+  haskey(__overrides, "C") && (C = pop!(__overrides, "C"))
+  haskey(__overrides, "V_supply") && (V_supply = pop!(__overrides, "V_supply"))
 
   ### Structural Parameters (functions)
 
@@ -53,13 +56,13 @@ User can adjust R and C to see different charging behaviors.
   ### Symbolic Parameters
   __local__R = R
   append!(__params, @parameters (R::Real), [description = "Resistance (controls charging speed)"])
-  __initial_conditions[R] = __local__R
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R, __local__R)
   __local__C = C
   append!(__params, @parameters (C::Real), [description = "Capacitance (controls charge storage)", bounds = (0, Inf)])
-  __initial_conditions[C] = __local__C
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C, __local__C)
   __local__V_supply = V_supply
   append!(__params, @parameters (V_supply::Real), [description = "Supply voltage"])
-  __initial_conditions[V_supply] = __local__V_supply
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V_supply, __local__V_supply)
 
   ### Final Parameters (assignments)
 
@@ -75,22 +78,22 @@ User can adjust R and C to see different charging behaviors.
   ### Components
   # Subcomponent source of type ElectricalComponents.Analog.Sources.VoltageSource
   source_overrides = __pop_subcomponent_overrides!(__overrides, "source")
-  push!(__systems, @named source = ElectricalComponents.Analog.Sources.VoltageSource(source_overrides...))
+  push!(__systems, @named source = ElectricalComponents.Analog.Sources.VoltageSource(; __overrides = source_overrides))
   # Subcomponent voltage_signal of type BlockComponents.Sources.Constant
   voltage_signal_overrides = __pop_subcomponent_overrides!(__overrides, "voltage_signal")
-  push!(__systems, @named voltage_signal = BlockComponents.Sources.Constant(k=V_supply, voltage_signal_overrides...))
+  push!(__systems, @named voltage_signal = BlockComponents.Sources.Constant(; k=V_supply, __overrides = voltage_signal_overrides))
   # Subcomponent resistor of type ElectricalComponents.Analog.Basic.Resistor
   resistor_overrides = __pop_subcomponent_overrides!(__overrides, "resistor")
-  push!(__systems, @named resistor = ElectricalComponents.Analog.Basic.Resistor(R=R, resistor_overrides...))
+  push!(__systems, @named resistor = ElectricalComponents.Analog.Basic.Resistor(; R=R, __overrides = resistor_overrides))
   # Subcomponent capacitor of type ElectricalComponents.Analog.Basic.Capacitor
   capacitor_overrides = __pop_subcomponent_overrides!(__overrides, "capacitor")
-  push!(__systems, @named capacitor = ElectricalComponents.Analog.Basic.Capacitor(C=C, capacitor_overrides...))
+  push!(__systems, @named capacitor = ElectricalComponents.Analog.Basic.Capacitor(; C=C, __overrides = capacitor_overrides))
   # Subcomponent ground of type ElectricalComponents.Analog.Basic.Ground
   ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
-  push!(__systems, @named ground = ElectricalComponents.Analog.Basic.Ground(ground_overrides...))
+  push!(__systems, @named ground = ElectricalComponents.Analog.Basic.Ground(; __overrides = ground_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -107,6 +110,6 @@ User can adjust R and C to see different charging behaviors.
   push!(__eqs, connect(source.n, ground.g))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TunableRCCircuit

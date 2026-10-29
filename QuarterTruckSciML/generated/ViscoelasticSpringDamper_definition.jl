@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   ViscoelasticSpringDamper(; name, k, d, s_rel0, n, v_reg)
+   ViscoelasticSpringDamper(; name, k, d, s_rel0, n, v_reg, __overrides)
 
 Viscoelastic spring-damper: linear spring with power-law damping for seat cushion modeling.
 
@@ -34,7 +32,7 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
 | `v_rel`         |                          | m/s  |
 | `f`         |                          | N  |
 """
-@component function ViscoelasticSpringDamper(; name = nothing, k=Float64(10000.0), d=Float64(500.0), s_rel0=0.1, n=0.5, v_reg=0.0001, kwargs...)
+@component function ViscoelasticSpringDamper(; name = nothing, var"k"=Float64(10000.0), var"d"=Float64(500.0), var"s_rel0"=0.1, var"n"=0.5, var"v_reg"=0.0001, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -42,7 +40,7 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
     @named model = ViscoelasticSpringDamper()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -51,6 +49,13 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "k") && (k = pop!(__overrides, "k"))
+  haskey(__overrides, "d") && (d = pop!(__overrides, "d"))
+  haskey(__overrides, "s_rel0") && (s_rel0 = pop!(__overrides, "s_rel0"))
+  haskey(__overrides, "n") && (n = pop!(__overrides, "n"))
+  haskey(__overrides, "v_reg") && (v_reg = pop!(__overrides, "v_reg"))
 
   ### Structural Parameters (functions)
 
@@ -67,19 +72,19 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
   ### Symbolic Parameters
   __local__k = k
   append!(__params, @parameters (k::Real), [description = "Linear spring stiffness [N/m]"])
-  __initial_conditions[k] = __local__k
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k, __local__k)
   __local__d = d
   append!(__params, @parameters (d::Real), [description = "Damping coefficient [N*s^n/m^n]"])
-  __initial_conditions[d] = __local__d
+  __dyad_seed_parameter!(__initial_conditions, __bindings, d, __local__d)
   __local__s_rel0 = s_rel0
   append!(__params, @parameters (s_rel0::Real), [description = "Unstretched length [m]", bounds = (0, Inf)])
-  __initial_conditions[s_rel0] = __local__s_rel0
+  __dyad_seed_parameter!(__initial_conditions, __bindings, s_rel0, __local__s_rel0)
   __local__n = n
   append!(__params, @parameters (n::Real), [description = "Velocity exponent: 1.0=linear, 0.5=viscoelastic foam"])
-  __initial_conditions[n] = __local__n
+  __dyad_seed_parameter!(__initial_conditions, __bindings, n, __local__n)
   __local__v_reg = v_reg
   append!(__params, @parameters (v_reg::Real), [description = "Regularization velocity [m/s]"])
-  __initial_conditions[v_reg] = __local__v_reg
+  __dyad_seed_parameter!(__initial_conditions, __bindings, v_reg, __local__v_reg)
 
   ### Final Parameters (assignments)
 
@@ -92,11 +97,14 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
 
   ### Variables (assignments)
   __ovr_s_rel = pop!(__overrides, "s_rel", nothing); isnothing(__ovr_s_rel) || push!(__eqs, s_rel ~ __ovr_s_rel)
-  __ovr_s_rel__initial = pop!(__overrides, "s_rel__initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
+  __ovr_s_rel__initial = pop!(__overrides, "s_rel.initial", nothing); isnothing(__ovr_s_rel__initial) || (__initial_conditions[s_rel] = __ovr_s_rel__initial)
+  __ovr_s_rel__guess = pop!(__overrides, "s_rel.guess", nothing)
   __ovr_v_rel = pop!(__overrides, "v_rel", nothing); isnothing(__ovr_v_rel) || push!(__eqs, v_rel ~ __ovr_v_rel)
-  __ovr_v_rel__initial = pop!(__overrides, "v_rel__initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
+  __ovr_v_rel__initial = pop!(__overrides, "v_rel.initial", nothing); isnothing(__ovr_v_rel__initial) || (__initial_conditions[v_rel] = __ovr_v_rel__initial)
+  __ovr_v_rel__guess = pop!(__overrides, "v_rel.guess", nothing)
   __ovr_f = pop!(__overrides, "f", nothing); isnothing(__ovr_f) || push!(__eqs, f ~ __ovr_f)
-  __ovr_f__initial = pop!(__overrides, "f__initial", nothing); isnothing(__ovr_f__initial) || (__initial_conditions[f] = __ovr_f__initial)
+  __ovr_f__initial = pop!(__overrides, "f.initial", nothing); isnothing(__ovr_f__initial) || (__initial_conditions[f] = __ovr_f__initial)
+  __ovr_f__guess = pop!(__overrides, "f.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -106,9 +114,12 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
   push!(__systems, @named flange_b = __Dyad__Flange())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
+  isnothing(__ovr_s_rel__guess) || (__guesses[s_rel] = __ovr_s_rel__guess)
+  isnothing(__ovr_v_rel__guess) || (__guesses[v_rel] = __ovr_v_rel__guess)
+  isnothing(__ovr_f__guess) || (__guesses[f] = __ovr_f__guess)
 
   ### Initialization Equations
 
@@ -123,6 +134,6 @@ Viscoelastic spring-damper: linear spring with power-law damping for seat cushio
   push!(__eqs, f ~ k * (s_rel - s_rel0) + d * v_rel * (v_rel ^ 2 + v_reg ^ 2) ^ ((n - 1.0) / 2.0))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ViscoelasticSpringDamper

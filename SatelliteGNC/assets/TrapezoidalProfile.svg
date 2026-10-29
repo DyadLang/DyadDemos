@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Outer block -->
+  <rect x="80" y="80" width="840" height="840" rx="30" ry="30"
+        fill="#fff7ed" stroke="#c2410c" stroke-width="8"/>
+
+  <!-- Axes -->
+  <!-- Vertical axis (angle) -->
+  <line x1="180" y1="780" x2="180" y2="180" stroke="#78350f" stroke-width="5"/>
+  <polygon points="172,190 180,160 188,190" fill="#78350f"/>
+  <!-- Horizontal axis (time) -->
+  <line x1="180" y1="780" x2="850" y2="780" stroke="#78350f" stroke-width="5"/>
+  <polygon points="840,772 870,780 840,788" fill="#78350f"/>
+
+  <!-- Trapezoidal velocity profile (dashed orange) -->
+  <!-- Ramp up to w_max, coast, ramp down to zero, hold at zero -->
+  <polyline points="180,620 340,420 560,420 720,620 820,620"
+            fill="none" stroke="#f97316" stroke-width="5" stroke-dasharray="14,8"/>
+
+  <!-- Angle profile (solid, integral of trapezoidal velocity) -->
+  <!-- Phase 1: quadratic (parabolic accel), Phase 2: linear (coast), -->
+  <!-- Phase 3: quadratic (parabolic decel), Phase 4: constant (hold) -->
+  <!-- Bézier control points computed to match slopes at phase boundaries (C1) -->
+  <path d="M 180,780 Q 260,780 340,662 L 560,338 Q 640,220 720,220 L 820,220"
+        fill="none" stroke="#c2410c" stroke-width="7"/>
+
+  <!-- Target level line (dashed) -->
+  <line x1="720" y1="220" x2="850" y2="220" stroke="#c2410c" stroke-width="3" stroke-dasharray="8,6" opacity="0.5"/>
+
+  <!-- Phase markers (small ticks on time axis) -->
+  <line x1="340" y1="770" x2="340" y2="790" stroke="#78350f" stroke-width="3"/>
+  <line x1="560" y1="770" x2="560" y2="790" stroke="#78350f" stroke-width="3"/>
+  <line x1="720" y1="770" x2="720" y2="790" stroke="#78350f" stroke-width="3"/>
+
+  <!-- Phase vertical guides (light) -->
+  <line x1="340" y1="220" x2="340" y2="770" stroke="#fed7aa" stroke-width="2" opacity="0.6"/>
+  <line x1="560" y1="220" x2="560" y2="770" stroke="#fed7aa" stroke-width="2" opacity="0.6"/>
+  <line x1="720" y1="220" x2="720" y2="770" stroke="#fed7aa" stroke-width="2" opacity="0.6"/>
+
+  <!-- Filled area under velocity trapezoid (subtle) -->
+  <polygon points="180,620 340,420 560,420 720,620"
+           fill="#ffedd5" fill-opacity="0.4" stroke="none"/>
+
+  <!-- ω_max indicator (horizontal dashed line at coast level) -->
+  <line x1="180" y1="420" x2="340" y2="420"
+        stroke="#f97316" stroke-width="2" stroke-dasharray="8,6" opacity="0.4"/>
+
+  <!-- Small satellite silhouette in top-right corner -->
+  <rect x="760" y="120" width="60" height="40" rx="4" ry="4" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <rect x="730" y="130" width="30" height="20" rx="2" ry="2" fill="#fb923c" stroke="#c2410c" stroke-width="1.5"/>
+  <rect x="820" y="130" width="30" height="20" rx="2" ry="2" fill="#fb923c" stroke="#c2410c" stroke-width="1.5"/>
+  <!-- Rotation arrow -->
+  <path d="M 755,110 A 35,35 0 0,1 825,110" fill="none" stroke="#c2410c" stroke-width="3"/>
+  <polygon points="822,104 835,112 820,116" fill="#c2410c"/>
+</svg>

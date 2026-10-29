@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   SpoonSubsystem(; name, C_spoon, T0_spoon, G_liquid_contact, Gc_exposed, Gr_exposed)
+   SpoonSubsystem(; name, C_spoon, T0_spoon, G_liquid_contact, Gc_exposed, Gr_exposed, __overrides)
 
 ## Parameters:
 
@@ -24,7 +22,7 @@ import Moshi as __Ext__Moshi
  * `liquidInterface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `ambient` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function SpoonSubsystem(; name = nothing, C_spoon=Float64(10.0), T0_spoon=293.15, G_liquid_contact=0.2, Gc_exposed=0.02, Gr_exposed=0.0005, kwargs...)
+@component function SpoonSubsystem(; name = nothing, var"C_spoon"=Float64(10.0), var"T0_spoon"=293.15, var"G_liquid_contact"=0.2, var"Gc_exposed"=0.02, var"Gr_exposed"=0.0005, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -32,7 +30,7 @@ import Moshi as __Ext__Moshi
     @named model = SpoonSubsystem()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -41,6 +39,13 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "C_spoon") && (C_spoon = pop!(__overrides, "C_spoon"))
+  haskey(__overrides, "T0_spoon") && (T0_spoon = pop!(__overrides, "T0_spoon"))
+  haskey(__overrides, "G_liquid_contact") && (G_liquid_contact = pop!(__overrides, "G_liquid_contact"))
+  haskey(__overrides, "Gc_exposed") && (Gc_exposed = pop!(__overrides, "Gc_exposed"))
+  haskey(__overrides, "Gr_exposed") && (Gr_exposed = pop!(__overrides, "Gr_exposed"))
 
   ### Structural Parameters (functions)
 
@@ -57,19 +62,19 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__C_spoon = C_spoon
   append!(__params, @parameters (C_spoon::Real))
-  __initial_conditions[C_spoon] = __local__C_spoon
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_spoon, __local__C_spoon)
   __local__T0_spoon = T0_spoon
   append!(__params, @parameters (T0_spoon::Real), [bounds = (0, Inf)])
-  __initial_conditions[T0_spoon] = __local__T0_spoon
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0_spoon, __local__T0_spoon)
   __local__G_liquid_contact = G_liquid_contact
   append!(__params, @parameters (G_liquid_contact::Real))
-  __initial_conditions[G_liquid_contact] = __local__G_liquid_contact
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_liquid_contact, __local__G_liquid_contact)
   __local__Gc_exposed = Gc_exposed
   append!(__params, @parameters (Gc_exposed::Real))
-  __initial_conditions[Gc_exposed] = __local__Gc_exposed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_exposed, __local__Gc_exposed)
   __local__Gr_exposed = Gr_exposed
   append!(__params, @parameters (Gr_exposed::Real))
-  __initial_conditions[Gr_exposed] = __local__Gr_exposed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gr_exposed, __local__Gr_exposed)
 
   ### Final Parameters (assignments)
 
@@ -87,22 +92,22 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named ambient = __Dyad__HeatPort())
   # Subcomponent spoonMass of type ThermalComponents.Components.HeatCapacitor
   spoonMass_overrides = __pop_subcomponent_overrides!(__overrides, "spoonMass")
-  push!(__systems, @named spoonMass = ThermalComponents.Components.HeatCapacitor(C=C_spoon, T0=T0_spoon, spoonMass_overrides...))
+  push!(__systems, @named spoonMass = ThermalComponents.Components.HeatCapacitor(; C=C_spoon, T0=T0_spoon, __overrides = spoonMass_overrides))
   # Subcomponent liquidContact of type ThermalComponents.Components.ThermalConductor
   liquidContact_overrides = __pop_subcomponent_overrides!(__overrides, "liquidContact")
-  push!(__systems, @named liquidContact = ThermalComponents.Components.ThermalConductor(G=G_liquid_contact, liquidContact_overrides...))
+  push!(__systems, @named liquidContact = ThermalComponents.Components.ThermalConductor(; G=G_liquid_contact, __overrides = liquidContact_overrides))
   # Subcomponent convExposed of type ThermalComponents.Components.Convection
   convExposed_overrides = __pop_subcomponent_overrides!(__overrides, "convExposed")
-  push!(__systems, @named convExposed = ThermalComponents.Components.Convection(convExposed_overrides...))
+  push!(__systems, @named convExposed = ThermalComponents.Components.Convection(; __overrides = convExposed_overrides))
   # Subcomponent gcExposed of type BlockComponents.Sources.Constant
   gcExposed_overrides = __pop_subcomponent_overrides!(__overrides, "gcExposed")
-  push!(__systems, @named gcExposed = BlockComponents.Sources.Constant(k=Gc_exposed, gcExposed_overrides...))
+  push!(__systems, @named gcExposed = BlockComponents.Sources.Constant(; k=Gc_exposed, __overrides = gcExposed_overrides))
   # Subcomponent radExposed of type ThermalComponents.Components.BodyRadiation
   radExposed_overrides = __pop_subcomponent_overrides!(__overrides, "radExposed")
-  push!(__systems, @named radExposed = ThermalComponents.Components.BodyRadiation(Gr=Gr_exposed, radExposed_overrides...))
+  push!(__systems, @named radExposed = ThermalComponents.Components.BodyRadiation(; Gr=Gr_exposed, __overrides = radExposed_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -121,6 +126,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(radExposed.port_b, ambient))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SpoonSubsystem

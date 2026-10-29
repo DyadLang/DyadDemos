@@ -4,12 +4,10 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   SimpleVehicleTest_CoastDown(; name)
+   SimpleVehicleTest_CoastDown(; name, __overrides)
 """
-@component function SimpleVehicleTest_CoastDown(; name = nothing, kwargs...)
+@component function SimpleVehicleTest_CoastDown(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -17,7 +15,7 @@ import Moshi as __Ext__Moshi
     @named model = SimpleVehicleTest_CoastDown()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,19 +53,19 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent vehicle of type FrictionBrakeDemo.SimpleVehicle
   vehicle_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle")
-  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle(initial_velocity=108 * 1000 / 3600, vehicle_overrides...))
+  push!(__systems, @named vehicle = FrictionBrakeDemo.SimpleVehicle(; initial_velocity=Float64(108 * 1000 / 3600), __overrides = vehicle_overrides))
   # Subcomponent torque_input of type BlockComponents.Sources.Constant
   torque_input_overrides = __pop_subcomponent_overrides!(__overrides, "torque_input")
-  push!(__systems, @named torque_input = BlockComponents.Sources.Constant(k=0, torque_input_overrides...))
+  push!(__systems, @named torque_input = BlockComponents.Sources.Constant(; k=Float64(0), __overrides = torque_input_overrides))
   # Subcomponent torque_source of type RotationalComponents.Sources.TorqueSource
   torque_source_overrides = __pop_subcomponent_overrides!(__overrides, "torque_source")
-  push!(__systems, @named torque_source = RotationalComponents.Sources.TorqueSource(torque_source_overrides...))
+  push!(__systems, @named torque_source = RotationalComponents.Sources.TorqueSource(; __overrides = torque_source_overrides))
   # Subcomponent torque_ground of type RotationalComponents.Components.Fixed
   torque_ground_overrides = __pop_subcomponent_overrides!(__overrides, "torque_ground")
-  push!(__systems, @named torque_ground = RotationalComponents.Components.Fixed(torque_ground_overrides...))
+  push!(__systems, @named torque_ground = RotationalComponents.Components.Fixed(; __overrides = torque_ground_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -82,6 +80,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(torque_source.support, torque_ground.spline))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SimpleVehicleTest_CoastDown

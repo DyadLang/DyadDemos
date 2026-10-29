@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   ControlledOscillator(; name, pid_k, pid_Ti, pid_Td, pid_y_max, pid_y_min)
+   ControlledOscillator(; name, pid_with_I, pid_with_D, pid_k, pid_Ti, pid_Td, pid_y_max, pid_y_min, __overrides)
 
 Undamped spring-mass oscillator with PID damping control.
 The system oscillates without natural damping, and the PID controller
@@ -17,13 +15,15 @@ can apply damping force to suppress oscillations.
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
+| `pid_with_I`         | Include the integral branch of the controller                         | --  |   true |
+| `pid_with_D`         | Include the derivative branch of the controller                         | --  |   true |
 | `pid_k`         | PID proportional gain                         | --  |   10.0 |
 | `pid_Ti`         | PID integral time                         | --  |   10.0 |
 | `pid_Td`         | PID derivative time                         | --  |   0.5 |
 | `pid_y_max`         | Maximum control force                         | --  |   50.0 |
 | `pid_y_min`         | Minimum control force                         | --  |   -50.0 |
 """
-@component function ControlledOscillator(; name = nothing, pid_k=Float64(10.0), pid_Ti=Float64(10.0), pid_Td=0.5, pid_y_max=Float64(50.0), pid_y_min=-50.0, kwargs...)
+@component function ControlledOscillator(; name = nothing, var"pid_with_I"=true, var"pid_with_D"=true, var"pid_k"=Float64(10.0), var"pid_Ti"=Float64(10.0), var"pid_Td"=0.5, var"pid_y_max"=Float64(50.0), var"pid_y_min"=-50.0, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -31,7 +31,7 @@ can apply damping force to suppress oscillations.
     @named model = ControlledOscillator()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -40,6 +40,15 @@ can apply damping force to suppress oscillations.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "pid_with_I") && (pid_with_I = pop!(__overrides, "pid_with_I"))
+  haskey(__overrides, "pid_with_D") && (pid_with_D = pop!(__overrides, "pid_with_D"))
+  haskey(__overrides, "pid_k") && (pid_k = pop!(__overrides, "pid_k"))
+  haskey(__overrides, "pid_Ti") && (pid_Ti = pop!(__overrides, "pid_Ti"))
+  haskey(__overrides, "pid_Td") && (pid_Td = pop!(__overrides, "pid_Td"))
+  haskey(__overrides, "pid_y_max") && (pid_y_max = pop!(__overrides, "pid_y_max"))
+  haskey(__overrides, "pid_y_min") && (pid_y_min = pop!(__overrides, "pid_y_min"))
 
   ### Structural Parameters (functions)
 
@@ -56,19 +65,19 @@ can apply damping force to suppress oscillations.
   ### Symbolic Parameters
   __local__pid_k = pid_k
   append!(__params, @parameters (pid_k::Real), [description = "PID proportional gain"])
-  __initial_conditions[pid_k] = __local__pid_k
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_k, __local__pid_k)
   __local__pid_Ti = pid_Ti
   append!(__params, @parameters (pid_Ti::Real), [description = "PID integral time"])
-  __initial_conditions[pid_Ti] = __local__pid_Ti
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_Ti, __local__pid_Ti)
   __local__pid_Td = pid_Td
   append!(__params, @parameters (pid_Td::Real), [description = "PID derivative time"])
-  __initial_conditions[pid_Td] = __local__pid_Td
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_Td, __local__pid_Td)
   __local__pid_y_max = pid_y_max
   append!(__params, @parameters (pid_y_max::Real), [description = "Maximum control force"])
-  __initial_conditions[pid_y_max] = __local__pid_y_max
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_y_max, __local__pid_y_max)
   __local__pid_y_min = pid_y_min
   append!(__params, @parameters (pid_y_min::Real), [description = "Minimum control force"])
-  __initial_conditions[pid_y_min] = __local__pid_y_min
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pid_y_min, __local__pid_y_min)
 
   ### Final Parameters (assignments)
 
@@ -84,34 +93,34 @@ can apply damping force to suppress oscillations.
   ### Components
   # Subcomponent mass of type TranslationalComponents.Components.Mass
   mass_overrides = __pop_subcomponent_overrides!(__overrides, "mass")
-  push!(__systems, @named mass = TranslationalComponents.Components.Mass(m=1.0, mass_overrides...))
+  push!(__systems, @named mass = TranslationalComponents.Components.Mass(; m=Float64(1.0), __overrides = mass_overrides))
   # Subcomponent spring of type TranslationalComponents.Components.Spring
   spring_overrides = __pop_subcomponent_overrides!(__overrides, "spring")
-  push!(__systems, @named spring = TranslationalComponents.Components.Spring(c=100.0, s_rel0=0.0, spring_overrides...))
+  push!(__systems, @named spring = TranslationalComponents.Components.Spring(; c=Float64(100.0), s_rel0=Float64(0.0), __overrides = spring_overrides))
   # Subcomponent fixed of type TranslationalComponents.Components.Fixed
   fixed_overrides = __pop_subcomponent_overrides!(__overrides, "fixed")
-  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(s0=0.0, fixed_overrides...))
+  push!(__systems, @named fixed = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), __overrides = fixed_overrides))
   # Subcomponent pid of type BlockComponents.Continuous.LimPID
   pid_overrides = __pop_subcomponent_overrides!(__overrides, "pid")
-  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(k=pid_k, Ti=pid_Ti, Td=pid_Td, y_max=pid_y_max, y_min=pid_y_min, pid_overrides...))
+  push!(__systems, @named pid = BlockComponents.Continuous.LimPID(; with_I=pid_with_I, with_D=pid_with_D, k=pid_k, Ti=pid_Ti, Td=pid_Td, y_max=pid_y_max, y_min=pid_y_min, __overrides = pid_overrides))
   # Subcomponent setpoint of type BlockComponents.Sources.Constant
   setpoint_overrides = __pop_subcomponent_overrides!(__overrides, "setpoint")
-  push!(__systems, @named setpoint = BlockComponents.Sources.Constant(k=0.0, setpoint_overrides...))
-  # Subcomponent velocity_sensor of type TranslationalComponents.Sensors.SpeedSensor
+  push!(__systems, @named setpoint = BlockComponents.Sources.Constant(; k=Float64(0.0), __overrides = setpoint_overrides))
+  # Subcomponent velocity_sensor of type TranslationalComponents.Sensors.VelocitySensor
   velocity_sensor_overrides = __pop_subcomponent_overrides!(__overrides, "velocity_sensor")
-  push!(__systems, @named velocity_sensor = TranslationalComponents.Sensors.SpeedSensor(velocity_sensor_overrides...))
+  push!(__systems, @named velocity_sensor = TranslationalComponents.Sensors.VelocitySensor(; __overrides = velocity_sensor_overrides))
   # Subcomponent control_force of type TranslationalComponents.Sources.Force
   control_force_overrides = __pop_subcomponent_overrides!(__overrides, "control_force")
-  push!(__systems, @named control_force = TranslationalComponents.Sources.Force(control_force_overrides...))
+  push!(__systems, @named control_force = TranslationalComponents.Sources.Force(; __overrides = control_force_overrides))
   # Subcomponent ground of type TranslationalComponents.Components.Fixed
   ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
-  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0.0, ground_overrides...))
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), __overrides = ground_overrides))
   # Subcomponent ff_input of type BlockComponents.Sources.Constant
   ff_input_overrides = __pop_subcomponent_overrides!(__overrides, "ff_input")
-  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(k=0.0, ff_input_overrides...))
+  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(; k=Float64(0.0), __overrides = ff_input_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -134,6 +143,6 @@ can apply damping force to suppress oscillations.
   push!(__eqs, connect(ff_input.y, pid.u_ff))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ControlledOscillator

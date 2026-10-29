@@ -13,3 +13,4 @@
 # slow_cycle_measurements.csv — are kept.
 /assets/validation_tipin.png
 /assets/data/calibrated_params.csv
+/.dyadcache

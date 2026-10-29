@@ -1,0 +1,114 @@
+"""
+Thruster allocator for an 8-jet CubeSat configuration.
+
+Maps commanded body-frame forces and torques to 8 individual jet
+thrust commands using the pseudoinverse of the thruster configuration
+matrix B. Each output is normalized by F_max so the jet commands
+are in [-1, 1].
+
+Thruster configuration (body frame, CubeSat 0.3×0.2×0.1 m):
+  Jet 1: pos=(+0.15, +0.10, 0), dir=(0,0,+1)
+  Jet 2: pos=(+0.15, -0.10, 0), dir=(0,0,+1)
+  Jet 3: pos=(-0.15, +0.10, 0), dir=(0,0,+1)
+  Jet 4: pos=(-0.15, -0.10, 0), dir=(0,0,+1)
+  Jet 5: pos=(+0.15,  0, +0.05), dir=(0,+1,0)
+  Jet 6: pos=(-0.15,  0, +0.05), dir=(0,+1,0)
+  Jet 7: pos=(0, +0.10, +0.05), dir=(+1,0,0)
+  Jet 8: pos=(0, -0.10, +0.05), dir=(+1,0,0)
+
+The B matrix is 6×8 (rank 6), providing full 6-DOF controllability
+with 2 degrees of redundancy.
+"""
+component ThrusterAllocator
+  "Commanded body-frame forces (N)"
+  Fx_cmd = RealInput()
+  Fy_cmd = RealInput()
+  Fz_cmd = RealInput()
+  "Commanded body-frame torques (N·m)"
+  tau_x_cmd = RealInput()
+  tau_y_cmd = RealInput()
+  tau_z_cmd = RealInput()
+  "Normalized jet commands (-1 to 1)"
+  cmd1 = RealOutput()
+  cmd2 = RealOutput()
+  cmd3 = RealOutput()
+  cmd4 = RealOutput()
+  cmd5 = RealOutput()
+  cmd6 = RealOutput()
+  cmd7 = RealOutput()
+  cmd8 = RealOutput()
+  "Maximum thrust per jet (N) — used for normalization"
+  parameter F_max::Real = 0.1
+  "Unnormalized thrust commands (N)"
+  variable t1::Real
+  variable t2::Real
+  variable t3::Real
+  variable t4::Real
+  variable t5::Real
+  variable t6::Real
+  variable t7::Real
+  variable t8::Real
+relations
+  # Pseudoinverse allocation: thrust_j = B_pinv[j,:] · [Fx,Fy,Fz,τx,τy,τz]
+  # Coefficients from B_pinv of the 8-jet configuration
+  t1 =  0.083333 * Fx_cmd +  0.125 * Fy_cmd + 0.25 * Fz_cmd +  2.5 * tau_x_cmd - 1.666667 * tau_y_cmd
+  t2 =  0.083333 * Fx_cmd -  0.125 * Fy_cmd + 0.25 * Fz_cmd -  2.5 * tau_x_cmd - 1.666667 * tau_y_cmd
+  t3 = -0.083333 * Fx_cmd +  0.125 * Fy_cmd + 0.25 * Fz_cmd +  2.5 * tau_x_cmd + 1.666667 * tau_y_cmd
+  t4 = -0.083333 * Fx_cmd -  0.125 * Fy_cmd + 0.25 * Fz_cmd -  2.5 * tau_x_cmd + 1.666667 * tau_y_cmd
+  t5 =  0.5 * Fy_cmd +  2.307692 * tau_z_cmd
+  t6 =  0.5 * Fy_cmd -  2.307692 * tau_z_cmd
+  t7 =  0.5 * Fx_cmd -  1.538462 * tau_z_cmd
+  t8 =  0.5 * Fx_cmd +  1.538462 * tau_z_cmd
+  # Normalize by F_max
+  cmd1 = t1 / F_max
+  cmd2 = t2 / F_max
+  cmd3 = t3 / F_max
+  cmd4 = t4 / F_max
+  cmd5 = t5 / F_max
+  cmd6 = t6 / F_max
+  cmd7 = t7 / F_max
+  cmd8 = t8 / F_max
+end
+
+# =====================================================
+# TEST: Allocator + 8 jets — pure torque command
+#
+# Command τz = 0.01 N·m, all other forces/torques = 0.
+# F_max = 0.1 N per jet.
+#
+# Expected: allocator distributes to jets 5-8,
+# net force ≈ 0, net torque = [0, 0, 0.01] N·m.
+# =====================================================
+test component TestAllocatorJets
+  alloc = ThrusterAllocator(F_max = 0.1)
+  jet1 = ReactionJet(rx =  0.15, ry =  0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1)
+  jet2 = ReactionJet(rx =  0.15, ry = -0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1)
+  jet3 = ReactionJet(rx = -0.15, ry =  0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1)
+  jet4 = ReactionJet(rx = -0.15, ry = -0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1)
+  jet5 = ReactionJet(rx =  0.15, ry = 0.0,   rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.1)
+  jet6 = ReactionJet(rx = -0.15, ry = 0.0,   rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.1)
+  jet7 = ReactionJet(rx = 0.0,   ry =  0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.1)
+  jet8 = ReactionJet(rx = 0.0,   ry = -0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.1)
+relations
+  # Command pure yaw torque
+  alloc.Fx_cmd = 0.0
+  alloc.Fy_cmd = 0.0
+  alloc.Fz_cmd = 0.0
+  alloc.tau_x_cmd = 0.0
+  alloc.tau_y_cmd = 0.0
+  alloc.tau_z_cmd = 0.01
+  # Wire allocator outputs to jet commands
+  connect(alloc.cmd1, jet1.cmd)
+  connect(alloc.cmd2, jet2.cmd)
+  connect(alloc.cmd3, jet3.cmd)
+  connect(alloc.cmd4, jet4.cmd)
+  connect(alloc.cmd5, jet5.cmd)
+  connect(alloc.cmd6, jet6.cmd)
+  connect(alloc.cmd7, jet7.cmd)
+  connect(alloc.cmd8, jet8.cmd)
+end
+
+analysis TestAllocatorJetsSim
+  extends TransientAnalysis(stop = 0.1)
+  model = TestAllocatorJets()
+end

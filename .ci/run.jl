@@ -5,64 +5,62 @@ get(ENV, "GITHUB_ACTIONS", "false") == "true" && global_logger(GitHubActionsLogg
 import Pkg
 import DyadHarness
 
-# Gives us the ability to report what succeeded and what failed
-include("github_utils.jl")
-
 folders = filter(readdir(dirname(@__DIR__); join = true)) do path
-    isdir(path) &&
-    !startswith(basename(path), ".") &&
-    isdir(joinpath(path, "dyad"))
+    isdir(path) && !startswith(basename(path), ".") && isdir(joinpath(path, "dyad"))
 end
 
-for folder in folders
-    group("Testing $folder") do
-        @info "Instantiating project" 
-        try
-            withenv("JULIA_PKG_PRECOMPILE_AUTO" => "0") do 
-                Pkg.activate(folder)
-                Pkg.resolve()  
-                Pkg.instantiate()          
-            end
-        catch e
-            @error "Failed to instantiate project" error = e
-            post_status(name = "$(basename(folder))/instantiate", type = "failure")
-            return
-        finally
-            Pkg.activate(@__DIR__)
-        end
-
-        @info "Running tests"
-        test_result = try
+function test_demo(folder)
+    try
+        @info "Instantiating project" folder
+        withenv("JULIA_PKG_PRECOMPILE_AUTO" => "0") do
             Pkg.activate(folder)
-            Pkg.test()
-        catch e
-            @error "Tests errored" error = e
-            post_status(name = "$(basename(folder))/test", type = "error")
-            return
-        finally
-            Pkg.activate(@__DIR__)
+            Pkg.resolve()
+            Pkg.instantiate()
         end
 
-        @info "Compiling with latest `dyad-lang`"
-        compile_result = cd(folder) do
-            success(`$(DyadHarness.dyad_cli_path) compile .`)
+        # Regenerate before testing, so tests exercise the pinned compiler output.
+        @info "Compiling Dyad sources" folder
+        cd(folder) do
+            run(`$(DyadHarness.dyad_cli_path) compile .`)
         end
-        if compile_result == false
-            @error "Compilation failed"
-            post_status(name = "$(basename(folder))/dyad-compile", type = "failure")
-            return
-        end
-
-        @info "Running Dyad doc-gen"
-        docgen_result = cd(folder) do
-            success(`$(DyadHarness.dyad_cli_path) document $(basename(folder))`)
-        end
-        if docgen_result == false
-            @error "Doc-gen failed"
-            post_status(name = "$(basename(folder))/dyad-doc-gen", type = "failure")
+        # Two custom timeseries analyses need this documented RC2 codegen fix.
+        codegen_fix = joinpath(folder, "scripts", "fix_analysis_codegen.jl")
+        if isfile(codegen_fix)
+            run(`$(Base.julia_cmd()) --startup-file=no $codegen_fix`)
         end
 
-        @info "All steps succeeded"
-        post_status(name = "$(basename(folder))/all", type = "success")
+        @info "Running tests" folder
+        Pkg.test()
+
+        @info "Generating Dyad documentation" folder
+        cd(folder) do
+            run(`$(DyadHarness.dyad_cli_path) document $(basename(folder))`)
+        end
+
+        docs_dir = joinpath(folder, "docs")
+        if isfile(joinpath(docs_dir, "Project.toml"))
+            @info "Instantiating docs environment" folder
+            withenv("JULIA_PKG_PRECOMPILE_AUTO" => "0") do
+                Pkg.activate(docs_dir)
+                Pkg.instantiate()
+            end
+        end
+        return true
+    catch error
+        @error "Demo validation failed" folder exception = (error, catch_backtrace())
+        return false
+    finally
+        Pkg.activate(@__DIR__)
     end
 end
+
+failed = String[]
+for folder in folders
+    ok = group("Testing $(basename(folder))") do
+        test_demo(folder)
+    end
+    ok || push!(failed, basename(folder))
+end
+
+# Still check every project, but never turn a failed demo into a green CI job.
+isempty(failed) || error("Demo validation failed: $(join(failed, ", "))")

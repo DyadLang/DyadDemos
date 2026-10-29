@@ -5,7 +5,7 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 using ModelingToolkit
-import Moshi
+import Markdown
 
 if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "types.jl"))
   include(joinpath((@__DIR__) |> Base.dirname, "dyad", "types.jl"))

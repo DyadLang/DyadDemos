@@ -4,14 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TestDrivelineChirpMaxwellOnly(; name)
+   TestDrivelineChirpMaxwellOnly(; name, __overrides)
 
 Stage 1 calibration harness: same chirp excitation as TestDrivelineChirp but with the Bouc-Wen element disabled (alpha = 0, A_bw = 0 keeps z identically zero), so only the Maxwell branch (k1, c1) is identified — mirroring the original study's 4-state Maxwell fit. The small Bouc-Wen contribution present in the measurement data is treated as unmodeled dynamics.
 """
-@component function TestDrivelineChirpMaxwellOnly(; name = nothing, kwargs...)
+@component function TestDrivelineChirpMaxwellOnly(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -19,7 +17,7 @@ Stage 1 calibration harness: same chirp excitation as TestDrivelineChirp but wit
     @named model = TestDrivelineChirpMaxwellOnly()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -57,19 +55,19 @@ Stage 1 calibration harness: same chirp excitation as TestDrivelineChirp but wit
   ### Components
   # Subcomponent model of type DrivelineSciML.DrivelineSystem
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(alpha=0.0, A_bw=0.0, model_overrides...))
+  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; alpha=Float64(0.0), A_bw=Float64(0.0), __overrides = model_overrides))
   # Subcomponent chirp of type BlockComponents.Sources.Chirp
   chirp_overrides = __pop_subcomponent_overrides!(__overrides, "chirp")
-  push!(__systems, @named chirp = BlockComponents.Sources.Chirp(fmin=1.0, fmax=500.0, T=5.0, amplitude=2.0, law=BlockComponents.Sources.ChirpLaw.Linear(), chirp_overrides...))
+  push!(__systems, @named chirp = BlockComponents.Sources.Chirp(; fmin=Float64(1.0), fmax=Float64(500.0), T=Float64(5.0), amplitude=Float64(2.0), law=BlockComponents.Sources.ChirpLaw.Linear(), __overrides = chirp_overrides))
   # Subcomponent mean_torque of type BlockComponents.Sources.Constant
   mean_torque_overrides = __pop_subcomponent_overrides!(__overrides, "mean_torque")
-  push!(__systems, @named mean_torque = BlockComponents.Sources.Constant(k=30.0, mean_torque_overrides...))
+  push!(__systems, @named mean_torque = BlockComponents.Sources.Constant(; k=Float64(30.0), __overrides = mean_torque_overrides))
   # Subcomponent torque_sum of type BlockComponents.Math.Add
   torque_sum_overrides = __pop_subcomponent_overrides!(__overrides, "torque_sum")
-  push!(__systems, @named torque_sum = BlockComponents.Math.Add(torque_sum_overrides...))
+  push!(__systems, @named torque_sum = BlockComponents.Math.Add(; __overrides = torque_sum_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -84,6 +82,6 @@ Stage 1 calibration harness: same chirp excitation as TestDrivelineChirp but wit
   push!(__eqs, connect(torque_sum.y, model.torque.tau))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestDrivelineChirpMaxwellOnly

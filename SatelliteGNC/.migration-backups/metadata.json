@@ -1,0 +1,116 @@
+[
+  {
+    "id": "backup-1777407026784",
+    "sessionId": "session-1777407026540",
+    "timestamp": 1777407026785,
+    "workspaceFolderPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC",
+    "files": [
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\Project.toml",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026784\\Project.toml",
+        "workspaceFolder": "SatelliteGNC"
+      }
+    ]
+  },
+  {
+    "id": "backup-1777407026762",
+    "sessionId": "session-1777407026540",
+    "timestamp": 1777407026763,
+    "workspaceFolderPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC",
+    "files": [
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\Manifest.toml",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026762\\Manifest.toml",
+        "workspaceFolder": "SatelliteGNC"
+      }
+    ]
+  },
+  {
+    "id": "backup-1777407026731",
+    "sessionId": "session-1777407026540",
+    "timestamp": 1777407026732,
+    "workspaceFolderPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC",
+    "files": [
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.vscode\\settings.json",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026731\\.vscode\\settings.json",
+        "workspaceFolder": "SatelliteGNC"
+      }
+    ]
+  },
+  {
+    "id": "backup-1777407026699",
+    "sessionId": "session-1777407026540",
+    "timestamp": 1777407026701,
+    "workspaceFolderPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC",
+    "files": [
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.vscode\\settings.json",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026699\\.vscode\\settings.json",
+        "workspaceFolder": "SatelliteGNC"
+      }
+    ]
+  },
+  {
+    "id": "backup-1777407026665",
+    "sessionId": "session-1777407026540",
+    "timestamp": 1777407026666,
+    "workspaceFolderPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC",
+    "files": [
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.vscode\\settings.json",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026665\\.vscode\\settings.json",
+        "workspaceFolder": "SatelliteGNC"
+      }
+    ]
+  },
+  {
+    "id": "backup-1777407026633",
+    "sessionId": "session-1777407026540",
+    "timestamp": 1777407026634,
+    "workspaceFolderPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC",
+    "files": [
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.vscode\\settings.json",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026633\\.vscode\\settings.json",
+        "workspaceFolder": "SatelliteGNC"
+      }
+    ]
+  },
+  {
+    "id": "backup-1777407026581",
+    "sessionId": "session-1777407026540",
+    "timestamp": 1777407026582,
+    "workspaceFolderPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC",
+    "files": [
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.vscode\\settings.json",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026581\\.vscode\\settings.json",
+        "workspaceFolder": "SatelliteGNC"
+      },
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\Project.toml",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026581\\Project.toml",
+        "workspaceFolder": "SatelliteGNC"
+      }
+    ]
+  },
+  {
+    "id": "backup-1777407026544",
+    "sessionId": "session-1777407026540",
+    "timestamp": 1777407026550,
+    "workspaceFolderPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC",
+    "files": [
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.vscode\\settings.json",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026544\\.vscode\\settings.json",
+        "workspaceFolder": "SatelliteGNC"
+      },
+      {
+        "originalPath": "C:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\Project.toml",
+        "backupPath": "c:\\Users\\ranja\\Documents\\CustomerDemos\\SatelliteGNC\\.migration-backups\\backup-1777407026544\\Project.toml",
+        "workspaceFolder": "SatelliteGNC"
+      }
+    ]
+  }
+]

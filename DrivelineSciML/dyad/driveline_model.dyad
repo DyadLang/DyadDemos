@@ -1,12 +1,6 @@
-# Two-inertia EV driveline with a Maxwell-Bouc-Wen torsional isolator.
-#
-# The isolator is the ground-truth component for both calibration stages:
-# its six "hidden" knobs (k1, c1, alpha, A_bw, beta_bw, gamma_bw) are exposed
-# as top-level parameters on DrivelineSystem and propagated via `final`
-# bindings, so the calibration search space can target model.k1, model.c1, …
-# (see calibration.dyad). Component defaults are the *nominal* initial
-# guesses; truth values are applied as overrides by
-# scripts/generate_calibration_data.jl.
+# Component defaults are the nominal calibration starting guesses; the truth
+# values live in scripts/generate_calibration_data.jl and are applied there as
+# ODEProblem overrides.
 
 "Torsional isolator with three parallel torque paths: a quasi-static spring-damper baseline (k0, c0), a Maxwell branch (spring k1 in series with damper c1) giving frequency-dependent stiffness with relaxation time c1/k1, and a Bouc-Wen element (alpha*z) giving rate-independent hysteresis. |x| is smoothed as sqrt(x^2 + eps_bw) to keep the Bouc-Wen flow rule differentiable."
 component MaxwellBoucWenIsolator
@@ -45,7 +39,7 @@ metadata {
 }
 end
 
-"Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are exposed as top-level parameters (defaults = nominal calibration starting guesses; truth: k1=300, c1=1.0, alpha=50, A_bw=1.0, beta_bw=5.0, gamma_bw=0.5) and propagated via `final` bindings. The applied torque enters through the `torque.tau` RealInput of the embedded TorqueSource."
+"Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are re-exposed here as top-level parameters and bound into the isolator with `final`, so a calibration search space can target model.k1, model.c1, and so on. The applied torque enters through the `torque.tau` RealInput of the embedded TorqueSource."
 component DrivelineSystem
   torque = RotationalComponents.Sources.TorqueSource()
   torque_support = RotationalComponents.Components.Fixed()

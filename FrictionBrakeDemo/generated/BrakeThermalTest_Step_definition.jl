@@ -4,12 +4,10 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   BrakeThermalTest_Step(; name)
+   BrakeThermalTest_Step(; name, __overrides)
 """
-@component function BrakeThermalTest_Step(; name = nothing, kwargs...)
+@component function BrakeThermalTest_Step(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -17,7 +15,7 @@ import Moshi as __Ext__Moshi
     @named model = BrakeThermalTest_Step()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,28 +53,28 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent brake_thermal of type FrictionBrakeDemo.BrakeThermal
   brake_thermal_overrides = __pop_subcomponent_overrides!(__overrides, "brake_thermal")
-  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(brake_thermal_overrides...))
+  push!(__systems, @named brake_thermal = FrictionBrakeDemo.BrakeThermal(; __overrides = brake_thermal_overrides))
   # Subcomponent disk_heat_step of type BlockComponents.Sources.Step
   disk_heat_step_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_step")
-  push!(__systems, @named disk_heat_step = BlockComponents.Sources.Step(height=-9300, offset=9300, start_time=1500.0, disk_heat_step_overrides...))
+  push!(__systems, @named disk_heat_step = BlockComponents.Sources.Step(; height=Float64(-9300), offset=Float64(9300), start_time=Float64(1500.0), __overrides = disk_heat_step_overrides))
   # Subcomponent disk_heat_input of type ThermalComponents.Sources.PrescribedHeatFlow
   disk_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "disk_heat_input")
-  push!(__systems, @named disk_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(disk_heat_input_overrides...))
+  push!(__systems, @named disk_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(; __overrides = disk_heat_input_overrides))
   # Subcomponent pad_heat_step of type BlockComponents.Sources.Step
   pad_heat_step_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_step")
-  push!(__systems, @named pad_heat_step = BlockComponents.Sources.Step(height=-700, offset=700, start_time=1500.0, pad_heat_step_overrides...))
+  push!(__systems, @named pad_heat_step = BlockComponents.Sources.Step(; height=Float64(-700), offset=Float64(700), start_time=Float64(1500.0), __overrides = pad_heat_step_overrides))
   # Subcomponent pad_heat_input of type ThermalComponents.Sources.PrescribedHeatFlow
   pad_heat_input_overrides = __pop_subcomponent_overrides!(__overrides, "pad_heat_input")
-  push!(__systems, @named pad_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(pad_heat_input_overrides...))
+  push!(__systems, @named pad_heat_input = ThermalComponents.Sources.PrescribedHeatFlow(; __overrides = pad_heat_input_overrides))
   # Subcomponent vehicle_speed_source of type BlockComponents.Sources.Constant
   vehicle_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_speed_source")
-  push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(k=6.94, vehicle_speed_source_overrides...))
+  push!(__systems, @named vehicle_speed_source = BlockComponents.Sources.Constant(; k=6.94, __overrides = vehicle_speed_source_overrides))
   # Subcomponent wheel_speed_source of type BlockComponents.Sources.Constant
   wheel_speed_source_overrides = __pop_subcomponent_overrides!(__overrides, "wheel_speed_source")
-  push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(k=64.8, wheel_speed_source_overrides...))
+  push!(__systems, @named wheel_speed_source = BlockComponents.Sources.Constant(; k=64.8, __overrides = wheel_speed_source_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -94,6 +92,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(wheel_speed_source.y, brake_thermal.wheel_speed))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export BrakeThermalTest_Step

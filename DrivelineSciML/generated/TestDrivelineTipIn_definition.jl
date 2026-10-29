@@ -4,14 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TestDrivelineTipIn(; name)
+   TestDrivelineTipIn(; name, __overrides)
 
 Event 3 harness: tip-in with motor ripple (30 -> 150 Nm at t = 0.5 s plus 3 Nm at 600 Hz). Both isolator mechanisms are active simultaneously; never used in calibration — validation only.
 """
-@component function TestDrivelineTipIn(; name = nothing, kwargs...)
+@component function TestDrivelineTipIn(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -19,7 +17,7 @@ Event 3 harness: tip-in with motor ripple (30 -> 150 Nm at t = 0.5 s plus 3 Nm a
     @named model = TestDrivelineTipIn()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -57,13 +55,13 @@ Event 3 harness: tip-in with motor ripple (30 -> 150 Nm at t = 0.5 s plus 3 Nm a
   ### Components
   # Subcomponent model of type DrivelineSciML.DrivelineSystem
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(model_overrides...))
+  push!(__systems, @named model = DrivelineSciML.DrivelineSystem(; __overrides = model_overrides))
   # Subcomponent tipin of type DrivelineSciML.TipInTorque
   tipin_overrides = __pop_subcomponent_overrides!(__overrides, "tipin")
-  push!(__systems, @named tipin = DrivelineSciML.TipInTorque(tipin_overrides...))
+  push!(__systems, @named tipin = DrivelineSciML.TipInTorque(; __overrides = tipin_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -76,6 +74,6 @@ Event 3 harness: tip-in with motor ripple (30 -> 150 Nm at t = 0.5 s plus 3 Nm a
   push!(__eqs, connect(tipin.y, model.torque.tau))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestDrivelineTipIn

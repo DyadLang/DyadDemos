@@ -7,6 +7,7 @@
 using CSV, DataFrames, Plots
 using DyadInterface: TransientAnalysis, rebuild_sol, ODEAlg
 using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
+using ModelingToolkit: SciMLBase
 
 # Runs one Dyad test case end-to-end. Called once per (component, case)
 # pair from the generated `<Component>_test.jl` files; the call site is
@@ -17,7 +18,7 @@ using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
 # Arguments:
 #   constructor      — the Julia type/function the codegen emits for the
 #                      Dyad component (e.g. `MyLib.Continuous.Foo`).
-#                      Called as `constructor(; name=:model, params...)`
+#                      Called as `constructor(; name=:model, __overrides=params)`
 #                      to build the MTK system under test.
 #   testset_name     — human-readable label embedded in the `@testset`.
 #
@@ -38,7 +39,9 @@ using ModelingToolkit: toggle_namespacing, get_initial_conditions, @named
 #   abstol, reltol   — solver tolerances.
 #   solver           — `ODEAlg.<Name>()` instance (e.g. `ODEAlg.Auto()`).
 #   automatic_discontinuity_detection — passed straight through.
-#   params           — NamedTuple of constructor kwargs (e.g. `(; k=2.0)`).
+#   params           — Dict of override paths (e.g.
+#                      `Dict{String, Any}("k" => 2.0, "inner.rate" => 2)`),
+#                      passed to the constructor as `__overrides`.
 #   initial_conditions — `Tuple[(accessor, value), ...]`. Each accessor
 #                      is a closure `m -> m.<dotted.path>` (see below).
 #                      Applied to the un-namespaced model so we can poke
@@ -73,15 +76,15 @@ function __dyad_run_test_case!(constructor, testset_name::AbstractString;
                               reltol::Real,
                               solver,
                               automatic_discontinuity_detection::Bool = false,
-                              params::NamedTuple = NamedTuple(),
+                              params::AbstractDict = Dict{String, Any}(),
                               initial_conditions::Vector{<:Tuple} = Tuple[],
                               expected_initial::Vector{<:Tuple} = Tuple[],
                               expected_final::Vector{<:Tuple} = Tuple[],
                               signals::Vector{<:Tuple} = Tuple[])
   @testset "Running test $testset_name" begin
-    # Build the MTK system. Constructor kwargs come from the test-case
-    # `params` block in the Dyad source.
-    model = constructor(; name=:model, params...)
+    # Build the MTK system. Overrides come from the test-case `params`
+    # block in the Dyad source, delivered through the `__overrides` dict.
+    model = constructor(; name=:model, __overrides=params)
 
     # Initial-condition dance: `toggle_namespacing(model, false)` strips
     # the `model.` prefix so the accessors (`m -> m.integrator.y`)

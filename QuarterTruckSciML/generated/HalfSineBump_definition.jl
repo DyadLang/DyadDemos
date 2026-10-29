@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   HalfSineBump(; name, amplitude, bump_duration, start_time, offset)
+   HalfSineBump(; name, amplitude, bump_duration, start_time, offset, __overrides)
 
 Half-sine bump signal source.
 
@@ -24,7 +22,7 @@ Half-sine bump signal source.
 
  * `y` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function HalfSineBump(; name = nothing, amplitude=0.05, bump_duration=0.1, start_time=0.1, offset=Float64(0.0), kwargs...)
+@component function HalfSineBump(; name = nothing, var"amplitude"=0.05, var"bump_duration"=0.1, var"start_time"=0.1, var"offset"=Float64(0.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -32,7 +30,7 @@ Half-sine bump signal source.
     @named model = HalfSineBump()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -41,6 +39,12 @@ Half-sine bump signal source.
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "amplitude") && (amplitude = pop!(__overrides, "amplitude"))
+  haskey(__overrides, "bump_duration") && (bump_duration = pop!(__overrides, "bump_duration"))
+  haskey(__overrides, "start_time") && (start_time = pop!(__overrides, "start_time"))
+  haskey(__overrides, "offset") && (offset = pop!(__overrides, "offset"))
 
   ### Structural Parameters (functions)
 
@@ -57,16 +61,16 @@ Half-sine bump signal source.
   ### Symbolic Parameters
   __local__amplitude = amplitude
   append!(__params, @parameters (amplitude::Real), [description = "Bump height [m]", bounds = (0, Inf)])
-  __initial_conditions[amplitude] = __local__amplitude
+  __dyad_seed_parameter!(__initial_conditions, __bindings, amplitude, __local__amplitude)
   __local__bump_duration = bump_duration
   append!(__params, @parameters (bump_duration::Real), [description = "Duration of the bump [s] (= bump_length / vehicle_speed)"])
-  __initial_conditions[bump_duration] = __local__bump_duration
+  __dyad_seed_parameter!(__initial_conditions, __bindings, bump_duration, __local__bump_duration)
   __local__start_time = start_time
   append!(__params, @parameters (start_time::Real), [description = "Time at which the bump begins [s]"])
-  __initial_conditions[start_time] = __local__start_time
+  __dyad_seed_parameter!(__initial_conditions, __bindings, start_time, __local__start_time)
   __local__offset = offset
   append!(__params, @parameters (offset::Real), [description = "Baseline offset [m]", bounds = (0, Inf)])
-  __initial_conditions[offset] = __local__offset
+  __dyad_seed_parameter!(__initial_conditions, __bindings, offset, __local__offset)
 
   ### Final Parameters (assignments)
 
@@ -83,7 +87,7 @@ Half-sine bump signal source.
   ### Components
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -96,6 +100,6 @@ Half-sine bump signal source.
   push!(__eqs, y ~ offset + ifelse(t >= start_time, ifelse(t <= start_time + bump_duration, amplitude * sin(π * (t - start_time) / bump_duration), 0.0), 0.0))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HalfSineBump

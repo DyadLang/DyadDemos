@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="NASA HL-20 lifting body">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#33425f"/>
+      <stop offset="0.55" stop-color="#7b8597"/>
+      <stop offset="0.82" stop-color="#c9bfa6"/>
+      <stop offset="1" stop-color="#e9dcbb"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8f9a6a"/>
+      <stop offset="0.28" stop-color="#7c8a52"/>
+      <stop offset="0.55" stop-color="#9d977f"/>
+      <stop offset="1" stop-color="#b8b09b"/>
+    </linearGradient>
+    <linearGradient id="bodyWhite" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.6" stop-color="#eef1f6"/>
+      <stop offset="1" stop-color="#cfd6e1"/>
+    </linearGradient>
+    <linearGradient id="bodyDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b3550"/>
+      <stop offset="1" stop-color="#141b2a"/>
+    </linearGradient>
+    <linearGradient id="finWhite" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d2d8e2"/>
+    </linearGradient>
+    <linearGradient id="tan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cdb37a"/>
+      <stop offset="1" stop-color="#a48a52"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.62">
+      <stop offset="0" stop-color="#fff4d8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fff4d8" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="round"><rect x="0" y="0" width="512" height="512" rx="72"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#round)">
+    <!-- sky -->
+    <rect x="0" y="0" width="512" height="512" fill="url(#sky)"/>
+    <rect x="0" y="120" width="512" height="320" fill="url(#glow)"/>
+    <!-- ground -->
+    <rect x="0" y="384" width="512" height="128" fill="url(#ground)"/>
+    <!-- distant horizon -->
+    <g fill="#3f4a3a" opacity="0.45">
+      <ellipse cx="44" cy="383" rx="22" ry="9"/>
+      <ellipse cx="476" cy="384" rx="16" ry="7"/>
+      <rect x="118" y="379" width="64" height="5"/>
+    </g>
+
+    <!-- shadow -->
+    <ellipse cx="270" cy="393" rx="196" ry="14" fill="#000" opacity="0.22"/>
+
+    <!-- ===== HL-20 (nose to the right) ===== -->
+    <!-- body flap -->
+    <path d="M 68 305 L 102 300 L 104 356 L 70 361 Z" fill="url(#tan)" stroke="#7d6838" stroke-width="1.5"/>
+
+    <!-- far (second) tail fin -->
+    <path d="M 156 278 L 232 273 L 196 134 Z" fill="#c3c9d4"/>
+
+    <!-- full dark lifting body -->
+    <path d="M 460 318
+             C 471 299 452 279 414 282
+             C 330 269 220 271 140 281
+             L 96 287 L 100 340
+             C 150 356 260 360 360 352
+             C 410 348 448 338 460 318 Z" fill="url(#bodyDark)"/>
+
+    <!-- white upper deck -->
+    <path d="M 460 318
+             C 471 299 452 279 414 282
+             C 330 269 220 271 140 281
+             L 96 287 L 98 314
+             C 180 322 300 324 414 319
+             C 440 318 452 318 460 318 Z" fill="url(#bodyWhite)"/>
+
+    <!-- chine line + nose serration -->
+    <path d="M 100 313 C 200 321 320 323 456 317" fill="none" stroke="#aeb6c4" stroke-width="1.4" opacity="0.7"/>
+    <path d="M 420 316 l 8 0 l 0 -6 l 8 6 l 8 0 l 0 -5 l 7 5" fill="none" stroke="#1b2233" stroke-width="2" opacity="0.8"/>
+
+    <!-- near (main) tail fin -->
+    <path d="M 144 280 L 220 275 L 178 128 Z" fill="url(#finWhite)" stroke="#c2c8d2" stroke-width="1"/>
+    <path d="M 164 198 L 200 195 L 195 211 L 162 214 Z" fill="#fc3d21" opacity="0.92"/>
+    <text x="158" y="240" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="13" fill="#fc3d21" transform="rotate(-2 158 240)">HL-20</text>
+
+    <!-- cockpit window -->
+    <path d="M 388 292 L 410 286 L 421 292 L 414 303 L 392 303 Z" fill="#23304e"/>
+    <path d="M 392 294 L 409 289 L 416 293 L 410 300 L 396 300 Z" fill="#5d77ad" opacity="0.85"/>
+
+    <!-- NASA worm + flag -->
+    <text x="252" y="305" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="19" fill="#fc3d21" letter-spacing="-1">NASA</text>
+    <g transform="translate(300 297)">
+      <rect x="0" y="0" width="24" height="15" fill="#f4f4f4"/>
+      <g fill="#b22234">
+        <rect x="0" y="0" width="24" height="2.1"/>
+        <rect x="0" y="4.3" width="24" height="2.1"/>
+        <rect x="0" y="8.6" width="24" height="2.1"/>
+        <rect x="0" y="12.9" width="24" height="2.1"/>
+      </g>
+      <rect x="0" y="0" width="10" height="8.1" fill="#3c3b6e"/>
+    </g>
+
+    <!-- top-deck highlight -->
+    <path d="M 150 278 C 250 268 340 270 412 284" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.5"/>
+
+    <!-- landing gear -->
+    <g stroke="#cfd3da" stroke-width="3">
+      <line x1="432" y1="344" x2="432" y2="384"/>
+      <line x1="316" y1="356" x2="316" y2="386"/>
+    </g>
+    <circle cx="432" cy="387" r="8" fill="#1a1f2b"/><circle cx="432" cy="387" r="3" fill="#8a909c"/>
+    <circle cx="316" cy="388" r="9" fill="#1a1f2b"/><circle cx="316" cy="388" r="3.4" fill="#8a909c"/>
+  </g>
+
+  <!-- icon edge -->
+  <rect x="1.5" y="1.5" width="509" height="509" rx="71" fill="none" stroke="#0d1320" stroke-width="3" opacity="0.5"/>
+</svg>

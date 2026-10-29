@@ -1,0 +1,11 @@
+/Manifest*.toml
+/LocalPreferences.toml
+/csrc/build/
+/TireModel_jll/override/
+/TireModel_jll/Manifest*.toml
+/docs/build/
+/docs/Manifest*.toml
+/.dyadcache
+/docs/src/
+/docs/pages.jl
+/docs/make.jl

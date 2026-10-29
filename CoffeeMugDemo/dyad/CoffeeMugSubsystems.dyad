@@ -1,98 +1,40 @@
-# ==============================================================================
-# COFFEE MUG SUBSYSTEMS
-# ==============================================================================
-# Three subsystem components for espresso cooling model:
-# 1. CoffeeMugSubsystem - Coffee and mug thermal masses with heat transfer
-# 2. SteamSubsystem - Top surface heat transfer (convection + radiation)
-# 3. HandSubsystem - Hand thermal mass with contact conductance
-# ==============================================================================
-# ==============================================================================
-# SUBSYSTEM 1: Coffee and Mug
-# ==============================================================================
 component CoffeeMugSubsystem
-  # ---------------------------------------------------------------------------
-  # Thermal interfaces
-  # ---------------------------------------------------------------------------
-  # Top surface of espresso - connects to steam subsystem
   topSurface = HeatPort() {^topSurface}
-  # Outer surface of cup - connects to hand subsystem and external environment
   outerSurface = HeatPort() {^outerSurface}
-  # Ambient connection for external convection and radiation
   ambient = HeatPort() {^ambient}
-  # ---------------------------------------------------------------------------
-  # Signal output
-  # ---------------------------------------------------------------------------
-  # Temperature measurement output in Celsius
   espressoTemp_degC = RealOutput() {^espressoTemp_degC}
-  # ---------------------------------------------------------------------------
-  # Internal components - Thermal masses
-  # ---------------------------------------------------------------------------
   hotEspresso = ThermalComponents.Components.HeatCapacitor(C = C_espresso, T0 = T0_espresso)
   cupMass = ThermalComponents.Components.HeatCapacitor(C = C_cup, T0 = T0_cup)
-  # ---------------------------------------------------------------------------
-  # Internal components - Heat transfer
-  # ---------------------------------------------------------------------------
-  # Internal convection from espresso to cup inner wall
   convEspresso2Cup = ThermalComponents.Components.Convection()
   gcEsp2Cup = BlockComponents.Sources.Constant(k = Gc_internal)
-  # Conduction through cup wall
   condCup = ThermalComponents.Components.ThermalConductor(G = G_wall)
-  # External convection from cup outer surface to environment
   convCup2Env = ThermalComponents.Components.Convection()
   gcCup2Env = BlockComponents.Sources.Constant(k = Gc_external)
-  # External radiation from cup outer surface to environment
   radCup2Env = ThermalComponents.Components.BodyRadiation(Gr = Gr_external)
-  # ---------------------------------------------------------------------------
-  # Internal components - Temperature measurement
-  # ---------------------------------------------------------------------------
   tempSensor = ThermalComponents.Sensors.TemperatureSensor()
   to_degC = BlockComponents.Math.Gain(k = 1.0)
   offset_degC = BlockComponents.Sources.Constant(k = -273.15)
   add_offset = BlockComponents.Math.Add()
-  # ---------------------------------------------------------------------------
-  # Parameters
-  # ---------------------------------------------------------------------------
-  # Espresso thermal properties
   parameter C_espresso::HeatCapacity = 248.5 # J/K (60 mL water)
   parameter T0_espresso::Temperature = 363.15 # K (90°C initial)
-  # Cup thermal properties
   parameter C_cup::HeatCapacity = 113.0 # J/K (porcelain)
   parameter T0_cup::Temperature = 293.15 # K (20°C initial)
-  # Internal convection (espresso → cup inner wall)
-  parameter Gc_internal::Real = 0.6314 # W/K
-  # Conduction through cup wall
+  parameter Gc_internal::Real = 0.6314 # W/K, espresso to cup inner wall
   parameter G_wall::ThermalConductance = 2.74 # W/K
-  # External convection (cup → environment)
-  parameter Gc_external::Real = 0.0705 # W/K
-  # External radiation (cup → environment)
+  parameter Gc_external::Real = 0.0705 # W/K, cup outer surface to air
   parameter Gr_external::Real = 0.005 # m² (effective radiation area)
 relations
-  # ---------------------------------------------------------------------------
-  # Internal thermal path: espresso → cup inner wall → cup outer surface
-  # ---------------------------------------------------------------------------
-  # Espresso to cup internal convection
   connect(hotEspresso.port, convEspresso2Cup.solid)
   connect(convEspresso2Cup.fluid, cupMass.port)
   connect(gcEsp2Cup.y, convEspresso2Cup.Gc)
-  # Conduction through cup wall (cup inner to outer)
   connect(cupMass.port, condCup.port_a)
-  # ---------------------------------------------------------------------------
-  # External interfaces
-  # ---------------------------------------------------------------------------
-  # Top surface exposed to steam subsystem
   connect(hotEspresso.port, topSurface)
-  # Outer surface exposed to hand and environment
   connect(condCup.port_b, outerSurface)
-  # External convection path: cup outer surface → ambient
   connect(outerSurface, convCup2Env.solid)
   connect(convCup2Env.fluid, ambient)
   connect(gcCup2Env.y, convCup2Env.Gc)
-  # External radiation path: cup outer surface → ambient
   connect(outerSurface, radCup2Env.port_a)
   connect(radCup2Env.port_b, ambient)
-  # ---------------------------------------------------------------------------
-  # Temperature measurement and conversion
-  # ---------------------------------------------------------------------------
   connect(tempSensor.port, hotEspresso.port)
   connect(tempSensor.T, to_degC.u)
   connect(to_degC.y, add_offset.u1)
@@ -123,42 +65,18 @@ metadata {
 }
 end
 
-# ==============================================================================
-# SUBSYSTEM 2: Steam (Top Surface Heat Transfer)
-# ==============================================================================
 component SteamSubsystem
-  # ---------------------------------------------------------------------------
-  # Thermal interfaces
-  # ---------------------------------------------------------------------------
-  # Connection to liquid surface (espresso top)
   liquidInterface = HeatPort() {^liquidInterface}
-  # Connection to ambient environment
   ambient = HeatPort() {^ambient}
-  # ---------------------------------------------------------------------------
-  # Internal components
-  # ---------------------------------------------------------------------------
-  # Top surface convection - liquid to air
   convTop = ThermalComponents.Components.Convection()
   gcTop = BlockComponents.Sources.Constant(k = Gc_top)
-  # Top surface radiation - liquid to surroundings
   radTop = ThermalComponents.Components.BodyRadiation(Gr = Gr_top)
-  # ---------------------------------------------------------------------------
-  # Parameters
-  # ---------------------------------------------------------------------------
-  # Top surface convection coefficient
   parameter Gc_top::Real = 0.01 # W/K
-  # Top surface radiation area
   parameter Gr_top::Real = 0.001 # m² (effective radiation area)
 relations
-  # ---------------------------------------------------------------------------
-  # Top surface convection path
-  # ---------------------------------------------------------------------------
   connect(liquidInterface, convTop.solid)
   connect(convTop.fluid, ambient)
   connect(gcTop.y, convTop.Gc)
-  # ---------------------------------------------------------------------------
-  # Top surface radiation path
-  # ---------------------------------------------------------------------------
   connect(liquidInterface, radTop.port_a)
   connect(radTop.port_b, ambient)
 metadata {
@@ -180,56 +98,25 @@ metadata {
 }
 end
 
-# ==============================================================================
-# SUBSYSTEM 3: Spoon (Thermal Fin Effect)
-# ==============================================================================
 component SpoonSubsystem
-  # ---------------------------------------------------------------------------
-  # Thermal interfaces
-  # ---------------------------------------------------------------------------
-  # Connection to espresso liquid (submerged portion)
   liquidInterface = HeatPort() {^liquidInterface}
-  # Connection to ambient environment (exposed portion)
   ambient = HeatPort() {^ambient}
-  # ---------------------------------------------------------------------------
-  # Internal components
-  # ---------------------------------------------------------------------------
-  # Spoon thermal mass
   spoonMass = ThermalComponents.Components.HeatCapacitor(C = C_spoon, T0 = T0_spoon)
-  # Submerged portion: spoon to liquid conduction
   liquidContact = ThermalComponents.Components.ThermalConductor(G = G_liquid_contact)
-  # Exposed portion: spoon to air convection
   convExposed = ThermalComponents.Components.Convection()
   gcExposed = BlockComponents.Sources.Constant(k = Gc_exposed)
-  # Exposed portion: spoon radiation
   radExposed = ThermalComponents.Components.BodyRadiation(Gr = Gr_exposed)
-  # ---------------------------------------------------------------------------
-  # Parameters
-  # ---------------------------------------------------------------------------
-  # Spoon thermal properties (stainless steel, ~10g teaspoon)
-  parameter C_spoon::HeatCapacity = 10.0 # J/K
+  parameter C_spoon::HeatCapacity = 10.0 # J/K (stainless steel, ~10 g teaspoon)
   parameter T0_spoon::Temperature = 293.15 # K (20°C initial, room temp)
-  # Submerged portion contact with liquid (excellent metal-liquid contact)
-  parameter G_liquid_contact::ThermalConductance = 0.2 # W/K
-  # Exposed portion convection to air (handle/upper portion)
-  parameter Gc_exposed::Real = 0.02 # W/K
-  # Exposed portion radiation to surroundings
+  parameter G_liquid_contact::ThermalConductance = 0.2 # W/K, metal-liquid contact is excellent
+  parameter Gc_exposed::Real = 0.02 # W/K, handle in air
   parameter Gr_exposed::Real = 0.0005 # m² (effective radiation area)
 relations
-  # ---------------------------------------------------------------------------
-  # Submerged portion path: liquid → spoon mass
-  # ---------------------------------------------------------------------------
   connect(liquidInterface, liquidContact.port_a)
   connect(liquidContact.port_b, spoonMass.port)
-  # ---------------------------------------------------------------------------
-  # Exposed portion convection: spoon → ambient air
-  # ---------------------------------------------------------------------------
   connect(spoonMass.port, convExposed.solid)
   connect(convExposed.fluid, ambient)
   connect(gcExposed.y, convExposed.Gc)
-  # ---------------------------------------------------------------------------
-  # Exposed portion radiation: spoon → ambient
-  # ---------------------------------------------------------------------------
   connect(spoonMass.port, radExposed.port_a)
   connect(radExposed.port_b, ambient)
 metadata {
@@ -251,32 +138,14 @@ metadata {
 }
 end
 
-# ==============================================================================
-# SUBSYSTEM 4: Hand Contact
-# ==============================================================================
 component HandSubsystem
-  # ---------------------------------------------------------------------------
-  # Thermal interfaces
-  # ---------------------------------------------------------------------------
-  # Connection to cup outer surface
   cupContact = HeatPort() {^cupContact}
-  # ---------------------------------------------------------------------------
-  # Internal components
-  # ---------------------------------------------------------------------------
   handMass = ThermalComponents.Components.HeatCapacitor(C = C_hand, T0 = T0_hand)
   handContact = ThermalComponents.Components.ThermalConductor(G = G_contact)
-  # ---------------------------------------------------------------------------
-  # Parameters
-  # ---------------------------------------------------------------------------
-  # Hand thermal properties
   parameter C_hand::HeatCapacity = 500.0 # J/K (body thermal reservoir)
   parameter T0_hand::Temperature = 310.15 # K (37°C body temperature)
-  # Contact conductance
   parameter G_contact::ThermalConductance = 0.5 # W/K (hand-cup interface)
 relations
-  # ---------------------------------------------------------------------------
-  # Hand contact path
-  # ---------------------------------------------------------------------------
   connect(handMass.port, handContact.port_a)
   connect(handContact.port_b, cupContact)
 metadata {
@@ -291,36 +160,20 @@ metadata {
 }
 end
 
-# ==============================================================================
-# TOP-LEVEL ASSEMBLY: Espresso Cup System with Subsystems
-# ==============================================================================
 test component EspressoCupSystemModular
-  # ---------------------------------------------------------------------------
-  # Subsystem instances
-  # ---------------------------------------------------------------------------
   coffeeMug = CoffeeMugSubsystem() {^coffeeMug}
   steam = SteamSubsystem() {^steam}
   hand = HandSubsystem() {^hand}
-  # ---------------------------------------------------------------------------
-  # Boundary condition
-  # ---------------------------------------------------------------------------
   environment = ThermalComponents.Sources.FixedTemperature(T = 293.15) {^environment}
 relations
-  # Hand subsystem to cup outer surface
   connect(hand.cupContact, coffeeMug.outerSurface) {^id5}
-  # Both subsystems to environment
   connect(coffeeMug.ambient, environment.port) {^id6}
   connect(steam.ambient, environment.port) {^id7}
-  # ---------------------------------------------------------------------------
-  # Initial conditions and guesses
-  # ---------------------------------------------------------------------------
-  # Differential states already initialized via T0 parameters in HeatCapacitors
-  # Guess intermediate node temperature (cup outer surface ~330 K = 57°C)
+  # The T0 parameters on the HeatCapacitors already initialize every
+  # differential state, so only the algebraic nodes need a starting guess.
   guess coffeeMug.outerSurface.T = 330.0
-  # Guess for convective ΔT at cup outer surface
   guess coffeeMug.convCup2Env.ΔT = 37.0
-  # Guess for algebraic variable to break cyclic dependency
-  # ΔT = hand temp - cup surface temp ≈ 310.15 - 330 = -20 K
+  # Breaks a cyclic dependency: hand temp - cup surface temp ≈ 310.15 - 330.
   guess hand.handContact.ΔT = -20.0
   connect(coffeeMug.topSurface, steam.liquidInterface) {^id8}
 metadata {
@@ -373,47 +226,26 @@ metadata {
 }
 end
 
-# ==============================================================================
-# TOP-LEVEL ASSEMBLY: Espresso Cup System with Spoon
-# ==============================================================================
 test component EspressoCupSystemWithSpoon
-  # ---------------------------------------------------------------------------
-  # Subsystem instances
-  # ---------------------------------------------------------------------------
   coffeeMug = CoffeeMugSubsystem() {^coffeeMug}
   steam = SteamSubsystem() {^steam}
   spoon = SpoonSubsystem() {^spoon}
   hand = HandSubsystem() {^hand}
-  # ---------------------------------------------------------------------------
-  # Boundary condition
-  # ---------------------------------------------------------------------------
   environment = ThermalComponents.Sources.FixedTemperature(T = 293.15) {^environment}
 relations
-  # ---------------------------------------------------------------------------
-  # Connect subsystems together
-  # ---------------------------------------------------------------------------
-  # Steam subsystem to coffee top surface
   connect(steam.liquidInterface, coffeeMug.topSurface) {^id6}
-  # Spoon subsystem to coffee top surface (parallel thermal path)
+  # The spoon is a second path out of the liquid, parallel to the steam.
   connect(spoon.liquidInterface, coffeeMug.topSurface) {^id7}
-  # Hand subsystem to cup outer surface
   connect(hand.cupContact, coffeeMug.outerSurface) {^id8}
-  # All subsystems to environment
   connect(coffeeMug.ambient, environment.port) {^id9}
   connect(steam.ambient, environment.port) {^id10}
   connect(spoon.ambient, environment.port) {^id11}
-  # ---------------------------------------------------------------------------
-  # Initial conditions and guesses
-  # ---------------------------------------------------------------------------
-  # Differential states already initialized via T0 parameters in HeatCapacitors
-  # Guess intermediate node temperature (cup outer surface ~330 K = 57°C)
+  # The T0 parameters on the HeatCapacitors already initialize every
+  # differential state, so only the algebraic nodes need a starting guess.
   guess coffeeMug.outerSurface.T = 330.0
-  # Guess for convective ΔT at cup outer surface
   guess coffeeMug.convCup2Env.ΔT = 37.0
-  # Guess for algebraic variable to break cyclic dependency
-  # ΔT = hand temp - cup surface temp ≈ 310.15 - 330 = -20 K
+  # Breaks a cyclic dependency: hand temp - cup surface temp ≈ 310.15 - 330.
   guess hand.handContact.ΔT = -20.0
-  # Guess spoon mass temperature (warms rapidly toward espresso temp)
   guess spoon.spoonMass.port.T = 350.0
 metadata {
   "_links": {
@@ -470,18 +302,12 @@ metadata {
 }
 end
 
-# ==============================================================================
-# ANALYSIS - Espresso Cooling with Modular Subsystems (Original - No Spoon)
-# ==============================================================================
 analysis EspressoCoolingModular
   extends TransientAnalysis(stop = 6000.0, alg = ODEAlg.Rodas5P())
   model = EspressoCupSystemModular()
 relations
 end
 
-# ==============================================================================
-# ANALYSIS - Espresso Cooling with Spoon
-# ==============================================================================
 analysis EspressoCoolingWithSpoon
   extends TransientAnalysis(stop = 6000.0, alg = ODEAlg.Rodas5P())
   model = EspressoCupSystemWithSpoon()

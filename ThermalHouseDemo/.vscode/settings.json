@@ -2,6 +2,9 @@
   "julia.environmentPath": "${workspaceFolder}",
   "julia.NumThreads": "auto",
   "julia.juliaup.server": "https://juliahub.com/juliabin",
-  "julia.languageServerJuliaupChannel": "release",
-  "julia.executablePath": "julia +release",
+  "julia.languageServerJuliaupChannel": "dyad-3.5.0",
+  "julia.executablePath": "julia +dyad-3.5.0",
+  "julia.additionalArgs": [
+    "--optimize=0"
+  ]
 }

@@ -1,0 +1,398 @@
+# =====================================================
+# Full GNC closed-loop: Trajectory + Observer + Controller + Plant
+#
+# Architecture:
+#   [TrapezoidalProfile x3] → ref angles/rates
+#                                    ↓
+#   [AttitudeController] ← estimated rates from [LuenbergerObserver]
+#         ↓ torques                                    ↑
+#   [SatelliteBody] → measured angles ─────────────────┘
+#
+# Scenario: CubeSat-class 3-axis repointing maneuver
+#   φ → 20° (0.349 rad)
+#   θ → 10° (0.175 rad)
+#   ψ → 30° (0.524 rad)
+#
+# Rate/accel limits: ω_max=2°/s, α_max=0.5°/s²
+#
+# Expected behavior:
+#   - Smooth trapezoidal profiles (longest axis ψ finishes ~19s)
+#   - Observer estimates converge within ~3s (poles at -2)
+#   - Tracking error remains small throughout maneuver
+#   - All axes settle to target by t=30s
+# =====================================================
+test component TestFullGNC
+  "Plant"
+  sat = SatelliteBody(Ixx = 10.0, Iyy = 8.0, Izz = 6.0) {^sat}
+  "Trajectory generators (one per axis)"
+  traj_phi = TrapezoidalProfile(target_angle = 0.3491, w_max = 0.0349, a_max = 0.00873) {^traj_phi}
+  traj_theta = TrapezoidalProfile(target_angle = 0.1745, w_max = 0.0349, a_max = 0.00873) {^traj_theta}
+  traj_psi = TrapezoidalProfile(target_angle = 0.5236, w_max = 0.0349, a_max = 0.00873) {^traj_psi}
+  "Observer (estimates angular rates from angle measurements)"
+  obs = LuenbergerObserver(Ixx = 10.0, Iyy = 8.0, Izz = 6.0, p = 2.0, La_x = 4.0, La_y = 4.0, La_z = 4.0, Lw_x = 40.0, Lw_y = 32.0, Lw_z = 24.0) {^obs}
+  "Controller (uses measured angles + estimated rates + feedforward)"
+  ctrl = AttitudeController(Kp_x = 5.0, Kd_x = 20.0, Kp_y = 4.0, Kd_y = 16.0, Kp_z = 3.0, Kd_z = 12.0, Ixx_ff = 10.0, Iyy_ff = 8.0, Izz_ff = 6.0) {^ctrl}
+relations
+  # --- Initial conditions ---
+  # Plant starts at rest, zero attitude
+  initial sat.wx = 0.0
+  initial sat.wy = 0.0
+  initial sat.wz = 0.0
+  initial sat.phi = 0.0
+  initial sat.theta = 0.0
+  initial sat.psi = 0.0
+  # Observer starts with zero estimates (matches plant IC)
+  initial obs.phi_est = 0.0
+  initial obs.theta_est = 0.0
+  initial obs.psi_est = 0.0
+  initial obs.wx_est = 0.0
+  initial obs.wy_est = 0.0
+  initial obs.wz_est = 0.0
+  # --- Trajectory angle references → Controller ---
+  connect(traj_phi.angle_ref, ctrl.phi_ref) {^id7}
+  connect(traj_theta.angle_ref, ctrl.theta_ref) {^id8}
+  connect(traj_psi.angle_ref, ctrl.psi_ref) {^id9}
+  # --- Trajectory rate references → Controller ---
+  connect(traj_phi.rate_ref, ctrl.wx_ref) {^id10}
+  connect(traj_theta.rate_ref, ctrl.wy_ref) {^id11}
+  connect(traj_psi.rate_ref, ctrl.wz_ref) {^id12}
+  # --- Trajectory accel feedforward → Controller ---
+  connect(traj_phi.accel_ref, ctrl.ax_ff) {^id13}
+  connect(traj_theta.accel_ref, ctrl.ay_ff) {^id14}
+  connect(traj_psi.accel_ref, ctrl.az_ff) {^id15}
+  # --- Measured angles → Controller (direct measurement) ---
+  connect(sat.phi_out, ctrl.phi_meas) {^id16}
+  connect(sat.theta_out, ctrl.theta_meas) {^id17}
+  connect(sat.psi_out, ctrl.psi_meas) {^id18}
+  # --- Estimated rates → Controller (from observer) ---
+  connect(obs.wx_hat, ctrl.wx_meas) {^id19}
+  connect(obs.wy_hat, ctrl.wy_meas) {^id20}
+  connect(obs.wz_hat, ctrl.wz_meas) {^id21}
+  # --- Measured angles → Observer ---
+  connect(sat.phi_out, obs.phi_meas) {^id22}
+  connect(sat.theta_out, obs.theta_meas) {^id23}
+  connect(sat.psi_out, obs.psi_meas) {^id24}
+  # --- Controller torques → Plant ---
+  connect(ctrl.tau_x, sat.tau_x) {^id25}
+  connect(ctrl.tau_y, sat.tau_y) {^id26}
+  connect(ctrl.tau_z, sat.tau_z) {^id27}
+  # --- Controller torques → Observer (known inputs) ---
+  connect(ctrl.tau_x, obs.tau_x) {^id28}
+  connect(ctrl.tau_y, obs.tau_y) {^id29}
+  connect(ctrl.tau_z, obs.tau_z) {^id30}
+metadata {
+  "_links": {
+    "sat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 47, "y1": 80, "x2": 187, "y2": 220, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "traj_phi": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 87, "y1": 516, "x2": 187, "y2": 616, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "traj_theta": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 87, "y1": 396, "x2": 187, "y2": 496, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "traj_psi": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 87, "y1": 276, "x2": 187, "y2": 376, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "obs": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 640, "y1": 170, "x2": 820, "y2": 340, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "ctrl": {
+      "Dyad": {
+        "placement": {
+          "diagram": {
+            "iconName": "default",
+            "x1": 347.8,
+            "y1": 240,
+            "x2": 567.8,
+            "y2": 460,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "id7": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 266.8, "y": 535}, {"x": 266.8, "y": 251}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id8": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 276.8, "y": 415}, {"x": 276.8, "y": 273}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id9": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id10": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 326.8, "y": 566}, {"x": 326.8, "y": 532.6}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id11": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 206.8, "y": 446}, {"x": 206.8, "y": 512.8}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id12": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 216.8, "y": 326}, {"x": 216.8, "y": 493}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id13": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 316.8, "y": 592}, {"x": 316.8, "y": 471}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id14": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 296.8, "y": 472}, {"x": 296.8, "y": 449}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id15": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 206.8, "y": 352}, {"x": 206.8, "y": 229}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id16": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 246.8, "y": 339}], "E": 2}],
+        "junctions": [{"x": 246.8, "y": 87}],
+        "renderStyle": "standard"
+      }
+    },
+    "id17": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 236.8, "y": 110.8}, {"x": 236.8, "y": 361}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id18": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 256.8, "y": 317}], "E": 2}],
+        "junctions": [{"x": 256.8, "y": 136}],
+        "renderStyle": "standard"
+      }
+    },
+    "id19": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 834.8, "y": 275.4},
+              {"x": 834.8, "y": 20.5},
+              {"x": 226.8, "y": 20.5},
+              {"x": 226.8, "y": 383}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id20": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 844.8, "y": 300.9},
+              {"x": 844.8, "y": 686},
+              {"x": 286.8, "y": 686},
+              {"x": 286.8, "y": 405}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id21": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 834.8, "y": 329.79999999999995},
+              {"x": 834.8, "y": 676},
+              {"x": 306.8, "y": 676},
+              {"x": 306.8, "y": 427}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id22": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 593.1999999999999, "y": 87}, {"x": 593.1999999999999, "y": 185.3}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id23": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 236.8, "y": 110.8}], "E": -1},
+          {"S": -1, "M": [{"x": 435.4, "y": 147}, {"x": 435.4, "y": 246.5}], "E": 2}
+        ],
+        "junctions": [{"x": 236.8, "y": 147}],
+        "renderStyle": "standard"
+      }
+    },
+    "id24": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 593.1999999999999, "y": 136}, {"x": 593.1999999999999, "y": 217.6}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id25": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 593.1999999999999, "y": 281.8},
+              {"x": 593.1999999999999, "y": 168},
+              {"x": 266.8, "y": 168},
+              {"x": 266.8, "y": 30},
+              {"x": 30, "y": 30},
+              {"x": 30, "y": 94}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id26": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 603.1999999999999, "y": 350},
+              {"x": 603.1999999999999, "y": 158},
+              {"x": 206.8, "y": 158},
+              {"x": 206.8, "y": 20},
+              {"x": 20, "y": 20},
+              {"x": 20, "y": 150}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id27": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 613.1999999999999, "y": 409.4},
+              {"x": 613.1999999999999, "y": 666},
+              {"x": 30, "y": 666},
+              {"x": 30, "y": 192}
+            ],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id28": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 593.1999999999999, "y": 281.8}], "E": -1},
+          {
+            "S": -1,
+            "M": [
+              {"x": 613.5999999999999, "y": 175.89999999999998},
+              {"x": 613.5999999999999, "y": 275.4}
+            ],
+            "E": 2
+          }
+        ],
+        "junctions": [{"x": 593.1999999999999, "y": 175.89999999999998}],
+        "renderStyle": "standard"
+      }
+    },
+    "id29": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 603.1999999999999, "y": 350}], "E": -1},
+          {
+            "S": -1,
+            "M": [{"x": 618.5999999999999, "y": 203.1}, {"x": 618.5999999999999, "y": 302.6}],
+            "E": 2
+          }
+        ],
+        "junctions": [{"x": 603.1999999999999, "y": 203.1}],
+        "renderStyle": "standard"
+      }
+    },
+    "id30": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [{"x": 613.1999999999999, "y": 329.79999999999995}], "E": 2}
+        ],
+        "junctions": [{"x": 613.1999999999999, "y": 409.4}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+analysis TestFullGNCSim
+  extends TransientAnalysis(stop = 40.0)
+  model = TestFullGNC()
+relations
+end

@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   Driver(; name, k, Ti, Td)
+   Driver(; name, k, Ti, Td, __overrides)
 
 ## Parameters:
 
@@ -24,7 +22,7 @@ import Moshi as __Ext__Moshi
  * `throttle` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `brake` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function Driver(; name = nothing, k=0.5, Ti=Float64(2), Td=0.1, kwargs...)
+@component function Driver(; name = nothing, var"k"=0.5, var"Ti"=Float64(2), var"Td"=0.1, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -32,7 +30,7 @@ import Moshi as __Ext__Moshi
     @named model = Driver()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -41,6 +39,11 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "k") && (k = pop!(__overrides, "k"))
+  haskey(__overrides, "Ti") && (Ti = pop!(__overrides, "Ti"))
+  haskey(__overrides, "Td") && (Td = pop!(__overrides, "Td"))
 
   ### Structural Parameters (functions)
 
@@ -57,13 +60,13 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__k = k
   append!(__params, @parameters (k::Real))
-  __initial_conditions[k] = __local__k
+  __dyad_seed_parameter!(__initial_conditions, __bindings, k, __local__k)
   __local__Ti = Ti
   append!(__params, @parameters (Ti::Real))
-  __initial_conditions[Ti] = __local__Ti
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Ti, __local__Ti)
   __local__Td = Td
   append!(__params, @parameters (Td::Real))
-  __initial_conditions[Td] = __local__Td
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Td, __local__Td)
 
   ### Final Parameters (assignments)
 
@@ -83,13 +86,13 @@ import Moshi as __Ext__Moshi
   ### Components
   # Subcomponent speed_pid of type BlockComponents.Continuous.LimPID
   speed_pid_overrides = __pop_subcomponent_overrides!(__overrides, "speed_pid")
-  push!(__systems, @named speed_pid = BlockComponents.Continuous.LimPID(k=k, Ti=Ti, Td=Td, y_max=1.0, y_min=-1.0, wp=1.0, wd=0.0, Ni=0.9, Nd=10.0, k_ff=0.0, speed_pid_overrides...))
+  push!(__systems, @named speed_pid = BlockComponents.Continuous.LimPID(; k=k, Ti=Ti, Td=Td, y_max=Float64(1.0), y_min=-1.0, wp=Float64(1.0), wd=Float64(0.0), Ni=0.9, Nd=Float64(10.0), k_ff=Float64(0.0), __overrides = speed_pid_overrides))
   # Subcomponent ff_input of type BlockComponents.Sources.Constant
   ff_input_overrides = __pop_subcomponent_overrides!(__overrides, "ff_input")
-  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(k=0.0, ff_input_overrides...))
+  push!(__systems, @named ff_input = BlockComponents.Sources.Constant(; k=Float64(0.0), __overrides = ff_input_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -106,6 +109,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(ff_input.y, speed_pid.u_ff))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export Driver

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Solar panel left -->
+  <rect x="30" y="340" width="250" height="320" rx="8" ry="8"
+        fill="#2563eb" stroke="#1e40af" stroke-width="6"/>
+  <!-- Panel grid lines left -->
+  <line x1="92" y1="340" x2="92" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="155" y1="340" x2="155" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="217" y1="340" x2="217" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="30" y1="420" x2="280" y2="420" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="30" y1="500" x2="280" y2="500" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="30" y1="580" x2="280" y2="580" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+
+  <!-- Solar panel right -->
+  <rect x="720" y="340" width="250" height="320" rx="8" ry="8"
+        fill="#2563eb" stroke="#1e40af" stroke-width="6"/>
+  <!-- Panel grid lines right -->
+  <line x1="782" y1="340" x2="782" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="845" y1="340" x2="845" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="907" y1="340" x2="907" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="720" y1="420" x2="970" y2="420" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="720" y1="500" x2="970" y2="500" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+  <line x1="720" y1="580" x2="970" y2="580" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+
+  <!-- Panel struts -->
+  <rect x="280" y="475" width="100" height="50" fill="#94a3b8" stroke="#475569" stroke-width="4"/>
+  <rect x="620" y="475" width="100" height="50" fill="#94a3b8" stroke="#475569" stroke-width="4"/>
+
+  <!-- Satellite body -->
+  <rect x="340" y="280" width="320" height="440" rx="18" ry="18"
+        fill="#e2e8f0" stroke="#334155" stroke-width="6"/>
+
+  <!-- Body detail: top panel line -->
+  <line x1="360" y1="380" x2="640" y2="380" stroke="#94a3b8" stroke-width="3"/>
+
+  <!-- Antenna dish -->
+  <ellipse cx="500" cy="240" rx="60" ry="20"
+           fill="none" stroke="#334155" stroke-width="5"/>
+  <line x1="500" y1="240" x2="500" y2="280" stroke="#334155" stroke-width="5"/>
+  <!-- Antenna mast -->
+  <line x1="500" y1="200" x2="500" y2="240" stroke="#334155" stroke-width="4"/>
+  <circle cx="500" cy="195" r="8" fill="#334155"/>
+
+  <!-- Star tracker (small circle on body) -->
+  <circle cx="420" cy="340" r="18" fill="#64748b" stroke="#334155" stroke-width="3"/>
+  <circle cx="420" cy="340" r="8" fill="#1e293b"/>
+
+  <!-- Thruster nozzles bottom -->
+  <polygon points="420,720 440,760 400,760" fill="#475569" stroke="#1e293b" stroke-width="3"/>
+  <polygon points="540,720 560,760 520,760" fill="#475569" stroke="#1e293b" stroke-width="3"/>
+
+  <!-- Body-frame axes indicator (bottom-right) -->
+  <!-- X axis (red) -->
+  <line x1="600" y1="650" x2="650" y2="650" stroke="#ef4444" stroke-width="5"/>
+  <polygon points="650,643 665,650 650,657" fill="#ef4444"/>
+  <!-- Y axis (green) -->
+  <line x1="600" y1="650" x2="600" y2="600" stroke="#22c55e" stroke-width="5"/>
+  <polygon points="593,600 600,585 607,600" fill="#22c55e"/>
+  <!-- Z axis hint (dot at origin) -->
+  <circle cx="600" cy="650" r="5" fill="#f97316"/>
+</svg>

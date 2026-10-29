@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   HybridPlanetaryGear(; name, ratio)
+   HybridPlanetaryGear(; name, ratio, __overrides)
 
 ## Parameters:
 
@@ -21,7 +19,7 @@ import Moshi as __Ext__Moshi
  * `carrier` - This connector represents a rotational spline with angle and torque as the potential and flow variables, respectively. ([`Spline`](@ref))
  * `ring` - This connector represents a rotational spline with angle and torque as the potential and flow variables, respectively. ([`Spline`](@ref))
 """
-@component function HybridPlanetaryGear(; name = nothing, ratio=2.6, kwargs...)
+@component function HybridPlanetaryGear(; name = nothing, var"ratio"=2.6, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -29,7 +27,7 @@ import Moshi as __Ext__Moshi
     @named model = HybridPlanetaryGear()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -38,6 +36,9 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "ratio") && (ratio = pop!(__overrides, "ratio"))
 
   ### Structural Parameters (functions)
 
@@ -54,7 +55,7 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__ratio = ratio
   append!(__params, @parameters (ratio::Real), [description = "Gear ratio defined as (number of ring_teeth) / (number of sun_teeth)."])
-  __initial_conditions[ratio] = __local__ratio
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ratio, __local__ratio)
 
   ### Final Parameters (assignments)
 
@@ -73,7 +74,7 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named ring = __Dyad__Spline())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -91,6 +92,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, carrier.tau ~ -(1 + ratio) * sun.tau)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HybridPlanetaryGear

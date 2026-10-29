@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   ZoneRoom(; name, R_wall, R_win, R_roof, R_slab, R_infil, C)
+   ZoneRoom(; name, R_wall, R_win, R_roof, R_slab, R_infil, C, __overrides)
 
 ## Parameters:
 
@@ -26,7 +24,7 @@ import Moshi as __Ext__Moshi
  * `T_ground` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `zone_port` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
 """
-@component function ZoneRoom(; name = nothing, R_wall=0.01, R_win=0.015, R_roof=0.025, R_slab=0.05, R_infil=0.0333, C=Float64(400000.0), kwargs...)
+@component function ZoneRoom(; name = nothing, var"R_wall"=0.01, var"R_win"=0.015, var"R_roof"=0.025, var"R_slab"=0.05, var"R_infil"=0.0333, var"C"=Float64(400000.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -34,7 +32,7 @@ import Moshi as __Ext__Moshi
     @named model = ZoneRoom()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -43,6 +41,14 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "R_wall") && (R_wall = pop!(__overrides, "R_wall"))
+  haskey(__overrides, "R_win") && (R_win = pop!(__overrides, "R_win"))
+  haskey(__overrides, "R_roof") && (R_roof = pop!(__overrides, "R_roof"))
+  haskey(__overrides, "R_slab") && (R_slab = pop!(__overrides, "R_slab"))
+  haskey(__overrides, "R_infil") && (R_infil = pop!(__overrides, "R_infil"))
+  haskey(__overrides, "C") && (C = pop!(__overrides, "C"))
 
   ### Structural Parameters (functions)
 
@@ -59,22 +65,22 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__R_wall = R_wall
   append!(__params, @parameters (R_wall::Real))
-  __initial_conditions[R_wall] = __local__R_wall
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_wall, __local__R_wall)
   __local__R_win = R_win
   append!(__params, @parameters (R_win::Real))
-  __initial_conditions[R_win] = __local__R_win
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_win, __local__R_win)
   __local__R_roof = R_roof
   append!(__params, @parameters (R_roof::Real))
-  __initial_conditions[R_roof] = __local__R_roof
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_roof, __local__R_roof)
   __local__R_slab = R_slab
   append!(__params, @parameters (R_slab::Real))
-  __initial_conditions[R_slab] = __local__R_slab
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_slab, __local__R_slab)
   __local__R_infil = R_infil
   append!(__params, @parameters (R_infil::Real))
-  __initial_conditions[R_infil] = __local__R_infil
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_infil, __local__R_infil)
   __local__C = C
   append!(__params, @parameters (C::Real))
-  __initial_conditions[C] = __local__C
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C, __local__C)
 
   ### Final Parameters (assignments)
 
@@ -93,31 +99,31 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named zone_port = __Dyad__HeatPort())
   # Subcomponent outdoor_src of type ThermalComponents.Sources.PrescribedTemperature
   outdoor_src_overrides = __pop_subcomponent_overrides!(__overrides, "outdoor_src")
-  push!(__systems, @named outdoor_src = ThermalComponents.Sources.PrescribedTemperature(outdoor_src_overrides...))
+  push!(__systems, @named outdoor_src = ThermalComponents.Sources.PrescribedTemperature(; __overrides = outdoor_src_overrides))
   # Subcomponent ground_src of type ThermalComponents.Sources.PrescribedTemperature
   ground_src_overrides = __pop_subcomponent_overrides!(__overrides, "ground_src")
-  push!(__systems, @named ground_src = ThermalComponents.Sources.PrescribedTemperature(ground_src_overrides...))
+  push!(__systems, @named ground_src = ThermalComponents.Sources.PrescribedTemperature(; __overrides = ground_src_overrides))
   # Subcomponent wall of type ThermalComponents.Components.ThermalResistor
   wall_overrides = __pop_subcomponent_overrides!(__overrides, "wall")
-  push!(__systems, @named wall = ThermalComponents.Components.ThermalResistor(R=R_wall, wall_overrides...))
+  push!(__systems, @named wall = ThermalComponents.Components.ThermalResistor(; R=R_wall, __overrides = wall_overrides))
   # Subcomponent win of type ThermalComponents.Components.ThermalResistor
   win_overrides = __pop_subcomponent_overrides!(__overrides, "win")
-  push!(__systems, @named win = ThermalComponents.Components.ThermalResistor(R=R_win, win_overrides...))
+  push!(__systems, @named win = ThermalComponents.Components.ThermalResistor(; R=R_win, __overrides = win_overrides))
   # Subcomponent roof of type ThermalComponents.Components.ThermalResistor
   roof_overrides = __pop_subcomponent_overrides!(__overrides, "roof")
-  push!(__systems, @named roof = ThermalComponents.Components.ThermalResistor(R=R_roof, roof_overrides...))
+  push!(__systems, @named roof = ThermalComponents.Components.ThermalResistor(; R=R_roof, __overrides = roof_overrides))
   # Subcomponent slab of type ThermalComponents.Components.ThermalResistor
   slab_overrides = __pop_subcomponent_overrides!(__overrides, "slab")
-  push!(__systems, @named slab = ThermalComponents.Components.ThermalResistor(R=R_slab, slab_overrides...))
+  push!(__systems, @named slab = ThermalComponents.Components.ThermalResistor(; R=R_slab, __overrides = slab_overrides))
   # Subcomponent infil of type ThermalComponents.Components.ThermalResistor
   infil_overrides = __pop_subcomponent_overrides!(__overrides, "infil")
-  push!(__systems, @named infil = ThermalComponents.Components.ThermalResistor(R=R_infil, infil_overrides...))
+  push!(__systems, @named infil = ThermalComponents.Components.ThermalResistor(; R=R_infil, __overrides = infil_overrides))
   # Subcomponent cap of type DynamicSteadyState.HeatCapacitorNoInit
   cap_overrides = __pop_subcomponent_overrides!(__overrides, "cap")
-  push!(__systems, @named cap = DynamicSteadyState.HeatCapacitorNoInit(C=C, cap_overrides...))
+  push!(__systems, @named cap = DynamicSteadyState.HeatCapacitorNoInit(; C=C, __overrides = cap_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -131,9 +137,9 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(T_ground, ground_src.T))
   push!(__eqs, connect(outdoor_src.port, wall.port_a, win.port_a, roof.port_a, infil.port_a))
   push!(__eqs, connect(ground_src.port, slab.port_a))
-  push!(__eqs, connect(wall.port_b, win.port_b, roof.port_b, slab.port_b, infil.port_b, cap.port, zone_port))
+  push!(__eqs, connect(wall.port_b, win.port_b, roof.port_b, slab.port_b, infil.port_b, cap.node, zone_port))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export ZoneRoom

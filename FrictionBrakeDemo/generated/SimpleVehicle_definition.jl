@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   SimpleVehicle(; name, vehicle_mass_kg, inertia_moment, wheel_radius, damping_coeff, initial_position, initial_velocity)
+   SimpleVehicle(; name, vehicle_mass_kg, inertia_moment, wheel_radius, damping_coeff, initial_position, initial_velocity, __overrides)
 
 ## Parameters:
 
@@ -26,7 +24,7 @@ import Moshi as __Ext__Moshi
  * `vehicle_speed` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `wheel_speed` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function SimpleVehicle(; name = nothing, vehicle_mass_kg=Float64(2194.0), inertia_moment=3.08, wheel_radius=0.15, damping_coeff=Float64(30.0), initial_position=Float64(0.0), initial_velocity=Float64(0.0), kwargs...)
+@component function SimpleVehicle(; name = nothing, var"vehicle_mass_kg"=Float64(2194.0), var"inertia_moment"=3.08, var"wheel_radius"=0.15, var"damping_coeff"=Float64(30.0), var"initial_position"=Float64(0.0), var"initial_velocity"=Float64(0.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -34,7 +32,7 @@ import Moshi as __Ext__Moshi
     @named model = SimpleVehicle()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -43,6 +41,14 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "vehicle_mass_kg") && (vehicle_mass_kg = pop!(__overrides, "vehicle_mass_kg"))
+  haskey(__overrides, "inertia_moment") && (inertia_moment = pop!(__overrides, "inertia_moment"))
+  haskey(__overrides, "wheel_radius") && (wheel_radius = pop!(__overrides, "wheel_radius"))
+  haskey(__overrides, "damping_coeff") && (damping_coeff = pop!(__overrides, "damping_coeff"))
+  haskey(__overrides, "initial_position") && (initial_position = pop!(__overrides, "initial_position"))
+  haskey(__overrides, "initial_velocity") && (initial_velocity = pop!(__overrides, "initial_velocity"))
 
   ### Structural Parameters (functions)
 
@@ -59,22 +65,22 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__vehicle_mass_kg = vehicle_mass_kg
   append!(__params, @parameters (vehicle_mass_kg::Real), [bounds = (0, Inf)])
-  __initial_conditions[vehicle_mass_kg] = __local__vehicle_mass_kg
+  __dyad_seed_parameter!(__initial_conditions, __bindings, vehicle_mass_kg, __local__vehicle_mass_kg)
   __local__inertia_moment = inertia_moment
   append!(__params, @parameters (inertia_moment::Real))
-  __initial_conditions[inertia_moment] = __local__inertia_moment
+  __dyad_seed_parameter!(__initial_conditions, __bindings, inertia_moment, __local__inertia_moment)
   __local__wheel_radius = wheel_radius
   append!(__params, @parameters (wheel_radius::Real))
-  __initial_conditions[wheel_radius] = __local__wheel_radius
+  __dyad_seed_parameter!(__initial_conditions, __bindings, wheel_radius, __local__wheel_radius)
   __local__damping_coeff = damping_coeff
   append!(__params, @parameters (damping_coeff::Real))
-  __initial_conditions[damping_coeff] = __local__damping_coeff
+  __dyad_seed_parameter!(__initial_conditions, __bindings, damping_coeff, __local__damping_coeff)
   __local__initial_position = initial_position
   append!(__params, @parameters (initial_position::Real))
-  __initial_conditions[initial_position] = __local__initial_position
+  __dyad_seed_parameter!(__initial_conditions, __bindings, initial_position, __local__initial_position)
   __local__initial_velocity = initial_velocity
   append!(__params, @parameters (initial_velocity::Real))
-  __initial_conditions[initial_velocity] = __local__initial_velocity
+  __dyad_seed_parameter!(__initial_conditions, __bindings, initial_velocity, __local__initial_velocity)
 
   ### Final Parameters (assignments)
 
@@ -93,28 +99,28 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named shaft = __Dyad__Spline())
   # Subcomponent inertia of type RotationalComponents.Components.Inertia
   inertia_overrides = __pop_subcomponent_overrides!(__overrides, "inertia")
-  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(J=inertia_moment, inertia_overrides...))
+  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(; J=inertia_moment, __overrides = inertia_overrides))
   # Subcomponent wheel of type RotationalComponents.Components.IdealRollingWheel
   wheel_overrides = __pop_subcomponent_overrides!(__overrides, "wheel")
-  push!(__systems, @named wheel = RotationalComponents.Components.IdealRollingWheel(radius=wheel_radius, wheel_overrides...))
+  push!(__systems, @named wheel = RotationalComponents.Components.IdealRollingWheel(; radius=wheel_radius, __overrides = wheel_overrides))
   # Subcomponent vehicle_mass of type TranslationalComponents.Components.Mass
   vehicle_mass_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle_mass")
-  push!(__systems, @named vehicle_mass = TranslationalComponents.Components.Mass(m=vehicle_mass_kg, vehicle_mass_overrides...))
+  push!(__systems, @named vehicle_mass = TranslationalComponents.Components.Mass(; m=vehicle_mass_kg, __overrides = vehicle_mass_overrides))
   # Subcomponent load_damper of type TranslationalComponents.Components.Damper
   load_damper_overrides = __pop_subcomponent_overrides!(__overrides, "load_damper")
-  push!(__systems, @named load_damper = TranslationalComponents.Components.Damper(d=damping_coeff, load_damper_overrides...))
+  push!(__systems, @named load_damper = TranslationalComponents.Components.Damper(; d=damping_coeff, __overrides = load_damper_overrides))
   # Subcomponent ground of type TranslationalComponents.Components.Fixed
   ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
-  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(s0=0.0, ground_overrides...))
+  push!(__systems, @named ground = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), __overrides = ground_overrides))
   # Subcomponent housing of type RotationalComponents.Components.Fixed
   housing_overrides = __pop_subcomponent_overrides!(__overrides, "housing")
-  push!(__systems, @named housing = RotationalComponents.Components.Fixed(phi0=0.0, housing_overrides...))
+  push!(__systems, @named housing = RotationalComponents.Components.Fixed(; phi0=Float64(0.0), __overrides = housing_overrides))
   # Subcomponent load_anchor of type TranslationalComponents.Components.Fixed
   load_anchor_overrides = __pop_subcomponent_overrides!(__overrides, "load_anchor")
-  push!(__systems, @named load_anchor = TranslationalComponents.Components.Fixed(s0=0.0, load_anchor_overrides...))
+  push!(__systems, @named load_anchor = TranslationalComponents.Components.Fixed(; s0=Float64(0.0), __overrides = load_anchor_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -137,6 +143,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, connect(wheel.support_r, housing.spline))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SimpleVehicle

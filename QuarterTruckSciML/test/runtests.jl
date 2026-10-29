@@ -43,9 +43,9 @@ include("../generated/tests.jl")
         sys_nn = mtkcompile(QuarterTruckSciML.TestQuarterTruckFullNNISOA(; name=:h))
 
         prob_gt   = ODEProblem(sys_gt, [], (0.0, 2.0); fully_determined=true)
-        prob_nn   = ODEProblem(sys_nn, [sys_nn.model.nn.p => weights_flat],
+        prob_nn   = ODEProblem(sys_nn, [sys_nn.model.scaled_nn.nn.p => weights_flat],
                                (0.0, 2.0); fully_determined=true)
-        prob_zero = ODEProblem(sys_nn, [sys_nn.model.nn.p => zeros(length(weights_flat))],
+        prob_zero = ODEProblem(sys_nn, [sys_nn.model.scaled_nn.nn.p => zeros(length(weights_flat))],
                                (0.0, 2.0); fully_determined=true)
 
         sol_gt   = solve(prob_gt;   saveat=0.01)
@@ -58,3 +58,22 @@ include("../generated/tests.jl")
     end
 
 end
+
+@testset "Calibration/training analyses construct through the Dyad pipeline" begin
+    @test QuarterTruckSciML.QuarterTruckCalibrationAnalysis__Spec().__system isa ModelingToolkit.System
+    @test QuarterTruckSciML.TruckFullNNTrainingAnalysis__Spec().__system isa ModelingToolkit.System
+    @test QuarterTruckSciML.TruckFullNNTrainingAnalysisLBFGS__Spec().__system isa ModelingToolkit.System
+end
+
+@testset "Physical calibration converges and recovers the synthetic truth" begin
+    result = QuarterTruckSciML.QuarterTruckCalibrationAnalysis()
+    @test QuarterTruckSciML.DyadInterface.SciMLBase.successful_retcode(result.r.retcode)
+    @test all(isfinite, result.r.u)
+    truth = [315.0, 22000.0, 1800.0, 750.0]
+    @test maximum(abs.((collect(result.r.u) .- truth) ./ truth)) < 1e-3
+    # The committed measurements retain error from their older generator settings;
+    # this bound is a regression check against that fixed dataset.
+    @test result.r.original.objective < 0.006
+end
+
+include("result_checks.jl")

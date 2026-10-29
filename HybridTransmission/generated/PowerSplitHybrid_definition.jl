@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   PowerSplitHybrid(; name)
+   PowerSplitHybrid(; name, __overrides)
 
 Power-Split Hybrid Electric Vehicle Model
 
@@ -24,7 +22,7 @@ Reference:
 - SAE 2005-01-1364: "Hybrid Electric Powertrains for Passenger Vehicles: Configuration, Performance, and Testing" by Miller, J.M.
 - EPA Test Cycle Data: 40 CFR Part 86, Appendix I (HWFET)
 """
-@component function PowerSplitHybrid(; name = nothing, kwargs...)
+@component function PowerSplitHybrid(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -32,7 +30,7 @@ Reference:
     @named model = PowerSplitHybrid()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -70,31 +68,31 @@ Reference:
   ### Components
   # Subcomponent drive_cycle of type HybridTransmission.HighwayDriveCycle
   drive_cycle_overrides = __pop_subcomponent_overrides!(__overrides, "drive_cycle")
-  push!(__systems, @named drive_cycle = HybridTransmission.HighwayDriveCycle(drive_cycle_overrides...))
+  push!(__systems, @named drive_cycle = HybridTransmission.HighwayDriveCycle(; __overrides = drive_cycle_overrides))
   # Subcomponent controller of type HybridTransmission.ECMSController
   controller_overrides = __pop_subcomponent_overrides!(__overrides, "controller")
-  push!(__systems, @named controller = HybridTransmission.ECMSController(controller_overrides...))
+  push!(__systems, @named controller = HybridTransmission.ECMSController(; __overrides = controller_overrides))
   # Subcomponent engine of type HybridTransmission.HybridEngine
   engine_overrides = __pop_subcomponent_overrides!(__overrides, "engine")
-  push!(__systems, @named engine = HybridTransmission.HybridEngine(engine_overrides...))
+  push!(__systems, @named engine = HybridTransmission.HybridEngine(; __overrides = engine_overrides))
   # Subcomponent mg1 of type HybridTransmission.HybridMG
   mg1_overrides = __pop_subcomponent_overrides!(__overrides, "mg1")
-  push!(__systems, @named mg1 = HybridTransmission.HybridMG(Kt=1.0, max_torque=130.0, mg1_overrides...))
+  push!(__systems, @named mg1 = HybridTransmission.HybridMG(; Kt=Float64(1.0), max_torque=Float64(130.0), __overrides = mg1_overrides))
   # Subcomponent mg2 of type HybridTransmission.HybridMG
   mg2_overrides = __pop_subcomponent_overrides!(__overrides, "mg2")
-  push!(__systems, @named mg2 = HybridTransmission.HybridMG(Kt=1.0, max_torque=330.0, mg2_overrides...))
+  push!(__systems, @named mg2 = HybridTransmission.HybridMG(; Kt=Float64(1.0), max_torque=Float64(330.0), __overrides = mg2_overrides))
   # Subcomponent transmission of type HybridTransmission.HybridPlanetaryGear
   transmission_overrides = __pop_subcomponent_overrides!(__overrides, "transmission")
-  push!(__systems, @named transmission = HybridTransmission.HybridPlanetaryGear(transmission_overrides...))
+  push!(__systems, @named transmission = HybridTransmission.HybridPlanetaryGear(; __overrides = transmission_overrides))
   # Subcomponent vehicle of type HybridTransmission.HybridVehicle
   vehicle_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle")
-  push!(__systems, @named vehicle = HybridTransmission.HybridVehicle(vehicle_overrides...))
+  push!(__systems, @named vehicle = HybridTransmission.HybridVehicle(; __overrides = vehicle_overrides))
   # Subcomponent battery of type HybridTransmission.HybridBattery
   battery_overrides = __pop_subcomponent_overrides!(__overrides, "battery")
-  push!(__systems, @named battery = HybridTransmission.HybridBattery(battery_overrides...))
+  push!(__systems, @named battery = HybridTransmission.HybridBattery(; __overrides = battery_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
   __guesses[engine.omega] = (0.0)
@@ -134,6 +132,6 @@ Reference:
   push!(__eqs, connect(mg2.power_elec, battery.mg2_power))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export PowerSplitHybrid

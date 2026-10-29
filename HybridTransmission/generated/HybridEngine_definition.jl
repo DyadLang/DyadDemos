@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   HybridEngine(; name, max_torque, b_friction, idle_fuel_rate)
+   HybridEngine(; name, max_torque, b_friction, idle_fuel_rate, __overrides)
 
 ## Parameters:
 
@@ -33,7 +31,7 @@ import Moshi as __Ext__Moshi
 | `fuel_rate`         |                          | --  |
 | `fuel_consumed`         |                          | --  |
 """
-@component function HybridEngine(; name = nothing, max_torque=Float64(145.0), b_friction=0.4, idle_fuel_rate=0.6, kwargs...)
+@component function HybridEngine(; name = nothing, var"max_torque"=Float64(145.0), var"b_friction"=0.4, var"idle_fuel_rate"=0.6, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -41,7 +39,7 @@ import Moshi as __Ext__Moshi
     @named model = HybridEngine()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -50,6 +48,11 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "max_torque") && (max_torque = pop!(__overrides, "max_torque"))
+  haskey(__overrides, "b_friction") && (b_friction = pop!(__overrides, "b_friction"))
+  haskey(__overrides, "idle_fuel_rate") && (idle_fuel_rate = pop!(__overrides, "idle_fuel_rate"))
 
   ### Structural Parameters (functions)
 
@@ -66,13 +69,13 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__max_torque = max_torque
   append!(__params, @parameters (max_torque::Real))
-  __initial_conditions[max_torque] = __local__max_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, max_torque, __local__max_torque)
   __local__b_friction = b_friction
   append!(__params, @parameters (b_friction::Real))
-  __initial_conditions[b_friction] = __local__b_friction
+  __dyad_seed_parameter!(__initial_conditions, __bindings, b_friction, __local__b_friction)
   __local__idle_fuel_rate = idle_fuel_rate
   append!(__params, @parameters (idle_fuel_rate::Real))
-  __initial_conditions[idle_fuel_rate] = __local__idle_fuel_rate
+  __dyad_seed_parameter!(__initial_conditions, __bindings, idle_fuel_rate, __local__idle_fuel_rate)
 
   ### Final Parameters (assignments)
 
@@ -89,15 +92,20 @@ import Moshi as __Ext__Moshi
 
   ### Variables (assignments)
   __ovr_omega = pop!(__overrides, "omega", nothing); isnothing(__ovr_omega) || push!(__eqs, omega ~ __ovr_omega)
-  __ovr_omega__initial = pop!(__overrides, "omega__initial", nothing); isnothing(__ovr_omega__initial) || (__initial_conditions[omega] = __ovr_omega__initial)
+  __ovr_omega__initial = pop!(__overrides, "omega.initial", nothing); isnothing(__ovr_omega__initial) || (__initial_conditions[omega] = __ovr_omega__initial)
+  __ovr_omega__guess = pop!(__overrides, "omega.guess", nothing)
   __ovr_torque = pop!(__overrides, "torque", nothing); isnothing(__ovr_torque) || push!(__eqs, torque ~ __ovr_torque)
-  __ovr_torque__initial = pop!(__overrides, "torque__initial", nothing); isnothing(__ovr_torque__initial) || (__initial_conditions[torque] = __ovr_torque__initial)
+  __ovr_torque__initial = pop!(__overrides, "torque.initial", nothing); isnothing(__ovr_torque__initial) || (__initial_conditions[torque] = __ovr_torque__initial)
+  __ovr_torque__guess = pop!(__overrides, "torque.guess", nothing)
   __ovr_power = pop!(__overrides, "power", nothing); isnothing(__ovr_power) || push!(__eqs, power ~ __ovr_power)
-  __ovr_power__initial = pop!(__overrides, "power__initial", nothing); isnothing(__ovr_power__initial) || (__initial_conditions[power] = __ovr_power__initial)
+  __ovr_power__initial = pop!(__overrides, "power.initial", nothing); isnothing(__ovr_power__initial) || (__initial_conditions[power] = __ovr_power__initial)
+  __ovr_power__guess = pop!(__overrides, "power.guess", nothing)
   __ovr_fuel_rate = pop!(__overrides, "fuel_rate", nothing); isnothing(__ovr_fuel_rate) || push!(__eqs, fuel_rate ~ __ovr_fuel_rate)
-  __ovr_fuel_rate__initial = pop!(__overrides, "fuel_rate__initial", nothing); isnothing(__ovr_fuel_rate__initial) || (__initial_conditions[fuel_rate] = __ovr_fuel_rate__initial)
+  __ovr_fuel_rate__initial = pop!(__overrides, "fuel_rate.initial", nothing); isnothing(__ovr_fuel_rate__initial) || (__initial_conditions[fuel_rate] = __ovr_fuel_rate__initial)
+  __ovr_fuel_rate__guess = pop!(__overrides, "fuel_rate.guess", nothing)
   __ovr_fuel_consumed = pop!(__overrides, "fuel_consumed", nothing); isnothing(__ovr_fuel_consumed) || push!(__eqs, fuel_consumed ~ __ovr_fuel_consumed)
-  __ovr_fuel_consumed__initial = pop!(__overrides, "fuel_consumed__initial", nothing); isnothing(__ovr_fuel_consumed__initial) || (__initial_conditions[fuel_consumed] = __ovr_fuel_consumed__initial)
+  __ovr_fuel_consumed__initial = pop!(__overrides, "fuel_consumed.initial", nothing); isnothing(__ovr_fuel_consumed__initial) || (__initial_conditions[fuel_consumed] = __ovr_fuel_consumed__initial)
+  __ovr_fuel_consumed__guess = pop!(__overrides, "fuel_consumed.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -106,9 +114,14 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named flange = __Dyad__Spline())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
+  isnothing(__ovr_omega__guess) || (__guesses[omega] = __ovr_omega__guess)
+  isnothing(__ovr_torque__guess) || (__guesses[torque] = __ovr_torque__guess)
+  isnothing(__ovr_power__guess) || (__guesses[power] = __ovr_power__guess)
+  isnothing(__ovr_fuel_rate__guess) || (__guesses[fuel_rate] = __ovr_fuel_rate__guess)
+  isnothing(__ovr_fuel_consumed__guess) || (__guesses[fuel_consumed] = __ovr_fuel_consumed__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, fuel_consumed ~ 0.0)
@@ -126,6 +139,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, ModelingToolkit.D_nounits(fuel_consumed) ~ fuel_rate)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HybridEngine

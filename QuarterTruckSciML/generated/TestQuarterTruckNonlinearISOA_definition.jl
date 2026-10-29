@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TestQuarterTruckNonlinearISOA(; name, speed)
+   TestQuarterTruckNonlinearISOA(; name, speed, __overrides)
 
 Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction + viscoelastic seat) driven by ISO 8608 Class A. This is the 'truth' against which linear and NN models are compared.
 
@@ -17,7 +15,7 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `speed`         |                          | m/s  |   13.89 |
 """
-@component function TestQuarterTruckNonlinearISOA(; name = nothing, speed=13.89, kwargs...)
+@component function TestQuarterTruckNonlinearISOA(; name = nothing, var"speed"=13.89, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -25,7 +23,7 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
     @named model = TestQuarterTruckNonlinearISOA()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,6 +32,9 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "speed") && (speed = pop!(__overrides, "speed"))
 
   ### Structural Parameters (functions)
 
@@ -50,7 +51,7 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
   ### Symbolic Parameters
   __local__speed = speed
   append!(__params, @parameters (speed::Real))
-  __initial_conditions[speed] = __local__speed
+  __dyad_seed_parameter!(__initial_conditions, __bindings, speed, __local__speed)
 
   ### Final Parameters (assignments)
 
@@ -66,13 +67,13 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
   ### Components
   # Subcomponent model of type QuarterTruckSciML.QuarterTruckConfigurable
   model_overrides = __pop_subcomponent_overrides!(__overrides, "model")
-  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(; tire_k3=10000000.0, tire_compression_only=1.0, friction_Fc=500.0, seat_driver_n=0.5, model_overrides...))
+  push!(__systems, @named model = QuarterTruckSciML.QuarterTruckConfigurable(; tire_k3=Float64(10000000.0), tire_compression_only=Float64(1.0), friction_Fc=Float64(500.0), seat_driver_n=0.5, __overrides = model_overrides))
   # Subcomponent iso_road of type QuarterTruckSciML.DenseISO8608Road
   iso_road_overrides = __pop_subcomponent_overrides!(__overrides, "iso_road")
-  push!(__systems, @named iso_road = QuarterTruckSciML.DenseISO8608Road(; roughness=0.000001, speed=speed, start_time=0.0, iso_road_overrides...))
+  push!(__systems, @named iso_road = QuarterTruckSciML.DenseISO8608Road(; roughness=0.000001, speed=speed, start_time=Float64(0.0), __overrides = iso_road_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -85,6 +86,6 @@ Nonlinear ground-truth quarter truck (tire cubic + compression-only + friction +
   push!(__eqs, connect(iso_road.y, model.road.s_ref))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestQuarterTruckNonlinearISOA

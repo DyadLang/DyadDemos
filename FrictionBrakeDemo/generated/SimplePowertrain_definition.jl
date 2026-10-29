@@ -4,10 +4,8 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   SimplePowertrain(; name, base_torque, c_normalized_torque, tau, tau_start)
+   SimplePowertrain(; name, base_torque, c_normalized_torque, tau, tau_start, __overrides)
 
 ## Parameters:
 
@@ -31,7 +29,7 @@ import Moshi as __Ext__Moshi
 | `normalized_torque`         |                          | --  |
 | `torque`         |                          | N.m  |
 """
-@component function SimplePowertrain(; name = nothing, base_torque=Float64(150.0), c_normalized_torque=[12.343, -0.57128, 0.010451, -0.000062024], tau=0.1, tau_start=Float64(0), kwargs...)
+@component function SimplePowertrain(; name = nothing, var"base_torque"=Float64(150.0), var"c_normalized_torque"=[12.343, -0.57128, 0.010451, -0.000062024], var"tau"=0.1, var"tau_start"=Float64(0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -39,7 +37,7 @@ import Moshi as __Ext__Moshi
     @named model = SimplePowertrain()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -48,6 +46,12 @@ import Moshi as __Ext__Moshi
   __initialization_eqs = Equation[]
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "base_torque") && (base_torque = pop!(__overrides, "base_torque"))
+  haskey(__overrides, "c_normalized_torque") && (c_normalized_torque = pop!(__overrides, "c_normalized_torque"))
+  haskey(__overrides, "tau") && (tau = pop!(__overrides, "tau"))
+  haskey(__overrides, "tau_start") && (tau_start = pop!(__overrides, "tau_start"))
 
   ### Structural Parameters (functions)
 
@@ -64,16 +68,16 @@ import Moshi as __Ext__Moshi
   ### Symbolic Parameters
   __local__base_torque = base_torque
   append!(__params, @parameters (base_torque::Real))
-  __initial_conditions[base_torque] = __local__base_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, base_torque, __local__base_torque)
   __local__c_normalized_torque = c_normalized_torque
   append!(__params, @parameters (c_normalized_torque[1:4]::Real))
-  __initial_conditions[c_normalized_torque] = __local__c_normalized_torque
+  __dyad_seed_parameter!(__initial_conditions, __bindings, c_normalized_torque, __local__c_normalized_torque)
   __local__tau = tau
   append!(__params, @parameters (tau::Real))
-  __initial_conditions[tau] = __local__tau
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tau, __local__tau)
   __local__tau_start = tau_start
   append!(__params, @parameters (tau_start::Real))
-  __initial_conditions[tau_start] = __local__tau_start
+  __dyad_seed_parameter!(__initial_conditions, __bindings, tau_start, __local__tau_start)
 
   ### Final Parameters (assignments)
 
@@ -87,9 +91,11 @@ import Moshi as __Ext__Moshi
 
   ### Variables (assignments)
   __ovr_normalized_torque = pop!(__overrides, "normalized_torque", nothing); isnothing(__ovr_normalized_torque) || push!(__eqs, normalized_torque ~ __ovr_normalized_torque)
-  __ovr_normalized_torque__initial = pop!(__overrides, "normalized_torque__initial", nothing); isnothing(__ovr_normalized_torque__initial) || (__initial_conditions[normalized_torque] = __ovr_normalized_torque__initial)
+  __ovr_normalized_torque__initial = pop!(__overrides, "normalized_torque.initial", nothing); isnothing(__ovr_normalized_torque__initial) || (__initial_conditions[normalized_torque] = __ovr_normalized_torque__initial)
+  __ovr_normalized_torque__guess = pop!(__overrides, "normalized_torque.guess", nothing)
   __ovr_torque = pop!(__overrides, "torque", nothing); isnothing(__ovr_torque) || push!(__eqs, torque ~ __ovr_torque)
-  __ovr_torque__initial = pop!(__overrides, "torque__initial", nothing); isnothing(__ovr_torque__initial) || (__initial_conditions[torque] = __ovr_torque__initial)
+  __ovr_torque__initial = pop!(__overrides, "torque.initial", nothing); isnothing(__ovr_torque__initial) || (__initial_conditions[torque] = __ovr_torque__initial)
+  __ovr_torque__guess = pop!(__overrides, "torque.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -98,9 +104,11 @@ import Moshi as __Ext__Moshi
   push!(__systems, @named drive = __Dyad__Spline())
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
+  isnothing(__ovr_normalized_torque__guess) || (__guesses[normalized_torque] = __ovr_normalized_torque__guess)
+  isnothing(__ovr_torque__guess) || (__guesses[torque] = __ovr_torque__guess)
 
   ### Initialization Equations
   push!(__initialization_eqs, torque ~ tau_start)
@@ -114,6 +122,6 @@ import Moshi as __Ext__Moshi
   push!(__eqs, drive.tau ~ -torque)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SimplePowertrain

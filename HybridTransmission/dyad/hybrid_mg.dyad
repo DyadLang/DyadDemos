@@ -2,20 +2,13 @@ component HybridMG
   """
   Permanent magnet AC motor/generator with ideal torque control.
   Efficiency and thermal effects neglected for simplicity.
-  
-  Sign convention adjusted to work with controller that sends:
-  - mg2_torque_cmd = -(T_wheel_demand * (1-engine_fraction))
-  - Negative torque_cmd when wanting to accelerate forward
-  
-  With this component: negative torque_cmd produces negative flange.tau,
-  which accelerates the vehicle (since vehicle has: J*dω/dt = -flange.tau - T_load)
   """
   flange = Spline() {^flange}
   torque_cmd = RealInput() {^torque_cmd} # Commanded torque (N·m)
   power_elec = RealOutput() {^power_elec} # Electrical power (W), positive = to battery (generating)
   omega_output = RealOutput() {^omega_output} # Speed output for controller (rad/s)
   parameter Kt::Real = 1.0 # Torque constant (N·m/A) - scaling factor
-  parameter b_friction::Real = 0.005 # Bearing friction (N·m·s/rad) - realistic for PM motor
+  parameter b_friction::Real = 0.005 # Bearing friction (N·m·s/rad)
   parameter max_torque::Torque = 200.0 # Torque limit (N·m)
   variable omega::AngularVelocity
 relations
@@ -24,9 +17,6 @@ relations
   # Apply torque directly (controller already clamps to ±max_torque)
   # flange.tau = torque_cmd makes positive torque_cmd give positive flange.tau (driving)
   flange.tau = Kt * torque_cmd - b_friction * omega
-  # Electrical power: P = tau * omega
-  # When driving forward (tau < 0, omega > 0): power < 0 (consuming from battery)
-  # When generating (tau > 0, omega > 0): power > 0 (to battery)
   power_elec = flange.tau * omega
 metadata {
   "Dyad": {"icons": {"default": "dyad://HybridTransmission/electric_motor.svg"}},

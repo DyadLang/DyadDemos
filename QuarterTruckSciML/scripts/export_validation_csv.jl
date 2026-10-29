@@ -8,13 +8,15 @@ the nonlinear ground truth, and the NN-augmented gray-box.
 =#
 
 using QuarterTruckSciML
+include("result_checks.jl")
+import DyadInterface
 using DyadInterface: TransientAnalysis, artifacts, ODEAlg
 using ModelingToolkit: toggle_namespacing, SymbolicT
 using CSV, DataFrames
 
 const DATA_DIR = joinpath(@__DIR__, "..", "assets", "data")
-const OUT_DIR  = joinpath(@__DIR__, "..", "assets")
-const WEIGHTS_CSV = joinpath(DATA_DIR, "nn_weights_full_sin_lbfgs.csv")
+const OUT_DIR = mkpath(get(ENV, "QUARTERTRUCK_VALIDATION_OUTPUT", joinpath(@__DIR__, "..", "assets")))
+const WEIGHTS_CSV = get(ENV, "QUARTERTRUCK_WEIGHTS", joinpath(DATA_DIR, "nn_weights_full_sin_lbfgs.csv"))
 
 # (observable path, output column stem) for each compared signal.
 const OBS = [
@@ -24,18 +26,24 @@ const OBS = [
 ]
 
 weights_flat = Vector{Float64}(collect(CSV.read(WEIGHTS_CSV, DataFrame)[1, :]))
+all(isfinite, weights_flat) || error("Nonfinite NN weights")
 @info "Loaded $(length(weights_flat)) NN weights from $(basename(WEIGHTS_CSV))"
 
 # Run a TransientAnalysis over `harness` and return (result, raw_solution). When
 # `nn_weights` is given, the trained weights are injected as an operating-point
 # override on the NN parameter vector; `toggle_namespacing` strips the harness's
-# own namespace so the key matches the flattened system's `model.nn.p`.
+# own namespace so the key matches the flattened system's `model.scaled_nn.nn.p`.
 function run_transient(harness; nn_weights=nothing, tspan=(0.0, 10.0), saveat=0.01)
     overrides = isnothing(nn_weights) ? Dict{SymbolicT, SymbolicT}() :
-        Dict{SymbolicT, SymbolicT}(toggle_namespacing(harness, false).model.nn.p => nn_weights)
+        Dict{SymbolicT, SymbolicT}(toggle_namespacing(harness, false).model.scaled_nn.nn.p => nn_weights)
     result = TransientAnalysis(; model=harness, overrides, alg=ODEAlg.Auto(),
                                start=tspan[1], stop=tspan[2], saveat)
-    return result, artifacts(result, :RawSolution)
+    sol = artifacts(result, :RawSolution)
+    check_transient(sol, tspan...)
+    expected_times = collect(tspan[1]:saveat:tspan[2])
+    length(sol.t) == length(expected_times) && isapprox(sol.t, expected_times; rtol=0, atol=1e-12) ||
+        error("Transient did not return the requested sample grid")
+    return result, sol
 end
 
 @info "Simulating linear baseline on ISO 8608 Class A"
@@ -59,6 +67,7 @@ for (path, col) in OBS
     df[!, col * "_nn"]     = sol_nn[getproperty(res_nn, path)]
 end
 
+all(c -> all(isfinite, c), eachcol(df)) || error("Nonfinite validation observables")
 outpath = joinpath(OUT_DIR, "validation_iso_a.csv")
 CSV.write(outpath, df)
 @info "Wrote $(nrow(df)) rows × $(ncol(df)) cols → $outpath"

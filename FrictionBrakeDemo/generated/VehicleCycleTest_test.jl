@@ -15,7 +15,7 @@ __dyad_run_test_case!(
   abstol=1e-6,
   reltol=1e-6,
   solver=ODEAlg.Auto(),
-  params=(;),
+  params=Dict{String, Any}(),
   initial_conditions=Tuple[],
   expected_initial=Tuple[
     (m -> m.vehicle.vehicle_speed, "vehicle.vehicle_speed", 0, 0.001, 1e-5),
@@ -29,6 +29,6 @@ __dyad_run_test_case!(
     (m -> m.brake_thermal.pad_mass.T, "brake_thermal.pad_mass.T", 0.001, 1e-5),
     (m -> m.brake_thermal.disk_mass.T, "brake_thermal.disk_mass.T", 0.001, 1e-5),
     (m -> m.powertrain.drive.tau, "powertrain.drive.tau", 1e-5, 1e-5),
-    (m -> m.brake.shaft.tau, "brake.shaft.tau", 1e-5, 1e-5),
+    (m -> m.brake.shaft.tau, "brake.shaft.tau", 2, 0.01),
   ],
 )

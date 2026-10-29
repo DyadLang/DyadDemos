@@ -9,6 +9,7 @@ columns) to `assets/data/truck_sin_full_train.csv` — this is the file consumed
 =#
 
 using QuarterTruckSciML
+import DyadInterface
 using DyadInterface: artifacts
 using CSV, DataFrames
 
@@ -24,12 +25,15 @@ const OBS = [
 @info "Generating training set: sin-input nonlinear truck (all 3 nonlinearities active)"
 result = QuarterTruckReferenceTransient()
 sol = artifacts(result, :RawSolution)
+DyadInterface.SciMLBase.successful_retcode(sol) || error("Truth simulation failed: $(sol.retcode)")
+all(u -> all(isfinite, u), sol.u) || error("Nonfinite truth trajectory")
 
 df = DataFrame(timestamp = sol.t)
 for o in OBS
     df[!, o] = sol[getproperty(result, o)]
 end
 
-outpath = joinpath(OUTDIR, "truck_sin_full_train.csv")
+all(c -> all(isfinite, c), eachcol(df)) || error("Nonfinite generated observables")
+outpath = isempty(ARGS) ? joinpath(OUTDIR, "truck_sin_full_train.csv") : abspath(only(ARGS))
 CSV.write(outpath, df)
 @info "Wrote $(nrow(df)) rows × $(ncol(df)) cols → $outpath"
