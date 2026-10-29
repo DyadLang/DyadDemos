@@ -1,0 +1,54 @@
+example component Pendulum
+  world = MultibodyComponents.PlanarMechanics.World() {^world}
+  revolute = MultibodyComponents.PlanarMechanics.Revolute() {^revolute}
+  rod = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [1.0, 0.0]) {^rod}
+  body = MultibodyComponents.PlanarMechanics.Body(m = 1.0, I = 0.1, radius = 0.15) {^body}
+relations
+  initial revolute.phi = 0.0
+  initial revolute.w = 0.0
+  connect(world.frame_b, revolute.frame_a) {^id5}
+  connect(revolute.frame_b, rod.frame_a) {^id6}
+  connect(rod.frame_b, body.frame_a) {^id7}
+metadata {
+  "Dyad": {"tests": {"case1": {"stop": 3}}},
+  "_links": {
+    "world": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 0, "y1": 0, "x2": 200, "y2": 200, "rot": 0}
+        }
+      }
+    },
+    "revolute": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 250, "y1": 0, "x2": 450, "y2": 200, "rot": 0}
+        }
+      }
+    },
+    "rod": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 500, "y1": 0, "x2": 700, "y2": 200, "rot": 0}
+        }
+      }
+    },
+    "body": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 750, "y1": 0, "x2": 950, "y2": 200, "rot": 0}
+        }
+      }
+    },
+    "id5": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id6": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id7": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end
+
+analysis PendulumTransient
+  extends Dyad.TransientAnalysis(stop = 3.0)
+  model = Pendulum()
+relations
+end

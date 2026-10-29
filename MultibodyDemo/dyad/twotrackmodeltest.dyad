@@ -1,0 +1,437 @@
+"A double track model of a car."
+example component TwoTrackModelTest
+  world = MultibodyComponents.PlanarMechanics.World(g = 0) {^world}
+  body = MultibodyComponents.PlanarMechanics.Body(m = 100, I = 1, render = false) {^body}
+  body1 = MultibodyComponents.PlanarMechanics.Body(m = 300, I = 0.1, render = false) {^body1}
+  body2 = MultibodyComponents.PlanarMechanics.Body(m = 100, I = 1, render = false) {^body2}
+  wheelJoint1 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(radius = 0.25, r = [0, 1], mu_A = 1, mu_S = 0.7, N = 1000, sAdhesion = 0.04, sSlide = 0.12, vAdhesion_min = 0.05, vSlide_min = 0.15) {^wheelJoint1}
+  wheelJoint2 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(radius = 0.25, r = [0, 1], mu_A = 1, mu_S = 0.7, N = 1500, sAdhesion = 0.04, sSlide = 0.12, vAdhesion_min = 0.05, vSlide_min = 0.15) {^wheelJoint2}
+  wheelJoint3 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(radius = 0.25, r = [0, 1], mu_A = 1, mu_S = 0.7, N = 1500, sAdhesion = 0.04, sSlide = 0.12, vAdhesion_min = 0.05, vSlide_min = 0.15) {^wheelJoint3}
+  wheelJoint4 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(radius = 0.25, r = [0, 1], mu_A = 1, mu_S = 0.7, N = 1000, sAdhesion = 0.04, sSlide = 0.12, vAdhesion_min = 0.05, vSlide_min = 0.15) {^wheelJoint4}
+  differentialGear = MultibodyComponents.PlanarMechanics.DifferentialGear() {^differentialGear}
+  pulse = BlockComponents.Sources.Square(frequency = 0.5, offset = 0, start_time = 1, amplitude = -2) {^pulse}
+  torque = RotationalComponents.Sources.TorqueSource() {^torque}
+  fixed = RotationalComponents.Components.Fixed() {^fixed}
+  constantTorque = BlockComponents.Sources.Constant(k = 25) {^constantTorque}
+  engineTorque = RotationalComponents.Sources.TorqueSource() {^engineTorque}
+  inertia = RotationalComponents.Components.Inertia(J = 1) {^inertia}
+  inertia1 = RotationalComponents.Components.Inertia(J = 1) {^inertia1}
+  inertia2 = RotationalComponents.Components.Inertia(J = 1) {^inertia2}
+  inertia3 = RotationalComponents.Components.Inertia(J = 1) {^inertia3}
+  fixedTranslation1 = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [0, 2]) {^fixedTranslation1}
+  fixedTranslation2 = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [0.75, 0]) {^fixedTranslation2}
+  fixedTranslation3 = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [-0.75, 0]) {^fixedTranslation3}
+  fixedTranslation4 = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [0.75, 0]) {^fixedTranslation4}
+  fixedTranslation5 = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [-0.75, 0]) {^fixedTranslation5}
+  leftTrail = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [0, -0.05]) {^leftTrail}
+  rightTrail = MultibodyComponents.PlanarMechanics.FixedTranslation(r = [0, 0.05]) {^rightTrail}
+  revolute = MultibodyComponents.PlanarMechanics.Revolute() {^revolute}
+  revolute2 = MultibodyComponents.PlanarMechanics.Revolute() {^revolute2}
+  dynamic_load = BlockComponents.Sources.Constant(k = 0) {^dynamic_load}
+  fixed1 = RotationalComponents.Components.Fixed() {^fixed1}
+relations
+  initial body1.r = [1.0, 1.0]
+  initial body1.v = [0.0, 0.0]
+  initial body1.phi = 0.0
+  initial body1.w = 0.0
+  initial inertia.phi = 0.0
+  initial inertia.w = 0.0
+  initial inertia1.phi = 0.0
+  initial inertia1.w = 0.0
+  initial inertia2.phi = 0.0
+  initial inertia2.w = 0.0
+  initial inertia3.phi = 0.0
+  initial inertia3.w = 0.0
+  initial revolute2.phi = -0.43633231299858
+  initial revolute2.w = 0.0
+  connect(inertia.spline_a, wheelJoint1.flange_a) {^id30}
+  connect(inertia3.spline_a, wheelJoint4.flange_a) {^id31}
+  connect(body2.frame_a, wheelJoint4.frame_a, rightTrail.frame_a) {^id32}
+  connect(body.frame_a, wheelJoint1.frame_a, leftTrail.frame_b) {^id33}
+  connect(pulse.y, torque.tau) {^id34}
+  connect(rightTrail.frame_b, revolute.frame_a) {^id35}
+  connect(revolute2.flange_a, revolute.flange_a, torque.spline) {^id36}
+  connect(fixedTranslation5.frame_a, revolute.frame_b) {^id37}
+  connect(fixedTranslation5.frame_b, fixedTranslation4.frame_b) {^id38}
+  connect(fixedTranslation1.frame_b, fixedTranslation4.frame_b) {^id39}
+  connect(wheelJoint3.frame_a, fixedTranslation3.frame_a) {^id40}
+  connect(wheelJoint2.frame_a, fixedTranslation2.frame_a) {^id41}
+  connect(wheelJoint3.flange_a, inertia2.spline_a) {^id42}
+  connect(wheelJoint2.flange_a, inertia1.spline_a) {^id43}
+  connect(fixedTranslation2.frame_b, fixedTranslation3.frame_b, fixedTranslation1.frame_a, body1.frame_a) {^id44}
+  connect(differentialGear.flange_left, wheelJoint2.flange_a) {^id45}
+  connect(differentialGear.flange_right, wheelJoint3.flange_a) {^id46}
+  connect(engineTorque.spline, differentialGear.flange_b) {^id47}
+  connect(constantTorque.y, engineTorque.tau) {^id48}
+  connect(dynamic_load.y, wheelJoint1.dynamicLoad, wheelJoint2.dynamicLoad, wheelJoint4.dynamicLoad, wheelJoint3.dynamicLoad) {^id49}
+  connect(fixed1.spline, torque.support) {^id50}
+  connect(fixed.spline, engineTorque.support) {^id51}
+  connect(revolute2.frame_b, fixedTranslation4.frame_a) {^id52}
+  connect(leftTrail.frame_a, revolute2.frame_a) {^id53}
+metadata {
+  "Dyad": {"tests": {"case1": {"stop": 20}}},
+  "_links": {
+    "world": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 190, "y1": 110, "x2": 290, "y2": 210, "rot": 270}
+        },
+        "tags": []
+      }
+    },
+    "body1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 680, "x2": 350, "y2": 780, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "body2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 840, "y1": 110, "x2": 740, "y2": 210, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "wheelJoint1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 290, "y1": 250, "x2": 190, "y2": 350, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wheelJoint2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 270, "y1": 820, "x2": 170, "y2": 920, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wheelJoint3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 750, "y1": 820, "x2": 850, "y2": 920, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wheelJoint4": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 740, "y1": 250, "x2": 840, "y2": 350, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "differentialGear": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 890, "x2": 550, "y2": 990, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "pulse": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 650, "y1": 90, "x2": 550, "y2": 190, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "torque": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 460, "y1": 260, "x2": 560, "y2": 360, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "fixed": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 360, "y1": 1180, "x2": 460, "y2": 1280, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "constantTorque": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 220, "y1": 1030, "x2": 320, "y2": 1130, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "engineTorque": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 360, "y1": 1030, "x2": 460, "y2": 1130, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "inertia": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 130, "y1": 250, "x2": 30, "y2": 350, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "inertia1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 130, "y1": 820, "x2": 30, "y2": 920, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "inertia2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 890, "y1": 820, "x2": 990, "y2": 920, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "inertia3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 890, "y1": 250, "x2": 990, "y2": 350, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "fixedTranslation1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 620, "x2": 550, "y2": 720, "rot": 270}
+        },
+        "tags": []
+      }
+    },
+    "fixedTranslation2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 360, "y1": 760, "x2": 460, "y2": 860, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "fixedTranslation3": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 640, "y1": 760, "x2": 540, "y2": 860, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "fixedTranslation4": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 400, "y1": 480, "x2": 500, "y2": 580, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "fixedTranslation5": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 610, "y1": 480, "x2": 510, "y2": 580, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "leftTrail": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 440, "y1": 250, "x2": 340, "y2": 350, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "rightTrail": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 690, "y1": 250, "x2": 590, "y2": 350, "rot": 270}
+        },
+        "tags": []
+      }
+    },
+    "revolute": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 590, "y1": 390, "x2": 690, "y2": 490, "rot": 90}
+        },
+        "tags": []
+      }
+    },
+    "revolute2": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 440, "y1": 390, "x2": 340, "y2": 490, "rot": 270}
+        },
+        "tags": []
+      }
+    },
+    "dynamic_load": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 120, "y1": 520, "x2": 220, "y2": 620, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "fixed1": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 380, "y1": 190, "x2": 480, "y2": 90, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id30": {"Dyad": {"renderStyle": "standard", "edges": [{"S": 1, "E": 2, "M": []}]}},
+    "id31": {"Dyad": {"renderStyle": "standard", "edges": [{"S": 1, "E": 2, "M": []}]}},
+    "id32": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": 3, "M": [{"x": 640, "y": 230}], "E": -1}
+        ],
+        "junctions": [{"x": 790, "y": 230}],
+        "renderStyle": "standard"
+      }
+    },
+    "id33": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": 3, "M": [{"x": 390, "y": 230}], "E": -1}
+        ],
+        "junctions": [{"x": 240, "y": 230}],
+        "renderStyle": "standard"
+      }
+    },
+    "id34": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 510, "y": 140}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id35": {"Dyad": {"renderStyle": "standard", "edges": [{"S": 1, "E": 2, "M": []}]}},
+    "id36": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": 3, "M": [], "E": -1}
+        ],
+        "junctions": [{"x": 510, "y": 440}],
+        "renderStyle": "standard"
+      }
+    },
+    "id37": {
+      "Dyad": {
+        "renderStyle": "standard",
+        "edges": [{"S": 1, "M": [{"x": 640, "y": 530}], "E": 2}]
+      }
+    },
+    "id38": {"Dyad": {"renderStyle": "standard", "edges": [{"S": 1, "E": 2, "M": []}]}},
+    "id39": {
+      "Dyad": {
+        "renderStyle": "standard",
+        "edges": [{"S": 1, "M": [{"x": 500, "y": 530}], "E": 2}]
+      }
+    },
+    "id40": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 800, "y": 810}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id41": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 220, "y": 810}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id42": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id43": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id44": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": 3, "M": [], "E": -2},
+          {"S": -2, "M": [], "E": -1},
+          {"S": 4, "M": [], "E": -2}
+        ],
+        "junctions": [{"x": 500, "y": 810}, {"x": 500, "y": 730}],
+        "renderStyle": "standard"
+      }
+    },
+    "id45": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 170, "y": 940}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id46": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 850, "y": 940}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id47": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 500, "y": 1080}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id48": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id49": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [{"x": 310, "y": 300}], "E": 2},
+          {"S": 3, "M": [{"x": 310, "y": 870}], "E": -1},
+          {"S": 4, "M": [{"x": 710, "y": 300}], "E": -2},
+          {"S": -2, "M": [], "E": -1},
+          {"S": 5, "M": [{"x": 710, "y": 870}], "E": -2}
+        ],
+        "junctions": [{"x": 310, "y": 570}, {"x": 710, "y": 570}],
+        "renderStyle": "standard"
+      }
+    },
+    "id50": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 430, "y": 310}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id51": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id52": {
+      "Dyad": {
+        "renderStyle": "standard",
+        "edges": [{"S": 1, "M": [{"x": 390, "y": 530}], "E": 2}]
+      }
+    },
+    "id53": {"Dyad": {"renderStyle": "standard", "edges": [{"S": 1, "E": 2, "M": []}]}}
+  }
+}
+end
