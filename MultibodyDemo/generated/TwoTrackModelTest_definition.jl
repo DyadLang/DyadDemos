@@ -4,14 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   TwoTrackModelTest(; name)
+   TwoTrackModelTest(; name, __overrides)
 
 A double track model of a car.
 """
-@component function TwoTrackModelTest(; name = nothing, kwargs...)
+@component function TwoTrackModelTest(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -19,7 +17,7 @@ A double track model of a car.
     @named model = TwoTrackModelTest()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -57,94 +55,94 @@ A double track model of a car.
   ### Components
   # Subcomponent world of type MultibodyComponents.PlanarMechanics.World
   world_overrides = __pop_subcomponent_overrides!(__overrides, "world")
-  push!(__systems, @named world = MultibodyComponents.PlanarMechanics.World(g=0, world_overrides...))
+  push!(__systems, @named world = MultibodyComponents.PlanarMechanics.World(; g=Float64(0), __symbol_overrides(world_overrides)...))
   # Subcomponent body of type MultibodyComponents.PlanarMechanics.Body
   body_overrides = __pop_subcomponent_overrides!(__overrides, "body")
-  push!(__systems, @named body = MultibodyComponents.PlanarMechanics.Body(m=100, I=1, render=false, body_overrides...))
+  push!(__systems, @named body = MultibodyComponents.PlanarMechanics.Body(; m=Float64(100), I=Float64(1), render=false, __overrides = body_overrides))
   # Subcomponent body1 of type MultibodyComponents.PlanarMechanics.Body
   body1_overrides = __pop_subcomponent_overrides!(__overrides, "body1")
-  push!(__systems, @named body1 = MultibodyComponents.PlanarMechanics.Body(m=300, I=0.1, render=false, body1_overrides...))
+  push!(__systems, @named body1 = MultibodyComponents.PlanarMechanics.Body(; m=Float64(300), I=0.1, render=false, __overrides = body1_overrides))
   # Subcomponent body2 of type MultibodyComponents.PlanarMechanics.Body
   body2_overrides = __pop_subcomponent_overrides!(__overrides, "body2")
-  push!(__systems, @named body2 = MultibodyComponents.PlanarMechanics.Body(m=100, I=1, render=false, body2_overrides...))
+  push!(__systems, @named body2 = MultibodyComponents.PlanarMechanics.Body(; m=Float64(100), I=Float64(1), render=false, __overrides = body2_overrides))
   # Subcomponent wheelJoint1 of type MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint
   wheelJoint1_overrides = __pop_subcomponent_overrides!(__overrides, "wheelJoint1")
-  push!(__systems, @named wheelJoint1 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(radius=0.25, r=[0, 1], mu_A=1, mu_S=0.7, N=1000, sAdhesion=0.04, sSlide=0.12, vAdhesion_min=0.05, vSlide_min=0.15, wheelJoint1_overrides...))
+  push!(__systems, @named wheelJoint1 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(; radius=0.25, r=[Float64(0), Float64(1)], mu_A=Float64(1), mu_S=0.7, N=Float64(1000), sAdhesion=0.04, sSlide=0.12, vAdhesion_min=0.05, vSlide_min=0.15, __overrides = wheelJoint1_overrides))
   # Subcomponent wheelJoint2 of type MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint
   wheelJoint2_overrides = __pop_subcomponent_overrides!(__overrides, "wheelJoint2")
-  push!(__systems, @named wheelJoint2 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(radius=0.25, r=[0, 1], mu_A=1, mu_S=0.7, N=1500, sAdhesion=0.04, sSlide=0.12, vAdhesion_min=0.05, vSlide_min=0.15, wheelJoint2_overrides...))
+  push!(__systems, @named wheelJoint2 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(; radius=0.25, r=[Float64(0), Float64(1)], mu_A=Float64(1), mu_S=0.7, N=Float64(1500), sAdhesion=0.04, sSlide=0.12, vAdhesion_min=0.05, vSlide_min=0.15, __overrides = wheelJoint2_overrides))
   # Subcomponent wheelJoint3 of type MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint
   wheelJoint3_overrides = __pop_subcomponent_overrides!(__overrides, "wheelJoint3")
-  push!(__systems, @named wheelJoint3 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(radius=0.25, r=[0, 1], mu_A=1, mu_S=0.7, N=1500, sAdhesion=0.04, sSlide=0.12, vAdhesion_min=0.05, vSlide_min=0.15, wheelJoint3_overrides...))
+  push!(__systems, @named wheelJoint3 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(; radius=0.25, r=[Float64(0), Float64(1)], mu_A=Float64(1), mu_S=0.7, N=Float64(1500), sAdhesion=0.04, sSlide=0.12, vAdhesion_min=0.05, vSlide_min=0.15, __overrides = wheelJoint3_overrides))
   # Subcomponent wheelJoint4 of type MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint
   wheelJoint4_overrides = __pop_subcomponent_overrides!(__overrides, "wheelJoint4")
-  push!(__systems, @named wheelJoint4 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(radius=0.25, r=[0, 1], mu_A=1, mu_S=0.7, N=1000, sAdhesion=0.04, sSlide=0.12, vAdhesion_min=0.05, vSlide_min=0.15, wheelJoint4_overrides...))
+  push!(__systems, @named wheelJoint4 = MultibodyComponents.PlanarMechanics.SlipBasedWheelJoint(; radius=0.25, r=[Float64(0), Float64(1)], mu_A=Float64(1), mu_S=0.7, N=Float64(1000), sAdhesion=0.04, sSlide=0.12, vAdhesion_min=0.05, vSlide_min=0.15, __overrides = wheelJoint4_overrides))
   # Subcomponent differentialGear of type MultibodyComponents.PlanarMechanics.DifferentialGear
   differentialGear_overrides = __pop_subcomponent_overrides!(__overrides, "differentialGear")
-  push!(__systems, @named differentialGear = MultibodyComponents.PlanarMechanics.DifferentialGear(differentialGear_overrides...))
+  push!(__systems, @named differentialGear = MultibodyComponents.PlanarMechanics.DifferentialGear(; __overrides = differentialGear_overrides))
   # Subcomponent pulse of type BlockComponents.Sources.Square
   pulse_overrides = __pop_subcomponent_overrides!(__overrides, "pulse")
-  push!(__systems, @named pulse = BlockComponents.Sources.Square(frequency=0.5, offset=0, start_time=1, amplitude=-2, pulse_overrides...))
+  push!(__systems, @named pulse = BlockComponents.Sources.Square(; frequency=0.5, offset=Float64(0), start_time=Float64(1), amplitude=Float64(-2), __overrides = pulse_overrides))
   # Subcomponent torque of type RotationalComponents.Sources.TorqueSource
   torque_overrides = __pop_subcomponent_overrides!(__overrides, "torque")
-  push!(__systems, @named torque = RotationalComponents.Sources.TorqueSource(torque_overrides...))
+  push!(__systems, @named torque = RotationalComponents.Sources.TorqueSource(; __overrides = torque_overrides))
   # Subcomponent fixed of type RotationalComponents.Components.Fixed
   fixed_overrides = __pop_subcomponent_overrides!(__overrides, "fixed")
-  push!(__systems, @named fixed = RotationalComponents.Components.Fixed(fixed_overrides...))
+  push!(__systems, @named fixed = RotationalComponents.Components.Fixed(; __overrides = fixed_overrides))
   # Subcomponent constantTorque of type BlockComponents.Sources.Constant
   constantTorque_overrides = __pop_subcomponent_overrides!(__overrides, "constantTorque")
-  push!(__systems, @named constantTorque = BlockComponents.Sources.Constant(k=25, constantTorque_overrides...))
+  push!(__systems, @named constantTorque = BlockComponents.Sources.Constant(; k=Float64(25), __overrides = constantTorque_overrides))
   # Subcomponent engineTorque of type RotationalComponents.Sources.TorqueSource
   engineTorque_overrides = __pop_subcomponent_overrides!(__overrides, "engineTorque")
-  push!(__systems, @named engineTorque = RotationalComponents.Sources.TorqueSource(engineTorque_overrides...))
+  push!(__systems, @named engineTorque = RotationalComponents.Sources.TorqueSource(; __overrides = engineTorque_overrides))
   # Subcomponent inertia of type RotationalComponents.Components.Inertia
   inertia_overrides = __pop_subcomponent_overrides!(__overrides, "inertia")
-  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(J=1, inertia_overrides...))
+  push!(__systems, @named inertia = RotationalComponents.Components.Inertia(; J=Float64(1), __overrides = inertia_overrides))
   # Subcomponent inertia1 of type RotationalComponents.Components.Inertia
   inertia1_overrides = __pop_subcomponent_overrides!(__overrides, "inertia1")
-  push!(__systems, @named inertia1 = RotationalComponents.Components.Inertia(J=1, inertia1_overrides...))
+  push!(__systems, @named inertia1 = RotationalComponents.Components.Inertia(; J=Float64(1), __overrides = inertia1_overrides))
   # Subcomponent inertia2 of type RotationalComponents.Components.Inertia
   inertia2_overrides = __pop_subcomponent_overrides!(__overrides, "inertia2")
-  push!(__systems, @named inertia2 = RotationalComponents.Components.Inertia(J=1, inertia2_overrides...))
+  push!(__systems, @named inertia2 = RotationalComponents.Components.Inertia(; J=Float64(1), __overrides = inertia2_overrides))
   # Subcomponent inertia3 of type RotationalComponents.Components.Inertia
   inertia3_overrides = __pop_subcomponent_overrides!(__overrides, "inertia3")
-  push!(__systems, @named inertia3 = RotationalComponents.Components.Inertia(J=1, inertia3_overrides...))
+  push!(__systems, @named inertia3 = RotationalComponents.Components.Inertia(; J=Float64(1), __overrides = inertia3_overrides))
   # Subcomponent fixedTranslation1 of type MultibodyComponents.PlanarMechanics.FixedTranslation
   fixedTranslation1_overrides = __pop_subcomponent_overrides!(__overrides, "fixedTranslation1")
-  push!(__systems, @named fixedTranslation1 = MultibodyComponents.PlanarMechanics.FixedTranslation(r=[0, 2], fixedTranslation1_overrides...))
+  push!(__systems, @named fixedTranslation1 = MultibodyComponents.PlanarMechanics.FixedTranslation(; r=[Float64(0), Float64(2)], __overrides = fixedTranslation1_overrides))
   # Subcomponent fixedTranslation2 of type MultibodyComponents.PlanarMechanics.FixedTranslation
   fixedTranslation2_overrides = __pop_subcomponent_overrides!(__overrides, "fixedTranslation2")
-  push!(__systems, @named fixedTranslation2 = MultibodyComponents.PlanarMechanics.FixedTranslation(r=[0.75, 0], fixedTranslation2_overrides...))
+  push!(__systems, @named fixedTranslation2 = MultibodyComponents.PlanarMechanics.FixedTranslation(; r=[0.75, Float64(0)], __overrides = fixedTranslation2_overrides))
   # Subcomponent fixedTranslation3 of type MultibodyComponents.PlanarMechanics.FixedTranslation
   fixedTranslation3_overrides = __pop_subcomponent_overrides!(__overrides, "fixedTranslation3")
-  push!(__systems, @named fixedTranslation3 = MultibodyComponents.PlanarMechanics.FixedTranslation(r=[-0.75, 0], fixedTranslation3_overrides...))
+  push!(__systems, @named fixedTranslation3 = MultibodyComponents.PlanarMechanics.FixedTranslation(; r=[-0.75, Float64(0)], __overrides = fixedTranslation3_overrides))
   # Subcomponent fixedTranslation4 of type MultibodyComponents.PlanarMechanics.FixedTranslation
   fixedTranslation4_overrides = __pop_subcomponent_overrides!(__overrides, "fixedTranslation4")
-  push!(__systems, @named fixedTranslation4 = MultibodyComponents.PlanarMechanics.FixedTranslation(r=[0.75, 0], fixedTranslation4_overrides...))
+  push!(__systems, @named fixedTranslation4 = MultibodyComponents.PlanarMechanics.FixedTranslation(; r=[0.75, Float64(0)], __overrides = fixedTranslation4_overrides))
   # Subcomponent fixedTranslation5 of type MultibodyComponents.PlanarMechanics.FixedTranslation
   fixedTranslation5_overrides = __pop_subcomponent_overrides!(__overrides, "fixedTranslation5")
-  push!(__systems, @named fixedTranslation5 = MultibodyComponents.PlanarMechanics.FixedTranslation(r=[-0.75, 0], fixedTranslation5_overrides...))
+  push!(__systems, @named fixedTranslation5 = MultibodyComponents.PlanarMechanics.FixedTranslation(; r=[-0.75, Float64(0)], __overrides = fixedTranslation5_overrides))
   # Subcomponent leftTrail of type MultibodyComponents.PlanarMechanics.FixedTranslation
   leftTrail_overrides = __pop_subcomponent_overrides!(__overrides, "leftTrail")
-  push!(__systems, @named leftTrail = MultibodyComponents.PlanarMechanics.FixedTranslation(r=[0, -0.05], leftTrail_overrides...))
+  push!(__systems, @named leftTrail = MultibodyComponents.PlanarMechanics.FixedTranslation(; r=[Float64(0), -0.05], __overrides = leftTrail_overrides))
   # Subcomponent rightTrail of type MultibodyComponents.PlanarMechanics.FixedTranslation
   rightTrail_overrides = __pop_subcomponent_overrides!(__overrides, "rightTrail")
-  push!(__systems, @named rightTrail = MultibodyComponents.PlanarMechanics.FixedTranslation(r=[0, 0.05], rightTrail_overrides...))
+  push!(__systems, @named rightTrail = MultibodyComponents.PlanarMechanics.FixedTranslation(; r=[Float64(0), 0.05], __overrides = rightTrail_overrides))
   # Subcomponent revolute of type MultibodyComponents.PlanarMechanics.Revolute
   revolute_overrides = __pop_subcomponent_overrides!(__overrides, "revolute")
-  push!(__systems, @named revolute = MultibodyComponents.PlanarMechanics.Revolute(revolute_overrides...))
+  push!(__systems, @named revolute = MultibodyComponents.PlanarMechanics.Revolute(; __overrides = revolute_overrides))
   # Subcomponent revolute2 of type MultibodyComponents.PlanarMechanics.Revolute
   revolute2_overrides = __pop_subcomponent_overrides!(__overrides, "revolute2")
-  push!(__systems, @named revolute2 = MultibodyComponents.PlanarMechanics.Revolute(revolute2_overrides...))
+  push!(__systems, @named revolute2 = MultibodyComponents.PlanarMechanics.Revolute(; __overrides = revolute2_overrides))
   # Subcomponent dynamic_load of type BlockComponents.Sources.Constant
   dynamic_load_overrides = __pop_subcomponent_overrides!(__overrides, "dynamic_load")
-  push!(__systems, @named dynamic_load = BlockComponents.Sources.Constant(k=0, dynamic_load_overrides...))
+  push!(__systems, @named dynamic_load = BlockComponents.Sources.Constant(; k=Float64(0), __overrides = dynamic_load_overrides))
   # Subcomponent fixed1 of type RotationalComponents.Components.Fixed
   fixed1_overrides = __pop_subcomponent_overrides!(__overrides, "fixed1")
-  push!(__systems, @named fixed1 = RotationalComponents.Components.Fixed(fixed1_overrides...))
+  push!(__systems, @named fixed1 = RotationalComponents.Components.Fixed(; __overrides = fixed1_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -194,6 +192,6 @@ A double track model of a car.
   push!(__eqs, connect(leftTrail.frame_a, revolute2.frame_a))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TwoTrackModelTest

@@ -4,14 +4,12 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-import Moshi as __Ext__Moshi
-
 @doc Markdown.doc"""
-   SpringDamperSystemTest(; name)
+   SpringDamperSystemTest(; name, __overrides)
 
 This example shows how to use a spring and a damper in combination. The motion of the body is not constrained.
 """
-@component function SpringDamperSystemTest(; name = nothing, kwargs...)
+@component function SpringDamperSystemTest(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -19,7 +17,7 @@ This example shows how to use a spring and a damper in combination. The motion o
     @named model = SpringDamperSystemTest()
   """))
 
-  __overrides = __build_overrides(kwargs)
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -57,19 +55,19 @@ This example shows how to use a spring and a damper in combination. The motion o
   ### Components
   # Subcomponent world of type MultibodyComponents.PlanarMechanics.World
   world_overrides = __pop_subcomponent_overrides!(__overrides, "world")
-  push!(__systems, @named world = MultibodyComponents.PlanarMechanics.World(world_overrides...))
+  push!(__systems, @named world = MultibodyComponents.PlanarMechanics.World(; __symbol_overrides(world_overrides)...))
   # Subcomponent fixed_translation of type MultibodyComponents.PlanarMechanics.FixedTranslation
   fixed_translation_overrides = __pop_subcomponent_overrides!(__overrides, "fixed_translation")
-  push!(__systems, @named fixed_translation = MultibodyComponents.PlanarMechanics.FixedTranslation(r=[-1.0, 0.0], fixed_translation_overrides...))
+  push!(__systems, @named fixed_translation = MultibodyComponents.PlanarMechanics.FixedTranslation(; r=[-1.0, Float64(0.0)], __overrides = fixed_translation_overrides))
   # Subcomponent spring_damper of type MultibodyComponents.PlanarMechanics.SpringDamper
   spring_damper_overrides = __pop_subcomponent_overrides!(__overrides, "spring_damper")
-  push!(__systems, @named spring_damper = MultibodyComponents.PlanarMechanics.SpringDamper(c_x=5.0, c_y=5.0, c_phi=0.0, d_x=1.0, d_y=1.0, d_phi=0.0, s_relx0=0.0, s_rely0=0.0, spring_damper_overrides...))
+  push!(__systems, @named spring_damper = MultibodyComponents.PlanarMechanics.SpringDamper(; c_x=Float64(5.0), c_y=Float64(5.0), c_phi=Float64(0.0), d_x=Float64(1.0), d_y=Float64(1.0), d_phi=Float64(0.0), s_relx0=Float64(0.0), s_rely0=Float64(0.0), __overrides = spring_damper_overrides))
   # Subcomponent body of type MultibodyComponents.PlanarMechanics.Body
   body_overrides = __pop_subcomponent_overrides!(__overrides, "body")
-  push!(__systems, @named body = MultibodyComponents.PlanarMechanics.Body(m=0.5, I=0.1, body_overrides...))
+  push!(__systems, @named body = MultibodyComponents.PlanarMechanics.Body(; m=0.5, I=0.1, __overrides = body_overrides))
 
   ### Check there are no unmatched overrides
-  isempty(__overrides) || throw(ArgumentError("overides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded."))
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
 
@@ -88,6 +86,6 @@ This example shows how to use a spring and a damper in combination. The motion o
   push!(__eqs, connect(spring_damper.frame_b, body.frame_a))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export SpringDamperSystemTest
