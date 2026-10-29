@@ -48,7 +48,7 @@ using DyadInterface: AbstractAnalysisSpec, AbstractAnalysisSolution,
     AnalysisSolutionMetadata, ArtifactMetadata, ArtifactType
 
 # ────────────────────────────────────────────────────────────
-#  Result type (unchanged)
+#  Result type
 # ────────────────────────────────────────────────────────────
 struct LatentNeuralODEResult
     "Latent dimensions tested"
@@ -57,7 +57,7 @@ struct LatentNeuralODEResult
     train_rmse::Vector{Float64}
     "Discovered ROM order (knee of the RMSE curve)"
     best_k::Int
-    "Trained parameters for the best k"
+    "Trained parameters for best_k (the selected knee dimension)"
     best_params::Any
     "Encoder network (Lux Chain)"
     encoder::Any
@@ -427,17 +427,17 @@ function _run_neural_ode_pipeline(;
     if length(results_rmse) > 1
         ratios  = [results_rmse[i] / results_rmse[i+1]
                    for i in 1:(length(results_rmse) - 1)]
-        knee_k  = latent_dims[argmax(ratios) + 1]
+        knee_idx = argmax(ratios) + 1
     else
-        knee_k = latent_dims[1]
+        knee_idx = 1
     end
-
-    best = all_trained[argmin([r.rmse for r in all_trained])]
+    knee_k = latent_dims[knee_idx]
+    best = all_trained[knee_idx]
 
     if verbose
         println()
         println("  ► Discovered latent order (knee): k = $knee_k")
-        println("  ► Best RMSE: $(round(best.rmse; digits=4)) K at k=$(best.k)")
+        println("  ► Selected model RMSE: $(round(best.rmse; digits=4)) K at k=$(best.k)")
         println()
     end
 

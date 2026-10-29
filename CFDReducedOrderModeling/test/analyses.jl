@@ -57,6 +57,28 @@ end
     end
 end
 
+@testset "SVD zone orientation" begin
+    # Three exact clusters, deliberately interleaved in spatial-index order.
+    # The largest mode-1 magnitude is the heat-input end, for either SVD sign.
+    modes = [-0.4 0.0; -0.9 0.2; -0.1 -0.2; -0.1 -0.2; -0.9 0.2; -0.4 0.0]
+    for signs in ([1.0, 1.0], [-1.0, 1.0], [1.0, -1.0], [-1.0, -1.0])
+        Random.seed!(42)
+        @test CFD.cluster_zones(modes .* signs', [10.0, 1.0], 3) ==
+              [[2, 5], [1, 6], [3, 4]]
+    end
+
+    # Check the actual CFD boundary interpretation as well as a sign-only flip
+    # of its dominant mode, keeping the k-means initialisation identical.
+    data = CFD.load_cfd_data(joinpath(DEMO_ROOT, "data", "cfd_training_data.csv"))
+    F = svd(data.X')
+    Random.seed!(42)
+    members = CFD.cluster_zones(F.U[:, 1:2], F.S, 4)
+    @test 1 in first(members)
+    @test 20 in last(members)
+    Random.seed!(42)
+    @test CFD.cluster_zones(F.U[:, 1:2] .* [-1.0, 1.0]', F.S, 4) == members
+end
+
 @testset "ROM construction and artifacts" begin
     Random.seed!(42)
     pod = RunDataDrivenPOD(verbose=false)
@@ -90,4 +112,25 @@ end
     @test node.r.network.N == 4
     @test artifacts(node, :LatentDimSweep) isa DataFrame
     @test_throws ErrorException artifacts(node, :unknown)
+
+    # In this short sweep, k=1 has lower error while the knee is k=2.
+    # The returned model must match the advertised order and the independently
+    # trained k=2 model, even when minimum-error selection would choose k=1.
+    sweep = RunLatentNeuralODE(latent_dims=[1, 2], hidden_enc=4, hidden_dyn=4,
+        hidden_dec=4, n_epochs=1, n_seeds=1, n_shooting=2, window_len=3,
+        N_candidates=[4], maxiter=10, verbose=false)
+    r = sweep.r
+    @test argmin(r.train_rmse) == 1
+    @test r.best_k == 2
+    @test r.best_params == node.r.best_params
+    @test r.train_rmse[2] ≈ only(node.r.train_rmse)
+    z, _ = r.encoder(zeros(Float32, 20), r.best_params.enc, r.states.enc)
+    @test length(z) == r.best_k
+    dz, _ = r.dynamics(vcat(z, 0.0f0), r.best_params.dyn, r.states.dyn)
+    @test length(dz) == r.best_k
+    x, _ = r.decoder(z, r.best_params.dec, r.states.dec)
+    @test length(x) == 20
+    @test artifacts(sweep, :LatentDimSweep).selected == [false, true]
+    parameters = artifacts(sweep, :CalibratedNetwork)
+    @test only(parameters.value[parameters.parameter .== "best_k"]) == r.best_k
 end

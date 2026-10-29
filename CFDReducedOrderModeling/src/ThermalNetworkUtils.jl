@@ -58,10 +58,10 @@ function cluster_zones(modes::AbstractMatrix, S::AbstractVector, N::Int)
     result = kmeans(modes_weighted', N; maxiter=300)
     assignments = result.assignments
 
-    # Reorder clusters so zone 1 has the most negative mode-1 centroid
-    # (highest absolute temperature deviation = heat-input end)
+    # SVD mode signs are arbitrary. Order by magnitude so zone 1 stays at
+    # the heat-input end and zone N at the coolant end under sign flips.
     centroids_m1 = [result.centers[1, c] for c in 1:N]
-    order = sortperm(centroids_m1)
+    order = sortperm(abs.(centroids_m1); rev=true)
     remap = Dict(order[i] => i for i in 1:N)
     assignments = [remap[a] for a in assignments]
 
