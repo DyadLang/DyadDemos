@@ -1,0 +1,40 @@
+"""
+Test harnesses for the three data-driven ROMs.
+Each wires a RampSource (0→400 W) to the ROM component.
+"""
+
+test component TestSVDThermalNetworkROM
+  source = RampSource(height = 400.0, duration = 50.0, start_time = 5.0)
+  rom = SVDThermalNetworkROM()
+relations
+  connect(source.y, rom.Q_in)
+end
+
+test component TestNeuralODEThermalNetworkROM
+  source = RampSource(height = 400.0, duration = 50.0, start_time = 5.0)
+  rom = NeuralODEThermalNetworkROM()
+relations
+  connect(source.y, rom.Q_in)
+end
+
+test component TestPODDMDcROM
+  source = RampSource(height = 400.0, duration = 50.0, start_time = 5.0)
+  rom = PODDMDcROM()
+relations
+  connect(source.y, rom.Q_in)
+end
+
+analysis SVDThermalNetworkROMTransient
+  extends TransientAnalysis(stop = 200.0)
+  model = TestSVDThermalNetworkROM()
+end
+
+analysis NeuralODEThermalNetworkROMTransient
+  extends TransientAnalysis(stop = 200.0)
+  model = TestNeuralODEThermalNetworkROM()
+end
+
+analysis PODDMDcROMTransient
+  extends TransientAnalysis(stop = 200.0)
+  model = TestPODDMDcROM()
+end

@@ -1,0 +1,43 @@
+"""
+Test harness for generating synthetic "CFD" training data.
+
+Drives the high-fidelity 20-node model with a rich input signal:
+  Q_in(t) = 300 + 200*sin(2π*0.02*(t-5))  for t >= 5s
+           = 0                                for t < 5s
+
+This step + sine combination excites multiple frequencies,
+producing snapshots suitable for POD basis extraction and system ID.
+"""
+test component TestCFDTraining
+  model = HighFidelityOilPassage() {^model}
+  source = StepSineSource(height = 300.0, amplitude = 200.0, frequency = 0.02, start_time = 5.0) {^source}
+relations
+  connect(source.y, model.Q_in) {^id3}
+metadata {
+  "_links": {
+    "model": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 630, "y1": 450, "x2": 730, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 300, "y1": 450, "x2": 400, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id3": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end
+
+analysis CFDTrainingAnalysis
+  extends TransientAnalysis(stop = 200.0)
+  model = TestCFDTraining()
+relations
+end
