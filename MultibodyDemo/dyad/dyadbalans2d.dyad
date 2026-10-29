@@ -1,7 +1,5 @@
 """
 This example models a wheeled balancing robot with a cascade control system stabilizing the angle in the inner loop and the position in the outer loop.
-
-See also DyadBalans2DFF for a version with a feedforward generator.
 """
 example component DyadBalans2D
   world = MultibodyComponents.PlanarMechanics.World(g = 9.82) {^world}

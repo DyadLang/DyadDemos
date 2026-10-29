@@ -4,4 +4,20 @@
 ### Instead, update the Dyad source code and regenerate this file
 
 
-
+__dyad_run_test_case!(
+  MultibodyDemo.Pendulum,
+  "case1 for MultibodyDemo.Pendulum";
+  case_name="case1",
+  component_stem="Pendulum",
+  module_path=String[],
+  start=0e+0,
+  stop=3e+0,
+  abstol=1e-6,
+  reltol=1e-6,
+  solver=ODEAlg.Auto(),
+  params=Dict{String, Any}(),
+  initial_conditions=Tuple[],
+  expected_initial=Tuple[],
+  expected_final=Tuple[],
+  signals=Tuple[],
+)

@@ -6,25 +6,310 @@
 
 using ModelingToolkit
 
-function __build_overrides(@nospecialize(kwargs))
-  overrides = Dict{String, Symbolics.SymbolicT}()
-  for (k, v) in kwargs
-    overrides[string(k)::String] = v
-  end
-  return overrides
-end
+# The constructor API version of this generated library — the keyword
+# contract of its generated constructors (2 = the named `__overrides`
+# dict override channel).  Consuming generated libraries read it at load
+# time (see the `import` lines of their root definitions file) and refuse
+# to load against a library generated for a different version, so a mix of
+# incompatible compilers fails at precompile with an actionable message
+# instead of a MethodError deep inside model construction.  Libraries
+# generated before versioning existed do not define this constant at all;
+# consumers treat its absence as version 1 (the trailing `kwargs...`
+# contract).
+const __dyad_constructor_api = 2
 
 function __dyad_sym_union(::Type{T}) where T
   return Union{T, Symbolics.has_symwrapper(T) ? Symbolics.wrapper_type(T) : Symbolics.SymbolicT}
 end
 
-function __pop_subcomponent_overrides!(overrides::Dict{String, Symbolics.SymbolicT}, prefix::String)
-  full = prefix * "__"
+# Extract (destructively) every override addressed to the subcomponent
+# `prefix`: an override key is a dotted path (`"resistor.R"`,
+# `"inner.x.initial"`), so popping the `"<prefix>."` head yields the
+# child's own override dict, passed to its constructor as `__overrides`.
+# The pops are what make the trailing `isempty` guard a typo detector:
+# whatever no subcomponent claimed and the component itself did not
+# consume must be an unknown name.
+#
+# The values are held as `Any` — here, in every generated constructor's
+# defensive copy, and in every per-call dict a parent builds — rather than
+# `Union{Missing, Symbolics.SymbolicT}`, which would convert a concrete value
+# to a symbolic constant on insert.  `__dyad_seed_parameter!` routes on exactly
+# that distinction, so narrowing here would make every value look symbolic
+# and turn a nested literal modification (`Mid(inner(mass = 3))`) into a
+# binding — the parameter would vanish from the compiled system while the
+# same modification written directly (`Inner(mass = 3)`) stayed tunable.
+#
+# Nothing is validated here.  What does catch a bad override, and where, is
+# pinned by the "wrong-typed override" testset in
+# `samples/RunnableTests/dyad/tests.jl`:
+#
+# - A key naming no member of the child fails at the construction site, from
+#   the generated constructor's own leftover-overrides check.
+# - A value for a parameter with a *derived* default fails at the construction
+#   site too, as a Julia `MethodError` from evaluating that default
+#   (`no method matching /(::Float64, ::String)`).
+# - A value for a promoted enum-field kwarg is type- and shape-checked by
+#   `__dyad_promoted_value_fits` below — including one *routed* through an
+#   intermediate (`Wrapper(; __overrides = Dict("sw.spd.gain" => "abc"))`),
+#   which the pop-and-prefer section of the child rebinds onto its
+#   `sw__spd__gain` kwarg before the check runs.
+# - A value for a *plain* parameter is checked by nothing before the problem
+#   is built.  The child's `Dict{SymbolicT, SymbolicT}` initial-conditions
+#   dictionary wraps it as a symbolic constant, `mtkcompile` accepts it, and
+#   it fails with "Cannot convert an object of type String to an object of
+#   type Float64" when the problem is assembled.
+function __pop_subcomponent_overrides!(overrides::Dict{String, Any}, prefix::String)
+  full = prefix * "."
   n = ncodeunits(full)
-  sub = Dict{Symbol, Symbolics.SymbolicT}()
+  sub = Dict{String, Any}()
   for k in collect(keys(overrides))
     startswith(k, full) || continue
-    sub[Symbol(SubString(k, n + 1))] = pop!(overrides, k)
+    sub[String(SubString(k, n + 1))] = pop!(overrides, k)
   end
   return sub
+end
+
+# Overrides for an `external component` — a hand-written constructor with
+# the `(; name, params...)` contract and no `__overrides` argument — are
+# delivered as plain keyword arguments instead.  External components are
+# parameter-only leaves, so every key the compiler itself addresses to one
+# is dot-free and becomes an ordinary kwarg (promoted enum-field mods never
+# reach this dict: the call site routes them as `<param>__<field>` kwargs).
+# A dotted key can therefore only come from a hand-written caller's own
+# override dict; its `Symbol("a.b")` kwarg is undeclarable, so an explicit
+# signature errors at the callee while a slurping `params...` signature
+# silently absorbs it — exactly the fate an unknown kwarg had under the old
+# splat contract.
+function __symbol_overrides(overrides::Dict{String, Any})
+  return Dict{Symbol, Any}(Symbol(k) => v for (k, v) in overrides)
+end
+
+# Apply a promoted enum-field override delivered to an external component as a
+# `<param>__<field>` keyword argument.  No-op when no override arrived (`nothing`)
+# or when the active case has no such field — promotion is per-case, so a kwarg
+# for another case's field is simply inapplicable, mirroring the isa-guarded
+# declarations generated components emit.
+function __dyad_override_enum_field(value::T, field::Symbol, override) where T
+  (isnothing(override) || !hasfield(T, field)) && return value
+  return T((f === field ? override : getfield(value, f) for f in fieldnames(T))...)
+end
+
+# Dyad's enum case test (issue #1504).  An enum lowers to a module holding an
+# abstract `Type` with one concrete subtype per case, so testing a case is just
+# `isa`.  Both `case(...)` and every `@__dyad_switch` arm route through here.
+#
+# Why a helper and not a bare `x isa T`: `isa` is an ordinary binding, so a
+# component with a Dyad parameter named `isa` shadows it and the test throws a
+# MethodError.  A `__`-prefixed name cannot be shadowed, because the Dyad lexer
+# rejects identifiers containing `__`.
+#
+# Unconstrained in `T` deliberately.  Every library emits its own copy, and a
+# cross-library `switch`/`case()` calls the *consuming* library's copy with the
+# *providing* library's case type.  Any `where {T<:SomeMarker}` bound would
+# resolve that marker to the consuming library's own type and throw a
+# MethodError.  Do not tighten this.
+__dyad_isa_variant(value, ::Type{T}) where {T} = value isa T
+
+# Type-and-shape test for a promoted enum-field kwarg (issue #1504).  Emitted
+# into a promoted-kwarg check only when several cases share the kwarg's name
+# with *different* signatures: each per-case guard then also requires the
+# passed value to fit that case's declared element type and shape, so a value
+# meant for an inactive case throws the check's `ArgumentError` at construction
+# instead of surfacing later as an MTK dimension/conversion error deep inside
+# `System`.
+#
+# `T` is the declared element type widened to its abstract supertype
+# (`Real -> Real`, `Integer -> Integer`, `Boolean -> Bool`), so an `Int` is an
+# acceptable `Real` while a `Float64` is not an acceptable `Integer`.
+#
+# `extents` are the declared dimensions of one case's field: empty for a
+# scalar, otherwise one entry per dimension, with `nothing` for an extent the
+# declaration leaves open (`Real[:]`, sized from the runtime value).
+#
+# Symbolic values (issue #20 routing) take the shape tests — a scalar symbolic
+# is not an `AbstractArray`, and a symbolic array (`Symbolics.Arr`) carries its
+# shape — but are exempt from the element-type test.  A symbolic carries no
+# concrete element type at construction (`Symbolics.Num <: Real` whatever the
+# field was declared as), so it is MTK's own declaration that types it.
+function __dyad_promoted_value_fits(value, ::Type{T}, extents...) where {T}
+  if !(value isa Union{Symbolics.Num, Symbolics.Arr, Symbolics.SymbolicT})
+    el = value isa AbstractArray ? eltype(value) : typeof(value)
+    el <: T || return false
+  end
+  isempty(extents) && return !(value isa AbstractArray)
+  value isa AbstractArray || return false
+  ndims(value) == length(extents) || return false
+  return all(e === nothing || size(value, k) == e for (k, e) in enumerate(extents))
+end
+
+# Whether a constructor kwarg value carries a symbolic anywhere: a symbolic
+# scalar, a symbolic array, or a concrete array with a symbolic element (a
+# parent passing `[pd, 1.0]` for a `Real[2]` parameter binds the whole array).
+#
+# One method with explicit `isa` tests, deliberately.  `Symbolics.Arr` is
+# itself an `AbstractArray`, so splitting this into a scalar method and an
+# `::AbstractArray` method would capture symbolic arrays in the array method
+# and walk their elements instead of taking the union test.  The union is the
+# same one `__dyad_promoted_value_fits` tests above; keep the two spellings in
+# step.
+#
+# NOT `SymbolicIndexingInterface.symbolic_type`, which is reachable here as
+# `ModelingToolkit.SymbolicIndexingInterface` and is the canonical trait for
+# the scalar cases — it agrees with the union test on every one of them,
+# including a folded default like `max(1.0e-12, abs(0.0) / pd)`.  It answers
+# "is this value itself a symbolic", so a *container* of symbolics is not one:
+# `symbolic_type(Vector{Num}) === NotSymbolic()` (`Symbolics.Arr` correctly
+# gives `ArraySymbolic()`).  A parent passing `[pd, 1.0]` for a `Real[2]`
+# parameter would then be filed as an initial condition, which is issue #2054
+# again for array parameters.  The element walk below is what covers that, so
+# do not simplify this to the trait.
+function __dyad_is_symbolic(value)
+  value isa Union{Symbolics.Num, Symbolics.Arr, Symbolics.SymbolicT} && return true
+  value isa AbstractArray && return any(__dyad_is_symbolic, value)
+  return false
+end
+
+# Files a non-`final` parameter's constructor kwarg at construction time
+# (issues #1335, #2054): a concrete value as an initial condition, a symbolic
+# one as a binding.  The rule, and why codegen cannot apply it itself, is
+# stated once, as `@semantics` on `ParameterAssignIR`
+# (`language/mtkir/component_parameters.ts`).  `final` and `constant`
+# parameters never come through here: codegen writes their
+# `__bindings[sym] = rhs` directly.
+#
+# INVARIANT ON THE CALLER.  A binding's right-hand side has to resolve in the
+# frame of the system that declares it, and a parent's `pd` does not — unless
+# it arrives tagged by `ModelingToolkit.default_to_parentscope`.  Untagged, MTK
+# rejects the whole system at construction with "Bindings for parameters can
+# only be functions of other parameters".  How many tags a value needs is
+# derived once, on `SubcomponentModIR.scopeTags`
+# (`language/mtkir/component_subcomponents.ts`).
+#
+# Pre-tagging is not an optimisation, it is the only option: a nested
+# modification reaches the child through the `__overrides` dict — the parent
+# inserts it outside any `@named`, `__pop_subcomponent_overrides!` routes it
+# down, and the declaring constructor pops it — so `@named`, which wraps only
+# the explicit kwargs of the call it decorates, never sees it.  Nothing at
+# the construction site can tag it.
+#
+# What is left untagged is a symbolic the compiler never saw: one handed
+# straight to a generated constructor from Julia, as in
+# `Top(; __overrides = Dict("mid.inner.d" => pd))`.  MTK rejects that, and no
+# route Dyad source can express produces it — see the M5/M6/M11/M12 cells of
+# `samples/RunnableTests/dyad/param_propagation_matrix.dyad`, which pin one and
+# two levels of nesting for a literal and for a propagated parameter.
+function __dyad_seed_parameter!(ics, bindings, sym, value)
+  if __dyad_is_symbolic(value)
+    bindings[sym] = value
+  else
+    ics[sym] = value
+  end
+  return nothing
+end
+
+# The direct subsystem of `sys` named `name`; `__dyad_bind_final!` walks a
+# nested modification's path with it.  A hand walk over `get_systems` rather
+# than `getproperty(sys, name)`, because `getproperty` returns a namespaced
+# *view* of the subsystem, and the dictionaries `__dyad_bind_final!` then edits
+# would belong to that temporary rather than to the system itself.
+function __dyad_subsystem(sys, name::Symbol)
+  for s in ModelingToolkit.get_systems(sys)
+    nameof(s) === name && return s
+  end
+  throw(ArgumentError("$(nameof(sys)) has no subcomponent $name"))
+end
+
+# Binds a `final` modification written at a subcomponent declaration
+# (`inner = Inner(final d = pd)`) onto the parent, and drops the initial
+# condition the declaring system filed for the same symbol so the binding is
+# its sole source.
+#
+# `path` and `leaf` are `FinalModIR.ownerPath` and `FinalModIR.leaf`
+# (`language/mtkir/component_subcomponents.ts`): the helper walks `path` from
+# `child` down to the system that declares the parameter, and `leaf` is the
+# parameter's own name there — what that system's dictionaries are keyed by.
+# The parent's `bindings` are keyed by the same parameter seen from the parent,
+# which the helper produces itself by namespacing `leaf` back out through the
+# systems it walked.  Codegen hands it nothing pre-resolved, so a path that
+# names no subcomponent fails here, with this helper's own message, rather
+# than in MTK's `getproperty` while the call's arguments are still being
+# evaluated.
+#
+# A `final` mod is ALSO passed through as the child's constructor kwarg, so
+# that anything the child derives from it at construction sees the modified
+# value.  That leaves two ways the same symbol can end up bound, and only one
+# of them may fire:
+#
+# - The declaring system already recorded it as a binding, which
+#   `__dyad_seed_parameter!` does when the kwarg arrived symbolic.  A second
+#   binding here gives MTK two entries for one parameter and it refuses to
+#   merge them ("Cannot merge without overriding: common key inner₊d").  So:
+#   do nothing, the child already did it.
+# - Otherwise it filed an *initial condition*, which leaves the parameter
+#   independent and tunable — not what `final` means.  Bind it here and
+#   delete that initial condition.
+#
+# The test is what the declaring system actually recorded, not what `value`
+# looks like.  `value` is the right-hand side as the parent evaluates it; what
+# the child classified is that same expression after the kwarg was routed and
+# scope-tagged, and the two agree only by construction.  Asking the child
+# cannot drift from what the child did.  See the M4/M7/M8 cells of
+# `samples/RunnableTests/dyad/param_propagation_matrix.dyad`.
+function __dyad_bind_final!(bindings, child, path, leaf::Symbol, value)
+  # Both the test and the deletion run against the declaring system, not the
+  # handle; for a nested mod those are different systems (M7/M8).
+  systems = Any[child]
+  for name in path
+    push!(systems, __dyad_subsystem(last(systems), name))
+  end
+  owner = last(systems)
+  no_ns = ModelingToolkit.toggle_namespacing(owner, false)
+  sym = Symbolics.unwrap(getproperty(no_ns, leaf))::Symbolics.SymbolicT
+  haskey(ModelingToolkit.get_bindings(owner), sym) && return nothing
+  nsym = sym
+  for s in reverse(systems)
+    nsym = ModelingToolkit.renamespace(s, nsym)
+  end
+  bindings[nsym] = value
+  delete!(ModelingToolkit.get_initial_conditions(owner), sym)
+  return nothing
+end
+
+# Dyad's `switch` statement.  Expands to a chain of `__dyad_isa_variant` tests
+# over the arms in source order, so a `default` (spelled `_`) behaves the same in
+# any position: it is an arm whose test is always true, shadowing every later
+# arm exactly as it does in the Dyad source.
+#
+# The scrutinee is bound once.  `switch sub.mode` and `switch modes[i]` are legal
+# Dyad, and re-evaluating that chain per arm would be wasteful and noisy.
+#
+# Falling off the end throws, so a `switch` matching no arm fails loudly at
+# construction instead of silently contributing no equations and surfacing later
+# as an under-determined system.
+macro __dyad_switch(value, block)
+  # Codegen only ever passes a `begin ... end` block, but this macro ships in
+  # every generated library's `internals.jl` and is reachable from hand-written
+  # Julia — validate the block shape (like the arm shape below) so a malformed
+  # call fails with a legible message instead of `type Symbol has no field args`.
+  Meta.isexpr(block, :block) ||
+    error("@__dyad_switch expects a `begin ... end` block of arms, got: ", block)
+  arms = filter(a -> !(a isa LineNumberNode), block.args)
+  expanded = :(error("matching non-exhaustive: no arm matched a value of type ", typeof(__dyad_switch_value)))
+  for arm in reverse(arms)
+    # Codegen only ever emits `Pattern => body` arms, but this macro ships in
+    # every generated library's `internals.jl` and is reachable from
+    # hand-written Julia — validate the arm shape so a malformed one fails
+    # with a legible message instead of `type Symbol has no field args`.
+    Meta.isexpr(arm, :call) && arm.args[1] === :(=>) ||
+      error("@__dyad_switch arms must be written `Pattern => body`, got: ", arm)
+    pattern, body = arm.args[2], arm.args[3]
+    test = pattern === :_ ? true :
+      :(__dyad_isa_variant(__dyad_switch_value, $(esc(pattern))))
+    expanded = Expr(:if, test, esc(body), expanded)
+  end
+  quote
+    let __dyad_switch_value = $(esc(value))
+      $expanded
+    end
+  end
 end

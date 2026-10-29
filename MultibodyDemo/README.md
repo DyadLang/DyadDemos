@@ -8,6 +8,21 @@ The demos range from a textbook single pendulum up to a feedback-controlled self
 
 ## Getting Started
 
+Use the `dyad-3.5.0` JuliaHub distribution (Julia 1.13.2). This repository
+targets Dyad CLI 3.5.1; the published CLI 3.5.0 was used for this demo's
+migration checks because 3.5.1 is not yet available. See
+[the validation record](docs/upgrade-3.5-validation.md) for exact results.
+
+From this demo directory, instantiate, compile, and test before rendering:
+
+```sh
+julia +dyad-3.5.0 --project=. -e 'using Pkg; Pkg.instantiate()'
+dyad compile .
+julia +dyad-3.5.0 --project=. -e 'using Pkg; Pkg.test()'
+```
+
+The JuliaHub package server requires credentials for the private Dyad libraries.
+
 Download this folder to your machine and open it in VS Code with the [Dyad extension](https://help.juliahub.com/dyad/dev/getting_started/).
 
 The Dyad models live in `dyad/`. Each model has a paired `analysis` that runs it as a `TransientAnalysis`. Compiling the project (Dyad extension, or the build step) generates the Julia code in `generated/`, after which the analyses are callable from Julia.
@@ -88,7 +103,7 @@ sol.t                     # the time vector
 Run the full script from the project root with the project environment active:
 
 ```
-julia --project=. scripts/main.jl
+julia +dyad-3.5.0 --project=. scripts/main.jl
 ```
 
 or from a REPL with `include("scripts/main.jl")`.
