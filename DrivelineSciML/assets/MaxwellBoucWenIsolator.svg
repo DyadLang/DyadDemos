@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#fff" d="M4 4h992v992H4z"/>
+  <path fill="#008a19" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <!-- shaft stubs -->
+  <path fill="none" stroke="#000" stroke-width="10" d="M40 500h140m640 0h140"/>
+  <!-- vertical rails -->
+  <path fill="none" stroke="#000" stroke-width="10" d="M180 220v560m640-560v560"/>
+  <!-- top branch: baseline spring k0 -->
+  <path fill="none" stroke="#000" stroke-width="10" stroke-linejoin="round"
+        d="M180 280h120l40-50 80 100 80-100 80 100 80-100 40 50h100"/>
+  <!-- middle branch: Maxwell spring k1 in series with damper c1 -->
+  <path fill="none" stroke="#000" stroke-width="10" stroke-linejoin="round"
+        d="M180 500h60l30-40 60 80 60-80 60 80 30-40h30"/>
+  <path fill="#adaddb" d="M540 440h180v120H540z"/>
+  <path fill="none" stroke="#000" stroke-width="10" d="M740 440v120m-200-120v120m0-60h-30m230 0h80"/>
+  <path fill="none" stroke="#000" stroke-width="10" d="M620 460v80m0-40h60"/>
+  <!-- bottom branch: Bouc-Wen hysteresis loop -->
+  <path fill="none" stroke="#0066b3" stroke-width="14" stroke-linecap="round"
+        d="M360 800 C 470 800 530 700 640 670 C 580 690 530 770 360 800 Z"/>
+  <path fill="none" stroke="#000" stroke-width="10" d="M180 735h130m380-30h130"/>
+</svg>

@@ -5,27 +5,29 @@
 
 
 @doc Markdown.doc"""
-   TunableRLCResonance(; name, R, L, C, V_init)
+   TunableRLCResonance(; name, R, L, C, V_init, __overrides)
 
 RLC resonant circuit with variable damping.
 Shows underdamped, critically damped, and overdamped responses.
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `R`         | Resistance (controls damping)                         | Ω  |   10 |
+| `R`         | Resistance (controls damping)                         | Ω  |   10.0 |
 | `L`         | Inductance                         | H  |   0.001 |
-| `C`         | Capacitance                         | F  |   0.000001 |
-| `V_init`         | Initial capacitor voltage                         | V  |   10 |
+| `C`         | Capacitance                         | F  |   1e-6 |
+| `V_init`         | Initial capacitor voltage                         | V  |   10.0 |
 """
-@component function TunableRLCResonance(; name = nothing, R=10, L=0.001, C=0.000001, V_init=10)
+@component function TunableRLCResonance(; name = nothing, var"R"=Float64(10.0), var"L"=0.001, var"C"=0.000001, var"V_init"=Float64(10.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TunableRLCResonance()
+  """))
 
-        @named model = TunableRLCResonance()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -33,27 +35,69 @@ Shows underdamped, critically damped, and overdamped responses.
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "R") && (R = pop!(__overrides, "R"))
+  haskey(__overrides, "L") && (L = pop!(__overrides, "L"))
+  haskey(__overrides, "C") && (C = pop!(__overrides, "C"))
+  haskey(__overrides, "V_init") && (V_init = pop!(__overrides, "V_init"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (R::Real = R), [description = "Resistance (controls damping)"])
-  append!(__params, @parameters (L::Real = L), [description = "Inductance"])
-  append!(__params, @parameters (C::Real = C), [description = "Capacitance", bounds = (0, Inf)])
-  append!(__params, @parameters (V_init::Real = V_init), [description = "Initial capacitor voltage"])
+  __local__R = R
+  append!(__params, @parameters (R::Real), [description = "Resistance (controls damping)"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R, __local__R)
+  __local__L = L
+  append!(__params, @parameters (L::Real), [description = "Inductance"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, L, __local__L)
+  __local__C = C
+  append!(__params, @parameters (C::Real), [description = "Capacitance", bounds = (0, Inf)])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C, __local__C)
+  __local__V_init = V_init
+  append!(__params, @parameters (V_init::Real), [description = "Initial capacitor voltage"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V_init, __local__V_init)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named resistor = ElectricalComponents.Resistor(R=R))
-  push!(__systems, @named inductor = ElectricalComponents.Inductor(L=L))
-  push!(__systems, @named capacitor = ElectricalComponents.Capacitor(C=C))
-  push!(__systems, @named ground = ElectricalComponents.Ground())
+  # Subcomponent resistor of type ElectricalComponents.Analog.Basic.Resistor
+  resistor_overrides = __pop_subcomponent_overrides!(__overrides, "resistor")
+  push!(__systems, @named resistor = ElectricalComponents.Analog.Basic.Resistor(; R=R, __overrides = resistor_overrides))
+  # Subcomponent inductor of type ElectricalComponents.Analog.Basic.Inductor
+  inductor_overrides = __pop_subcomponent_overrides!(__overrides, "inductor")
+  push!(__systems, @named inductor = ElectricalComponents.Analog.Basic.Inductor(; L=L, __overrides = inductor_overrides))
+  # Subcomponent capacitor of type ElectricalComponents.Analog.Basic.Capacitor
+  capacitor_overrides = __pop_subcomponent_overrides!(__overrides, "capacitor")
+  push!(__systems, @named capacitor = ElectricalComponents.Analog.Basic.Capacitor(; C=C, __overrides = capacitor_overrides))
+  # Subcomponent ground of type ElectricalComponents.Analog.Basic.Ground
+  ground_overrides = __pop_subcomponent_overrides!(__overrides, "ground")
+  push!(__systems, @named ground = ElectricalComponents.Analog.Basic.Ground(; __overrides = ground_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -67,6 +111,6 @@ Shows underdamped, critically damped, and overdamped responses.
   push!(__eqs, connect(capacitor.n, ground.g))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TunableRLCResonance

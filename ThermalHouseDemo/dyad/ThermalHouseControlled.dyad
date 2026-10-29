@@ -27,7 +27,7 @@ component ThermalHouseControlled
   )
   
   "PI controller for temperature control (no derivative action)"
-  pid = BlockComponents.LimPID(
+  pid = BlockComponents.Continuous.LimPID(
     k=k_p,
     Ti=T_i,
     Td=0.0,
@@ -36,7 +36,7 @@ component ThermalHouseControlled
   )
   
   "Zero feed-forward input for PID"
-  zero_ff = BlockComponents.Constant(k=0.0)
+  zero_ff = BlockComponents.Sources.Constant(k=0.0)
   
 relations
   "Connect setpoint and measurement to PID"
@@ -75,9 +75,9 @@ test component TestThermalHouseControlled
   )
   
   "Constant setpoint, solar, and ambient signals"
-  setpoint_signal = BlockComponents.Constant(k=T_setpoint)
-  solar_irradiance_signal = BlockComponents.Constant(k=solar_irrad)
-  ambient_signal = BlockComponents.Constant(k=T_outdoor)
+  setpoint_signal = BlockComponents.Sources.Constant(k=T_setpoint)
+  solar_irradiance_signal = BlockComponents.Sources.Constant(k=solar_irrad)
+  ambient_signal = BlockComponents.Sources.Constant(k=T_outdoor)
   
 relations
   connect(setpoint_signal.y, controlled_house.T_setpoint)

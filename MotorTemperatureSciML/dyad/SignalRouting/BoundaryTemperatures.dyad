@@ -1,0 +1,22 @@
+"Select coolant (2) and ambient (7) from the normalized operating-condition vector."
+component BoundaryTemperatures
+  u = [RealInput() for i in 1:10] {^u}
+  coolant = RealOutput() {^coolant}
+  ambient = RealOutput() {^ambient}
+relations
+  coolant = u[2]
+  ambient = u[7]
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": -100, "layer": "icon"}
+    ],
+    "icons": {"default": "dyad://MotorTemperatureSciML/BoundaryTemperatures.svg"}
+  },
+  "_links": {
+    "u": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -30.0, "y1": 475.0, "x2": 30.0, "y2": 525.0, "show": 1}}}},
+    "coolant": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 970.0, "y1": 225.0, "x2": 1030.0, "y2": 275.0}}}},
+    "ambient": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 970.0, "y1": 725.0, "x2": 1030.0, "y2": 775.0}}}}
+  }
+}
+end

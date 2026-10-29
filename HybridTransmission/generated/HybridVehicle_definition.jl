@@ -5,14 +5,14 @@
 
 
 @doc Markdown.doc"""
-   HybridVehicle(; name, J_equiv, m_vehicle, C_d, A_front, C_rr, r_wheel)
+   HybridVehicle(; name, J_equiv, m_vehicle, C_d, A_front, C_rr, r_wheel, __overrides)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `J_equiv`         |                          | kg.m2  |   250 |
-| `m_vehicle`         |                          | --  |   1750 |
+| `J_equiv`         |                          | kg.m2  |   250.0 |
+| `m_vehicle`         |                          | --  |   1750.0 |
 | `C_d`         |                          | --  |   0.38 |
 | `A_front`         |                          | --  |   2.56 |
 | `C_rr`         |                          | --  |   0.012 |
@@ -26,21 +26,23 @@
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `omega_wheel`         |                          | rad/s  | 
-| `speed`         |                          | --  | 
-| `F_aero`         |                          | --  | 
-| `F_rolling`         |                          | --  | 
-| `F_total`         |                          | --  | 
-| `T_load`         |                          | N.m  | 
+| ------------ | ----------------------------------- | ------ |
+| `omega_wheel`         |                          | rad/s  |
+| `speed`         |                          | --  |
+| `F_aero`         |                          | --  |
+| `F_rolling`         |                          | --  |
+| `F_total`         |                          | --  |
+| `T_load`         |                          | N.m  |
 """
-@component function HybridVehicle(; name = nothing, J_equiv=250, m_vehicle=1750, C_d=0.38, A_front=2.56, C_rr=0.012, r_wheel=0.318)
+@component function HybridVehicle(; name = nothing, var"J_equiv"=Float64(250.0), var"m_vehicle"=Float64(1750.0), var"C_d"=0.38, var"A_front"=2.56, var"C_rr"=0.012, var"r_wheel"=0.318, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HybridVehicle()
+  """))
 
-        @named model = HybridVehicle()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -48,17 +50,54 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "J_equiv") && (J_equiv = pop!(__overrides, "J_equiv"))
+  haskey(__overrides, "m_vehicle") && (m_vehicle = pop!(__overrides, "m_vehicle"))
+  haskey(__overrides, "C_d") && (C_d = pop!(__overrides, "C_d"))
+  haskey(__overrides, "A_front") && (A_front = pop!(__overrides, "A_front"))
+  haskey(__overrides, "C_rr") && (C_rr = pop!(__overrides, "C_rr"))
+  haskey(__overrides, "r_wheel") && (r_wheel = pop!(__overrides, "r_wheel"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (J_equiv::Real = J_equiv))
-  append!(__params, @parameters (m_vehicle::Real = m_vehicle))
-  append!(__params, @parameters (C_d::Real = C_d))
-  append!(__params, @parameters (A_front::Real = A_front))
-  append!(__params, @parameters (C_rr::Real = C_rr))
-  append!(__params, @parameters (r_wheel::Real = r_wheel))
+  __local__J_equiv = J_equiv
+  append!(__params, @parameters (J_equiv::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, J_equiv, __local__J_equiv)
+  __local__m_vehicle = m_vehicle
+  append!(__params, @parameters (m_vehicle::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, m_vehicle, __local__m_vehicle)
+  __local__C_d = C_d
+  append!(__params, @parameters (C_d::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_d, __local__C_d)
+  __local__A_front = A_front
+  append!(__params, @parameters (A_front::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_front, __local__A_front)
+  __local__C_rr = C_rr
+  append!(__params, @parameters (C_rr::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_rr, __local__C_rr)
+  __local__r_wheel = r_wheel
+  append!(__params, @parameters (r_wheel::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, r_wheel, __local__r_wheel)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (speed_output(t)::Real), [output = true])
+
+  ### Variables (declarations)
   append!(__vars, @variables (omega_wheel(t)::Real))
   append!(__vars, @variables (speed(t)::Real))
   append!(__vars, @variables (F_aero(t)::Real))
@@ -66,15 +105,42 @@
   append!(__vars, @variables (F_total(t)::Real))
   append!(__vars, @variables (T_load(t)::Real))
 
+  ### Variables (assignments)
+  __ovr_omega_wheel = pop!(__overrides, "omega_wheel", nothing); isnothing(__ovr_omega_wheel) || push!(__eqs, omega_wheel ~ __ovr_omega_wheel)
+  __ovr_omega_wheel__initial = pop!(__overrides, "omega_wheel.initial", nothing); isnothing(__ovr_omega_wheel__initial) || (__initial_conditions[omega_wheel] = __ovr_omega_wheel__initial)
+  __ovr_omega_wheel__guess = pop!(__overrides, "omega_wheel.guess", nothing)
+  __ovr_speed = pop!(__overrides, "speed", nothing); isnothing(__ovr_speed) || push!(__eqs, speed ~ __ovr_speed)
+  __ovr_speed__initial = pop!(__overrides, "speed.initial", nothing); isnothing(__ovr_speed__initial) || (__initial_conditions[speed] = __ovr_speed__initial)
+  __ovr_speed__guess = pop!(__overrides, "speed.guess", nothing)
+  __ovr_F_aero = pop!(__overrides, "F_aero", nothing); isnothing(__ovr_F_aero) || push!(__eqs, F_aero ~ __ovr_F_aero)
+  __ovr_F_aero__initial = pop!(__overrides, "F_aero.initial", nothing); isnothing(__ovr_F_aero__initial) || (__initial_conditions[F_aero] = __ovr_F_aero__initial)
+  __ovr_F_aero__guess = pop!(__overrides, "F_aero.guess", nothing)
+  __ovr_F_rolling = pop!(__overrides, "F_rolling", nothing); isnothing(__ovr_F_rolling) || push!(__eqs, F_rolling ~ __ovr_F_rolling)
+  __ovr_F_rolling__initial = pop!(__overrides, "F_rolling.initial", nothing); isnothing(__ovr_F_rolling__initial) || (__initial_conditions[F_rolling] = __ovr_F_rolling__initial)
+  __ovr_F_rolling__guess = pop!(__overrides, "F_rolling.guess", nothing)
+  __ovr_F_total = pop!(__overrides, "F_total", nothing); isnothing(__ovr_F_total) || push!(__eqs, F_total ~ __ovr_F_total)
+  __ovr_F_total__initial = pop!(__overrides, "F_total.initial", nothing); isnothing(__ovr_F_total__initial) || (__initial_conditions[F_total] = __ovr_F_total__initial)
+  __ovr_F_total__guess = pop!(__overrides, "F_total.guess", nothing)
+  __ovr_T_load = pop!(__overrides, "T_load", nothing); isnothing(__ovr_T_load) || push!(__eqs, T_load ~ __ovr_T_load)
+  __ovr_T_load__initial = pop!(__overrides, "T_load.initial", nothing); isnothing(__ovr_T_load__initial) || (__initial_conditions[T_load] = __ovr_T_load__initial)
+  __ovr_T_load__guess = pop!(__overrides, "T_load.guess", nothing)
+
   ### Constants
   __constants = Any[]
 
   ### Components
   push!(__systems, @named flange = __Dyad__Spline())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_omega_wheel__guess) || (__guesses[omega_wheel] = __ovr_omega_wheel__guess)
+  isnothing(__ovr_speed__guess) || (__guesses[speed] = __ovr_speed__guess)
+  isnothing(__ovr_F_aero__guess) || (__guesses[F_aero] = __ovr_F_aero__guess)
+  isnothing(__ovr_F_rolling__guess) || (__guesses[F_rolling] = __ovr_F_rolling__guess)
+  isnothing(__ovr_F_total__guess) || (__guesses[F_total] = __ovr_F_total__guess)
+  isnothing(__ovr_T_load__guess) || (__guesses[T_load] = __ovr_T_load__guess)
 
   ### Initialization Equations
 
@@ -92,6 +158,6 @@
   push!(__eqs, J_equiv * ModelingToolkit.D_nounits(omega_wheel) ~ -flange.tau - T_load)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HybridVehicle

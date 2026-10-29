@@ -1,0 +1,14 @@
+"""
+`TNNModel` for a machine rated to 250 °C: the same normaliser, conductance and
+power-loss blocks, with the de-normalisation ceiling raised from the 200 °C the
+Paderborn dataset is scaled to.
+
+A one-line `extends` clones the whole component — ports, sub-components, wiring
+and icon come across — and `MAX_TEMP` reaches `Normalizer` and
+`TemperatureOutputs` because `TNNModel` already forwards it. The calibration
+shipped in `assets/data/calibrated_params.csv` is scaled to 200 °C, so this
+variant wants a training run of its own.
+"""
+component HighTempTNNModel
+  extends MotorTemperatureSciML.Models.TNNModel(MAX_TEMP = 250.0)
+end

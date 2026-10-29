@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#fff" d="M4 4h992v992H4z"/>
+  <path fill="#008a19" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <!-- shaft -->
+  <path fill="none" stroke="#000" stroke-width="14" d="M60 500h880"/>
+  <!-- motor-side flywheel -->
+  <ellipse cx="280" cy="500" rx="60" ry="200" fill="#f2a33c" stroke="#000" stroke-width="10"/>
+  <ellipse cx="240" cy="500" rx="60" ry="200" fill="#f2a33c" stroke="#000" stroke-width="10"/>
+  <!-- isolator spring -->
+  <path fill="none" stroke="#0066b3" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"
+        d="M360 500l40-90 60 180 60-180 60 180 60-180 40 90"/>
+  <!-- load-side flywheel -->
+  <ellipse cx="760" cy="500" rx="60" ry="200" fill="#adaddb" stroke="#000" stroke-width="10"/>
+  <ellipse cx="720" cy="500" rx="60" ry="200" fill="#adaddb" stroke="#000" stroke-width="10"/>
+  <!-- input torque arrow -->
+  <path fill="none" stroke="#f2a33c" stroke-width="16" stroke-linecap="round" d="M120 200 A 130 130 0 0 1 340 170"/>
+  <path fill="#f2a33c" d="M340 120l60 60-90 30z"/>
+</svg>

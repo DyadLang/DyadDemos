@@ -6,3 +6,4 @@
 /docs/Manifest*.toml
 dyad_resources/
 /.migration-backups/
+/.dyadcache

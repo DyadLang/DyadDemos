@@ -1,0 +1,180 @@
+"""
+3-axis rigid body satellite dynamics.
+
+Euler's rotational equations of motion for a rigid body with principal-axis
+inertia (Ixx, Iyy, Izz), coupled with 3-2-1 Euler angle kinematics
+(yaw-pitch-roll).
+
+Inputs: 3 torque components in the body frame.
+Outputs: 3 Euler angles (roll φ, pitch θ, yaw ψ) and 3 angular velocities.
+"""
+component SatelliteBody
+  "Torque inputs (body frame)"
+  tau_x = RealInput() {^tau_x}
+  tau_y = RealInput() {^tau_y}
+  tau_z = RealInput() {^tau_z}
+  "Euler angle outputs"
+  phi_out = RealOutput() {^phi_out}
+  theta_out = RealOutput() {^theta_out}
+  psi_out = RealOutput() {^psi_out}
+  "Angular velocity outputs (body frame)"
+  wx_out = RealOutput() {^wx_out}
+  wy_out = RealOutput() {^wy_out}
+  wz_out = RealOutput() {^wz_out}
+  "Principal moments of inertia"
+  parameter Ixx::Real = 10.0
+  parameter Iyy::Real = 8.0
+  parameter Izz::Real = 6.0
+  "Angular velocities in body frame (rad/s)"
+  variable wx::Real
+  variable wy::Real
+  variable wz::Real
+  "Euler angles: roll, pitch, yaw (rad)"
+  variable phi::Real
+  variable theta::Real
+  variable psi::Real
+relations
+  # --- Euler's equations of motion (principal axes) ---
+  Ixx * der(wx) = tau_x + (Iyy - Izz) * wy * wz
+  Iyy * der(wy) = tau_y + (Izz - Ixx) * wz * wx
+  Izz * der(wz) = tau_z + (Ixx - Iyy) * wx * wy
+  # --- 3-2-1 Euler angle kinematics ---
+  der(phi) = wx + (wy * sin(phi) + wz * cos(phi)) * tan(theta)
+  der(theta) = wy * cos(phi) - wz * sin(phi)
+  der(psi) = (wy * sin(phi) + wz * cos(phi)) / cos(theta)
+  # --- Wire outputs ---
+  phi_out = phi
+  theta_out = theta
+  psi_out = psi
+  wx_out = wx
+  wy_out = wy
+  wz_out = wz
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SatelliteGNC/SatelliteBody.svg"}
+  },
+  "_links": {
+    "tau_x": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 50, "x2": 50, "y2": 150, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tau_y": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -40, "y1": 450, "x2": 60, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "tau_z": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -30, "y1": 750, "x2": 70, "y2": 850, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "phi_out": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 0, "x2": 1060, "y2": 100, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "theta_out": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 170, "x2": 1060, "y2": 270, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "psi_out": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 350, "x2": 1070, "y2": 450, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wx_out": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 520, "x2": 1070, "y2": 620, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wy_out": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 690, "x2": 1070, "y2": 790, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wz_out": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 870, "x2": 1070, "y2": 970, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+# =====================================================
+# TEST: Open-loop single-axis torque
+# Apply constant torque about X only. With ωy=ωz=0
+# the cross-coupling vanishes and we get pure rotation
+# about X.
+#
+# Expected at t=10 s (Ixx=10, τx=0.1):
+#   αx  = 0.01 rad/s²
+#   ωx  = 0.1 rad/s
+#   φ   = 0.5 rad  (≈ 28.6°)
+#   θ,ψ = 0
+#   ωy,ωz = 0
+# =====================================================
+test component TestSatelliteOpenLoop
+  sat = SatelliteBody(Ixx = 10.0, Iyy = 8.0, Izz = 6.0) {^sat}
+  "Constant torque about X axis"
+  parameter tau_x_val::Real = 0.1
+relations
+  # Initial conditions — satellite at rest, zero attitude
+  initial sat.wx = 0.0
+  initial sat.wy = 0.0
+  initial sat.wz = 0.0
+  initial sat.phi = 0.0
+  initial sat.theta = 0.0
+  initial sat.psi = 0.0
+  # Apply constant torque on X, zero on Y and Z
+  sat.tau_x = tau_x_val
+  sat.tau_y = 0.0
+  sat.tau_z = 0.0
+metadata {
+  "_links": {
+    "sat": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+analysis TestSatelliteOpenLoopSim
+  extends TransientAnalysis(stop = 10.0)
+  model = TestSatelliteOpenLoop()
+relations
+end

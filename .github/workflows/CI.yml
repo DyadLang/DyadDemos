@@ -10,6 +10,12 @@ on:
 
 env:
   JULIA_PKG_SERVER: internal.juliahub.com
+  JULIAUP_SERVER: "https://juliahub.com/juliabin"
+  JULIA_CHANNEL: dyad-3.5.0
+  JULIA_EXECUTABLE: julia +dyad-3.5.0
+  JULIA_PKG_USE_CLI_GIT: "true"
+  JULIA_NUM_THREADS: "2"
+  JULIA_NUM_PRECOMPILE_TASKS: "1"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,28 +23,18 @@ concurrency:
 
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    # NB: the `env` context is not available in `jobs.<id>.name`, so the channel
+    # is spelled out here; keep it in step with `JULIA_CHANNEL` above.
+    name: Dyad 3.5.0 - self-hosted - x64 - ${{ github.event_name }}
 
     runs-on: self-hosted
-
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          - "1.10"
-          - "1.11"
-        os:
-          - self-hosted
-        arch:
-          - x64
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - uses: julia-actions/setup-julia@5c9647d97b78a5debe5164e9eec09d653d29bd71 # v2.6.1
+      - uses: julia-actions/install-juliaup@8d13b44e0eb1620c4e2d2d0a4ceee7d98100b955 # v3
         with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
+          channel: ${{ env.JULIA_CHANNEL }}
 
       - name: "Set up private JuliaHub registries"
         uses: "JuliaComputing/set-up-private-juliahub-registries@93a57d352d8435399461ffe68df41d193e4619b3" # v1.3.0
@@ -46,6 +42,10 @@ jobs:
           encoded-juliahub-token: "${{ secrets.JULIAHUB_TOKEN_ENCODED }}"
           enable-JuliaHubRegistry: "true"
           # ssh-key: "${{ secrets.JULIASIM_REGISTRY_SSH_KEY }}"
+
+      - name: "Install and verify Dyad 3.5.1 CLI"
+        shell: bash
+        run: bash .ci/setup-dyad-cli.sh
 
       - name: "Instantiate CI environment"
         run: julia --project=.ci -e 'using Pkg; Pkg.instantiate()'

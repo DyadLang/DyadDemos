@@ -1,0 +1,55 @@
+# Parameter calibration demo.
+#
+# `scripts/generate_calibration_data.jl` simulates the nonlinear truck with four
+# parameters nudged off their nominal values, on the same ISO 8608 Class A road
+# the NN demo validates against. The calibrator has to find its way back:
+#
+#   parameter               nominal   truth   offset
+#   model.body_m              300      315     +5%
+#   model.tire_to_body_c     20e3     22e3    +10%
+#   model.tire_to_body_d     1500     1800    +20%
+#   model.friction_Fc         500      750    +50%
+#
+# Search bounds run about twice each offset, giving the optimizer room to
+# overshoot. Searching these top-level knobs works because `final` bindings in
+# QuarterTruckConfigurable push them down into the sub-components.
+
+"""
+Recover four physical parameters of the truck from recorded ride measurements:
+tire contact force, suspension travel, and seat acceleration.
+
+The measurements come from a simulation whose parameters were nudged off their
+nominal values, and the calibrator has to find its way back to them.
+
+| parameter              | nominal | truth | offset |
+|------------------------|---------|-------|--------|
+| `model.body_m`         | 300     | 315   | +5%    |
+| `model.tire_to_body_c` | 20e3    | 22e3  | +10%   |
+| `model.tire_to_body_d` | 1500    | 1800  | +20%   |
+| `model.friction_Fc`    | 500     | 750   | +50%   |
+
+Search bounds run about twice each offset. The measurements live in
+`assets/data/calibration_measurements.csv`.
+"""
+analysis QuarterTruckCalibrationAnalysis
+  extends DyadModelOptimizer.CalibrationAnalysis(
+    stop = 10.0, saveat = 0.01,
+    data = DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/calibration_measurements.csv",
+      independent_var = "timestamp",
+      dependent_vars = ["tire_F(t)", "suspension_travel(t)", "seat_a(t)"]),
+    depvars_names = ["model.tire_to_road.f", "model.tire_to_body.s_rel", "model.seat.a"],
+    search_space_names = ["model.body_m",
+                          "model.tire_to_body_c",
+                          "model.tire_to_body_d",
+                          "model.friction_Fc"],
+    search_space_lb    = [270.0,  16e3,  900.0,    0.0],
+    search_space_ub    = [330.0,  24e3, 2100.0, 1000.0],
+    calibration_alg = "SingleShooting",
+    optimizer = "auto",
+    # Squared residuals avoid the L2 norm cusp; retain a strict gradient tolerance
+    # so the small damping/friction sensitivities also reach the optimum.
+    loss_func = DyadModelOptimizer.LossFunc.SquaredL2Loss(),
+    optimizer_abstol = 1e-8,
+    optimizer_maxiters = 100)
+  model = TestQuarterTruckNonlinearISOA()
+end

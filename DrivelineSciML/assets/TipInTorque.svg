@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#fff" d="M4 4h992v992H4z"/>
+  <path fill="#008a19" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <!-- axes -->
+  <path fill="none" stroke="#000" stroke-width="10" d="M120 120v760h760"/>
+  <!-- tip-in torque profile with ripple -->
+  <path fill="none" stroke="#0066b3" stroke-width="16" stroke-linecap="round"
+        d="M120 700 q 30 -18 60 0 t 60 0 t 60 0 t 60 0
+           C 440 690 460 290 520 270
+           q 30 -16 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0"/>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#fff" d="M4 4h992v992H4z"/>
+  <path fill="#008a19" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <defs>
+    <linearGradient id="tnn-motor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFB74D"/><stop offset="100%" stop-color="#EF6C00"/>
+    </linearGradient>
+    <linearGradient id="tnn-merc" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#EF5350"/><stop offset="100%" stop-color="#B71C1C"/>
+    </linearGradient>
+  </defs>
+  <!-- motor with cooling fins, neural net over it, thermometer: the package motif (assets/icon.svg) -->
+  <g transform="translate(80 60) scale(6.6)">
+    <rect x="18" y="42" width="58" height="44" rx="8" fill="url(#tnn-motor)" stroke="#3E2723" stroke-width="1.5"/>
+    <g stroke="#3E2723" stroke-width="1.5" opacity="0.55"><path d="M28 42v44M38 42v44M48 42v44M58 42v44M68 42v44"/></g>
+    <rect x="76" y="60" width="18" height="8" rx="3" fill="#78909C"/>
+    <g fill="#0097A7" stroke="#00363A" stroke-width="1"><circle cx="30" cy="30" r="4"/><circle cx="47" cy="22" r="4"/><circle cx="64" cy="30" r="4"/></g>
+    <g stroke="#0097A7" stroke-width="1.4" opacity="0.8" fill="none"><path d="M30 30 47 22M47 22 64 30M30 30 64 30"/><path d="M30 34 30 42M47 26 47 42M64 34 64 42"/></g>
+    <rect x="97" y="22" width="12" height="64" rx="6" fill="#ECEFF1" stroke="#455A64" stroke-width="1.5"/>
+    <circle cx="103" cy="96" r="12" fill="url(#tnn-merc)" stroke="#455A64" stroke-width="1.5"/>
+    <rect x="100" y="44" width="6" height="46" rx="3" fill="url(#tnn-merc)"/>
+    <g stroke="#90A4AE" stroke-width="1.2"><path d="M97 34h5M97 46h5M97 58h5M97 70h5"/></g>
+  </g>
+  <text x="500" y="900" font-family="sans-serif" font-size="90" text-anchor="middle" fill="#000">TNN</text>
+</svg>

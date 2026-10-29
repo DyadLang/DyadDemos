@@ -5,7 +5,7 @@ component HybridPlanetaryGear
   
   Gear ratio = 2.6 (ring teeth / sun teeth).
   """
-  extends RotationalComponents.IdealPlanetaryGear(ratio = 2.6)
+  extends RotationalComponents.Components.IdealPlanetaryGear(ratio = 2.6)
 relations
 metadata {"Dyad": {"icons": {"default": "dyad://HybridTransmission/planetary_gear.svg"}}}
 end

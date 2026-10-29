@@ -5,13 +5,13 @@
 
 
 @doc Markdown.doc"""
-   FitzHughNagumoCapacitor(; name, V, a, b, epsilon)
+   FitzHughNagumoCapacitor(; name, V, a, b, epsilon, __overrides)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `V`         | Volume                         | --  |   1 |
+| `V`         | Volume                         | --  |   1.0 |
 | `a`         | Excitation rate                         | --  |   0.1 |
 | `b`         | Recovery rate                         | --  |   0.01 |
 | `epsilon`         | Coupling strength                         | --  |   0.01 |
@@ -37,17 +37,19 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `u`         | Activator concentration (fast, excitable)                         | --  | 
-| `v`         | Inhibitor concentration (slow, recovery)                         | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `u`         | Activator concentration (fast, excitable)                         | --  |
+| `v`         | Inhibitor concentration (slow, recovery)                         | --  |
 """
-@component function FitzHughNagumoCapacitor(; name = nothing, V=1, a=0.1, b=0.01, epsilon=0.01)
+@component function FitzHughNagumoCapacitor(; name = nothing, var"V"=Float64(1.0), var"a"=0.1, var"b"=0.01, var"epsilon"=0.01, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FitzHughNagumoCapacitor()
+  """))
 
-        @named model = FitzHughNagumoCapacitor()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,16 +57,55 @@ Supported dynamics:
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "V") && (V = pop!(__overrides, "V"))
+  haskey(__overrides, "a") && (a = pop!(__overrides, "a"))
+  haskey(__overrides, "b") && (b = pop!(__overrides, "b"))
+  haskey(__overrides, "epsilon") && (epsilon = pop!(__overrides, "epsilon"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (V::Real = V), [description = "Volume"])
-  append!(__params, @parameters (a::Real = a), [description = "Excitation rate"])
-  append!(__params, @parameters (b::Real = b), [description = "Recovery rate"])
-  append!(__params, @parameters (epsilon::Real = epsilon), [description = "Coupling strength"])
+  __local__V = V
+  append!(__params, @parameters (V::Real), [description = "Volume"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V, __local__V)
+  __local__a = a
+  append!(__params, @parameters (a::Real), [description = "Excitation rate"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, a, __local__a)
+  __local__b = b
+  append!(__params, @parameters (b::Real), [description = "Recovery rate"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, b, __local__b)
+  __local__epsilon = epsilon
+  append!(__params, @parameters (epsilon::Real), [description = "Coupling strength"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, epsilon, __local__epsilon)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (u(t)::Real), [description = "Activator concentration (fast, excitable)"])
   append!(__vars, @variables (v(t)::Real), [description = "Inhibitor concentration (slow, recovery)"])
+
+  ### Variables (assignments)
+  __ovr_u = pop!(__overrides, "u", nothing); isnothing(__ovr_u) || push!(__eqs, u ~ __ovr_u)
+  __ovr_u__initial = pop!(__overrides, "u.initial", nothing); isnothing(__ovr_u__initial) || (__initial_conditions[u] = __ovr_u__initial)
+  __ovr_u__guess = pop!(__overrides, "u.guess", nothing)
+  __ovr_v = pop!(__overrides, "v", nothing); isnothing(__ovr_v) || push!(__eqs, v ~ __ovr_v)
+  __ovr_v__initial = pop!(__overrides, "v.initial", nothing); isnothing(__ovr_v__initial) || (__initial_conditions[v] = __ovr_v__initial)
+  __ovr_v__guess = pop!(__overrides, "v.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -72,9 +113,12 @@ Supported dynamics:
   ### Components
   push!(__systems, @named port = MakieWebinar.DiffusionPort())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_u__guess) || (__guesses[u] = __ovr_u__guess)
+  isnothing(__ovr_v__guess) || (__guesses[v] = __ovr_v__guess)
 
   ### Initialization Equations
 
@@ -87,6 +131,6 @@ Supported dynamics:
   push!(__eqs, V * ModelingToolkit.D_nounits(v) ~ V * epsilon * (u - b * v))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FitzHughNagumoCapacitor

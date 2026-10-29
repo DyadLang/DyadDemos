@@ -5,31 +5,33 @@
 
 
 @doc Markdown.doc"""
-   TurkeySphereTest(; name, N, T_oven, h, epsilon, M_turkey, rho_turkey, pi, R_turkey, A_surface, Gc_conv, Gr_rad)
+   TurkeySphereTest(; name, N, T_oven, h, epsilon, M_turkey, rho_turkey, pi, R_turkey, A_surface, Gc_conv, Gr_rad, __overrides)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `N`         |                          | --  |   10 |
-| `T_oven`         |                          | K  |   450 |
-| `h`         |                          | W/(m2.K)  |   15 |
+| `T_oven`         |                          | K  |   450.0 |
+| `h`         |                          | W/(m2.K)  |   15.0 |
 | `epsilon`         |                          | --  |   0.85 |
-| `M_turkey`         |                          | kg  |   5 |
-| `rho_turkey`         |                          | kg/m3  |   1050 |
+| `M_turkey`         |                          | kg  |   5.0 |
+| `rho_turkey`         |                          | kg/m3  |   1050.0 |
 | `pi`         |                          | --  |   3.14159265359 |
-| `R_turkey`         |                          | m  |   (3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3) |
+| `R_turkey`         |                          | m  |   (3 * M_turk...) ^ (1 / 3) |
 | `A_surface`         |                          | m2  |   4 * pi * R_turkey ^ 2 |
 | `Gc_conv`         |                          | W/K  |   h * A_surface |
 | `Gr_rad`         |                          | --  |   epsilon * A_surface |
 """
-@component function TurkeySphereTest(; name = nothing, N=10, T_oven=450, h=15, epsilon=0.85, M_turkey=5, rho_turkey=1050, pi=3.14159265359, R_turkey=(3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3), A_surface=4 * pi * R_turkey ^ 2, Gc_conv=h * A_surface, Gr_rad=epsilon * A_surface)
+@component function TurkeySphereTest(; name = nothing, var"N"=10, var"T_oven"=Float64(450.0), var"h"=Float64(15.0), var"epsilon"=0.85, var"M_turkey"=Float64(5.0), var"rho_turkey"=Float64(1050.0), var"pi"=3.14159265359, var"R_turkey"=nothing, var"A_surface"=nothing, var"Gc_conv"=nothing, var"Gr_rad"=nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TurkeySphereTest()
+  """))
 
-        @named model = TurkeySphereTest()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -37,34 +39,103 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "N") && (N = pop!(__overrides, "N"))
+  haskey(__overrides, "T_oven") && (T_oven = pop!(__overrides, "T_oven"))
+  haskey(__overrides, "h") && (h = pop!(__overrides, "h"))
+  haskey(__overrides, "epsilon") && (epsilon = pop!(__overrides, "epsilon"))
+  haskey(__overrides, "M_turkey") && (M_turkey = pop!(__overrides, "M_turkey"))
+  haskey(__overrides, "rho_turkey") && (rho_turkey = pop!(__overrides, "rho_turkey"))
+  haskey(__overrides, "pi") && (pi = pop!(__overrides, "pi"))
+  haskey(__overrides, "R_turkey") && (R_turkey = pop!(__overrides, "R_turkey"))
+  haskey(__overrides, "A_surface") && (A_surface = pop!(__overrides, "A_surface"))
+  haskey(__overrides, "Gc_conv") && (Gc_conv = pop!(__overrides, "Gc_conv"))
+  haskey(__overrides, "Gr_rad") && (Gr_rad = pop!(__overrides, "Gr_rad"))
+
+  ### Deferred keyword defaults (defaults referencing other keyword arguments)
+  isnothing(R_turkey) && (R_turkey = (3 * M_turkey / (4 * pi * rho_turkey)) ^ (1 / 3))
+  isnothing(A_surface) && (A_surface = 4 * pi * R_turkey ^ 2)
+  isnothing(Gc_conv) && (Gc_conv = h * A_surface)
+  isnothing(Gr_rad) && (Gr_rad = epsilon * A_surface)
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (T_oven::Real = T_oven), [bounds = (0, Inf)])
-  append!(__params, @parameters (h::Real = h))
-  append!(__params, @parameters (epsilon::Real = epsilon))
-  append!(__params, @parameters (M_turkey::Real = M_turkey), [bounds = (0, Inf)])
-  append!(__params, @parameters (rho_turkey::Real = rho_turkey), [bounds = (0, Inf)])
-  append!(__params, @parameters (pi::Real = pi))
-  append!(__params, @parameters (R_turkey::Real = R_turkey))
-  append!(__params, @parameters (A_surface::Real = A_surface))
-  append!(__params, @parameters (Gc_conv::Real = Gc_conv))
-  append!(__params, @parameters (Gr_rad::Real = Gr_rad))
+  __local__T_oven = T_oven
+  append!(__params, @parameters (T_oven::Real), [bounds = (0, Inf)])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_oven, __local__T_oven)
+  __local__h = h
+  append!(__params, @parameters (h::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, h, __local__h)
+  __local__epsilon = epsilon
+  append!(__params, @parameters (epsilon::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, epsilon, __local__epsilon)
+  __local__M_turkey = M_turkey
+  append!(__params, @parameters (M_turkey::Real), [bounds = (0, Inf)])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, M_turkey, __local__M_turkey)
+  __local__rho_turkey = rho_turkey
+  append!(__params, @parameters (rho_turkey::Real), [bounds = (0, Inf)])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, rho_turkey, __local__rho_turkey)
+  __local__pi = pi
+  append!(__params, @parameters (pi::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, pi, __local__pi)
+  __local__R_turkey = R_turkey
+  append!(__params, @parameters (R_turkey::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, R_turkey, __local__R_turkey)
+  __local__A_surface = A_surface
+  append!(__params, @parameters (A_surface::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, A_surface, __local__A_surface)
+  __local__Gc_conv = Gc_conv
+  append!(__params, @parameters (Gc_conv::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_conv, __local__Gc_conv)
+  __local__Gr_rad = Gr_rad
+  append!(__params, @parameters (Gr_rad::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gr_rad, __local__Gr_rad)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(N=10, M=M_turkey, T_init=277))
-  push!(__systems, @named oven = ThermalComponents.FixedTemperature(T=T_oven))
-  push!(__systems, @named convection = ThermalComponents.Convection())
-  push!(__systems, @named Gc_signal = BlockComponents.Constant(k=Gc_conv))
-  push!(__systems, @named radiation = ThermalComponents.BodyRadiation(Gr=Gr_rad))
+  # Subcomponent turkey of type TurkeyDemo.TurkeyDiscretizedSphere
+  turkey_overrides = __pop_subcomponent_overrides!(__overrides, "turkey")
+  push!(__systems, @named turkey = TurkeyDemo.TurkeyDiscretizedSphere(; N=10, M=M_turkey, T_init=Float64(277.0), __overrides = turkey_overrides))
+  # Subcomponent oven of type ThermalComponents.Sources.FixedTemperature
+  oven_overrides = __pop_subcomponent_overrides!(__overrides, "oven")
+  push!(__systems, @named oven = ThermalComponents.Sources.FixedTemperature(; T=T_oven, __overrides = oven_overrides))
+  # Subcomponent convection of type ThermalComponents.Components.Convection
+  convection_overrides = __pop_subcomponent_overrides!(__overrides, "convection")
+  push!(__systems, @named convection = ThermalComponents.Components.Convection(; __overrides = convection_overrides))
+  # Subcomponent Gc_signal of type BlockComponents.Sources.Constant
+  Gc_signal_overrides = __pop_subcomponent_overrides!(__overrides, "Gc_signal")
+  push!(__systems, @named Gc_signal = BlockComponents.Sources.Constant(; k=Gc_conv, __overrides = Gc_signal_overrides))
+  # Subcomponent radiation of type ThermalComponents.Components.BodyRadiation
+  radiation_overrides = __pop_subcomponent_overrides!(__overrides, "radiation")
+  push!(__systems, @named radiation = ThermalComponents.Components.BodyRadiation(; Gr=Gr_rad, __overrides = radiation_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -72,13 +143,13 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(oven.node, convection.fluid))
+  push!(__eqs, connect(oven.port, convection.fluid))
   push!(__eqs, connect(convection.solid, turkey.surface))
   push!(__eqs, connect(Gc_signal.y, convection.Gc))
-  push!(__eqs, connect(oven.node, radiation.node_a))
-  push!(__eqs, connect(radiation.node_b, turkey.surface))
+  push!(__eqs, connect(oven.port, radiation.port_a))
+  push!(__eqs, connect(radiation.port_b, turkey.surface))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TurkeySphereTest

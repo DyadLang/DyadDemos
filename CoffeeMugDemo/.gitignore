@@ -6,3 +6,4 @@
 /docs/Manifest*.toml
 /.migration-backups/
 agent_resources/
+/.dyadcache

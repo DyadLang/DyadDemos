@@ -5,15 +5,15 @@
 
 
 @doc Markdown.doc"""
-   CoffeeMugSubsystem(; name, C_espresso, T0_espresso, C_cup, T0_cup, Gc_internal, G_wall, Gc_external, Gr_external)
+   CoffeeMugSubsystem(; name, C_espresso, T0_espresso, C_cup, T0_cup, Gc_internal, G_wall, Gc_external, Gr_external, __overrides)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `C_espresso`         |                          | J/K  |   248.5 |
 | `T0_espresso`         |                          | K  |   363.15 |
-| `C_cup`         |                          | J/K  |   113 |
+| `C_cup`         |                          | J/K  |   113.0 |
 | `T0_cup`         |                          | K  |   293.15 |
 | `Gc_internal`         |                          | --  |   0.6314 |
 | `G_wall`         |                          | W/K  |   2.74 |
@@ -22,18 +22,20 @@
 
 ## Connectors
 
- * `topSurface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
- * `outerSurface` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
- * `ambient` - This connector represents a thermal node with temperature and heat flow as the potential and flow variables, respectively. ([`Node`](@ref))
+ * `topSurface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `outerSurface` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
+ * `ambient` - This connector represents a thermal port with temperature and heat flow as the potential and flow variables, respectively. ([`HeatPort`](@ref))
  * `espressoTemp_degC` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function CoffeeMugSubsystem(; name = nothing, C_espresso=248.5, T0_espresso=363.15, C_cup=113, T0_cup=293.15, Gc_internal=0.6314, G_wall=2.74, Gc_external=0.0705, Gr_external=0.005)
+@component function CoffeeMugSubsystem(; name = nothing, var"C_espresso"=248.5, var"T0_espresso"=363.15, var"C_cup"=Float64(113.0), var"T0_cup"=293.15, var"Gc_internal"=0.6314, var"G_wall"=2.74, var"Gc_external"=0.0705, var"Gr_external"=0.005, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = CoffeeMugSubsystem()
+  """))
 
-        @named model = CoffeeMugSubsystem()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -41,43 +43,113 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "C_espresso") && (C_espresso = pop!(__overrides, "C_espresso"))
+  haskey(__overrides, "T0_espresso") && (T0_espresso = pop!(__overrides, "T0_espresso"))
+  haskey(__overrides, "C_cup") && (C_cup = pop!(__overrides, "C_cup"))
+  haskey(__overrides, "T0_cup") && (T0_cup = pop!(__overrides, "T0_cup"))
+  haskey(__overrides, "Gc_internal") && (Gc_internal = pop!(__overrides, "Gc_internal"))
+  haskey(__overrides, "G_wall") && (G_wall = pop!(__overrides, "G_wall"))
+  haskey(__overrides, "Gc_external") && (Gc_external = pop!(__overrides, "Gc_external"))
+  haskey(__overrides, "Gr_external") && (Gr_external = pop!(__overrides, "Gr_external"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (C_espresso::Real = C_espresso))
-  append!(__params, @parameters (T0_espresso::Real = T0_espresso), [bounds = (0, Inf)])
-  append!(__params, @parameters (C_cup::Real = C_cup))
-  append!(__params, @parameters (T0_cup::Real = T0_cup), [bounds = (0, Inf)])
-  append!(__params, @parameters (Gc_internal::Real = Gc_internal))
-  append!(__params, @parameters (G_wall::Real = G_wall))
-  append!(__params, @parameters (Gc_external::Real = Gc_external))
-  append!(__params, @parameters (Gr_external::Real = Gr_external))
+  __local__C_espresso = C_espresso
+  append!(__params, @parameters (C_espresso::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_espresso, __local__C_espresso)
+  __local__T0_espresso = T0_espresso
+  append!(__params, @parameters (T0_espresso::Real), [bounds = (0, Inf)])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0_espresso, __local__T0_espresso)
+  __local__C_cup = C_cup
+  append!(__params, @parameters (C_cup::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, C_cup, __local__C_cup)
+  __local__T0_cup = T0_cup
+  append!(__params, @parameters (T0_cup::Real), [bounds = (0, Inf)])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T0_cup, __local__T0_cup)
+  __local__Gc_internal = Gc_internal
+  append!(__params, @parameters (Gc_internal::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_internal, __local__Gc_internal)
+  __local__G_wall = G_wall
+  append!(__params, @parameters (G_wall::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, G_wall, __local__G_wall)
+  __local__Gc_external = Gc_external
+  append!(__params, @parameters (Gc_external::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gc_external, __local__Gc_external)
+  __local__Gr_external = Gr_external
+  append!(__params, @parameters (Gr_external::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Gr_external, __local__Gr_external)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
   append!(__vars, @variables (espressoTemp_degC(t)::Real), [output = true])
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named topSurface = __Dyad__Node())
-  push!(__systems, @named outerSurface = __Dyad__Node())
-  push!(__systems, @named ambient = __Dyad__Node())
-  push!(__systems, @named hotEspresso = ThermalComponents.HeatCapacitor(C=C_espresso, T0=T0_espresso))
-  push!(__systems, @named cupMass = ThermalComponents.HeatCapacitor(C=C_cup, T0=T0_cup))
-  push!(__systems, @named convEspresso2Cup = ThermalComponents.Convection())
-  push!(__systems, @named gcEsp2Cup = BlockComponents.Constant(k=Gc_internal))
-  push!(__systems, @named condCup = ThermalComponents.ThermalConductor(G=G_wall))
-  push!(__systems, @named convCup2Env = ThermalComponents.Convection())
-  push!(__systems, @named gcCup2Env = BlockComponents.Constant(k=Gc_external))
-  push!(__systems, @named radCup2Env = ThermalComponents.BodyRadiation(Gr=Gr_external))
-  push!(__systems, @named tempSensor = ThermalComponents.TemperatureSensor())
-  push!(__systems, @named to_degC = BlockComponents.Gain(k=1))
-  push!(__systems, @named offset_degC = BlockComponents.Constant(k=-273.15))
-  push!(__systems, @named add_offset = BlockComponents.Add())
+  push!(__systems, @named topSurface = __Dyad__HeatPort())
+  push!(__systems, @named outerSurface = __Dyad__HeatPort())
+  push!(__systems, @named ambient = __Dyad__HeatPort())
+  # Subcomponent hotEspresso of type ThermalComponents.Components.HeatCapacitor
+  hotEspresso_overrides = __pop_subcomponent_overrides!(__overrides, "hotEspresso")
+  push!(__systems, @named hotEspresso = ThermalComponents.Components.HeatCapacitor(; C=C_espresso, T0=T0_espresso, __overrides = hotEspresso_overrides))
+  # Subcomponent cupMass of type ThermalComponents.Components.HeatCapacitor
+  cupMass_overrides = __pop_subcomponent_overrides!(__overrides, "cupMass")
+  push!(__systems, @named cupMass = ThermalComponents.Components.HeatCapacitor(; C=C_cup, T0=T0_cup, __overrides = cupMass_overrides))
+  # Subcomponent convEspresso2Cup of type ThermalComponents.Components.Convection
+  convEspresso2Cup_overrides = __pop_subcomponent_overrides!(__overrides, "convEspresso2Cup")
+  push!(__systems, @named convEspresso2Cup = ThermalComponents.Components.Convection(; __overrides = convEspresso2Cup_overrides))
+  # Subcomponent gcEsp2Cup of type BlockComponents.Sources.Constant
+  gcEsp2Cup_overrides = __pop_subcomponent_overrides!(__overrides, "gcEsp2Cup")
+  push!(__systems, @named gcEsp2Cup = BlockComponents.Sources.Constant(; k=Gc_internal, __overrides = gcEsp2Cup_overrides))
+  # Subcomponent condCup of type ThermalComponents.Components.ThermalConductor
+  condCup_overrides = __pop_subcomponent_overrides!(__overrides, "condCup")
+  push!(__systems, @named condCup = ThermalComponents.Components.ThermalConductor(; G=G_wall, __overrides = condCup_overrides))
+  # Subcomponent convCup2Env of type ThermalComponents.Components.Convection
+  convCup2Env_overrides = __pop_subcomponent_overrides!(__overrides, "convCup2Env")
+  push!(__systems, @named convCup2Env = ThermalComponents.Components.Convection(; __overrides = convCup2Env_overrides))
+  # Subcomponent gcCup2Env of type BlockComponents.Sources.Constant
+  gcCup2Env_overrides = __pop_subcomponent_overrides!(__overrides, "gcCup2Env")
+  push!(__systems, @named gcCup2Env = BlockComponents.Sources.Constant(; k=Gc_external, __overrides = gcCup2Env_overrides))
+  # Subcomponent radCup2Env of type ThermalComponents.Components.BodyRadiation
+  radCup2Env_overrides = __pop_subcomponent_overrides!(__overrides, "radCup2Env")
+  push!(__systems, @named radCup2Env = ThermalComponents.Components.BodyRadiation(; Gr=Gr_external, __overrides = radCup2Env_overrides))
+  # Subcomponent tempSensor of type ThermalComponents.Sensors.TemperatureSensor
+  tempSensor_overrides = __pop_subcomponent_overrides!(__overrides, "tempSensor")
+  push!(__systems, @named tempSensor = ThermalComponents.Sensors.TemperatureSensor(; __overrides = tempSensor_overrides))
+  # Subcomponent to_degC of type BlockComponents.Math.Gain
+  to_degC_overrides = __pop_subcomponent_overrides!(__overrides, "to_degC")
+  push!(__systems, @named to_degC = BlockComponents.Math.Gain(; k=Float64(1.0), __overrides = to_degC_overrides))
+  # Subcomponent offset_degC of type BlockComponents.Sources.Constant
+  offset_degC_overrides = __pop_subcomponent_overrides!(__overrides, "offset_degC")
+  push!(__systems, @named offset_degC = BlockComponents.Sources.Constant(; k=-273.15, __overrides = offset_degC_overrides))
+  # Subcomponent add_offset of type BlockComponents.Math.Add
+  add_offset_overrides = __pop_subcomponent_overrides!(__overrides, "add_offset")
+  push!(__systems, @named add_offset = BlockComponents.Math.Add(; __overrides = add_offset_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
-
-  ### Defaults
 
   ### Initialization Equations
 
@@ -85,24 +157,24 @@
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(hotEspresso.node, convEspresso2Cup.solid))
-  push!(__eqs, connect(convEspresso2Cup.fluid, cupMass.node))
+  push!(__eqs, connect(hotEspresso.port, convEspresso2Cup.solid))
+  push!(__eqs, connect(convEspresso2Cup.fluid, cupMass.port))
   push!(__eqs, connect(gcEsp2Cup.y, convEspresso2Cup.Gc))
-  push!(__eqs, connect(cupMass.node, condCup.node_a))
-  push!(__eqs, connect(hotEspresso.node, topSurface))
-  push!(__eqs, connect(condCup.node_b, outerSurface))
+  push!(__eqs, connect(cupMass.port, condCup.port_a))
+  push!(__eqs, connect(hotEspresso.port, topSurface))
+  push!(__eqs, connect(condCup.port_b, outerSurface))
   push!(__eqs, connect(outerSurface, convCup2Env.solid))
   push!(__eqs, connect(convCup2Env.fluid, ambient))
   push!(__eqs, connect(gcCup2Env.y, convCup2Env.Gc))
-  push!(__eqs, connect(outerSurface, radCup2Env.node_a))
-  push!(__eqs, connect(radCup2Env.node_b, ambient))
-  push!(__eqs, connect(tempSensor.node, hotEspresso.node))
+  push!(__eqs, connect(outerSurface, radCup2Env.port_a))
+  push!(__eqs, connect(radCup2Env.port_b, ambient))
+  push!(__eqs, connect(tempSensor.port, hotEspresso.port))
   push!(__eqs, connect(tempSensor.T, to_degC.u))
   push!(__eqs, connect(to_degC.y, add_offset.u1))
   push!(__eqs, connect(offset_degC.y, add_offset.u2))
   push!(__eqs, connect(add_offset.y, espressoTemp_degC))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export CoffeeMugSubsystem

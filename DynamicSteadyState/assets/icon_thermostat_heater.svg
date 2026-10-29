@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <defs>
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0099FF"/>
+      <stop offset="100%" stop-color="#006BCC"/>
+    </linearGradient>
+    <linearGradient id="bar-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6C44FF"/>
+      <stop offset="100%" stop-color="#3D00B7"/>
+    </linearGradient>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0A0A0A" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Outer frame -->
+  <rect x="2" y="2" width="276" height="276" rx="8" ry="8" fill="#F5F5F5" stroke="#D6D6D6" stroke-width="1.5"/>
+
+  <!-- Blue body -->
+  <rect x="18" y="18" width="244" height="244" rx="6" ry="6" fill="url(#bg-grad)"/>
+
+  <!-- Title -->
+  <text x="140" y="44" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="13" font-weight="600" fill="#FFFFFF" letter-spacing="0.3">ThermostatHeater</text>
+
+  <!-- Thermostat dial - outer ring -->
+  <circle cx="140" cy="132" r="72" fill="none" stroke="#0A0A0A" stroke-width="3" opacity="0.85"/>
+  <!-- Dial face -->
+  <circle cx="140" cy="132" r="69" fill="#F0F4FF" opacity="0.95"/>
+
+  <!-- Temperature tick marks around dial -->
+  <g stroke="#7D7D7D" stroke-width="1.2" opacity="0.5">
+    <line x1="140" y1="65" x2="140" y2="72"/>
+    <line x1="175" y1="72" x2="171" y2="78"/>
+    <line x1="200" y1="97" x2="195" y2="101"/>
+    <line x1="207" y1="132" x2="200" y2="132"/>
+    <line x1="200" y1="167" x2="195" y2="163"/>
+    <line x1="175" y1="192" x2="171" y2="186"/>
+    <line x1="140" y1="199" x2="140" y2="192"/>
+    <line x1="105" y1="192" x2="109" y2="186"/>
+    <line x1="80" y1="167" x2="85" y2="163"/>
+    <line x1="73" y1="132" x2="80" y2="132"/>
+    <line x1="80" y1="97" x2="85" y2="101"/>
+    <line x1="105" y1="72" x2="109" y2="78"/>
+  </g>
+
+  <!-- Temperature reading -->
+  <text x="140" y="126" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="28" font-weight="700" fill="#0A0A0A">21°</text>
+  <text x="140" y="152" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="13" font-weight="400" fill="#7D7D7D">°C</text>
+
+  <!-- Setpoint indicator (small filled circle at ~7 o'clock position = 21°C on scale) -->
+  <circle cx="140" cy="200" r="4" fill="#FFFFFF" stroke="#0A0A0A" stroke-width="1.5"/>
+
+  <!-- Setpoint needle -->
+  <line x1="140" y1="132" x2="176" y2="98" stroke="#6C44FF" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="140" cy="132" r="4" fill="#6C44FF"/>
+
+  <!-- Power output bar -->
+  <rect x="38" y="224" width="204" height="24" rx="4" ry="4" fill="url(#bar-grad)" filter="url(#shadow)"/>
+  <text x="140" y="241" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="13" font-weight="600" fill="#FFFFFF">8.3 kW</text>
+
+  <!-- Node connector port (left edge) -->
+  <circle cx="8" cy="132" r="5" fill="#FFFFFF" stroke="#0099FF" stroke-width="2"/>
+</svg>

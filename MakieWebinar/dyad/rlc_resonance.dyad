@@ -16,16 +16,16 @@ component TunableRLCResonance
   parameter V_init::Voltage = 10.0
   
   "Series resistor"
-  resistor = ElectricalComponents.Resistor(R=R)
+  resistor = ElectricalComponents.Analog.Basic.Resistor(R=R)
   
   "Series inductor"
-  inductor = ElectricalComponents.Inductor(L=L)
+  inductor = ElectricalComponents.Analog.Basic.Inductor(L=L)
   
   "Capacitor (initially charged)"
-  capacitor = ElectricalComponents.Capacitor(C=C)
+  capacitor = ElectricalComponents.Analog.Basic.Capacitor(C=C)
   
   "Ground"
-  ground = ElectricalComponents.Ground()
+  ground = ElectricalComponents.Analog.Basic.Ground()
   
 relations
   # Simple series RLC - capacitor discharges through R and L

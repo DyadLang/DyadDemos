@@ -1,7 +1,0 @@
-connector SedimentationVelocitySludgeOut
-  # Sedimentation (sink) velocity in (m-1)th layer
-  output vS_dn::Real
-  # Total sludge concentration in (m-1)th layer
-  output X_dn::MassConcentration
-metadata {"Dyad": {"icons": {"default": "dyad://ASPDemo/GenericOutPort1.svg"}}}
-end

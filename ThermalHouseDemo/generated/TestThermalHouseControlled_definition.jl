@@ -5,24 +5,26 @@
 
 
 @doc Markdown.doc"""
-   TestThermalHouseControlled(; name, T_outdoor, T_initial, T_setpoint, solar_irrad)
+   TestThermalHouseControlled(; name, T_outdoor, T_initial, T_setpoint, solar_irrad, __overrides)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `T_outdoor`         | Outdoor temperature 0°C (32°F)                         | K  |   273.15 |
 | `T_initial`         | Initial temperature 21.1°C (70°F)                         | K  |   294.26 |
 | `T_setpoint`         | Setpoint temperature 21.1°C (70°F)                         | K  |   294.26 |
-| `solar_irrad`         | Solar irradiance (W/m²)                         | --  |   0 |
+| `solar_irrad`         | Solar irradiance (W/m²)                         | --  |   0.0 |
 """
-@component function TestThermalHouseControlled(; name = nothing, T_outdoor=273.15, T_initial=294.26, T_setpoint=294.26, solar_irrad=0)
+@component function TestThermalHouseControlled(; name = nothing, var"T_outdoor"=273.15, var"T_initial"=294.26, var"T_setpoint"=294.26, var"solar_irrad"=Float64(0.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestThermalHouseControlled()
+  """))
 
-        @named model = TestThermalHouseControlled()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -30,28 +32,70 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "T_outdoor") && (T_outdoor = pop!(__overrides, "T_outdoor"))
+  haskey(__overrides, "T_initial") && (T_initial = pop!(__overrides, "T_initial"))
+  haskey(__overrides, "T_setpoint") && (T_setpoint = pop!(__overrides, "T_setpoint"))
+  haskey(__overrides, "solar_irrad") && (solar_irrad = pop!(__overrides, "solar_irrad"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (T_outdoor::Real = T_outdoor), [description = "Outdoor temperature 0°C (32°F)", bounds = (0, Inf)])
-  append!(__params, @parameters (T_initial::Real = T_initial), [description = "Initial temperature 21.1°C (70°F)", bounds = (0, Inf)])
-  append!(__params, @parameters (T_setpoint::Real = T_setpoint), [description = "Setpoint temperature 21.1°C (70°F)", bounds = (0, Inf)])
-  append!(__params, @parameters (solar_irrad::Real = solar_irrad), [description = "Solar irradiance (W/m²)"])
+  __local__T_outdoor = T_outdoor
+  append!(__params, @parameters (T_outdoor::Real), [description = "Outdoor temperature 0°C (32°F)", bounds = (0, Inf)])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_outdoor, __local__T_outdoor)
+  __local__T_initial = T_initial
+  append!(__params, @parameters (T_initial::Real), [description = "Initial temperature 21.1°C (70°F)", bounds = (0, Inf)])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_initial, __local__T_initial)
+  __local__T_setpoint = T_setpoint
+  append!(__params, @parameters (T_setpoint::Real), [description = "Setpoint temperature 21.1°C (70°F)", bounds = (0, Inf)])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, T_setpoint, __local__T_setpoint)
+  __local__solar_irrad = solar_irrad
+  append!(__params, @parameters (solar_irrad::Real), [description = "Solar irradiance (W/m²)"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, solar_irrad, __local__solar_irrad)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named controlled_house = ThermalHouseDemo.ThermalHouseControlled(T_initial=T_initial, k_p=10000, T_i=600))
-  push!(__systems, @named setpoint_signal = BlockComponents.Constant(k=T_setpoint))
-  push!(__systems, @named solar_irradiance_signal = BlockComponents.Constant(k=solar_irrad))
-  push!(__systems, @named ambient_signal = BlockComponents.Constant(k=T_outdoor))
+  # Subcomponent controlled_house of type ThermalHouseDemo.ThermalHouseControlled
+  controlled_house_overrides = __pop_subcomponent_overrides!(__overrides, "controlled_house")
+  push!(__systems, @named controlled_house = ThermalHouseDemo.ThermalHouseControlled(; T_initial=T_initial, k_p=Float64(10000.0), T_i=Float64(600.0), __overrides = controlled_house_overrides))
+  # Subcomponent setpoint_signal of type BlockComponents.Sources.Constant
+  setpoint_signal_overrides = __pop_subcomponent_overrides!(__overrides, "setpoint_signal")
+  push!(__systems, @named setpoint_signal = BlockComponents.Sources.Constant(; k=T_setpoint, __overrides = setpoint_signal_overrides))
+  # Subcomponent solar_irradiance_signal of type BlockComponents.Sources.Constant
+  solar_irradiance_signal_overrides = __pop_subcomponent_overrides!(__overrides, "solar_irradiance_signal")
+  push!(__systems, @named solar_irradiance_signal = BlockComponents.Sources.Constant(; k=solar_irrad, __overrides = solar_irradiance_signal_overrides))
+  # Subcomponent ambient_signal of type BlockComponents.Sources.Constant
+  ambient_signal_overrides = __pop_subcomponent_overrides!(__overrides, "ambient_signal")
+  push!(__systems, @named ambient_signal = BlockComponents.Sources.Constant(; k=T_outdoor, __overrides = ambient_signal_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
-  __guesses[controlled_house.house.wall_loss.ΔT] = (10)
-
-  ### Defaults
+  __guesses[controlled_house.house.wall_loss.ΔT] = (10.0)
 
   ### Initialization Equations
 
@@ -64,6 +108,6 @@
   push!(__eqs, connect(ambient_signal.y, controlled_house.T_ambient))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestThermalHouseControlled

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="nn-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A237E"/>
+      <stop offset="100%" stop-color="#0D1333"/>
+    </linearGradient>
+    <linearGradient id="nn-node" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#80DEEA"/>
+      <stop offset="100%" stop-color="#00ACC1"/>
+    </linearGradient>
+    <linearGradient id="nn-node-hidden" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE082"/>
+      <stop offset="100%" stop-color="#FFB300"/>
+    </linearGradient>
+    <radialGradient id="nn-glow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#5C6BC0" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#5C6BC0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Rounded background panel -->
+  <rect x="6" y="6" width="116" height="116" rx="22" fill="url(#nn-bg)"/>
+  <rect x="6" y="6" width="116" height="116" rx="22" fill="url(#nn-glow)"/>
+
+  <!-- Synapse connections -->
+  <g stroke="#5C6BC0" stroke-width="1.4" opacity="0.55">
+    <!-- input -> hidden -->
+    <line x1="30" y1="38" x2="64" y2="30"/>
+    <line x1="30" y1="38" x2="64" y2="64"/>
+    <line x1="30" y1="38" x2="64" y2="98"/>
+    <line x1="30" y1="64" x2="64" y2="30"/>
+    <line x1="30" y1="64" x2="64" y2="64"/>
+    <line x1="30" y1="64" x2="64" y2="98"/>
+    <line x1="30" y1="90" x2="64" y2="30"/>
+    <line x1="30" y1="90" x2="64" y2="64"/>
+    <line x1="30" y1="90" x2="64" y2="98"/>
+    <!-- hidden -> output -->
+    <line x1="64" y1="30" x2="98" y2="48"/>
+    <line x1="64" y1="30" x2="98" y2="80"/>
+    <line x1="64" y1="64" x2="98" y2="48"/>
+    <line x1="64" y1="64" x2="98" y2="80"/>
+    <line x1="64" y1="98" x2="98" y2="48"/>
+    <line x1="64" y1="98" x2="98" y2="80"/>
+  </g>
+
+  <!-- Input layer -->
+  <g fill="url(#nn-node)" stroke="#006064" stroke-width="1.2">
+    <circle cx="30" cy="38" r="8"/>
+    <circle cx="30" cy="64" r="8"/>
+    <circle cx="30" cy="90" r="8"/>
+  </g>
+
+  <!-- Hidden layer -->
+  <g fill="url(#nn-node-hidden)" stroke="#E65100" stroke-width="1.2">
+    <circle cx="64" cy="30" r="9"/>
+    <circle cx="64" cy="64" r="9"/>
+    <circle cx="64" cy="98" r="9"/>
+  </g>
+
+  <!-- Output layer -->
+  <g fill="url(#nn-node)" stroke="#006064" stroke-width="1.2">
+    <circle cx="98" cy="48" r="8"/>
+    <circle cx="98" cy="80" r="8"/>
+  </g>
+</svg>

@@ -6,6 +6,7 @@
 if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "module.jl"))
   include(joinpath((@__DIR__) |> Base.dirname, "dyad", "module.jl"))
 end
+include("internals.jl")
 include("types.jl")
 include("definitions.jl")
 include("experiments.jl")

@@ -5,28 +5,30 @@
 
 
 @doc Markdown.doc"""
-   TestDriverWithBraking(; name, max_accel, drag_coeff)
+   TestDriverWithBraking(; name, max_accel, drag_coeff, __overrides)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `max_accel`         |                          | --  |   5 |
+| `max_accel`         |                          | --  |   5.0 |
 | `drag_coeff`         |                          | --  |   0.2 |
 
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `vehicle_speed`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `vehicle_speed`         |                          | --  |
 """
-@component function TestDriverWithBraking(; name = nothing, max_accel=5, drag_coeff=0.2)
+@component function TestDriverWithBraking(; name = nothing, var"max_accel"=Float64(5.0), var"drag_coeff"=0.2, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = TestDriverWithBraking()
+  """))
 
-        @named model = TestDriverWithBraking()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -34,29 +36,69 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "max_accel") && (max_accel = pop!(__overrides, "max_accel"))
+  haskey(__overrides, "drag_coeff") && (drag_coeff = pop!(__overrides, "drag_coeff"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (max_accel::Real = max_accel))
-  append!(__params, @parameters (drag_coeff::Real = drag_coeff))
+  __local__max_accel = max_accel
+  append!(__params, @parameters (max_accel::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, max_accel, __local__max_accel)
+  __local__drag_coeff = drag_coeff
+  append!(__params, @parameters (drag_coeff::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, drag_coeff, __local__drag_coeff)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (vehicle_speed(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_vehicle_speed = pop!(__overrides, "vehicle_speed", nothing); isnothing(__ovr_vehicle_speed) || push!(__eqs, vehicle_speed ~ __ovr_vehicle_speed)
+  __ovr_vehicle_speed__initial = pop!(__overrides, "vehicle_speed.initial", nothing); isnothing(__ovr_vehicle_speed__initial) || (__initial_conditions[vehicle_speed] = __ovr_vehicle_speed__initial)
+  __ovr_vehicle_speed__guess = pop!(__overrides, "vehicle_speed.guess", nothing)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named step1 = BlockComponents.Step(height=25, offset=0, start_time=1))
-  push!(__systems, @named step2 = BlockComponents.Step(height=-15, offset=0, start_time=6))
-  push!(__systems, @named sum_steps = BlockComponents.Add())
-  push!(__systems, @named driver = FrictionBrakeDemo.Driver())
+  # Subcomponent step1 of type BlockComponents.Sources.Step
+  step1_overrides = __pop_subcomponent_overrides!(__overrides, "step1")
+  push!(__systems, @named step1 = BlockComponents.Sources.Step(; height=Float64(25.0), offset=Float64(0.0), start_time=Float64(1.0), __overrides = step1_overrides))
+  # Subcomponent step2 of type BlockComponents.Sources.Step
+  step2_overrides = __pop_subcomponent_overrides!(__overrides, "step2")
+  push!(__systems, @named step2 = BlockComponents.Sources.Step(; height=-15.0, offset=Float64(0.0), start_time=Float64(6.0), __overrides = step2_overrides))
+  # Subcomponent sum_steps of type BlockComponents.Math.Add
+  sum_steps_overrides = __pop_subcomponent_overrides!(__overrides, "sum_steps")
+  push!(__systems, @named sum_steps = BlockComponents.Math.Add(; __overrides = sum_steps_overrides))
+  # Subcomponent driver of type FrictionBrakeDemo.Driver
+  driver_overrides = __pop_subcomponent_overrides!(__overrides, "driver")
+  push!(__systems, @named driver = FrictionBrakeDemo.Driver(; __overrides = driver_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
-
-  ### Defaults
-  __initial_conditions[vehicle_speed] = (0)
+  isnothing(__ovr_vehicle_speed__guess) || (__guesses[vehicle_speed] = __ovr_vehicle_speed__guess)
 
   ### Initialization Equations
+  push!(__initialization_eqs, vehicle_speed ~ 0.0)
 
   ### Assertions
   __assertions = []
@@ -69,6 +111,6 @@
   push!(__eqs, connect(sum_steps.y, driver.speed_ref))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export TestDriverWithBraking

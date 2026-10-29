@@ -1,0 +1,62 @@
+"""
+Single-axis trapezoidal velocity profile for rest-to-rest slew maneuvers.
+
+Generates a smooth reference trajectory that respects maximum angular rate
+and maximum angular acceleration constraints. Standard in spacecraft AOCS
+(ESA ECSS-E-ST-60-30C, NASA GSFC flight software).
+
+Profile phases:
+  1. Accelerate at +a_max until w_max
+  2. Coast at w_max
+  3. Decelerate at -a_max to rest
+
+Outputs both the reference angle and reference angular rate for use
+by a tracking controller.
+"""
+component TrapezoidalProfile
+  "Reference angle output (rad)"
+  angle_ref = RealOutput() {^angle_ref}
+  "Reference angular rate output (rad/s)"
+  rate_ref = RealOutput() {^rate_ref}
+  "Reference angular acceleration output (rad/s^2)"
+  accel_ref = RealOutput() {^accel_ref}
+  "Target slew angle (rad)"
+  parameter target_angle::Real = 0.35
+  "Maximum angular rate (rad/s)"
+  parameter w_max::Real = 0.035
+  "Maximum angular acceleration (rad/s^2)"
+  parameter a_max::Real = 0.0087
+relations
+  angle_ref = SatelliteGNC.trapz_angle_ref(time, target_angle, w_max, a_max)
+  rate_ref = SatelliteGNC.trapz_rate_ref(time, target_angle, w_max, a_max)
+  accel_ref = SatelliteGNC.trapz_accel_ref(time, target_angle, w_max, a_max)
+metadata {
+  "Dyad": {"icons": {"default": "dyad://SatelliteGNC/TrapezoidalProfile.svg"}},
+  "_links": {
+    "angle_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 140, "x2": 1060, "y2": 240, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "rate_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "accel_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 970, "y1": 710, "x2": 1070, "y2": 810, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

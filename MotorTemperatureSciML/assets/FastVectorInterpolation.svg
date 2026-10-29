@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <title>Multi-channel piecewise interpolation; one time search per call</title>
+  <rect x="4" y="4" width="992" height="992" fill="#fff" stroke="#008a19" stroke-width="8"/>
+  <!-- Axes: value over time. -->
+  <path d="M150 760 H820" fill="none" stroke="#a8b8c6" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M860 760 L818 738 V782 Z" fill="#a8b8c6"/>
+  <path d="M150 760 V200" fill="none" stroke="#a8b8c6" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M150 160 L128 202 H172 Z" fill="#a8b8c6"/>
+  <!-- One query time shared by every channel. -->
+  <path d="M610 180 V760" fill="none" stroke="#334155" stroke-width="8" stroke-linecap="round" stroke-dasharray="22 18"/>
+  <!-- Three channels, each a piecewise-linear curve through its samples. -->
+  <polyline points="220,320 380,240 540,300 700,210 820,270" fill="none" stroke="#e99535" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="220,500 380,440 540,520 700,380 820,450" fill="none" stroke="#8275b5" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="220,660 380,600 540,560 700,620 820,580" fill="none" stroke="#087fa3" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <g stroke="#334155" stroke-width="8">
+    <g fill="#e99535"><circle cx="220" cy="320" r="22"/><circle cx="380" cy="240" r="22"/><circle cx="540" cy="300" r="22"/><circle cx="700" cy="210" r="22"/><circle cx="820" cy="270" r="22"/></g>
+    <g fill="#8275b5"><circle cx="220" cy="500" r="22"/><circle cx="380" cy="440" r="22"/><circle cx="540" cy="520" r="22"/><circle cx="700" cy="380" r="22"/><circle cx="820" cy="450" r="22"/></g>
+    <g fill="#087fa3"><circle cx="220" cy="660" r="22"/><circle cx="380" cy="600" r="22"/><circle cx="540" cy="560" r="22"/><circle cx="700" cy="620" r="22"/><circle cx="820" cy="580" r="22"/></g>
+  </g>
+  <!-- Interpolated values returned together at the query time. -->
+  <circle cx="610" cy="260.6" r="18" fill="#fff" stroke="#e99535" stroke-width="10"/>
+  <circle cx="610" cy="458.8" r="18" fill="#fff" stroke="#8275b5" stroke-width="10"/>
+  <circle cx="610" cy="586.2" r="18" fill="#fff" stroke="#087fa3" stroke-width="10"/>
+  <text x="500" y="920" text-anchor="middle" font-family="sans-serif" font-size="96" fill="#334155">y(t)</text>
+</svg>

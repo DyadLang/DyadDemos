@@ -1,0 +1,11 @@
+"Stateless C tire on a sliding axle."
+analysis StatelessTransient
+  extends TransientAnalysis(stop = 2, abstol = 1e-9, reltol = 1e-9)
+  model = SlidingAxle()
+end
+
+"Stateful tire with fixed communication steps."
+analysis StatefulTransient
+  extends TransientAnalysis(stop = 2, abstol = 1e-9, reltol = 1e-9)
+  model = SampledSlidingAxle()
+end

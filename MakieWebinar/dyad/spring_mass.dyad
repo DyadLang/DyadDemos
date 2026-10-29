@@ -5,15 +5,15 @@ component SpringMassSystem
   "RealInput force port for external force applied to the mass"
   f = RealInput() {^f}
   "Mass component"
-  mass = TranslationalComponents.Mass(m = 1.0) {^mass}
+  mass = TranslationalComponents.Components.Mass(m = 1.0) {^mass}
   "Spring component"
-  spring = TranslationalComponents.Spring(c = 10.0, s_rel0 = 0.0) {^spring}
+  spring = TranslationalComponents.Components.Spring(c = 10.0, s_rel0 = 0.0) {^spring}
   "Fixed reference point"
-  fixed = TranslationalComponents.Fixed(s0 = 0.0) {^fixed}
+  fixed = TranslationalComponents.Components.Fixed(s0 = 0.0) {^fixed}
   "Internal force source to apply the input signal"
-  force_source = TranslationalComponents.Force() {^force_source}
+  force_source = TranslationalComponents.Sources.Force() {^force_source}
   "Fixed ground for force source"
-  ground = TranslationalComponents.Fixed(s0 = 0.0) {^ground}
+  ground = TranslationalComponents.Components.Fixed(s0 = 0.0) {^ground}
 relations
   connect(fixed.flange, spring.flange_a) {^id7}
   connect(spring.flange_b, mass.flange_a) {^id8}
@@ -101,7 +101,7 @@ end
 
 test component TestSpringMassSystem
   "Step force input"
-  step_force = BlockComponents.Step(height = 5.0, offset = 0.0, start_time = 0.1) {^step_force}
+  step_force = BlockComponents.Sources.Step(height = 5.0, offset = 0.0, start_time = 0.1) {^step_force}
   "Spring-mass system under test"
   system = SpringMassSystem() {^system}
 relations

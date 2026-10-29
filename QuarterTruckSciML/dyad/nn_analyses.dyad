@@ -1,0 +1,59 @@
+# NN training analyses for the full 3-nonlinearity gray-box truck.
+#
+# The two-stage training is:
+#   1. Adam (TruckFullNNTrainingAnalysis) for fast global descent
+#   2. LBFGS (TruckFullNNTrainingAnalysisLBFGS) starting from Adam's weights
+#      for candidate refinement
+#
+# Both consume the same sin-excited training set; the LBFGS analysis reads the
+# Adam-trained weights via `initial_values_path`.
+# RC2 maps optimizer_abstol to Optim's function-change tolerance. A Success
+# code can therefore precede gradient convergence. Use scripts/train.jl to
+# check raw gradient optimality before exporting accepted LBFGS weights.
+
+"Sanity: sin-driven gray-box truck with random NN init (should integrate cleanly but NOT match the GT)."
+analysis AnalysisFullNNSin
+  extends TransientAnalysis(stop=5.0, saveat=0.01)
+  model = TestQuarterTruckFullNNSin()
+end
+
+using DyadData: DyadDataset
+
+"Train the full 3-nonlinearity NN on sin-excited ground truth. Stage 1: Adam."
+analysis TruckFullNNTrainingAnalysis
+  extends DyadModelDiscovery.NNTrainingAnalysis(
+    data = DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/truck_sin_full_train.csv",
+      independent_var = "timestamp",
+      dependent_vars = ["model.tire.s(t)", "model.driver.s(t)", "model.driver.a(t)"]),
+    depvars_names = ["model.tire.s", "model.driver.s", "model.driver.a"],
+    stop = 5.0,
+    alg = ODEAlg.Tsit5(),
+    calibration_alg = "SingleShooting",
+    optimizer = "Adam",
+    # ForwardDiff is faster for this small 68-parameter network on RC2.
+    adtype = DyadModelOptimizer.ADChoice.ForwardDiff(),
+    optimizer_maxiters = 5000,
+    learning_rate = 1e-3,
+    network_component = "model.scaled_nn.nn",
+    results_path = "training-results/adam_weights.csv")
+  model = TestQuarterTruckFullNNSin()
+end
+
+"Refine the full-NN weights with LBFGS after Adam pre-training."
+analysis TruckFullNNTrainingAnalysisLBFGS
+  extends DyadModelDiscovery.NNTrainingAnalysis(
+    data = DyadData.DyadTimeseries("dyad://QuarterTruckSciML/data/truck_sin_full_train.csv",
+      independent_var = "timestamp",
+      dependent_vars = ["model.tire.s(t)", "model.driver.s(t)", "model.driver.a(t)"]),
+    depvars_names = ["model.tire.s", "model.driver.s", "model.driver.a"],
+    stop = 5.0,
+    alg = ODEAlg.Tsit5(),
+    calibration_alg = "SingleShooting",
+    optimizer = "LBFGS",
+    adtype = DyadModelOptimizer.ADChoice.ForwardDiff(),
+    optimizer_maxiters = 200,
+    network_component = "model.scaled_nn.nn",
+    initial_values_path = "training-results/adam_weights.csv",
+    results_path = "training-results/lbfgs_weights.csv")
+  model = TestQuarterTruckFullNNSin()
+end

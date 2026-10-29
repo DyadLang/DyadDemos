@@ -15,6 +15,8 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "tests.jl"))
 end
 
 
+include("test_internals.jl")
+
 @testset "`HybridTransmission`" begin
 include("ECMSController_test.jl")
 include("HighwayDriveCycle_test.jl")

@@ -1,0 +1,41 @@
+# Torque excitation signals for the driveline calibration/validation events.
+#
+# Event 1 (chirp) and Event 2 (slow cycle) use stdlib sources
+# (BlockComponents.Sources.Chirp / Sine) directly in the harnesses; only the
+# tip-in validation profile needs a custom component.
+
+"Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at `t_tip` (ramp time constant `t_ramp`), plus a high-frequency motor-ripple component. Used as the unseen validation event — it excites the Maxwell branch (fast ramp + ripple) and the Bouc-Wen hysteresis (large torque swing) simultaneously."
+component TipInTorque
+  y = RealOutput()
+  "Cruise torque before tip-in [N*m]"
+  parameter T_cruise::Real = 30.0
+  "Torque after tip-in [N*m]"
+  parameter T_accel::Real = 150.0
+  "Tip-in center time [s]"
+  parameter t_tip::Time = 0.5
+  "Ramp time constant [s]"
+  parameter t_ramp::Time = 0.02
+  "Motor torque ripple amplitude [N*m]"
+  parameter ripple_amplitude::Real = 3.0
+  "Motor torque ripple frequency [Hz]"
+  parameter ripple_frequency::Frequency = 600.0
+relations
+  y = T_cruise + (T_accel - T_cruise) * 0.5 * (1.0 + tanh((time - t_tip) / t_ramp)) + ripple_amplitude * sin(2 * π * ripple_frequency * time)
+metadata {
+  "Dyad": {
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}],
+    "icons": {"default": "dyad://DrivelineSciML/TipInTorque.svg"}
+  }
+}
+end
+
+"Test harness for TipInTorque in isolation."
+test component TestTipInTorque
+  source = TipInTorque()
+relations
+end
+
+analysis TestTipInTorqueTransient
+  extends TransientAnalysis(stop = 2.0, saveat = 0.0005)
+  model = TestTipInTorque()
+end

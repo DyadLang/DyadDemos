@@ -5,13 +5,13 @@
 
 
 @doc Markdown.doc"""
-   FHNCapacitor(; name, V, a, b, eps)
+   FHNCapacitor(; name, V, a, b, eps, __overrides)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `V`         |                          | --  |   1 |
+| `V`         |                          | --  |   1.0 |
 | `a`         |                          | --  |   0.1 |
 | `b`         |                          | --  |   0.01 |
 | `eps`         |                          | --  |   0.01 |
@@ -37,17 +37,19 @@ Supported dynamics:
 ## Variables
 
 | Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ | 
-| `u`         |                          | --  | 
-| `v`         |                          | --  | 
+| ------------ | ----------------------------------- | ------ |
+| `u`         |                          | --  |
+| `v`         |                          | --  |
 """
-@component function FHNCapacitor(; name = nothing, V=1, a=0.1, b=0.01, eps=0.01)
+@component function FHNCapacitor(; name = nothing, var"V"=Float64(1.0), var"a"=0.1, var"b"=0.01, var"eps"=0.01, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = FHNCapacitor()
+  """))
 
-        @named model = FHNCapacitor()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -55,16 +57,55 @@ Supported dynamics:
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "V") && (V = pop!(__overrides, "V"))
+  haskey(__overrides, "a") && (a = pop!(__overrides, "a"))
+  haskey(__overrides, "b") && (b = pop!(__overrides, "b"))
+  haskey(__overrides, "eps") && (eps = pop!(__overrides, "eps"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (V::Real = V))
-  append!(__params, @parameters (a::Real = a))
-  append!(__params, @parameters (b::Real = b))
-  append!(__params, @parameters (eps::Real = eps))
+  __local__V = V
+  append!(__params, @parameters (V::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, V, __local__V)
+  __local__a = a
+  append!(__params, @parameters (a::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, a, __local__a)
+  __local__b = b
+  append!(__params, @parameters (b::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, b, __local__b)
+  __local__eps = eps
+  append!(__params, @parameters (eps::Real))
+  __dyad_seed_parameter!(__initial_conditions, __bindings, eps, __local__eps)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
   append!(__vars, @variables (u(t)::Real))
   append!(__vars, @variables (v(t)::Real))
+
+  ### Variables (assignments)
+  __ovr_u = pop!(__overrides, "u", nothing); isnothing(__ovr_u) || push!(__eqs, u ~ __ovr_u)
+  __ovr_u__initial = pop!(__overrides, "u.initial", nothing); isnothing(__ovr_u__initial) || (__initial_conditions[u] = __ovr_u__initial)
+  __ovr_u__guess = pop!(__overrides, "u.guess", nothing)
+  __ovr_v = pop!(__overrides, "v", nothing); isnothing(__ovr_v) || push!(__eqs, v ~ __ovr_v)
+  __ovr_v__initial = pop!(__overrides, "v.initial", nothing); isnothing(__ovr_v__initial) || (__initial_conditions[v] = __ovr_v__initial)
+  __ovr_v__guess = pop!(__overrides, "v.guess", nothing)
 
   ### Constants
   __constants = Any[]
@@ -72,9 +113,12 @@ Supported dynamics:
   ### Components
   push!(__systems, @named port = MakieWebinar.DiffusionPort())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
-  ### Defaults
+  ### Guesses
+  isnothing(__ovr_u__guess) || (__guesses[u] = __ovr_u__guess)
+  isnothing(__ovr_v__guess) || (__guesses[v] = __ovr_v__guess)
 
   ### Initialization Equations
 
@@ -83,10 +127,10 @@ Supported dynamics:
 
   ### Equations
   push!(__eqs, u ~ port.C)
-  push!(__eqs, V * ModelingToolkit.D_nounits(u) ~ port.J + V * (u * (u - a) * (1 - u) - v))
+  push!(__eqs, V * ModelingToolkit.D_nounits(u) ~ port.J + V * (u * (u - a) * (1.0 - u) - v))
   push!(__eqs, V * ModelingToolkit.D_nounits(v) ~ V * eps * (u - b * v))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export FHNCapacitor

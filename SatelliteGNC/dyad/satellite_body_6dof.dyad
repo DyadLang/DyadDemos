@@ -1,0 +1,141 @@
+"""
+6-DOF rigid body satellite dynamics.
+
+Translational: Two-body Keplerian orbit in ECI frame with thrust.
+Rotational: Euler's equations with 3-2-1 kinematics and gravity gradient torque.
+
+States (12):
+  Translational: x, y, z (ECI position, m), vx, vy, vz (ECI velocity, m/s)
+  Rotational: phi, theta, psi (Euler angles, rad), wx, wy, wz (body rates, rad/s)
+
+Coupling:
+  - Body-frame thrust forces rotated to ECI for translational acceleration
+  - Gravity gradient torque from orbital position acting on attitude
+"""
+component SatelliteBody6DOF
+  "Torque inputs (body frame, N·m)"
+  tau_x = RealInput()
+  tau_y = RealInput()
+  tau_z = RealInput()
+  "Force inputs (body frame, N)"
+  fx = RealInput()
+  fy = RealInput()
+  fz = RealInput()
+  "Euler angle outputs (rad)"
+  phi_out = RealOutput()
+  theta_out = RealOutput()
+  psi_out = RealOutput()
+  "Angular velocity outputs (body frame, rad/s)"
+  wx_out = RealOutput()
+  wy_out = RealOutput()
+  wz_out = RealOutput()
+  "ECI position outputs (m)"
+  x_out = RealOutput()
+  y_out = RealOutput()
+  z_out = RealOutput()
+  "ECI velocity outputs (m/s)"
+  vx_out = RealOutput()
+  vy_out = RealOutput()
+  vz_out = RealOutput()
+  "Principal moments of inertia (kg·m²)"
+  parameter Ixx::Real = 10.0
+  parameter Iyy::Real = 8.0
+  parameter Izz::Real = 6.0
+  "Satellite mass (kg)"
+  parameter m::Real = 4.0
+  "Earth gravitational parameter (m³/s²)"
+  parameter mu::Real = 3.986004418e14
+  "Angular velocities in body frame (rad/s)"
+  variable wx::Real
+  variable wy::Real
+  variable wz::Real
+  "Euler angles: roll, pitch, yaw (rad)"
+  variable phi::Real
+  variable theta::Real
+  variable psi::Real
+  "ECI position (m)"
+  variable pos_x::Real
+  variable pos_y::Real
+  variable pos_z::Real
+  "ECI velocity (m/s)"
+  variable vel_x::Real
+  variable vel_y::Real
+  variable vel_z::Real
+relations
+  # --- Translational dynamics (ECI frame) ---
+  # dr/dt = v
+  der(pos_x) = vel_x
+  der(pos_y) = vel_y
+  der(pos_z) = vel_z
+  # dv/dt = gravity + thrust/mass (thrust rotated from body to ECI)
+  der(vel_x) = SatelliteGNC.eci_grav_ax(pos_x, pos_y, pos_z, mu) + SatelliteGNC.body_to_eci_x(phi, theta, psi, fx, fy, fz) / m
+  der(vel_y) = SatelliteGNC.eci_grav_ay(pos_x, pos_y, pos_z, mu) + SatelliteGNC.body_to_eci_y(phi, theta, psi, fx, fy, fz) / m
+  der(vel_z) = SatelliteGNC.eci_grav_az(pos_x, pos_y, pos_z, mu) + SatelliteGNC.body_to_eci_z(phi, theta, psi, fx, fy, fz) / m
+  # --- Rotational dynamics (body frame) ---
+  # Euler's equations with gravity gradient torque
+  Ixx * der(wx) = tau_x + (Iyy - Izz) * wy * wz + SatelliteGNC.gg_torque_x(pos_x, pos_y, pos_z, phi, theta, psi, Ixx, Iyy, Izz, mu)
+  Iyy * der(wy) = tau_y + (Izz - Ixx) * wz * wx + SatelliteGNC.gg_torque_y(pos_x, pos_y, pos_z, phi, theta, psi, Ixx, Iyy, Izz, mu)
+  Izz * der(wz) = tau_z + (Ixx - Iyy) * wx * wy + SatelliteGNC.gg_torque_z(pos_x, pos_y, pos_z, phi, theta, psi, Ixx, Iyy, Izz, mu)
+  # --- 3-2-1 Euler angle kinematics ---
+  der(phi) = wx + (wy * sin(phi) + wz * cos(phi)) * tan(theta)
+  der(theta) = wy * cos(phi) - wz * sin(phi)
+  der(psi) = (wy * sin(phi) + wz * cos(phi)) / cos(theta)
+  # --- Wire outputs ---
+  phi_out = phi
+  theta_out = theta
+  psi_out = psi
+  wx_out = wx
+  wy_out = wy
+  wz_out = wz
+  x_out = pos_x
+  y_out = pos_y
+  z_out = pos_z
+  vx_out = vel_x
+  vy_out = vel_y
+  vz_out = vel_z
+end
+
+# =====================================================
+# TEST: Circular orbit propagation (one full period)
+#
+# Initial conditions: 400 km LEO circular orbit
+#   r = [R_earth + 400km, 0, 0] m
+#   v = [0, v_circ, 0] m/s
+#   Zero attitude, zero angular velocity, no forces/torques
+#
+# Expected:
+#   - Keplerian orbit, period ≈ 5545 s
+#   - Position returns near initial after one period
+#   - Orbital energy E = 0.5*v² - μ/r is conserved
+#   - No attitude change (gravity gradient zero when aligned)
+# =====================================================
+test component TestOrbitPropagation
+  sat = SatelliteBody6DOF(Ixx = 10.0, Iyy = 8.0, Izz = 6.0, m = 4.0)
+relations
+  # Initial conditions: circular orbit at 400 km
+  initial sat.pos_x = 6771000.0
+  initial sat.pos_y = 0.0
+  initial sat.pos_z = 0.0
+  initial sat.vel_x = 0.0
+  initial sat.vel_y = 7672.6
+  initial sat.vel_z = 0.0
+  # Zero attitude and rates
+  initial sat.wx = 0.0
+  initial sat.wy = 0.0
+  initial sat.wz = 0.0
+  initial sat.phi = 0.0
+  initial sat.theta = 0.0
+  initial sat.psi = 0.0
+  # No external forces or torques
+  sat.tau_x = 0.0
+  sat.tau_y = 0.0
+  sat.tau_z = 0.0
+  sat.fx = 0.0
+  sat.fy = 0.0
+  sat.fz = 0.0
+end
+
+analysis TestOrbitPropagationSim
+  extends TransientAnalysis(stop = 5545.0, abstol = 1e-10, reltol = 1e-10)
+  model = TestOrbitPropagation()
+end

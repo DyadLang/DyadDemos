@@ -5,9 +5,9 @@
 
 
 @doc Markdown.doc"""
-   HybridPlanetaryGear(; name, ratio)
+   HybridPlanetaryGear(; name, ratio, __overrides)
 
-## Parameters: 
+## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
@@ -19,13 +19,15 @@
  * `carrier` - This connector represents a rotational spline with angle and torque as the potential and flow variables, respectively. ([`Spline`](@ref))
  * `ring` - This connector represents a rotational spline with angle and torque as the potential and flow variables, respectively. ([`Spline`](@ref))
 """
-@component function HybridPlanetaryGear(; name = nothing, ratio=2.6)
+@component function HybridPlanetaryGear(; name = nothing, var"ratio"=2.6, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = HybridPlanetaryGear()
+  """))
 
-        @named model = HybridPlanetaryGear()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -33,11 +35,35 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Keyword argument overrides
+  haskey(__overrides, "ratio") && (ratio = pop!(__overrides, "ratio"))
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  append!(__params, @parameters (ratio::Real = ratio), [description = "Gear ratio defined as (number of ring_teeth) / (number of sun_teeth)."])
+  __local__ratio = ratio
+  append!(__params, @parameters (ratio::Real), [description = "Gear ratio defined as (number of ring_teeth) / (number of sun_teeth)."])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, ratio, __local__ratio)
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
@@ -47,9 +73,10 @@
   push!(__systems, @named carrier = __Dyad__Spline())
   push!(__systems, @named ring = __Dyad__Spline())
 
-  ### Guesses
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
-  ### Defaults
+  ### Guesses
 
   ### Initialization Equations
 
@@ -65,6 +92,6 @@
   push!(__eqs, carrier.tau ~ -(1 + ratio) * sun.tau)
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export HybridPlanetaryGear

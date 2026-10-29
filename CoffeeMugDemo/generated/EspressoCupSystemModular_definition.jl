@@ -5,15 +5,17 @@
 
 
 @doc Markdown.doc"""
-   EspressoCupSystemModular(; name)
+   EspressoCupSystemModular(; name, __overrides)
 """
-@component function EspressoCupSystemModular(; name = nothing)
+@component function EspressoCupSystemModular(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
-        The `name` keyword must be provided. Please consider using the `@named` macro,
-        like so:
+    The `name` keyword must be provided. Please consider using the `@named` macro,
+    like so:
+  
+    @named model = EspressoCupSystemModular()
+  """))
 
-        @named model = EspressoCupSystemModular()
-        """))
+  __overrides = Dict{String, Any}(__overrides)
   __params = Symbolics.SymbolicT[]
   __vars = Symbolics.SymbolicT[]
   __systems = System[]
@@ -21,25 +23,54 @@
   __initial_conditions = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
   __initialization_eqs = Equation[]
   __eqs = Equation[]
+  __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
+
+  ### Structural Parameters (functions)
+
+  ### Structural Parameters (Final)
+
+  ### Path Parameters (functions)
+
+  ### Path Parameters (non-final)
+
+  ### Final Parameters (declarations)
+
+  ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
 
-  ### Variables
+  ### Final Parameters (assignments)
+
+  ### Final Path Parameters
+
+  ### Variables (declarations)
+
+  ### Variables (assignments)
 
   ### Constants
   __constants = Any[]
 
   ### Components
-  push!(__systems, @named coffeeMug = CoffeeMugDemo.CoffeeMugSubsystem())
-  push!(__systems, @named steam = CoffeeMugDemo.SteamSubsystem())
-  push!(__systems, @named hand = CoffeeMugDemo.HandSubsystem())
-  push!(__systems, @named environment = ThermalComponents.FixedTemperature(T=293.15))
+  # Subcomponent coffeeMug of type CoffeeMugDemo.CoffeeMugSubsystem
+  coffeeMug_overrides = __pop_subcomponent_overrides!(__overrides, "coffeeMug")
+  push!(__systems, @named coffeeMug = CoffeeMugDemo.CoffeeMugSubsystem(; __overrides = coffeeMug_overrides))
+  # Subcomponent steam of type CoffeeMugDemo.SteamSubsystem
+  steam_overrides = __pop_subcomponent_overrides!(__overrides, "steam")
+  push!(__systems, @named steam = CoffeeMugDemo.SteamSubsystem(; __overrides = steam_overrides))
+  # Subcomponent hand of type CoffeeMugDemo.HandSubsystem
+  hand_overrides = __pop_subcomponent_overrides!(__overrides, "hand")
+  push!(__systems, @named hand = CoffeeMugDemo.HandSubsystem(; __overrides = hand_overrides))
+  # Subcomponent environment of type ThermalComponents.Sources.FixedTemperature
+  environment_overrides = __pop_subcomponent_overrides!(__overrides, "environment")
+  push!(__systems, @named environment = ThermalComponents.Sources.FixedTemperature(; T=293.15, __overrides = environment_overrides))
+
+  ### Check there are no unmatched overrides
+  isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
-  __guesses[coffeeMug.radCup2Env.node_a.T] = (330)
-  __guesses[hand.handContact.ΔT] = (-20)
-
-  ### Defaults
+  __guesses[coffeeMug.outerSurface.T] = (330.0)
+  __guesses[coffeeMug.convCup2Env.ΔT] = (37.0)
+  __guesses[hand.handContact.ΔT] = (-20.0)
 
   ### Initialization Equations
 
@@ -48,11 +79,11 @@
 
   ### Equations
   push!(__eqs, connect(hand.cupContact, coffeeMug.outerSurface))
-  push!(__eqs, connect(coffeeMug.ambient, environment.node))
-  push!(__eqs, connect(steam.ambient, environment.node))
+  push!(__eqs, connect(coffeeMug.ambient, environment.port))
+  push!(__eqs, connect(steam.ambient, environment.port))
   push!(__eqs, connect(coffeeMug.topSurface, steam.liquidInterface))
 
   # Return completely constructed System
-  return System(__eqs, t, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, assertions=__assertions)
+  return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
 end
 export EspressoCupSystemModular

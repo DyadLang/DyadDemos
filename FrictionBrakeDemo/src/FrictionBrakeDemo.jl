@@ -1,8 +1,5 @@
 module FrictionBrakeDemo
 
-include("../generated/types.jl")
-include("../generated/definitions.jl")
-include("../generated/experiments.jl")
-include("../generated/precompilation.jl")
+include("../generated/module.jl")
     
 end # module FrictionBrakeDemo
