@@ -10,5 +10,10 @@ component Tire
   parameter k_load::Real = 0.06
 relations
   force = BlackBoxDerivatives.F(slip, 1 - k_load * v)
-metadata {"Dyad": {"icons": {"default": "dyad://BlackBoxDerivatives/Tire.svg"}}}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://BlackBoxDerivatives/Tire.svg"},
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "attrs": {"font-family": "DejaVu Sans, sans-serif"}}]
+  }
+}
 end

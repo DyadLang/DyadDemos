@@ -5,7 +5,7 @@
   <path fill="#8f8f8f" d="M170 640V520l150-30 110-130h250l120 130 90 20v130z"/>
   <path fill="#ffffff" d="M450 390h220l90 100H360z"/>
   <rect x="200" y="530" width="240" height="240" rx="24" fill="#1f1f1f"/>
-  <text x="320" y="700" fill="#ffffff" font-family="DejaVu Serif, serif" font-style="italic" font-size="170" text-anchor="middle">∂</text>
+  <text x="320" y="728" fill="#ffffff" font-family="DejaVu Sans, sans-serif" font-weight="bold" font-size="230" text-anchor="middle">∂</text>
   <circle cx="720" cy="650" r="85" fill="#1f1f1f"/>
   <path stroke="#8f8f8f" stroke-width="12" d="M60 790h880"/>
 </svg>

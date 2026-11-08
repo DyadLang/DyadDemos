@@ -13,5 +13,10 @@ relations
   initial v = 0
   der(x) = v
   der(v) = force - c_drag * v^2
-metadata {"Dyad": {"icons": {"default": "dyad://BlackBoxDerivatives/Car.svg"}}}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://BlackBoxDerivatives/Car.svg"},
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "attrs": {"font-family": "DejaVu Sans, sans-serif"}}]
+  }
+}
 end

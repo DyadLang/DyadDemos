@@ -4,8 +4,8 @@ component TireCar
   slip = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"iconName": "input", "x1": -100, "y1": 450, "x2": 0, "y2": 550},
-        "diagram": {"iconName": "input", "x1": 75, "y1": 375, "x2": 125, "y2": 425}
+        "icon": {"iconName": "input", "x1": -100, "y1": 200, "x2": 0, "y2": 300},
+        "diagram": {"iconName": "input", "x1": 90, "y1": 390, "x2": 110, "y2": 410}
       }
     }
   }
@@ -35,5 +35,14 @@ relations
       "path": {}
     }
   }
-metadata {"Dyad": {"icons": {"default": "dyad://BlackBoxDerivatives/icon.svg"}}}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://BlackBoxDerivatives/icon.svg"},
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "attrs": {"font-family": "DejaVu Sans, sans-serif"}},
+      {"label": "slip", "x": 40, "y": 250, "attrs": {"text-anchor": "start", "font-size": "80", "fill": "#1f1f1f", "font-family": "DejaVu Sans, sans-serif"}},
+      {"label": "slip", "x": 100, "y": 370, "layer": "diagram", "attrs": {"font-size": "16", "fill": "#1f1f1f", "font-family": "DejaVu Sans, sans-serif"}}
+    ]
+  }
+}
 end
