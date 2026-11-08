@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- The car of Car.svg, driven by the black box of Tire.svg as its wheel. -->
+  <path fill="#ffffff" d="M4 4h992v992H4z"/>
+  <path fill="#84bfed" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <path fill="#8f8f8f" d="M170 640V520l150-30 110-130h250l120 130 90 20v130z"/>
+  <path fill="#ffffff" d="M450 390h220l90 100H360z"/>
+  <rect x="200" y="530" width="240" height="240" rx="24" fill="#1f1f1f"/>
+  <text x="320" y="728" fill="#ffffff" font-family="DejaVu Sans, sans-serif" font-weight="bold" font-size="230" text-anchor="middle">∂</text>
+  <circle cx="720" cy="650" r="85" fill="#1f1f1f"/>
+  <path stroke="#8f8f8f" stroke-width="12" d="M60 790h880"/>
+</svg>

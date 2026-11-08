@@ -1,0 +1,19 @@
+"Tire force from the black box: force = F(slip, load), with the load falling with speed"
+component Tire
+  "Wheel slip"
+  slip = RealInput() [{"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -100, "y1": 200, "x2": 0, "y2": 300, "rot": 0}}}}]
+  "Car speed"
+  v = RealInput() [{"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -100, "y1": 700, "x2": 0, "y2": 800, "rot": 0}}}}]
+  "Tire force"
+  force = RealOutput() [{"Dyad": {"placement": {"icon": {"iconName": "output", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0}}}}]
+  "Normal load lost per unit speed"
+  parameter k_load::Real = 0.06
+relations
+  force = BlackBoxDerivatives.F(slip, 1 - k_load * v)
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://BlackBoxDerivatives/Tire.svg"},
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "attrs": {"font-family": "DejaVu Sans, sans-serif"}}]
+  }
+}
+end

@@ -1,0 +1,48 @@
+"A car on a straight track, driven by a black-box tire force"
+component TireCar
+  "Wheel slip: the control input"
+  slip = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "input", "x1": -100, "y1": 200, "x2": 0, "y2": 300},
+        "diagram": {"iconName": "input", "x1": 90, "y1": 390, "x2": 110, "y2": 410}
+      }
+    }
+  }
+  tire = Tire() {
+    "Dyad": {"placement": {"diagram": {"x1": 250, "y1": 350, "x2": 450, "y2": 550}}}
+  }
+  car = Car() {
+    "Dyad": {"placement": {"diagram": {"x1": 600, "y1": 350, "x2": 800, "y2": 550}}}
+  }
+relations
+  connect(slip, tire.slip) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(tire.force, car.force) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(car.v, tire.v) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 850, "y": 450},
+            {"x": 850, "y": 650},
+            {"x": 200, "y": 650},
+            {"x": 200, "y": 500}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://BlackBoxDerivatives/icon.svg"},
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "attrs": {"font-family": "DejaVu Sans, sans-serif"}},
+      {"label": "slip", "x": 40, "y": 250, "attrs": {"text-anchor": "start", "font-size": "80", "fill": "#1f1f1f", "font-family": "DejaVu Sans, sans-serif"}},
+      {"label": "slip", "x": 100, "y": 370, "layer": "diagram", "attrs": {"font-size": "16", "fill": "#1f1f1f", "font-family": "DejaVu Sans, sans-serif"}}
+    ]
+  }
+}
+end
