@@ -195,4 +195,6 @@ component.
 end
 
 
+include("Car_definition.jl")
 include("TireCar_definition.jl")
+include("Tire_definition.jl")

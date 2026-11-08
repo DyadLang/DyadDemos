@@ -9,9 +9,10 @@ it: most tools raise an error, and some silently return zero. Like a real librar
 ships its partial derivatives `Fx, Fy, Fxx, Fxy, Fyy` as black boxes
 ([`src/black_box.jl`](src/black_box.jl)).
 
-The Dyad model [`TireCar`](dyad/tirecar.dyad) is a car driven by that force:
-`der(x) = v`, `der(v) = F(slip, 1 - 0.06 v) - 0.02 v^2`. The problem is to cover 10 m from
-rest and stop again in minimum time, with `-0.8 ≤ slip ≤ 0.8`. It is solved by direct
+The Dyad model [`TireCar`](dyad/tirecar.dyad) connects a [`Tire`](dyad/tire.dyad), with
+force `F(slip, 1 - 0.06 v)`, to a [`Car`](dyad/car.dyad), with `der(x) = v` and
+`der(v) = force - 0.02 v^2`; the car's speed `v` feeds back to the tire. The problem is to
+cover 10 m from rest and stop again in minimum time, with `-0.8 ≤ slip ≤ 0.8`. It is solved by direct
 collocation on 40 intervals (123 unknowns, 80 constraints) with Ipopt
 ([`src/problem.jl`](src/problem.jl)). The reference is the same problem with the dynamics
 written by hand, `F` replaced by its plain formula, and differentiated by ForwardDiff:

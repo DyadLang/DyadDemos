@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- The black box: a closed box with a tire inside, and its ports named. -->
+  <rect x="0" y="0" width="1000" height="1000" rx="60" fill="#1f1f1f"/>
+  <circle cx="540" cy="500" r="260" fill="none" stroke="#ffffff" stroke-width="36" stroke-dasharray="40 40"/>
+  <circle cx="540" cy="500" r="195" fill="none" stroke="#ffffff" stroke-width="80"/>
+  <circle cx="540" cy="500" r="60" fill="#ffffff"/>
+  <g fill="#ffffff" font-family="DejaVu Sans, sans-serif" font-size="80">
+    <text x="40" y="278">slip</text>
+    <text x="40" y="778">v</text>
+    <text x="960" y="528" text-anchor="end">F</text>
+  </g>
+</svg>

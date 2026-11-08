@@ -7,7 +7,7 @@ Cover = "assets/icon.svg"
 
 # Black-box derivatives
 
-`TireCar` is a car driven by a tire force `F(slip, load)` that comes from a black box: a
+`TireCar` is a `Car` driven by a `Tire` whose force `F(slip, load)` comes from a black box: a
 Float64-only Julia function that no AD tool can see into. A minimum-time problem on this model
 shows what happens with no derivatives (finite differences), with AD but no derivative
 definitions (errors), and with one short file per backend (exact Hessians from Symbolics,

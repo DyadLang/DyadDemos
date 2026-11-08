@@ -1,8 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <!-- A closed box with a derivative sign: inputs go in, a smooth curve and its slope come out. -->
-  <path d="M4 40 H18 M4 60 H18" stroke="#3b6fb6" stroke-width="5" stroke-linecap="round"/>
-  <rect x="18" y="20" width="56" height="60" rx="6" fill="#1f1f1f"/>
-  <text x="46" y="64" font-family="serif" font-style="italic" font-size="40" fill="#ffffff" text-anchor="middle">∂</text>
-  <path d="M74 64 C82 64 84 36 96 30" stroke="#d2462f" stroke-width="5" fill="none" stroke-linecap="round"/>
-  <path d="M80 72 L96 48" stroke="#d2462f" stroke-width="3" stroke-dasharray="4 3" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- The car of Car.svg, driven by the black box of Tire.svg as its wheel. -->
+  <path fill="#ffffff" d="M4 4h992v992H4z"/>
+  <path fill="#84bfed" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <path fill="#8f8f8f" d="M170 640V520l150-30 110-130h250l120 130 90 20v130z"/>
+  <path fill="#ffffff" d="M450 390h220l90 100H360z"/>
+  <rect x="200" y="530" width="240" height="240" rx="24" fill="#1f1f1f"/>
+  <text x="320" y="700" fill="#ffffff" font-family="DejaVu Serif, serif" font-style="italic" font-size="170" text-anchor="middle">∂</text>
+  <circle cx="720" cy="650" r="85" fill="#1f1f1f"/>
+  <path stroke="#8f8f8f" stroke-width="12" d="M60 790h880"/>
 </svg>

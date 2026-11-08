@@ -1,19 +1,39 @@
 "A car on a straight track, driven by a black-box tire force"
 component TireCar
   "Wheel slip: the control input"
-  slip = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
-  "Normal load lost per unit speed"
-  parameter k_load::Real = 0.06
-  "Aerodynamic drag coefficient"
-  parameter c_drag::Real = 0.02
-  "Position"
-  variable x::Real
-  "Speed"
-  variable v::Real
+  slip = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "input", "x1": -100, "y1": 450, "x2": 0, "y2": 550},
+        "diagram": {"iconName": "input", "x1": 75, "y1": 375, "x2": 125, "y2": 425}
+      }
+    }
+  }
+  tire = Tire() {
+    "Dyad": {"placement": {"diagram": {"x1": 250, "y1": 350, "x2": 450, "y2": 550}}}
+  }
+  car = Car() {
+    "Dyad": {"placement": {"diagram": {"x1": 600, "y1": 350, "x2": 800, "y2": 550}}}
+  }
 relations
-  initial x = 0
-  initial v = 0
-  der(x) = v
-  der(v) = BlackBoxDerivatives.F(slip, 1 - k_load * v) - c_drag * v^2
+  connect(slip, tire.slip) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(tire.force, car.force) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(car.v, tire.v) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 850, "y": 450},
+            {"x": 850, "y": 650},
+            {"x": 200, "y": 650},
+            {"x": 200, "y": 500}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
 metadata {"Dyad": {"icons": {"default": "dyad://BlackBoxDerivatives/icon.svg"}}}
 end

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- A car on a track. -->
+  <path fill="#ffffff" d="M4 4h992v992H4z"/>
+  <path fill="#84bfed" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <path fill="#8f8f8f" d="M170 640V520l150-30 110-130h250l120 130 90 20v130z"/>
+  <path fill="#ffffff" d="M450 390h220l90 100H360z"/>
+  <circle cx="320" cy="650" r="85" fill="#1f1f1f"/>
+  <circle cx="720" cy="650" r="85" fill="#1f1f1f"/>
+  <path stroke="#8f8f8f" stroke-width="12" d="M60 750h880"/>
+</svg>

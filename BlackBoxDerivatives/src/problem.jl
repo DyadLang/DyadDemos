@@ -6,11 +6,12 @@ const N = 40
 # `(ẋ, v̇) = car_dynamics(x, v, slip)`: the Dyad model's equations with parameters at their
 # defaults, compiled once when the package loads into an ordinary Julia function. (Enzyme fails
 # on the RuntimeGeneratedFunctions that `build_function(...; expression = Val{false})` returns.)
-let car = TireCar(name = :car)
-    sys = mtkcompile(car; inputs = [ModelingToolkit.toggle_namespacing(car, false).slip])
-    vars = [unknowns(sys); ModelingToolkit.inputs(sys)]
-    ẋ, v̇ = [build_function(substitute(eq.rhs, Dict(initial_conditions(sys))), vars...; expression = Val{true})
-        for eq in equations(sys)]
+let model = TireCar(name = :model)
+    sys = mtkcompile(model; inputs = [ModelingToolkit.toggle_namespacing(model, false).slip])
+    rhs = Dict(eq.lhs => substitute(eq.rhs, Dict(initial_conditions(sys))) for eq in full_equations(sys))
+    D = Differential(ModelingToolkit.get_iv(sys))
+    vars = (sys.car.x, sys.car.v, sys.slip)
+    ẋ, v̇ = [build_function(rhs[D(u)], vars...; expression = Val{true}) for u in vars[1:2]]
     @eval car_dynamics(x, v, slip) = ($ẋ(x, v, slip), $v̇(x, v, slip))
 end
 

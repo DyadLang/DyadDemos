@@ -18,5 +18,7 @@ end
 include("test_internals.jl")
 
 @testset "`BlackBoxDerivatives`" begin
+include("Car_test.jl")
 include("TireCar_test.jl")
+include("Tire_test.jl")
 end

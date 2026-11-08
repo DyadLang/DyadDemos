@@ -9,4 +9,6 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "experiments.jl"))
 end
 
 
+include("Car_experiment.jl")
 include("TireCar_experiment.jl")
+include("Tire_experiment.jl")

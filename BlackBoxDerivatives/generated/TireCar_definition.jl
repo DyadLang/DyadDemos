@@ -5,29 +5,15 @@
 
 
 @doc Markdown.doc"""
-   TireCar(; name, k_load, c_drag, __overrides)
+   TireCar(; name, __overrides)
 
 A car on a straight track, driven by a black-box tire force
-
-## Parameters:
-
-| Name         | Description                         | Units  |   Default value |
-| ------------ | ----------------------------------- | ------ | --------------- |
-| `k_load`         | Normal load lost per unit speed                         | --  |   0.06 |
-| `c_drag`         | Aerodynamic drag coefficient                         | --  |   0.02 |
 
 ## Connectors
 
  * `slip` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
-
-## Variables
-
-| Name         | Description                         | Units  | 
-| ------------ | ----------------------------------- | ------ |
-| `x`         | Position                         | --  |
-| `v`         | Speed                         | --  |
 """
-@component function TireCar(; name = nothing, var"k_load"=0.06, var"c_drag"=0.02, __overrides = Dict{String, Any}())
+@component function TireCar(; name = nothing, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -45,10 +31,6 @@ A car on a straight track, driven by a black-box tire force
   __eqs = Equation[]
   __bindings = Dict{Symbolics.SymbolicT, Symbolics.SymbolicT}()
 
-  ### Keyword argument overrides
-  haskey(__overrides, "k_load") && (k_load = pop!(__overrides, "k_load"))
-  haskey(__overrides, "c_drag") && (c_drag = pop!(__overrides, "c_drag"))
-
   ### Structural Parameters (functions)
 
   ### Structural Parameters (Final)
@@ -62,12 +44,6 @@ A car on a straight track, driven by a black-box tire force
   ### Deferred assignment (default values that depend on final parameters)
 
   ### Symbolic Parameters
-  __local__k_load = k_load
-  append!(__params, @parameters (k_load::Real), [description = "Normal load lost per unit speed"])
-  __dyad_seed_parameter!(__initial_conditions, __bindings, k_load, __local__k_load)
-  __local__c_drag = c_drag
-  append!(__params, @parameters (c_drag::Real), [description = "Aerodynamic drag coefficient"])
-  __dyad_seed_parameter!(__initial_conditions, __bindings, c_drag, __local__c_drag)
 
   ### Final Parameters (assignments)
 
@@ -75,39 +51,34 @@ A car on a straight track, driven by a black-box tire force
   append!(__vars, @variables (slip(t)::Real), [input = true])
 
   ### Variables (declarations)
-  append!(__vars, @variables (x(t)::Real), [description = "Position"])
-  append!(__vars, @variables (v(t)::Real), [description = "Speed"])
 
   ### Variables (assignments)
-  __ovr_x = pop!(__overrides, "x", nothing); isnothing(__ovr_x) || push!(__eqs, x ~ __ovr_x)
-  __ovr_x__initial = pop!(__overrides, "x.initial", nothing); isnothing(__ovr_x__initial) || (__initial_conditions[x] = __ovr_x__initial)
-  __ovr_x__guess = pop!(__overrides, "x.guess", nothing)
-  __ovr_v = pop!(__overrides, "v", nothing); isnothing(__ovr_v) || push!(__eqs, v ~ __ovr_v)
-  __ovr_v__initial = pop!(__overrides, "v.initial", nothing); isnothing(__ovr_v__initial) || (__initial_conditions[v] = __ovr_v__initial)
-  __ovr_v__guess = pop!(__overrides, "v.guess", nothing)
 
   ### Constants
   __constants = Any[]
 
   ### Components
+  # Subcomponent tire of type BlackBoxDerivatives.Tire
+  tire_overrides = __pop_subcomponent_overrides!(__overrides, "tire")
+  push!(__systems, @named tire = BlackBoxDerivatives.Tire(; __overrides = tire_overrides))
+  # Subcomponent car of type BlackBoxDerivatives.Car
+  car_overrides = __pop_subcomponent_overrides!(__overrides, "car")
+  push!(__systems, @named car = BlackBoxDerivatives.Car(; __overrides = car_overrides))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
 
   ### Guesses
-  isnothing(__ovr_x__guess) || (__guesses[x] = __ovr_x__guess)
-  isnothing(__ovr_v__guess) || (__guesses[v] = __ovr_v__guess)
 
   ### Initialization Equations
-  push!(__initialization_eqs, x ~ 0)
-  push!(__initialization_eqs, v ~ 0)
 
   ### Assertions
   __assertions = []
 
   ### Equations
-  push!(__eqs, ModelingToolkit.D_nounits(x) ~ v)
-  push!(__eqs, ModelingToolkit.D_nounits(v) ~ BlackBoxDerivatives.F(slip, 1 - k_load * v) - c_drag * v ^ 2)
+  push!(__eqs, connect(slip, tire.slip))
+  push!(__eqs, connect(tire.force, car.force))
+  push!(__eqs, connect(car.v, tire.v))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)
