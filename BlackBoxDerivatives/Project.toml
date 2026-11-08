@@ -27,13 +27,19 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [compat]
 ChainRulesCore = "1.26.1"
+DifferentiationInterface = "0.7.21"
 DyadData = "2.3.0"
 DyadEcosystemDependencies = "0.11.20"
 DyadInterface = "7.5.1"
+Enzyme = "0.13.214"
+ForwardDiff = "1.4.6"
 Ipopt = "1.16"
 JuMP = "1.31"
 LinearAlgebra = "1.13.0"
 Markdown = "1"
+ModelingToolkit = "11.45"
+SparseConnectivityTracer = "1.2.4"
+Symbolics = "7.45"
 julia = "1.13.2"
 
 [dyad]

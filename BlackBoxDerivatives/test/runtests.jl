@@ -22,12 +22,13 @@ end
 
 @testset "2. AD without derivative definitions" begin
     include("../scripts/stage2_ask_for_ad.jl")
-    expected = Dict("Symbolics" => "no error", "ForwardDiff" => "MethodError: no method matching F(::ForwardDiff.Dual",
+    expected = Dict("ForwardDiff" => "MethodError: no method matching F(::ForwardDiff.Dual",
         "Enzyme" => "EnzymeNoDerivativeError", "sparse (auto-detected)" => "no method matching F(::SparseConnectivityTracer",
         "JuMP, F only" => "Unable to register the function :F")
     @testset "$name" for (name, msg) in stage2_errors
         @test occursin(expected[name], msg)
     end
+    @test symbolics_gradient == [0, 0]  # silently wrong
     @test enzyme_forward == 0  # silently wrong
     # The wrapper black_box.jl warns against: strip the Duals, call F, get zero.
     @test ForwardDiff.gradient(z -> F(ForwardDiff.value.(z)...), [0.2, 0.9]) == [0, 0]
@@ -52,9 +53,11 @@ end
         @test DI.gradient(f, dense_ad(backend), p) ≈ ForwardDiff.gradient(ref, p) rtol = 1e-10
         @test Matrix(DI.hessian(f, backend, p)) ≈ ForwardDiff.hessian(ref, p) rtol = 1e-10
     end
-    @testset "one Dual argument, one Float64" for p in points
+    @testset "ForwardDiff/Enzyme, one argument at a time" for p in points
         @test ForwardDiff.derivative(a -> F(a, p[2]), p[1]) ≈ ForwardDiff.gradient(ref, p)[1] rtol = 1e-10
         @test ForwardDiff.derivative(b -> F(p[1], b), p[2]) ≈ ForwardDiff.gradient(ref, p)[2] rtol = 1e-10
+        @test ForwardDiff.derivative(a -> ForwardDiff.derivative(b -> F(a, b), p[2]), p[1]) ≈  # two Dual tags
+              ForwardDiff.hessian(ref, p)[1, 2] rtol = 1e-10
         @test only(Enzyme.autodiff(Enzyme.Forward, F, Enzyme.Duplicated(p[1], 1.0), Enzyme.Const(p[2]))) ≈
               ForwardDiff.gradient(ref, p)[1] rtol = 1e-10
     end

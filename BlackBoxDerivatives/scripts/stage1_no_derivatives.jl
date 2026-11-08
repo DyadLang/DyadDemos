@@ -11,5 +11,5 @@ fd_hessian = counted(() -> solve_ipopt(fd_hessian_callbacks))
 println("reference (plain formula, exact Hessian): $(reference.iterations) iterations, T = $(reference.T)")
 for (name, r) in ("finite differences + L-BFGS" => fd_lbfgs, "finite differences, FD Hessian" => fd_hessian)
     println(rpad(name, 32), r.status, ", ", r.iterations, " iterations, |T - T_ref| = ",
-        abs(r.T - reference.T), ", ", r.calls, " black-box calls")
+        abs(r.T - reference.T), ", ", r.calls, " black-box calls during the solve")
 end

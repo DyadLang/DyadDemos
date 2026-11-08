@@ -3,23 +3,19 @@
 
 const N = 40
 
-"The Dyad model's right-hand sides `(ẋ, v̇)` as expressions of `(x, v, slip)`, parameters at their defaults."
-function model_rhs(force)
-    @named car = TireCar()
+# `(ẋ, v̇) = car_dynamics(x, v, slip)`: the Dyad model's equations with parameters at their
+# defaults, compiled once when the package loads into an ordinary Julia function. (Enzyme fails
+# on the RuntimeGeneratedFunctions that `build_function(...; expression = Val{false})` returns.)
+let car = TireCar(name = :car)
     sys = mtkcompile(car; inputs = [ModelingToolkit.toggle_namespacing(car, false).slip])
     vars = [unknowns(sys); ModelingToolkit.inputs(sys)]
-    swap(e) = iscall(e) && operation(e) === F ? force(arguments(e)...) : e
-    return map(equations(sys)) do eq
-        build_function(Postwalk(swap)(substitute(eq.rhs, Dict(initial_conditions(sys)))), vars...; expression = Val{true})
-    end
+    ẋ, v̇ = [build_function(substitute(eq.rhs, Dict(initial_conditions(sys))), vars...; expression = Val{true})
+        for eq in equations(sys)]
+    @eval car_dynamics(x, v, slip) = ($ẋ(x, v, slip), $v̇(x, v, slip))
 end
 
-# Compiled into ordinary Julia functions once, when the package loads. `reference_dynamics` swaps
-# the black box for its plain formula, to check everything else against.
-for (name, f) in ((:car_dynamics, F), (:reference_dynamics, tire))
-    ẋ, v̇ = model_rhs(f)
-    @eval $name(x, v, slip) = ($ẋ(x, v, slip), $v̇(x, v, slip))
-end
+"The same equations written by hand, with the plain formula: the reference for everything else."
+reference_dynamics(x, v, slip) = (v, tire(slip, 1 - 0.06v) - 0.02v^2)
 
 split_z(z) = (z[1:(N + 1)], z[(N + 2):(2N + 2)], z[(2N + 3):(3N + 2)], z[end])
 
