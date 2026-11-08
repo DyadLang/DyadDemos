@@ -1,0 +1,19 @@
+"A car on a straight track, driven by a black-box tire force"
+component TireCar
+  "Wheel slip: the control input"
+  slip = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
+  "Normal load lost per unit speed"
+  parameter k_load::Real = 0.06
+  "Aerodynamic drag coefficient"
+  parameter c_drag::Real = 0.02
+  "Position"
+  variable x::Real
+  "Speed"
+  variable v::Real
+relations
+  initial x = 0
+  initial v = 0
+  der(x) = v
+  der(v) = BlackBoxDerivatives.F(slip, 1 - k_load * v) - c_drag * v^2
+metadata {"Dyad": {"icons": {"default": "dyad://BlackBoxDerivatives/icon.svg"}}}
+end
