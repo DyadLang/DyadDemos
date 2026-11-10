@@ -23,29 +23,29 @@ test component TestTNNModel
   "Precomputed |u| ≈ sqrt((-30/164.79)² + (50/162.27)²)  ≈ 0.3580"
   src_u_s = BlockComponents.Sources.Constant(k = 0.3580) {^src_u_s}
 relations
-  connect(src_u_q.y, model.u_q_raw)
-  connect(src_coolant.y, model.coolant_raw)
-  connect(src_u_d.y, model.u_d_raw)
-  connect(src_motor_speed.y, model.motor_speed_raw)
-  connect(src_i_d.y, model.i_d_raw)
-  connect(src_i_q.y, model.i_q_raw)
-  connect(src_ambient.y, model.ambient_raw)
-  connect(src_torque.y, model.torque_raw)
-  connect(src_i_s.y, model.i_s_raw)
-  connect(src_u_s.y, model.u_s_raw)
+  connect(src_u_q.y, model.u_q_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 400, "y": 100}, {"x": 400, "y": 550}], "E": 2}]}}
+  connect(src_coolant.y, model.coolant_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 350, "y": 250}, {"x": 350, "y": 600}], "E": 2}]}}
+  connect(src_u_d.y, model.u_d_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 300, "y": 400}, {"x": 300, "y": 650}], "E": 2}]}}
+  connect(src_motor_speed.y, model.motor_speed_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 250, "y": 550}, {"x": 250, "y": 700}], "E": 2}]}}
+  connect(src_i_d.y, model.i_d_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 200, "y": 700}, {"x": 200, "y": 750}], "E": 2}]}}
+  connect(src_i_q.y, model.i_q_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 200, "y": 850}, {"x": 200, "y": 800}], "E": 2}]}}
+  connect(src_ambient.y, model.ambient_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 250, "y": 1000}, {"x": 250, "y": 850}], "E": 2}]}}
+  connect(src_torque.y, model.torque_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 300, "y": 1150}, {"x": 300, "y": 900}], "E": 2}]}}
+  connect(src_i_s.y, model.i_s_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 350, "y": 1300}, {"x": 350, "y": 950}], "E": 2}]}}
+  connect(src_u_s.y, model.u_s_raw) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 400, "y": 1450}, {"x": 400, "y": 1000}], "E": 2}]}}
 metadata {
   "_links": {
-    "src_u_q":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 60, "x2": 140, "y2": 140, "rot": 0}}}},
-    "src_coolant":      {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 190, "x2": 140, "y2": 270, "rot": 0}}}},
-    "src_u_d":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 320, "x2": 140, "y2": 400, "rot": 0}}}},
-    "src_motor_speed":  {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 450, "x2": 140, "y2": 530, "rot": 0}}}},
-    "src_i_d":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 580, "x2": 140, "y2": 660, "rot": 0}}}},
-    "src_i_q":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 710, "x2": 140, "y2": 790, "rot": 0}}}},
-    "src_ambient":      {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 840, "x2": 140, "y2": 920, "rot": 0}}}},
-    "src_torque":       {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 970, "x2": 140, "y2": 1050, "rot": 0}}}},
-    "src_i_s":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 1100, "x2": 140, "y2": 1180, "rot": 0}}}},
-    "src_u_s":          {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 60, "y1": 1230, "x2": 140, "y2": 1310, "rot": 0}}}},
-    "model":           {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500, "y1": 535, "x2": 800, "y2": 835, "rot": 0}}}}
+    "src_u_q": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 50, "x2": 150, "y2": 150, "rot": 0}}}},
+    "src_coolant": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 200, "x2": 150, "y2": 300, "rot": 0}}}},
+    "src_u_d": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 350, "x2": 150, "y2": 450, "rot": 0}}}},
+    "src_motor_speed": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 500, "x2": 150, "y2": 600, "rot": 0}}}},
+    "src_i_d": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 650, "x2": 150, "y2": 750, "rot": 0}}}},
+    "src_i_q": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 800, "x2": 150, "y2": 900, "rot": 0}}}},
+    "src_ambient": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 950, "x2": 150, "y2": 1050, "rot": 0}}}},
+    "src_torque": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 1100, "x2": 150, "y2": 1200, "rot": 0}}}},
+    "src_i_s": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 1250, "x2": 150, "y2": 1350, "rot": 0}}}},
+    "src_u_s": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 1400, "x2": 150, "y2": 1500, "rot": 0}}}},
+    "model": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500, "y1": 525, "x2": 1000, "y2": 1025, "rot": 0}}}}
   }
 }
 end
