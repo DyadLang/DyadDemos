@@ -42,14 +42,35 @@ end
 "Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are re-exposed here as top-level parameters and bound into the isolator with `final`, so a calibration search space can target model.k1, model.c1, and so on. The applied torque enters through the `tau` RealInput, which drives the embedded TorqueSource."
 component DrivelineSystem
   "Applied torque [N*m]"
-  tau = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}
-  torque = RotationalComponents.Sources.TorqueSource()
-  torque_support = RotationalComponents.Components.Fixed()
-  J_eng = RotationalComponents.Components.Inertia(J = 0.05)
-  isolator = MaxwellBoucWenIsolator(k0 = 500.0, c0 = 0.5, final k1 = k1, final c1 = c1, final alpha = alpha, final A_bw = A_bw, final beta_bw = beta_bw, final gamma_bw = gamma_bw)
-  J_load = RotationalComponents.Components.Inertia(J = 0.2)
-  load_damper = RotationalComponents.Components.Damper(d = 0.2)
-  ground = RotationalComponents.Components.Fixed()
+  tau = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550},
+        "diagram": {"x1": -50, "x2": 50, "y1": 200, "y2": 300}
+      }
+    }
+  }
+  torque = RotationalComponents.Sources.TorqueSource() {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 200, "y2": 300}}}
+  }
+  torque_support = RotationalComponents.Components.Fixed() {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "y1": 350, "x2": 400, "y2": 450}}}
+  }
+  J_eng = RotationalComponents.Components.Inertia(J = 0.05) {
+    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 200, "y2": 300}}}
+  }
+  isolator = MaxwellBoucWenIsolator(k0 = 500.0, c0 = 0.5, final k1 = k1, final c1 = c1, final alpha = alpha, final A_bw = A_bw, final beta_bw = beta_bw, final gamma_bw = gamma_bw) {
+    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 200, "y2": 300}}}
+  }
+  J_load = RotationalComponents.Components.Inertia(J = 0.2) {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 200, "y2": 300}}}
+  }
+  load_damper = RotationalComponents.Components.Damper(d = 0.2) {
+    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 200, "y2": 300}}}
+  }
+  ground = RotationalComponents.Components.Fixed() {
+    "Dyad": {"placement": {"diagram": {"x1": 1400, "y1": 350, "x2": 1500, "y2": 450}}}
+  }
   "Maxwell branch stiffness [N*m/rad] (truth: 300)"
   parameter k1::RotationalSpringConstant = 200.0
   "Maxwell branch damping [N*m*s/rad] (truth: 1.0)"
@@ -65,13 +86,24 @@ component DrivelineSystem
   "Speed difference across the isolator (engine minus load) [rad/s]"
   variable delta_w::AngularVelocity
 relations
-  connect(tau, torque.tau)
-  connect(torque.support, torque_support.spline)
-  connect(torque.spline, J_eng.spline_a)
-  connect(J_eng.spline_b, isolator.spline_a)
-  connect(isolator.spline_b, J_load.spline_a)
-  connect(J_load.spline_b, load_damper.spline_a)
-  connect(load_damper.spline_b, ground.spline)
+  connect(tau, torque.tau) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(torque.support, torque_support.spline) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(torque.spline, J_eng.spline_a) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(J_eng.spline_b, isolator.spline_a) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(isolator.spline_b, J_load.spline_a) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(J_load.spline_b, load_damper.spline_a) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(load_damper.spline_b, ground.spline) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1450, "y": 250}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   delta_w = J_eng.w - J_load.w
   initial J_eng.phi = 0.0
   initial J_eng.w = 0.0

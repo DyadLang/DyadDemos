@@ -15,41 +15,103 @@
 component BrakeThermal
   # === External heat input ports ===
   # Heat input to disk (from friction)
-  heat_disk = HeatPort() {^heat_disk}
+  heat_disk = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 200, "y1": 950, "x2": 300, "y2": 1050},
+        "diagram": {"x1": -50, "y1": 500, "x2": 50, "y2": 600}
+      }
+    }
+  }
   # Heat input to pad (from friction)
-  heat_pad = HeatPort() {^heat_pad}
+  heat_pad = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 700, "y1": 950, "x2": 800, "y2": 1050},
+        "diagram": {"x1": -50, "y1": 1100, "x2": 50, "y2": 1200}
+      }
+    }
+  }
   # === Speed inputs ===
   # Vehicle speed input [m/s]
-  vehicle_speed = RealInput() {^vehicle_speed}
+  vehicle_speed = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
+        "diagram": {"x1": -50, "y1": 850, "x2": 50, "y2": 950}
+      }
+    }
+  }
   # Wheel angular speed input [rad/s]
-  wheel_speed = RealInput() {^wheel_speed}
+  wheel_speed = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
+        "diagram": {"x1": -50, "y1": 250, "x2": 50, "y2": 350}
+      }
+    }
+  }
   # === Thermal masses ===
-  disk_mass = ThermalComponents.Components.HeatCapacitor(C = C_disk, T0 = T_disk_init) {^disk_mass}
-  pad_mass = ThermalComponents.Components.HeatCapacitor(C = C_pad, T0 = T_pad_init) {^pad_mass}
+  disk_mass = ThermalComponents.Components.HeatCapacitor(C = C_disk, T0 = T_disk_init) {
+    "Dyad": {"placement": {"diagram": {"x1": 850, "y1": 400, "x2": 950, "y2": 500}}}
+  }
+  pad_mass = ThermalComponents.Components.HeatCapacitor(C = C_pad, T0 = T_pad_init) {
+    "Dyad": {"placement": {"diagram": {"x1": 850, "y1": 1000, "x2": 950, "y2": 1100}}}
+  }
   # === Convective cooling ===
-  disk_convection = ThermalComponents.Components.Convection() {^disk_convection}
-  pad_convection = ThermalComponents.Components.Convection() {^pad_convection}
+  disk_convection = ThermalComponents.Components.Convection() {
+    "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 500, "x2": 1100, "y2": 600}}}
+  }
+  pad_convection = ThermalComponents.Components.Convection() {
+    "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 1100, "x2": 1100, "y2": 1200}}}
+  }
   # === Radiative cooling (disk to ambient only) ===
-  disk_radiation = ThermalComponents.Components.BodyRadiation(Gr = epsilon_disk * A_disk) {^disk_radiation}
+  disk_radiation = ThermalComponents.Components.BodyRadiation(Gr = epsilon_disk * A_disk) {
+    "Dyad": {"placement": {"diagram": {"x1": 1200, "y1": 600, "x2": 1300, "y2": 700}}}
+  }
   # === Pad-disk radiation coupling ===
-  pad_disk_radiation = ThermalComponents.Components.BodyRadiation(Gr = G_rad_pad_disk) {^pad_disk_radiation}
+  pad_disk_radiation = ThermalComponents.Components.BodyRadiation(Gr = G_rad_pad_disk) {
+    "Dyad": {"placement": {"diagram": {"x1": 1150, "y1": 900, "x2": 1250, "y2": 1000, "rot": 180}}}
+  }
   # === Ambient temperature boundary ===
-  ambient = ThermalComponents.Sources.FixedTemperature(T = T_ambient) {^ambient}
+  ambient = ThermalComponents.Sources.FixedTemperature(T = T_ambient) {
+    "Dyad": {"placement": {"diagram": {"x1": 1400, "y1": 750, "x2": 1500, "y2": 850, "rot": 180}}}
+  }
   # === Convection coefficient calculations ===
   # Disk convection: h_disk = h_disk_base + k_disk_speed * |wheel_speed|
-  wheel_speed_gain = BlockComponents.Math.Gain(k = k_disk_speed) {^wheel_speed_gain}
-  disk_h_base_const = BlockComponents.Sources.Constant(k = h_disk_base) {^disk_h_base_const}
-  disk_h_calc = BlockComponents.Math.Add(k1 = 1.0, k2 = 1.0) {^disk_h_calc}
+  wheel_speed_gain = BlockComponents.Math.Gain(k = k_disk_speed) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "y1": 250, "x2": 300, "y2": 350}}}
+  }
+  disk_h_base_const = BlockComponents.Sources.Constant(k = h_disk_base) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "y1": 50, "x2": 300, "y2": 150}}}
+  }
+  disk_h_calc = BlockComponents.Math.Add(k1 = 1.0, k2 = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "y1": 150, "x2": 550, "y2": 250}}}
+  }
   # Pad convection: h_pad = h_pad_base + k_pad_speed * |vehicle_speed|
-  vehicle_speed_gain = BlockComponents.Math.Gain(k = k_pad_speed) {^vehicle_speed_gain}
-  pad_h_base_const = BlockComponents.Sources.Constant(k = h_pad_base) {^pad_h_base_const}
-  pad_h_calc = BlockComponents.Math.Add(k1 = 1.0, k2 = 1.0) {^pad_h_calc}
+  vehicle_speed_gain = BlockComponents.Math.Gain(k = k_pad_speed) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "y1": 850, "x2": 300, "y2": 950}}}
+  }
+  pad_h_base_const = BlockComponents.Sources.Constant(k = h_pad_base) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "y1": 650, "x2": 300, "y2": 750}}}
+  }
+  pad_h_calc = BlockComponents.Math.Add(k1 = 1.0, k2 = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "y1": 750, "x2": 550, "y2": 850}}}
+  }
   # Convert to thermal conductances (h * A)
-  disk_conductance = BlockComponents.Math.Product() {^disk_conductance}
-  pad_conductance = BlockComponents.Math.Product() {^pad_conductance}
+  disk_conductance = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 700, "y1": 250, "x2": 800, "y2": 350}}}
+  }
+  pad_conductance = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 700, "y1": 850, "x2": 800, "y2": 950}}}
+  }
   # Constants for surface areas
-  disk_area_const = BlockComponents.Sources.Constant(k = A_disk) {^disk_area_const}
-  pad_area_const = BlockComponents.Sources.Constant(k = A_pad) {^pad_area_const}
+  disk_area_const = BlockComponents.Sources.Constant(k = A_disk) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "y1": 350, "x2": 550, "y2": 450}}}
+  }
+  pad_area_const = BlockComponents.Sources.Constant(k = A_pad) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}}}
+  }
   # === Thermal parameters ===
   # Disk thermal capacity [J/K]
   parameter C_disk::HeatCapacity = 4000
@@ -80,356 +142,221 @@ component BrakeThermal
   parameter G_rad_pad_disk::Area = 0.012
 relations
   # Connect heat inputs to thermal masses
-  connect(heat_disk, disk_mass.port) {^id22}
-  connect(heat_pad, pad_mass.port) {^id23}
-  # Build disk convection coefficient: h_disk = h_disk_base + k_disk_speed * wheel_speed
-  connect(wheel_speed, wheel_speed_gain.u) {^id24}
-  connect(disk_h_base_const.y, disk_h_calc.u1) {^id25}
-  connect(wheel_speed_gain.y, disk_h_calc.u2) {^id26}
-  # Build pad convection coefficient: h_pad = h_pad_base + k_pad_speed * vehicle_speed
-  connect(vehicle_speed, vehicle_speed_gain.u) {^id27}
-  connect(pad_h_base_const.y, pad_h_calc.u1) {^id28}
-  connect(vehicle_speed_gain.y, pad_h_calc.u2) {^id29}
-  # Calculate thermal conductances (h * A)
-  connect(disk_h_calc.y, disk_conductance.u1) {^id30}
-  connect(disk_area_const.y, disk_conductance.u2) {^id31}
-  connect(pad_h_calc.y, pad_conductance.u1) {^id32}
-  connect(pad_area_const.y, pad_conductance.u2) {^id33}
-  # Connect convective cooling
-  connect(disk_mass.port, disk_convection.solid) {^id34}
-  connect(pad_mass.port, pad_convection.solid) {^id35}
-  connect(disk_convection.fluid, ambient.port) {^id36}
-  connect(pad_convection.fluid, ambient.port) {^id37}
-  # Connect disk radiation to ambient
-  connect(disk_mass.port, disk_radiation.port_a) {^id38}
-  connect(disk_radiation.port_b, ambient.port) {^id39}
-  # Connect pad-disk radiation
-  connect(pad_mass.port, pad_disk_radiation.port_a) {^id40}
-  connect(disk_mass.port, pad_disk_radiation.port_b) {^id41}
-  # Connect convection coefficient signals
-  connect(disk_conductance.y, disk_convection.Gc) {^id42}
-  connect(pad_conductance.y, pad_convection.Gc) {^id43}
-metadata {
-  "Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//brake_heat_transfer.svg"}},
-  "_links": {
-    "heat_disk": {
-      "Dyad": {
-        "placement": {
-          "icon": {"iconName": "default", "x1": 200, "y1": 950, "x2": 300, "y2": 1050, "rot": 0},
-          "diagram": {"iconName": "default", "x1": 200, "y1": 950, "x2": 300, "y2": 1050, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "heat_pad": {
-      "Dyad": {
-        "placement": {
-          "icon": {"iconName": "default", "x1": 700, "y1": 950, "x2": 800, "y2": 1050, "rot": 0},
-          "diagram": {"iconName": "default", "x1": 700, "y1": 950, "x2": 800, "y2": 1050, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "vehicle_speed": {
-      "Dyad": {
-        "placement": {
-          "icon": {"iconName": "default", "x1": -50, "y1": 200, "x2": 50, "y2": 300, "rot": 0},
-          "diagram": {"iconName": "default", "x1": -50, "y1": 200, "x2": 50, "y2": 300, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "wheel_speed": {
-      "Dyad": {
-        "placement": {
-          "icon": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800, "rot": 0},
-          "diagram": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "disk_mass": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 405, "y1": 530, "x2": 505, "y2": 630, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "pad_mass": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 405, "y1": 200, "x2": 505, "y2": 300, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "disk_convection": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 550, "y1": 970, "x2": 650, "y2": 1070, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "pad_convection": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 550, "y1": 310, "x2": 650, "y2": 410, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "disk_radiation": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 550, "y1": 710, "x2": 650, "y2": 810, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "pad_disk_radiation": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 550, "y1": 510, "x2": 650, "y2": 610, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "ambient": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 400, "y1": 410, "x2": 500, "y2": 510, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "wheel_speed_gain": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 90, "y1": 810, "x2": 190, "y2": 910, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "disk_h_base_const": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 110, "y1": 600, "x2": 210, "y2": 700, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "disk_h_calc": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 270, "y1": 720, "x2": 370, "y2": 820, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "vehicle_speed_gain": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 110, "y1": 140, "x2": 210, "y2": 240, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "pad_h_base_const": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 120, "y1": -30, "x2": 220, "y2": 70, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "pad_h_calc": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 280, "y1": 10, "x2": 380, "y2": 110, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "disk_conductance": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 405, "y1": 860, "x2": 505, "y2": 960, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "pad_conductance": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 430, "y1": 80, "x2": 530, "y2": 180, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "disk_area_const": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 270, "y1": 1110, "x2": 370, "y2": 1210, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "pad_area_const": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 270, "y1": 230, "x2": 370, "y2": 330, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "id22": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}],
-        "junctions": [{"x": 455, "y": 760}]
-      }
-    },
-    "id23": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}],
-        "junctions": [{"x": 455, "y": 360}]
-      }
-    },
-    "id24": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 0, "y": 870}, {"x": -55, "y": 870}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id25": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 262.5, "y": 650}, {"x": 262.5, "y": 740}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id26": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 260, "y": 860}, {"x": 260, "y": 800}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id27": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 70, "y": 250}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id28": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 262.5, "y": 20}, {"x": 262.5, "y": 30}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id29": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 260, "y": 190}, {"x": 260, "y": 90}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id30": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 392.5, "y": 770}, {"x": 392.5, "y": 880}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id31": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 390, "y": 1160}, {"x": 390, "y": 940}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id32": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 392.5, "y": 60}, {"x": 392.5, "y": 100}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id33": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 390, "y": 280}, {"x": 390, "y": 160}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id34": {
-      "Dyad": {
-        "edges": [
-          {"S": 1, "M": [], "E": -1},
-          {"S": -1, "M": [], "E": -2},
-          {"S": -2, "M": [{"x": 520, "y": 1020}], "E": 2}
-        ],
-        "junctions": [{"x": 455, "y": 760}, {"x": 520, "y": 760}]
-      }
-    },
-    "id35": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}],
-        "junctions": [{"x": 455, "y": 360}]
-      }
-    },
-    "id36": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 690, "y": 1020}, {"x": 690, "y": 460}], "E": 2}]
-      }
-    },
-    "id37": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 690, "y": 360}], "E": -1}, {"S": -1, "M": [], "E": 2}],
-        "junctions": [{"x": 690, "y": 460}]
-      }
-    },
-    "id38": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}],
-        "junctions": [{"x": 455, "y": 760}]
-      }
-    },
-    "id39": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [{"x": 670, "y": 760}, {"x": 670, "y": 660}, {"x": 520, "y": 660}],
-            "E": -1
-          },
-          {"S": -1, "M": [], "E": 2}
-        ],
-        "junctions": [{"x": 520, "y": 460}]
-      }
-    },
-    "id40": {
-      "Dyad": {
-        "edges": [
-          {"S": 1, "M": [], "E": -1},
-          {"S": -1, "M": [], "E": -2},
-          {"S": -2, "M": [{"x": 530, "y": 560}], "E": 2}
-        ],
-        "junctions": [{"x": 455, "y": 360}, {"x": 530, "y": 360}]
-      }
-    },
-    "id41": {
-      "Dyad": {
-        "edges": [
-          {"S": 1, "M": [], "E": -1},
-          {"S": -1, "M": [{"x": 520, "y": 760}], "E": -2},
-          {"S": -2, "M": [{"x": 680, "y": 860}, {"x": 680, "y": 560}], "E": 2}
-        ],
-        "junctions": [{"x": 455, "y": 760}, {"x": 520, "y": 860}]
-      }
-    },
-    "id42": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 600, "y": 910}], "E": 2}]}},
-    "id43": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 600, "y": 130}], "E": 2}],
-        "renderStyle": "standard"
-      }
+  connect(heat_disk, disk_mass.port) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 900, "y": 550}],
+          "E": 2
+        }
+      ],
+      "path": {}
     }
   }
+  connect(heat_pad, pad_mass.port) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 900, "y": 1150}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  # Build disk convection coefficient: h_disk = h_disk_base + k_disk_speed * wheel_speed
+  connect(wheel_speed, wheel_speed_gain.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(disk_h_base_const.y, disk_h_calc.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 400, "y": 100}, {"x": 400, "y": 170}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(wheel_speed_gain.y, disk_h_calc.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 400, "y": 300}, {"x": 400, "y": 230.0}], "E": 2}],
+      "path": {}
+    }
+  }
+  # Build pad convection coefficient: h_pad = h_pad_base + k_pad_speed * vehicle_speed
+  connect(vehicle_speed, vehicle_speed_gain.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(pad_h_base_const.y, pad_h_calc.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 400, "y": 700}, {"x": 400, "y": 770}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(vehicle_speed_gain.y, pad_h_calc.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 400, "y": 900}, {"x": 400, "y": 830.0}], "E": 2}],
+      "path": {}
+    }
+  }
+  # Calculate thermal conductances (h * A)
+  connect(disk_h_calc.y, disk_conductance.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 650, "y": 200}, {"x": 650, "y": 270}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(disk_area_const.y, disk_conductance.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 650, "y": 400}, {"x": 650, "y": 330}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(pad_h_calc.y, pad_conductance.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 650, "y": 800}, {"x": 650, "y": 870.0}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(pad_area_const.y, pad_conductance.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 650, "y": 1000}, {"x": 650, "y": 930.0}], "E": 2}],
+      "path": {}
+    }
+  }
+  # Connect convective cooling
+  connect(disk_mass.port, disk_convection.solid) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 900, "y": 550}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(pad_mass.port, pad_convection.solid) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 900, "y": 1150}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(disk_convection.fluid, ambient.port) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1350, "y": 550}, {"x": 1350, "y": 800}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(pad_convection.fluid, ambient.port) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1350, "y": 1150}, {"x": 1350, "y": 800}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  # Connect disk radiation to ambient
+  connect(disk_mass.port, disk_radiation.port_a) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 900, "y": 650}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(disk_radiation.port_b, ambient.port) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1350, "y": 650}, {"x": 1350, "y": 800}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  # Connect pad-disk radiation
+  connect(pad_mass.port, pad_disk_radiation.port_a) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 900, "y": 1250}, {"x": 1300, "y": 1250}, {"x": 1300, "y": 950}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(disk_mass.port, pad_disk_radiation.port_b) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 900, "y": 650}, {"x": 1100, "y": 650}, {"x": 1100, "y": 950}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  # Connect convection coefficient signals
+  connect(disk_conductance.y, disk_convection.Gc) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1050, "y": 300}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(pad_conductance.y, pad_convection.Gc) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1050, "y": 900}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+metadata {
+  "Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//brake_heat_transfer.svg"}}
 }
 end
 

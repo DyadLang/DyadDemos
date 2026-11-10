@@ -6,7 +6,7 @@
 
 "Tip-in torque profile: smooth tanh ramp from `T_cruise` to `T_accel` centered at `t_tip` (ramp time constant `t_ramp`), plus a high-frequency motor-ripple component. Used as the unseen validation event — it excites the Maxwell branch (fast ramp + ripple) and the Bouc-Wen hysteresis (large torque swing) simultaneously."
 component TipInTorque
-  y = RealOutput()
+  y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}
   "Cruise torque before tip-in [N*m]"
   parameter T_cruise::Real = 30.0
   "Torque after tip-in [N*m]"
