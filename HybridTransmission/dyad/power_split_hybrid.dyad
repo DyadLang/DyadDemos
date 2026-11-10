@@ -16,32 +16,152 @@ Reference:
 """
 test component PowerSplitHybrid
   "Complete power-split hybrid vehicle model with ECMS control."
-  drive_cycle = HighwayDriveCycle() {^drive_cycle}
-  controller = ECMSController() {^controller}
-  engine = HybridEngine() {^engine}
-  mg1 = HybridMG(Kt = 1.0, max_torque = 130.0) {^mg1} # 40 kW generator
-  mg2 = HybridMG(Kt = 1.0, max_torque = 330.0) {^mg2} # 70 kW traction motor
-  transmission = HybridPlanetaryGear() {^transmission}
-  vehicle = HybridVehicle() {^vehicle}
-  battery = HybridBattery() {^battery}
+  drive_cycle = HighwayDriveCycle() {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "y1": 562.5, "x2": 400, "y2": 762.5}}}
+  }
+  controller = ECMSController() {
+    "Dyad": {"placement": {"diagram": {"x1": 550, "y1": 512.5, "x2": 850, "y2": 812.5}}}
+  }
+  engine = HybridEngine() {
+    "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 212.5, "x2": 1200, "y2": 412.5}}}
+  }
+  mg1 = HybridMG(Kt = 1.0, max_torque = 130.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 562.5, "x2": 1200, "y2": 762.5}}}
+  } # 40 kW generator
+  mg2 = HybridMG(Kt = 1.0, max_torque = 330.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 912.5, "x2": 1200, "y2": 1112.5}}}
+  } # 70 kW traction motor
+  transmission = HybridPlanetaryGear() {
+    "Dyad": {"placement": {"diagram": {"x1": 1350, "y1": 562.5, "x2": 1550, "y2": 762.5}}}
+  }
+  vehicle = HybridVehicle() {
+    "Dyad": {"placement": {"diagram": {"x1": 1650, "y1": 562.5, "x2": 1850, "y2": 762.5}}}
+  }
+  battery = HybridBattery() {
+    "Dyad": {"placement": {"diagram": {"x1": 1300, "y1": 912.5, "x2": 1500, "y2": 1112.5}}}
+  }
 relations
   # Control connections
-  connect(drive_cycle.speed_ref, controller.speed_ref) {^id9}
-  connect(vehicle.speed_output, controller.speed_actual) {^id10}
-  connect(battery.soc_output, controller.soc) {^id11}
-  connect(engine.omega_output, controller.engine_omega) {^id12}
-  connect(mg1.omega_output, controller.mg1_omega) {^id13}
-  connect(controller.engine_throttle, engine.throttle) {^id14}
-  connect(controller.mg1_torque_cmd, mg1.torque_cmd) {^id15}
-  connect(controller.mg2_torque_cmd, mg2.torque_cmd) {^id16}
+  connect(drive_cycle.speed_ref, controller.speed_ref) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(vehicle.speed_output, controller.speed_actual) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1862.5, "y": 662.5},
+            {"x": 1862.5, "y": 1200},
+            {"x": 525, "y": 1200},
+            {"x": 525, "y": 712.5}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(battery.soc_output, controller.soc) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1512.5, "y": 1012.5},
+            {"x": 1512.5, "y": 1187.5},
+            {"x": 537.5, "y": 1187.5},
+            {"x": 537.5, "y": 762.5}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(engine.omega_output, controller.engine_omega) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1212.5, "y": 262.5},
+            {"x": 1212.5, "y": 200},
+            {"x": 525, "y": 200},
+            {"x": 525, "y": 612.5}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(mg1.omega_output, controller.mg1_omega) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1212.5, "y": 612.5},
+            {"x": 1212.5, "y": 500},
+            {"x": 537.5, "y": 500},
+            {"x": 537.5, "y": 562.50001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(controller.engine_throttle, engine.throttle) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 862.5, "y": 612.49999}, {"x": 862.5, "y": 312.5}], "E": 2}
+      ],
+      "path": {}
+    }
+  }
+  connect(controller.mg1_torque_cmd, mg1.torque_cmd) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(controller.mg2_torque_cmd, mg2.torque_cmd) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 862.5, "y": 712.50001}, {"x": 862.5, "y": 1012.5}], "E": 2}
+      ],
+      "path": {}
+    }
+  }
   # Mechanical connections - planetary gear
-  connect(engine.flange, transmission.carrier) {^id17} # Engine to carrier
-  connect(mg1.flange, transmission.sun) {^id18} # MG1 to sun (generator)
-  connect(mg2.flange, transmission.ring) {^id19} # MG2 to ring (traction)
-  connect(vehicle.flange, transmission.ring) {^id20} # Vehicle to ring (same as MG2)
+  connect(engine.flange, transmission.carrier) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1337.5, "y": 312.5}, {"x": 1337.5, "y": 620.5}], "E": 2}],
+      "path": {}
+    }
+  } # Engine to carrier
+  connect(mg1.flange, transmission.sun) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}} # MG1 to sun (generator)
+  connect(mg2.flange, transmission.ring) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1275, "y": 1012.5},
+            {"x": 1275, "y": 775},
+            {"x": 1562.5, "y": 775},
+            {"x": 1562.5, "y": 662.5}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  } # MG2 to ring (traction)
+  connect(vehicle.flange, transmission.ring) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}} # Vehicle to ring (same as MG2)
   # Electrical connections
-  connect(mg1.power_elec, battery.mg1_power) {^id21}
-  connect(mg2.power_elec, battery.mg2_power) {^id22}
+  connect(mg1.power_elec, battery.mg1_power) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1287.5, "y": 712.5}, {"x": 1287.5, "y": 962.5}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(mg2.power_elec, battery.mg2_power) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   # Initial conditions - all at rest
   # Only set initials for independent DOFs; connected/constrained vars use guesses
   initial vehicle.omega_wheel = 0.0
@@ -65,22 +185,10 @@ metadata {
     "tests": {
       "case1": {
         "stop": 765,
-        "atol": {
-          "battery.SOC": 0.02,
-          "engine.fuel_consumed": 50,
-          "vehicle.speed": 2.0
-        },
+        "atol": {"battery.SOC": 0.02, "engine.fuel_consumed": 50, "vehicle.speed": 2.0},
         "expect": {
-          "initial": {
-            "vehicle.speed": 0.0,
-            "battery.SOC": 0.6,
-            "engine.fuel_consumed": 0.0
-          },
-          "final": {
-            "battery.SOC": 0.4,
-            "engine.fuel_consumed": 1292,
-            "vehicle.speed": 20.0
-          },
+          "initial": {"vehicle.speed": 0.0, "battery.SOC": 0.6, "engine.fuel_consumed": 0.0},
+          "final": {"battery.SOC": 0.4, "engine.fuel_consumed": 1292, "vehicle.speed": 20.0},
           "signals": [
             "vehicle.speed",
             "battery.SOC",
@@ -88,215 +196,6 @@ metadata {
             "controller.engine_throttle"
           ]
         }
-      }
-    }
-  },
-  "_links": {
-    "drive_cycle": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 10, "y1": 190, "x2": 210, "y2": 390, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "controller": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 318, "y1": 431, "x2": 518, "y2": 631, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "engine": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 400, "y1": 190, "x2": 600, "y2": 390, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "mg1": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 330, "y1": 810, "x2": 530, "y2": 1010, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "mg2": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 640, "y1": 520, "x2": 840, "y2": 720, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "transmission": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 680, "y1": 70, "x2": 880, "y2": 270, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "vehicle": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 30, "y1": 670, "x2": 230, "y2": 870, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "battery": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 810, "y1": 790, "x2": 1010, "y2": 990, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "id9": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 281, "y": 290}, {"x": 281, "y": 491}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id10": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 280, "y": 770}, {"x": 280, "y": 449}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id11": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [{"x": 1010, "y": 795}, {"x": 290, "y": 795}, {"x": 290, "y": 567}],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id12": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 300, "y": 292}, {"x": 300, "y": 527}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id13": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 300, "y": 858}, {"x": 300, "y": 605}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id14": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [
-              {"x": 790, "y": 479},
-              {"x": 790, "y": 310},
-              {"x": 642, "y": 310},
-              {"x": 642, "y": 292}
-            ],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id15": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [
-              {"x": 590, "y": 593},
-              {"x": 590, "y": 1050},
-              {"x": 200, "y": 1050},
-              {"x": 200, "y": 910}
-            ],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id16": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 550, "y": 531}, {"x": 550, "y": 620}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id17": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 498, "y": 128}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id18": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [{"x": 430, "y": 947}, {"x": 270, "y": 947}, {"x": 270, "y": 170}],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id19": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [{"x": 740, "y": 489}, {"x": 940, "y": 489}, {"x": 940, "y": 170}],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id20": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [
-              {"x": 128, "y": 641},
-              {"x": 230, "y": 641},
-              {"x": 230, "y": 20},
-              {"x": 940, "y": 20}
-            ],
-            "E": -1
-          },
-          {"S": -1, "M": [], "E": 2}
-        ],
-        "junctions": [{"x": 940, "y": 170}],
-        "renderStyle": "standard"
-      }
-    },
-    "id21": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [{"x": 530, "y": 910}, {"x": 772, "y": 910}, {"x": 772, "y": 838}],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id22": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 790, "y": 666}, {"x": 790, "y": 936}], "E": 2}],
-        "renderStyle": "standard"
       }
     }
   }

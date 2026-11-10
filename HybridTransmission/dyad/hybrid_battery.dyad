@@ -37,6 +37,7 @@ metadata {
     "mg1_power": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 200, "x2": 50, "y2": 300, "rot": 0},
           "diagram": {"iconName": "default", "x1": -40, "y1": 190, "x2": 60, "y2": 290, "rot": 0}
         },
         "tags": []
@@ -45,6 +46,7 @@ metadata {
     "mg2_power": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800, "rot": 0},
           "diagram": {"iconName": "default", "x1": -40, "y1": 680, "x2": 60, "y2": 780, "rot": 0}
         },
         "tags": []
@@ -53,6 +55,7 @@ metadata {
     "soc_output": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0}
         },
         "tags": []
