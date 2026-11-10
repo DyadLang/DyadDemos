@@ -33,7 +33,8 @@ metadata {
     "u": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": -80, "y1": 460, "x2": 0, "y2": 540, "rot": 0}
+          "icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -41,7 +42,8 @@ metadata {
     "y1": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 1000, "y1": 190, "x2": 1080, "y2": 270, "rot": 0}
+          "icon": {"iconName": "default", "x1": 950, "y1": 200, "x2": 1050, "y2": 300, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 950, "y1": 200, "x2": 1050, "y2": 300, "rot": 0}
         },
         "tags": []
       }
@@ -49,7 +51,8 @@ metadata {
     "y2": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 1000, "y1": 460, "x2": 1080, "y2": 540, "rot": 0}
+          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0}
         },
         "tags": []
       }
@@ -57,7 +60,8 @@ metadata {
     "y3": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 1000, "y1": 740, "x2": 1080, "y2": 820, "rot": 0}
+          "icon": {"iconName": "default", "x1": 950, "y1": 700, "x2": 1050, "y2": 800, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 950, "y1": 700, "x2": 1050, "y2": 800, "rot": 0}
         },
         "tags": []
       }
