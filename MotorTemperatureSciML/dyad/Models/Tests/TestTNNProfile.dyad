@@ -61,30 +61,30 @@ relations
 metadata {
   "Dyad": {
     "labels": [
-      {"label": "Operating conditions · 10 channels", "x": 180, "y": 130, "layer": "diagram", "attrs": {"font-size": "21", "width": "max-content"}},
-      {"label": "TNN temperature estimator", "x": 830, "y": 80, "layer": "diagram", "attrs": {"font-size": "25", "width": "max-content"}},
-      {"label": "Measured temperatures · 4 channels", "x": 170, "y": 580, "layer": "diagram", "attrs": {"font-size": "21", "width": "max-content"}},
-      {"label": "Targets for calibration / validation", "x": 780, "y": 610, "layer": "diagram", "attrs": {"font-size": "22", "width": "max-content"}},
-      {"label": "pm", "x": 580, "y": 668, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
-      {"label": "stator yoke", "x": 580, "y": 728, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
-      {"label": "stator tooth", "x": 580, "y": 788, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
-      {"label": "stator winding", "x": 580, "y": 848, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
-      {"label": "u_q", "x": 550, "y": 110, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
-      {"label": "coolant", "x": 550, "y": 150, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
-      {"label": "u_d", "x": 550, "y": 190, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
-      {"label": "motor_speed", "x": 550, "y": 230, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
-      {"label": "i_d", "x": 550, "y": 270, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
-      {"label": "i_q", "x": 550, "y": 310, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
-      {"label": "ambient", "x": 550, "y": 350, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
-      {"label": "torque", "x": 550, "y": 390, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
-      {"label": "i_s", "x": 550, "y": 430, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
-      {"label": "u_s", "x": 550, "y": 470, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}}
+      {"label": "Operating conditions · 10 channels", "x": 200, "y": 190, "layer": "diagram", "attrs": {"font-size": "21", "width": "max-content"}},
+      {"label": "TNN temperature estimator", "x": 900, "y": 40, "layer": "diagram", "attrs": {"font-size": "25", "width": "max-content"}},
+      {"label": "Measured temperatures · 4 channels", "x": 200, "y": 840, "layer": "diagram", "attrs": {"font-size": "21", "width": "max-content"}},
+      {"label": "Targets for calibration / validation", "x": 665, "y": 790, "layer": "diagram", "attrs": {"font-size": "22", "width": "max-content"}},
+      {"label": "pm", "x": 590, "y": 850, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "stator yoke", "x": 590, "y": 950, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "stator tooth", "x": 590, "y": 1050, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "stator winding", "x": 590, "y": 1150, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "u_q", "x": 575, "y": 113, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "coolant", "x": 575, "y": 163, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "u_d", "x": 575, "y": 213, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "motor_speed", "x": 575, "y": 263, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "i_d", "x": 575, "y": 313, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "i_q", "x": 575, "y": 363, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "ambient", "x": 575, "y": 413, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "torque", "x": 575, "y": 463, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "i_s", "x": 575, "y": 513, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}},
+      {"label": "u_s", "x": 575, "y": 563, "layer": "diagram", "attrs": {"font-size": "15", "width": "max-content"}}
     ]
   },
   "_links": {
-    "interp_inputs": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 80.0, "y1": 230.0, "x2": 260.0, "y2": 410.0}}}},
-    "interp_meas": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 80.0, "y1": 680.0, "x2": 260.0, "y2": 860.0}}}},
-    "model": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 630.0, "y1": 120.0, "x2": 1030.0, "y2": 520.0}}}},
+    "interp_inputs": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 100, "y1": 250, "x2": 300, "y2": 450}}}},
+    "interp_meas": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 100, "y1": 900, "x2": 300, "y2": 1100}}}},
+    "model": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 650, "y1": 100, "x2": 1150, "y2": 600}}}},
     "input_1": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
     "input_2": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
     "input_3": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
@@ -95,8 +95,8 @@ metadata {
     "input_8": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
     "input_9": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
     "input_10": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": []}]}},
-    "inputs": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 370.0, "y1": 120.0, "x2": 470.0, "y2": 520.0}}}},
-    "measurements": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 390.0, "y1": 650.0, "x2": 450.0, "y2": 890.0}}}}
+    "inputs": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 400, "y1": 100, "x2": 500, "y2": 600}}}},
+    "measurements": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 400, "y1": 800, "x2": 500, "y2": 1200}}}}
   }
 }
 end
