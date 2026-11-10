@@ -90,7 +90,7 @@ Event 2 harness: slow cycling (1 Hz sine, +/-100 Nm) exercising the Bouc-Wen hys
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(sine.y, model.torque.tau))
+  push!(__eqs, connect(sine.y, model.tau))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

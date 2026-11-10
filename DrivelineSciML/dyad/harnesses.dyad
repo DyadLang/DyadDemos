@@ -19,7 +19,7 @@ test component TestDrivelineChirp
 relations
   connect(chirp.y, torque_sum.u1)
   connect(mean_torque.y, torque_sum.u2)
-  connect(torque_sum.y, model.torque.tau)
+  connect(torque_sum.y, model.tau)
 end
 
 analysis TestDrivelineChirpTransient
@@ -36,7 +36,7 @@ test component TestDrivelineChirpMaxwellOnly
 relations
   connect(chirp.y, torque_sum.u1)
   connect(mean_torque.y, torque_sum.u2)
-  connect(torque_sum.y, model.torque.tau)
+  connect(torque_sum.y, model.tau)
 end
 
 analysis TestDrivelineChirpMaxwellOnlyTransient
@@ -53,7 +53,7 @@ test component TestDrivelineSlowCycle
   "Maxwell branch damping [N*m*s/rad] (frozen from Stage 1)"
   parameter c1::RotationalDampingConstant = 2.0
 relations
-  connect(sine.y, model.torque.tau)
+  connect(sine.y, model.tau)
 end
 
 analysis TestDrivelineSlowCycleTransient
@@ -66,7 +66,7 @@ test component TestDrivelineTipIn
   model = DrivelineSystem()
   tipin = TipInTorque()
 relations
-  connect(tipin.y, model.torque.tau)
+  connect(tipin.y, model.tau)
 end
 
 analysis TestDrivelineTipInTransient

@@ -39,8 +39,10 @@ metadata {
 }
 end
 
-"Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are re-exposed here as top-level parameters and bound into the isolator with `final`, so a calibration search space can target model.k1, model.c1, and so on. The applied torque enters through the `torque.tau` RealInput of the embedded TorqueSource."
+"Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are re-exposed here as top-level parameters and bound into the isolator with `final`, so a calibration search space can target model.k1, model.c1, and so on. The applied torque enters through the `tau` RealInput, which drives the embedded TorqueSource."
 component DrivelineSystem
+  "Applied torque [N*m]"
+  tau = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}
   torque = RotationalComponents.Sources.TorqueSource()
   torque_support = RotationalComponents.Components.Fixed()
   J_eng = RotationalComponents.Components.Inertia(J = 0.05)
@@ -63,6 +65,7 @@ component DrivelineSystem
   "Speed difference across the isolator (engine minus load) [rad/s]"
   variable delta_w::AngularVelocity
 relations
+  connect(tau, torque.tau)
   connect(torque.support, torque_support.spline)
   connect(torque.spline, J_eng.spline_a)
   connect(J_eng.spline_b, isolator.spline_a)

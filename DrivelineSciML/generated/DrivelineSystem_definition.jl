@@ -7,7 +7,7 @@
 @doc Markdown.doc"""
    DrivelineSystem(; name, k1, c1, alpha, A_bw, beta_bw, gamma_bw, __overrides)
 
-Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are re-exposed here as top-level parameters and bound into the isolator with `final`, so a calibration search space can target model.k1, model.c1, and so on. The applied torque enters through the `torque.tau` RealInput of the embedded TorqueSource.
+Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-Wen isolator -> load inertia -> damper to ground. The six isolator knobs are re-exposed here as top-level parameters and bound into the isolator with `final`, so a calibration search space can target model.k1, model.c1, and so on. The applied torque enters through the `tau` RealInput, which drives the embedded TorqueSource.
 
 ## Parameters:
 
@@ -19,6 +19,10 @@ Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-
 | `A_bw`         | Bouc-Wen flow gain (truth: 1.0)                         | --  |   1.0 |
 | `beta_bw`         | Bouc-Wen saturation coefficient (truth: 5.0)                         | --  |   3.0 |
 | `gamma_bw`         | Bouc-Wen shape coefficient (truth: 0.5)                         | --  |   0.3 |
+
+## Connectors
+
+ * `tau` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
 
 ## Variables
 
@@ -87,6 +91,7 @@ Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-
   ### Final Parameters (assignments)
 
   ### Final Path Parameters
+  append!(__vars, @variables (tau(t)::Real), [input = true])
 
   ### Variables (declarations)
   append!(__vars, @variables (delta_w(t)::Real), [description = "Speed difference across the isolator (engine minus load) [rad/s]"])
@@ -147,6 +152,7 @@ Two-inertia EV driveline: torque source -> engine/motor inertia -> Maxwell-Bouc-
 
   ### Equations
   push!(__eqs, delta_w ~ J_eng.w - J_load.w)
+  push!(__eqs, connect(tau, torque.tau))
   push!(__eqs, connect(torque.support, torque_support.spline))
   push!(__eqs, connect(torque.spline, J_eng.spline_a))
   push!(__eqs, connect(J_eng.spline_b, isolator.spline_a))
