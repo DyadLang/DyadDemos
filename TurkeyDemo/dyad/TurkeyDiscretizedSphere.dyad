@@ -2,10 +2,10 @@
 # Implementation with array variables with thermal connector at surface
 component TurkeyDiscretizedSphere
   # Thermal connector for outermost element
-  surface = HeatPort() {^surface}
+  surface = HeatPort() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500}}}}
   # Structural parameter for discretization
   structural parameter N::Integer = 10
-  structural parameter Np1::Integer = N+1
+  structural parameter Np1::Integer = N + 1
   # Turkey properties
   parameter M::Mass = 5.0
   parameter rho::Density = 1050.0
@@ -66,25 +66,32 @@ relations
   for i in 1:N
     T_degF[i] = TurkeyDemo.KelvinToFahrenheit(T[i])
   end
-metadata {
-  "Dyad": {"icons": {"default": "dyad://TurkeyDemo/turkey.svg"}},
-  "_links": {
-    "surface": {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500}}}}
-  }
-}
+metadata {"Dyad": {"icons": {"default": "dyad://TurkeyDemo/turkey.svg"}}}
 end
 
 # Test harness with convection and radiation components
 test component TurkeySphereTest
   # Turkey body
-  turkey = TurkeyDiscretizedSphere(N = 10, M = M_turkey, T_init = 277.0) {^turkey}
+  turkey = TurkeyDiscretizedSphere(N = 10, M = M_turkey, T_init = 277.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 700, "y1": 300, "x2": 800, "y2": 400}}}
+  }
   # Oven environment
-  oven = ThermalComponents.Sources.FixedTemperature(T = T_oven) {^oven}
+  oven = ThermalComponents.Sources.FixedTemperature(T = T_oven) {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "y1": 300, "x2": 200, "y2": 400}}}
+  }
   # Convection heat transfer with signal input
-  convection = ThermalComponents.Components.Convection() {^convection}
-  Gc_signal = BlockComponents.Sources.Constant(k = Gc_conv) {^Gc_signal}
+  convection = ThermalComponents.Components.Convection() {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "y1": 450, "x2": 500, "y2": 550, "rot": 180}}
+    }
+  }
+  Gc_signal = BlockComponents.Sources.Constant(k = Gc_conv) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "y1": 650, "x2": 300, "y2": 750}}}
+  }
   # Radiation heat transfer
-  radiation = ThermalComponents.Components.BodyRadiation(Gr = Gr_rad) {^radiation}
+  radiation = ThermalComponents.Components.BodyRadiation(Gr = Gr_rad) {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "y1": 150, "x2": 500, "y2": 250}}}
+  }
   structural parameter N::Integer = 10
   # Parameters
   parameter T_oven::Temperature = 450.0
@@ -100,89 +107,36 @@ test component TurkeySphereTest
   parameter Gr_rad::Real = epsilon * A_surface
 relations
   # Connect convection: oven (fluid) -> turkey surface (solid)
-  connect(oven.port, convection.fluid) {^id6}
-  connect(convection.solid, turkey.surface) {^id7}
-  connect(Gc_signal.y, convection.Gc) {^id8}
-  # Connect radiation: oven -> turkey surface
-  connect(oven.port, radiation.port_a) {^id9}
-  connect(radiation.port_b, turkey.surface) {^id10}
-metadata {
-  "_links": {
-    "turkey": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 305, "y1": 235, "x2": 405, "y2": 335, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "oven": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 240, "x2": 120, "y2": 340, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "convection": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 260, "y1": 130, "x2": 160, "y2": 230, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "Gc_signal": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 40, "x2": 120, "y2": 140, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "radiation": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 160, "y1": 340, "x2": 260, "y2": 440, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "id6": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 140, "y": 290}, {"x": 140, "y": 180}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id7": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 290, "y": 180}, {"x": 290, "y": 280}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id8": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 210, "y": 90}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id9": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 140, "y": 290}, {"x": 140, "y": 390}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id10": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 290, "y": 390}, {"x": 290, "y": 280}], "E": 2}],
-        "renderStyle": "standard"
-      }
+  connect(oven.port, convection.fluid) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 350, "y": 350}, {"x": 350, "y": 500}], "E": 2}],
+      "path": {}
     }
   }
-}
+  connect(convection.solid, turkey.surface) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 650, "y": 500}, {"x": 650, "y": 345}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(Gc_signal.y, convection.Gc) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 450, "y": 700}], "E": 2}], "path": {}}}
+  # Connect radiation: oven -> turkey surface
+  connect(oven.port, radiation.port_a) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 350, "y": 350}, {"x": 350, "y": 200}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(radiation.port_b, turkey.surface) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 650, "y": 200}, {"x": 650, "y": 345}], "E": 2}],
+      "path": {}
+    }
+  }
 end
 
 analysis TurkeySphereCooking
   extends TransientAnalysis(stop = 14400.0, saveat = 60.0)
   model = TurkeySphereTest()
+relations
 end

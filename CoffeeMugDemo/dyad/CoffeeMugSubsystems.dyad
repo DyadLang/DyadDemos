@@ -1,20 +1,72 @@
 component CoffeeMugSubsystem
-  topSurface = HeatPort() {^topSurface}
-  outerSurface = HeatPort() {^outerSurface}
-  ambient = HeatPort() {^ambient}
-  espressoTemp_degC = RealOutput() {^espressoTemp_degC}
-  hotEspresso = ThermalComponents.Components.HeatCapacitor(C = C_espresso, T0 = T0_espresso)
-  cupMass = ThermalComponents.Components.HeatCapacitor(C = C_cup, T0 = T0_cup)
-  convEspresso2Cup = ThermalComponents.Components.Convection()
-  gcEsp2Cup = BlockComponents.Sources.Constant(k = Gc_internal)
-  condCup = ThermalComponents.Components.ThermalConductor(G = G_wall)
-  convCup2Env = ThermalComponents.Components.Convection()
-  gcCup2Env = BlockComponents.Sources.Constant(k = Gc_external)
-  radCup2Env = ThermalComponents.Components.BodyRadiation(Gr = Gr_external)
-  tempSensor = ThermalComponents.Sensors.TemperatureSensor()
-  to_degC = BlockComponents.Math.Gain(k = 1.0)
-  offset_degC = BlockComponents.Sources.Constant(k = -273.15)
-  add_offset = BlockComponents.Math.Add()
+  topSurface = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "topSurface", "x1": 400, "y1": -50, "x2": 500, "y2": 50},
+        "diagram": {"x1": 150, "x2": 250, "y1": -50, "y2": 50}
+      }
+    }
+  }
+  outerSurface = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "outerSurface", "x1": 950, "y1": 400, "x2": 1050, "y2": 500},
+        "diagram": {"x1": 1125, "x2": 1225, "y1": 1450, "y2": 1550}
+      }
+    }
+  }
+  ambient = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "ambient", "x1": -50, "y1": 400, "x2": 50, "y2": 500},
+        "diagram": {"x1": 1750, "x2": 1850, "y1": 850, "y2": 950}
+      }
+    }
+  }
+  espressoTemp_degC = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
+        "diagram": {"x1": 1750, "x2": 1850, "y1": 300, "y2": 400}
+      }
+    }
+  }
+  hotEspresso = ThermalComponents.Components.HeatCapacitor(C = C_espresso, T0 = T0_espresso) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 650, "y2": 750}}}
+  }
+  cupMass = ThermalComponents.Components.HeatCapacitor(C = C_cup, T0 = T0_cup) {
+    "Dyad": {"placement": {"diagram": {"x1": 825, "x2": 925, "y1": 650, "y2": 750}}}
+  }
+  convEspresso2Cup = ThermalComponents.Components.Convection() {
+    "Dyad": {"placement": {"diagram": {"x1": 625, "x2": 725, "y1": 850, "y2": 950}}}
+  }
+  gcEsp2Cup = BlockComponents.Sources.Constant(k = Gc_internal) {
+    "Dyad": {"placement": {"diagram": {"x1": 425, "x2": 525, "y1": 650, "y2": 750}}}
+  }
+  condCup = ThermalComponents.Components.ThermalConductor(G = G_wall) {
+    "Dyad": {"placement": {"diagram": {"x1": 975, "x2": 1075, "y1": 850, "y2": 950}}}
+  }
+  convCup2Env = ThermalComponents.Components.Convection() {
+    "Dyad": {"placement": {"diagram": {"x1": 1325, "x2": 1425, "y1": 850, "y2": 950}}}
+  }
+  gcCup2Env = BlockComponents.Sources.Constant(k = Gc_external) {
+    "Dyad": {"placement": {"diagram": {"x1": 1125, "x2": 1225, "y1": 650, "y2": 750}}}
+  }
+  radCup2Env = ThermalComponents.Components.BodyRadiation(Gr = Gr_external) {
+    "Dyad": {"placement": {"diagram": {"x1": 1325, "x2": 1425, "y1": 1050, "y2": 1150}}}
+  }
+  tempSensor = ThermalComponents.Sensors.TemperatureSensor() {
+    "Dyad": {"placement": {"diagram": {"x1": 325, "x2": 425, "y1": 300, "y2": 400}}}
+  }
+  to_degC = BlockComponents.Math.Gain(k = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 525, "x2": 625, "y1": 300, "y2": 400}}}
+  }
+  offset_degC = BlockComponents.Sources.Constant(k = -273.15) {
+    "Dyad": {"placement": {"diagram": {"x1": 525, "x2": 625, "y1": 500, "y2": 600}}}
+  }
+  add_offset = BlockComponents.Math.Add() {
+    "Dyad": {"placement": {"diagram": {"x1": 725, "x2": 825, "y1": 300, "y2": 400}}}
+  }
   parameter C_espresso::HeatCapacity = 248.5 # J/K (60 mL water)
   parameter T0_espresso::Temperature = 363.15 # K (90°C initial)
   parameter C_cup::HeatCapacity = 113.0 # J/K (porcelain)
@@ -24,222 +76,296 @@ component CoffeeMugSubsystem
   parameter Gc_external::Real = 0.0705 # W/K, cup outer surface to air
   parameter Gr_external::Real = 0.005 # m² (effective radiation area)
 relations
-  connect(hotEspresso.port, convEspresso2Cup.solid)
-  connect(convEspresso2Cup.fluid, cupMass.port)
-  connect(gcEsp2Cup.y, convEspresso2Cup.Gc)
-  connect(cupMass.port, condCup.port_a)
-  connect(hotEspresso.port, topSurface)
-  connect(condCup.port_b, outerSurface)
-  connect(outerSurface, convCup2Env.solid)
-  connect(convCup2Env.fluid, ambient)
-  connect(gcCup2Env.y, convCup2Env.Gc)
-  connect(outerSurface, radCup2Env.port_a)
-  connect(radCup2Env.port_b, ambient)
-  connect(tempSensor.port, hotEspresso.port)
-  connect(tempSensor.T, to_degC.u)
-  connect(to_degC.y, add_offset.u1)
-  connect(offset_degC.y, add_offset.u2)
-  connect(add_offset.y, espressoTemp_degC)
-metadata {
-  "Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/espresso_mug.svg"}},
-  "_links": {
-    "topSurface": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "topSurface", "x1": 400, "y1": -50, "x2": 500, "y2": 50}}
-      }
-    },
-    "outerSurface": {
-      "Dyad": {
-        "placement": {
-          "icon": {"iconName": "outerSurface", "x1": 950, "y1": 400, "x2": 1050, "y2": 500}
-        }
-      }
-    },
-    "ambient": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "ambient", "x1": -50, "y1": 400, "x2": 50, "y2": 500}}
-      }
-    },
-    "espressoTemp_degC": {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}}}}
+  connect(hotEspresso.port, convEspresso2Cup.solid) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 275, "y": 900}], "E": 2}], "path": {}}}
+  connect(convEspresso2Cup.fluid, cupMass.port) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 875, "y": 900}], "E": 2}], "path": {}}}
+  connect(gcEsp2Cup.y, convEspresso2Cup.Gc) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 675, "y": 700}], "E": 2}], "path": {}}}
+  connect(cupMass.port, condCup.port_a) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 875, "y": 900}], "E": 2}], "path": {}}}
+  connect(hotEspresso.port, topSurface) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 275, "y": 775}, {"x": 200, "y": 775}], "E": 2}],
+      "path": {}
+    }
   }
-}
+  connect(condCup.port_b, outerSurface) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 1175, "y": 900}], "E": 2}], "path": {}}
+  }
+  connect(outerSurface, convCup2Env.solid) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 1175, "y": 900}], "E": 2}], "path": {}}
+  }
+  connect(convCup2Env.fluid, ambient) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(gcCup2Env.y, convCup2Env.Gc) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 1375, "y": 700}], "E": 2}], "path": {}}
+  }
+  connect(outerSurface, radCup2Env.port_a) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 1175, "y": 1100}], "E": 2}], "path": {}}
+  }
+  connect(radCup2Env.port_b, ambient) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1550, "y": 1100}, {"x": 1550, "y": 900}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(tempSensor.port, hotEspresso.port) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 200, "y": 350}, {"x": 200, "y": 775}, {"x": 275, "y": 775}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(tempSensor.T, to_degC.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(to_degC.y, add_offset.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 700, "y": 350}, {"x": 700, "y": 320}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(offset_degC.y, add_offset.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 700, "y": 550}, {"x": 700, "y": 380}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(add_offset.y, espressoTemp_degC) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+metadata {"Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/espresso_mug.svg"}}}
 end
 
 component SteamSubsystem
-  liquidInterface = HeatPort() {^liquidInterface}
-  ambient = HeatPort() {^ambient}
-  convTop = ThermalComponents.Components.Convection()
-  gcTop = BlockComponents.Sources.Constant(k = Gc_top)
-  radTop = ThermalComponents.Components.BodyRadiation(Gr = Gr_top)
-  parameter Gc_top::Real = 0.01 # W/K
-  parameter Gr_top::Real = 0.001 # m² (effective radiation area)
-relations
-  connect(liquidInterface, convTop.solid)
-  connect(convTop.fluid, ambient)
-  connect(gcTop.y, convTop.Gc)
-  connect(liquidInterface, radTop.port_a)
-  connect(radTop.port_b, ambient)
-metadata {
-  "Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/steam.svg"}},
-  "_links": {
-    "liquidInterface": {
-      "Dyad": {
-        "placement": {
-          "icon": {"iconName": "liquidInterface", "x1": 400, "y1": 950, "x2": 500, "y2": 1050}
-        }
-      }
-    },
-    "ambient": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "ambient", "x1": 400, "y1": -50, "x2": 500, "y2": 50}}
+  liquidInterface = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "liquidInterface", "x1": 400, "y1": 950, "x2": 500, "y2": 1050},
+        "diagram": {"x1": -50, "x2": 50, "y1": 300, "y2": 400}
       }
     }
   }
-}
+  ambient = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "ambient", "x1": 400, "y1": -50, "x2": 500, "y2": 50},
+        "diagram": {"x1": 950, "x2": 1050, "y1": 300, "y2": 400}
+      }
+    }
+  }
+  convTop = ThermalComponents.Components.Convection() {
+    "Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 300, "y2": 400}}}
+  }
+  gcTop = BlockComponents.Sources.Constant(k = Gc_top) {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 100, "y2": 200}}}
+  }
+  radTop = ThermalComponents.Components.BodyRadiation(Gr = Gr_top) {
+    "Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 500, "y2": 600}}}
+  }
+  parameter Gc_top::Real = 0.01 # W/K
+  parameter Gr_top::Real = 0.001 # m² (effective radiation area)
+relations
+  connect(liquidInterface, convTop.solid) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(convTop.fluid, ambient) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(gcTop.y, convTop.Gc) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 650, "y": 150}], "E": 2}], "path": {}}}
+  connect(liquidInterface, radTop.port_a) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 500, "y": 350}, {"x": 500, "y": 550}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(radTop.port_b, ambient) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 950, "y": 550}, {"x": 950, "y": 350}], "E": 2}],
+      "path": {}
+    }
+  }
+metadata {"Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/steam.svg"}}}
 end
 
 component SpoonSubsystem
-  liquidInterface = HeatPort() {^liquidInterface}
-  ambient = HeatPort() {^ambient}
-  spoonMass = ThermalComponents.Components.HeatCapacitor(C = C_spoon, T0 = T0_spoon)
-  liquidContact = ThermalComponents.Components.ThermalConductor(G = G_liquid_contact)
-  convExposed = ThermalComponents.Components.Convection()
-  gcExposed = BlockComponents.Sources.Constant(k = Gc_exposed)
-  radExposed = ThermalComponents.Components.BodyRadiation(Gr = Gr_exposed)
+  liquidInterface = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "liquidInterface", "x1": 400, "y1": 950, "x2": 500, "y2": 1050},
+        "diagram": {"x1": -50, "x2": 50, "y1": 700, "y2": 800}
+      }
+    }
+  }
+  ambient = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "ambient", "x1": 400, "y1": -50, "x2": 500, "y2": 50},
+        "diagram": {"x1": 1550, "x2": 1650, "y1": 700, "y2": 800}
+      }
+    }
+  }
+  spoonMass = ThermalComponents.Components.HeatCapacitor(C = C_spoon, T0 = T0_spoon) {
+    "Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 200, "y2": 300}}}
+  }
+  liquidContact = ThermalComponents.Components.ThermalConductor(G = G_liquid_contact) {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 700, "y2": 800}}}
+  }
+  convExposed = ThermalComponents.Components.Convection() {
+    "Dyad": {"placement": {"diagram": {"x1": 1000, "x2": 1100, "y1": 700, "y2": 800}}}
+  }
+  gcExposed = BlockComponents.Sources.Constant(k = Gc_exposed) {
+    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 500, "y2": 600}}}
+  }
+  radExposed = ThermalComponents.Components.BodyRadiation(Gr = Gr_exposed) {
+    "Dyad": {"placement": {"diagram": {"x1": 1000, "x2": 1100, "y1": 400, "y2": 500}}}
+  }
   parameter C_spoon::HeatCapacity = 10.0 # J/K (stainless steel, ~10 g teaspoon)
   parameter T0_spoon::Temperature = 293.15 # K (20°C initial, room temp)
   parameter G_liquid_contact::ThermalConductance = 0.2 # W/K, metal-liquid contact is excellent
   parameter Gc_exposed::Real = 0.02 # W/K, handle in air
   parameter Gr_exposed::Real = 0.0005 # m² (effective radiation area)
 relations
-  connect(liquidInterface, liquidContact.port_a)
-  connect(liquidContact.port_b, spoonMass.port)
-  connect(spoonMass.port, convExposed.solid)
-  connect(convExposed.fluid, ambient)
-  connect(gcExposed.y, convExposed.Gc)
-  connect(spoonMass.port, radExposed.port_a)
-  connect(radExposed.port_b, ambient)
-metadata {
-  "Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/spoon.svg"}},
-  "_links": {
-    "liquidInterface": {
-      "Dyad": {
-        "placement": {
-          "icon": {"iconName": "liquidInterface", "x1": 400, "y1": 950, "x2": 500, "y2": 1050}
-        }
-      }
-    },
-    "ambient": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "ambient", "x1": 400, "y1": -50, "x2": 500, "y2": 50}}
-      }
+  connect(liquidInterface, liquidContact.port_a) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(liquidContact.port_b, spoonMass.port) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 650, "y": 750}], "E": 2}], "path": {}}}
+  connect(spoonMass.port, convExposed.solid) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 650, "y": 750}], "E": 2}], "path": {}}}
+  connect(convExposed.fluid, ambient) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(gcExposed.y, convExposed.Gc) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 1050, "y": 550}], "E": 2}], "path": {}}
+  }
+  connect(spoonMass.port, radExposed.port_a) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 650, "y": 450}], "E": 2}], "path": {}}}
+  connect(radExposed.port_b, ambient) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1375, "y": 450}, {"x": 1375, "y": 750}], "E": 2}],
+      "path": {}
     }
   }
-}
+metadata {"Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/spoon.svg"}}}
 end
 
 component HandSubsystem
-  cupContact = HeatPort() {^cupContact}
-  handMass = ThermalComponents.Components.HeatCapacitor(C = C_hand, T0 = T0_hand)
-  handContact = ThermalComponents.Components.ThermalConductor(G = G_contact)
+  cupContact = HeatPort() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "cupContact", "x1": -50, "y1": 400, "x2": 50, "y2": 500},
+        "diagram": {"x1": 850, "x2": 950, "y1": 300, "y2": 400}
+      }
+    }
+  }
+  handMass = ThermalComponents.Components.HeatCapacitor(C = C_hand, T0 = T0_hand) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 200, "y2": 300}}}
+  }
+  handContact = ThermalComponents.Components.ThermalConductor(G = G_contact) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 300, "y2": 400}}}
+  }
   parameter C_hand::HeatCapacity = 500.0 # J/K (body thermal reservoir)
   parameter T0_hand::Temperature = 310.15 # K (37°C body temperature)
   parameter G_contact::ThermalConductance = 0.5 # W/K (hand-cup interface)
 relations
-  connect(handMass.port, handContact.port_a)
-  connect(handContact.port_b, cupContact)
-metadata {
-  "Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/hands.svg"}},
-  "_links": {
-    "cupContact": {
-      "Dyad": {
-        "placement": {"icon": {"iconName": "cupContact", "x1": -50, "y1": 400, "x2": 50, "y2": 500}}
-      }
-    }
-  }
-}
+  connect(handMass.port, handContact.port_a) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 250, "y": 350}], "E": 2}], "path": {}}}
+  connect(handContact.port_b, cupContact) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+metadata {"Dyad": {"icons": {"default": "dyad://CoffeeMugDemo/hands.svg"}}}
 end
 
 test component EspressoCupSystemModular
-  coffeeMug = CoffeeMugSubsystem() {^coffeeMug}
-  steam = SteamSubsystem() {^steam}
-  hand = HandSubsystem() {^hand}
-  environment = ThermalComponents.Sources.FixedTemperature(T = 293.15) {^environment}
+  coffeeMug = CoffeeMugSubsystem() {
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 155, "y1": 285, "x2": 255, "y2": 385, "rot": 0}
+      }
+    }
+  }
+  steam = SteamSubsystem() {
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 282.5, "y1": 75, "x2": 382.5, "y2": 175, "rot": 0}
+      }
+    }
+  }
+  hand = HandSubsystem() {
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 285, "y1": 285, "x2": 385, "y2": 385, "rot": 0}
+      }
+    }
+  }
+  environment = ThermalComponents.Sources.FixedTemperature(T = 293.15) {
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 20, "y1": 280, "x2": 120, "y2": 380, "rot": 0}
+      }
+    }
+  }
 relations
-  connect(hand.cupContact, coffeeMug.outerSurface) {^id5}
-  connect(coffeeMug.ambient, environment.port) {^id6}
-  connect(steam.ambient, environment.port) {^id7}
+  connect(hand.cupContact, coffeeMug.outerSurface) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}
+  connect(coffeeMug.ambient, environment.port) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}
+  connect(steam.ambient, environment.port) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 327.5, "y": 20}, {"x": 140, "y": 20}], "E": -1},
+        {"S": -1, "M": [], "E": 2}
+      ],
+      "junctions": [{"x": 140, "y": 330}]
+    }
+  }
   # The T0 parameters on the HeatCapacitors already initialize every
   # differential state, so only the algebraic nodes need a starting guess.
   guess coffeeMug.outerSurface.T = 330.0
   guess coffeeMug.convCup2Env.ΔT = 37.0
   # Breaks a cyclic dependency: hand temp - cup surface temp ≈ 310.15 - 330.
   guess hand.handContact.ΔT = -20.0
-  connect(coffeeMug.topSurface, steam.liquidInterface) {^id8}
-metadata {
-  "_links": {
-    "coffeeMug": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 155, "y1": 285, "x2": 255, "y2": 385, "rot": 0}
-        }
-      }
-    },
-    "steam": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 282.5, "y1": 75, "x2": 382.5, "y2": 175, "rot": 0}
-        }
-      }
-    },
-    "hand": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 285, "y1": 285, "x2": 385, "y2": 385, "rot": 0}
-        }
-      }
-    },
-    "environment": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 280, "x2": 120, "y2": 380, "rot": 0}
-        }
-      }
-    },
-    "id5": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}},
-    "id6": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}},
-    "id7": {
-      "Dyad": {
-        "edges": [
-          {"S": 1, "M": [{"x": 327.5, "y": 20}, {"x": 140, "y": 20}], "E": -1},
-          {"S": -1, "M": [], "E": 2}
-        ],
-        "junctions": [{"x": 140, "y": 330}]
-      }
-    },
-    "id8": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 200, "y": 230}, {"x": 327.5, "y": 230}], "E": 2}]
-      }
+  connect(coffeeMug.topSurface, steam.liquidInterface) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 200, "y": 230}, {"x": 327.5, "y": 230}], "E": 2}]
     }
   }
-}
 end
 
 test component EspressoCupSystemWithSpoon
-  coffeeMug = CoffeeMugSubsystem() {^coffeeMug}
-  steam = SteamSubsystem() {^steam}
-  spoon = SpoonSubsystem() {^spoon}
-  hand = HandSubsystem() {^hand}
-  environment = ThermalComponents.Sources.FixedTemperature(T = 293.15) {^environment}
+  coffeeMug = CoffeeMugSubsystem() {
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 275, "y1": 415, "x2": 375, "y2": 515, "rot": 0}
+      }
+    }
+  }
+  steam = SteamSubsystem() {
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 280, "y1": 270, "x2": 380, "y2": 370, "rot": 0}
+      }
+    }
+  }
+  spoon = SpoonSubsystem() {
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 410, "y1": 260, "x2": 510, "y2": 360, "rot": 0}
+      }
+    }
+  }
+  hand = HandSubsystem() {
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 405, "y1": 415, "x2": 505, "y2": 515, "rot": 0}
+      }
+    }
+  }
+  environment = ThermalComponents.Sources.FixedTemperature(T = 293.15) {
+    "Dyad": {
+      "placement": {
+        "diagram": {"iconName": "default", "x1": 20, "y1": 190, "x2": 120, "y2": 290, "rot": 0}
+      }
+    }
+  }
 relations
-  connect(steam.liquidInterface, coffeeMug.topSurface) {^id6}
+  connect(steam.liquidInterface, coffeeMug.topSurface) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 325, "y": 392.5}, {"x": 320, "y": 392.5}], "E": 2}]
+    }
+  }
   # The spoon is a second path out of the liquid, parallel to the steam.
-  connect(spoon.liquidInterface, coffeeMug.topSurface) {^id7}
-  connect(hand.cupContact, coffeeMug.outerSurface) {^id8}
-  connect(coffeeMug.ambient, environment.port) {^id9}
-  connect(steam.ambient, environment.port) {^id10}
-  connect(spoon.ambient, environment.port) {^id11}
+  connect(spoon.liquidInterface, coffeeMug.topSurface) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 455, "y": 400}, {"x": 320, "y": 400}], "E": 2}]}
+  }
+  connect(hand.cupContact, coffeeMug.outerSurface) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}
+  connect(coffeeMug.ambient, environment.port) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 140, "y": 460}, {"x": 140, "y": 240}], "E": 2}]}
+  }
+  connect(steam.ambient, environment.port) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 325, "y": 240}], "E": 2}]}}
+  connect(spoon.ambient, environment.port) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 455, "y": 240}], "E": 2}]}}
   # The T0 parameters on the HeatCapacitors already initialize every
   # differential state, so only the algebraic nodes need a starting guess.
   guess coffeeMug.outerSurface.T = 330.0
@@ -247,59 +373,6 @@ relations
   # Breaks a cyclic dependency: hand temp - cup surface temp ≈ 310.15 - 330.
   guess hand.handContact.ΔT = -20.0
   guess spoon.spoonMass.port.T = 350.0
-metadata {
-  "_links": {
-    "coffeeMug": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 275, "y1": 415, "x2": 375, "y2": 515, "rot": 0}
-        }
-      }
-    },
-    "steam": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 280, "y1": 270, "x2": 380, "y2": 370, "rot": 0}
-        }
-      }
-    },
-    "spoon": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 410, "y1": 260, "x2": 510, "y2": 360, "rot": 0}
-        }
-      }
-    },
-    "hand": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 405, "y1": 415, "x2": 505, "y2": 515, "rot": 0}
-        }
-      }
-    },
-    "environment": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 190, "x2": 120, "y2": 290, "rot": 0}
-        }
-      }
-    },
-    "id6": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 325, "y": 392.5}, {"x": 320, "y": 392.5}], "E": 2}]
-      }
-    },
-    "id7": {
-      "Dyad": {"edges": [{"S": 1, "M": [{"x": 455, "y": 400}, {"x": 320, "y": 400}], "E": 2}]}
-    },
-    "id8": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}},
-    "id9": {
-      "Dyad": {"edges": [{"S": 1, "M": [{"x": 140, "y": 460}, {"x": 140, "y": 240}], "E": 2}]}
-    },
-    "id10": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 325, "y": 240}], "E": 2}]}},
-    "id11": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 455, "y": 240}], "E": 2}]}}
-  }
-}
 end
 
 analysis EspressoCoolingModular
