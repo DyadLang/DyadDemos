@@ -1,60 +1,110 @@
 "Thermal model of a house with controlled heater and input for temperature setpoint and solar irradiance"
 component ThermalHouseControlled
   "Temperature setpoint input"
-  T_setpoint = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}}}}]
-  
+  T_setpoint = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
+        "diagram": {"x1": -50, "x2": 50, "y1": 650, "y2": 750}
+      }
+    }
+  }
   "Outputs"
-  T_interior = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}}}}]
-  Q_heater = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}}}}]
-  
+  T_interior = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
+        "diagram": {"x1": 1850, "x2": 1950, "y1": 700, "y2": 800}
+      }
+    }
+  }
+  Q_heater = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800},
+        "diagram": {"x1": 1850, "x2": 1950, "y1": 400, "y2": 500}
+      }
+    }
+  }
   "External inputs"
-  solar_irradiance = RealInput() [{"Dyad": {"placement": {"icon": {"x1": 450, "y1": -50, "x2": 550, "y2": 50, "rot": 90}}}}]
-  T_ambient = RealInput() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}}}}]
-  
+  solar_irradiance = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 450, "y1": -50, "x2": 550, "y2": 50, "rot": 90},
+        "diagram": {"x1": 1150, "y1": -50, "x2": 1250, "y2": 50, "rot": 90}
+      }
+    }
+  }
+  T_ambient = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
+        "diagram": {"x1": -50, "x2": 50, "y1": 900, "y2": 1000}
+      }
+    }
+  }
   "Initial temperature 21.1°C"
   parameter T_initial::Temperature = 294.26
-  
   "Proportional gain (W/K)"
   parameter k_p::Real = 10000.0
   "Integral time constant (s)"
   parameter T_i::Time = 600.0
   "Maximum heater capacity (W)"
   parameter Q_max::HeatFlowRate = 10000.0
-  
   "House model"
-  house = ThermalHouse(
-    T_initial=T_initial
-  )
-  
+  house = ThermalHouse(T_initial = T_initial) {
+    "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 650, "x2": 1400, "y2": 1050}}}
+  }
   "PI controller for temperature control (no derivative action)"
-  pid = BlockComponents.Continuous.LimPID(
-    k=k_p,
-    Ti=T_i,
-    Td=0.0,
-    y_max=Q_max,
-    y_min=0.0
-  )
-  
+  pid = BlockComponents.Continuous.LimPID(k = k_p, Ti = T_i, Td = 0.0, y_max = Q_max, y_min = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 600, "y1": 650, "x2": 800, "y2": 850}}}
+  }
   "Zero feed-forward input for PID"
-  zero_ff = BlockComponents.Sources.Constant(k=0.0)
-  
+  zero_ff = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 500, "y1": 300, "y2": 500}}}
+  }
 relations
   "Connect setpoint and measurement to PID"
-  connect(T_setpoint, pid.u_s)
-  connect(house.T_interior, pid.u_m)
-  connect(zero_ff.y, pid.u_ff)
-  
+  connect(T_setpoint, pid.u_s) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 575, "y": 700}, {"x": 575, "y": 704}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(house.T_interior, pid.u_m) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1425, "y": 750},
+            {"x": 1425, "y": 1200},
+            {"x": 575, "y": 1200},
+            {"x": 575, "y": 796}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(zero_ff.y, pid.u_ff) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 700, "y": 400}], "E": 2}], "path": {}}}
   "Connect PID output to heater"
-  connect(pid.y, house.Q_heater)
-  
+  connect(pid.y, house.Q_heater) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   "Connect external inputs"
-  connect(solar_irradiance, house.solar_irradiance)
-  connect(T_ambient, house.T_ambient)
-  
+  connect(solar_irradiance, house.solar_irradiance) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(T_ambient, house.T_ambient) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   "Connect outputs"
-  connect(T_interior, house.T_interior)
-  connect(Q_heater, pid.y)
-metadata {"Dyad": {"icons": {"default": "dyad://ThermalHouseDemo/thermal_house_controlled.svg"}}}
+  connect(T_interior, house.T_interior) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(Q_heater, pid.y) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 825, "y": 450}, {"x": 825, "y": 750}], "E": 2}],
+      "path": {}
+    }
+  }
+metadata {
+  "Dyad": {"icons": {"default": "dyad://ThermalHouseDemo/thermal_house_controlled.svg"}}
+}
 end
 
 test component TestThermalHouseControlled
@@ -64,30 +114,30 @@ test component TestThermalHouseControlled
   parameter T_initial::Temperature = 294.26
   "Setpoint temperature 21.1°C (70°F)"
   parameter T_setpoint::Temperature = 294.26
-  
   "Solar irradiance (W/m²)"
   parameter solar_irrad::Real = 0.0
-  
-  controlled_house = ThermalHouseControlled(
-    T_initial=T_initial,
-    k_p=10000.0,
-    T_i=600.0
-  )
-  
+  controlled_house = ThermalHouseControlled(T_initial = T_initial, k_p = 10000.0, T_i = 600.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "y1": 300, "x2": 850, "y2": 700}}}
+  }
   "Constant setpoint, solar, and ambient signals"
-  setpoint_signal = BlockComponents.Sources.Constant(k=T_setpoint)
-  solar_irradiance_signal = BlockComponents.Sources.Constant(k=solar_irrad)
-  ambient_signal = BlockComponents.Sources.Constant(k=T_outdoor)
-  
+  setpoint_signal = BlockComponents.Sources.Constant(k = T_setpoint) {
+    "Dyad": {"placement": {"diagram": {"x1": 150, "x2": 250, "y1": 350, "y2": 450}}}
+  }
+  solar_irradiance_signal = BlockComponents.Sources.Constant(k = solar_irrad) {
+    "Dyad": {"placement": {"diagram": {"x1": 150, "x2": 250, "y1": 100, "y2": 200}}}
+  }
+  ambient_signal = BlockComponents.Sources.Constant(k = T_outdoor) {
+    "Dyad": {"placement": {"diagram": {"x1": 150, "x2": 250, "y1": 550, "y2": 650}}}
+  }
 relations
-  connect(setpoint_signal.y, controlled_house.T_setpoint)
-  connect(solar_irradiance_signal.y, controlled_house.solar_irradiance)
-  connect(ambient_signal.y, controlled_house.T_ambient)
-  
+  connect(setpoint_signal.y, controlled_house.T_setpoint) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(solar_irradiance_signal.y, controlled_house.solar_irradiance) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 650, "y": 150}], "E": 2}], "path": {}}}
+  connect(ambient_signal.y, controlled_house.T_ambient) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   guess controlled_house.house.wall_loss.ΔT = 10.0
 end
 
 analysis TestControlledHouseWinterDesign
-  extends TransientAnalysis(stop=7200.0)
-  model = TestThermalHouseControlled(T_initial=288.7)
+  extends TransientAnalysis(stop = 7200.0)
+  model = TestThermalHouseControlled(T_initial = 288.7)
+relations
 end
