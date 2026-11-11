@@ -213,9 +213,16 @@ end
 
 "Full-NN gray-box quarter truck driven by ISO 8608 Class A — trained weights are loaded in the Julia validation script."
 test component TestQuarterTruckFullNNISOA
-  model = QuarterTruckFullNN()
-  iso_road = DenseISO8608Road(roughness = 1e-6, speed = speed, start_time = 0.0)
+  model = QuarterTruckFullNN() {^model}
+  iso_road = DenseISO8608Road(roughness = 1e-6, speed = speed, start_time = 0.0) {^iso_road}
   parameter speed::Velocity = 13.89
 relations
-  connect(iso_road.y, model.s_rel)
+  connect(iso_road.y, model.s_rel) {^id3}
+metadata {
+  "_links": {
+    "model": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500, "y1": 450, "x2": 600, "y2": 550, "rot": 0}}}},
+    "iso_road": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 300, "y1": 450, "x2": 400, "y2": 550, "rot": 0}}}},
+    "id3": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}}
+  }
+}
 end
