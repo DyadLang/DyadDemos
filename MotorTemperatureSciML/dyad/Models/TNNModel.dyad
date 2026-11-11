@@ -79,9 +79,9 @@ metadata {
   "Dyad": {
     "labels": [
       {"label": "$(instance)", "x": 500, "y": 1100, "layer": "icon", "attrs": {}},
-      {"label": "THERMAL NEURAL NETWORK", "x": 800, "y": -65, "layer": "diagram", "attrs": {"font-size": "28", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "THERMAL NEURAL NETWORK", "x": 800, "y": -115, "layer": "diagram", "attrs": {"font-size": "28", "width": "max-content", "white-space": "nowrap"}},
       {"label": "Operating conditions", "x": 190, "y": 180, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
-      {"label": "Normalized features · x[10]", "x": 390, "y": 805, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
+      {"label": "Normalized features · x[10]", "x": 390, "y": 880, "layer": "diagram", "attrs": {"font-size": "20", "width": "max-content", "white-space": "nowrap"}},
       {"label": "G[15]", "x": 905, "y": 205, "layer": "diagram", "attrs": {"font-size": "19", "width": "max-content", "white-space": "nowrap"}},
       {"label": "P[4]", "x": 905, "y": 430, "layer": "diagram", "attrs": {"font-size": "19", "width": "max-content", "white-space": "nowrap"}},
       {"label": "Temperature feedback · T[4]", "x": 885, "y": 960, "layer": "diagram", "attrs": {"font-size": "21", "width": "max-content", "white-space": "nowrap"}},
@@ -112,12 +112,12 @@ metadata {
     "thermal": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 990.0, "y1": 270.0, "x2": 1230.0, "y2": 510.0}}}},
     "cond_to_thermal": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 910, "y": 230}, {"x": 910, "y": 318}], "E": 2}]}},
     "cap_to_thermal": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}]}},
-    "coolant": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 1062, "y": 40}]}]}},
-    "ambient": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 1158, "y": 90}]}]}},
+    "coolant": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 1062, "y": 10}]}]}},
+    "ambient": {"Dyad": {"edges": [{"S": 1, "E": 2, "M": [{"x": 1158, "y": 80}]}]}},
     "ploss_to_thermal": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 920, "y": 490}, {"x": 920, "y": 438}], "E": 2}]}},
     "outputs": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1330.0, "y1": 270.0, "x2": 1570.0, "y2": 510.0}}}},
-    "boundaries": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 725.0, "y1": 15.0, "x2": 775.0, "y2": 115.0}}}},
-    "features": {"Dyad": {"junctions": [{"x": 590, "y": 460}, {"x": 590, "y": 230}], "edges": [{"S": 1, "E": -1, "M": []}, {"S": -1, "E": -2, "M": []}, {"S": -2, "E": 2, "M": []}, {"S": -1, "E": 3, "M": [{"x": 590, "y": 490}]}, {"S": -2, "E": 4, "M": [{"x": 590, "y": 65}]}]}},
+    "boundaries": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 715.0, "y1": -25.0, "x2": 785.0, "y2": 115.0}}}},
+    "features": {"Dyad": {"junctions": [{"x": 590, "y": 460}, {"x": 590, "y": 230}], "edges": [{"S": 1, "E": -1, "M": []}, {"S": -1, "E": -2, "M": []}, {"S": -2, "E": 2, "M": []}, {"S": -1, "E": 3, "M": [{"x": 590, "y": 490}]}, {"S": -2, "E": 4, "M": [{"x": 590, "y": 45}]}]}},
     "temperatures": {"Dyad": {"junctions": [{"x": 1270, "y": 390}, {"x": 750, "y": 930}], "edges": [{"S": 1, "E": -1, "M": []}, {"S": -1, "E": 2, "M": []}, {"S": -1, "E": -2, "M": [{"x": 1270, "y": 930}]}, {"S": -2, "E": 3, "M": [{"x": 610, "y": 930}, {"x": 610, "y": 375}, {"x": 750, "y": 375}]}, {"S": -2, "E": 4, "M": []}]}}
   }
 }

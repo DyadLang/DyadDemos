@@ -1,6 +1,6 @@
 "Half-sine bump signal source."
 component HalfSineBump
-  y = RealOutput()
+  y = RealOutput() {^y}
   "Bump height [m]"
   parameter amplitude::Distance = 0.05
   "Duration of the bump [s] (= bump_length / vehicle_speed)"
@@ -11,6 +11,20 @@ component HalfSineBump
   parameter offset::Distance = 0.0
 relations
   y = offset + ifelse(time >= start_time, ifelse(time <= start_time + bump_duration, amplitude * sin(π * (time - start_time) / bump_duration), 0.0), 0.0)
+metadata {
+  "Dyad": {"icons": {"default": "dyad://BlockComponents/Pulse.svg"}},
+  "_links": {
+    "y": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
 end
 
 "Test harness for HalfSineBump signal in isolation."
@@ -27,7 +41,7 @@ end
 
 "ISO 8608 calibrated road profile with speed-dependent frequency scaling."
 component ISO8608Road
-  y = RealOutput()
+  y = RealOutput() {^y}
   "Road roughness G_d(n0) at n0=0.1 cycles/m [m3]"
   parameter roughness::Real = 16e-6
   "Vehicle speed [m/s] (e.g. 13.89 = 50 km/h)"
@@ -42,6 +56,20 @@ component ISO8608Road
   parameter offset::Distance = 0.0
 relations
   y = offset + ifelse(time >= start_time, sqrt(roughness * 0.16 * (lambda_max - lambda_min)) * 0.125 * (2.3488 * sin(2 * π * (speed / lambda_max) * (time - start_time) + 3.8832) + 1.3087 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (1.0 / 7.0) * (time - start_time) + 1.4833) + 0.7291 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (2.0 / 7.0) * (time - start_time) + 5.3665) + 0.4062 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (3.0 / 7.0) * (time - start_time) + 2.9665) + 0.2263 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (4.0 / 7.0) * (time - start_time) + 0.5666) + 0.1261 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (5.0 / 7.0) * (time - start_time) + 4.4498) + 0.0703 * sin(2 * π * (speed / lambda_max) * (lambda_max / lambda_min) ^ (6.0 / 7.0) * (time - start_time) + 2.0498) + 0.0391 * sin(2 * π * (speed / lambda_min) * (time - start_time) + 5.9330) + 0.7420), 0.0)
+metadata {
+  "Dyad": {"icons": {"default": "dyad://BlockComponents/SineVariableFrequencyAndAmplitude.svg"}},
+  "_links": {
+    "y": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
 end
 
 "Test harness for ISO8608Road."
@@ -87,11 +115,13 @@ relations
   end
   y = offset + ifelse(time >= start_time, s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7] + s[8] + s[9] + s[10] + s[11] + s[12] + s[13] + s[14] + s[15] + s[16] + s[17] + s[18] + s[19] + s[20] + s[21] + s[22] + s[23] + s[24] + s[25] + s[26] + s[27] + s[28] + s[29] + s[30] + s[31] + s[32] + s[33] + s[34] + s[35] + s[36] + s[37] + s[38] + s[39] + s[40] + s[41] + s[42] + s[43] + s[44] + s[45] + s[46] + s[47] + s[48] + s[49] + s[50], 0.0)
 metadata {
+  "Dyad": {"icons": {"default": "dyad://BlockComponents/SineVariableFrequencyAndAmplitude.svg"}},
   "_links": {
     "y": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+          "icon": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0}
         },
         "tags": []
       }
