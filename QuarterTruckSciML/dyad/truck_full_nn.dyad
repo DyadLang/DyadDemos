@@ -97,186 +97,36 @@ relations
   connect(s_rel, road.s_ref) {^id31}
 metadata {
   "_links": {
-    "tire": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 110, "y1": 450, "x2": 210, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "body": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 450, "y1": 450, "x2": 550, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "seat": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 780, "y1": 450, "x2": 880, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "driver": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 1090, "y1": 450, "x2": 1190, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "tire_to_road": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -40, "y1": 450, "x2": 60, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "tire_to_body": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 280, "y1": 610, "x2": 380, "y2": 710, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "friction_tb": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 280, "y1": 450, "x2": 380, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "body_to_seat": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 610, "y1": 450, "x2": 710, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "seat_to_driver": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 930, "y1": 450, "x2": 1030, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "road": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -200, "y1": 450, "x2": -100, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "road_fixed": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -200, "y1": 620, "x2": -100, "y2": 720, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "scaled_nn": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 410, "y1": 80, "x2": 590, "y2": 260, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "s_rel": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -360, "y1": 460, "x2": -280, "y2": 540, "rot": 0},
-          "icon": {"iconName": "default", "x1": -80, "y1": 460, "x2": 0, "y2": 540, "rot": 0}
-        },
-        "tags": []
-      }
-    },
+    "road": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 450, "x2": 150, "y2": 550, "rot": 0}}, "tags": []}},
+    "tire_to_road": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 250, "y1": 450, "x2": 350, "y2": 550, "rot": 0}}, "tags": []}},
+    "tire": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 450, "y1": 450, "x2": 550, "y2": 550, "rot": 0}}, "tags": []}},
+    "friction_tb": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 650, "y1": 450, "x2": 750, "y2": 550, "rot": 0}}, "tags": []}},
+    "body": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 850, "y1": 450, "x2": 950, "y2": 550, "rot": 0}}, "tags": []}},
+    "body_to_seat": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1050, "y1": 450, "x2": 1150, "y2": 550, "rot": 0}}, "tags": []}},
+    "seat": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1250, "y1": 450, "x2": 1350, "y2": 550, "rot": 0}}, "tags": []}},
+    "seat_to_driver": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1450, "y1": 450, "x2": 1550, "y2": 550, "rot": 0}}, "tags": []}},
+    "driver": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1650, "y1": 450, "x2": 1750, "y2": 550, "rot": 0}}, "tags": []}},
+    "tire_to_body": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 650, "y1": 650, "x2": 750, "y2": 750, "rot": 0}}, "tags": []}},
+    "road_fixed": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": 650, "x2": 150, "y2": 750, "rot": 0}}, "tags": []}},
+    "scaled_nn": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 900, "y1": 50, "x2": 1100, "y2": 250, "rot": 0}}, "tags": []}},
+    "s_rel": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": -70, "y1": 480, "x2": -30, "y2": 520, "rot": 0}, "icon": {"iconName": "default", "x1": -80, "y1": 460, "x2": 0, "y2": 540, "rot": 0}}, "tags": []}},
     "id14": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id15": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id16": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
-    "id17": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 240, "y": 500}, {"x": 240, "y": 660}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
+    "id17": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 600, "y": 500}, {"x": 600, "y": 700}], "E": 2}], "renderStyle": "standard"}},
     "id18": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id19": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id20": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id21": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id22": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
     "id23": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
-    "id24": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 420, "y": 660}, {"x": 420, "y": 500}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id25": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 35, "y": 125}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id26": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 356, "y": 170}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id27": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [{"x": 955, "y": 320}, {"x": 380, "y": 320}, {"x": 380, "y": 215}],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id28": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [{"x": 690, "y": 125}, {"x": 690, "y": 40}, {"x": -18, "y": 40}],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id29": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [{"x": 720, "y": 170}, {"x": 720, "y": 0}, {"x": 304, "y": 0}],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id30": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 1005, "y": 215}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
+    "id24": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 800, "y": 700}, {"x": 800, "y": 500}], "E": 2}], "renderStyle": "standard"}},
+    "id25": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 325, "y": 100}], "E": 2}], "renderStyle": "standard"}},
+    "id26": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 675, "y": 150}], "E": 2}], "renderStyle": "standard"}},
+    "id27": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1475, "y": 350}, {"x": 850, "y": 350}, {"x": 850, "y": 200}], "E": 2}], "renderStyle": "standard"}},
+    "id28": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1200, "y": 100}, {"x": 1200, "y": 0}, {"x": 275, "y": 0}], "E": 2}], "renderStyle": "standard"}},
+    "id29": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1150, "y": 150}, {"x": 1150, "y": 400}, {"x": 725, "y": 400}], "E": 2}], "renderStyle": "standard"}},
+    "id30": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1525, "y": 200}], "E": 2}], "renderStyle": "standard"}},
     "id31": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
   }
 }
