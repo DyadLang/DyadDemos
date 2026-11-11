@@ -1,4 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Scaled so the outer block reaches the icon edge, where the connectors sit -->
+  <g transform="translate(500 500) scale(1.15) translate(-500 -500)">
   <!-- Outer block -->
   <rect x="80" y="80" width="840" height="840" rx="30" ry="30"
         fill="#fff7ed" stroke="#c2410c" stroke-width="8"/>
@@ -51,4 +53,5 @@
   <!-- Rotation arrow -->
   <path d="M 755,110 A 35,35 0 0,1 825,110" fill="none" stroke="#c2410c" stroke-width="3"/>
   <polygon points="822,104 835,112 820,116" fill="#c2410c"/>
+  </g>
 </svg>

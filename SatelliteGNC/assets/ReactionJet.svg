@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Outer block: command enters on the left, force (top three) and
+       torque (bottom three) outputs leave on the right -->
+  <rect x="15" y="15" width="970" height="970" rx="30" ry="30"
+        fill="#fef2f2" stroke="#b91c1c" stroke-width="8"/>
+
+  <!-- Command line into the valve -->
+  <line x1="15" y1="500" x2="170" y2="500" stroke="#7f1d1d" stroke-width="8"/>
+  <!-- Valve (bow-tie) -->
+  <polygon points="170,440 170,560 250,500" fill="#fecaca" stroke="#7f1d1d" stroke-width="6"/>
+  <polygon points="330,440 330,560 250,500" fill="#fecaca" stroke="#7f1d1d" stroke-width="6"/>
+
+  <!-- Combustion chamber -->
+  <rect x="330" y="420" width="140" height="160" rx="16" ry="16"
+        fill="#e2e8f0" stroke="#334155" stroke-width="7"/>
+  <!-- Throat and bell nozzle -->
+  <path d="M 470,455 L 520,480 L 520,520 L 470,545 Z" fill="#94a3b8" stroke="#334155" stroke-width="6"/>
+  <path d="M 520,480 Q 600,470 650,360 L 650,640 Q 600,530 520,520 Z"
+        fill="#cbd5e1" stroke="#334155" stroke-width="7"/>
+
+  <!-- Exhaust plume -->
+  <path d="M 650,380 Q 760,420 880,500 Q 760,580 650,620 Z" fill="#fdba74" opacity="0.85"/>
+  <path d="M 650,430 Q 730,460 810,500 Q 730,540 650,570 Z" fill="#f97316"/>
+  <path d="M 650,470 Q 700,485 740,500 Q 700,515 650,530 Z" fill="#fde047"/>
+
+  <!-- Output group marks: F (forces) and tau (torques) -->
+  <text x="900" y="250" font-family="sans-serif" font-size="90" font-weight="bold"
+        fill="#7f1d1d" text-anchor="middle" dominant-baseline="central">F</text>
+  <text x="900" y="750" font-family="serif" font-size="100" font-style="italic"
+        fill="#7f1d1d" text-anchor="middle" dominant-baseline="central">τ</text>
+</svg>
