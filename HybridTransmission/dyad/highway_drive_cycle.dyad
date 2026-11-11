@@ -19,6 +19,7 @@ metadata {
     "speed_ref": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": 970, "y1": 450, "x2": 1070, "y2": 550, "rot": 0}
         },
         "tags": []

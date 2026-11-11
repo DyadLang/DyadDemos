@@ -5,45 +5,44 @@ Shows underdamped, critically damped, and overdamped responses.
 component TunableRLCResonance
   "Resistance (controls damping)"
   parameter R::Resistance = 10.0
-  
   "Inductance"
   parameter L::Inductance = 0.001
-  
   "Capacitance"
   parameter C::Capacitance = 1e-6
-  
   "Initial capacitor voltage"
   parameter V_init::Voltage = 10.0
-  
   "Series resistor"
-  resistor = ElectricalComponents.Analog.Basic.Resistor(R=R)
-  
+  resistor = ElectricalComponents.Analog.Basic.Resistor(R = R) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 350, "y2": 450}}}
+  }
   "Series inductor"
-  inductor = ElectricalComponents.Analog.Basic.Inductor(L=L)
-  
+  inductor = ElectricalComponents.Analog.Basic.Inductor(L = L) {
+    "Dyad": {"placement": {"diagram": {"x1": 650, "x2": 750, "y1": 350, "y2": 450}}}
+  }
   "Capacitor (initially charged)"
-  capacitor = ElectricalComponents.Analog.Basic.Capacitor(C=C)
-  
+  capacitor = ElectricalComponents.Analog.Basic.Capacitor(C = C) {
+    "Dyad": {"placement": {"diagram": {"x1": 350, "x2": 450, "y1": 150, "y2": 250}}}
+  }
   "Ground"
-  ground = ElectricalComponents.Analog.Basic.Ground()
-  
+  ground = ElectricalComponents.Analog.Basic.Ground() {
+    "Dyad": {"placement": {"diagram": {"x1": 850, "x2": 950, "y1": 450, "y2": 550}}}
+  }
 relations
   # Simple series RLC - capacitor discharges through R and L
-  connect(capacitor.p, resistor.p)
-  connect(resistor.n, inductor.p)
-  connect(inductor.n, ground.g)
-  connect(capacitor.n, ground.g)
+  connect(capacitor.p, resistor.p) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 300, "y": 200}, {"x": 300, "y": 400}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(resistor.n, inductor.p) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(inductor.n, ground.g) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 900, "y": 400}], "E": 2}], "path": {}}}
+  connect(capacitor.n, ground.g) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 900, "y": 200}], "E": 2}], "path": {}}}
 end
 
 # Underdamped (oscillatory)
 test component TestUnderdamped
-  circuit = TunableRLCResonance(
-    R=5.0,
-    L=0.001,
-    C=1e-6,
-    V_init=10.0
-  )
-  
+  circuit = TunableRLCResonance(R = 5.0, L = 0.001, C = 1e-6, V_init = 10.0)
 relations
   initial circuit.capacitor.v = circuit.V_init
   initial circuit.inductor.i = 0.0
@@ -51,13 +50,7 @@ end
 
 # Critically damped
 test component TestCriticallyDamped
-  circuit = TunableRLCResonance(
-    R=63.2,
-    L=0.001,
-    C=1e-6,
-    V_init=10.0
-  )
-  
+  circuit = TunableRLCResonance(R = 63.2, L = 0.001, C = 1e-6, V_init = 10.0)
 relations
   initial circuit.capacitor.v = circuit.V_init
   initial circuit.inductor.i = 0.0
@@ -65,29 +58,26 @@ end
 
 # Overdamped (no oscillation)
 test component TestOverdamped
-  circuit = TunableRLCResonance(
-    R=200.0,
-    L=0.001,
-    C=1e-6,
-    V_init=10.0
-  )
-  
+  circuit = TunableRLCResonance(R = 200.0, L = 0.001, C = 1e-6, V_init = 10.0)
 relations
   initial circuit.capacitor.v = circuit.V_init
   initial circuit.inductor.i = 0.0
 end
 
 analysis UnderdampedAnalysis
-  extends TransientAnalysis(stop=0.001)
+  extends TransientAnalysis(stop = 0.001)
   model = TestUnderdamped()
+relations
 end
 
 analysis CriticallyDampedAnalysis
-  extends TransientAnalysis(stop=0.001)
+  extends TransientAnalysis(stop = 0.001)
   model = TestCriticallyDamped()
+relations
 end
 
 analysis OverdampedAnalysis
-  extends TransientAnalysis(stop=0.001)
+  extends TransientAnalysis(stop = 0.001)
   model = TestOverdamped()
+relations
 end

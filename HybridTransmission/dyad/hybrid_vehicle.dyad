@@ -45,6 +45,7 @@ metadata {
     "flange": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": 440, "y1": -30, "x2": 540, "y2": 70, "rot": 0}
         },
         "tags": []
@@ -53,6 +54,7 @@ metadata {
     "speed_output": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
         },
         "tags": []

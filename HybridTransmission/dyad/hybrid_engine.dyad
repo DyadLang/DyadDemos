@@ -40,6 +40,7 @@ metadata {
     "flange": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": 440, "y1": -40, "x2": 540, "y2": 60, "rot": 0}
         },
         "tags": []
@@ -48,6 +49,7 @@ metadata {
     "throttle": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": 960, "y1": 460, "x2": 1060, "y2": 560, "rot": 0}
         },
         "tags": []
@@ -56,6 +58,7 @@ metadata {
     "omega_output": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 200, "x2": 1050, "y2": 300, "rot": 0},
           "diagram": {"iconName": "default", "x1": -40, "y1": 460, "x2": 60, "y2": 560, "rot": 0}
         },
         "tags": []

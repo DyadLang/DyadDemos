@@ -15,28 +15,23 @@ Supported dynamics:
 - FitzHugh-Nagumo (excitable media, waves)
 - Exponential growth/decay with diffusion
 """
-
-# Base connector for diffusion - represents a point in space
 connector DiffusionPort
-  potential C::Real  # Concentration (across variable)
-  flow J::Real       # Mass flux (through variable, sum to zero)
+  # Base connector for diffusion - represents a point in space
+  potential C::Real # Concentration (across variable)
+  flow J::Real # Mass flux (through variable, sum to zero)
 end
 
 # Diffusion capacitor - stores mass at a point
 component DiffusionCapacitor
   "Connection port"
   port = DiffusionPort()
-  
   "Volume (capacitance for mass storage)"
   parameter V::Real = 1.0
-  
   "Concentration at this point"
   variable C::Real
-  
 relations
   # Port has same concentration
   C = port.C
-  
   # Mass balance: accumulation = net inflow
   V * der(C) = port.J
 end
@@ -45,19 +40,15 @@ end
 component ReactionDiffusionCapacitor
   "Connection port"
   port = DiffusionPort()
-  
   "Volume"
   parameter V::Real = 1.0
   "Growth rate (positive=growth, negative=decay)"
   parameter k::Real = 0.0
-  
   "Concentration at this point"
   variable C::Real
-  
 relations
   # Port has same concentration
   C = port.C
-  
   # Mass balance with exponential reaction: dC/dt = (1/V)*J_in + k*C
   # k > 0: exponential growth
   # k < 0: exponential decay
@@ -68,7 +59,6 @@ end
 component FitzHughNagumoCapacitor
   "Connection port for activator (fast variable)"
   port = DiffusionPort()
-  
   "Volume"
   parameter V::Real = 1.0
   "Excitation rate"
@@ -77,16 +67,13 @@ component FitzHughNagumoCapacitor
   parameter b::Real = 0.01
   "Coupling strength"
   parameter epsilon::Real = 0.01
-  
   "Activator concentration (fast, excitable)"
   variable u::Real
   "Inhibitor concentration (slow, recovery)"
   variable v::Real
-  
 relations
   # Port coupled to activator
   u = port.C
-  
   # FitzHugh-Nagumo dynamics
   # du/dt = u(u-a)(1-u) - v + diffusion
   # dv/dt = epsilon*(u - b*v)
@@ -100,27 +87,22 @@ component DiffusionResistor
   port_a = DiffusionPort()
   "Port b (lower concentration side by convention)"
   port_b = DiffusionPort()
-  
   "Diffusion coefficient"
   parameter D::Real = 1.0
   "Distance between points"
   parameter dx::Real = 0.1
   "Cross-sectional area"
   parameter A::Real = 1.0
-  
   "Concentration difference"
   variable ΔC::Real
   "Mass flux through resistor"
   variable J::Real
-  
 relations
   # Concentration difference
   ΔC = port_a.C - port_b.C
-  
   # Fick's law: J = -D * A/dx * ΔC (flux proportional to gradient)
   # Positive J means flux from a to b
   J = D * A / dx * ΔC
-  
   # Flow into port_a equals flow out, conservation
   port_a.J = J
   port_a.J + port_b.J = 0
@@ -147,73 +129,70 @@ test component TestDiffusion5x5
   structural parameter N_v_res::Integer = 20
   "Number of boundary components"
   structural parameter N_boundary::Integer = 20
-  
   "Capacitors at each grid point (store concentration)"
-  caps = [DiffusionCapacitor(V=0.01) for i in 1:N_caps]
-  
+  caps = [DiffusionCapacitor(V = 0.01) for i in 1:N_caps] {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "x2": 200, "y1": 100, "y2": 200}}}
+  }
   "Horizontal resistors (connect left-right neighbors)"
-  r_horiz = [DiffusionResistor(D=1.0, dx=0.1, A=0.1) for i in 1:N_h_res]
-  
+  r_horiz = [DiffusionResistor(D = 1.0, dx = 0.1, A = 0.1) for i in 1:N_h_res] {
+    "Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 100, "y2": 200}}}
+  }
   "Vertical resistors (connect up-down neighbors)"
-  r_vert = [DiffusionResistor(D=1.0, dx=0.1, A=0.1) for i in 1:N_v_res]
-  
+  r_vert = [DiffusionResistor(D = 1.0, dx = 0.1, A = 0.1) for i in 1:N_v_res] {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 100, "y2": 200}}}
+  }
   "Boundary components for zero-flux conditions"
-  boundaries = [ZeroFluxBoundary() for i in 1:N_boundary]
-  
+  boundaries = [ZeroFluxBoundary() for i in 1:N_boundary] {
+    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 100, "y2": 200}}}
+  }
 relations
   # Connect horizontal resistors between adjacent nodes in each row
   # For N=5: 4 resistors per row, 5 rows = 20 total
-  for row in 0:(N-1)
-    for col in 0:(N-2)
-      connect(caps[row*N + col + 1].port, r_horiz[row*(N-1) + col + 1].port_a)
-      connect(r_horiz[row*(N-1) + col + 1].port_b, caps[row*N + col + 2].port)
+  for row in 0:(N - 1)
+    for col in 0:(N - 2)
+      connect(caps[row * N + col + 1].port, r_horiz[row * (N - 1) + col + 1].port_a)
+      connect(r_horiz[row * (N - 1) + col + 1].port_b, caps[row * N + col + 2].port)
     end
   end
-  
   # Connect vertical resistors between adjacent nodes in each column
   # For N=5: 4 resistors per column, 5 columns = 20 total
-  for row in 0:(N-2)
-    for col in 0:(N-1)
-      connect(caps[row*N + col + 1].port, r_vert[row*N + col + 1].port_a)
-      connect(r_vert[row*N + col + 1].port_b, caps[(row+1)*N + col + 1].port)
+  for row in 0:(N - 2)
+    for col in 0:(N - 1)
+      connect(caps[row * N + col + 1].port, r_vert[row * N + col + 1].port_a)
+      connect(r_vert[row * N + col + 1].port_b, caps[(row + 1) * N + col + 1].port)
     end
   end
-  
   # Initial condition: concentration spike in center (row=2, col=2 -> index 13)
   initial caps[13].C = 100.0
-  
   # All other cells start at zero
   for i in 1:N_caps
     if i != 13
       initial caps[i].C = 0.0
     end
   end
-  
   # Boundary conditions: connect zero-flux boundaries to edge nodes
   # Left boundary (col=0) - 5 nodes
-  for row in 0:(N-1)
-    connect(caps[row*N + 1].port, boundaries[row + 1].port)
+  for row in 0:(N - 1)
+    connect(caps[row * N + 1].port, boundaries[row + 1].port)
   end
-  
   # Right boundary (col=N-1) - 5 nodes
-  for row in 0:(N-1)
-    connect(caps[row*N + N].port, boundaries[N + row + 1].port)
+  for row in 0:(N - 1)
+    connect(caps[row * N + N].port, boundaries[N + row + 1].port)
   end
-  
   # Top boundary (row=0) - 5 nodes
-  for col in 0:(N-1)
-    connect(caps[col + 1].port, boundaries[2*N + col + 1].port)
+  for col in 0:(N - 1)
+    connect(caps[col + 1].port, boundaries[2 * N + col + 1].port)
   end
-  
   # Bottom boundary (row=N-1) - 5 nodes
-  for col in 0:(N-1)
-    connect(caps[(N-1)*N + col + 1].port, boundaries[3*N + col + 1].port)
+  for col in 0:(N - 1)
+    connect(caps[(N - 1) * N + col + 1].port, boundaries[3 * N + col + 1].port)
   end
 end
 
 analysis TestDiffusion5x5Transient
-  extends TransientAnalysis(stop=0.5, saveat=0.01)
+  extends TransientAnalysis(stop = 0.5, saveat = 0.01)
   model = TestDiffusion5x5()
+relations
 end
 
 # Larger 30x30 grid model
@@ -228,71 +207,68 @@ test component TestDiffusion30x30
   structural parameter N_v_res::Integer = 870
   "Number of boundary components"
   structural parameter N_boundary::Integer = 120
-  
   "Capacitors at each grid point"
-  caps = [DiffusionCapacitor(V=0.0001) for i in 1:N_caps]
-  
+  caps = [DiffusionCapacitor(V = 0.0001) for i in 1:N_caps] {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "x2": 200, "y1": 100, "y2": 200}}}
+  }
   "Horizontal resistors"
-  r_horiz = [DiffusionResistor(D=1.0, dx=0.033, A=0.033) for i in 1:N_h_res]
-  
+  r_horiz = [DiffusionResistor(D = 1.0, dx = 0.033, A = 0.033) for i in 1:N_h_res] {
+    "Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 100, "y2": 200}}}
+  }
   "Vertical resistors"
-  r_vert = [DiffusionResistor(D=1.0, dx=0.033, A=0.033) for i in 1:N_v_res]
-  
+  r_vert = [DiffusionResistor(D = 1.0, dx = 0.033, A = 0.033) for i in 1:N_v_res] {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 100, "y2": 200}}}
+  }
   "Boundary components"
-  boundaries = [ZeroFluxBoundary() for i in 1:N_boundary]
-  
+  boundaries = [ZeroFluxBoundary() for i in 1:N_boundary] {
+    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 100, "y2": 200}}}
+  }
 relations
   # Connect horizontal resistors
-  for row in 0:(N-1)
-    for col in 0:(N-2)
-      connect(caps[row*N + col + 1].port, r_horiz[row*(N-1) + col + 1].port_a)
-      connect(r_horiz[row*(N-1) + col + 1].port_b, caps[row*N + col + 2].port)
+  for row in 0:(N - 1)
+    for col in 0:(N - 2)
+      connect(caps[row * N + col + 1].port, r_horiz[row * (N - 1) + col + 1].port_a)
+      connect(r_horiz[row * (N - 1) + col + 1].port_b, caps[row * N + col + 2].port)
     end
   end
-  
   # Connect vertical resistors
-  for row in 0:(N-2)
-    for col in 0:(N-1)
-      connect(caps[row*N + col + 1].port, r_vert[row*N + col + 1].port_a)
-      connect(r_vert[row*N + col + 1].port_b, caps[(row+1)*N + col + 1].port)
+  for row in 0:(N - 2)
+    for col in 0:(N - 1)
+      connect(caps[row * N + col + 1].port, r_vert[row * N + col + 1].port_a)
+      connect(r_vert[row * N + col + 1].port_b, caps[(row + 1) * N + col + 1].port)
     end
   end
-  
   # Initial condition: concentration spike in center (row=14, col=14 -> index 435)
   initial caps[435].C = 1000.0
-  
   # All other cells start at zero
   for i in 1:N_caps
     if i != 435
       initial caps[i].C = 0.0
     end
   end
-  
   # Boundary conditions
   # Left boundary
-  for row in 0:(N-1)
-    connect(caps[row*N + 1].port, boundaries[row + 1].port)
+  for row in 0:(N - 1)
+    connect(caps[row * N + 1].port, boundaries[row + 1].port)
   end
-  
   # Right boundary
-  for row in 0:(N-1)
-    connect(caps[row*N + N].port, boundaries[N + row + 1].port)
+  for row in 0:(N - 1)
+    connect(caps[row * N + N].port, boundaries[N + row + 1].port)
   end
-  
   # Top boundary
-  for col in 0:(N-1)
-    connect(caps[col + 1].port, boundaries[2*N + col + 1].port)
+  for col in 0:(N - 1)
+    connect(caps[col + 1].port, boundaries[2 * N + col + 1].port)
   end
-  
   # Bottom boundary
-  for col in 0:(N-1)
-    connect(caps[(N-1)*N + col + 1].port, boundaries[3*N + col + 1].port)
+  for col in 0:(N - 1)
+    connect(caps[(N - 1) * N + col + 1].port, boundaries[3 * N + col + 1].port)
   end
 end
 
 analysis TestDiffusion30x30Transient
-  extends TransientAnalysis(stop=0.1, saveat=0.002)
+  extends TransientAnalysis(stop = 0.1, saveat = 0.002)
   model = TestDiffusion30x30()
+relations
 end
 
 # Test: Exponential growth with diffusion (unstable but interesting)
@@ -303,60 +279,60 @@ test component TestReactionDiffusion5x5
   structural parameter N_h_res::Integer = 20
   structural parameter N_v_res::Integer = 20
   structural parameter N_boundary::Integer = 20
-  
   "Reaction-diffusion capacitors with exponential growth"
-  caps = [ReactionDiffusionCapacitor(V=0.01, k=2.0) for i in 1:N_caps]
-  
+  caps = [ReactionDiffusionCapacitor(V = 0.01, k = 2.0) for i in 1:N_caps] {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "x2": 200, "y1": 100, "y2": 200}}}
+  }
   "Diffusion resistors"
-  r_horiz = [DiffusionResistor(D=0.5, dx=0.1, A=0.1) for i in 1:N_h_res]
-  r_vert = [DiffusionResistor(D=0.5, dx=0.1, A=0.1) for i in 1:N_v_res]
-  
+  r_horiz = [DiffusionResistor(D = 0.5, dx = 0.1, A = 0.1) for i in 1:N_h_res] {
+    "Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 100, "y2": 200}}}
+  }
+  r_vert = [DiffusionResistor(D = 0.5, dx = 0.1, A = 0.1) for i in 1:N_v_res] {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 100, "y2": 200}}}
+  }
   "Boundaries"
-  boundaries = [ZeroFluxBoundary() for i in 1:N_boundary]
-  
+  boundaries = [ZeroFluxBoundary() for i in 1:N_boundary] {
+    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 100, "y2": 200}}}
+  }
 relations
   # Connect horizontal resistors
-  for row in 0:(N-1)
-    for col in 0:(N-2)
-      connect(caps[row*N + col + 1].port, r_horiz[row*(N-1) + col + 1].port_a)
-      connect(r_horiz[row*(N-1) + col + 1].port_b, caps[row*N + col + 2].port)
+  for row in 0:(N - 1)
+    for col in 0:(N - 2)
+      connect(caps[row * N + col + 1].port, r_horiz[row * (N - 1) + col + 1].port_a)
+      connect(r_horiz[row * (N - 1) + col + 1].port_b, caps[row * N + col + 2].port)
     end
   end
-  
   # Connect vertical resistors
-  for row in 0:(N-2)
-    for col in 0:(N-1)
-      connect(caps[row*N + col + 1].port, r_vert[row*N + col + 1].port_a)
-      connect(r_vert[row*N + col + 1].port_b, caps[(row+1)*N + col + 1].port)
+  for row in 0:(N - 2)
+    for col in 0:(N - 1)
+      connect(caps[row * N + col + 1].port, r_vert[row * N + col + 1].port_a)
+      connect(r_vert[row * N + col + 1].port_b, caps[(row + 1) * N + col + 1].port)
     end
   end
-  
   # Initial: small random perturbations (seeds for growth)
   initial caps[1].C = 0.1
   initial caps[7].C = 0.15
   initial caps[13].C = 0.2
   initial caps[19].C = 0.12
   initial caps[25].C = 0.08
-  
   for i in [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24]
     initial caps[i].C = 0.05
   end
-  
   # Boundary conditions
-  for row in 0:(N-1)
-    connect(caps[row*N + 1].port, boundaries[row + 1].port)
-    connect(caps[row*N + N].port, boundaries[N + row + 1].port)
+  for row in 0:(N - 1)
+    connect(caps[row * N + 1].port, boundaries[row + 1].port)
+    connect(caps[row * N + N].port, boundaries[N + row + 1].port)
   end
-  
-  for col in 0:(N-1)
-    connect(caps[col + 1].port, boundaries[2*N + col + 1].port)
-    connect(caps[(N-1)*N + col + 1].port, boundaries[3*N + col + 1].port)
+  for col in 0:(N - 1)
+    connect(caps[col + 1].port, boundaries[2 * N + col + 1].port)
+    connect(caps[(N - 1) * N + col + 1].port, boundaries[3 * N + col + 1].port)
   end
 end
 
 analysis TestReactionDiffusionTransient
-  extends TransientAnalysis(stop=1.0, saveat=0.02)
+  extends TransientAnalysis(stop = 1.0, saveat = 0.02)
   model = TestReactionDiffusion5x5()
+relations
 end
 
 # Test: FitzHugh-Nagumo excitable media (traveling waves)
@@ -367,57 +343,57 @@ test component TestFitzHughNagumo5x5
   structural parameter N_h_res::Integer = 20
   structural parameter N_v_res::Integer = 20
   structural parameter N_boundary::Integer = 20
-  
   "FitzHugh-Nagumo excitable elements"
-  caps = [FitzHughNagumoCapacitor(V=0.01, a=0.1, b=0.01, epsilon=0.01) for i in 1:N_caps]
-  
+  caps = [FitzHughNagumoCapacitor(V = 0.01, a = 0.1, b = 0.01, epsilon = 0.01) for i in 1:N_caps] {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "x2": 200, "y1": 100, "y2": 200}}}
+  }
   "Diffusion resistors (fast diffusion for wave propagation)"
-  r_horiz = [DiffusionResistor(D=5.0, dx=0.1, A=0.1) for i in 1:N_h_res]
-  r_vert = [DiffusionResistor(D=5.0, dx=0.1, A=0.1) for i in 1:N_v_res]
-  
+  r_horiz = [DiffusionResistor(D = 5.0, dx = 0.1, A = 0.1) for i in 1:N_h_res] {
+    "Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 100, "y2": 200}}}
+  }
+  r_vert = [DiffusionResistor(D = 5.0, dx = 0.1, A = 0.1) for i in 1:N_v_res] {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 100, "y2": 200}}}
+  }
   "Boundaries"
-  boundaries = [ZeroFluxBoundary() for i in 1:N_boundary]
-  
+  boundaries = [ZeroFluxBoundary() for i in 1:N_boundary] {
+    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 100, "y2": 200}}}
+  }
 relations
   # Connect horizontal resistors
-  for row in 0:(N-1)
-    for col in 0:(N-2)
-      connect(caps[row*N + col + 1].port, r_horiz[row*(N-1) + col + 1].port_a)
-      connect(r_horiz[row*(N-1) + col + 1].port_b, caps[row*N + col + 2].port)
+  for row in 0:(N - 1)
+    for col in 0:(N - 2)
+      connect(caps[row * N + col + 1].port, r_horiz[row * (N - 1) + col + 1].port_a)
+      connect(r_horiz[row * (N - 1) + col + 1].port_b, caps[row * N + col + 2].port)
     end
   end
-  
   # Connect vertical resistors
-  for row in 0:(N-2)
-    for col in 0:(N-1)
-      connect(caps[row*N + col + 1].port, r_vert[row*N + col + 1].port_a)
-      connect(r_vert[row*N + col + 1].port_b, caps[(row+1)*N + col + 1].port)
+  for row in 0:(N - 2)
+    for col in 0:(N - 1)
+      connect(caps[row * N + col + 1].port, r_vert[row * N + col + 1].port_a)
+      connect(r_vert[row * N + col + 1].port_b, caps[(row + 1) * N + col + 1].port)
     end
   end
-  
   # Initial: excite one corner to trigger wave
   initial caps[1].u = 1.0
   initial caps[1].v = 0.0
-  
   # All other nodes at rest
   for i in 2:N_caps
     initial caps[i].u = 0.0
     initial caps[i].v = 0.0
   end
-  
   # Boundary conditions
-  for row in 0:(N-1)
-    connect(caps[row*N + 1].port, boundaries[row + 1].port)
-    connect(caps[row*N + N].port, boundaries[N + row + 1].port)
+  for row in 0:(N - 1)
+    connect(caps[row * N + 1].port, boundaries[row + 1].port)
+    connect(caps[row * N + N].port, boundaries[N + row + 1].port)
   end
-  
-  for col in 0:(N-1)
-    connect(caps[col + 1].port, boundaries[2*N + col + 1].port)
-    connect(caps[(N-1)*N + col + 1].port, boundaries[3*N + col + 1].port)
+  for col in 0:(N - 1)
+    connect(caps[col + 1].port, boundaries[2 * N + col + 1].port)
+    connect(caps[(N - 1) * N + col + 1].port, boundaries[3 * N + col + 1].port)
   end
 end
 
 analysis TestFitzHughNagumoTransient
-  extends TransientAnalysis(stop=5.0, saveat=0.05)
+  extends TransientAnalysis(stop = 5.0, saveat = 0.05)
   model = TestFitzHughNagumo5x5()
+relations
 end
