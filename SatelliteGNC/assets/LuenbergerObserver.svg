@@ -1,4 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Scaled so the outer block reaches the icon edge, where the connectors sit -->
+  <g transform="translate(500 500) scale(1.15) translate(-500 -500)">
   <!-- Outer block -->
   <rect x="80" y="80" width="840" height="840" rx="30" ry="30"
         fill="#faf5ff" stroke="#6b21a8" stroke-width="8"/>
@@ -41,4 +43,5 @@
   <!-- L shape -->
   <line x1="175" y1="135" x2="175" y2="175" stroke="#6b21a8" stroke-width="6"/>
   <line x1="175" y1="175" x2="215" y2="175" stroke="#6b21a8" stroke-width="6"/>
+  </g>
 </svg>

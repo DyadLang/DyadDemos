@@ -69,12 +69,38 @@ relations
   wy_hat = wy_est
   wz_hat = wz_est
 metadata {
-  "Dyad": {"icons": {"default": "dyad://SatelliteGNC/LuenbergerObserver.svg"}},
+  "Dyad": {
+    "icons": {"default": "dyad://SatelliteGNC/LuenbergerObserver.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1063,
+        "layer": "icon",
+        "attrs": {"font-size": "90"}
+      }
+    ]
+  },
   "_links": {
     "phi_meas": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 40, "x2": 50, "y2": 140, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 87.5,
+            "x2": 37.5,
+            "y2": 162.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 87.5,
+            "x2": 37.5,
+            "y2": 162.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -82,7 +108,22 @@ metadata {
     "theta_meas": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": -40, "y1": 400, "x2": 60, "y2": 500, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 212.5,
+            "x2": 37.5,
+            "y2": 287.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 212.5,
+            "x2": 37.5,
+            "y2": 287.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -90,7 +131,22 @@ metadata {
     "psi_meas": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": -40, "y1": 230, "x2": 60, "y2": 330, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 337.5,
+            "x2": 37.5,
+            "y2": 412.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 337.5,
+            "x2": 37.5,
+            "y2": 412.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -98,7 +154,22 @@ metadata {
     "tau_x": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": -40, "y1": 570, "x2": 60, "y2": 670, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 587.5,
+            "x2": 37.5,
+            "y2": 662.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 587.5,
+            "x2": 37.5,
+            "y2": 662.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -106,7 +177,22 @@ metadata {
     "tau_y": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": -40, "y1": 730, "x2": 60, "y2": 830, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 712.5,
+            "x2": 37.5,
+            "y2": 787.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 712.5,
+            "x2": 37.5,
+            "y2": 787.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -114,7 +200,22 @@ metadata {
     "tau_z": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": -40, "y1": 890, "x2": 60, "y2": 990, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 837.5,
+            "x2": 37.5,
+            "y2": 912.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 837.5,
+            "x2": 37.5,
+            "y2": 912.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -122,7 +223,22 @@ metadata {
     "phi_hat": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 50, "x2": 1070, "y2": 150, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 87.5,
+            "x2": 1037.5,
+            "y2": 162.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 87.5,
+            "x2": 1037.5,
+            "y2": 162.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -130,7 +246,22 @@ metadata {
     "theta_hat": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 420, "x2": 1070, "y2": 520, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 212.5,
+            "x2": 1037.5,
+            "y2": 287.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 212.5,
+            "x2": 1037.5,
+            "y2": 287.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -138,7 +269,22 @@ metadata {
     "psi_hat": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 230, "x2": 1070, "y2": 330, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 337.5,
+            "x2": 1037.5,
+            "y2": 412.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 337.5,
+            "x2": 1037.5,
+            "y2": 412.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -146,7 +292,22 @@ metadata {
     "wx_hat": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 570, "x2": 1070, "y2": 670, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 587.5,
+            "x2": 1037.5,
+            "y2": 662.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 587.5,
+            "x2": 1037.5,
+            "y2": 662.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -154,7 +315,22 @@ metadata {
     "wy_hat": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 720, "x2": 1070, "y2": 820, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 712.5,
+            "x2": 1037.5,
+            "y2": 787.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 712.5,
+            "x2": 1037.5,
+            "y2": 787.5,
+            "rot": 0
+          }
         },
         "tags": []
       }
@@ -162,7 +338,22 @@ metadata {
     "wz_hat": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 890, "x2": 1070, "y2": 990, "rot": 0}
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 837.5,
+            "x2": 1037.5,
+            "y2": 912.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 837.5,
+            "x2": 1037.5,
+            "y2": 912.5,
+            "rot": 0
+          }
         },
         "tags": []
       }

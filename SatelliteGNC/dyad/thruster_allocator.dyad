@@ -21,22 +21,134 @@ with 2 degrees of redundancy.
 """
 component ThrusterAllocator
   "Commanded body-frame forces (N)"
-  Fx_cmd = RealInput()
-  Fy_cmd = RealInput()
-  Fz_cmd = RealInput()
+  Fx_cmd = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": -30, "y1": 170, "x2": 30, "y2": 230, "rot": 0},
+        "diagram": {"iconName": "default", "x1": -30, "y1": 170, "x2": 30, "y2": 230, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  Fy_cmd = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": -30, "y1": 270, "x2": 30, "y2": 330, "rot": 0},
+        "diagram": {"iconName": "default", "x1": -30, "y1": 270, "x2": 30, "y2": 330, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  Fz_cmd = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": -30, "y1": 370, "x2": 30, "y2": 430, "rot": 0},
+        "diagram": {"iconName": "default", "x1": -30, "y1": 370, "x2": 30, "y2": 430, "rot": 0}
+      },
+      "tags": []
+    }
+  }
   "Commanded body-frame torques (N·m)"
-  tau_x_cmd = RealInput()
-  tau_y_cmd = RealInput()
-  tau_z_cmd = RealInput()
+  tau_x_cmd = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": -30, "y1": 570, "x2": 30, "y2": 630, "rot": 0},
+        "diagram": {"iconName": "default", "x1": -30, "y1": 570, "x2": 30, "y2": 630, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  tau_y_cmd = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": -30, "y1": 670, "x2": 30, "y2": 730, "rot": 0},
+        "diagram": {"iconName": "default", "x1": -30, "y1": 670, "x2": 30, "y2": 730, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  tau_z_cmd = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": -30, "y1": 770, "x2": 30, "y2": 830, "rot": 0},
+        "diagram": {"iconName": "default", "x1": -30, "y1": 770, "x2": 30, "y2": 830, "rot": 0}
+      },
+      "tags": []
+    }
+  }
   "Normalized jet commands (-1 to 1)"
-  cmd1 = RealOutput()
-  cmd2 = RealOutput()
-  cmd3 = RealOutput()
-  cmd4 = RealOutput()
-  cmd5 = RealOutput()
-  cmd6 = RealOutput()
-  cmd7 = RealOutput()
-  cmd8 = RealOutput()
+  cmd1 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": 970, "y1": 70, "x2": 1030, "y2": 130, "rot": 0},
+        "diagram": {"iconName": "default", "x1": 970, "y1": 70, "x2": 1030, "y2": 130, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  cmd2 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": 970, "y1": 170, "x2": 1030, "y2": 230, "rot": 0},
+        "diagram": {"iconName": "default", "x1": 970, "y1": 170, "x2": 1030, "y2": 230, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  cmd3 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": 970, "y1": 270, "x2": 1030, "y2": 330, "rot": 0},
+        "diagram": {"iconName": "default", "x1": 970, "y1": 270, "x2": 1030, "y2": 330, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  cmd4 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": 970, "y1": 370, "x2": 1030, "y2": 430, "rot": 0},
+        "diagram": {"iconName": "default", "x1": 970, "y1": 370, "x2": 1030, "y2": 430, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  cmd5 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": 970, "y1": 570, "x2": 1030, "y2": 630, "rot": 0},
+        "diagram": {"iconName": "default", "x1": 970, "y1": 570, "x2": 1030, "y2": 630, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  cmd6 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": 970, "y1": 670, "x2": 1030, "y2": 730, "rot": 0},
+        "diagram": {"iconName": "default", "x1": 970, "y1": 670, "x2": 1030, "y2": 730, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  cmd7 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": 970, "y1": 770, "x2": 1030, "y2": 830, "rot": 0},
+        "diagram": {"iconName": "default", "x1": 970, "y1": 770, "x2": 1030, "y2": 830, "rot": 0}
+      },
+      "tags": []
+    }
+  }
+  cmd8 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": 970, "y1": 870, "x2": 1030, "y2": 930, "rot": 0},
+        "diagram": {"iconName": "default", "x1": 970, "y1": 870, "x2": 1030, "y2": 930, "rot": 0}
+      },
+      "tags": []
+    }
+  }
   "Maximum thrust per jet (N) — used for normalization"
   parameter F_max::Real = 0.1
   "Unnormalized thrust commands (N)"
@@ -51,14 +163,14 @@ component ThrusterAllocator
 relations
   # Pseudoinverse allocation: thrust_j = B_pinv[j,:] · [Fx,Fy,Fz,τx,τy,τz]
   # Coefficients from B_pinv of the 8-jet configuration
-  t1 =  0.083333 * Fx_cmd +  0.125 * Fy_cmd + 0.25 * Fz_cmd +  2.5 * tau_x_cmd - 1.666667 * tau_y_cmd
-  t2 =  0.083333 * Fx_cmd -  0.125 * Fy_cmd + 0.25 * Fz_cmd -  2.5 * tau_x_cmd - 1.666667 * tau_y_cmd
-  t3 = -0.083333 * Fx_cmd +  0.125 * Fy_cmd + 0.25 * Fz_cmd +  2.5 * tau_x_cmd + 1.666667 * tau_y_cmd
-  t4 = -0.083333 * Fx_cmd -  0.125 * Fy_cmd + 0.25 * Fz_cmd -  2.5 * tau_x_cmd + 1.666667 * tau_y_cmd
-  t5 =  0.5 * Fy_cmd +  2.307692 * tau_z_cmd
-  t6 =  0.5 * Fy_cmd -  2.307692 * tau_z_cmd
-  t7 =  0.5 * Fx_cmd -  1.538462 * tau_z_cmd
-  t8 =  0.5 * Fx_cmd +  1.538462 * tau_z_cmd
+  t1 = 0.083333 * Fx_cmd + 0.125 * Fy_cmd + 0.25 * Fz_cmd + 2.5 * tau_x_cmd - 1.666667 * tau_y_cmd
+  t2 = 0.083333 * Fx_cmd - 0.125 * Fy_cmd + 0.25 * Fz_cmd - 2.5 * tau_x_cmd - 1.666667 * tau_y_cmd
+  t3 = -0.083333 * Fx_cmd + 0.125 * Fy_cmd + 0.25 * Fz_cmd + 2.5 * tau_x_cmd + 1.666667 * tau_y_cmd
+  t4 = -0.083333 * Fx_cmd - 0.125 * Fy_cmd + 0.25 * Fz_cmd - 2.5 * tau_x_cmd + 1.666667 * tau_y_cmd
+  t5 = 0.5 * Fy_cmd + 2.307692 * tau_z_cmd
+  t6 = 0.5 * Fy_cmd - 2.307692 * tau_z_cmd
+  t7 = 0.5 * Fx_cmd - 1.538462 * tau_z_cmd
+  t8 = 0.5 * Fx_cmd + 1.538462 * tau_z_cmd
   # Normalize by F_max
   cmd1 = t1 / F_max
   cmd2 = t2 / F_max
@@ -68,6 +180,20 @@ relations
   cmd6 = t6 / F_max
   cmd7 = t7 / F_max
   cmd8 = t8 / F_max
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SatelliteGNC/ThrusterAllocator.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1050.4,
+        "layer": "icon",
+        "attrs": {"font-size": "72"}
+      }
+    ]
+  }
+}
 end
 
 # =====================================================
@@ -80,15 +206,33 @@ end
 # net force ≈ 0, net torque = [0, 0, 0.01] N·m.
 # =====================================================
 test component TestAllocatorJets
-  alloc = ThrusterAllocator(F_max = 0.1)
-  jet1 = ReactionJet(rx =  0.15, ry =  0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1)
-  jet2 = ReactionJet(rx =  0.15, ry = -0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1)
-  jet3 = ReactionJet(rx = -0.15, ry =  0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1)
-  jet4 = ReactionJet(rx = -0.15, ry = -0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1)
-  jet5 = ReactionJet(rx =  0.15, ry = 0.0,   rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.1)
-  jet6 = ReactionJet(rx = -0.15, ry = 0.0,   rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.1)
-  jet7 = ReactionJet(rx = 0.0,   ry =  0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.1)
-  jet8 = ReactionJet(rx = 0.0,   ry = -0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.1)
+  alloc = ThrusterAllocator(F_max = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "y1": 950, "x2": 600, "y2": 1450}}}
+  }
+  jet1 = ReactionJet(rx = 0.15, ry = 0.10, rz = 0.0, dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 950, "y1": 100, "x2": 1350, "y2": 500}}}
+  }
+  jet2 = ReactionJet(rx = 0.15, ry = -0.10, rz = 0.0, dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 1550, "y1": 100, "x2": 1950, "y2": 500}}}
+  }
+  jet3 = ReactionJet(rx = -0.15, ry = 0.10, rz = 0.0, dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 950, "y1": 700, "x2": 1350, "y2": 1100}}}
+  }
+  jet4 = ReactionJet(rx = -0.15, ry = -0.10, rz = 0.0, dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 1550, "y1": 700, "x2": 1950, "y2": 1100}}}
+  }
+  jet5 = ReactionJet(rx = 0.15, ry = 0.0, rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 950, "y1": 1300, "x2": 1350, "y2": 1700}}}
+  }
+  jet6 = ReactionJet(rx = -0.15, ry = 0.0, rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 1550, "y1": 1300, "x2": 1950, "y2": 1700}}}
+  }
+  jet7 = ReactionJet(rx = 0.0, ry = 0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 950, "y1": 1900, "x2": 1350, "y2": 2300}}}
+  }
+  jet8 = ReactionJet(rx = 0.0, ry = -0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 1550, "y1": 1900, "x2": 1950, "y2": 2300}}}
+  }
 relations
   # Command pure yaw torque
   alloc.Fx_cmd = 0.0
@@ -98,14 +242,98 @@ relations
   alloc.tau_y_cmd = 0.0
   alloc.tau_z_cmd = 0.01
   # Wire allocator outputs to jet commands
-  connect(alloc.cmd1, jet1.cmd)
-  connect(alloc.cmd2, jet2.cmd)
-  connect(alloc.cmd3, jet3.cmd)
-  connect(alloc.cmd4, jet4.cmd)
-  connect(alloc.cmd5, jet5.cmd)
-  connect(alloc.cmd6, jet6.cmd)
-  connect(alloc.cmd7, jet7.cmd)
-  connect(alloc.cmd8, jet8.cmd)
+  connect(alloc.cmd1, jet1.cmd) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 650, "y": 1000}, {"x": 650, "y": 300}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd2, jet2.cmd) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 700, "y": 1050},
+            {"x": 700, "y": 600},
+            {"x": 1450, "y": 600},
+            {"x": 1450, "y": 300}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd3, jet3.cmd) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 750, "y": 1100}, {"x": 750, "y": 900}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd4, jet4.cmd) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 650, "y": 1150},
+            {"x": 650, "y": 1200},
+            {"x": 1450, "y": 1200},
+            {"x": 1450, "y": 900}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd5, jet5.cmd) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 800, "y": 1250}, {"x": 800, "y": 1500}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd6, jet6.cmd) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 750, "y": 1300},
+            {"x": 750, "y": 1800},
+            {"x": 1450, "y": 1800},
+            {"x": 1450, "y": 1500}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd7, jet7.cmd) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 700, "y": 1350}, {"x": 700, "y": 2100}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd8, jet8.cmd) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 650, "y": 1400},
+            {"x": 650, "y": 2400},
+            {"x": 1450, "y": 2400},
+            {"x": 1450, "y": 2100}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
 end
 
 analysis TestAllocatorJetsSim

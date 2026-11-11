@@ -1,4 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Block outline: the connectors sit on its left and right edges -->
+  <rect x="15" y="15" width="970" height="970" rx="30" ry="30"
+        fill="#f8fafc" stroke="#334155" stroke-width="8"/>
+
   <!-- Solar panel left -->
   <rect x="30" y="340" width="250" height="320" rx="8" ry="8"
         fill="#2563eb" stroke="#1e40af" stroke-width="6"/>

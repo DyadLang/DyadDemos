@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Outer block: torque and force inputs on the left; attitude, rate,
+       position and velocity outputs on the right -->
+  <rect x="15" y="15" width="970" height="970" rx="30" ry="30"
+        fill="#f8fafc" stroke="#334155" stroke-width="8"/>
+
+  <!-- Earth and orbit -->
+  <path d="M 180,985 A 420,420 0 0 1 820,985 Z" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="6"/>
+  <path d="M 300,985 Q 380,900 470,930 Q 560,960 620,900 Q 680,850 760,900"
+        fill="none" stroke="#22c55e" stroke-width="10" opacity="0.7"/>
+  <ellipse cx="500" cy="760" rx="400" ry="230" fill="none" stroke="#64748b"
+           stroke-width="5" stroke-dasharray="18,12"/>
+
+  <!-- Satellite (same art as SatelliteBody, scaled down) -->
+  <g transform="translate(500 400) scale(0.6) translate(-500 -500)">
+    <rect x="30" y="340" width="250" height="320" rx="8" ry="8" fill="#2563eb" stroke="#1e40af" stroke-width="6"/>
+    <line x1="92" y1="340" x2="92" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+    <line x1="155" y1="340" x2="155" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+    <line x1="217" y1="340" x2="217" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+    <rect x="720" y="340" width="250" height="320" rx="8" ry="8" fill="#2563eb" stroke="#1e40af" stroke-width="6"/>
+    <line x1="782" y1="340" x2="782" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+    <line x1="845" y1="340" x2="845" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+    <line x1="907" y1="340" x2="907" y2="660" stroke="#1e40af" stroke-width="2" opacity="0.5"/>
+    <rect x="280" y="475" width="100" height="50" fill="#94a3b8" stroke="#475569" stroke-width="4"/>
+    <rect x="620" y="475" width="100" height="50" fill="#94a3b8" stroke="#475569" stroke-width="4"/>
+    <rect x="340" y="280" width="320" height="440" rx="18" ry="18" fill="#e2e8f0" stroke="#334155" stroke-width="6"/>
+    <line x1="360" y1="380" x2="640" y2="380" stroke="#94a3b8" stroke-width="3"/>
+    <ellipse cx="500" cy="240" rx="60" ry="20" fill="none" stroke="#334155" stroke-width="5"/>
+    <line x1="500" y1="200" x2="500" y2="280" stroke="#334155" stroke-width="5"/>
+    <circle cx="500" cy="195" r="8" fill="#334155"/>
+    <circle cx="420" cy="340" r="18" fill="#64748b" stroke="#334155" stroke-width="3"/>
+    <polygon points="420,720 440,760 400,760" fill="#475569" stroke="#1e293b" stroke-width="3"/>
+    <polygon points="540,720 560,760 520,760" fill="#475569" stroke="#1e293b" stroke-width="3"/>
+  </g>
+  <!-- Velocity arrow along the orbit -->
+  <line x1="640" y1="560" x2="760" y2="560" stroke="#ef4444" stroke-width="8"/>
+  <polygon points="760,545 795,560 760,575" fill="#ef4444"/>
+
+  <!-- Port group marks -->
+  <g font-family="serif" font-style="italic" font-size="70" fill="#334155"
+     text-anchor="middle" dominant-baseline="central">
+    <text x="80" y="286">τ</text>
+    <text x="80" y="714">F</text>
+    <text x="925" y="143">θ</text>
+    <text x="925" y="357">ω</text>
+    <text x="925" y="643">r</text>
+    <text x="925" y="857">v</text>
+  </g>
+</svg>

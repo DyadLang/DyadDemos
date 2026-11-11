@@ -27,16 +27,28 @@ component TrapezoidalProfile
   "Maximum angular acceleration (rad/s^2)"
   parameter a_max::Real = 0.0087
 relations
-  angle_ref = SatelliteGNC.trapz_angle_ref(time, target_angle, w_max, a_max)
-  rate_ref = SatelliteGNC.trapz_rate_ref(time, target_angle, w_max, a_max)
-  accel_ref = SatelliteGNC.trapz_accel_ref(time, target_angle, w_max, a_max)
+  angle_ref = SatelliteGNC.trapz_angle_ref(time, target_angle, w_max, a_max) {^id4}
+  rate_ref = SatelliteGNC.trapz_rate_ref(time, target_angle, w_max, a_max) {^id5}
+  accel_ref = SatelliteGNC.trapz_accel_ref(time, target_angle, w_max, a_max) {^id6}
 metadata {
-  "Dyad": {"icons": {"default": "dyad://SatelliteGNC/TrapezoidalProfile.svg"}},
+  "Dyad": {
+    "icons": {"default": "dyad://SatelliteGNC/TrapezoidalProfile.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1126,
+        "layer": "icon",
+        "attrs": {"font-size": "180"}
+      }
+    ]
+  },
   "_links": {
     "angle_ref": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 960, "y1": 140, "x2": 1060, "y2": 240, "rot": 0}
+          "icon": {"iconName": "default", "x1": 925, "y1": 175, "x2": 1075, "y2": 325, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 925, "y1": 175, "x2": 1075, "y2": 325, "rot": 0}
         },
         "tags": []
       }
@@ -44,7 +56,8 @@ metadata {
     "rate_ref": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
+          "icon": {"iconName": "default", "x1": 925, "y1": 425, "x2": 1075, "y2": 575, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 925, "y1": 425, "x2": 1075, "y2": 575, "rot": 0}
         },
         "tags": []
       }
@@ -52,7 +65,35 @@ metadata {
     "accel_ref": {
       "Dyad": {
         "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 710, "x2": 1070, "y2": 810, "rot": 0}
+          "icon": {"iconName": "default", "x1": 925, "y1": 675, "x2": 1075, "y2": 825, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 925, "y1": 675, "x2": 1075, "y2": 825, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id4": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 925, "y1": 175, "x2": 1075, "y2": 325, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 925, "y1": 175, "x2": 1075, "y2": 325, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id5": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 925, "y1": 425, "x2": 1075, "y2": 575, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 925, "y1": 425, "x2": 1075, "y2": 575, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id6": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 925, "y1": 675, "x2": 1075, "y2": 825, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 925, "y1": 675, "x2": 1075, "y2": 825, "rot": 0}
         },
         "tags": []
       }

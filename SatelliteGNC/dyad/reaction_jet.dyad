@@ -13,15 +13,15 @@ with different positions/directions for a full thruster configuration.
 """
 component ReactionJet
   "Thrust command input (-1 to 1, normalized)"
-  cmd = RealInput()
+  cmd = RealInput() {^cmd}
   "Body-frame force outputs (N)"
-  fx_out = RealOutput()
-  fy_out = RealOutput()
-  fz_out = RealOutput()
+  fx_out = RealOutput() {^fx_out}
+  fy_out = RealOutput() {^fy_out}
+  fz_out = RealOutput() {^fz_out}
   "Body-frame torque outputs (N·m)"
-  tx_out = RealOutput()
-  ty_out = RealOutput()
-  tz_out = RealOutput()
+  tx_out = RealOutput() {^tx_out}
+  ty_out = RealOutput() {^ty_out}
+  tz_out = RealOutput() {^tz_out}
   "Thruster mounting position from CoM (body frame, m)"
   parameter rx::Real = 0.0
   parameter ry::Real = 0.0
@@ -53,6 +53,183 @@ relations
   fx_out = force_x
   fy_out = force_y
   fz_out = force_z
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SatelliteGNC/ReactionJet.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1063,
+        "layer": "icon",
+        "attrs": {"font-size": "90"}
+      }
+    ]
+  },
+  "_links": {
+    "cmd": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 462.5,
+            "x2": 37.5,
+            "y2": 537.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -37.5,
+            "y1": 462.5,
+            "x2": 37.5,
+            "y2": 537.5,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "fx_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 87.5,
+            "x2": 1037.5,
+            "y2": 162.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 87.5,
+            "x2": 1037.5,
+            "y2": 162.5,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "fy_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 212.5,
+            "x2": 1037.5,
+            "y2": 287.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 212.5,
+            "x2": 1037.5,
+            "y2": 287.5,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "fz_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 337.5,
+            "x2": 1037.5,
+            "y2": 412.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 337.5,
+            "x2": 1037.5,
+            "y2": 412.5,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "tx_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 587.5,
+            "x2": 1037.5,
+            "y2": 662.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 587.5,
+            "x2": 1037.5,
+            "y2": 662.5,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "ty_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 712.5,
+            "x2": 1037.5,
+            "y2": 787.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 712.5,
+            "x2": 1037.5,
+            "y2": 787.5,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "tz_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 837.5,
+            "x2": 1037.5,
+            "y2": 912.5,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 962.5,
+            "y1": 837.5,
+            "x2": 1037.5,
+            "y2": 912.5,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    }
+  }
+}
 end
 
 # =====================================================
