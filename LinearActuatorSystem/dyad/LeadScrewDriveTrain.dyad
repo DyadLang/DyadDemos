@@ -1,0 +1,138 @@
+"""
+Rigid lead-screw drive train of a linear actuator.
+
+Motor shaft → reduction gearbox (`gear_ratio`) → screw shaft inertia → lead screw
+(`ratio = 2π / lead`) → carriage mass on a guide with viscous friction. An external load
+force `f_load` acts on the carriage; positive `f_load` opposes extension (positive `s`).
+
+Gearbox and screw are ideal (lossless, backlash-free, rigid). All housings are fixed to
+ground inside the component.
+"""
+component LeadScrewDriveTrain
+  "Input shaft (motor side)"
+  shaft = Spline() {^shaft}
+  "Carriage (actuator rod) flange"
+  carriage = Flange() {^carriage}
+  "External load force on the carriage, positive opposing extension (N)"
+  f_load = RealInput() {^f_load}
+  gearbox = RotationalComponents.Components.IdealGear(ratio = gear_ratio) {^gearbox}
+  screw_inertia = RotationalComponents.Components.Inertia(J = J_screw) {^screw_inertia}
+  lead_screw = TranslationalComponents.Components.IdealGearR2T(ratio = 2 * pi / lead) {^lead_screw}
+  carriage_mass = TranslationalComponents.Components.Mass(m = m_carriage) {^carriage_mass}
+  guide_friction = TranslationalComponents.Components.Damper(d = d_guide) {^guide_friction}
+  load_force = TranslationalComponents.Sources.Force() {^load_force}
+  fixed_r = RotationalComponents.Components.Fixed() {^fixed_r}
+  fixed_t = TranslationalComponents.Components.Fixed() {^fixed_t}
+  "Reaction point of the external load force"
+  fixed_load = TranslationalComponents.Components.Fixed() {^fixed_load}
+  "Gearbox reduction ratio (motor speed / screw speed)"
+  parameter gear_ratio::Real = 5.0
+  "Screw lead (carriage travel per screw revolution)"
+  parameter lead::Length = 0.005
+  "Screw shaft inertia"
+  parameter J_screw::Inertia = 1e-6
+  "Carriage and payload mass"
+  parameter m_carriage::Mass = 10.0
+  "Viscous friction coefficient of the carriage guide"
+  parameter d_guide::TranslationalDampingConstant = 100.0
+relations
+  connect(shaft, gearbox.spline_a) {^c1}
+  connect(gearbox.spline_b, screw_inertia.spline_a) {^c2}
+  connect(screw_inertia.spline_b, lead_screw.spline) {^c3}
+  connect(gearbox.support, lead_screw.support_r, fixed_r.spline) {^c4}
+  connect(lead_screw.flange, carriage_mass.flange_a) {^c5}
+  connect(carriage_mass.flange_b, guide_friction.flange_a, load_force.flange_a, carriage) {^c6}
+  connect(lead_screw.support_t, guide_friction.flange_b, fixed_t.flange) {^c7}
+  connect(load_force.flange_b, fixed_load.flange) {^c9}
+  connect(f_load, load_force.f) {^c8}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://LinearActuatorSystem/LeadScrewDriveTrain.svg"},
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0, "layer": "icon"},
+      {"label": "i = $(gear_ratio), lead = $(lead) m", "x": 500, "y": 1250, "rot": 0, "layer": "icon", "attrs": {"font-size": "110", "fill": "#555"}},
+      {"label": "m = $(m_carriage) kg", "x": 500, "y": 1380, "rot": 0, "layer": "icon", "attrs": {"font-size": "110", "fill": "#555"}},
+      {"label": "motor shaft", "x": 20, "y": 330, "rot": 0, "layer": "diagram", "attrs": {"font-size": "22", "fill": "#555"}},
+      {"label": "carriage", "x": 985, "y": 330, "rot": 0, "layer": "diagram", "attrs": {"font-size": "22", "fill": "#2a661f"}},
+      {"label": "F_load [N]", "x": 900, "y": 40, "rot": 0, "layer": "diagram", "attrs": {"font-size": "22", "fill": "#c00000"}},
+      {"label": "ground (housings)", "x": 350, "y": 860, "rot": 0, "layer": "diagram", "attrs": {"font-size": "20", "fill": "#555"}},
+      {"label": "ground (guide)", "x": 750, "y": 860, "rot": 0, "layer": "diagram", "attrs": {"font-size": "20", "fill": "#555"}}
+    ]
+  },
+  "_links": {
+    "shaft": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "spline_a", "x1": -50, "y1": 450, "x2": 50, "y2": 550},
+          "diagram": {"iconName": "spline_a", "x1": -30, "y1": 370, "x2": 30, "y2": 430}
+        }
+      }
+    },
+    "carriage": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "flange_b", "x1": 950, "y1": 450, "x2": 1050, "y2": 550},
+          "diagram": {"iconName": "flange_b", "x1": 970, "y1": 370, "x2": 1030, "y2": 430}
+        }
+      }
+    },
+    "f_load": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "input", "x1": 650, "y1": -100, "x2": 750, "y2": 0, "rot": 90},
+          "diagram": {"iconName": "input", "x1": 770, "y1": -100, "x2": 870, "y2": 0, "rot": 90}
+        }
+      }
+    },
+    "gearbox": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 100, "y1": 330, "x2": 240, "y2": 470, "rot": 0}}}},
+    "screw_inertia": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 300, "y1": 330, "x2": 440, "y2": 470, "rot": 0}}}},
+    "lead_screw": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 500, "y1": 330, "x2": 640, "y2": 470, "rot": 0}}}},
+    "carriage_mass": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 700, "y1": 330, "x2": 840, "y2": 470, "rot": 0}}}},
+    "guide_friction": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 860, "y1": 560, "x2": 960, "y2": 660, "rot": 90}}}},
+    "load_force": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 760, "y1": 140, "x2": 880, "y2": 260, "rot": 0}}}},
+    "fixed_r": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 300, "y1": 720, "x2": 400, "y2": 820, "rot": 0}}}},
+    "fixed_t": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 700, "y1": 720, "x2": 800, "y2": 820, "rot": 0}}}},
+    "fixed_load": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 890, "y1": 230, "x2": 970, "y2": 310, "rot": 0}}}},
+    "c1": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "c2": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "c3": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "c4": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 170, "y": 680}], "E": -1},
+          {"S": 2, "M": [{"x": 521, "y": 680}], "E": -1},
+          {"S": -1, "M": [], "E": 3}
+        ],
+        "junctions": [{"x": 350, "y": 680}],
+        "renderStyle": "standard"
+      }
+    },
+    "c5": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "c6": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [{"x": 910, "y": 400}], "E": 2},
+          {"S": 3, "M": [{"x": 740, "y": 200}, {"x": 740, "y": 300}, {"x": 880, "y": 300}, {"x": 880, "y": 400}], "E": -1},
+          {"S": -1, "M": [], "E": 4}
+        ],
+        "junctions": [{"x": 880, "y": 400}],
+        "renderStyle": "standard"
+      }
+    },
+    "c7": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 619, "y": 680}], "E": -1},
+          {"S": 2, "M": [{"x": 910, "y": 680}], "E": -1},
+          {"S": -1, "M": [], "E": 3}
+        ],
+        "junctions": [{"x": 750, "y": 680}],
+        "renderStyle": "standard"
+      }
+    },
+    "c9": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 930, "y": 200}], "E": 2}], "renderStyle": "standard"}},
+    "c8": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end

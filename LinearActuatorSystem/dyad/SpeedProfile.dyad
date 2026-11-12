@@ -1,0 +1,69 @@
+"""
+Trapezoidal forward/reverse motor-speed reference (rpm).
+
+Starting at `t_start`: accelerate to `n_max` in `t_ramp`, cruise for `t_cruise`, decelerate to
+zero in `t_ramp`, dwell for `t_dwell`, then repeat the same move in reverse (`-n_max`).
+Built as the sum of four ramps.
+"""
+component SpeedProfile
+  "Motor speed reference (rpm)"
+  n_ref = RealOutput() {^n_ref}
+  ramp_acc_fwd = BlockComponents.Sources.Ramp(start_time = t_start, duration = t_ramp, height = n_max) {^ramp_acc_fwd}
+  ramp_dec_fwd = BlockComponents.Sources.Ramp(start_time = t_start + t_ramp + t_cruise, duration = t_ramp, height = -n_max) {^ramp_dec_fwd}
+  ramp_acc_rev = BlockComponents.Sources.Ramp(start_time = t_start + 2 * t_ramp + t_cruise + t_dwell, duration = t_ramp, height = -n_max) {^ramp_acc_rev}
+  ramp_dec_rev = BlockComponents.Sources.Ramp(start_time = t_start + 3 * t_ramp + 2 * t_cruise + t_dwell, duration = t_ramp, height = n_max) {^ramp_dec_rev}
+  sum_fwd = BlockComponents.Math.Add() {^sum_fwd}
+  sum_rev = BlockComponents.Math.Add() {^sum_rev}
+  sum_total = BlockComponents.Math.Add() {^sum_total}
+  "Cruise speed (rpm)"
+  parameter n_max::Real = 3000.0
+  "Start time of the forward move"
+  parameter t_start::Time = 0.05
+  "Acceleration / deceleration time"
+  parameter t_ramp::Time = 0.1
+  "Cruise time at n_max"
+  parameter t_cruise::Time = 0.4
+  "Dwell time between forward and reverse moves"
+  parameter t_dwell::Time = 0.3
+relations
+  connect(ramp_acc_fwd.y, sum_fwd.u1) {^c1}
+  connect(ramp_dec_fwd.y, sum_fwd.u2) {^c2}
+  connect(ramp_acc_rev.y, sum_rev.u1) {^c3}
+  connect(ramp_dec_rev.y, sum_rev.u2) {^c4}
+  connect(sum_fwd.y, sum_total.u1) {^c5}
+  connect(sum_rev.y, sum_total.u2) {^c6}
+  connect(sum_total.y, n_ref) {^c7}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://LinearActuatorSystem/SpeedProfile.svg"},
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
+      {"label": "n_max = $(n_max) rpm", "x": 500, "y": 1250, "rot": 0, "attrs": {"font-size": "120", "fill": "#555"}}
+    ]
+  },
+  "_links": {
+    "n_ref": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "output", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550},
+          "diagram": {"iconName": "output", "x1": 1000, "y1": 430, "x2": 1100, "y2": 530}
+        }
+      }
+    },
+    "ramp_acc_fwd": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 100, "y1": 100, "x2": 220, "y2": 220, "rot": 0}}}},
+    "ramp_dec_fwd": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 100, "y1": 300, "x2": 220, "y2": 420, "rot": 0}}}},
+    "ramp_acc_rev": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 100, "y1": 580, "x2": 220, "y2": 700, "rot": 0}}}},
+    "ramp_dec_rev": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 100, "y1": 780, "x2": 220, "y2": 900, "rot": 0}}}},
+    "sum_fwd": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 380, "y1": 180, "x2": 500, "y2": 300, "rot": 0}}}},
+    "sum_rev": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 380, "y1": 660, "x2": 500, "y2": 780, "rot": 0}}}},
+    "sum_total": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 640, "y1": 420, "x2": 760, "y2": 540, "rot": 0}}}},
+    "c1": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 300, "y": 160}, {"x": 300, "y": 204}], "E": 2}], "renderStyle": "standard"}},
+    "c2": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 300, "y": 360}, {"x": 300, "y": 276}], "E": 2}], "renderStyle": "standard"}},
+    "c3": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 300, "y": 640}, {"x": 300, "y": 684}], "E": 2}], "renderStyle": "standard"}},
+    "c4": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 300, "y": 840}, {"x": 300, "y": 756}], "E": 2}], "renderStyle": "standard"}},
+    "c5": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 570, "y": 240}, {"x": 570, "y": 444}], "E": 2}], "renderStyle": "standard"}},
+    "c6": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 570, "y": 720}, {"x": 570, "y": 516}], "E": 2}], "renderStyle": "standard"}},
+    "c7": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end

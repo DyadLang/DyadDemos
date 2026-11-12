@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f1fb"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="984" height="984" rx="40" fill="url(#bg)" stroke="#1f4e79" stroke-width="12"/>
+  <!-- triangular carrier -->
+  <path d="M120 450L215 150L310 450L405 150L500 450L595 150L690 450L785 150L880 450" fill="none" stroke="#5a5a5a" stroke-width="8" stroke-linejoin="round"/>
+  <!-- reference -->
+  <path d="M100 270H900" stroke="#c00000" stroke-width="10"/>
+  <!-- gate pulses -->
+  <path d="M120 580H177V760H253V580H367V760H443V580H557V760H633V580H747V760H823V580H880" fill="none" stroke="#1f4e79" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M100 800H900" stroke="#9a9a9a" stroke-width="4" stroke-dasharray="14 10"/>
+  <text x="500" y="915" font-family="Arial, Helvetica, sans-serif" font-size="110" font-weight="bold" fill="#1f4e79" text-anchor="middle">PWM</text>
+  <text x="890" y="110" font-family="Arial, Helvetica, sans-serif" font-size="58" font-style="italic" fill="#1f4e79" text-anchor="end">avg</text>
+</svg>

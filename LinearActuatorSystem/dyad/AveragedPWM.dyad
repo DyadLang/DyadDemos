@@ -1,0 +1,71 @@
+"""
+Cycle-averaged PWM modulator for a full H-bridge.
+
+Converts a bridge voltage command `v_ref` into the modulation index `m` consumed by
+`AveragedHBridge`:
+
+1. Normalization by the nominal DC-link voltage: `m* = v_ref / V_dc`.
+2. Effective modulator dead time `T_d = n_delay / f_pwm` (half a PWM period of averaging plus
+   one control-sample of computation delay for the default `n_delay = 1.5`), realized as a
+   strictly proper [2/3] Padé approximation (no direct feedthrough), which reproduces the
+   ultimate gain and period of the exact dead time to within about 0.2 % for the current loop.
+3. Saturation of the modulation index to `±m_max` (minimum on/off times, bootstrap refresh).
+
+Switching ripple is not represented.
+"""
+component AveragedPWM
+  "Bridge voltage command"
+  v_ref = RealInput() {^v_ref}
+  "Modulation index to the H-bridge"
+  m = RealOutput() {^m}
+  normalize = BlockComponents.Math.Gain(k = 1 / V_dc) {^normalize}
+  dead_time = BlockComponents.Nonlinear.PadeDelay(n = 3, m = 2, delayTime = n_delay / f_pwm) {^dead_time}
+  saturation = BlockComponents.Nonlinear.Limiter(y_max = m_max, y_min = -m_max) {^saturation}
+  "Nominal DC-link voltage used to normalize the command"
+  parameter V_dc::Voltage = 24.0
+  "PWM switching frequency"
+  structural parameter f_pwm::Frequency = 20000.0
+  "Effective modulator dead time in PWM periods"
+  structural parameter n_delay::Real = 1.5
+  "Maximum modulation index"
+  parameter m_max::Real = 0.98
+relations
+  connect(v_ref, normalize.u) {^c1}
+  connect(normalize.y, dead_time.u) {^c2}
+  connect(dead_time.y, saturation.u) {^c3}
+  connect(saturation.y, m) {^c4}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://LinearActuatorSystem/PWM.svg"},
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
+      {"label": "f_pwm = $(f_pwm) Hz", "x": 500, "y": 1250, "rot": 0, "attrs": {"font-size": "120", "fill": "#555"}}
+    ]
+  },
+  "_links": {
+    "v_ref": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "input", "x1": -100, "y1": 450, "x2": 0, "y2": 550}}
+      }
+    },
+    "m": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "output", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550}}
+      }
+    },
+    "normalize": {
+      "Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 150, "y1": 420, "x2": 310, "y2": 580, "rot": 0}}}
+    },
+    "dead_time": {
+      "Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 420, "y1": 420, "x2": 580, "y2": 580, "rot": 0}}}
+    },
+    "saturation": {
+      "Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 690, "y1": 420, "x2": 850, "y2": 580, "rot": 0}}}
+    },
+    "c1": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "c2": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "c3": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "c4": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end

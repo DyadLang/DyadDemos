@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f1fb"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="984" height="984" rx="40" fill="url(#bg)" stroke="#1f4e79" stroke-width="12"/>
+  <!-- DC rails and DC-link leads -->
+  <path d="M500 0V180M330 180H670M330 820H900V1000" fill="none" stroke="#000" stroke-width="10"/>
+  <!-- Leg A (x=330) and Leg B (x=670): MOSFET glyphs with anti-parallel diodes -->
+  <g fill="none" stroke="#000" stroke-width="8" stroke-linejoin="round">
+    <!-- leg A top -->
+    <path d="M330 180V290H285M285 410H330V500"/>
+    <path d="M285 270V410" stroke-width="14"/>
+    <path d="M255 280V400M255 340H200"/>
+    <path d="M330 280H385V400H330"/>
+    <!-- leg A bottom -->
+    <path d="M330 500V610H285M285 730H330V820"/>
+    <path d="M285 590V730" stroke-width="14"/>
+    <path d="M255 600V720M255 660H200"/>
+    <path d="M330 600H385V720H330"/>
+    <!-- leg B top -->
+    <path d="M670 180V290H625M625 410H670V500"/>
+    <path d="M625 270V410" stroke-width="14"/>
+    <path d="M595 280V400M595 340H540"/>
+    <path d="M670 280H725V400H670"/>
+    <!-- leg B bottom -->
+    <path d="M670 500V610H625M625 730H670V820"/>
+    <path d="M625 590V730" stroke-width="14"/>
+    <path d="M595 600V720M595 660H540"/>
+    <path d="M670 600H725V720H670"/>
+  </g>
+  <!-- diode triangles (pointing up, cathode toward + rail) -->
+  <g fill="#000">
+    <path d="M360 365H410L385 320Z"/>
+    <path d="M360 685H410L385 640Z"/>
+    <path d="M700 365H750L725 320Z"/>
+    <path d="M700 685H750L725 640Z"/>
+  </g>
+  <path d="M360 318H410M360 638H410M700 318H750M700 638H750" stroke="#000" stroke-width="6"/>
+  <!-- leg midpoints -->
+  <path d="M330 500H440M560 500H670" stroke="#000" stroke-width="8"/>
+  <circle cx="330" cy="500" r="14" fill="#000"/>
+  <circle cx="670" cy="500" r="14" fill="#000"/>
+  <circle cx="455" cy="500" r="16" fill="#fff" stroke="#000" stroke-width="6"/>
+  <circle cx="545" cy="500" r="16" fill="#fff" stroke="#000" stroke-width="6"/>
+  <text x="455" y="575" font-family="Arial, Helvetica, sans-serif" font-size="56" text-anchor="middle">a</text>
+  <text x="545" y="575" font-family="Arial, Helvetica, sans-serif" font-size="56" text-anchor="middle">b</text>
+  <!-- gate-drive signal from m input to leg A gates -->
+  <path d="M50 500H140M140 340V660M140 340H200M140 660H200" fill="none" stroke="#00007f" stroke-width="6" stroke-dasharray="18 12"/>
+  <!-- output stubs on the right edge -->
+  <path d="M880 300H950M880 700H950" stroke="#0000ff" stroke-width="8"/>
+  <!-- port labels -->
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="bold">
+    <text x="545" y="95" font-size="80" fill="#c00000">+</text>
+    <text x="820" y="965" font-size="80" fill="#1f4e79">&#8722;</text>
+    <text x="70" y="465" font-size="64" fill="#00007f">m</text>
+    <text x="900" y="270" font-size="64" fill="#0000ff">b</text>
+    <text x="900" y="670" font-size="64" fill="#0000ff">a</text>
+  </g>
+  <text x="810" y="120" font-family="Arial, Helvetica, sans-serif" font-size="58" font-style="italic" fill="#1f4e79" text-anchor="middle">avg</text>
+</svg>

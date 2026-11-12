@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f1fb"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="984" height="984" rx="40" fill="url(#bg)" stroke="#1f4e79" stroke-width="12"/>
+  <!-- axes -->
+  <path d="M110 860V140M90 500H890" stroke="#8f8f8f" stroke-width="6"/>
+  <path d="M95 160L110 110L125 160Z" fill="#8f8f8f"/>
+  <path d="M870 485L920 500L870 515Z" fill="#8f8f8f"/>
+  <!-- forward / reverse trapezoidal speed profile -->
+  <path d="M110 500H160L250 230H420L510 500H580L670 770H820L900 500" fill="none" stroke="#2e6db4" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M250 230V500M420 230V500" stroke="#2e6db4" stroke-width="3" stroke-dasharray="10 8"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="140" y="130" font-size="64" fill="#333">rpm</text>
+    <text x="335" y="200" font-size="56" fill="#2e6db4" text-anchor="middle">fwd</text>
+    <text x="745" y="845" font-size="56" fill="#2e6db4" text-anchor="middle">rev</text>
+    <text x="890" y="570" font-size="56" fill="#333" text-anchor="end">t</text>
+  </g>
+</svg>
