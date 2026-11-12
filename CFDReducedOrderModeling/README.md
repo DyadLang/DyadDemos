@@ -1,14 +1,15 @@
 # CFDReducedOrderModeling
 
 Data-driven reduced-order models (ROMs) of CFD thermal fields, compiled as Dyad components for system simulation.
+The "CFD" data here is synthetic: it comes from a 20-node finite-difference model of a
+manifold wall (`HighFidelityOilPassage`) that stands in for a real CFD solver.
 
 See [`application_background.md`](application_background.md) for the full engineering context.
 
 ## Quick Start
 
-Use the `dyad-3.5.0` Julia distribution (Julia 1.13.2). This project targets
-the Dyad 3.5.1 CLI, matching the repository. Validation uses the released 3.5.0
-CLI because 3.5.1 is not published; see [validation notes](docs/upgrade-3.5-validation.md).
+Use the `dyad-3.5.0` Julia distribution (Julia 1.13.2) and the Dyad 3.5.0 CLI;
+see [validation notes](docs/upgrade-3.5-validation.md).
 
 1. Open in VS Code with the Dyad Studio extension.
 2. Start a Julia REPL (`Julia: Start REPL` from the command palette).
@@ -66,7 +67,7 @@ An interactive dashboard compares all three ROMs against CFD validation data:
 
 ```
 cd app
-julia --project=.. app.jl
+julia +dyad-3.5.0 --project=.. app.jl
 ```
 
 Open `http://localhost:9000`.

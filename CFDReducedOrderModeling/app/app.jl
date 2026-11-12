@@ -11,7 +11,7 @@ Three data-driven ROM methods:
   - SVD Thermal Network: SVD → k-means zones → calibrated tridiagonal network
   - Neural ODE Network:  Latent Neural ODE → k-means zones → calibrated network
 
-Launch:  julia --project=.. app.jl
+Launch:  julia +dyad-3.5.0 --project=.. app.jl
 Open:    http://localhost:9000
 =#
 
