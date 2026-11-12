@@ -6,8 +6,12 @@ Toolchain: Dyad CLI 3.5.0 (`dyad layout extract/solve/apply`, `dyad render`), la
 
 Bugs in 3.5.0 `layout apply` that the notes work around:
 
-1. A solver `flipH` is written as a vertical flip (`y1 > y2`), so labels render upside down. The layouts use `rot` instead of flips.
-2. A branching connection is written as a single edge with no junction dot, so a branch reads like a crossing. The layouts rewrite it into Dyad's port, junction, port form.
+1. Arms of multi-way `connect` statements can be attached to the wrong ends. `fix_junction_order.py` repairs this.
+2. `apply` sometimes writes no edges at all. `verify_edges.py` catches it; re-run `apply`.
+
+`apply` also rewrites the whole file, so comments and formatting can be lost. Check the diff and restore them.
+
+Rendering quirks (not `apply` bugs): a solver `flipH` can render as a vertical flip (`y1 > y2`), so labels appear upside down; the layouts use `rot` instead of flips. A branching connection written as a single edge can render without a junction dot, so a branch reads like a crossing; the layouts rewrite it into Dyad's port, junction, port form.
 
 | Demo | Notes |
 |---|---|

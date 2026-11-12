@@ -1,7 +1,7 @@
 #!/bin/bash
 # reproduce.sh OUTROOT [BEFOREDIR]
 # Re-create the committed SatelliteGNC layout from the pre-relayout sources.
-# Run from SatelliteGNC/ with DYAD, TOOLS (scout layout tools) and CHROME set,
+# Run from the demo root SatelliteGNC/ (as ../docs/layout/SatelliteGNC/tools/reproduce.sh) with DYAD, TOOLS (scout layout tools) and CHROME set,
 # with the edited/new icons in assets/ already in place (they are hand-drawn).
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)

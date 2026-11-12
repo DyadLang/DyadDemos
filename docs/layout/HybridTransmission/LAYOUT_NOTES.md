@@ -5,7 +5,7 @@ connector icon placements were touched (bottom-up fix, below).
 
 | Diagram | Before | What was done | After |
 |---|---|---|---|
-| PowerSplitHybrid | C: most wires ended next to, not on, the ports painted in the icon art (the connectors had no `icon` placement and fell back to diagram positions that disagreed with the art, e.g. engine throttle declared on the right, painted on the left); stray stubs; several crossings | 1) Child icon ports fixed to match the art. 2) Controller instance enlarged to 300×300 so its 5 inputs are 50 units apart. 3) Pinned column layout + solver routing. 4) Two small route tweaks in the solution JSON | B+: 2 crossings (both unavoidable, see below), every wire ends on a drawn port, all upright |
+| PowerSplitHybrid | C: most wires ended next to, not on, the ports painted in the icon art (the connectors had no `icon` placement and fell back to diagram positions that disagreed with the art, e.g. engine throttle declared on the right, painted on the left); stray stubs; several crossings | 1) Child icon ports fixed to match the art. 2) Controller instance enlarged to 300×300 so its 5 inputs are 50 units apart. 3) Pinned column layout + solver routing. 4) Two small route tweaks in the solution JSON | B+: 2 crossings (both unavoidable, see below), every wire ends on a drawn port except the inherited `carrier` port (see below), all upright |
 
 Default solve on the new child ports: `routingRefinement=1` → 15 crossings, `=2` → 17 crossings.
 That's worse than the pinned layout.

@@ -491,7 +491,9 @@ analysis ColdNightSizing
 relations
 end
 
-"Occupancy fraction for a representative weekday office, 0 (empty) to 1 (full)."
+"""
+Occupancy fraction for a representative weekday office, 0 (empty) to 1 (full).
+"""
 component OfficeOccupancy
   "Occupancy fraction output (0–1)"
   y = RealOutput() {
@@ -506,7 +508,22 @@ component OfficeOccupancy
 relations
   # Weekday office profile, `time` in seconds from midnight. One segment per line; each ramps
   # linearly from the previous segment's end value to the fraction named beside it.
-  occ = ifelse(time < 18000.0, 0.0, ifelse(time < 21600.0, (time - 18000.0) * 2.7778e-5, ifelse(time < 25200.0, 0.10 + (time - 21600.0) * 2.7778e-5, ifelse(time < 28800.0, 0.20 + (time - 25200.0) * 2.0833e-4, ifelse(time < 39600.0, 0.95, ifelse(time < 43200.0, 0.95 - (time - 39600.0) * 1.25e-4, ifelse(time < 46800.0, 0.50 + (time - 43200.0) * 1.25e-4, ifelse(time < 57600.0, 0.95, ifelse(time < 61200.0, 0.95 - (time - 57600.0) * 1.8056e-4, ifelse(time < 64800.0, 0.30 - (time - 61200.0) * 5.5556e-5, ifelse(time < 75600.0, 0.10, ifelse(time < 79200.0, 0.10 - (time - 75600.0) * 1.3889e-5, ifelse(time < 82800.0, 0.05, ifelse(time < 86400.0, 0.05 - (time - 82800.0) * 1.3889e-5, 0.0))))))))))))))
+  occ =
+    ifelse(time < 18000.0, 0.0,                                            # to 05:00, empty
+    ifelse(time < 21600.0, (time - 18000.0) * 2.7778e-5,                   # to 06:00, ramp to 0.10
+    ifelse(time < 25200.0, 0.10 + (time - 21600.0) * 2.7778e-5,            # to 07:00, ramp to 0.20
+    ifelse(time < 28800.0, 0.20 + (time - 25200.0) * 2.0833e-4,            # to 08:00, ramp to 0.95
+    ifelse(time < 39600.0, 0.95,                                           # to 11:00, full
+    ifelse(time < 43200.0, 0.95 - (time - 39600.0) * 1.25e-4,              # to 12:00, ramp to 0.50
+    ifelse(time < 46800.0, 0.50 + (time - 43200.0) * 1.25e-4,              # to 13:00, back to 0.95
+    ifelse(time < 57600.0, 0.95,                                           # to 16:00, full
+    ifelse(time < 61200.0, 0.95 - (time - 57600.0) * 1.8056e-4,            # to 17:00, ramp to 0.30
+    ifelse(time < 64800.0, 0.30 - (time - 61200.0) * 5.5556e-5,            # to 18:00, ramp to 0.10
+    ifelse(time < 75600.0, 0.10,                                           # to 21:00, evening shift
+    ifelse(time < 79200.0, 0.10 - (time - 75600.0) * 1.3889e-5,            # to 22:00, ramp to 0.05
+    ifelse(time < 82800.0, 0.05,                                           # to 23:00, skeleton crew
+    ifelse(time < 86400.0, 0.05 - (time - 82800.0) * 1.3889e-5,            # to 24:00, ramp to 0.00
+    0.0))))))))))))))
   y = occ
 metadata {
   "Dyad": {"icons": {"default": "dyad://DynamicSteadyState/icon_office_occupancy.svg"}}

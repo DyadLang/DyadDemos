@@ -118,12 +118,12 @@ All four runs share the ops `lock-orientation unpin-ports port-edges`.
 
 ### Reproducing
 
-From `SatelliteGNC/` at the commit before this change, with the icons from
+From the demo root `SatelliteGNC/` at the commit before this change, with the icons from
 `assets/` copied in, and with `DYAD` (Dyad CLI 3.5.0), `TOOLS` (the scout layout
 tools: `edit_problem.py`, `fix_junction_order.py`, `verify_edges.py`,
 `svg2png.sh`) and `CHROME` set:
 
-    docs/layout/SatelliteGNC/tools/reproduce.sh OUTDIR [BEFORE_SVG_DIR]
+    ../docs/layout/SatelliteGNC/tools/reproduce.sh OUTDIR [BEFORE_SVG_DIR]
 
 The script runs `dyad format`, then `set_ports.py`, `set_boxes.py`,
 `relayout_all.sh` and `drop_empty_relations.py`. From a clean export of the

@@ -3,8 +3,7 @@
 ## How these were produced
 
 Toolchain: Dyad CLI 3.5.0 (`dyad-linux-x64` from the v3.5.0 release of JuliaComputing/dyad-lang,
-checked against `SHA256SUMS.txt`), `JULIA_EXECUTABLE="julia +dyad-3.5.0"`, and the layout scout's scripts
-(`relayout.sh`, `edit_problem.py`, `fix_junction_order.py`, `verify_edges.py`, `svg2png.sh`).
+checked against `SHA256SUMS.txt`) and `JULIA_EXECUTABLE="julia +dyad-3.5.0"`. The relayout helper scripts (`relayout.sh`, `edit_problem.py`, `fix_junction_order.py`, `verify_edges.py`) came from an external scout toolkit and are not vendored in this repo. The documented recipe is `dyad layout extract`, then edit the problem JSON, then `dyad layout solve`, then `dyad layout apply`. The `relayout.sh` command lines below record the ops used for each diagram.
 Run every command from the demo root (the directory with `Project.toml`).
 
 Every diagram uses the same base ops, `lock-orientation unpin-ports port-edges`, plus `pin` constraints
@@ -19,7 +18,7 @@ The "spec" blocks below are shorthand for the ops. `pins.py SPEC` expands a spec
 `edit_problem.py` ops (script at the end of this file), and the full expansion is listed under each
 diagram. To reproduce a diagram, make the "before extract" hand edits, then run:
 
-    inputs/tools/relayout.sh COMPONENT OUTDIR <ops listed for that diagram>
+    relayout.sh COMPONENT OUTDIR <ops listed for that diagram>
 
 then make the "after apply" hand edits, if any. Re-running `relayout.sh` with the same ops is idempotent
 (checked: the file did not change), but it does undo that diagram's after-apply hand edits.
@@ -66,7 +65,7 @@ T_interior 34 7
 Exact ops:
 
 ```
-inputs/tools/relayout.sh ThermalHouse OUTDIR \
+relayout.sh ThermalHouse OUTDIR \
   lock-orientation \
   unpin-ports \
   port-edges \
@@ -119,7 +118,7 @@ ambient_signal 4 11
 Exact ops:
 
 ```
-inputs/tools/relayout.sh TestThermalHouse OUTDIR \
+relayout.sh TestThermalHouse OUTDIR \
   lock-orientation \
   unpin-ports \
   port-edges \
@@ -164,7 +163,7 @@ T_interior 30 11
 Exact ops:
 
 ```
-inputs/tools/relayout.sh ThermalHouseControlled OUTDIR \
+relayout.sh ThermalHouseControlled OUTDIR \
   lock-orientation \
   unpin-ports \
   port-edges \
@@ -209,7 +208,7 @@ ambient_signal 4 11
 Exact ops:
 
 ```
-inputs/tools/relayout.sh TestThermalHouseControlled OUTDIR \
+relayout.sh TestThermalHouseControlled OUTDIR \
   lock-orientation \
   unpin-ports \
   port-edges \
