@@ -2,6 +2,19 @@ module QuarterTruckSciML
 
 using Random
 using Lux
+using SimpleChains: SimpleChains
+import DyadModelDiscovery
+
+"""
+    simple_chains_feed_forward(n_input, n_output; kwargs...)
+
+`DyadModelDiscovery.multi_layer_feed_forward` evaluated by SimpleChains. The parameters
+keep the Lux initialization and flattened layout, so Lux-trained weights load unchanged.
+"""
+function simple_chains_feed_forward(n_input, n_output; kwargs...)
+    chain = DyadModelDiscovery.multi_layer_feed_forward(n_input, n_output; kwargs...)
+    return ToSimpleChainsAdaptor(n_input, true)(chain)
+end
 
 """
     iso8608_amplitudes(N, lambda_min, lambda_max, roughness)

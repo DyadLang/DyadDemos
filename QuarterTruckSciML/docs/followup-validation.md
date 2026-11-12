@@ -137,6 +137,8 @@ The declared budgets remain **5000 Adam / 200 LBFGS**, with the same 5-second
 horizon, 501 training samples, 68 weights, `1e-8` ODE tolerances, Tsit5 solver,
 initialization and learning rate. Both analyses now explicitly select
 ForwardDiff; no iteration budget or stopping requirement was relaxed.
+The analyses have since moved to a SimpleChains network and `1e-4` ODE
+tolerances; the measurements in this section predate that change.
 
 A three-iteration RC2 probe with ordinary Lux Dense layers and ForwardDiff took
 87.531764936 s including analysis setup/compilation (11.117348909 s inside the

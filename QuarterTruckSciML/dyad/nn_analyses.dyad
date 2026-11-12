@@ -28,9 +28,11 @@ analysis TruckFullNNTrainingAnalysis
     depvars_names = ["model.tire.s", "model.driver.s", "model.driver.a"],
     stop = 5.0,
     alg = ODEAlg.Tsit5(),
+    abstol = 1e-4,
+    reltol = 1e-4,
     calibration_alg = "SingleShooting",
     optimizer = "Adam",
-    # ForwardDiff is faster for this small 68-parameter network on RC2.
+    # Enzyme's gradient is wrong here until JuliaComputing/DyadModelOptimizer.jl#1356.
     adtype = DyadModelOptimizer.ADChoice.ForwardDiff(),
     optimizer_maxiters = 5000,
     learning_rate = 1e-3,
@@ -48,6 +50,8 @@ analysis TruckFullNNTrainingAnalysisLBFGS
     depvars_names = ["model.tire.s", "model.driver.s", "model.driver.a"],
     stop = 5.0,
     alg = ODEAlg.Tsit5(),
+    abstol = 1e-4,
+    reltol = 1e-4,
     calibration_alg = "SingleShooting",
     optimizer = "LBFGS",
     adtype = DyadModelOptimizer.ADChoice.ForwardDiff(),
