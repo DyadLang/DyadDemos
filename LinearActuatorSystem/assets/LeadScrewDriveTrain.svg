@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f1fb"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7a7a7a"/>
+      <stop offset="0.5" stop-color="#d6d6d6"/>
+      <stop offset="1" stop-color="#7a7a7a"/>
+    </linearGradient>
+    <linearGradient id="nut" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2e6db4"/>
+      <stop offset="0.5" stop-color="#6fa8e8"/>
+      <stop offset="1" stop-color="#1f4e79"/>
+    </linearGradient>
+    <pattern id="thread" width="36" height="80" patternUnits="userSpaceOnUse">
+      <path d="M0 80L36 0" stroke="#4a4a4a" stroke-width="6"/>
+    </pattern>
+  </defs>
+  <rect x="8" y="8" width="984" height="984" rx="40" fill="url(#bg)" stroke="#1f4e79" stroke-width="12"/>
+  <!-- input shaft -->
+  <rect x="0" y="475" width="110" height="50" fill="url(#steel)" stroke="#444" stroke-width="4"/>
+  <!-- gearbox housing with two meshing gears -->
+  <rect x="100" y="300" width="170" height="400" rx="16" fill="#e3e3e3" stroke="#333" stroke-width="8"/>
+  <circle cx="185" cy="500" r="45" fill="#fff" stroke="#333" stroke-width="8" stroke-dasharray="14 8"/>
+  <circle cx="185" cy="390" r="65" fill="none" stroke="#333" stroke-width="6" stroke-dasharray="16 9"/>
+  <text x="185" y="660" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="bold" fill="#333" text-anchor="middle">i</text>
+  <!-- lead screw -->
+  <rect x="270" y="465" width="620" height="70" fill="url(#steel)" stroke="#444" stroke-width="4"/>
+  <rect x="270" y="465" width="620" height="70" fill="url(#thread)" opacity="0.8"/>
+  <!-- bearing block at the far end -->
+  <rect x="870" y="420" width="50" height="300" fill="#bdbdbd" stroke="#333" stroke-width="6"/>
+  <!-- guide rail -->
+  <rect x="270" y="700" width="650" height="30" fill="#9e9e9e" stroke="#333" stroke-width="4"/>
+  <path d="M290 760l30-30M350 760l30-30M410 760l30-30M470 760l30-30M530 760l30-30M590 760l30-30M650 760l30-30M710 760l30-30M770 760l30-30M830 760l30-30" stroke="#333" stroke-width="4"/>
+  <!-- nut / carriage -->
+  <rect x="520" y="380" width="200" height="320" rx="14" fill="url(#nut)" stroke="#123456" stroke-width="8"/>
+  <text x="620" y="560" font-family="Arial, Helvetica, sans-serif" font-size="90" font-weight="bold" fill="#fff" text-anchor="middle">m</text>
+  <!-- push rod to the output flange -->
+  <path d="M720 600H960" stroke="#1f4e79" stroke-width="10"/>
+  <path d="M960 600V500H1000" stroke="#1f4e79" stroke-width="10" fill="none"/>
+  <!-- load force arrow from the top input -->
+  <path d="M700 60V300" stroke="#c00000" stroke-width="12"/>
+  <path d="M665 290L700 370L735 290Z" fill="#c00000"/>
+  <text x="760" y="200" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="bold" fill="#c00000">F</text>
+  <!-- motion arrow -->
+  <path d="M500 860H760" stroke="#1f4e79" stroke-width="8"/>
+  <path d="M750 835L800 860L750 885Z" fill="#1f4e79"/>
+  <text x="440" y="885" font-family="Arial, Helvetica, sans-serif" font-size="70" font-style="italic" fill="#1f4e79" text-anchor="middle">s</text>
+</svg>

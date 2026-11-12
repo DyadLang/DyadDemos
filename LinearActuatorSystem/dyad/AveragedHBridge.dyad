@@ -1,0 +1,84 @@
+"""
+Cycle-averaged full H-bridge (two half-bridge legs) with conduction losses.
+
+Each leg is a cycle-averaged half-bridge: its output terminal sits at the leg duty ratio
+times the DC-link voltage above the negative rail, minus the drop across the conducting switch.
+The two legs are driven complementarily (bipolar PWM) from a single modulation index `m`:
+
+```math
+d_a = \\frac{1 + m}{2}, \\quad d_b = \\frac{1 - m}{2}, \\quad m \\in [-1, 1]
+```
+
+```math
+v_a - v_{dc,n} = d_a v_{dc} - R_{on} i_a, \\quad v_b - v_{dc,n} = d_b v_{dc} - R_{on} i_b
+```
+
+so that the bridge output voltage is `v_ab = m*v_dc - R_on*(i_a - i_b)`. The DC-link currents follow
+from the averaged switching functions, which conserves power up to the conduction loss
+`R_on*(i_a^2 + i_b^2)`:
+
+```math
+i_{dc,p} = d_a i_a + d_b i_b, \\quad i_{dc,n} = (1 - d_a) i_a + (1 - d_b) i_b
+```
+
+Switching ripple is not represented. `m` must be kept within [-1, 1] by the modulator.
+"""
+component AveragedHBridge
+  "Positive DC-link terminal"
+  dc_p = Pin() {^dc_p}
+  "Negative DC-link terminal"
+  dc_n = Pin() {^dc_n}
+  "Output terminal of leg A"
+  a = Pin() {^a}
+  "Output terminal of leg B"
+  b = Pin() {^b}
+  "Modulation index m = d_a - d_b, in [-1, 1]"
+  m = RealInput() {^m}
+  "On-state resistance of one switch"
+  parameter R_on::Resistance = 0.01
+  "DC-link voltage"
+  variable v_dc::Voltage
+  "Bridge output voltage (v_a - v_b)"
+  variable v_ab::Voltage
+  "Averaged duty ratio of leg A"
+  variable d_a::Real
+  "Averaged duty ratio of leg B"
+  variable d_b::Real
+  "Current leaving the bridge at terminal a"
+  variable i_a::Current
+  "Current leaving the bridge at terminal b"
+  variable i_b::Current
+  "Current drawn from the positive DC-link terminal"
+  variable i_dc::Current
+  "Power drawn from the DC link"
+  variable P_dc::Power
+  "Conduction loss in the switches"
+  variable P_loss::Power
+relations
+  v_dc = dc_p.v - dc_n.v
+  v_ab = a.v - b.v
+  d_a = (1 + m) / 2
+  d_b = (1 - m) / 2
+  i_a = -a.i
+  i_b = -b.i
+  a.v - dc_n.v = d_a * v_dc - R_on * i_a
+  b.v - dc_n.v = d_b * v_dc - R_on * i_b
+  dc_p.i = d_a * i_a + d_b * i_b
+  dc_n.i = (1 - d_a) * i_a + (1 - d_b) * i_b
+  i_dc = dc_p.i
+  P_dc = v_dc * i_dc
+  P_loss = R_on * (i_a ^ 2 + i_b ^ 2)
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://LinearActuatorSystem/HBridge.svg"},
+    "labels": [{"label": "$(instance)", "x": 450, "y": 1100, "rot": 0}]
+  },
+  "_links": {
+    "dc_p": {"Dyad": {"placement": {"icon": {"iconName": "pos", "x1": 450, "y1": -50, "x2": 550, "y2": 50}}}},
+    "dc_n": {"Dyad": {"placement": {"icon": {"iconName": "neg", "x1": 850, "y1": 950, "x2": 950, "y2": 1050}}}},
+    "a": {"Dyad": {"placement": {"icon": {"iconName": "pos", "x1": 950, "y1": 650, "x2": 1050, "y2": 750}}}},
+    "b": {"Dyad": {"placement": {"icon": {"iconName": "neg", "x1": 950, "y1": 250, "x2": 1050, "y2": 350}}}},
+    "m": {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -100, "y1": 450, "x2": 0, "y2": 550}}}}
+  }
+}
+end

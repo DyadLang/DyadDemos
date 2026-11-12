@@ -1,0 +1,46 @@
+"""
+Averaged Hall-effect speed sensor.
+
+A Hall-effect encoder produces discrete edges as the magnet ring passes the Hall ICs; the
+drive estimates speed by counting edges/elapsed time over an estimation window `T_w`.
+A moving average over `T_w` is represented here by its equivalent first-order lag with
+time constant `T_w / 2`, applied to the true shaft speed:
+
+```math
+\\frac{T_w}{2} \\frac{d\\omega_{est}}{dt} = \\omega_{shaft} - \\omega_{est}, \\quad n = \\frac{30}{\\pi}\\,\\omega_{est}
+```
+
+The output `n` is in rpm. The sensor exerts no torque on the shaft. The estimate is
+initialized in steady state with the shaft speed. Edge quantization is not represented.
+"""
+component HallSpeedSensor
+  "Shaft spline whose speed is measured (no torque is exerted on it)"
+  spline = Spline() {^spline}
+  "Estimated shaft speed in rpm"
+  n = RealOutput() {^n}
+  "Speed estimation window"
+  parameter T_w::Time = 2e-3
+  "True shaft angular velocity"
+  variable w_shaft::AngularVelocity
+  "Estimated shaft angular velocity"
+  variable w_est::AngularVelocity
+relations
+  initial der(w_est) = 0
+  spline.tau = 0
+  w_shaft = der(spline.phi)
+  T_w / 2 * der(w_est) = w_shaft - w_est
+  n = w_est * 30 / pi
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://LinearActuatorSystem/HallSensor.svg"},
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
+      {"label": "T_w = $(T_w) s", "x": 500, "y": 1250, "rot": 0, "attrs": {"font-size": "120", "fill": "#555"}}
+    ]
+  },
+  "_links": {
+    "spline": {"Dyad": {"placement": {"icon": {"iconName": "spline_b", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}},
+    "n": {"Dyad": {"placement": {"icon": {"iconName": "output", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 180}}}}
+  }
+}
+end

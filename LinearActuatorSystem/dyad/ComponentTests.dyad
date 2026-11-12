@@ -1,0 +1,160 @@
+"""
+H-bridge test: 24 V DC link, R-L load across the bridge outputs, modulation index
+stepping from +0.5 to -0.5 at t = 50 ms (forward then reverse drive).
+"""
+test component TestAveragedHBridge
+  vdc_set = BlockComponents.Sources.Constant(k = 24.0)
+  supply = ElectricalComponents.Analog.Sources.VoltageSource()
+  gnd = ElectricalComponents.Analog.Basic.Ground()
+  m_cmd = BlockComponents.Sources.Step(offset = 0.5, height = -1.0, start_time = 0.05)
+  bridge = AveragedHBridge(R_on = 0.01)
+  r_load = ElectricalComponents.Analog.Basic.Resistor(R = 1.0)
+  l_load = ElectricalComponents.Analog.Basic.Inductor(L = 1e-3)
+relations
+  initial l_load.i = 0.0
+  connect(vdc_set.y, supply.V)
+  connect(supply.p, bridge.dc_p)
+  connect(supply.n, bridge.dc_n, gnd.g)
+  connect(m_cmd.y, bridge.m)
+  connect(bridge.a, r_load.p)
+  connect(r_load.n, l_load.p)
+  connect(l_load.n, bridge.b)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 0.1,
+        "atol": {"l_load.i": 1e-3, "bridge.i_dc": 1e-3},
+        "expect": {"final": {"l_load.i": -11.7647, "bridge.i_dc": 5.8824}, "signals": ["l_load.i"]}
+      }
+    }
+  }
+}
+end
+
+analysis TestAveragedHBridgeTransient
+  extends TransientAnalysis(stop = 0.1, abstol = 1e-8, reltol = 1e-8)
+  model = TestAveragedHBridge()
+end
+
+"""
+PWM test: voltage command ramps from -30 V to +30 V over 10 ms (beyond the ±24 V
+DC link), then a 2 V step at 15 ms to observe the modulator dead time.
+"""
+test component TestAveragedPWM
+  ramp = BlockComponents.Sources.Ramp(offset = -30.0, height = 60.0, duration = 0.01, start_time = 0.001)
+  step = BlockComponents.Sources.Step(height = -32.0, start_time = 0.015)
+  v_cmd = BlockComponents.Math.Add()
+  pwm = AveragedPWM(V_dc = 24.0, f_pwm = 20000.0, m_max = 0.98)
+relations
+  connect(ramp.y, v_cmd.u1)
+  connect(step.y, v_cmd.u2)
+  connect(v_cmd.y, pwm.v_ref)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 0.02,
+        "atol": {"pwm.m": 1e-4},
+        "expect": {"initial": {"pwm.m": -0.98}, "final": {"pwm.m": -0.0833333}, "signals": ["pwm.m"]}
+      }
+    }
+  }
+}
+end
+
+"""
+Hall sensor test: an inertia accelerated by a constant torque (speed ramp of 100 rad/s^2),
+then coasting at 10 rad/s (95.49 rpm) after the torque is removed at 0.1 s.
+"""
+test component TestHallSpeedSensor
+  torque_cmd = BlockComponents.Sources.Step(offset = 0.1, height = -0.1, start_time = 0.1)
+  drive = RotationalComponents.Sources.TorqueSource()
+  rotor = RotationalComponents.Components.Inertia(J = 1e-3)
+  fixed = RotationalComponents.Components.Fixed()
+  hall = HallSpeedSensor(T_w = 2e-3)
+relations
+  initial rotor.phi = 0.0
+  initial rotor.w = 0.0
+  connect(torque_cmd.y, drive.tau)
+  connect(drive.spline, rotor.spline_a)
+  connect(drive.support, fixed.spline)
+  connect(rotor.spline_b, hall.spline)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 0.15,
+        "atol": {"hall.n": 1e-3},
+        "expect": {"final": {"hall.n": 95.4930}, "signals": ["hall.n"]}
+      }
+    }
+  }
+}
+end
+
+analysis TestHallSpeedSensorTransient
+  extends TransientAnalysis(stop = 0.15, abstol = 1e-9, reltol = 1e-9)
+  model = TestHallSpeedSensor()
+end
+
+"""
+Drive-train test: constant 5 mN·m on the input shaft (31.42 N at the carriage), then an
+opposing 15.71 N load force from t = 1 s.
+"""
+test component TestLeadScrewDriveTrain
+  torque_cmd = BlockComponents.Sources.Constant(k = 0.005)
+  drive = RotationalComponents.Sources.TorqueSource()
+  fixed = RotationalComponents.Components.Fixed()
+  load_cmd = BlockComponents.Sources.Step(height = 15.70796, start_time = 1.0)
+  drivetrain = LeadScrewDriveTrain(gear_ratio = 5.0, lead = 0.005, J_screw = 1e-6, m_carriage = 10.0, d_guide = 100.0)
+relations
+  initial drivetrain.carriage_mass.s = 0.0
+  initial drivetrain.carriage_mass.v = 0.0
+  connect(torque_cmd.y, drive.tau)
+  connect(drive.spline, drivetrain.shaft)
+  connect(drive.support, fixed.spline)
+  connect(load_cmd.y, drivetrain.f_load)
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 2.0,
+        "atol": {"drivetrain.carriage_mass.v": 1e-4},
+        "expect": {"final": {"drivetrain.carriage_mass.v": 0.157080}, "signals": ["drivetrain.carriage_mass.v"]}
+      }
+    }
+  }
+}
+end
+
+analysis TestLeadScrewDriveTrainTransient
+  extends TransientAnalysis(stop = 2.0, abstol = 1e-9, reltol = 1e-9)
+  model = TestLeadScrewDriveTrain()
+end
+
+"Speed profile test: default forward/reverse trapezoid."
+test component TestSpeedProfile
+  profile = SpeedProfile()
+metadata {
+  "Dyad": {
+    "tests": {
+      "case1": {
+        "stop": 1.7,
+        "atol": {"profile.n_ref": 1e-6},
+        "expect": {"final": {"profile.n_ref": 0.0}, "signals": ["profile.n_ref"]}
+      }
+    }
+  }
+}
+end
+
+analysis TestSpeedProfileTransient
+  extends TransientAnalysis(stop = 1.7, abstol = 1e-9, reltol = 1e-9, dtmax = 1e-3)
+  model = TestSpeedProfile()
+end
+
+analysis TestAveragedPWMTransient
+  extends TransientAnalysis(stop = 0.02, abstol = 1e-9, reltol = 1e-9, dtmax = 1e-5)
+  model = TestAveragedPWM()
+end

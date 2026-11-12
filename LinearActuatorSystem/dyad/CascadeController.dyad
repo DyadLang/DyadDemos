@@ -1,0 +1,105 @@
+"""
+Cascaded speed / current controller for a DC motor drive.
+
+Outer loop: PI speed controller (rpm in, armature current reference out, limited to
+`±I_max`). Inner loop: PI current controller (A in, bridge voltage command out, limited to
+`±V_max`). Both PIs are `LimPID` blocks with back-calculation anti-windup and no
+derivative action.
+"""
+component CascadeController
+  "Speed reference (rpm)"
+  n_ref = RealInput() {^n_ref}
+  "Measured speed (rpm)"
+  n_meas = RealInput() {^n_meas}
+  "Measured armature current (A)"
+  i_meas = RealInput() {^i_meas}
+  "Bridge voltage command (V)"
+  v_ref = RealOutput() {^v_ref}
+  speed_pi = BlockComponents.Continuous.LimPID(with_D = false, k = Kp_n, Ti = Ti_n, y_max = I_max, y_min = -I_max) {^speed_pi}
+  current_pi = BlockComponents.Continuous.LimPID(with_D = false, k = Kp_i, Ti = Ti_i, y_max = V_max, y_min = -V_max) {^current_pi}
+  speed_ff = BlockComponents.Sources.Constant(k = 0) {^speed_ff}
+  current_ff = BlockComponents.Sources.Constant(k = 0) {^current_ff}
+  "Speed controller proportional gain (A/rpm)"
+  parameter Kp_n::Real = 0.01
+  "Speed controller integral time"
+  parameter Ti_n::Time = 0.05
+  "Current reference limit"
+  parameter I_max::Current = 8.0
+  "Current controller proportional gain (V/A)"
+  parameter Kp_i::Real = 5.0
+  "Current controller integral time"
+  parameter Ti_i::Time = 1e-3
+  "Voltage command limit"
+  parameter V_max::Voltage = 23.52
+relations
+  connect(n_ref, speed_pi.u_s) {^c1}
+  connect(n_meas, speed_pi.u_m) {^c2}
+  connect(speed_ff.y, speed_pi.u_ff) {^c3}
+  connect(speed_pi.y, current_pi.u_s) {^c4}
+  connect(i_meas, current_pi.u_m) {^c5}
+  connect(current_ff.y, current_pi.u_ff) {^c6}
+  connect(current_pi.y, v_ref) {^c7}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://LinearActuatorSystem/CascadeController.svg"},
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": -400, "rot": 0},
+      {"label": "speed PI: Kp=$(Kp_n), Ti=$(Ti_n)", "x": 500, "y": -240, "rot": 0, "attrs": {"font-size": "110", "fill": "#555"}},
+      {"label": "current PI: Kp=$(Kp_i), Ti=$(Ti_i)", "x": 500, "y": -100, "rot": 0, "attrs": {"font-size": "110", "fill": "#555"}},
+      {"label": "Outer speed loop  →  inner current loop", "x": 500, "y": 140, "rot": 0, "layer": "diagram", "attrs": {"font-size": "30", "font-weight": "bold", "fill": "#1f4e79"}},
+      {"label": "n* [rpm]", "x": 100, "y": 440, "rot": 0, "layer": "diagram", "attrs": {"font-size": "22", "fill": "#00007f"}},
+      {"label": "n [rpm] (Hall)", "x": 110, "y": 960, "rot": 0, "layer": "diagram", "attrs": {"font-size": "22", "fill": "#00007f"}},
+      {"label": "i* [A]", "x": 500, "y": 475, "rot": 0, "layer": "diagram", "attrs": {"font-size": "22", "fill": "#00007f"}},
+      {"label": "i [A]", "x": 520, "y": 960, "rot": 0, "layer": "diagram", "attrs": {"font-size": "22", "fill": "#00007f"}},
+      {"label": "v* [V]", "x": 880, "y": 510, "rot": 0, "layer": "diagram", "attrs": {"font-size": "22", "fill": "#00007f"}},
+      {"label": "|i*| ≤ I_max", "x": 325, "y": 640, "rot": 0, "layer": "diagram", "attrs": {"font-size": "20", "fill": "#555"}},
+      {"label": "|v*| ≤ V_max", "x": 675, "y": 670, "rot": 0, "layer": "diagram", "attrs": {"font-size": "20", "fill": "#555"}}
+    ]
+  },
+  "_links": {
+    "n_ref": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "input", "x1": -100, "y1": 450, "x2": 0, "y2": 550},
+          "diagram": {"iconName": "input", "x1": -100, "y1": 410, "x2": 0, "y2": 510}
+        }
+      }
+    },
+    "n_meas": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "input", "x1": 200, "y1": 1000, "x2": 300, "y2": 1100, "rot": 270},
+          "diagram": {"iconName": "input", "x1": 150, "y1": 1000, "x2": 250, "y2": 1100, "rot": 270}
+        }
+      }
+    },
+    "i_meas": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "input", "x1": 600, "y1": 1000, "x2": 700, "y2": 1100, "rot": 270},
+          "diagram": {"iconName": "input", "x1": 510, "y1": 1000, "x2": 610, "y2": 1100, "rot": 270}
+        }
+      }
+    },
+    "v_ref": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "output", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550},
+          "diagram": {"iconName": "output", "x1": 1000, "y1": 479, "x2": 1100, "y2": 579}
+        }
+      }
+    },
+    "speed_pi": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 250, "y1": 419.5, "x2": 400, "y2": 569.5, "rot": 0}}}},
+    "current_pi": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 600, "y1": 454, "x2": 750, "y2": 604, "rot": 0}}}},
+    "speed_ff": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 130, "y1": 240, "x2": 230, "y2": 340, "rot": 0}}}},
+    "current_ff": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 480, "y1": 275, "x2": 580, "y2": 375, "rot": 0}}}},
+    "c1": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "c2": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 200, "y": 529}], "E": 2}], "renderStyle": "standard"}},
+    "c3": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 325, "y": 290}], "E": 2}], "renderStyle": "standard"}},
+    "c4": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "c5": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 560, "y": 563.5}], "E": 2}], "renderStyle": "standard"}},
+    "c6": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 675, "y": 325}], "E": 2}], "renderStyle": "standard"}},
+    "c7": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end

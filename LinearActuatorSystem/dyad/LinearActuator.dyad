@@ -1,0 +1,345 @@
+"""
+Linear actuator with cascaded speed and current control.
+
+24 V DC link → averaged PWM + H-bridge → brushed DC motor → gearbox + lead screw + carriage.
+A Hall-effect speed sensor closes the outer (speed, rpm) loop and an armature current sensor
+closes the inner (current) loop.
+"""
+component LinearActuator
+  "Forward/reverse trapezoidal motor-speed reference, 3000 rpm cruise"
+  profile = SpeedProfile(n_max = 3000.0) {^profile}
+  """
+  Cascaded PI control. Current loop: Ziegler-Nichols PI (Ku_i = 21.64 V/A, Pu_i = 0.2911 ms ->
+  Kp = 0.45 Ku_i, Ti = Pu_i/1.2; PM 29 deg). Speed loop: from the measured Ku_n = 0.2889 A/rpm and
+  Pu_n = 1.562 ms, Ti = 4 Pu_n and Kp = 0.027 Ku_n (PM 46 deg, crossover 373 rad/s, 28x below the
+  current loop); the Ziegler-Nichols PI rule is unstable for this integrating, Hall-lag-limited loop.
+  """
+  controller = CascadeController(Kp_n = 0.0079, Ti_n = 6.25e-3, I_max = 8.0, Kp_i = 9.738, Ti_i = 2.426e-4, V_max = m_max * V_dc) {^controller}
+  pwm = AveragedPWM(V_dc = V_dc, m_max = m_max, f_pwm = 20000.0) {^pwm}
+  vdc_set = BlockComponents.Sources.Constant(k = V_dc) {^vdc_set}
+  supply = ElectricalComponents.Analog.Sources.VoltageSource() {^supply}
+  gnd_supply = ElectricalComponents.Analog.Basic.Ground() {^gnd_supply}
+  gnd_bridge = ElectricalComponents.Analog.Basic.Ground() {^gnd_bridge}
+  bridge = AveragedHBridge() {^bridge}
+  current_sensor = ElectricalComponents.Analog.Sensors.CurrentSensor() {^current_sensor}
+  motor = DyadExampleComponents.DCMotor(R = R_a, L = L_a, k = k_m, J = J_m, f = f_m) {^motor}
+  fixed_motor = RotationalComponents.Components.Fixed() {^fixed_motor}
+  hall = HallSpeedSensor() {^hall}
+  drivetrain = LeadScrewDriveTrain() {^drivetrain}
+  load_step = BlockComponents.Sources.Step(height = F_load, start_time = t_load) {^load_step}
+  "DC-link voltage"
+  parameter V_dc::Voltage = 24.0
+  "Maximum PWM modulation index"
+  parameter m_max::Real = 0.98
+  "Armature resistance"
+  parameter R_a::Resistance = 1.0
+  "Armature inductance"
+  parameter L_a::Inductance = 1e-3
+  "Motor torque / back-EMF constant"
+  parameter k_m::ElectricalTorqueConstant = 0.05
+  "Rotor inertia"
+  parameter J_m::Inertia = 1e-5
+  "Motor viscous friction"
+  parameter f_m::RotationalDampingConstant = 1e-5
+  "External load force on the carriage (opposes extension)"
+  parameter F_load::Force = 800.0
+  "Load force application time"
+  parameter t_load::Time = 0.3
+relations
+  initial motor.L1.i = 0.0
+  initial motor.inertia.w = 0.0
+  u_v: analysis_point(controller.v_ref, pwm.v_ref)
+  y_i: analysis_point(current_sensor.i, controller.i_meas)
+  y_n: analysis_point(hall.n, controller.n_meas)
+  connect(profile.n_ref, controller.n_ref) {^id15}
+  connect(controller.v_ref, pwm.v_ref) {^id16}
+  connect(pwm.m, bridge.m) {^id17}
+  connect(vdc_set.y, supply.V) {^id18}
+  connect(supply.p, bridge.dc_p) {^id19}
+  connect(supply.n, gnd_supply.g) {^id20}
+  connect(bridge.dc_n, gnd_bridge.g) {^id21}
+  connect(bridge.a, current_sensor.p) {^id22}
+  connect(current_sensor.n, motor.p) {^id23}
+  connect(bridge.b, motor.n) {^id24}
+  connect(current_sensor.i, controller.i_meas) {^id25}
+  connect(motor.housing, fixed_motor.spline) {^id26}
+  connect(motor.shaft, drivetrain.shaft, hall.spline) {^id27}
+  connect(hall.n, controller.n_meas) {^id28}
+  connect(load_step.y, drivetrain.f_load) {^id29}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://LinearActuatorSystem/LinearActuator.svg"},
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0, "layer": "icon"},
+      {
+        "x": 200,
+        "y": 30,
+        "rot": 0,
+        "attrs": {
+          "fill": "#1f4e79",
+          "font-size": "30",
+          "dominant-baseline": "central",
+          "text-anchor": "middle",
+          "font-weight": "bold"
+        },
+        "label": "Linear Actuator: Cascaded Speed / Current Control",
+        "layer": "diagram"
+      },
+      {
+        "label": "n* [rpm]",
+        "x": 200,
+        "y": 455,
+        "rot": 0,
+        "layer": "diagram",
+        "attrs": {"font-size": "14", "fill": "#00007f"}
+      },
+      {
+        "label": "v* [V]",
+        "x": 400,
+        "y": 455,
+        "rot": 0,
+        "layer": "diagram",
+        "attrs": {"font-size": "14", "fill": "#00007f"}
+      },
+      {
+        "label": "m",
+        "x": 600,
+        "y": 455,
+        "rot": 0,
+        "layer": "diagram",
+        "attrs": {"font-size": "14", "fill": "#00007f"}
+      },
+      {
+        "label": "24 V DC link",
+        "x": 722,
+        "y": 250,
+        "rot": 0,
+        "layer": "diagram",
+        "attrs": {"font-size": "14", "fill": "#c00000"}
+      },
+      {
+        "x": 590,
+        "y": 670,
+        "rot": 0,
+        "attrs": {
+          "fill": "#00007f",
+          "font-size": "14",
+          "dominant-baseline": "central",
+          "text-anchor": "middle"
+        },
+        "label": "current feedback i_a [A]  (inner loop)",
+        "layer": "diagram"
+      },
+      {
+        "x": 590,
+        "y": 770,
+        "rot": 0,
+        "attrs": {
+          "fill": "#00007f",
+          "font-size": "14",
+          "dominant-baseline": "central",
+          "text-anchor": "middle"
+        },
+        "label": "speed feedback n [rpm]  (Hall sensor, outer loop)",
+        "layer": "diagram"
+      },
+      {
+        "label": "F_load [N]",
+        "x": 1312,
+        "y": 345,
+        "rot": 0,
+        "layer": "diagram",
+        "attrs": {"font-size": "14", "fill": "#c00000"}
+      }
+    ]
+  },
+  "_links": {
+    "profile": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 40, "y1": 410, "x2": 160, "y2": 530, "rot": 0}
+        }
+      }
+    },
+    "controller": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 240, "y1": 410, "x2": 360, "y2": 530, "rot": 0}
+        }
+      }
+    },
+    "pwm": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 440, "y1": 410, "x2": 560, "y2": 530, "rot": 0}
+        }
+      }
+    },
+    "vdc_set": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 120, "x2": 530, "y2": 200, "rot": 0}
+        }
+      }
+    },
+    "supply": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 560, "y1": 220, "x2": 660, "y2": 320, "rot": 0}
+        }
+      }
+    },
+    "gnd_supply": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 690, "y1": 290, "x2": 750, "y2": 350, "rot": 0}
+        }
+      }
+    },
+    "gnd_bridge": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 718, "y1": 560, "x2": 778, "y2": 620, "rot": 0}
+        }
+      }
+    },
+    "bridge": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 640, "y1": 410, "x2": 760, "y2": 530, "rot": 0}
+        }
+      }
+    },
+    "current_sensor": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 840, "y1": 310, "x2": 940, "y2": 410, "rot": 0}
+        }
+      }
+    },
+    "motor": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 980, "y1": 410, "x2": 1100, "y2": 530, "rot": 0}
+        }
+      }
+    },
+    "fixed_motor": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 560, "x2": 1080, "y2": 640, "rot": 0}
+        }
+      }
+    },
+    "hall": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 980, "y1": 680, "x2": 1100, "y2": 800, "rot": 0}
+        }
+      }
+    },
+    "drivetrain": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 1180, "y1": 410, "x2": 1300, "y2": 530, "rot": 0}
+        }
+      }
+    },
+    "load_step": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 1110, "y1": 230, "x2": 1210, "y2": 330, "rot": 0}
+        }
+      }
+    },
+    "id15": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id16": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id17": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id18": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 610, "y": 160}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id19": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 540, "y": 270}, {"x": 540, "y": 380}, {"x": 700, "y": 380}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id20": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 720, "y": 270}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id21": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id22": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 800, "y": 494}, {"x": 800, "y": 360}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id23": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 1000.4, "y": 360}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id24": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 780, "y": 446}, {"x": 780, "y": 280}, {"x": 1079.6, "y": 280}],
+            "E": 2
+          }
+        ],
+        "renderStyle": "standard"
+      }
+    },
+    "id25": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 890, "y": 660}, {"x": 318, "y": 660}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id26": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id27": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": 3, "M": [{"x": 1140, "y": 740}], "E": -1}
+        ],
+        "junctions": [{"x": 1140, "y": 470}],
+        "renderStyle": "standard"
+      }
+    },
+    "id28": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 270, "y": 740}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    },
+    "id29": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 1264, "y": 280}], "E": 2}],
+        "renderStyle": "standard"
+      }
+    }
+  }
+}
+end
+
+analysis LinearActuatorTransient
+  extends TransientAnalysis(stop = 1.8, abstol = 1e-7, reltol = 1e-7)
+  model = LinearActuator()
+relations
+end

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f1fb"/>
+    </linearGradient>
+    <linearGradient id="motor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1a2e"/>
+      <stop offset="0.5" stop-color="#2e7fd8"/>
+      <stop offset="1" stop-color="#0b1a2e"/>
+    </linearGradient>
+    <linearGradient id="tube" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a8a8a"/>
+      <stop offset="0.5" stop-color="#e2e2e2"/>
+      <stop offset="1" stop-color="#8a8a8a"/>
+    </linearGradient>
+    <linearGradient id="rod" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a9a9a"/>
+      <stop offset="0.5" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#9a9a9a"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="984" height="984" rx="40" fill="url(#bg)" stroke="#1f4e79" stroke-width="12"/>
+  <text x="500" y="150" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="bold" fill="#1f4e79" text-anchor="middle">LINEAR ACTUATOR</text>
+  <!-- motor -->
+  <rect x="70" y="330" width="270" height="220" rx="18" fill="url(#motor)" stroke="#0b1a2e" stroke-width="6"/>
+  <text x="205" y="462" font-family="Arial, Helvetica, sans-serif" font-size="80" font-weight="bold" fill="#fff" text-anchor="middle">M</text>
+  <!-- gearbox -->
+  <rect x="340" y="350" width="90" height="180" rx="10" fill="#c9c9c9" stroke="#333" stroke-width="6"/>
+  <!-- actuator tube with lead screw -->
+  <rect x="430" y="375" width="400" height="130" rx="10" fill="url(#tube)" stroke="#444" stroke-width="6"/>
+  <path d="M450 440H810" stroke="#555" stroke-width="10" stroke-dasharray="12 10"/>
+  <!-- extending rod and rod end -->
+  <rect x="830" y="410" width="100" height="60" fill="url(#rod)" stroke="#444" stroke-width="5"/>
+  <circle cx="935" cy="440" r="32" fill="#d0d0d0" stroke="#444" stroke-width="6"/>
+  <circle cx="935" cy="440" r="12" fill="#fff" stroke="#444" stroke-width="4"/>
+  <!-- motion arrow -->
+  <path d="M640 280H880" stroke="#c00000" stroke-width="10"/>
+  <path d="M640 255L590 280L640 305Z M880 255L930 280L880 305Z" fill="#c00000"/>
+  <!-- drive electronics -->
+  <rect x="90" y="660" width="380" height="230" rx="20" fill="#ffffff" stroke="#1f4e79" stroke-width="8"/>
+  <text x="280" y="745" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="bold" fill="#1f4e79" text-anchor="middle">n / i  PI</text>
+  <text x="280" y="830" font-family="Arial, Helvetica, sans-serif" font-size="50" fill="#333" text-anchor="middle">PWM + H-bridge</text>
+  <path d="M205 660V550" stroke="#0000ff" stroke-width="8"/>
+  <!-- Hall feedback -->
+  <path d="M340 600H560V880H470" fill="none" stroke="#00007f" stroke-width="6" stroke-dasharray="16 10"/>
+  <text x="720" y="760" font-family="Arial, Helvetica, sans-serif" font-size="50" fill="#00007f" text-anchor="middle">Hall</text>
+  <text x="720" y="830" font-family="Arial, Helvetica, sans-serif" font-size="50" fill="#00007f" text-anchor="middle">feedback</text>
+</svg>

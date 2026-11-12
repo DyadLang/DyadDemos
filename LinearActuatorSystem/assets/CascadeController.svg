@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f1fb"/>
+    </linearGradient>
+    <linearGradient id="blk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d4e5f7"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="984" height="984" rx="40" fill="url(#bg)" stroke="#1f4e79" stroke-width="12"/>
+  <text x="500" y="190" font-family="Arial, Helvetica, sans-serif" font-size="84" font-weight="bold" fill="#1f4e79" text-anchor="middle">CASCADE PI</text>
+  <g stroke="#00007f" stroke-width="8" fill="none">
+    <!-- forward path -->
+    <path d="M0 500H195M295 500H330M520 500H595M695 500H730M920 500H1000"/>
+    <!-- feedback paths -->
+    <path d="M250 1000V565M650 1000V565"/>
+    <!-- summing junctions -->
+    <circle cx="250" cy="500" r="45" fill="#fff"/>
+    <circle cx="650" cy="500" r="45" fill="#fff"/>
+  </g>
+  <g fill="#00007f">
+    <path d="M190 482L210 500L190 518Z"/>
+    <path d="M325 482L345 500L325 518Z"/>
+    <path d="M590 482L610 500L590 518Z"/>
+    <path d="M725 482L745 500L725 518Z"/>
+    <path d="M232 565L250 545L268 565Z"/>
+    <path d="M632 565L650 545L668 565Z"/>
+  </g>
+  <!-- PI blocks -->
+  <rect x="340" y="400" width="180" height="200" rx="14" fill="url(#blk)" stroke="#1f4e79" stroke-width="8"/>
+  <rect x="740" y="400" width="180" height="200" rx="14" fill="url(#blk)" stroke="#1f4e79" stroke-width="8"/>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="430" y="510" font-size="80" font-weight="bold" fill="#1f4e79">PI</text>
+    <text x="430" y="570" font-size="44" fill="#333">speed</text>
+    <text x="830" y="510" font-size="80" font-weight="bold" fill="#1f4e79">PI</text>
+    <text x="830" y="570" font-size="44" fill="#333">current</text>
+    <text x="100" y="465" font-size="56" font-style="italic" fill="#00007f">n*</text>
+    <text x="560" y="465" font-size="56" font-style="italic" fill="#00007f">i*</text>
+    <text x="300" y="900" font-size="56" font-style="italic" fill="#00007f">n</text>
+    <text x="700" y="900" font-size="56" font-style="italic" fill="#00007f">i</text>
+    <text x="205" y="450" font-size="48" fill="#000">+</text>
+    <text x="605" y="450" font-size="48" fill="#000">+</text>
+    <text x="290" y="600" font-size="56" fill="#000">&#8722;</text>
+    <text x="690" y="600" font-size="56" fill="#000">&#8722;</text>
+  </g>
+  <text x="960" y="465" font-family="Arial, Helvetica, sans-serif" font-size="48" font-style="italic" fill="#00007f" text-anchor="middle">v*</text>
+</svg>
