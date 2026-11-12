@@ -14,29 +14,29 @@ Coupling:
 """
 component SatelliteBody6DOF
   "Torque inputs (body frame, N·m)"
-  tau_x = RealInput()
-  tau_y = RealInput()
-  tau_z = RealInput()
+  tau_x = RealInput() {^tau_x}
+  tau_y = RealInput() {^tau_y}
+  tau_z = RealInput() {^tau_z}
   "Force inputs (body frame, N)"
-  fx = RealInput()
-  fy = RealInput()
-  fz = RealInput()
+  fx = RealInput() {^fx}
+  fy = RealInput() {^fy}
+  fz = RealInput() {^fz}
   "Euler angle outputs (rad)"
-  phi_out = RealOutput()
-  theta_out = RealOutput()
-  psi_out = RealOutput()
+  phi_out = RealOutput() {^phi_out}
+  theta_out = RealOutput() {^theta_out}
+  psi_out = RealOutput() {^psi_out}
   "Angular velocity outputs (body frame, rad/s)"
-  wx_out = RealOutput()
-  wy_out = RealOutput()
-  wz_out = RealOutput()
+  wx_out = RealOutput() {^wx_out}
+  wy_out = RealOutput() {^wy_out}
+  wz_out = RealOutput() {^wz_out}
   "ECI position outputs (m)"
-  x_out = RealOutput()
-  y_out = RealOutput()
-  z_out = RealOutput()
+  x_out = RealOutput() {^x_out}
+  y_out = RealOutput() {^y_out}
+  z_out = RealOutput() {^z_out}
   "ECI velocity outputs (m/s)"
-  vx_out = RealOutput()
-  vy_out = RealOutput()
-  vz_out = RealOutput()
+  vx_out = RealOutput() {^vx_out}
+  vy_out = RealOutput() {^vy_out}
+  vz_out = RealOutput() {^vz_out}
   "Principal moments of inertia (kg·m²)"
   parameter Ixx::Real = 10.0
   parameter Iyy::Real = 8.0
@@ -93,6 +93,436 @@ relations
   vx_out = vel_x
   vy_out = vel_y
   vz_out = vel_z
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SatelliteGNC/SatelliteBody6DOF.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1036,
+        "layer": "icon",
+        "attrs": {"font-size": "51.429"}
+      }
+    ]
+  },
+  "_links": {
+    "tau_x": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 192.857,
+            "x2": 21.429,
+            "y2": 235.714,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 192.857,
+            "x2": 21.429,
+            "y2": 235.714,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "tau_y": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 264.286,
+            "x2": 21.429,
+            "y2": 307.143,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 264.286,
+            "x2": 21.429,
+            "y2": 307.143,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "tau_z": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 335.714,
+            "x2": 21.429,
+            "y2": 378.571,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 335.714,
+            "x2": 21.429,
+            "y2": 378.571,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "fx": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 621.429,
+            "x2": 21.429,
+            "y2": 664.286,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 621.429,
+            "x2": 21.429,
+            "y2": 664.286,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "fy": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 692.857,
+            "x2": 21.429,
+            "y2": 735.714,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 692.857,
+            "x2": 21.429,
+            "y2": 735.714,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "fz": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 764.286,
+            "x2": 21.429,
+            "y2": 807.143,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": -21.429,
+            "y1": 764.286,
+            "x2": 21.429,
+            "y2": 807.143,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "phi_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 50,
+            "x2": 1021.429,
+            "y2": 92.857,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 50,
+            "x2": 1021.429,
+            "y2": 92.857,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "theta_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 121.429,
+            "x2": 1021.429,
+            "y2": 164.286,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 121.429,
+            "x2": 1021.429,
+            "y2": 164.286,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "psi_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 192.857,
+            "x2": 1021.429,
+            "y2": 235.714,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 192.857,
+            "x2": 1021.429,
+            "y2": 235.714,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "wx_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 264.286,
+            "x2": 1021.429,
+            "y2": 307.143,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 264.286,
+            "x2": 1021.429,
+            "y2": 307.143,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "wy_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 335.714,
+            "x2": 1021.429,
+            "y2": 378.571,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 335.714,
+            "x2": 1021.429,
+            "y2": 378.571,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "wz_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 407.143,
+            "x2": 1021.429,
+            "y2": 450,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 407.143,
+            "x2": 1021.429,
+            "y2": 450,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "x_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 550,
+            "x2": 1021.429,
+            "y2": 592.857,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 550,
+            "x2": 1021.429,
+            "y2": 592.857,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "y_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 621.429,
+            "x2": 1021.429,
+            "y2": 664.286,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 621.429,
+            "x2": 1021.429,
+            "y2": 664.286,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "z_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 692.857,
+            "x2": 1021.429,
+            "y2": 735.714,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 692.857,
+            "x2": 1021.429,
+            "y2": 735.714,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "vx_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 764.286,
+            "x2": 1021.429,
+            "y2": 807.143,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 764.286,
+            "x2": 1021.429,
+            "y2": 807.143,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "vy_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 835.714,
+            "x2": 1021.429,
+            "y2": 878.571,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 835.714,
+            "x2": 1021.429,
+            "y2": 878.571,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    },
+    "vz_out": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 907.143,
+            "x2": 1021.429,
+            "y2": 950,
+            "rot": 0
+          },
+          "diagram": {
+            "iconName": "default",
+            "x1": 978.571,
+            "y1": 907.143,
+            "x2": 1021.429,
+            "y2": 950,
+            "rot": 0
+          }
+        },
+        "tags": []
+      }
+    }
+  }
+}
 end
 
 # =====================================================

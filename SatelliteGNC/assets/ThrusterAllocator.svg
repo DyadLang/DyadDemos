@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Outer block: force / torque commands enter on the left,
+       eight jet commands leave on the right -->
+  <rect x="15" y="15" width="970" height="970" rx="30" ry="30"
+        fill="#eff6ff" stroke="#1d4ed8" stroke-width="8"/>
+
+  <!-- Input group marks -->
+  <text x="90" y="300" font-family="sans-serif" font-size="80" font-weight="bold"
+        fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">F</text>
+  <text x="90" y="700" font-family="serif" font-size="90" font-style="italic"
+        fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">τ</text>
+
+  <!-- Pseudo-inverse matrix B+ -->
+  <path d="M 230,280 L 190,280 L 190,720 L 230,720" fill="none" stroke="#1e3a8a" stroke-width="10"/>
+  <path d="M 570,280 L 610,280 L 610,720 L 570,720" fill="none" stroke="#1e3a8a" stroke-width="10"/>
+  <g fill="#3b82f6">
+    <circle cx="260" cy="340" r="18"/><circle cx="340" cy="340" r="18"/><circle cx="420" cy="340" r="18"/><circle cx="500" cy="340" r="18"/>
+    <circle cx="260" cy="420" r="18"/><circle cx="340" cy="420" r="18"/><circle cx="420" cy="420" r="18"/><circle cx="500" cy="420" r="18"/>
+    <circle cx="260" cy="500" r="18"/><circle cx="340" cy="500" r="18"/><circle cx="420" cy="500" r="18"/><circle cx="500" cy="500" r="18"/>
+    <circle cx="260" cy="580" r="18"/><circle cx="340" cy="580" r="18"/><circle cx="420" cy="580" r="18"/><circle cx="500" cy="580" r="18"/>
+    <circle cx="260" cy="660" r="18"/><circle cx="340" cy="660" r="18"/><circle cx="420" cy="660" r="18"/><circle cx="500" cy="660" r="18"/>
+  </g>
+  <text x="400" y="200" font-family="sans-serif" font-size="110" font-weight="bold"
+        fill="#1e3a8a" text-anchor="middle" dominant-baseline="central">B⁺</text>
+
+  <!-- Fan-out to the eight jets -->
+  <g stroke="#1d4ed8" stroke-width="7" fill="none">
+    <path d="M 630,500 L 985,100"/>
+    <path d="M 630,500 L 985,200"/>
+    <path d="M 630,500 L 985,300"/>
+    <path d="M 630,500 L 985,400"/>
+    <path d="M 630,500 L 985,600"/>
+    <path d="M 630,500 L 985,700"/>
+    <path d="M 630,500 L 985,800"/>
+    <path d="M 630,500 L 985,900"/>
+  </g>
+  <circle cx="630" cy="500" r="16" fill="#1d4ed8"/>
+</svg>

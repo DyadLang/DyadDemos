@@ -65,8 +65,12 @@ external component RelaxationTire@[output clk extends Periodic]
   structural parameter vx::Real = 20
   structural parameter dt::Real = 0.005
   structural parameter alpha0::Real = 0
-  alpha = RealInput@[clk]()
-  Fy = RealOutput@[clk]()
+  alpha = RealInput@[clk]() {
+    "Dyad": {"placement": {"icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}}
+  }
+  Fy = RealOutput@[clk]() {
+    "Dyad": {"placement": {"icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}
+  }
 relations
 metadata {
   "Dyad": {
@@ -81,34 +85,6 @@ metadata {
         "rot": 0
       }
     ]
-  },
-  "_links": {
-    "alpha": {
-      "Dyad": {
-        "placement": {
-          "icon": {
-            "iconName": "default",
-            "x1": -30,
-            "x2": 30,
-            "y1": 470,
-            "y2": 530
-          }
-        }
-      }
-    },
-    "Fy": {
-      "Dyad": {
-        "placement": {
-          "icon": {
-            "iconName": "default",
-            "x1": 970,
-            "x2": 1030,
-            "y1": 470,
-            "y2": 530
-          }
-        }
-      }
-    }
   }
 }
 end

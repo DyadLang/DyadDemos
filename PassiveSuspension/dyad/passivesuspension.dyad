@@ -1,6 +1,14 @@
 "ISO 8608 Class C road profile via sum-of-sinusoids approximation"
 component ISO8608RoadC
-  y = RealOutput() {^y}
+  y = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
+        "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
+      },
+      "tags": []
+    }
+  }
   structural parameter N::Integer = 30
   "Vehicle speed (m/s)"
   parameter v::Dyad.Velocity = 20.0
@@ -23,28 +31,25 @@ relations
     partial_sum[i] = partial_sum[i - 1] + amp_base[i] * sqrt(v) * sin(2 * π * frequencies[i] * time + phases[i])
   end
   y = partial_sum[N]
-metadata {
-  "Dyad": {"icons": {"default": "dyad://PassiveSuspension/ISO8608RoadC.svg"}},
-  "_links": {
-    "y": {
-      "Dyad": {
-        "placement": {
-          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
-          "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    }
-  }
-}
+metadata {"Dyad": {"icons": {"default": "dyad://PassiveSuspension/ISO8608RoadC.svg"}}}
 end
 
 component MyPassiveSuspension
-  wheel = DyadExampleComponents.MassSpringDamper(m = wheel_mass, d = wheel_damping, c = wheel_stiffness, g = -10, theta = pi / 2) {^wheel}
-  car_and_suspension = DyadExampleComponents.MassSpringDamper(m = car_mass, d = suspension_damping, c = suspension_stiffness, g = -10, theta = pi / 2) {^car_and_suspension}
-  seat = DyadExampleComponents.MassSpringDamper(m = human_and_seat_mass, d = seat_damping, c = seat_stiffness, g = -10, theta = pi / 2) {^seat}
-  road_profile = ISO8608RoadC(v = speed) {^road_profile}
-  road = DyadExampleComponents.SimplePosition() {^road}
+  wheel = DyadExampleComponents.MassSpringDamper(m = wheel_mass, d = wheel_damping, c = wheel_stiffness, g = -10, theta = pi / 2) {
+    "Dyad": {"placement": {"diagram": {"x1": 350, "y1": 600, "x2": 450, "y2": 700}}}
+  }
+  car_and_suspension = DyadExampleComponents.MassSpringDamper(m = car_mass, d = suspension_damping, c = suspension_stiffness, g = -10, theta = pi / 2) {
+    "Dyad": {"placement": {"diagram": {"x1": 150, "y1": 600, "x2": 250, "y2": 700}}}
+  }
+  seat = DyadExampleComponents.MassSpringDamper(m = human_and_seat_mass, d = seat_damping, c = seat_stiffness, g = -10, theta = pi / 2) {
+    "Dyad": {"placement": {"diagram": {"x1": 350, "y1": 400, "x2": 450, "y2": 500}}}
+  }
+  road_profile = ISO8608RoadC(v = speed) {
+    "Dyad": {"placement": {"diagram": {"x1": 150, "y1": 750, "x2": 250, "y2": 850}}}
+  }
+  road = DyadExampleComponents.SimplePosition() {
+    "Dyad": {"placement": {"diagram": {"x1": 350, "y1": 750, "x2": 450, "y2": 850}}}
+  }
   parameter wheel_mass::Dyad.Mass = 45
   parameter wheel_stiffness::Dyad.TranslationalSpringConstant = 200000
   parameter wheel_damping::Dyad.DampingCoefficient = 100
@@ -69,84 +74,33 @@ relations
   initial wheel.mass.a = 0
   initial car_and_suspension.mass.a = 0
   initial seat.mass.a = 0
-  connect(wheel.flange_sd, road.flange) {^id6}
-  connect(car_and_suspension.flange_sd, wheel.flange_m) {^id7}
-  connect(car_and_suspension.flange_m, seat.flange_sd) {^id8}
-  connect(road_profile.y, road.s) {^id9}
-metadata {
-  "Dyad": {"icons": {"default": "dyad://PassiveSuspension/MyPassiveSuspension.svg"}},
-  "_links": {
-    "wheel": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 165, "y1": 190, "x2": 265, "y2": 290, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "car_and_suspension": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 35, "y1": 190, "x2": 135, "y2": 290, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "seat": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 165, "y1": 70, "x2": 265, "y2": 170, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "road_profile": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 70, "y1": 450, "x2": 170, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "road": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 295, "y1": 290, "x2": 395, "y2": 390, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "id6": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 410, "y": 240}, {"x": 410, "y": 340}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id7": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
-    "id8": {
-      "Dyad": {
-        "edges": [
-          {
-            "S": 1,
-            "M": [
-              {"x": 20, "y": 240},
-              {"x": 20, "y": 20},
-              {"x": 280, "y": 20},
-              {"x": 280, "y": 120}
-            ],
-            "E": 2
-          }
-        ],
-        "renderStyle": "standard"
-      }
-    },
-    "id9": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 280, "y": 500}, {"x": 280, "y": 340}], "E": 2}],
-        "renderStyle": "standard"
-      }
+  connect(wheel.flange_sd, road.flange) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 500, "y": 650}, {"x": 500, "y": 800}], "E": 2}],
+      "path": {}
     }
   }
+  connect(car_and_suspension.flange_sd, wheel.flange_m) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(car_and_suspension.flange_m, seat.flange_sd) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 100, "y": 650},
+            {"x": 100, "y": 550},
+            {"x": 500, "y": 550},
+            {"x": 500, "y": 450}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(road_profile.y, road.s) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+metadata {
+  "Dyad": {"icons": {"default": "dyad://PassiveSuspension/MyPassiveSuspension.svg"}}
 }
 end
 

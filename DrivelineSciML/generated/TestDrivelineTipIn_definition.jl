@@ -71,7 +71,7 @@ Event 3 harness: tip-in with motor ripple (30 -> 150 Nm at t = 0.5 s plus 3 Nm a
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(tipin.y, model.torque.tau))
+  push!(__eqs, connect(tipin.y, model.tau))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

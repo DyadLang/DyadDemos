@@ -13,29 +13,425 @@ Outputs: commanded torques in the body frame.
 """
 component AttitudeController
   "Reference angle inputs"
-  phi_ref = RealInput() {^phi_ref}
-  theta_ref = RealInput() {^theta_ref}
-  psi_ref = RealInput() {^psi_ref}
+  phi_ref = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 418.75,
+          "x2": 18.75,
+          "y2": 456.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 418.75,
+          "x2": 18.75,
+          "y2": 456.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  theta_ref = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 606.25,
+          "x2": 18.75,
+          "y2": 643.75,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 606.25,
+          "x2": 18.75,
+          "y2": 643.75,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  psi_ref = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 793.75,
+          "x2": 18.75,
+          "y2": 831.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 793.75,
+          "x2": 18.75,
+          "y2": 831.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
   "Reference rate inputs (for rate error damping)"
-  wx_ref = RealInput() {^wx_ref}
-  wy_ref = RealInput() {^wy_ref}
-  wz_ref = RealInput() {^wz_ref}
+  wx_ref = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 481.25,
+          "x2": 18.75,
+          "y2": 518.75,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 481.25,
+          "x2": 18.75,
+          "y2": 518.75,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  wy_ref = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 668.75,
+          "x2": 18.75,
+          "y2": 706.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 668.75,
+          "x2": 18.75,
+          "y2": 706.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  wz_ref = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 856.25,
+          "x2": 18.75,
+          "y2": 893.75,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 856.25,
+          "x2": 18.75,
+          "y2": 893.75,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
   "Feedforward acceleration inputs (α_ref = dω_ref/dt)"
-  ax_ff = RealInput() {^ax_ff}
-  ay_ff = RealInput() {^ay_ff}
-  az_ff = RealInput() {^az_ff}
+  ax_ff = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 543.75,
+          "x2": 18.75,
+          "y2": 581.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 543.75,
+          "x2": 18.75,
+          "y2": 581.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  ay_ff = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 731.25,
+          "x2": 18.75,
+          "y2": 768.75,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 731.25,
+          "x2": 18.75,
+          "y2": 768.75,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  az_ff = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 918.75,
+          "x2": 18.75,
+          "y2": 956.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 918.75,
+          "x2": 18.75,
+          "y2": 956.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
   "Measured angle inputs"
-  phi_meas = RealInput() {^phi_meas}
-  theta_meas = RealInput() {^theta_meas}
-  psi_meas = RealInput() {^psi_meas}
+  phi_meas = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 43.75,
+          "x2": 18.75,
+          "y2": 81.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 43.75,
+          "x2": 18.75,
+          "y2": 81.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  theta_meas = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 106.25,
+          "x2": 18.75,
+          "y2": 143.75,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 106.25,
+          "x2": 18.75,
+          "y2": 143.75,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  psi_meas = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 168.75,
+          "x2": 18.75,
+          "y2": 206.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 168.75,
+          "x2": 18.75,
+          "y2": 206.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
   "Measured angular velocity inputs"
-  wx_meas = RealInput() {^wx_meas}
-  wy_meas = RealInput() {^wy_meas}
-  wz_meas = RealInput() {^wz_meas}
+  wx_meas = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 231.25,
+          "x2": 18.75,
+          "y2": 268.75,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 231.25,
+          "x2": 18.75,
+          "y2": 268.75,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  wy_meas = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 293.75,
+          "x2": 18.75,
+          "y2": 331.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 293.75,
+          "x2": 18.75,
+          "y2": 331.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  wz_meas = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 356.25,
+          "x2": 18.75,
+          "y2": 393.75,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": -18.75,
+          "y1": 356.25,
+          "x2": 18.75,
+          "y2": 393.75,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
   "Torque command outputs"
-  tau_x = RealOutput() {^tau_x}
-  tau_y = RealOutput() {^tau_y}
-  tau_z = RealOutput() {^tau_z}
+  tau_x = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": 981.25,
+          "y1": 418.75,
+          "x2": 1018.75,
+          "y2": 456.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": 981.25,
+          "y1": 418.75,
+          "x2": 1018.75,
+          "y2": 456.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  tau_y = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": 981.25,
+          "y1": 481.25,
+          "x2": 1018.75,
+          "y2": 518.75,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": 981.25,
+          "y1": 481.25,
+          "x2": 1018.75,
+          "y2": 518.75,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
+  tau_z = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {
+          "iconName": "default",
+          "x1": 981.25,
+          "y1": 543.75,
+          "x2": 1018.75,
+          "y2": 581.25,
+          "rot": 0
+        },
+        "diagram": {
+          "iconName": "default",
+          "x1": 981.25,
+          "y1": 543.75,
+          "x2": 1018.75,
+          "y2": 581.25,
+          "rot": 0
+        }
+      },
+      "tags": []
+    }
+  }
   "Proportional gains"
   parameter Kp_x::Real = 5.0
   parameter Kp_y::Real = 4.0
@@ -53,152 +449,17 @@ relations
   tau_y = -Kp_y * (theta_meas - theta_ref) - Kd_y * (wy_meas - wy_ref) + Iyy_ff * ay_ff
   tau_z = -Kp_z * (psi_meas - psi_ref) - Kd_z * (wz_meas - wz_ref) + Izz_ff * az_ff
 metadata {
-  "Dyad": {"icons": {"default": "dyad://SatelliteGNC/AttitudeController.svg"}},
-  "_links": {
-    "phi_ref": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 0, "x2": 50, "y2": 100, "rot": 0}
-        },
-        "tags": []
+  "Dyad": {
+    "icons": {"default": "dyad://SatelliteGNC/AttitudeController.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1031.5,
+        "layer": "icon",
+        "attrs": {"font-size": "45"}
       }
-    },
-    "theta_ref": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 100, "x2": 50, "y2": 200, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "psi_ref": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 200, "x2": 50, "y2": 300, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "wx_ref": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 1280, "x2": 50, "y2": 1380, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "wy_ref": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 1190, "x2": 50, "y2": 1290, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "wz_ref": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 1100, "x2": 50, "y2": 1200, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "ax_ff": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 1000, "x2": 50, "y2": 1100, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "ay_ff": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 900, "x2": 50, "y2": 1000, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "az_ff": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": -100, "x2": 50, "y2": 0, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "phi_meas": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 400, "x2": 50, "y2": 500, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "theta_meas": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 500, "x2": 50, "y2": 600, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "psi_meas": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 300, "x2": 50, "y2": 400, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "wx_meas": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 600, "x2": 50, "y2": 700, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "wy_meas": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "wz_meas": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": -50, "y1": 800, "x2": 50, "y2": 900, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "tau_x": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 140, "x2": 1070, "y2": 240, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "tau_y": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 450, "x2": 1070, "y2": 550, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "tau_z": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 970, "y1": 720, "x2": 1070, "y2": 820, "rot": 0}
-        },
-        "tags": []
-      }
-    }
+    ]
   }
 }
 end
@@ -223,8 +484,12 @@ end
 # At t=30 s all angles should be within 1% of reference.
 # =====================================================
 test component TestSatelliteClosedLoop
-  sat = SatelliteBody(Ixx = 10.0, Iyy = 8.0, Izz = 6.0) {^sat}
-  ctrl = AttitudeController(Kp_x = 5.0, Kd_x = 20.0, Kp_y = 4.0, Kd_y = 16.0, Kp_z = 3.0, Kd_z = 12.0) {^ctrl}
+  sat = SatelliteBody(Ixx = 10.0, Iyy = 8.0, Izz = 6.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 1500, "y1": 700, "x2": 1900, "y2": 1100}}}
+  }
+  ctrl = AttitudeController(Kp_x = 5.0, Kd_x = 20.0, Kp_y = 4.0, Kd_y = 16.0, Kp_z = 3.0, Kd_z = 12.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "y1": 500, "x2": 1200, "y2": 1300}}}
+  }
   "Reference angles (rad)"
   parameter phi_cmd::Real = 0.1745
   parameter theta_cmd::Real = 0.0873
@@ -249,36 +514,112 @@ relations
   ctrl.ay_ff = 0.0
   ctrl.az_ff = 0.0
   # Feedback: satellite measurements → controller
-  connect(sat.phi_out, ctrl.phi_meas)
-  connect(sat.theta_out, ctrl.theta_meas)
-  connect(sat.psi_out, ctrl.psi_meas)
-  connect(sat.wx_out, ctrl.wx_meas)
-  connect(sat.wy_out, ctrl.wy_meas)
-  connect(sat.wz_out, ctrl.wz_meas)
-  # Controller outputs → satellite torque inputs
-  connect(ctrl.tau_x, sat.tau_x)
-  connect(ctrl.tau_y, sat.tau_y)
-  connect(ctrl.tau_z, sat.tau_z)
-metadata {
-  "_links": {
-    "sat": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 55, "y1": 95, "x2": 155, "y2": 195, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "ctrl": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 227, "y1": 90, "x2": 327, "y2": 190, "rot": 0}
-        },
-        "tags": []
-      }
+  connect(sat.phi_out, ctrl.phi_meas) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1950, "y": 750},
+            {"x": 1950, "y": 450},
+            {"x": 350, "y": 450},
+            {"x": 350, "y": 550}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
     }
   }
-}
+  connect(sat.theta_out, ctrl.theta_meas) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2000, "y": 800},
+            {"x": 2000, "y": 400},
+            {"x": 300, "y": 400},
+            {"x": 300, "y": 600}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(sat.psi_out, ctrl.psi_meas) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2050, "y": 850},
+            {"x": 2050, "y": 350},
+            {"x": 250, "y": 350},
+            {"x": 250, "y": 650}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(sat.wx_out, ctrl.wx_meas) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2100, "y": 950},
+            {"x": 2100, "y": 300},
+            {"x": 200, "y": 300},
+            {"x": 200, "y": 700}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(sat.wy_out, ctrl.wy_meas) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2150, "y": 1000},
+            {"x": 2150, "y": 250},
+            {"x": 150, "y": 250},
+            {"x": 150, "y": 750}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(sat.wz_out, ctrl.wz_meas) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2200, "y": 1050},
+            {"x": 2200, "y": 200},
+            {"x": 100, "y": 200},
+            {"x": 100, "y": 800}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  # Controller outputs → satellite torque inputs
+  connect(ctrl.tau_x, sat.tau_x) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(ctrl.tau_y, sat.tau_y) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(ctrl.tau_z, sat.tau_z) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
 end
 
 analysis TestSatelliteClosedLoopSim

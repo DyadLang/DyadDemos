@@ -87,6 +87,7 @@ metadata {
     "speed_ref": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": -30, "y1": 250, "x2": 70, "y2": 350, "rot": 0}
         },
         "tags": []
@@ -95,6 +96,7 @@ metadata {
     "speed_actual": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 616.6667, "x2": 50, "y2": 716.6667, "rot": 0},
           "diagram": {"iconName": "default", "x1": -30, "y1": 40, "x2": 70, "y2": 140, "rot": 0}
         },
         "tags": []
@@ -103,6 +105,7 @@ metadata {
     "soc": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 783.3333, "x2": 50, "y2": 883.3333, "rot": 0},
           "diagram": {"iconName": "default", "x1": -30, "y1": 630, "x2": 70, "y2": 730, "rot": 0}
         },
         "tags": []
@@ -111,6 +114,7 @@ metadata {
     "engine_omega": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 283.3333, "x2": 50, "y2": 383.3333, "rot": 0},
           "diagram": {"iconName": "default", "x1": -30, "y1": 430, "x2": 70, "y2": 530, "rot": 0}
         },
         "tags": []
@@ -119,6 +123,7 @@ metadata {
     "mg1_omega": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 116.6667, "x2": 50, "y2": 216.6667, "rot": 0},
           "diagram": {"iconName": "default", "x1": -40, "y1": 820, "x2": 60, "y2": 920, "rot": 0}
         },
         "tags": []
@@ -127,6 +132,7 @@ metadata {
     "engine_throttle": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 283.3333, "x2": 1050, "y2": 383.3333, "rot": 0},
           "diagram": {"iconName": "default", "x1": 960, "y1": 190, "x2": 1060, "y2": 290, "rot": 0}
         },
         "tags": []
@@ -135,6 +141,7 @@ metadata {
     "mg1_torque_cmd": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": 960, "y1": 760, "x2": 1060, "y2": 860, "rot": 0}
         },
         "tags": []
@@ -143,6 +150,7 @@ metadata {
     "mg2_torque_cmd": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 616.6667, "x2": 1050, "y2": 716.6667, "rot": 0},
           "diagram": {"iconName": "default", "x1": 960, "y1": 450, "x2": 1060, "y2": 550, "rot": 0}
         },
         "tags": []

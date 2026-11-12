@@ -1,137 +1,64 @@
-"""
-Spring-mass system with external force input.
-"""
+"Spring-mass system with external force input."
 component SpringMassSystem
   "RealInput force port for external force applied to the mass"
-  f = RealInput() {^f}
-  "Mass component"
-  mass = TranslationalComponents.Components.Mass(m = 1.0) {^mass}
-  "Spring component"
-  spring = TranslationalComponents.Components.Spring(c = 10.0, s_rel0 = 0.0) {^spring}
-  "Fixed reference point"
-  fixed = TranslationalComponents.Components.Fixed(s0 = 0.0) {^fixed}
-  "Internal force source to apply the input signal"
-  force_source = TranslationalComponents.Sources.Force() {^force_source}
-  "Fixed ground for force source"
-  ground = TranslationalComponents.Components.Fixed(s0 = 0.0) {^ground}
-relations
-  connect(fixed.flange, spring.flange_a) {^id7}
-  connect(spring.flange_b, mass.flange_a) {^id8}
-  connect(ground.flange, force_source.flange_a) {^id9}
-  connect(force_source.flange_b, mass.flange_b) {^id10}
-  connect(f, force_source.f) {^id11}
-metadata {
-  "_links": {
-    "f": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 245, "x2": 120, "y2": 345, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "mass": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 275, "y1": 20, "x2": 375, "y2": 120, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "spring": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 145, "y1": 20, "x2": 245, "y2": 120, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "fixed": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 125, "x2": 120, "y2": 225, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "force_source": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 145, "y1": 355, "x2": 245, "y2": 455, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "ground": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 460, "x2": 120, "y2": 560, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "id7": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 70, "y": 70}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id8": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
-    "id9": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 70, "y": 405}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id10": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 390, "y": 405}, {"x": 390, "y": 70}], "E": 2}],
-        "renderStyle": "standard"
-      }
-    },
-    "id11": {
-      "Dyad": {
-        "edges": [{"S": 1, "M": [{"x": 195, "y": 295}], "E": 2}],
-        "renderStyle": "standard"
+  f = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550},
+        "diagram": {"x1": -50, "y1": 0, "x2": 50, "y2": 100}
       }
     }
   }
-}
+  "Mass component"
+  mass = TranslationalComponents.Components.Mass(m = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "y1": 300, "x2": 500, "y2": 400}}}
+  }
+  "Spring component"
+  spring = TranslationalComponents.Components.Spring(c = 10.0, s_rel0 = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "y1": 300, "x2": 300, "y2": 400}}}
+  }
+  "Fixed reference point"
+  fixed = TranslationalComponents.Components.Fixed(s0 = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "y1": 400, "x2": 200, "y2": 500}}}
+  }
+  "Internal force source to apply the input signal"
+  force_source = TranslationalComponents.Sources.Force() {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "y1": 100, "x2": 500, "y2": 200}}}
+  }
+  "Fixed ground for force source"
+  ground = TranslationalComponents.Components.Fixed(s0 = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "y1": 200, "x2": 400, "y2": 300}}}
+  }
+relations
+  connect(fixed.flange, spring.flange_a) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 150, "y": 350}], "E": 2}], "path": {}}}
+  connect(spring.flange_b, mass.flange_a) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(ground.flange, force_source.flange_a) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 350, "y": 150}], "E": 2}], "path": {}}}
+  connect(force_source.flange_b, mass.flange_b) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 550, "y": 150}, {"x": 550, "y": 350}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(f, force_source.f) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 450, "y": 50}], "E": 2}], "path": {}}}
 end
 
 test component TestSpringMassSystem
   "Step force input"
-  step_force = BlockComponents.Sources.Step(height = 5.0, offset = 0.0, start_time = 0.1) {^step_force}
+  step_force = BlockComponents.Sources.Step(height = 5.0, offset = 0.0, start_time = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "y1": 200, "x2": 300, "y2": 300}}}
+  }
   "Spring-mass system under test"
-  system = SpringMassSystem() {^system}
+  system = SpringMassSystem() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "y1": 200, "x2": 550, "y2": 300}}}
+  }
 relations
-  connect(step_force.y, system.f) {^id3}
+  connect(step_force.y, system.f) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   initial system.mass.s = 0.0
   initial system.mass.v = 0.0
-metadata {
-  "_links": {
-    "step_force": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "system": {
-      "Dyad": {
-        "placement": {
-          "diagram": {"iconName": "default", "x1": 150, "y1": 40.5, "x2": 250, "y2": 140.5, "rot": 0}
-        },
-        "tags": []
-      }
-    },
-    "id3": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
-  }
-}
 end
 
 analysis TestSpringMassTransient
   extends TransientAnalysis(stop = 5.0)
   model = TestSpringMassSystem()
+relations
 end

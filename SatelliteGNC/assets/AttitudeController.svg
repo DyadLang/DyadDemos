@@ -1,4 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Scaled so the outer block reaches the icon edge, where the connectors sit -->
+  <g transform="translate(500 500) scale(1.2) translate(-500 -500)">
   <!-- Outer block -->
   <rect x="100" y="100" width="800" height="800" rx="30" ry="30"
         fill="#f0fdf4" stroke="#166534" stroke-width="8"/>
@@ -57,4 +59,5 @@
   <line x1="755" y1="790" x2="755" y2="840" stroke="#166534" stroke-width="6"/>
   <path d="M 755,790 Q 810,790 810,815 Q 810,840 755,840"
         fill="none" stroke="#166534" stroke-width="6"/>
+  </g>
 </svg>

@@ -22,26 +22,56 @@
 # =====================================================
 test component TestFullGNC6DOF
   "Plant (6-DOF)"
-  sat = SatelliteBody6DOF(Ixx = 10.0, Iyy = 8.0, Izz = 6.0, m = 4.0)
+  sat = SatelliteBody6DOF(Ixx = 10.0, Iyy = 8.0, Izz = 6.0, m = 4.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 1700, "y1": 650, "x2": 2400, "y2": 1350}}}
+  }
   "Trajectory generators (one per axis)"
-  traj_phi = TrapezoidalProfile(target_angle = 0.3491, w_max = 0.0349, a_max = 0.00873)
-  traj_theta = TrapezoidalProfile(target_angle = 0.1745, w_max = 0.0349, a_max = 0.00873)
-  traj_psi = TrapezoidalProfile(target_angle = 0.5236, w_max = 0.0349, a_max = 0.00873)
+  traj_phi = TrapezoidalProfile(target_angle = 0.3491, w_max = 0.0349, a_max = 0.00873) {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "y1": 1900, "x2": 300, "y2": 2100}}}
+  }
+  traj_theta = TrapezoidalProfile(target_angle = 0.1745, w_max = 0.0349, a_max = 0.00873) {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "y1": 2150, "x2": 300, "y2": 2350}}}
+  }
+  traj_psi = TrapezoidalProfile(target_angle = 0.5236, w_max = 0.0349, a_max = 0.00873) {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "y1": 2400, "x2": 300, "y2": 2600}}}
+  }
   "Observer"
-  obs = LuenbergerObserver(Ixx = 10.0, Iyy = 8.0, Izz = 6.0, p = 2.0, La_x = 4.0, La_y = 4.0, La_z = 4.0, Lw_x = 40.0, Lw_y = 32.0, Lw_z = 24.0)
+  obs = LuenbergerObserver(Ixx = 10.0, Iyy = 8.0, Izz = 6.0, p = 2.0, La_x = 4.0, La_y = 4.0, La_z = 4.0, Lw_x = 40.0, Lw_y = 32.0, Lw_z = 24.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "y1": 650, "x2": 3100, "y2": 1050}}}
+  }
   "Controller"
-  ctrl = AttitudeController(Kp_x = 5.0, Kd_x = 20.0, Kp_y = 4.0, Kd_y = 16.0, Kp_z = 3.0, Kd_z = 12.0, Ixx_ff = 10.0, Iyy_ff = 8.0, Izz_ff = 6.0)
+  ctrl = AttitudeController(Kp_x = 5.0, Kd_x = 20.0, Kp_y = 4.0, Kd_y = 16.0, Kp_z = 3.0, Kd_z = 12.0, Ixx_ff = 10.0, Iyy_ff = 8.0, Izz_ff = 6.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 700, "y1": 1600, "x2": 1500, "y2": 2400}}}
+  }
   "Thruster allocator"
-  alloc = ThrusterAllocator(F_max = 0.5)
+  alloc = ThrusterAllocator(F_max = 0.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 1800, "y1": 1650, "x2": 2300, "y2": 2150}}}
+  }
   "8 reaction jets"
-  jet1 = ReactionJet(rx =  0.15, ry =  0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5)
-  jet2 = ReactionJet(rx =  0.15, ry = -0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5)
-  jet3 = ReactionJet(rx = -0.15, ry =  0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5)
-  jet4 = ReactionJet(rx = -0.15, ry = -0.10, rz = 0.0,  dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5)
-  jet5 = ReactionJet(rx =  0.15, ry = 0.0,   rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.5)
-  jet6 = ReactionJet(rx = -0.15, ry = 0.0,   rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.5)
-  jet7 = ReactionJet(rx = 0.0,   ry =  0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.5)
-  jet8 = ReactionJet(rx = 0.0,   ry = -0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.5)
+  jet1 = ReactionJet(rx = 0.15, ry = 0.10, rz = 0.0, dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "y1": 1200, "x2": 3100, "y2": 1600}}}
+  }
+  jet2 = ReactionJet(rx = 0.15, ry = -0.10, rz = 0.0, dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 3300, "y1": 1200, "x2": 3700, "y2": 1600}}}
+  }
+  jet3 = ReactionJet(rx = -0.15, ry = 0.10, rz = 0.0, dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "y1": 1800, "x2": 3100, "y2": 2200}}}
+  }
+  jet4 = ReactionJet(rx = -0.15, ry = -0.10, rz = 0.0, dx = 0.0, dy = 0.0, dz = 1.0, F_max = 0.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 3300, "y1": 1800, "x2": 3700, "y2": 2200}}}
+  }
+  jet5 = ReactionJet(rx = 0.15, ry = 0.0, rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "y1": 2400, "x2": 3100, "y2": 2800}}}
+  }
+  jet6 = ReactionJet(rx = -0.15, ry = 0.0, rz = 0.05, dx = 0.0, dy = 1.0, dz = 0.0, F_max = 0.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 3300, "y1": 2400, "x2": 3700, "y2": 2800}}}
+  }
+  jet7 = ReactionJet(rx = 0.0, ry = 0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "y1": 3000, "x2": 3100, "y2": 3400}}}
+  }
+  jet8 = ReactionJet(rx = 0.0, ry = -0.10, rz = 0.05, dx = 1.0, dy = 0.0, dz = 0.0, F_max = 0.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 3300, "y1": 3000, "x2": 3700, "y2": 3400}}}
+  }
 relations
   # --- Initial conditions ---
   # Plant: 400 km LEO circular orbit, at rest, zero attitude
@@ -64,52 +94,235 @@ relations
   initial obs.wx_est = 0.0
   initial obs.wy_est = 0.0
   initial obs.wz_est = 0.0
-
   # --- Trajectory refs → Controller ---
-  connect(traj_phi.angle_ref, ctrl.phi_ref)
-  connect(traj_theta.angle_ref, ctrl.theta_ref)
-  connect(traj_psi.angle_ref, ctrl.psi_ref)
-  connect(traj_phi.rate_ref, ctrl.wx_ref)
-  connect(traj_theta.rate_ref, ctrl.wy_ref)
-  connect(traj_psi.rate_ref, ctrl.wz_ref)
-  connect(traj_phi.accel_ref, ctrl.ax_ff)
-  connect(traj_theta.accel_ref, ctrl.ay_ff)
-  connect(traj_psi.accel_ref, ctrl.az_ff)
-
+  connect(traj_phi.angle_ref, ctrl.phi_ref) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(traj_theta.angle_ref, ctrl.theta_ref) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 350, "y": 2200}, {"x": 350, "y": 2100}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(traj_psi.angle_ref, ctrl.psi_ref) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 500, "y": 2450}, {"x": 500, "y": 2250}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(traj_phi.rate_ref, ctrl.wx_ref) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(traj_theta.rate_ref, ctrl.wy_ref) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 400, "y": 2250}, {"x": 400, "y": 2150}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(traj_psi.rate_ref, ctrl.wz_ref) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 550, "y": 2500}, {"x": 550, "y": 2300}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(traj_phi.accel_ref, ctrl.ax_ff) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(traj_theta.accel_ref, ctrl.ay_ff) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 2300}, {"x": 450, "y": 2200}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(traj_psi.accel_ref, ctrl.az_ff) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 600, "y": 2550}, {"x": 600, "y": 2350}], "E": 2}],
+      "path": {}
+    }
+  }
   # --- Measured angles → Controller (direct) ---
-  connect(sat.phi_out, ctrl.phi_meas)
-  connect(sat.theta_out, ctrl.theta_meas)
-  connect(sat.psi_out, ctrl.psi_meas)
-
+  connect(sat.phi_out, ctrl.phi_meas) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [], "E": -1},
+        {
+          "S": -1,
+          "M": [{"x": 2450, "y": 600}, {"x": 650, "y": 600}, {"x": 650, "y": 1650}],
+          "E": 2
+        }
+      ],
+      "path": {},
+      "junctions": [{"x": 2450, "y": 700}]
+    }
+  }
+  connect(sat.theta_out, ctrl.theta_meas) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [], "E": -1},
+        {
+          "S": -1,
+          "M": [{"x": 2500, "y": 550}, {"x": 600, "y": 550}, {"x": 600, "y": 1700}],
+          "E": 2
+        }
+      ],
+      "path": {},
+      "junctions": [{"x": 2500, "y": 750}]
+    }
+  }
+  connect(sat.psi_out, ctrl.psi_meas) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [], "E": -1},
+        {
+          "S": -1,
+          "M": [{"x": 2550, "y": 500}, {"x": 550, "y": 500}, {"x": 550, "y": 1750}],
+          "E": 2
+        }
+      ],
+      "path": {},
+      "junctions": [{"x": 2550, "y": 800}]
+    }
+  }
   # --- Estimated rates → Controller ---
-  connect(obs.wx_hat, ctrl.wx_meas)
-  connect(obs.wy_hat, ctrl.wy_meas)
-  connect(obs.wz_hat, ctrl.wz_meas)
-
+  connect(obs.wx_hat, ctrl.wx_meas) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 3150, "y": 900},
+            {"x": 3150, "y": 450},
+            {"x": 500, "y": 450},
+            {"x": 500, "y": 1800}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(obs.wy_hat, ctrl.wy_meas) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 3200, "y": 950},
+            {"x": 3200, "y": 400},
+            {"x": 450, "y": 400},
+            {"x": 450, "y": 1850}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(obs.wz_hat, ctrl.wz_meas) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 3250, "y": 1000},
+            {"x": 3250, "y": 350},
+            {"x": 400, "y": 350},
+            {"x": 400, "y": 1900}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   # --- Measured angles → Observer ---
-  connect(sat.phi_out, obs.phi_meas)
-  connect(sat.theta_out, obs.theta_meas)
-  connect(sat.psi_out, obs.psi_meas)
-
+  connect(sat.phi_out, obs.phi_meas) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(sat.theta_out, obs.theta_meas) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(sat.psi_out, obs.psi_meas) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   # --- Controller torques → Allocator ---
-  connect(ctrl.tau_x, alloc.tau_x_cmd)
-  connect(ctrl.tau_y, alloc.tau_y_cmd)
-  connect(ctrl.tau_z, alloc.tau_z_cmd)
+  connect(ctrl.tau_x, alloc.tau_x_cmd) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(ctrl.tau_y, alloc.tau_y_cmd) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(ctrl.tau_z, alloc.tau_z_cmd) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   # No translational force commands (attitude-only maneuver)
   alloc.Fx_cmd = 0.0
   alloc.Fy_cmd = 0.0
   alloc.Fz_cmd = 0.0
-
   # --- Allocator → Jets ---
-  connect(alloc.cmd1, jet1.cmd)
-  connect(alloc.cmd2, jet2.cmd)
-  connect(alloc.cmd3, jet3.cmd)
-  connect(alloc.cmd4, jet4.cmd)
-  connect(alloc.cmd5, jet5.cmd)
-  connect(alloc.cmd6, jet6.cmd)
-  connect(alloc.cmd7, jet7.cmd)
-  connect(alloc.cmd8, jet8.cmd)
-
+  connect(alloc.cmd1, jet1.cmd) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2600, "y": 1700}, {"x": 2600, "y": 1400}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd2, jet2.cmd) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3200, "y": 1750}, {"x": 3200, "y": 1400}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd3, jet3.cmd) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2600, "y": 1800}, {"x": 2600, "y": 2000}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd4, jet4.cmd) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2550, "y": 1850},
+            {"x": 2550, "y": 2300},
+            {"x": 3200, "y": 2300},
+            {"x": 3200, "y": 2000}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd5, jet5.cmd) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2500, "y": 1950}, {"x": 2500, "y": 2600}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd6, jet6.cmd) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2450, "y": 2000},
+            {"x": 2450, "y": 2900},
+            {"x": 3200, "y": 2900},
+            {"x": 3200, "y": 2600}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd7, jet7.cmd) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2400, "y": 2050}, {"x": 2400, "y": 3200}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(alloc.cmd8, jet8.cmd) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2350, "y": 2100},
+            {"x": 2350, "y": 3500},
+            {"x": 3200, "y": 3500},
+            {"x": 3200, "y": 3200}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   # --- Sum jet forces and torques → Satellite ---
   sat.tau_x = jet1.tx_out + jet2.tx_out + jet3.tx_out + jet4.tx_out + jet5.tx_out + jet6.tx_out + jet7.tx_out + jet8.tx_out
   sat.tau_y = jet1.ty_out + jet2.ty_out + jet3.ty_out + jet4.ty_out + jet5.ty_out + jet6.ty_out + jet7.ty_out + jet8.ty_out
@@ -117,11 +330,49 @@ relations
   sat.fx = jet1.fx_out + jet2.fx_out + jet3.fx_out + jet4.fx_out + jet5.fx_out + jet6.fx_out + jet7.fx_out + jet8.fx_out
   sat.fy = jet1.fy_out + jet2.fy_out + jet3.fy_out + jet4.fy_out + jet5.fy_out + jet6.fy_out + jet7.fy_out + jet8.fy_out
   sat.fz = jet1.fz_out + jet2.fz_out + jet3.fz_out + jet4.fz_out + jet5.fz_out + jet6.fz_out + jet7.fz_out + jet8.fz_out
-
   # --- Controller torques → Observer (known inputs) ---
-  connect(ctrl.tau_x, obs.tau_x)
-  connect(ctrl.tau_y, obs.tau_y)
-  connect(ctrl.tau_z, obs.tau_z)
+  connect(ctrl.tau_x, obs.tau_x) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [], "E": -1},
+        {
+          "S": -1,
+          "M": [{"x": 1650, "y": 1450}, {"x": 2450, "y": 1450}, {"x": 2450, "y": 900}],
+          "E": 2
+        }
+      ],
+      "path": {},
+      "junctions": [{"x": 1650, "y": 1950}]
+    }
+  }
+  connect(ctrl.tau_y, obs.tau_y) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [], "E": -1},
+        {
+          "S": -1,
+          "M": [{"x": 1700, "y": 1500}, {"x": 2500, "y": 1500}, {"x": 2500, "y": 950}],
+          "E": 2
+        }
+      ],
+      "path": {},
+      "junctions": [{"x": 1700, "y": 2000}]
+    }
+  }
+  connect(ctrl.tau_z, obs.tau_z) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [], "E": -1},
+        {
+          "S": -1,
+          "M": [{"x": 1750, "y": 1550}, {"x": 2550, "y": 1550}, {"x": 2550, "y": 1000}],
+          "E": 2
+        }
+      ],
+      "path": {},
+      "junctions": [{"x": 1750, "y": 2050}]
+    }
+  }
 end
 
 analysis TestFullGNC6DOFSim

@@ -79,7 +79,7 @@ Stage 1 calibration harness: same chirp excitation as TestDrivelineChirp but wit
   ### Equations
   push!(__eqs, connect(chirp.y, torque_sum.u1))
   push!(__eqs, connect(mean_torque.y, torque_sum.u2))
-  push!(__eqs, connect(torque_sum.y, model.torque.tau))
+  push!(__eqs, connect(torque_sum.y, model.tau))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

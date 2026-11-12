@@ -6,30 +6,27 @@ component SampledSlidingAxle
   variable vy::Real
   variable delta::Real
   variable alpha::Real
-  sampler = DiscreteComponents.Sampler()
-  tire = CLibraryIntegration.RelaxationTire(vx = U, dt = dt)
-  hold = DiscreteComponents.ZeroOrderHold()
+  sampler = DiscreteComponents.Sampler() {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 200, "y2": 300}}}
+  }
+  tire = CLibraryIntegration.RelaxationTire(vx = U, dt = dt) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 200, "y2": 300}}}
+  }
+  hold = DiscreteComponents.ZeroOrderHold() {
+    "Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 200, "y2": 300}}}
+  }
 relations
   initial vy = 0
   delta = ifelse(time < 0.2, 0, 0.04 + 0.01 * sin(2 * pi * (time - 0.2)))
   alpha = delta - atan(vy / U)
   sampler.u = alpha
-  connect(sampler.y, tire.alpha)
-  connect(tire.Fy, hold.u)
+  connect(sampler.y, tire.alpha) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(tire.Fy, hold.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   m * der(vy) = hold.y
 metadata {
   "Dyad": {
-    "icons": {
-      "default": "dyad://CLibraryIntegration/icon.svg"
-    },
-    "labels": [
-      {
-        "label": "$(instance)",
-        "x": 500,
-        "y": 1100,
-        "rot": 0
-      }
-    ]
+    "icons": {"default": "dyad://CLibraryIntegration/icon.svg"},
+    "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}]
   }
 }
 end

@@ -9,24 +9,59 @@
 # - Fixed supports for the wheel and damper
 component SimpleVehicle
   # Rotational shaft interface - this is where external torque is applied
-  shaft = Spline() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
+  shaft = Spline() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550},
+        "diagram": {"x1": -50, "x2": 50, "y1": 100, "y2": 200}
+      }
+    }
+  }
   # Drive inertia (engine/motor/flywheel inertia)
-  inertia = RotationalComponents.Components.Inertia(J = inertia_moment)
+  inertia = RotationalComponents.Components.Inertia(J = inertia_moment) {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 100, "y2": 200}}}
+  }
   # Rolling wheel converting rotational to translational motion
-  wheel = RotationalComponents.Components.IdealRollingWheel(radius = wheel_radius)
+  wheel = RotationalComponents.Components.IdealRollingWheel(radius = wheel_radius) {
+    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 100, "y2": 200}}}
+  }
   # Vehicle mass
-  vehicle_mass = TranslationalComponents.Components.Mass(m = vehicle_mass_kg)
+  vehicle_mass = TranslationalComponents.Components.Mass(m = vehicle_mass_kg) {
+    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 100, "y2": 200}}}
+  }
   # Vehicle load damper (aerodynamic drag, rolling resistance, etc.)
-  load_damper = TranslationalComponents.Components.Damper(d = damping_coeff)
+  load_damper = TranslationalComponents.Components.Damper(d = damping_coeff) {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 100, "y2": 200}}}
+  }
   # Fixed translational support for the wheel (ground)
-  ground = TranslationalComponents.Components.Fixed(s0 = 0.0)
+  ground = TranslationalComponents.Components.Fixed(s0 = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 650, "x2": 750, "y1": 300, "y2": 400}}}
+  }
   # Fixed rotational support for wheel (housing)
-  housing = RotationalComponents.Components.Fixed(phi0 = 0.0)
+  housing = RotationalComponents.Components.Fixed(phi0 = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 300, "y2": 400}}}
+  }
   # Fixed translational support for damper end (load anchor)
-  load_anchor = TranslationalComponents.Components.Fixed(s0 = 0.0)
+  load_anchor = TranslationalComponents.Components.Fixed(s0 = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 300, "y2": 400}}}
+  }
   # Output signals for monitoring
-  vehicle_speed = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}}}}]
-  wheel_speed = RealOutput() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}}}}]
+  vehicle_speed = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
+        "diagram": {"x1": 1300, "x2": 1400, "y1": 100, "y2": 200}
+      }
+    }
+  }
+  wheel_speed = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800},
+        "diagram": {"x1": 1300, "x2": 1400, "y1": 300, "y2": 400}
+      }
+    }
+  }
   # Physical parameters - with defaults for typical passenger car
   # Vehicle mass in kg
   parameter vehicle_mass_kg::Mass = 2194.0
@@ -49,19 +84,52 @@ relations
   # Wheel rotational speed
   wheel_speed = inertia.w
   # Connect shaft to inertia
-  connect(shaft, inertia.spline_a)
+  connect(shaft, inertia.spline_a) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   # Connect inertia to rolling wheel
-  connect(inertia.spline_b, wheel.spline)
+  connect(inertia.spline_b, wheel.spline) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   # Connect wheel translational side to vehicle mass
-  connect(wheel.flange, vehicle_mass.flange_a)
+  connect(wheel.flange, vehicle_mass.flange_a) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   # Connect vehicle mass to load damper
-  connect(vehicle_mass.flange_b, load_damper.flange_a)
+  connect(vehicle_mass.flange_b, load_damper.flange_a) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   # Connect damper to load anchor
-  connect(load_damper.flange_b, load_anchor.flange)
+  connect(load_damper.flange_b, load_anchor.flange) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1200, "y": 150}, {"x": 1200, "y": 250}, {"x": 1100, "y": 250}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   # Connect wheel translational support to ground
-  connect(wheel.support_t, ground.flange)
+  connect(wheel.support_t, ground.flange) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 635, "y": 250}, {"x": 700, "y": 250}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   # Connect wheel rotational support to housing
-  connect(wheel.support_r, housing.spline)
+  connect(wheel.support_r, housing.spline) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 565, "y": 250}, {"x": 500, "y": 250}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
 metadata {"Dyad": {"icons": {"default": "dyad://FrictionBrakeDemo//car.svg"}}}
 end
 

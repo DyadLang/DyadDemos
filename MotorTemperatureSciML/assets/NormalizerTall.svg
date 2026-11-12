@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 1000">
+<svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 1000">
   <title>Independent feature scaling; final two channels pass through</title>
   <rect x="4" y="4" width="552" height="992" fill="#fff" stroke="#008a19" stroke-width="4"/>
   <!-- Each row is scaled independently before vector assembly. -->
