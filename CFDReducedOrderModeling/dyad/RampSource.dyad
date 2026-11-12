@@ -1,0 +1,47 @@
+"Ramp source: ramps from 0 to height over [start_time, start_time+duration], then holds."
+component RampSource
+  y = RealOutput() {^y}
+  parameter height::Real = 400.0
+  parameter duration::Real = 50.0
+  parameter start_time::Real = 5.0
+relations
+  y = ifelse(time < start_time, 0.0, ifelse(time < start_time + duration, (time - start_time) * height / duration, height))
+metadata {
+  "_links": {
+    "y": {
+      "Dyad": {
+        "placement": {
+          "icon": {
+            "x1": 950,
+            "x2": 1050,
+            "y1": 450,
+            "y2": 550
+          },
+          "diagram": {
+            "x1": 950,
+            "x2": 1050,
+            "y1": 450,
+            "y2": 550
+          }
+        },
+        "tags": []
+      }
+    }
+  },
+  "Dyad": {
+    "icons": {
+      "default": "dyad://CFDReducedOrderModeling/RampSource.svg"
+    },
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1100,
+        "rot": 0,
+        "layer": "icon",
+        "attrs": {}
+      }
+    ]
+  }
+}
+end

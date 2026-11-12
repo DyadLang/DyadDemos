@@ -1,0 +1,109 @@
+┌ Info: 2026-04-16 12:42:25 Watching ["c:\\Users\\ranja\\Documents\\CustomerDemos\\CFDReducedOrderModeling"]
+└ @ GenieAutoReload C:\Users\ranja\.julia\packages\GenieAutoReload\qpImd\src\GenieAutoReload.jl:19
+┌ Info: 2026-04-16 12:42:25 Web Server starting at http://127.0.0.1:9000 
+└ @ Genie.Server C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:194
+┌ Info: 2026-04-16 12:42:26 Autoreloading
+└ @ GenieAutoReload C:\Users\ranja\.julia\packages\GenieAutoReload\qpImd\src\GenieAutoReload.jl:22
+┌ Info: 2026-04-16 12:42:26 Listening on: 127.0.0.1:9000, thread id: 1
+└ @ HTTP.Servers C:\Users\runneradmin\.julia\packages\HTTP\Y97L1\src\Servers.jl:382
+┌ Info: 2026-04-16 12:43:15 Autoreloading
+└ @ GenieAutoReload C:\Users\ranja\.julia\packages\GenieAutoReload\qpImd\src\GenieAutoReload.jl:22
+┌ Warning: 2026-04-16 12:47:04 `ODEProblem(sys, u0, tspan, p; kw...)` is deprecated. Use
+│ `ODEProblem(sys, merge(if isempty(u0)
+│     Dict()
+│ else
+│     Dict(unknowns(sys) .=> u0)
+│ end, Dict(p)), tspan)` instead.
+└ @ ModelingToolkitBase C:\Users\runneradmin\.julia\packages\ModelingToolkitBase\uIKoY\src\deprecations.jl:53
+┌ Warning: 2026-04-16 12:47:13 `ODEProblem(sys, u0, tspan, p; kw...)` is deprecated. Use
+│ `ODEProblem(sys, merge(u0, p), tspan)` instead.
+└ @ ModelingToolkitBase C:\Users\runneradmin\.julia\packages\ModelingToolkitBase\uIKoY\src\deprecations.jl:53
+┌ Warning: 2026-04-16 12:47:13 `ODEProblem(sys, u0, tspan, p; kw...)` is deprecated. Use
+│ `ODEProblem(sys, merge(u0, p), tspan)` instead.
+└ @ ModelingToolkitBase C:\Users\runneradmin\.julia\packages\ModelingToolkitBase\uIKoY\src\deprecations.jl:53
+┌ Info: 2026-04-16 12:49:58 Autoreloading
+└ @ GenieAutoReload C:\Users\ranja\.julia\packages\GenieAutoReload\qpImd\src\GenieAutoReload.jl:22
+┌ Info: 2026-04-16 12:50:11 Watching ["c:\\Users\\ranja\\Documents\\CustomerDemos\\CFDReducedOrderModeling"]
+└ @ GenieAutoReload C:\Users\ranja\.julia\packages\GenieAutoReload\qpImd\src\GenieAutoReload.jl:19
+┌ Info: 2026-04-16 12:50:47 Autoreloading
+└ @ GenieAutoReload C:\Users\ranja\.julia\packages\GenieAutoReload\qpImd\src\GenieAutoReload.jl:22
+┌ Info: 2026-04-16 12:50:49 Web Server starting at http://127.0.0.1:9000 
+└ @ Genie.Server C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:194
+┌ Info: 2026-04-16 12:50:49 Listening on: 127.0.0.1:9000, thread id: 1
+└ @ HTTP.Servers C:\Users\runneradmin\.julia\packages\HTTP\Y97L1\src\Servers.jl:382
+┌ Info: 2026-04-16 12:57:31 Watching ["C:\\Users\\ranja\\Documents\\CustomerDemos\\CFDReducedOrderModeling"]
+└ @ GenieAutoReload C:\Users\ranja\.julia\packages\GenieAutoReload\qpImd\src\GenieAutoReload.jl:19
+┌ Info: 2026-04-16 12:58:22 Autoreloading
+└ @ GenieAutoReload C:\Users\ranja\.julia\packages\GenieAutoReload\qpImd\src\GenieAutoReload.jl:22
+┌ Info: 2026-04-16 12:58:22 Web Server starting at http://127.0.0.1:9000 
+└ @ Genie.Server C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:194
+┌ Info: 2026-04-16 12:58:22 Listening on: 127.0.0.1:9000, thread id: 2
+└ @ HTTP.Servers C:\Users\runneradmin\.julia\packages\HTTP\Y97L1\src\Servers.jl:382
+┌ Error: 2026-04-16 12:58:29 UndefVarError: `Layout` not defined in `Main`
+│ Hint: It looks like two or more modules export different bindings with this name, resulting in ambiguity. Try explicitly importing it from a particular module, or qualifying the name with the module it should come from.
+│ Hint: a global variable of this name also exists in PlotlyBase.
+│ Hint: a global variable of this name also exists in Stipple.
+│ Hint: a global variable of this name also exists in GenieFramework.
+│ Stacktrace:
+│   [1] Main_ReactiveModel!_1()
+│     @ Main C:\Users\ranja\.julia\packages\Stipple\zOVxV\src\Stipple.jl:1266
+│   [2] #invokelatest#2
+│     @ .\essentials.jl:1055 [inlined]
+│   [3] invokelatest
+│     @ .\essentials.jl:1052 [inlined]
+│   [4] |>
+│     @ .\operators.jl:926 [inlined]
+│   [5] init(t::Type{Main_ReactiveModel}; vue_app_name::String, endpoint::String, channel::Any, debounce::Int64, throttle::Int64, transport::Module, core_theme::Bool, always_register_channels::Bool)
+│     @ Stipple C:\Users\ranja\.julia\packages\Stipple\zOVxV\src\Stipple.jl:587
+│   [6] init_from_storage(t::Type{Main_ReactiveModel}; channel::Nothing, kwargs::@Kwargs{debounce::Int64, throttle::Int64, transport::Module, core_theme::Bool})
+│     @ Stipple.ModelStorage.Sessions C:\Users\ranja\.julia\packages\Stipple\zOVxV\src\ModelStorage.jl:90
+│   [7] init_model(::Type{Main_ReactiveModel}; kwargs::@Kwargs{debounce::Int64, throttle::Int64, transport::Module, core_theme::Bool})
+│     @ Stipple.ReactiveTools C:\Users\ranja\.julia\packages\Stipple\zOVxV\src\ReactiveTools.jl:761
+│   [8] (::Stipple.Pages.var"#6#7"{typeof(ui), String, Module, Int64, Int64, Module, Bool, @Kwargs{include_themes::Bool, include_deps::Bool}, Page})()
+│     @ Stipple.Pages C:\Users\ranja\.julia\packages\Stipple\zOVxV\src\Pages.jl:80
+│   [9] run_route(r::Genie.Router.Route)
+│     @ Genie.Router C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Router.jl:547
+│  [10] route_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response; stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Router C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Router.jl:172
+│  [11] route_request
+│     @ C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Router.jl:147 [inlined]
+│  [12] handle_request(req::HTTP.Messages.Request, res::HTTP.Messages.Response; stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:321
+│  [13] handle_request
+│     @ C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:313 [inlined]
+│  [14] (::Genie.Server.var"#28#29"{HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}}, HTTP.Messages.Request, HTTP.Messages.Response})()
+│     @ Genie.Server C:\hostedtoolcache\windows\julia\1.11.9\x64\share\julia\stdlib\v1.11\Distributed\src\macros.jl:123
+│  [15] #invokelatest#2
+│     @ .\essentials.jl:1055 [inlined]
+│  [16] invokelatest
+│     @ .\essentials.jl:1052 [inlined]
+│  [17] #161
+│     @ C:\hostedtoolcache\windows\julia\1.11.9\x64\share\julia\stdlib\v1.11\Distributed\src\remotecall.jl:425 [inlined]
+│  [18] run_work_thunk(thunk::Distributed.var"#161#162"{Genie.Server.var"#28#29"{HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}}, HTTP.Messages.Request, HTTP.Messages.Response}, Tuple{}, @Kwargs{}}, print_error::Bool)
+│     @ Distributed C:\hostedtoolcache\windows\julia\1.11.9\x64\share\julia\stdlib\v1.11\Distributed\src\process_messages.jl:70
+│  [19] #remotecall_fetch#166
+│     @ C:\hostedtoolcache\windows\julia\1.11.9\x64\share\julia\stdlib\v1.11\Distributed\src\remotecall.jl:450 [inlined]
+│  [20] remotecall_fetch
+│     @ C:\hostedtoolcache\windows\julia\1.11.9\x64\share\julia\stdlib\v1.11\Distributed\src\remotecall.jl:449 [inlined]
+│  [21] remotecall_fetch
+│     @ C:\hostedtoolcache\windows\julia\1.11.9\x64\share\julia\stdlib\v1.11\Distributed\src\remotecall.jl:492 [inlined]
+│  [22] setup_http_listener(req::HTTP.Messages.Request, res::HTTP.Messages.Response; stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:365
+│  [23] setup_http_listener (repeats 2 times)
+│     @ C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:363 [inlined]
+│  [24] (::Genie.Server.var"#25#26"{typeof(Genie.Server.setup_http_listener)})(stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:334
+│  [25] setup_http_streamer(stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:354
+│  [26] (::Genie.Server.var"#6#12")(stream::HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.Connections.Connection{Sockets.TCPSocket}})
+│     @ Genie.Server C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:125
+│  [27] #invokelatest#2
+│     @ .\essentials.jl:1055 [inlined]
+│  [28] invokelatest
+│     @ .\essentials.jl:1052 [inlined]
+│  [29] handle_connection(f::Function, c::HTTP.Connections.Connection{Sockets.TCPSocket}, listener::HTTP.Servers.Listener{Nothing, Sockets.TCPServer}, readtimeout::Int64, access_log::Nothing, verbose::Bool)
+│     @ HTTP.Servers C:\Users\runneradmin\.julia\packages\HTTP\Y97L1\src\Servers.jl:469
+│  [30] (::HTTP.Servers.var"#16#17"{Genie.Server.var"#6#12", HTTP.Servers.Listener{Nothing, Sockets.TCPServer}, Set{HTTP.Connections.Connection}, Int64, Nothing, ReentrantLock, Bool, Base.Semaphore, HTTP.Connections.Connection{Sockets.TCPSocket}})()
+│     @ HTTP.Servers C:\Users\runneradmin\.julia\packages\HTTP\Y97L1\src\Servers.jl:401
+│ 
+└ @ Genie.Server C:\Users\ranja\.julia\packages\Genie\0oBdL\src\Server.jl:377

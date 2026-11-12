@@ -1,0 +1,41 @@
+"""
+Test harness for generating synthetic "CFD" validation data.
+
+Drives the high-fidelity model with a DIFFERENT input profile than training:
+  Q_in(t) = ramp from 0 to 400W over t=5..55s, then constant 400W
+
+This tests whether the ROMs generalize beyond their training data.
+"""
+test component TestCFDValidation
+  model = HighFidelityOilPassage() {^model}
+  source = RampSource(height = 400.0, duration = 50.0, start_time = 5.0) {^source}
+relations
+  connect(source.y, model.Q_in) {^id3}
+metadata {
+  "_links": {
+    "model": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 150, "y1": 20, "x2": 250, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "source": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 20, "x2": 120, "y2": 120, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id3": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end
+
+analysis CFDValidationAnalysis
+  extends TransientAnalysis(stop = 200.0)
+  model = TestCFDValidation()
+relations
+end
