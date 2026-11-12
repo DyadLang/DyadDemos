@@ -85,6 +85,8 @@ metadata {
     "tests": {
       "case1": {
         "stop": 0.15,
+        "abstol": 1e-8,
+        "reltol": 1e-8,
         "atol": {"hall.n": 1e-3},
         "expect": {"final": {"hall.n": 95.4930}, "signals": ["hall.n"]}
       }
