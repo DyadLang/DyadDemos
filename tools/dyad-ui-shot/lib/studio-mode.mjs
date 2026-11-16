@@ -13,6 +13,7 @@ import net from "node:net";
 import path from "node:path";
 import { paths, requireSetup, childEnv } from "./paths.mjs";
 import { spawnOwned, terminate } from "./procs.mjs";
+import { beforeDeadline } from "./shoot.mjs";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -41,17 +42,19 @@ async function driver({ port, token }, method, route, body, timeoutMs = 10000) {
   return out;
 }
 
+// Poll `fn` until it returns something truthy. Each attempt is cut off at the
+// deadline too, so this never runs past `timeoutMs`.
 async function waitFor(what, timeoutMs, fn) {
-  const t0 = Date.now();
+  const until = Date.now() + timeoutMs;
   let lastErr;
-  while (Date.now() - t0 < timeoutMs) {
+  while (Date.now() < until) {
     try {
-      const v = await fn();
+      const v = await beforeDeadline(until, what, fn);
       if (v) return v;
     } catch (e) {
       lastErr = e;
     }
-    await sleep(500);
+    await sleep(Math.min(500, Math.max(0, until - Date.now())));
   }
   throw new Error(`timed out after ${timeoutMs / 1000}s waiting for ${what}${lastErr ? ` (${lastErr.message})` : ""}`);
 }
@@ -67,7 +70,8 @@ export class StudioServer {
     this.driver = { port: 0, token: randomBytes(32).toString("hex") };
   }
 
-  async start() {
+  // Fails if the server does not answer within `timeoutMs`.
+  async start(timeoutMs = 60000) {
     const installed = path.join(paths.openvscode, "extensions-installed");
     if (!fs.existsSync(installed)) throw new Error(`no extensions in ${installed}; run setup.sh --studio`);
     fs.mkdirSync(paths.tmp, { recursive: true });
@@ -118,7 +122,7 @@ export class StudioServer {
     );
     this.proc.stdout.on("data", (d) => this.log.debug(`[openvscode] ${String(d).trimEnd()}`));
     this.proc.stderr.on("data", (d) => this.log.debug(`[openvscode] ${String(d).trimEnd()}`));
-    await waitFor("openvscode-server", 60000, async () => {
+    await waitFor("openvscode-server", timeoutMs, async () => {
       const res = await fetch(this.url(), { redirect: "manual", signal: AbortSignal.timeout(5000) });
       await res.body?.cancel();
       return res.status < 400;
@@ -140,12 +144,16 @@ export class StudioServer {
   }
 }
 
-// Load the workbench in `page` and wait for the driver extension to answer.
+// Load the workbench in `page` and wait for the driver extension to answer,
+// all within `timeoutMs`.
 export async function openWorkbench(page, server, timeoutMs = 120000) {
-  await page.goto(server.url(), { waitUntil: "domcontentloaded" });
+  const until = Date.now() + timeoutMs;
+  await beforeDeadline(until, "loading the workbench", () =>
+    page.goto(server.url(), { waitUntil: "domcontentloaded", timeout: timeoutMs }),
+  );
   // Extensions only run in a trusted workspace. The machine setting
   // usually prevents the prompt; answer it if it shows up anyway.
-  return waitFor("the workbench and the dyad-ui-shot driver", timeoutMs, async () => {
+  return waitFor("the workbench and the dyad-ui-shot driver", Math.max(0, until - Date.now()), async () => {
     await page
       .evaluate(() =>
         [...document.querySelectorAll(".dialog-buttons a, .dialog-buttons button")]
@@ -183,10 +191,15 @@ export async function runStudio(shots, opt, log, failures, { launchChrome, captu
       try {
         checkLibrary(lib);
         log.info(`starting openvscode-server for ${lib}`);
-        await server.start();
+        // Starting the server and loading the workbench are one step, under
+        // one --timeout deadline.
+        const until = Date.now() + timeoutMs;
+        await server.start(timeoutMs);
         page = await browser.newPage();
-        await page.setViewport({ width: opt.width, height: opt.height, deviceScaleFactor: opt.scale });
-        await openWorkbench(page, server);
+        await beforeDeadline(until, "opening a page", () =>
+          page.setViewport({ width: opt.width, height: opt.height, deviceScaleFactor: opt.scale }),
+        );
+        await openWorkbench(page, server, Math.max(0, until - Date.now()));
         log.info("activating Dyad Studio (needs a valid JuliaHub login)");
         try {
           await driver(server.driver, "POST", "/activate", null, timeoutMs);
@@ -243,7 +256,8 @@ export async function runStudio(shots, opt, log, failures, { launchChrome, captu
         log.warn(`${lib}: ${e.message}`);
         // What the workbench showed, for diagnosis.
         const shot = path.join(paths.tmp, "studio-mode-failure.png");
-        if (page && (await page.screenshot({ path: shot }).then(() => true, () => false))) log.warn(`workbench screenshot: ${shot}`);
+        const saved = page && (await beforeDeadline(Date.now() + 5000, "workbench screenshot", () => page.screenshot({ path: shot })).then(() => true, () => false));
+        if (saved) log.warn(`workbench screenshot: ${shot}`);
       } finally {
         await page?.close().catch(() => {});
         await server.stop();

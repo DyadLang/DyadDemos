@@ -78,12 +78,21 @@ test("a shot: PNG written, the language server listens on nothing, remote icons 
 
 // A fake Julia that never returns, in both places Julia runs: Pkg.instantiate()
 // (library without Manifest.toml) and the language server's dependency
-// listing (library with one).
+// listing (library with one). The fixture has no Manifest.toml (manifests are
+// git-ignored), so the second copy gets a minimal one: TinyLib has no
+// dependencies, dyad-ui-shot only checks that the file exists, and the fake
+// Julia never reads it.
 function sleepingSetup() {
   const dir = tmpDir("sleep");
   const pids = path.join(dir, "pids");
-  const noManifest = fixtureLib("TinyLib", (d) => fs.rmSync(path.join(d, "Manifest.toml")));
-  const withManifest = fixtureLib("TinyLib");
+  const noManifest = fixtureLib("TinyLib");
+  assert.equal(fs.existsSync(path.join(noManifest, "Manifest.toml")), false);
+  const withManifest = fixtureLib("TinyLib", (d) =>
+    fs.writeFileSync(
+      path.join(d, "Manifest.toml"),
+      '# This file is machine-generated - editing it directly is not advised\n\nmanifest_format = "2.0"\n\n[deps]\n',
+    ),
+  );
   const batch = path.join(dir, "batch.txt");
   fs.writeFileSync(
     batch,

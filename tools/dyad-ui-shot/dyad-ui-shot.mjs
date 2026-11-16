@@ -47,7 +47,10 @@ options:
                      dyad:// assets and data: URLs are loaded
   --timeout S        deadline in seconds for each step: instantiating, starting
                      the language server, each request to it, rendering and
-                     capturing each diagram, dyad render (default 120)
+                     capturing each diagram, dyad render; in studio mode,
+                     starting openvscode-server and loading the workbench
+                     (one step), activating Studio, opening each diagram
+                     (default 120)
   --verbose          debug logging
   -h, --help         this text
 `;

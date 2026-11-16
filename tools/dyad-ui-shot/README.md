@@ -60,7 +60,7 @@ of about 5 s per library.
 | `--mode studio` | full Dyad Studio, see below |
 | `--no-instantiate` | do not instantiate a library that has no `Manifest.toml` |
 | `--allow-remote-assets H1,H2` | let diagrams load http(s) icons from these hosts, see below |
-| `--timeout S` | deadline for each step, in seconds (default 120): instantiating, starting the language server, each request to it, rendering and capturing each diagram, `dyad render` |
+| `--timeout S` | deadline for each step, in seconds (default 120): instantiating, starting the language server, each request to it, rendering and capturing each diagram, `dyad render`; in studio mode also starting openvscode-server and loading the workbench (one step), activating Studio, opening each diagram |
 
 The exit status is non-zero if any shot failed; a summary of the failed shots
 is printed at the end. In a batch, a library that fails (it cannot be
@@ -120,8 +120,10 @@ VS Code:
 - **Capture.** `lib/shoot.mjs` waits until the layout has elements and no
   message is in flight, then until web fonts (`document.fonts.ready`) and
   images have loaded. It then fits the view and waits for three identical
-  consecutive frames with nothing pending. If the view does not settle
-  within `--timeout`, the shot fails and no PNG is written.
+  consecutive frames with nothing pending. Every request to the page,
+  including each animation frame and screenshot, is cut off at the capture's
+  deadline. If the view does not settle within `--timeout`, the shot fails
+  and no PNG is written.
 
 No VS Code, no Studio extension host and no JuliaHub login are involved. The
 pixels come from the same bundle and CSS as Studio 3.5.1's diagram view.

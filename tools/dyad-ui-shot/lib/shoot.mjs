@@ -121,15 +121,16 @@ function pageHelpers() {
 // `frame` is the document running dyad-ui: the page itself in standalone
 // mode, a (nested) webview iframe in studio mode.
 export async function waitForDiagram(frame, { timeoutMs, isIdle, fatal = () => null }) {
-  const t0 = Date.now();
+  const until = Date.now() + timeoutMs;
+  const ev = (fn) => beforeDeadline(until, "waiting for the diagram", () => frame.evaluate(fn)).catch(() => null);
   let last;
-  while (Date.now() - t0 < timeoutMs) {
+  while (Date.now() < until) {
     if (fatal()) throw new Error(fatal());
-    await frame.evaluate(pageHelpers).catch(() => {});
-    last = await frame.evaluate(() => window.__dyadUiShot?.state()).catch(() => null);
+    await ev(pageHelpers);
+    last = await ev(() => window.__dyadUiShot?.state());
     if (last?.notification) throw new Error(`diagram view reported: ${last.notification}`);
     if (last?.hasGraphicalLayout && last.elements > 0 && isIdle()) return last;
-    await sleep(200);
+    await sleep(Math.min(200, Math.max(0, until - Date.now())));
   }
   throw new Error(`diagram did not render within ${timeoutMs / 1000}s (state: ${JSON.stringify(last)})`);
 }
@@ -138,26 +139,29 @@ export async function waitForDiagram(frame, { timeoutMs, isIdle, fatal = () => n
 // wait for it to be drawn.
 export async function switchLayer(frame, layer, { timeoutMs, isIdle, fatal }) {
   if (layer === "diagram") return;
-  if (!(await frame.evaluate((l) => window.__dyadUiShot.setLayer(l), layer))) {
+  const until = Date.now() + timeoutMs;
+  const what = `switching to the ${layer} layer`;
+  if (!(await beforeDeadline(until, what, () => frame.evaluate((l) => window.__dyadUiShot.setLayer(l), layer)))) {
     throw new Error(`could not switch to the ${layer} layer`);
   }
-  const t0 = Date.now();
-  while ((await frame.evaluate(() => window.__dyadUiShot.layer())) !== layer) {
-    if (Date.now() - t0 > timeoutMs) throw new Error(`the view did not switch to the ${layer} layer`);
-    await sleep(200);
+  while ((await beforeDeadline(until, what, () => frame.evaluate(() => window.__dyadUiShot.layer()))) !== layer) {
+    if (Date.now() > until) throw new Error(`the view did not switch to the ${layer} layer`);
+    await sleep(Math.min(200, Math.max(0, until - Date.now())));
   }
-  await waitForDiagram(frame, { timeoutMs, isIdle, fatal });
+  await waitForDiagram(frame, { timeoutMs: Math.max(0, until - Date.now()), isIdle, fatal });
 }
 
 // Where `frame` sits in the page's viewport (CSS px).
-async function frameRect(page, frame) {
+async function frameRect(page, frame, until) {
   if (frame === page.mainFrame()) return { x: 0, y: 0, ...page.viewport() };
-  const b = await (await frame.frameElement()).boundingBox();
+  const b = await beforeDeadline(until, "locating the diagram frame", async () => (await frame.frameElement()).boundingBox());
   return { x: b.x, y: b.y, width: b.width, height: b.height };
 }
 
-// Run `fn` with whatever is left of `until` (a Date.now() deadline).
-async function beforeDeadline(until, what, fn) {
+// Run `fn` with whatever is left of `until` (a Date.now() deadline). Every
+// page RPC goes through this: Puppeteer's own protocol timeout is far longer
+// than a short --timeout.
+export async function beforeDeadline(until, what, fn) {
   const left = until - Date.now();
   if (left <= 0) throw new Error(`${what}: timed out`);
   let timer;
@@ -178,19 +182,31 @@ async function settle(page, frame, { isIdle, until, clip, frames = 3, what = "di
   let prev = null;
   let same = 0;
   let last = null;
+  let stalled = null;
   while (Date.now() < until) {
     const loaded = await beforeDeadline(until, "loading fonts and images", () =>
       frame.evaluate(() => window.__dyadUiShot.assetsLoaded()),
     ).catch(() => false);
-    await frame.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
-    const shot = Buffer.from(await page.screenshot({ type: "png", clip }));
+    let shot;
+    try {
+      await beforeDeadline(until, "waiting for an animation frame", () =>
+        frame.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))),
+      );
+      shot = Buffer.from(await beforeDeadline(until, "taking a screenshot", () => page.screenshot({ type: "png", clip })));
+    } catch (e) {
+      if (Date.now() < until) throw e;
+      stalled = e.message;
+      break;
+    }
     same = prev && shot.equals(prev) ? same + 1 : 1;
     prev = shot;
     last = { loaded, idle: isIdle(), identicalFrames: same };
+    // A frame that only arrived after the deadline does not count.
+    if (Date.now() > until) break;
     if (same >= frames && loaded && last.idle) return shot;
     await sleep(Math.min(300, Math.max(0, until - Date.now())));
   }
-  throw new Error(`the ${what} did not settle in time (last check: ${JSON.stringify(last)})`);
+  throw new Error(`the ${what} did not settle in time (last check: ${JSON.stringify(last)}${stalled ? `; ${stalled}` : ""})`);
 }
 
 // fit: "studio" = Studio's own "Fit to view" (fits the diagram canvas box);
@@ -203,14 +219,14 @@ export async function captureDiagram(
   { frame = page.mainFrame(), fit, toolbar, guides = false, padding = 24, isIdle, timeoutMs = 30000, log },
 ) {
   const until = Date.now() + timeoutMs;
-  const fr = await frameRect(page, frame);
+  const fr = await frameRect(page, frame, until);
   const whole = { x: fr.x, y: fr.y, width: fr.width, height: fr.height };
-  const ev = (fn, arg) => frame.evaluate(fn, arg);
+  const ev = (fn, arg, what = "capturing the diagram") => beforeDeadline(until, what, () => frame.evaluate(fn, arg));
   await ev(pageHelpers);
   if (!toolbar) await ev(() => window.__dyadUiShot.hideToolbar());
   if (!guides) await ev(() => window.__dyadUiShot.hideGuides());
   // Text must be measured in its final font before anything is fitted.
-  await beforeDeadline(until, "loading fonts and images", () => ev(() => window.__dyadUiShot.assetsLoaded()));
+  await ev(() => window.__dyadUiShot.assetsLoaded(), undefined, "loading fonts and images");
   await ev(() => window.__dyadUiShot.fit());
   await settle(page, frame, { isIdle, until, clip: whole });
 
@@ -247,5 +263,7 @@ export async function captureDiagram(
       };
     }
   }
-  return settle(page, frame, { isIdle, until, clip });
+  const png = await settle(page, frame, { isIdle, until, clip });
+  if (Date.now() > until) throw new Error(`capturing the diagram: timed out`);
+  return png;
 }
