@@ -30,7 +30,7 @@ export interface DiagramStyle {
 export const STUDIO_STYLE: DiagramStyle = {
   background: "#ffffff",
   fontFamily: "Inter",
-  labelFontSize: 15,
+  labelFontSize: 16,
   labelColor: "#18181b",
   portLabelOffset: 22.5,
   wireWidth: 1.5,

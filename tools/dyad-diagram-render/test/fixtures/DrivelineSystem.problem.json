@@ -1,0 +1,231 @@
+{
+  "schema": "dyad-layout/problem@1",
+  "source": {
+    "package": "DrivelineSciML",
+    "definition": "DrivelineSciML.DrivelineSystem",
+    "structureHash": "fnv1a64:c441227e68ce1ce8"
+  },
+  "structure": {
+    "components": [
+      {
+        "id": "torque",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "spline",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          },
+          {
+            "id": "support",
+            "edge": "bottom",
+            "position": 0,
+            "direction": "none"
+          },
+          {
+            "id": "tau",
+            "edge": "left",
+            "position": 0,
+            "direction": "input"
+          }
+        ]
+      },
+      {
+        "id": "torque_support",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "spline",
+            "edge": "top",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "J_eng",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "spline_a",
+            "edge": "left",
+            "position": 0,
+            "direction": "none"
+          },
+          {
+            "id": "spline_b",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "isolator",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "spline_a",
+            "edge": "left",
+            "position": 0,
+            "direction": "none"
+          },
+          {
+            "id": "spline_b",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "J_load",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "spline_a",
+            "edge": "left",
+            "position": 0,
+            "direction": "none"
+          },
+          {
+            "id": "spline_b",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "load_damper",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "spline_a",
+            "edge": "left",
+            "position": 0,
+            "direction": "none"
+          },
+          {
+            "id": "spline_b",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "ground",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "spline",
+            "edge": "top",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      }
+    ],
+    "canvasConnectors": [],
+    "connections": [
+      {
+        "id": "__conn_0",
+        "from": {
+          "type": "component",
+          "componentId": "torque",
+          "connectorId": "support"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "torque_support",
+          "connectorId": "spline"
+        }
+      },
+      {
+        "id": "__conn_1",
+        "from": {
+          "type": "component",
+          "componentId": "torque",
+          "connectorId": "spline"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "J_eng",
+          "connectorId": "spline_a"
+        }
+      },
+      {
+        "id": "__conn_2",
+        "from": {
+          "type": "component",
+          "componentId": "J_eng",
+          "connectorId": "spline_b"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "isolator",
+          "connectorId": "spline_a"
+        }
+      },
+      {
+        "id": "__conn_3",
+        "from": {
+          "type": "component",
+          "componentId": "isolator",
+          "connectorId": "spline_b"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "J_load",
+          "connectorId": "spline_a"
+        }
+      },
+      {
+        "id": "__conn_4",
+        "from": {
+          "type": "component",
+          "componentId": "J_load",
+          "connectorId": "spline_b"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "load_damper",
+          "connectorId": "spline_a"
+        }
+      },
+      {
+        "id": "__conn_5",
+        "from": {
+          "type": "component",
+          "componentId": "load_damper",
+          "connectorId": "spline_b"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "ground",
+          "connectorId": "spline"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "gridColumns": 10,
+    "gridRows": 10,
+    "options": {}
+  },
+  "hints": {
+    "components": {},
+    "connections": {},
+    "canvasConnectors": {}
+  },
+  "constraints": []
+}

@@ -1,0 +1,1433 @@
+{
+  "schema": "dyad-layout/problem@1",
+  "source": {
+    "package": "HL20Demo",
+    "definition": "HL20Demo.shared.HL20Aero",
+    "structureHash": "fnv1a64:5af353b4e6aa3d8c"
+  },
+  "structure": {
+    "components": [
+      {
+        "id": "air",
+        "width": 22,
+        "height": 22,
+        "connectors": [
+          {
+            "id": "vrw_fps",
+            "edge": "left",
+            "position": -0.9,
+            "direction": "input"
+          },
+          {
+            "id": "DRUD",
+            "edge": "left",
+            "position": -0.6,
+            "direction": "input"
+          },
+          {
+            "id": "abs_drud",
+            "edge": "right",
+            "position": -0.9,
+            "direction": "output"
+          },
+          {
+            "id": "damp_b2v",
+            "edge": "right",
+            "position": -0.6,
+            "direction": "output"
+          },
+          {
+            "id": "damp_c2v",
+            "edge": "right",
+            "position": -0.30000000000000004,
+            "direction": "output"
+          }
+        ]
+      },
+      {
+        "id": "lon",
+        "width": 22,
+        "height": 23,
+        "connectors": [
+          {
+            "id": "alpha_deg",
+            "edge": "left",
+            "position": -0.9,
+            "direction": "input"
+          },
+          {
+            "id": "mach",
+            "edge": "left",
+            "position": -0.7,
+            "direction": "input"
+          },
+          {
+            "id": "hob",
+            "edge": "left",
+            "position": -0.5,
+            "direction": "input"
+          },
+          {
+            "id": "DBFLL",
+            "edge": "left",
+            "position": -0.30000000000000004,
+            "direction": "input"
+          },
+          {
+            "id": "DBFLR",
+            "edge": "left",
+            "position": -0.09999999999999998,
+            "direction": "input"
+          },
+          {
+            "id": "DBFUL",
+            "edge": "left",
+            "position": 0.10000000000000009,
+            "direction": "input"
+          },
+          {
+            "id": "DBFUR",
+            "edge": "left",
+            "position": 0.30000000000000004,
+            "direction": "input"
+          },
+          {
+            "id": "DWFL",
+            "edge": "left",
+            "position": 0.5,
+            "direction": "input"
+          },
+          {
+            "id": "DWFR",
+            "edge": "left",
+            "position": 0.7,
+            "direction": "input"
+          },
+          {
+            "id": "abs_drud",
+            "edge": "left",
+            "position": 0.8999999999999999,
+            "direction": "input"
+          },
+          {
+            "id": "qb",
+            "edge": "bottom",
+            "position": -0.6,
+            "direction": "input"
+          },
+          {
+            "id": "damp_c2v",
+            "edge": "bottom",
+            "position": -0.19999999999999996,
+            "direction": "input"
+          },
+          {
+            "id": "CX",
+            "edge": "right",
+            "position": -0.4,
+            "direction": "output"
+          },
+          {
+            "id": "CZ",
+            "edge": "right",
+            "position": -0.19999999999999996,
+            "direction": "output"
+          },
+          {
+            "id": "Cm",
+            "edge": "right",
+            "position": 0.19999999999999996,
+            "direction": "output"
+          }
+        ]
+      },
+      {
+        "id": "lat",
+        "width": 22,
+        "height": 22,
+        "connectors": [
+          {
+            "id": "alpha_deg",
+            "edge": "left",
+            "position": -0.9,
+            "direction": "input"
+          },
+          {
+            "id": "beta_deg",
+            "edge": "left",
+            "position": -0.7,
+            "direction": "input"
+          },
+          {
+            "id": "mach",
+            "edge": "left",
+            "position": -0.5,
+            "direction": "input"
+          },
+          {
+            "id": "hob",
+            "edge": "left",
+            "position": -0.30000000000000004,
+            "direction": "input"
+          },
+          {
+            "id": "DBFLL",
+            "edge": "left",
+            "position": -0.09999999999999998,
+            "direction": "input"
+          },
+          {
+            "id": "DBFLR",
+            "edge": "left",
+            "position": 0.10000000000000009,
+            "direction": "input"
+          },
+          {
+            "id": "DBFUL",
+            "edge": "left",
+            "position": 0.30000000000000004,
+            "direction": "input"
+          },
+          {
+            "id": "DBFUR",
+            "edge": "left",
+            "position": 0.5,
+            "direction": "input"
+          },
+          {
+            "id": "DWFL",
+            "edge": "left",
+            "position": 0.7,
+            "direction": "input"
+          },
+          {
+            "id": "DWFR",
+            "edge": "left",
+            "position": 0.8999999999999999,
+            "direction": "input"
+          },
+          {
+            "id": "abs_drud",
+            "edge": "bottom",
+            "position": -0.8,
+            "direction": "input"
+          },
+          {
+            "id": "pb",
+            "edge": "bottom",
+            "position": -0.4,
+            "direction": "input"
+          },
+          {
+            "id": "rb",
+            "edge": "bottom",
+            "position": 0,
+            "direction": "input"
+          },
+          {
+            "id": "damp_b2v",
+            "edge": "bottom",
+            "position": 0.3999999999999999,
+            "direction": "input"
+          },
+          {
+            "id": "CY",
+            "edge": "right",
+            "position": -0.19999999999999996,
+            "direction": "output"
+          },
+          {
+            "id": "Cl",
+            "edge": "right",
+            "position": 0,
+            "direction": "output"
+          },
+          {
+            "id": "Cn",
+            "edge": "right",
+            "position": 0.19999999999999996,
+            "direction": "output"
+          }
+        ]
+      },
+      {
+        "id": "__junction_0",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "__junction_2",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "__junction_3",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "__junction_4",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "__junction_5",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "__junction_6",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "__junction_7",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "__junction_8",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "__junction_9",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      },
+      {
+        "id": "__junction_10",
+        "width": 0,
+        "height": 0,
+        "connectors": [
+          {
+            "id": "c",
+            "edge": "right",
+            "position": 0,
+            "direction": "none"
+          }
+        ]
+      }
+    ],
+    "canvasConnectors": [
+      {
+        "id": "alpha_deg",
+        "direction": "input"
+      },
+      {
+        "id": "beta_deg",
+        "direction": "input"
+      },
+      {
+        "id": "mach",
+        "direction": "input"
+      },
+      {
+        "id": "vrw_fps",
+        "direction": "input"
+      },
+      {
+        "id": "hob",
+        "direction": "input"
+      },
+      {
+        "id": "pb",
+        "direction": "input"
+      },
+      {
+        "id": "qb",
+        "direction": "input"
+      },
+      {
+        "id": "rb",
+        "direction": "input"
+      },
+      {
+        "id": "DBFUL",
+        "direction": "input"
+      },
+      {
+        "id": "DBFUR",
+        "direction": "input"
+      },
+      {
+        "id": "DBFLL",
+        "direction": "input"
+      },
+      {
+        "id": "DBFLR",
+        "direction": "input"
+      },
+      {
+        "id": "DWFL",
+        "direction": "input"
+      },
+      {
+        "id": "DWFR",
+        "direction": "input"
+      },
+      {
+        "id": "DRUD",
+        "direction": "input"
+      },
+      {
+        "id": "CX",
+        "direction": "output"
+      },
+      {
+        "id": "CY",
+        "direction": "output"
+      },
+      {
+        "id": "CZ",
+        "direction": "output"
+      },
+      {
+        "id": "Cl",
+        "direction": "output"
+      },
+      {
+        "id": "Cm",
+        "direction": "output"
+      },
+      {
+        "id": "Cn",
+        "direction": "output"
+      }
+    ],
+    "connections": [
+      {
+        "id": "__conn_0_0",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "alpha_deg"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_0",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_0_1",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "alpha_deg"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_0",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_0_2",
+        "from": {
+          "type": "canvas",
+          "connectorId": "alpha_deg"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_0",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_1",
+        "from": {
+          "type": "canvas",
+          "connectorId": "beta_deg"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "beta_deg"
+        }
+      },
+      {
+        "id": "__conn_2_0",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "mach"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_2",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_2_1",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "mach"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_2",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_2_2",
+        "from": {
+          "type": "canvas",
+          "connectorId": "mach"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_2",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_3_0",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "hob"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_3",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_3_1",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "hob"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_3",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_3_2",
+        "from": {
+          "type": "canvas",
+          "connectorId": "hob"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_3",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_4_0",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "DBFLL"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_4",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_4_1",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "DBFLL"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_4",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_4_2",
+        "from": {
+          "type": "canvas",
+          "connectorId": "DBFLL"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_4",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_5_0",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "DBFLR"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_5",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_5_1",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "DBFLR"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_5",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_5_2",
+        "from": {
+          "type": "canvas",
+          "connectorId": "DBFLR"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_5",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_6_0",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "DBFUL"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_6",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_6_1",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "DBFUL"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_6",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_6_2",
+        "from": {
+          "type": "canvas",
+          "connectorId": "DBFUL"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_6",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_7_0",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "DBFUR"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_7",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_7_1",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "DBFUR"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_7",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_7_2",
+        "from": {
+          "type": "canvas",
+          "connectorId": "DBFUR"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_7",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_8_0",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "DWFL"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_8",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_8_1",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "DWFL"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_8",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_8_2",
+        "from": {
+          "type": "canvas",
+          "connectorId": "DWFL"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_8",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_9_0",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "DWFR"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_9",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_9_1",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "DWFR"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_9",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_9_2",
+        "from": {
+          "type": "canvas",
+          "connectorId": "DWFR"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_9",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_10_0",
+        "from": {
+          "type": "component",
+          "componentId": "air",
+          "connectorId": "abs_drud"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_10",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_10_1",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "abs_drud"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_10",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_10_2",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "abs_drud"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "__junction_10",
+          "connectorId": "c"
+        }
+      },
+      {
+        "id": "__conn_11",
+        "from": {
+          "type": "component",
+          "componentId": "air",
+          "connectorId": "damp_b2v"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "damp_b2v"
+        }
+      },
+      {
+        "id": "__conn_12",
+        "from": {
+          "type": "component",
+          "componentId": "air",
+          "connectorId": "damp_c2v"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "damp_c2v"
+        }
+      },
+      {
+        "id": "__conn_13",
+        "from": {
+          "type": "canvas",
+          "connectorId": "DRUD"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "air",
+          "connectorId": "DRUD"
+        }
+      },
+      {
+        "id": "__conn_14",
+        "from": {
+          "type": "canvas",
+          "connectorId": "vrw_fps"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "air",
+          "connectorId": "vrw_fps"
+        }
+      },
+      {
+        "id": "__conn_15",
+        "from": {
+          "type": "canvas",
+          "connectorId": "pb"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "pb"
+        }
+      },
+      {
+        "id": "__conn_16",
+        "from": {
+          "type": "canvas",
+          "connectorId": "rb"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "rb"
+        }
+      },
+      {
+        "id": "__conn_17",
+        "from": {
+          "type": "canvas",
+          "connectorId": "qb"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "qb"
+        }
+      },
+      {
+        "id": "__conn_18",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "CX"
+        },
+        "to": {
+          "type": "canvas",
+          "connectorId": "CX"
+        }
+      },
+      {
+        "id": "__conn_19",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "CZ"
+        },
+        "to": {
+          "type": "canvas",
+          "connectorId": "CZ"
+        }
+      },
+      {
+        "id": "__conn_20",
+        "from": {
+          "type": "component",
+          "componentId": "lon",
+          "connectorId": "Cm"
+        },
+        "to": {
+          "type": "canvas",
+          "connectorId": "Cm"
+        }
+      },
+      {
+        "id": "__conn_21",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "CY"
+        },
+        "to": {
+          "type": "canvas",
+          "connectorId": "CY"
+        }
+      },
+      {
+        "id": "__conn_22",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "Cl"
+        },
+        "to": {
+          "type": "canvas",
+          "connectorId": "Cl"
+        }
+      },
+      {
+        "id": "__conn_23",
+        "from": {
+          "type": "component",
+          "componentId": "lat",
+          "connectorId": "Cn"
+        },
+        "to": {
+          "type": "canvas",
+          "connectorId": "Cn"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "gridColumns": 34,
+    "gridRows": 39,
+    "options": {}
+  },
+  "hints": {
+    "components": {
+      "air": {
+        "initialPosition": {
+          "x": 45,
+          "y": 77
+        },
+        "initialD4State": "identity"
+      },
+      "lon": {
+        "initialPosition": {
+          "x": 45,
+          "y": 14
+        },
+        "initialD4State": "identity"
+      },
+      "lat": {
+        "initialPosition": {
+          "x": 45,
+          "y": 45
+        },
+        "initialD4State": "identity"
+      },
+      "__junction_0": {
+        "initialPosition": {
+          "x": 4,
+          "y": 3
+        }
+      },
+      "__junction_2": {
+        "initialPosition": {
+          "x": 5,
+          "y": 9
+        }
+      },
+      "__junction_3": {
+        "initialPosition": {
+          "x": 6,
+          "y": 12
+        }
+      },
+      "__junction_4": {
+        "initialPosition": {
+          "x": 7,
+          "y": 15
+        }
+      },
+      "__junction_5": {
+        "initialPosition": {
+          "x": 8,
+          "y": 18
+        }
+      },
+      "__junction_6": {
+        "initialPosition": {
+          "x": 9,
+          "y": 21
+        }
+      },
+      "__junction_7": {
+        "initialPosition": {
+          "x": 10,
+          "y": 24
+        }
+      },
+      "__junction_8": {
+        "initialPosition": {
+          "x": 11,
+          "y": 27
+        }
+      },
+      "__junction_9": {
+        "initialPosition": {
+          "x": 12,
+          "y": 30
+        }
+      },
+      "__junction_10": {
+        "initialPosition": {
+          "x": 30,
+          "y": 30
+        }
+      }
+    },
+    "connections": {},
+    "canvasConnectors": {}
+  },
+  "constraints": [
+    {
+      "id": "pin:alpha_deg",
+      "kind": {
+        "kind": "pin",
+        "componentId": "alpha_deg",
+        "at": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:beta_deg",
+      "kind": {
+        "kind": "pin",
+        "componentId": "beta_deg",
+        "at": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:mach",
+      "kind": {
+        "kind": "pin",
+        "componentId": "mach",
+        "at": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:vrw_fps",
+      "kind": {
+        "kind": "pin",
+        "componentId": "vrw_fps",
+        "at": {
+          "x": 0,
+          "y": 34
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:hob",
+      "kind": {
+        "kind": "pin",
+        "componentId": "hob",
+        "at": {
+          "x": 0,
+          "y": 10
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:pb",
+      "kind": {
+        "kind": "pin",
+        "componentId": "pb",
+        "at": {
+          "x": 0,
+          "y": 37
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:qb",
+      "kind": {
+        "kind": "pin",
+        "componentId": "qb",
+        "at": {
+          "x": 0,
+          "y": 43
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:rb",
+      "kind": {
+        "kind": "pin",
+        "componentId": "rb",
+        "at": {
+          "x": 0,
+          "y": 40
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:DBFUL",
+      "kind": {
+        "kind": "pin",
+        "componentId": "DBFUL",
+        "at": {
+          "x": 0,
+          "y": 19
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:DBFUR",
+      "kind": {
+        "kind": "pin",
+        "componentId": "DBFUR",
+        "at": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:DBFLL",
+      "kind": {
+        "kind": "pin",
+        "componentId": "DBFLL",
+        "at": {
+          "x": 0,
+          "y": 13
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:DBFLR",
+      "kind": {
+        "kind": "pin",
+        "componentId": "DBFLR",
+        "at": {
+          "x": 0,
+          "y": 16
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:DWFL",
+      "kind": {
+        "kind": "pin",
+        "componentId": "DWFL",
+        "at": {
+          "x": 0,
+          "y": 25
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:DWFR",
+      "kind": {
+        "kind": "pin",
+        "componentId": "DWFR",
+        "at": {
+          "x": 0,
+          "y": 28
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:DRUD",
+      "kind": {
+        "kind": "pin",
+        "componentId": "DRUD",
+        "at": {
+          "x": 0,
+          "y": 31
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:CX",
+      "kind": {
+        "kind": "pin",
+        "componentId": "CX",
+        "at": {
+          "x": 68,
+          "y": 6
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:CY",
+      "kind": {
+        "kind": "pin",
+        "componentId": "CY",
+        "at": {
+          "x": 68,
+          "y": 39
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:CZ",
+      "kind": {
+        "kind": "pin",
+        "componentId": "CZ",
+        "at": {
+          "x": 68,
+          "y": 9
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:Cl",
+      "kind": {
+        "kind": "pin",
+        "componentId": "Cl",
+        "at": {
+          "x": 68,
+          "y": 42
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:Cm",
+      "kind": {
+        "kind": "pin",
+        "componentId": "Cm",
+        "at": {
+          "x": 68,
+          "y": 13
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    },
+    {
+      "id": "pin:Cn",
+      "kind": {
+        "kind": "pin",
+        "componentId": "Cn",
+        "at": {
+          "x": 68,
+          "y": 45
+        }
+      },
+      "strength": {
+        "tier": "required",
+        "weight": 1
+      }
+    }
+  ]
+}

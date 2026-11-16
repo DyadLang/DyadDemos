@@ -1,0 +1,1577 @@
+{
+ "schema": "dyad-diagram-render/diagram@1",
+ "name": "HL20Demo.RigidBody6DOF",
+ "components": [
+  {
+   "name": "trans",
+   "placement": {
+    "x1": 650,
+    "x2": 1650,
+    "y1": 200,
+    "y2": 1000,
+    "rot": 0
+   },
+   "explicitPlacement": true,
+   "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 1000\">\n  <path fill=\"#fff\" stroke-width=\"0\" d=\"M4 4h992v992H4z\"/>\n  <path fill=\"#c9e2f2\" stroke-width=\"0\" d=\"M992 8v984H8V8zm8-8H0v1000h1000z\"/>\n  <text x=\"500\" y=\"590\" font-family=\"sans-serif\" font-size=\"230\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#12203a\">ẍ</text>\n</svg>",
+   "connectors": [
+    {
+     "name": "F1",
+     "placement": {
+      "x1": -50,
+      "x2": 50,
+      "y1": 150,
+      "y2": 250,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "F2",
+     "placement": {
+      "x1": -50,
+      "x2": 50,
+      "y1": 400,
+      "y2": 500,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "F3",
+     "placement": {
+      "x1": -50,
+      "x2": 50,
+      "y1": 650,
+      "y2": 750,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "v1",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 150,
+      "y2": 250,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "v2",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 400,
+      "y2": 500,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "v3",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 650,
+      "y2": 750,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "p1",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 700,
+      "y2": 800,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "p2",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 850,
+      "y2": 950,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "p3",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 1000,
+      "y2": 1100,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    }
+   ],
+   "labels": [
+    {
+     "text": "trans",
+     "x": 500,
+     "y": 1100,
+     "rot": 0,
+     "attrs": {
+      "fill": "black",
+      "font-size": "200",
+      "dominant-baseline": "central",
+      "text-anchor": "middle"
+     }
+    }
+   ]
+  },
+  {
+   "name": "rot",
+   "placement": {
+    "x1": 650,
+    "x2": 1650,
+    "y1": 1450,
+    "y2": 2250,
+    "rot": 0
+   },
+   "explicitPlacement": true,
+   "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 1000\">\n  <path fill=\"#fff\" stroke-width=\"0\" d=\"M4 4h992v992H4z\"/>\n  <path fill=\"#c9e2f2\" stroke-width=\"0\" d=\"M992 8v984H8V8zm8-8H0v1000h1000z\"/>\n  <text x=\"500\" y=\"590\" font-family=\"sans-serif\" font-size=\"230\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#12203a\">ω̇</text>\n</svg>",
+   "connectors": [
+    {
+     "name": "T1",
+     "placement": {
+      "x1": -50,
+      "x2": 50,
+      "y1": 150,
+      "y2": 250,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "T2",
+     "placement": {
+      "x1": -50,
+      "x2": 50,
+      "y1": 400,
+      "y2": 500,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "T3",
+     "placement": {
+      "x1": -50,
+      "x2": 50,
+      "y1": 650,
+      "y2": 750,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "w1",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 150,
+      "y2": 250,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "w2",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 400,
+      "y2": 500,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "w3",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 650,
+      "y2": 750,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    }
+   ],
+   "labels": [
+    {
+     "text": "rot",
+     "x": 500,
+     "y": 1100,
+     "rot": 0,
+     "attrs": {
+      "fill": "black",
+      "font-size": "200",
+      "dominant-baseline": "central",
+      "text-anchor": "middle"
+     }
+    }
+   ]
+  },
+  {
+   "name": "qkin",
+   "placement": {
+    "x1": 1800,
+    "x2": 2800,
+    "y1": 1000,
+    "y2": 1800,
+    "rot": 0
+   },
+   "explicitPlacement": true,
+   "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 1000\">\n  <path fill=\"#fff\" stroke-width=\"0\" d=\"M4 4h992v992H4z\"/>\n  <path fill=\"#c9e2f2\" stroke-width=\"0\" d=\"M992 8v984H8V8zm8-8H0v1000h1000z\"/>\n  <text x=\"500\" y=\"590\" font-family=\"sans-serif\" font-size=\"230\" font-weight=\"bold\" text-anchor=\"middle\" fill=\"#12203a\">q̇</text>\n</svg>",
+   "connectors": [
+    {
+     "name": "w1",
+     "placement": {
+      "x1": -50,
+      "x2": 50,
+      "y1": 150,
+      "y2": 250,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "w2",
+     "placement": {
+      "x1": -50,
+      "x2": 50,
+      "y1": 400,
+      "y2": 500,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "w3",
+     "placement": {
+      "x1": -50,
+      "x2": 50,
+      "y1": 650,
+      "y2": 750,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "q0",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 100,
+      "y2": 200,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "q1",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 300,
+      "y2": 400,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "q2",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 500,
+      "y2": 600,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    },
+    {
+     "name": "q3",
+     "placement": {
+      "x1": 950,
+      "x2": 1050,
+      "y1": 700,
+      "y2": 800,
+      "rot": 0
+     },
+     "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>"
+    }
+   ],
+   "labels": [
+    {
+     "text": "qkin",
+     "x": 500,
+     "y": 1100,
+     "rot": 0,
+     "attrs": {
+      "fill": "black",
+      "font-size": "200",
+      "dominant-baseline": "central",
+      "text-anchor": "middle"
+     }
+    }
+   ]
+  }
+ ],
+ "ports": [
+  {
+   "name": "F1",
+   "placement": {
+    "x1": -50,
+    "x2": 50,
+    "y1": 350,
+    "y2": 450,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "F1",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "left"
+  },
+  {
+   "name": "F2",
+   "placement": {
+    "x1": -50,
+    "x2": 50,
+    "y1": 550,
+    "y2": 650,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "F2",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "left"
+  },
+  {
+   "name": "F3",
+   "placement": {
+    "x1": -50,
+    "x2": 50,
+    "y1": 700,
+    "y2": 800,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "F3",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "left"
+  },
+  {
+   "name": "T1",
+   "placement": {
+    "x1": -50,
+    "x2": 50,
+    "y1": 1600,
+    "y2": 1700,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "T1",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "left"
+  },
+  {
+   "name": "T2",
+   "placement": {
+    "x1": -50,
+    "x2": 50,
+    "y1": 1800,
+    "y2": 1900,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "T2",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "left"
+  },
+  {
+   "name": "T3",
+   "placement": {
+    "x1": -50,
+    "x2": 50,
+    "y1": 1950,
+    "y2": 2050,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(0,0,127)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "T3",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "left"
+  },
+  {
+   "name": "pos_1",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 675,
+    "y2": 725,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "pos_1",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "pos_2",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 825,
+    "y2": 875,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "pos_2",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "pos_3",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 975,
+    "y2": 1025,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "pos_3",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "vel_1",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 275,
+    "y2": 325,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "vel_1",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "vel_2",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 425,
+    "y2": 475,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "vel_2",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "vel_3",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 575,
+    "y2": 625,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "vel_3",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "qw",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 1075,
+    "y2": 1125,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "qw",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "qx",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 1225,
+    "y2": 1275,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "qx",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "qy",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 1375,
+    "y2": 1425,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "qy",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "qz",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 1525,
+    "y2": 1575,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "qz",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "omega_1",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 1675,
+    "y2": 1725,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "omega_1",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "omega_2",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 1875,
+    "y2": 1925,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "omega_2",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  },
+  {
+   "name": "omega_3",
+   "placement": {
+    "x1": 3300,
+    "x2": 3400,
+    "y1": 1975,
+    "y2": 2025,
+    "rot": 0
+   },
+   "icon": "<svg baseProfile=\"full\" height=\"210\" version=\"1.1\" viewBox=\"0 0 210 210\" width=\"210\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:ev=\"http://www.w3.org/2001/xml-events\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs/><polygon fill=\"rgb(255,255,255)\" fill-opacity=\"1\" points=\"5.0,5.0 205.0,105.0 5.0,205.0\" stroke=\"rgb(0,0,127)\" stroke-width=\"2mm\"/><defs/></svg>",
+   "labels": [
+    {
+     "text": "omega_3",
+     "x": 500,
+     "y": 1100,
+     "rot": 0
+    }
+   ],
+   "explicitPlacement": true,
+   "edge": "right"
+  }
+ ],
+ "connections": [
+  {
+   "routes": [
+    [
+     {
+      "x": 0,
+      "y": 400
+     },
+     {
+      "x": 643.75,
+      "y": 400
+     },
+     {
+      "x": 643.75,
+      "y": 360
+     },
+     {
+      "x": 650,
+      "y": 360
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "connector": "F1"
+    },
+    {
+     "component": "trans",
+     "connector": "F1"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 0,
+      "y": 1650
+     },
+     {
+      "x": 643.75,
+      "y": 1650
+     },
+     {
+      "x": 643.75,
+      "y": 1610.0000000000002
+     },
+     {
+      "x": 650,
+      "y": 1610
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "connector": "T1"
+    },
+    {
+     "component": "rot",
+     "connector": "T1"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 1610
+     },
+     {
+      "x": 1656.25,
+      "y": 1610.0000000000002
+     },
+     {
+      "x": 1656.25,
+      "y": 1162.5
+     },
+     {
+      "x": 1793.75,
+      "y": 1162.5
+     },
+     {
+      "x": 1793.75,
+      "y": 1160
+     },
+     {
+      "x": 1800,
+      "y": 1160
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "rot",
+     "connector": "w1"
+    },
+    {
+     "component": "qkin",
+     "connector": "w1"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 360
+     },
+     {
+      "x": 1656.25,
+      "y": 360
+     },
+     {
+      "x": 1656.25,
+      "y": 356.25
+     },
+     {
+      "x": 3350,
+      "y": 356.25
+     },
+     {
+      "x": 3350,
+      "y": 300
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "trans",
+     "connector": "v1"
+    },
+    {
+     "connector": "vel_1"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 800
+     },
+     {
+      "x": 3350,
+      "y": 800
+     },
+     {
+      "x": 3350,
+      "y": 700
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "trans",
+     "connector": "p1"
+    },
+    {
+     "connector": "pos_1"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 1610
+     },
+     {
+      "x": 1656.25,
+      "y": 1610.0000000000002
+     },
+     {
+      "x": 1656.25,
+      "y": 1612.5
+     },
+     {
+      "x": 1781.25,
+      "y": 1612.5
+     },
+     {
+      "x": 1781.25,
+      "y": 1812.5
+     },
+     {
+      "x": 3350,
+      "y": 1812.5
+     },
+     {
+      "x": 3350,
+      "y": 1700
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "rot",
+     "connector": "w1"
+    },
+    {
+     "connector": "omega_1"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 0,
+      "y": 600
+     },
+     {
+      "x": 643.75,
+      "y": 600
+     },
+     {
+      "x": 643.75,
+      "y": 560
+     },
+     {
+      "x": 650,
+      "y": 560
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "connector": "F2"
+    },
+    {
+     "component": "trans",
+     "connector": "F2"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 0,
+      "y": 1850
+     },
+     {
+      "x": 643.75,
+      "y": 1850
+     },
+     {
+      "x": 643.75,
+      "y": 1810.0000000000002
+     },
+     {
+      "x": 650,
+      "y": 1810
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "connector": "T2"
+    },
+    {
+     "component": "rot",
+     "connector": "T2"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 1810
+     },
+     {
+      "x": 1656.25,
+      "y": 1810.0000000000002
+     },
+     {
+      "x": 1656.25,
+      "y": 1806.25
+     },
+     {
+      "x": 1787.5,
+      "y": 1806.25
+     },
+     {
+      "x": 1787.5,
+      "y": 1362.5
+     },
+     {
+      "x": 1793.75,
+      "y": 1362.5
+     },
+     {
+      "x": 1793.75,
+      "y": 1360
+     },
+     {
+      "x": 1800,
+      "y": 1360
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "rot",
+     "connector": "w2"
+    },
+    {
+     "component": "qkin",
+     "connector": "w2"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 560
+     },
+     {
+      "x": 1656.25,
+      "y": 560
+     },
+     {
+      "x": 1656.25,
+      "y": 556.25
+     },
+     {
+      "x": 3350,
+      "y": 556.25
+     },
+     {
+      "x": 3350,
+      "y": 450
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "trans",
+     "connector": "v2"
+    },
+    {
+     "connector": "vel_2"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 920
+     },
+     {
+      "x": 1656.25,
+      "y": 919.9999999999999
+     },
+     {
+      "x": 1656.25,
+      "y": 918.75
+     },
+     {
+      "x": 3350,
+      "y": 918.75
+     },
+     {
+      "x": 3350,
+      "y": 850
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "trans",
+     "connector": "p2"
+    },
+    {
+     "connector": "pos_2"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 1810
+     },
+     {
+      "x": 1656.25,
+      "y": 1810.0000000000002
+     },
+     {
+      "x": 1656.25,
+      "y": 1900
+     },
+     {
+      "x": 3350,
+      "y": 1900
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "rot",
+     "connector": "w2"
+    },
+    {
+     "connector": "omega_2"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 0,
+      "y": 750
+     },
+     {
+      "x": 643.75,
+      "y": 750
+     },
+     {
+      "x": 643.75,
+      "y": 760
+     },
+     {
+      "x": 650,
+      "y": 760
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "connector": "F3"
+    },
+    {
+     "component": "trans",
+     "connector": "F3"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 0,
+      "y": 2000
+     },
+     {
+      "x": 643.75,
+      "y": 2000
+     },
+     {
+      "x": 643.75,
+      "y": 2010.0000000000002
+     },
+     {
+      "x": 650,
+      "y": 2010
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "connector": "T3"
+    },
+    {
+     "component": "rot",
+     "connector": "T3"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 2010
+     },
+     {
+      "x": 1656.25,
+      "y": 2010.0000000000002
+     },
+     {
+      "x": 1656.25,
+      "y": 2006.25
+     },
+     {
+      "x": 1793.75,
+      "y": 2006.25
+     },
+     {
+      "x": 1793.75,
+      "y": 1560
+     },
+     {
+      "x": 1800,
+      "y": 1560
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "rot",
+     "connector": "w3"
+    },
+    {
+     "component": "qkin",
+     "connector": "w3"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 760
+     },
+     {
+      "x": 1656.25,
+      "y": 760
+     },
+     {
+      "x": 1656.25,
+      "y": 600
+     },
+     {
+      "x": 3350,
+      "y": 600
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "trans",
+     "connector": "v3"
+    },
+    {
+     "connector": "vel_3"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 1040
+     },
+     {
+      "x": 1650,
+      "y": 1006.25
+     },
+     {
+      "x": 1787.5,
+      "y": 1006.25
+     },
+     {
+      "x": 1787.5,
+      "y": 987.5
+     },
+     {
+      "x": 3350,
+      "y": 987.5
+     },
+     {
+      "x": 3350,
+      "y": 1000
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "trans",
+     "connector": "p3"
+    },
+    {
+     "connector": "pos_3"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 1650,
+      "y": 2010
+     },
+     {
+      "x": 1656.25,
+      "y": 2010.0000000000002
+     },
+     {
+      "x": 1656.25,
+      "y": 2006.25
+     },
+     {
+      "x": 3350,
+      "y": 2006.25
+     },
+     {
+      "x": 3350,
+      "y": 2000
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "rot",
+     "connector": "w3"
+    },
+    {
+     "connector": "omega_3"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 2800,
+      "y": 1120
+     },
+     {
+      "x": 2806.25,
+      "y": 1120
+     },
+     {
+      "x": 2806.25,
+      "y": 1100
+     },
+     {
+      "x": 3350,
+      "y": 1100
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "qkin",
+     "connector": "q0"
+    },
+    {
+     "connector": "qw"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 2800,
+      "y": 1280
+     },
+     {
+      "x": 2806.25,
+      "y": 1280
+     },
+     {
+      "x": 2806.25,
+      "y": 1275
+     },
+     {
+      "x": 3350,
+      "y": 1275
+     },
+     {
+      "x": 3350,
+      "y": 1250
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "qkin",
+     "connector": "q1"
+    },
+    {
+     "connector": "qx"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 2800,
+      "y": 1440
+     },
+     {
+      "x": 2806.25,
+      "y": 1440
+     },
+     {
+      "x": 2806.25,
+      "y": 1437.5
+     },
+     {
+      "x": 3350,
+      "y": 1437.5
+     },
+     {
+      "x": 3350,
+      "y": 1400
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "qkin",
+     "connector": "q2"
+    },
+    {
+     "connector": "qy"
+    }
+   ]
+  },
+  {
+   "routes": [
+    [
+     {
+      "x": 2800,
+      "y": 1600
+     },
+     {
+      "x": 3350,
+      "y": 1600
+     },
+     {
+      "x": 3350,
+      "y": 1550
+     }
+    ]
+   ],
+   "junctions": [],
+   "pathAttrs": {
+    "stroke": "rgb(0,0,127)"
+   },
+   "ends": [
+    {
+     "component": "qkin",
+     "connector": "q3"
+    },
+    {
+     "connector": "qz"
+    }
+   ]
+  }
+ ],
+ "labels": []
+}

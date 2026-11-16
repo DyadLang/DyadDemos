@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+      <defs>
+        <filter id='red-shadow' color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="100" flood-color="#ff0000" flood-opacity="0.5"/></filter>
+        <filter id='green-shadow' color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="100" flood-color="#00ff00" flood-opacity="0.5"/></filter>
+        <filter id='blue-shadow' color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="100" flood-color="#0000ff" flood-opacity="0.5"/></filter>
+        <filter id='drop-shadow' color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="40" flood-opacity="0.5"/></filter>
+      </defs>
+    <g filter="url(#drop-shadow)" transform="translate(0 0) rotate(0) scale(1 1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" id="a" viewBox="0 0 1000 1000">
+  <defs>
+    <style>
+      .b{stroke:#443d4a;stroke-linecap:square;stroke-linejoin:bevel;stroke-width:6px;fill:none}
+    </style>
+  </defs>
+  <path fill="none" stroke="#000" stroke-linejoin="round" stroke-width="8" d="M54.81 501.09c138.61-380.23 684.44-398.72 858.12-53.46"/>
+  <path stroke-width="0" d="m871.14 453.26 64.34 47.16 8.68-79.3z"/>
+  <path d="M250.06 600.36c109.34-198.05 427.95-185.5 507.97 38.81" class="b"/>
+  <path fill="#443d4a" stroke-width="0" d="m281.36 605.39-49.1 34.18-5.06-59.61z"/>
+  <path d="m500.16 632.17-2.02 360.05" class="b"/>
+</svg>
+</g>
+<g transform="translate(500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+<g transform="translate(0 500) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+<g transform="translate(-500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg baseProfile="full" height="210" version="1.1" viewBox="0 0 210 210" width="210" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><polygon fill="rgb(0,0,127)" fill-opacity="1" points="5.0,5.0 205.0,105.0 5.0,205.0" stroke="rgb(0,0,127)" stroke-width="2mm" /><defs /></svg></g>
+    <text x="500" y="1195" transform="rotate(0, 0, 695)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">torque</text>
+    </svg></g>
+<g filter="url(#drop-shadow)" transform="translate(0 0) rotate(0) scale(1 1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="none" stroke="#443d4a" stroke-linejoin="round" stroke-width="8" d="M500 6.21v494.06"/>
+  <path fill="none" stroke="#443d4a" stroke-linecap="square" stroke-linejoin="bevel" stroke-width="8" d="M751.24 702.09 849.66 500H150.8"/>
+  <path fill="none" stroke="#443d4a" stroke-linecap="square" stroke-miterlimit="10" stroke-width="8" d="M149.95 702.09 248.37 501m102.01 201.09L448.8 501m102.01 201.09L649.23 501"/>
+</svg>
+</g>
+<g transform="translate(0 -500) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+    <text x="500" y="906" transform="rotate(0, 0, 406)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">torque_support</text>
+    </svg></g>
+<g filter="url(#drop-shadow)" transform="translate(0 0) rotate(0) scale(1 1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="a" x1="836.3" x2="836.3" y1="519.93" y2="469.93" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5d5d7a"/>
+      <stop offset=".1" stop-color="#7e7ea1"/>
+      <stop offset=".23" stop-color="#a3a5ce"/>
+      <stop offset=".33" stop-color="#bbbdea"/>
+      <stop offset=".39" stop-color="#c4c6f5"/>
+      <stop offset=".4" stop-color="#c1c2f1"/>
+      <stop offset=".52" stop-color="#b1add9"/>
+      <stop offset=".62" stop-color="#a8a1cb"/>
+      <stop offset=".72" stop-color="#a59dc7"/>
+      <stop offset="1" stop-color="#5d5d7a"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="b" x1="159.8" x2="159.8"/>
+    <linearGradient xlink:href="#a" id="c" x1="499.92" x2="499.92" y1="730.3" y2="260.55"/>
+  </defs>
+  <path fill="url(#a)" d="M730.21 469.93h212.18v50H730.21z"/>
+  <path fill="url(#b)" d="M50.49 469.93H269.1v50H50.49z"/>
+  <path fill="url(#c)" d="M265.04 260.55h469.75V730.3H265.04z"/>
+  <path fill="none" stroke="#443d4a" stroke-linejoin="round" stroke-width="8" d="M201.75 261.07v164.34m-29.41.95h58.82m564.05-165.29v164.34m-29.41.95h58.82"/>
+  <path fill="none" stroke="#000" stroke-linejoin="round" stroke-width="8" d="M824.62 555.11H765.8m-564.05 5.85V790l593.46-4.9V556.06m-564.05 3.95h-58.82"/>
+</svg>
+</g>
+<g transform="translate(-500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+<g transform="translate(500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+    <text x="500" y="994" transform="rotate(0, 0, 494)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">J_eng</text>
+    </svg></g>
+<g filter="url(#drop-shadow)" transform="translate(0 0) rotate(0) scale(1 1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#fff" d="M4 4h992v992H4z"/>
+  <path fill="#008a19" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <!-- shaft stubs -->
+  <path fill="none" stroke="#000" stroke-width="10" d="M40 500h140m640 0h140"/>
+  <!-- vertical rails -->
+  <path fill="none" stroke="#000" stroke-width="10" d="M180 220v560m640-560v560"/>
+  <!-- top branch: baseline spring k0 -->
+  <path fill="none" stroke="#000" stroke-width="10" stroke-linejoin="round"
+        d="M180 280h120l40-50 80 100 80-100 80 100 80-100 40 50h100"/>
+  <!-- middle branch: Maxwell spring k1 in series with damper c1 -->
+  <path fill="none" stroke="#000" stroke-width="10" stroke-linejoin="round"
+        d="M180 500h60l30-40 60 80 60-80 60 80 30-40h30"/>
+  <path fill="#adaddb" d="M540 440h180v120H540z"/>
+  <path fill="none" stroke="#000" stroke-width="10" d="M740 440v120m-200-120v120m0-60h-30m230 0h80"/>
+  <path fill="none" stroke="#000" stroke-width="10" d="M620 460v80m0-40h60"/>
+  <!-- bottom branch: Bouc-Wen hysteresis loop -->
+  <path fill="none" stroke="#0066b3" stroke-width="14" stroke-linecap="round"
+        d="M360 800 C 470 800 530 700 640 670 C 580 690 530 770 360 800 Z"/>
+  <path fill="none" stroke="#000" stroke-width="10" d="M180 735h130m380-30h130"/>
+</svg>
+</g>
+<g transform="translate(-500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+<g transform="translate(500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+    <text x="500" y="1100" transform="rotate(0, 0, 600)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">isolator</text>
+    </svg></g>
+<g filter="url(#drop-shadow)" transform="translate(0 0) rotate(0) scale(1 1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="a" x1="836.3" x2="836.3" y1="519.93" y2="469.93" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5d5d7a"/>
+      <stop offset=".1" stop-color="#7e7ea1"/>
+      <stop offset=".23" stop-color="#a3a5ce"/>
+      <stop offset=".33" stop-color="#bbbdea"/>
+      <stop offset=".39" stop-color="#c4c6f5"/>
+      <stop offset=".4" stop-color="#c1c2f1"/>
+      <stop offset=".52" stop-color="#b1add9"/>
+      <stop offset=".62" stop-color="#a8a1cb"/>
+      <stop offset=".72" stop-color="#a59dc7"/>
+      <stop offset="1" stop-color="#5d5d7a"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="b" x1="159.8" x2="159.8"/>
+    <linearGradient xlink:href="#a" id="c" x1="499.92" x2="499.92" y1="730.3" y2="260.55"/>
+  </defs>
+  <path fill="url(#a)" d="M730.21 469.93h212.18v50H730.21z"/>
+  <path fill="url(#b)" d="M50.49 469.93H269.1v50H50.49z"/>
+  <path fill="url(#c)" d="M265.04 260.55h469.75V730.3H265.04z"/>
+  <path fill="none" stroke="#443d4a" stroke-linejoin="round" stroke-width="8" d="M201.75 261.07v164.34m-29.41.95h58.82m564.05-165.29v164.34m-29.41.95h58.82"/>
+  <path fill="none" stroke="#000" stroke-linejoin="round" stroke-width="8" d="M824.62 555.11H765.8m-564.05 5.85V790l593.46-4.9V556.06m-564.05 3.95h-58.82"/>
+</svg>
+</g>
+<g transform="translate(-500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+<g transform="translate(500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+    <text x="500" y="994" transform="rotate(0, 0, 494)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">J_load</text>
+    </svg></g>
+<g filter="url(#drop-shadow)" transform="translate(0 0) rotate(0) scale(1 1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="#adaddb" d="M251.48 300.61h446.64v402H251.48z"/>
+  <path fill="none" stroke="#000" stroke-linejoin="round" stroke-width="8" d="M700.14 500h238.01m-887.12 0h199.11m449.62-199.67v399.28m102.38 3h-552v-402h552"/>
+</svg>
+</g>
+<g transform="translate(-500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+<g transform="translate(500 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+    <text x="500" y="907" transform="rotate(0, 0, 407)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">load_damper</text>
+    </svg></g>
+<g filter="url(#drop-shadow)" transform="translate(0 0) rotate(0) scale(1 1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <path fill="none" stroke="#443d4a" stroke-linejoin="round" stroke-width="8" d="M500 6.21v494.06"/>
+  <path fill="none" stroke="#443d4a" stroke-linecap="square" stroke-linejoin="bevel" stroke-width="8" d="M751.24 702.09 849.66 500H150.8"/>
+  <path fill="none" stroke="#443d4a" stroke-linecap="square" stroke-miterlimit="10" stroke-width="8" d="M149.95 702.09 248.37 501m102.01 201.09L448.8 501m102.01 201.09L649.23 501"/>
+</svg>
+</g>
+<g transform="translate(0 -500) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <circle cx="500" cy="500" r="500" fill="#aaa"/>
+</svg></g>
+    <text x="500" y="906" transform="rotate(0, 0, 406)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">ground</text>
+    </svg></g>
+    <path d="M 500 550 L 500 450 " stroke-stroke="4" fill="transparent" stroke="#aaa" vector-effect="non-scaling-stroke"/>
+    <path d="M 550 500 L 450 500 " stroke-stroke="4" fill="transparent" stroke="#aaa" vector-effect="non-scaling-stroke"/>
+    <path d="M 550 500 L 450 500 " stroke-stroke="4" fill="transparent" stroke="#aaa" vector-effect="non-scaling-stroke"/>
+    <path d="M 550 500 L 450 500 " stroke-stroke="4" fill="transparent" stroke="#aaa" vector-effect="non-scaling-stroke"/>
+    <path d="M 550 500 L 450 500 " stroke-stroke="4" fill="transparent" stroke="#aaa" vector-effect="non-scaling-stroke"/>
+    <path d="M 550 500 L 500 450 " stroke-stroke="4" fill="transparent" stroke="#aaa" vector-effect="non-scaling-stroke"/>
+      </svg>

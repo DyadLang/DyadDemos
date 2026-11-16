@@ -1,0 +1,7 @@
+Warning: driveline_model.dyad:44:3 - missing-placement: Component torque in DrivelineSystem doesn't include placement metadata for diagrams; using default position.
+Warning: driveline_model.dyad:45:3 - missing-placement: Component torque_support in DrivelineSystem doesn't include placement metadata for diagrams; using default position.
+Warning: driveline_model.dyad:46:3 - missing-placement: Component J_eng in DrivelineSystem doesn't include placement metadata for diagrams; using default position.
+Warning: driveline_model.dyad:47:3 - missing-placement: Component isolator in DrivelineSystem doesn't include placement metadata for diagrams; using default position.
+Warning: driveline_model.dyad:48:3 - missing-placement: Component J_load in DrivelineSystem doesn't include placement metadata for diagrams; using default position.
+Warning: driveline_model.dyad:49:3 - missing-placement: Component load_damper in DrivelineSystem doesn't include placement metadata for diagrams; using default position.
+Warning: driveline_model.dyad:50:3 - missing-placement: Component ground in DrivelineSystem doesn't include placement metadata for diagrams; using default position.
