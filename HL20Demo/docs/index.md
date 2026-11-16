@@ -30,8 +30,9 @@ pointing — using these parts:
 | Surface mixer and actuators | Spreads each command across the seven moving surfaces |
 
 The closed-loop analysis `TestHL20FullSystemSim` reproduces the Appendix F
-aft pitch-stick pulse end-to-end; see `docs/diagrams/` for rendered images of
-every component diagram and `docs/LAYOUT_NOTES.md` for how each layout was
+aft pitch-stick pulse end-to-end; see `../../docs/layout/HL20Demo/diagrams/`
+(at the repository root) for rendered images of every component diagram and
+`../../docs/layout/HL20Demo/LAYOUT_NOTES.md` for how each layout was
 produced.
 
 !!! note

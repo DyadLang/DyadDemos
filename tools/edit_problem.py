@@ -5,6 +5,7 @@ usage: edit_problem.py IN OUT [ops...]
 ops:
   lock-orientation[=TIER]     orientation=identity for every real component (default tier required)
   keep-orientation[=TIER]     orientation = the component's current seed state
+  pin-seed[=TIER]             pin every real component at its extracted (current) position
   unpin-ports                 drop the extracted `pin:<port>` locks on boundary connectors
   port-edges[=TIER]           portEdge by declared direction: input->left, output->right, none->(keep or top)
   opt:KEY=JSON                settings.options[KEY] = JSON  (e.g. opt:routingRefinement=1, opt:seedFromCurrent=false)
@@ -33,6 +34,10 @@ for op in ops:
         for i in real:
             d = p['hints']['components'].get(i, {}).get('initialD4State', 'identity')
             put(f'orientation:{i}', {'kind': 'orientation', 'componentId': i, 'd4': d}, arg)
+    elif name == 'pin-seed':
+        for i in real:
+            pos = p['hints']['components'].get(i, {}).get('initialPosition')
+            if pos: put(f'pin:{i}', {'kind': 'pin', 'componentId': i, 'at': pos}, arg)
     elif name == 'unpin-ports':
         ports = {k['id'] for k in st['canvasConnectors']}
         C[:] = [c for c in C if not (c['kind']['kind'] == 'pin' and c['kind']['componentId'] in ports)]

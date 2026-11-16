@@ -1,0 +1,844 @@
+"""
+Review-fix regression tests (independent of the model equations).
+
+TestQuatDirection checks that QuatToInertial applies the body-to-inertial
+rotation matrix R(q) itself, not its transpose. The quaternion
+q = (sqrt(1/2), 0, 0, sqrt(1/2)) gives, by hand,
+
+    R = [ 0 -1  0
+          1  0  0
+          0  0  1 ]
+
+so a forward body vector (1,0,0) must map to (0,+1,0) in NED and a right
+body vector (0,1,0) must map to (-1,0,0). The old (buggy) wiring applied
+R^T and would have produced (0,-1,0) and (+1,0,0).
+"""
+test component TestQuatDirection
+  rot_a = QuatToInertial() {
+    "Dyad": {"placement": {"diagram": {"x1": 462.5, "x2": 562.5, "y1": 950, "y2": 1050}}}
+  }
+  rot_b = QuatToInertial() {
+    "Dyad": {"placement": {"diagram": {"x1": 462.5, "x2": 562.5, "y1": 2700, "y2": 2800}}}
+  }
+  a_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 200, "y2": 300}}}
+  }
+  a_qx = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 450, "y2": 550}}}
+  }
+  a_qy = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 700, "y2": 800}}}
+  }
+  a_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 950, "y2": 1050}}}
+  }
+  a_b1 = BlockComponents.Sources.Constant(k = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 1200, "y2": 1300}}}
+  }
+  a_b2 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 1450, "y2": 1550}}}
+  }
+  a_b3 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 1700, "y2": 1800}}}
+  }
+  b_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 1950, "y2": 2050}}}
+  }
+  b_qx = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 2200, "y2": 2300}}}
+  }
+  b_qy = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 2450, "y2": 2550}}}
+  }
+  b_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 2700, "y2": 2800}}}
+  }
+  b_b1 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 2950, "y2": 3050}}}
+  }
+  b_b2 = BlockComponents.Sources.Constant(k = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 3200, "y2": 3300}}}
+  }
+  b_b3 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 3450, "y2": 3550}}}
+  }
+relations
+  connect(a_qw.y, rot_a.qw) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 462.5, "y": 250},
+            {"x": 462.5, "y": 943.75},
+            {"x": 456.25, "y": 943.75},
+            {"x": 456.25, "y": 955.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(a_qx.y, rot_a.qx) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 456.25, "y": 500}, {"x": 456.25, "y": 965}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(a_qy.y, rot_a.qy) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 750}, {"x": 450, "y": 975}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(a_qz.y, rot_a.qz) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 456.25, "y": 1000}, {"x": 456.25, "y": 985}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(a_b1.y, rot_a.b1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 1250},
+            {"x": 450, "y": 1006.25},
+            {"x": 456.25, "y": 1006.25},
+            {"x": 456.25, "y": 1005.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(a_b2.y, rot_a.b2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 456.25, "y": 1500}, {"x": 456.25, "y": 1015}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(a_b3.y, rot_a.b3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 318.75, "y": 1750},
+            {"x": 318.75, "y": 1562.5},
+            {"x": 200, "y": 1562.5},
+            {"x": 200, "y": 1062.5},
+            {"x": 443.75, "y": 1062.5},
+            {"x": 443.75, "y": 1025}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(b_qw.y, rot_b.qw) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 462.5, "y": 2000},
+            {"x": 462.5, "y": 2693.75},
+            {"x": 456.25, "y": 2693.75},
+            {"x": 456.25, "y": 2705}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(b_qx.y, rot_b.qx) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 456.25, "y": 2250}, {"x": 456.25, "y": 2715}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b_qy.y, rot_b.qy) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 2500}, {"x": 450, "y": 2725}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b_qz.y, rot_b.qz) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 456.25, "y": 2750}, {"x": 456.25, "y": 2735}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b_b1.y, rot_b.b1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 3000},
+            {"x": 450, "y": 2756.25},
+            {"x": 456.25, "y": 2756.25},
+            {"x": 456.25, "y": 2755}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(b_b2.y, rot_b.b2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 456.25, "y": 3250}, {"x": 456.25, "y": 2765}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b_b3.y, rot_b.b3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 318.75, "y": 3500},
+            {"x": 318.75, "y": 3312.5},
+            {"x": 200, "y": 3312.5},
+            {"x": 200, "y": 2812.5},
+            {"x": 443.75, "y": 2812.5},
+            {"x": 443.75, "y": 2775}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+metadata {
+  "Dyad": {
+    "tests": {
+      "yaw90": {
+        "stop": 1,
+        "atol": {
+          "rot_a.v1": 1e-9,
+          "rot_a.v2": 1e-9,
+          "rot_a.v3": 1e-9,
+          "rot_b.v1": 1e-9,
+          "rot_b.v2": 1e-9,
+          "rot_b.v3": 1e-9
+        },
+        "expect": {
+          "final": {
+            "rot_a.v1": 0.0,
+            "rot_a.v2": 1.0,
+            "rot_a.v3": 0.0,
+            "rot_b.v1": -1.0,
+            "rot_b.v2": 0.0,
+            "rot_b.v3": 0.0
+          }
+        }
+      }
+    }
+  }
+}
+end
+
+"""
+Body -> inertial -> body round trip: feeding QuatToInertial's output back
+through QuatToBody with the same quaternion must return the original body
+vector. With q = (sqrt(1/2), 0, 0, sqrt(1/2)) the intermediate inertial
+vector for b = (3, -2, 5) is R*b = (2, 3, 5); applying the transpose twice
+(both rotations buggy the same way) would return (-3, 2, 5) instead.
+"""
+test component TestQuatRoundTrip
+  rot_f = QuatToInertial() {
+    "Dyad": {"placement": {"diagram": {"x1": 462.5, "x2": 562.5, "y1": 1300, "y2": 1400}}}
+  }
+  rot_b = QuatToBody() {
+    "Dyad": {"placement": {"diagram": {"x1": 712.5, "x2": 812.5, "y1": 1300, "y2": 1400}}}
+  }
+  c_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 450, "y2": 550}}}
+  }
+  c_qx = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 700, "y2": 800}}}
+  }
+  c_qy = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 950, "y2": 1050}}}
+  }
+  c_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 1200, "y2": 1300}}}
+  }
+  f_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 200, "y2": 300}}}
+  }
+  f_qx = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 2200, "y2": 2300}}}
+  }
+  f_qy = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 2450, "y2": 2550}}}
+  }
+  f_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 2700, "y2": 2800}}}
+  }
+  c_b1 = BlockComponents.Sources.Constant(k = 3.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 1450, "y2": 1550}}}
+  }
+  c_b2 = BlockComponents.Sources.Constant(k = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 1700, "y2": 1800}}}
+  }
+  c_b3 = BlockComponents.Sources.Constant(k = 5.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 212.5, "x2": 312.5, "y1": 1950, "y2": 2050}}}
+  }
+relations
+  connect(c_qw.y, rot_f.qw) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 462.5, "y": 500},
+            {"x": 462.5, "y": 1293.75},
+            {"x": 456.25, "y": 1293.75},
+            {"x": 456.25, "y": 1305}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_qx.y, rot_f.qx) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 456.25, "y": 750}, {"x": 456.25, "y": 1315}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_qy.y, rot_f.qy) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 443.75, "y": 1000}, {"x": 443.75, "y": 1325}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_qz.y, rot_f.qz) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 1250},
+            {"x": 450, "y": 1331.25},
+            {"x": 456.25, "y": 1331.25},
+            {"x": 456.25, "y": 1335}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_b1.y, rot_f.b1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 1500},
+            {"x": 450, "y": 1356.25},
+            {"x": 456.25, "y": 1356.25},
+            {"x": 456.25, "y": 1355}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_b2.y, rot_f.b2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 456.25, "y": 1750}, {"x": 456.25, "y": 1365}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_b3.y, rot_f.b3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 318.75, "y": 2000},
+            {"x": 318.75, "y": 1812.5},
+            {"x": 200, "y": 1812.5},
+            {"x": 200, "y": 1375}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(f_qw.y, rot_b.qw) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 706.25, "y": 250}, {"x": 706.25, "y": 1305}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(f_qx.y, rot_b.qx) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 818.75, "y": 2250},
+            {"x": 818.75, "y": 1293.75},
+            {"x": 700, "y": 1293.75},
+            {"x": 700, "y": 1318.75},
+            {"x": 706.25, "y": 1318.75},
+            {"x": 706.25, "y": 1315}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(f_qy.y, rot_b.qy) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 693.75, "y": 2500},
+            {"x": 693.75, "y": 1331.25},
+            {"x": 706.25, "y": 1331.25},
+            {"x": 706.25, "y": 1325}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(f_qz.y, rot_b.qz) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 700, "y": 2750},
+            {"x": 700, "y": 1356.25},
+            {"x": 706.25, "y": 1356.25},
+            {"x": 706.25, "y": 1335}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(rot_f.v1, rot_b.v1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 700, "y": 1325},
+            {"x": 700, "y": 1350},
+            {"x": 706.25, "y": 1350},
+            {"x": 706.25, "y": 1355}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(rot_f.v2, rot_b.v2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 568.75, "y": 1345},
+            {"x": 568.75, "y": 1362.5},
+            {"x": 706.25, "y": 1362.5},
+            {"x": 706.25, "y": 1365}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(rot_f.v3, rot_b.v3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 568.75, "y": 1365}, {"x": 568.75, "y": 1375}], "E": 2}],
+      "path": {}
+    }
+  }
+metadata {
+  "Dyad": {
+    "tests": {
+      "roundtrip": {
+        "stop": 1,
+        "atol": {
+          "rot_f.v1": 1e-9,
+          "rot_f.v2": 1e-9,
+          "rot_f.v3": 1e-9,
+          "rot_b.b1": 1e-9,
+          "rot_b.b2": 1e-9,
+          "rot_b.b3": 1e-9
+        },
+        "expect": {
+          "final": {
+            "rot_f.v1": 2.0,
+            "rot_f.v2": 3.0,
+            "rot_f.v3": 5.0,
+            "rot_b.b1": 3.0,
+            "rot_b.b2": -2.0,
+            "rot_b.b3": 5.0
+          }
+        }
+      }
+    }
+  }
+}
+end
+
+"""
+Upper body-flap elevator assist (spec 10.5): DUFDE = DLEC + 15 only when
+DLEC < -15, else 0. Four mixers share DACMD = 0, DRCMD = 0, DSBCMD = 16.42
+(so DBFSBUC = 10 - 16.42 = -6.42 and DBFSBLC = 16.42, all aileron flap
+commands zero) and differ only in DECMD:
+
+  mix_t: DECMD = 5.5  (trim)       -> DUFDE = 0,  DUL = DUR = -6.42
+  mix_b: DECMD = -20 (below -15)   -> DUFDE = -5, DUL = DUR = -11.42
+  mix_e: DECMD = -15 (at -15)      -> DUFDE = 0,  DUL = DUR = -6.42
+  mix_a: DECMD = -10 (above -15)   -> DUFDE = 0,  DUL = DUR = -6.42
+
+Expected values come from the spec arithmetic, not from the model. The old
+(buggy) wiring gave DUFDE = DLEC + 15 above -15, i.e. +14.08 at trim.
+"""
+test component TestMixerAssist
+  mix_t = HL20Mixer() {
+    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 575, "y1": 600, "y2": 700}}}
+  }
+  mix_b = HL20Mixer() {
+    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 575, "y1": 1600, "y2": 1700}}}
+  }
+  mix_e = HL20Mixer() {
+    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 575, "y1": 2600, "y2": 2700}}}
+  }
+  mix_a = HL20Mixer() {
+    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 575, "y1": 3600, "y2": 3700}}}
+  }
+  t_dec = BlockComponents.Sources.Constant(k = 5.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 200, "y2": 300}}}
+  }
+  t_dac = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 450, "y2": 550}}}
+  }
+  t_drc = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 700, "y2": 800}}}
+  }
+  t_dsb = BlockComponents.Sources.Constant(k = 16.42) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 950, "y2": 1050}}}
+  }
+  b_dec = BlockComponents.Sources.Constant(k = -20.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 1200, "y2": 1300}}}
+  }
+  b_dac = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 1450, "y2": 1550}}}
+  }
+  b_drc = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 1700, "y2": 1800}}}
+  }
+  b_dsb = BlockComponents.Sources.Constant(k = 16.42) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 1950, "y2": 2050}}}
+  }
+  e_dec = BlockComponents.Sources.Constant(k = -15.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 2200, "y2": 2300}}}
+  }
+  e_dac = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 2450, "y2": 2550}}}
+  }
+  e_drc = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 2700, "y2": 2800}}}
+  }
+  e_dsb = BlockComponents.Sources.Constant(k = 16.42) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 2950, "y2": 3050}}}
+  }
+  a_dec = BlockComponents.Sources.Constant(k = -10.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 3200, "y2": 3300}}}
+  }
+  a_dac = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 3450, "y2": 3550}}}
+  }
+  a_drc = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 3700, "y2": 3800}}}
+  }
+  a_dsb = BlockComponents.Sources.Constant(k = 16.42) {
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 3950, "y2": 4050}}}
+  }
+relations
+  connect(t_dec.y, mix_t.DECMD) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 462.5, "y": 250}, {"x": 462.5, "y": 615}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(t_dac.y, mix_t.DACMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 500},
+            {"x": 450, "y": 625},
+            {"x": 462.5, "y": 625},
+            {"x": 462.5, "y": 635}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(t_drc.y, mix_t.DRCMD) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 462.5, "y": 750}, {"x": 462.5, "y": 655}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(t_dsb.y, mix_t.DSBCMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 337.5, "y": 1000},
+            {"x": 337.5, "y": 825},
+            {"x": 200, "y": 825},
+            {"x": 200, "y": 675}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(b_dec.y, mix_b.DECMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 462.5, "y": 1250}, {"x": 462.5, "y": 1614.9999999999998}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(b_dac.y, mix_b.DACMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 1500},
+            {"x": 450, "y": 1625},
+            {"x": 462.5, "y": 1625},
+            {"x": 462.5, "y": 1635.0000000000002}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(b_drc.y, mix_b.DRCMD) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 462.5, "y": 1750}, {"x": 462.5, "y": 1655}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b_dsb.y, mix_b.DSBCMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 337.5, "y": 2000},
+            {"x": 337.5, "y": 1825},
+            {"x": 200, "y": 1825},
+            {"x": 200, "y": 1675}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(e_dec.y, mix_e.DECMD) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 462.5, "y": 2250}, {"x": 462.5, "y": 2615}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(e_dac.y, mix_e.DACMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 2500},
+            {"x": 450, "y": 2625},
+            {"x": 462.5, "y": 2625},
+            {"x": 462.5, "y": 2635}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(e_drc.y, mix_e.DRCMD) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 462.5, "y": 2750}, {"x": 462.5, "y": 2655}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(e_dsb.y, mix_e.DSBCMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 337.5, "y": 3000},
+            {"x": 337.5, "y": 2825},
+            {"x": 200, "y": 2825},
+            {"x": 200, "y": 2675}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(a_dec.y, mix_a.DECMD) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 462.5, "y": 3250}, {"x": 462.5, "y": 3615}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(a_dac.y, mix_a.DACMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 3500},
+            {"x": 450, "y": 3625},
+            {"x": 462.5, "y": 3625},
+            {"x": 462.5, "y": 3635}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(a_drc.y, mix_a.DRCMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 462.5, "y": 3750}, {"x": 462.5, "y": 3654.9999999999995}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(a_dsb.y, mix_a.DSBCMD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 337.5, "y": 4000},
+            {"x": 337.5, "y": 3825},
+            {"x": 200, "y": 3825},
+            {"x": 200, "y": 3675}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+metadata {
+  "Dyad": {
+    "tests": {
+      "assist": {
+        "stop": 10,
+        "atol": {
+          "mix_t.duf_sel.y": 1e-9,
+          "mix_b.duf_sel.y": 1e-9,
+          "mix_e.duf_sel.y": 1e-9,
+          "mix_a.duf_sel.y": 1e-9,
+          "mix_t.dulc.y": 1e-9,
+          "mix_b.dulc.y": 1e-9,
+          "mix_e.dulc.y": 1e-9,
+          "mix_a.dulc.y": 1e-9,
+          "mix_t.DUL": 0.02,
+          "mix_t.DUR": 0.02,
+          "mix_t.DLL": 0.02,
+          "mix_t.DLR": 0.02,
+          "mix_t.DLE": 0.02,
+          "mix_t.DRE": 0.02,
+          "mix_t.DR": 0.02,
+          "mix_b.DUL": 0.02,
+          "mix_b.DUR": 0.02,
+          "mix_b.DLL": 0.02,
+          "mix_b.DLE": 0.02,
+          "mix_e.DUL": 0.02,
+          "mix_e.DLE": 0.02,
+          "mix_a.DUL": 0.02,
+          "mix_a.DLE": 0.02
+        },
+        "expect": {
+          "final": {
+            "mix_t.duf_sel.y": 0.0,
+            "mix_b.duf_sel.y": -5.0,
+            "mix_e.duf_sel.y": 0.0,
+            "mix_a.duf_sel.y": 0.0,
+            "mix_t.dulc.y": -6.42,
+            "mix_b.dulc.y": -11.42,
+            "mix_e.dulc.y": -6.42,
+            "mix_a.dulc.y": -6.42,
+            "mix_t.DUL": -6.42,
+            "mix_t.DUR": -6.42,
+            "mix_t.DLL": 16.42,
+            "mix_t.DLR": 16.42,
+            "mix_t.DLE": 5.5,
+            "mix_t.DRE": 5.5,
+            "mix_t.DR": 0.0,
+            "mix_b.DUL": -11.42,
+            "mix_b.DUR": -11.42,
+            "mix_b.DLL": 16.42,
+            "mix_b.DLE": -20.0,
+            "mix_e.DUL": -6.42,
+            "mix_e.DLE": -15.0,
+            "mix_a.DUL": -6.42,
+            "mix_a.DLE": -10.0
+          }
+        }
+      }
+    }
+  }
+}
+end

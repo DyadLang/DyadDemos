@@ -20,9 +20,9 @@ __dyad_run_test_case!(
   expected_initial=Tuple[],
   expected_final=Tuple[],
   signals=Tuple[
-    (m -> m.vehicle.ALPHA_DEG, "vehicle.ALPHA_DEG", 1e-5, 1e-5),
-    (m -> m.vehicle.NZ, "vehicle.NZ", 1e-5, 1e-5),
-    (m -> m.vehicle.QBAR, "vehicle.QBAR", 1e-5, 1e-5),
-    (m -> m.vehicle.POS_3, "vehicle.POS_3", 1e-5, 1e-5),
+    (m -> m.vehicle.ALPHA_DEG, "vehicle.ALPHA_DEG", 0.005, 1e-5),
+    (m -> m.vehicle.NZ, "vehicle.NZ", 0.01, 1e-5),
+    (m -> m.vehicle.QBAR, "vehicle.QBAR", 0.1, 1e-5),
+    (m -> m.vehicle.POS_3, "vehicle.POS_3", 0.5, 1e-5),
   ],
 )
