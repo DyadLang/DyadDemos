@@ -29,7 +29,7 @@ SVG.
 | `-o, --output OUT` | where to write (default: SVG on stdout) |
 | `--scale N` | output pixels per diagram unit (default 1) |
 | `--fit WxH` | fit the drawing into W × H pixels instead, keeping its aspect ratio (like dyad-ui-shot's `--fit content`; e.g. `--fit 3200x2000`) |
-| `--margin N` | margin around the drawing, in pixels (default 48) |
+| `--margin N` | margin around the drawing, in pixels (default 48); with `--fit`, W and H must be larger than twice the margin |
 | `--no-layout` | never lay out a diagram with no placements, draw it as placed |
 | `--dyad PATH` | the `dyad` executable (default `$DYAD`, else `dyad`) |
 | `--julia PATH` | `JULIA_EXECUTABLE` for the `dyad` CLI, which needs Julia to find a library's Dyad dependencies |
@@ -63,8 +63,9 @@ const { png } = await renderPng(data, { fit: { width: 3200, height: 2000 } });
 It draws what Studio draws, measured from Studio 3.5.1 screenshots (the
 details are in ARCHITECTURE.md):
 
-- each component's icon, scaled into its placement box with its aspect ratio
-  kept, then flipped and rotated as the placement says;
+- each component's icon, fitted into its placement box as its own
+  `preserveAspectRatio` says (by default aspect kept and centred; `none`
+  stretches), cut to the box, then flipped and rotated as the placement says;
 - each connector's own icon at the connector's placement. Causal and acausal
   glyphs (the navy triangles, the grey flange circles, the red squares) come
   from the connector types' icons, as in Studio, so they are not hard-coded;
@@ -74,8 +75,19 @@ details are in ARCHITECTURE.md):
   dots;
 - labels in Inter, 16 diagram units high whatever the component's size,
   colour `#18181b`. Instance names go below and parameter labels above, where
-  the label metadata puts them;
+  the label metadata puts them; they turn and mirror with their component
+  but are never upside down;
+- analysis points: a crosshair in the wire's colour mid-wire, with the name
+  above;
+- array connectors with a `show` in their placement, fanned out one copy per
+  element;
 - a white canvas with no grid.
+
+Whatever is in the data but not drawn (clock partitions; icon content
+removed because it could run code or load something) is reported: the
+command line prints a warning for each, `renderDiagram` returns them as
+`diagnostics`. Icons are sanitised (see ARCHITECTURE.md): only `#fragment`
+references and `data:` images survive.
 
 A diagram where nothing has a placement is laid out automatically, as Studio
 does: a layered left-to-right layout (`src/autolayout.ts`). A diagram with any
@@ -115,6 +127,13 @@ the Dyad 3.5 CLI without a language server. It runs two commands:
   the same order. It also says which ports are pinned and which connectors
   each connection joins.
 
+Relative paths (`-d`, `--dyad`, `--julia`) are resolved before the commands
+run inside the library. A non-zero exit status from either command is an
+error, with the command's standard error; its warnings are passed on.
+Analysis points are read from the component's `.dyad` source, as neither
+command prints them; array connector lengths and clocks are not available
+from the CLI (see ARCHITECTURE.md).
+
 It corrects one thing the 3.5.0 SVG gets wrong. A component without a diagram
 placement is drawn over the whole diagram box, while the kernel's default
 (and Studio) is a 100 × 100 box at the centre.
@@ -132,7 +151,15 @@ were recorded from the Dyad 3.5.0 CLI:
 
 - the `*.render.svg`, `*.render.log` and `*.problem.json` files are `dyad
   render` and `dyad layout extract` output;
-- the `*.diagram.json` files are adapter output.
+- the `*.diagram.json` files are adapter output;
+- `RenderRef/` is a small library made to compare details with Studio
+  (rotated and mirrored labels, `preserveAspectRatio`, analysis points,
+  `markers` connections, array connectors). Instantiate it offline
+  (`JULIA_PKG_OFFLINE=true julia --project=. -e 'using Pkg; Pkg.instantiate()'`)
+  to shoot it with dyad-ui-shot or render it with the adapter.
+
+The adapter tests run a stand-in for `dyad` (a shell script) to check how
+the commands are run and how failures are reported.
 
 The golden test renders `RigidBody6DOF` (placed, with routes) and
 `DrivelineSystem` (laid out automatically) to PNG. It fails if more than 0.2 %

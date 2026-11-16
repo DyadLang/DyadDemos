@@ -5,9 +5,14 @@
  * `render` is pure: it reads only its arguments (the diagram, already
  * resolved to geometry and icon markup, and the font metrics to measure
  * labels with) and returns a self-contained SVG document. It does no I/O.
+ *
+ * Everything that comes from the data (names, label text, colours, icon
+ * markup) reaches the SVG escaped: text and attribute values through
+ * `escapeText`/`escapeAttr`, numbers through `fmt`, icons through
+ * `prepareIcon`'s sanitiser. Nothing from the data is written into a comment.
  */
 
-import type { ComponentShape, ConnectorShape, DiagramData, Label, Placement, Point } from "./model.ts";
+import type { ComponentShape, Connection, ConnectorShape, DiagramData, Label, Placement, Point } from "./model.ts";
 import {
   type Box,
   type Matrix,
@@ -15,6 +20,7 @@ import {
   apply,
   boxFrame,
   emptyBox,
+  fanOut,
   fmt,
   isEmpty,
   matrixAttr,
@@ -24,7 +30,7 @@ import {
   scale,
   translate,
 } from "./geometry.ts";
-import { prepareIcon } from "./icon.ts";
+import { fitViewBox, prepareIcon } from "./icon.ts";
 import { type DiagramStyle, STUDIO_STYLE } from "./style.ts";
 import { type FontMetrics, measureText } from "./text.ts";
 import { autoLayout, needsAutoLayout } from "./autolayout.ts";
@@ -64,7 +70,15 @@ export interface RenderResult {
   scale: number;
   /** What was drawn, in diagram units, before the margin. */
   bounds: Box;
+  /**
+   * Warnings: what was in the data but is not drawn (icon content removed
+   * by the sanitiser, clock partitions), one message each.
+   */
+  diagnostics: string[];
 }
+
+/** Thrown for render options that cannot give a drawing. */
+export class RenderOptionError extends RangeError {}
 
 /**
  * Render a diagram to an SVG document.
@@ -77,36 +91,75 @@ export function render(data: DiagramData, options: RenderOptions = {}): string {
   return renderDiagram(data, options).svg;
 }
 
+/** The largest output side, in pixels, that is accepted. */
+const MAX_PIXELS = 32768;
+
+/**
+ * Check the numeric options before drawing anything.
+ *
+ * @throws RenderOptionError
+ */
+export function checkRenderOptions(options: RenderOptions): void {
+  const { scale: s, fit, margin } = options;
+  if (margin !== undefined && !(Number.isFinite(margin) && margin >= 0)) {
+    throw new RenderOptionError(`margin must be a number of pixels >= 0, got ${margin}`);
+  }
+  if (s !== undefined && !(Number.isFinite(s) && s > 0)) {
+    throw new RenderOptionError(`scale must be a number > 0, got ${s}`);
+  }
+  if (fit !== undefined) {
+    const { width, height } = fit;
+    if (!(Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0)) {
+      throw new RenderOptionError(`fit must be a positive width and height, got ${width}x${height}`);
+    }
+    const m = margin ?? 48;
+    if (width - 2 * m <= 0 || height - 2 * m <= 0) {
+      throw new RenderOptionError(
+        `fit ${width}x${height} leaves no room for the drawing inside a ${m} px margin (needs more than ${2 * m} px each way; lower the margin or enlarge the fit)`,
+      );
+    }
+  }
+}
+
 /** {@link render}, returning the output size and scale as well. */
 export function renderDiagram(input: DiagramData, options: RenderOptions = {}): RenderResult {
+  checkRenderOptions(options);
   const style: DiagramStyle = { ...STUDIO_STYLE, ...options.style };
   const data = options.layout !== "never" && needsAutoLayout(input) ? autoLayout(input) : input;
   const ctx = new Context(style, options.font);
 
   for (const c of data.components) drawComponentBody(ctx, c);
   for (const c of data.components) drawComponentConnectors(ctx, c);
-  for (const conn of data.connections) {
-    const stroke = conn.pathAttrs.stroke ?? style.wireColor;
-    drawWires(ctx, conn.routes, stroke);
+  for (const conn of data.connections) drawWires(ctx, conn.routes, wireColor(ctx, conn));
+  for (const p of data.ports) {
+    drawIcon(ctx, ctx.ports, p.icon, placementMatrix(p.placement), `port ${p.name}`);
+    noteClock(ctx, p, `port ${p.name}`);
   }
-  for (const p of data.ports) drawIcon(ctx, ctx.ports, p.icon, placementMatrix(p.placement));
   for (const conn of data.connections) {
-    const fill = conn.pathAttrs.stroke ?? style.wireColor;
+    const fill = wireColor(ctx, conn);
     for (const j of conn.junctions) {
       ctx.junctions.push(`<circle cx="${fmt(j.x)}" cy="${fmt(j.y)}" r="${fmt(style.junctionRadius)}" fill="${escapeAttr(fill)}"/>`);
       addPoint(ctx.bounds, j, style.junctionRadius);
     }
   }
+  for (const conn of data.connections) {
+    if (conn.analysisPoint) drawAnalysisPoint(ctx, conn, conn.analysisPoint.name);
+  }
+  const clocked = data.connections.filter((c) => c.isClocked).length;
+  if (clocked > 0) {
+    ctx.diagnostics.push(`${clocked} clocked connection(s): clock partitions are not drawn differently from other wires`);
+  }
   for (const c of data.components) {
-    for (const l of c.labels) drawLabel(ctx, l, labelAnchor(c.placement, l));
+    const m = placementMatrix(c.placement);
+    for (const l of c.labels) drawLabel(ctx, l, apply(m, l), c.placement.rot + l.rot);
   }
   for (const p of data.ports) {
     for (const l of p.labels ?? []) {
       const at = labelAnchor(p.placement, l);
-      drawLabel(ctx, l, { x: at.x, y: at.y + style.portLabelOffset });
+      drawLabel(ctx, l, { x: at.x, y: at.y + style.portLabelOffset }, l.rot);
     }
   }
-  for (const l of data.labels) drawLabel(ctx, l, l);
+  for (const l of data.labels) drawLabel(ctx, l, l, l.rot);
 
   const bounds = isEmpty(ctx.bounds) ? { x0: 0, y0: 0, x1: 1000, y1: 1000 } : ctx.bounds;
   const bw = Math.max(bounds.x1 - bounds.x0, 1);
@@ -120,6 +173,9 @@ export function renderDiagram(input: DiagramData, options: RenderOptions = {}): 
   }
   const width = Math.round(bw * s + 2 * margin);
   const height = Math.round(bh * s + 2 * margin);
+  if (!(s > 0 && Number.isFinite(s)) || width > MAX_PIXELS || height > MAX_PIXELS) {
+    throw new RenderOptionError(`the drawing would be ${width}x${height} px at scale ${s}; the limit is ${MAX_PIXELS} px a side`);
+  }
   const vx = bounds.x0 - (width - bw * s) / 2 / s;
   const vy = bounds.y0 - (height - bh * s) / 2 / s;
   const vb = [vx, vy, width / s, height / s].map(fmt).join(" ");
@@ -128,23 +184,25 @@ export function renderDiagram(input: DiagramData, options: RenderOptions = {}): 
   parts.push(
     `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${height}" viewBox="${vb}">`,
   );
-  parts.push(`<title>${escapeText(data.name)}</title>`);
+  parts.push(`<title>${escapeText(String(data.name))}</title>`);
   if (style.background !== null) {
     parts.push(`<rect x="${fmt(vx)}" y="${fmt(vy)}" width="${fmt(width / s)}" height="${fmt(height / s)}" fill="${escapeAttr(style.background)}"/>`);
   }
   // Studio's stacking: component bodies, then wires, then connectors on top
-  // (an output connector's white fill hides the wire's end), then labels.
+  // (an output connector's white fill hides the wire's end), then analysis
+  // points and labels.
   parts.push(`<g id="components">`, ...ctx.bodies, `</g>`);
   parts.push(`<g id="wires">`, ...ctx.wires, `</g>`);
   parts.push(`<g id="connectors">`, ...ctx.connectors, ...ctx.ports, `</g>`);
   parts.push(`<g id="junctions">`, ...ctx.junctions, `</g>`);
+  if (ctx.analysisPoints.length > 0) parts.push(`<g id="analysis-points">`, ...ctx.analysisPoints, `</g>`);
   parts.push(
     `<g id="labels" font-family="${escapeAttr(style.fontFamily)}" font-size="${fmt(style.labelFontSize)}" fill="${escapeAttr(style.labelColor)}" text-anchor="middle">`,
     ...ctx.labels,
     `</g>`,
   );
   parts.push(`</svg>`);
-  return { svg: parts.join("\n") + "\n", width, height, scale: s, bounds };
+  return { svg: parts.join("\n") + "\n", width, height, scale: s, bounds, diagnostics: ctx.diagnostics };
 }
 
 class Context {
@@ -153,7 +211,9 @@ class Context {
   wires: string[] = [];
   ports: string[] = [];
   junctions: string[] = [];
+  analysisPoints: string[] = [];
   labels: string[] = [];
+  diagnostics: string[] = [];
   bounds: Box = emptyBox();
   private next = 0;
   readonly style: DiagramStyle;
@@ -169,11 +229,16 @@ class Context {
   }
 }
 
+function wireColor(ctx: Context, conn: Connection): string {
+  const stroke = conn.pathAttrs?.stroke;
+  return typeof stroke === "string" ? stroke : ctx.style.wireColor;
+}
+
 /**
- * Where a label of a placed icon goes: its anchor scaled with the placement's
- * box, but neither turned nor mirrored with it, so that a name stays below
- * its component whichever way the component faces (as Studio keeps a port's
- * name below the port).
+ * Where a boundary port's label goes: its anchor scaled with the placement's
+ * box, but neither turned nor mirrored with it, so that a port's name stays
+ * below the port whichever way it faces, as Studio draws it. (A component's
+ * labels turn and mirror with the component; see `renderDiagram`.)
  */
 export function labelAnchor(p: Placement, l: Point): Point {
   const cx = (p.x1 + p.x2) / 2;
@@ -190,48 +255,127 @@ const FALLBACK_ICON =
 
 /**
  * Draw an icon into the box a placement map sends the 1000 x 1000 icon box
- * to, keeping the icon's aspect ratio (Studio does not stretch icons when the
- * box is not square).
+ * to. The icon's `preserveAspectRatio` decides how it fills the box (by
+ * default aspect kept and centred, so Studio does not stretch icons when the
+ * box is not square; `none` stretches) and, as in Studio, the icon is cut to
+ * the box.
  */
-function drawIcon(ctx: Context, out: string[], icon: string, m: Matrix): void {
+function drawIcon(ctx: Context, out: string[], icon: string, m: Matrix, owner: string): void {
   const f = boxFrame(m);
   const box = { x: -f.width / 2, y: -f.height / 2, width: f.width, height: f.height };
-  const prepared = prepareIcon(icon, ctx.scope(), box) ?? prepareIcon(FALLBACK_ICON, ctx.scope(), box)!;
+  let prepared = typeof icon === "string" ? prepareIcon(icon, ctx.scope(), box) : undefined;
+  if (!prepared) {
+    ctx.diagnostics.push(`${owner}: icon is not SVG; drawn as a plain box`);
+    prepared = prepareIcon(FALLBACK_ICON, ctx.scope(), box)!;
+  }
+  for (const d of prepared.diagnostics) ctx.diagnostics.push(`${owner}: icon: ${d}`);
   let frame = multiply(translate(f.center.x, f.center.y), rotate(f.angle));
   if (f.flip) frame = multiply(frame, scale(1, -1));
   out.push(`<g transform="${matrixAttr(frame)}">${prepared.markup}</g>`);
-  // What is drawn is the icon fitted into the box, aspect kept; that, not
-  // the whole box, is what the drawing's bounds take in.
-  const [, , vw, vh] = prepared.viewBox;
-  const k = Math.min(f.width / vw, f.height / vh);
-  const hw = (vw * k) / 2;
-  const hh = (vh * k) / 2;
+  // What is drawn is the icon fitted into the box, cut to the box; that,
+  // not the whole box, is what the drawing's bounds take in. Content outside
+  // the viewBox (when it may have any) can show anywhere in the box.
+  const fitted = fitViewBox(prepared.viewBox, prepared.aspect, box);
+  const r = prepared.mayOverflow ? box : intersect(fitted, box);
   for (const [dx, dy] of [
-    [-hw, -hh],
-    [hw, -hh],
-    [-hw, hh],
-    [hw, hh],
+    [r.x, r.y],
+    [r.x + r.width, r.y],
+    [r.x, r.y + r.height],
+    [r.x + r.width, r.y + r.height],
   ]) {
     addPoint(ctx.bounds, apply(frame, { x: dx, y: dy }));
   }
 }
 
+type Rect = { x: number; y: number; width: number; height: number };
+
+function intersect(a: Rect, b: Rect): Rect {
+  const x = Math.max(a.x, b.x);
+  const y = Math.max(a.y, b.y);
+  return { x, y, width: Math.max(0, Math.min(a.x + a.width, b.x + b.width) - x), height: Math.max(0, Math.min(a.y + a.height, b.y + b.height) - y) };
+}
+
 function drawComponentBody(ctx: Context, c: ComponentShape): void {
-  ctx.bodies.push(`<!-- ${escapeComment(c.name)}${c.type ? ` : ${escapeComment(c.type)}` : ""} -->`);
-  drawIcon(ctx, ctx.bodies, c.icon, placementMatrix(c.placement));
+  const start = ctx.bodies.length;
+  drawIcon(ctx, ctx.bodies, c.icon, placementMatrix(c.placement), `component ${c.name}`);
+  // The component's name (and type) go into an escaped attribute, never a comment.
+  const type = c.type ? ` data-type="${escapeAttr(String(c.type))}"` : "";
+  ctx.bodies[start] = `<g data-name="${escapeAttr(String(c.name))}"${type}>${ctx.bodies[start]}</g>`;
 }
 
 function drawComponentConnectors(ctx: Context, c: ComponentShape): void {
   const m = placementMatrix(c.placement);
-  for (const conn of c.connectors) drawConnector(ctx, conn, m);
+  for (const conn of c.connectors) drawConnector(ctx, conn, m, c.name);
 }
 
-function drawConnector(ctx: Context, conn: ConnectorShape, parent: Matrix): void {
-  drawIcon(ctx, ctx.connectors, conn.icon, multiply(parent, placementMatrix(conn.placement)));
+/**
+ * A connector of a component. An array connector whose placement's `show`
+ * allows it is fanned out into one copy per element, as Studio draws it.
+ */
+function drawConnector(ctx: Context, conn: ConnectorShape, parent: Matrix, component: string): void {
+  const owner = `connector ${component}.${conn.name}`;
+  // Studio fans an array connector out only when its placement has a `show`.
+  const placements = conn.count !== undefined && conn.show !== undefined ? fanOut(conn.placement, conn.count, conn.show) : [conn.placement];
+  for (const p of placements) drawIcon(ctx, ctx.connectors, conn.icon, multiply(parent, placementMatrix(p)), owner);
+  noteClock(ctx, conn, owner);
 }
 
-function escapeComment(s: string): string {
-  return s.replaceAll("--", "- -");
+function noteClock(ctx: Context, conn: ConnectorShape, owner: string): void {
+  if (conn.clockInfo !== undefined && conn.clockInfo !== null) {
+    ctx.diagnostics.push(`${owner}: clock information is not drawn`);
+  }
+}
+
+/**
+ * An analysis point, as Studio 3.5.1 draws it (measured from screenshots):
+ * a crosshair in the wire's colour at the middle of the connection's wire
+ * (a white disc of radius 12 with a 2-unit ring, a dot, and four ticks from
+ * 9.5 to 15 units out), with the point's name above it, 20 units high.
+ */
+function drawAnalysisPoint(ctx: Context, conn: Connection, name: string): void {
+  const route = conn.routes.map(simplify).find((r) => r.length >= 2);
+  if (!route) {
+    ctx.diagnostics.push(`analysis point ${name}: its connection has no wire to draw it on`);
+    return;
+  }
+  const at = midpoint(route);
+  const color = escapeAttr(wireColor(ctx, conn));
+  const ticks = [
+    [0, -1],
+    [1, 0],
+    [0, 1],
+    [-1, 0],
+  ]
+    .map(([dx, dy]) => `M${fmt(at.x + dx * 9.5)} ${fmt(at.y + dy * 9.5)}L${fmt(at.x + dx * 15)} ${fmt(at.y + dy * 15)}`)
+    .join("");
+  const fs = 20;
+  const baseline = at.y - 22.25;
+  ctx.analysisPoints.push(
+    `<g class="analysis-point">` +
+      `<circle cx="${fmt(at.x)}" cy="${fmt(at.y)}" r="12" fill="#ffffff" stroke="${color}" stroke-width="2"/>` +
+      `<circle cx="${fmt(at.x)}" cy="${fmt(at.y)}" r="3.75" fill="${color}"/>` +
+      `<path d="${ticks}" stroke="${color}" stroke-width="2" fill="none"/>` +
+      `<text x="${fmt(at.x)}" y="${fmt(baseline)}" font-family="${escapeAttr(ctx.style.fontFamily)}" font-size="${fs}" fill="${color}" text-anchor="middle">${escapeText(name)}</text>` +
+      `</g>`,
+  );
+  addPoint(ctx.bounds, at, 15);
+  const width = ctx.font ? measureText(ctx.font, name, fs) : 0.55 * fs * name.length;
+  addPoint(ctx.bounds, { x: at.x - width / 2, y: baseline - fs * 0.8 });
+  addPoint(ctx.bounds, { x: at.x + width / 2, y: baseline + fs * 0.25 });
+}
+
+/** The point halfway along a polyline. */
+export function midpoint(pts: Point[]): Point {
+  const lengths = pts.slice(1).map((p, i) => Math.hypot(p.x - pts[i].x, p.y - pts[i].y));
+  let left = lengths.reduce((a, b) => a + b, 0) / 2;
+  for (let i = 0; i < lengths.length; i++) {
+    if (left <= lengths[i] && lengths[i] > 0) {
+      const t = left / lengths[i];
+      return { x: pts[i].x + (pts[i + 1].x - pts[i].x) * t, y: pts[i].y + (pts[i + 1].y - pts[i].y) * t };
+    }
+    left -= lengths[i];
+  }
+  return pts[pts.length - 1];
 }
 
 /**
@@ -368,18 +512,19 @@ export function roundedPath(pts: Point[], r: number): string {
 }
 
 /**
- * A label, centred on its anchor and kept upright. The baseline is placed so
+ * A label, centred on its anchor and turned by `turn`, but never upside
+ * down (see {@link normalizeUpright}). The baseline is placed so
  * that the capital letters are centred on the anchor (CSS's `central`
  * baseline), computed here rather than left to the SVG renderer.
  */
-function drawLabel(ctx: Context, label: Label, at: Point): void {
-  const text = label.text.trim();
+function drawLabel(ctx: Context, label: Label, at: Point, turn: number): void {
+  const text = String(label.text).trim();
   if (text === "") return;
   const fs = ctx.style.labelFontSize;
   const cap = ctx.font ? ctx.font.capHeight / ctx.font.unitsPerEm : 0.727;
   const width = ctx.font ? measureText(ctx.font, text, fs) : 0.55 * fs * text.length;
   const baseline = at.y + (cap * fs) / 2;
-  const rot = normalizeUpright(label.rot);
+  const rot = normalizeUpright(turn);
   const transform = rot === 0 ? "" : ` transform="rotate(${fmt(rot)} ${fmt(at.x)} ${fmt(at.y)})"`;
   ctx.labels.push(`<text x="${fmt(at.x)}" y="${fmt(baseline)}"${transform}>${escapeText(text)}</text>`);
   // Bounds of the (possibly turned) text box.
@@ -394,10 +539,14 @@ function drawLabel(ctx: Context, label: Label, at: Point): void {
   }
 }
 
-/** A rotation that never draws text upside down. */
-function normalizeUpright(rot: number): number {
+/**
+ * A rotation that never draws text upside down, as Studio turns labels: a
+ * label turned by 90 degrees reads top to bottom, one turned by 270 bottom
+ * to top, and one turned by 180 is drawn upright.
+ */
+export function normalizeUpright(rot: number): number {
   let r = ((rot % 360) + 360) % 360;
-  if (r > 90 && r <= 270) r -= 180;
+  if (r > 90 && r < 270) r -= 180;
   if (r > 180) r -= 360;
-  return r;
+  return Object.is(r, -0) ? 0 : r;
 }

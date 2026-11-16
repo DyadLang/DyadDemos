@@ -226,6 +226,8 @@ export function decodeEntities(s: string): string {
         return "'";
     }
     const code = e[1] === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
+    // Not a character (out of range, a surrogate, NUL): the replacement character.
+    if (!(code > 0 && code <= 0x10ffff) || (code >= 0xd800 && code <= 0xdfff)) return "\ufffd";
     return String.fromCodePoint(code);
   });
 }

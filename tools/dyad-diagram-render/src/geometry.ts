@@ -120,3 +120,67 @@ export function fmt(v: number): string {
 export function matrixAttr(m: Matrix): string {
   return `matrix(${m.map(fmt).join(" ")})`;
 }
+
+/**
+ * The placements of an array connector's elements, fanned out the way the
+ * Dyad kernel and Studio do it (in the icon's 0..1000 coordinates):
+ *
+ * - only arrays of at least 2 elements, and not more than `show` (when
+ *   given), are fanned out; anything else is one placement. (Studio, and
+ *   the renderer, fan out only connectors whose placement has a `show`.)
+ * - a connector on an edge of the icon (its centre in the outer 20 %) is
+ *   repeated along that edge: copies of its own size, a pitch of up to two
+ *   sizes, centred on the connector and kept within the 100..900 span (or
+ *   within the placement itself when it is a long band along the edge);
+ * - an interior connector's box is cut into `count` equal cells along its
+ *   longer side.
+ *
+ * Arrays too long for the span are drawn once.
+ */
+export function fanOut(p: Placement, count: number, show: number | undefined): Placement[] {
+  const { x1, y1, x2, y2 } = p;
+  if (!Number.isInteger(count) || count < 2 || (show !== undefined && count > show) || ![x1, y1, x2, y2].every(Number.isFinite)) {
+    return [p];
+  }
+  const w = Math.abs(x2 - x1);
+  const h = Math.abs(y2 - y1);
+  const cx = (x1 + x2) / 2;
+  const cy = (y1 + y2) / 2;
+  const edge = iconEdge(cx, cy);
+  if (edge === undefined) {
+    const alongX = w >= h;
+    const cell = (alongX ? w : h) / count;
+    const size = Math.min(cell, alongX ? h : w);
+    const start = alongX ? Math.min(x1, x2) : Math.min(y1, y2);
+    return Array.from({ length: count }, (_, i) => {
+      const c = start + cell * (i + 0.5);
+      return alongX
+        ? { ...p, x1: c - size / 2, x2: c + size / 2, y1: cy - size / 2, y2: cy + size / 2 }
+        : { ...p, x1: cx - size / 2, x2: cx + size / 2, y1: c - size / 2, y2: c + size / 2 };
+    });
+  }
+  const vertical = edge === "left" || edge === "right";
+  const along = vertical ? h : w;
+  const cross = vertical ? w : h;
+  const band = along > cross;
+  const spanStart = band ? (vertical ? Math.min(y1, y2) : Math.min(x1, x2)) : 100;
+  const spanLength = band ? along : 800;
+  if (!(cross > 0) || count * cross > spanLength) return [p];
+  const strip = Math.min((2 * count - 1) * cross, spanLength);
+  const pitch = (strip - cross) / (count - 1);
+  const centre = vertical ? cy : cx;
+  const start = Math.min(Math.max(centre - strip / 2, spanStart), spanStart + spanLength - strip);
+  return Array.from({ length: count }, (_, i) => {
+    const lo = start + pitch * i;
+    return vertical ? { ...p, y1: lo, y2: lo + cross } : { ...p, x1: lo, x2: lo + cross };
+  });
+}
+
+/** The icon edge a point is near (within 20 % of the icon box), the nearer one at a corner. */
+function iconEdge(x: number, y: number): "left" | "right" | "top" | "bottom" | undefined {
+  const zone = 0.2 * ICON_SIZE;
+  const v = x < zone ? "left" : x > ICON_SIZE - zone ? "right" : undefined;
+  const hz = y < zone ? "top" : y > ICON_SIZE - zone ? "bottom" : undefined;
+  if (v && hz) return (v === "left" ? x : ICON_SIZE - x) <= (hz === "top" ? y : ICON_SIZE - y) ? v : hz;
+  return v ?? hz;
+}

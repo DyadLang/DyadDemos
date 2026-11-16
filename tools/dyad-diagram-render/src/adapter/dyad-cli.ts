@@ -11,6 +11,10 @@
  *   which connectors each connection joins.
  *
  * `dyad render`'s warnings say which components have no diagram placement.
+ * Analysis points are not in either output; they are read from the
+ * component's `.dyad` source. Clock partitions, render styles and array
+ * connector lengths are in neither, so they are not carried over (array
+ * connectors that Studio would fan out are detected and reported).
  *
  * Inside the CLI none of this is needed: the same data comes straight from
  * the kernel's `diagramLayoutSelector` (see ARCHITECTURE.md). Delete this
@@ -18,6 +22,8 @@
  */
 
 import { execFile } from "node:child_process";
+import { readdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import type { ComponentShape, Connection, ConnectionEnd, ConnectorShape, DiagramData, Label, Placement, Point } from "../model.ts";
 import { DIAGRAM_SCHEMA } from "../model.ts";
 import { type RenderedDiagram, parseRenderSvg } from "./render-svg.ts";
@@ -33,6 +39,30 @@ export interface DyadCliOptions {
   env?: Record<string, string>;
   /** Timeout per command, in milliseconds (default 300000). */
   timeoutMs?: number;
+  /**
+   * Where warnings go: the `dyad` commands' own diagnostics (their standard
+   * error) and what the adapter could not carry over. Default:
+   * `process.emitWarning`.
+   */
+  onDiagnostic?: (message: string) => void;
+}
+
+/** A `dyad` command that failed. */
+export class DyadCliError extends Error {}
+
+function defaultDiagnostic(message: string): void {
+  process.emitWarning(message, { code: "DYAD_DIAGRAM_ADAPTER" });
+}
+
+/**
+ * A command or argument that names a path (it has a slash, or is `.` or
+ * `..`) made absolute against `base`; a bare command name (`dyad`, looked
+ * up on `PATH`) is left alone. The commands run in the library directory, so
+ * a relative path given on the command line would otherwise be read from
+ * there.
+ */
+export function absolutePathLike(value: string, base: string = process.cwd()): string {
+  return /[\\/]/.test(value) || value === "." || value === ".." ? resolve(base, value) : value;
 }
 
 /** The parts of a `dyad-layout/problem@1` file this adapter reads. */
@@ -59,6 +89,10 @@ export interface CliOutputs {
   renderLog: string;
   /** `dyad layout extract`'s JSON. */
   problem: LayoutProblem;
+  /** `dyad layout extract`'s standard error. */
+  extractLog?: string;
+  /** The component's `.dyad` source, if found (for its analysis points). */
+  source?: string;
 }
 
 /**
@@ -68,43 +102,94 @@ export interface CliOutputs {
  * @param component `Library.Component` or `Library.module.Component`
  */
 export async function runDyadCli(dir: string, component: string, options: DyadCliOptions = {}): Promise<CliOutputs> {
-  const dyad = options.dyad ?? process.env.DYAD ?? "dyad";
-  const env = { ...process.env, ...options.env };
+  // Everything path-like is made absolute first: the commands run with the
+  // library as their working directory.
+  const absDir = resolve(dir);
+  const dyad = absolutePathLike(options.dyad ?? process.env.DYAD ?? "dyad");
+  const env: NodeJS.ProcessEnv = { ...process.env, ...options.env };
+  if (env.JULIA_EXECUTABLE) env.JULIA_EXECUTABLE = absolutePathLike(env.JULIA_EXECUTABLE);
+  if (env.DYAD) env.DYAD = absolutePathLike(env.DYAD);
   const timeout = options.timeoutMs ?? 300_000;
   const run = (args: string[]) =>
-    new Promise<{ stdout: string; stderr: string; code: number }>((resolve, reject) => {
-      execFile(dyad, args, { cwd: dir, env, timeout, maxBuffer: 256 * 1024 * 1024 }, (err, stdout, stderr) => {
+    new Promise<{ stdout: string; stderr: string; code: number | string }>((resolveRun, reject) => {
+      execFile(dyad, args, { cwd: absDir, env, timeout, maxBuffer: 256 * 1024 * 1024 }, (err, stdout, stderr) => {
         if (err && (err as NodeJS.ErrnoException).code === "ENOENT") {
-          reject(new Error(`cannot run ${dyad}: not found (set --dyad or $DYAD)`));
+          reject(new DyadCliError(`cannot run ${dyad}: not found (set --dyad or $DYAD)`));
           return;
         }
-        const code = err ? (typeof err.code === "number" ? err.code : 1) : 0;
-        resolve({ stdout, stderr, code });
+        let code: number | string = 0;
+        if (err) {
+          const e = err as NodeJS.ErrnoException & { killed?: boolean; signal?: string | null };
+          code = e.killed && e.signal ? `killed by ${e.signal}${timeout ? ` after the ${timeout} ms timeout` : ""}` : typeof e.code === "number" ? e.code : 1;
+        }
+        resolveRun({ stdout, stderr, code });
       });
     });
   const [r, x] = await Promise.all([
-    run(["render", component, "--dir", dir]),
-    run(["layout", "extract", component, "--dir", dir]),
+    run(["render", component, "--dir", absDir]),
+    run(["layout", "extract", component, "--dir", absDir]),
   ]);
-  if (!r.stdout.includes("<svg")) {
-    throw new Error(`dyad render ${component} failed (exit ${r.code}):\n${r.stderr.trim()}`);
-  }
-  if (x.code !== 0) {
-    throw new Error(`dyad layout extract ${component} failed (exit ${x.code}):\n${x.stderr.trim()}`);
-  }
+  const failed = (what: string, res: { stderr: string; code: number | string }, why: string) =>
+    new DyadCliError(`dyad ${what} ${component} --dir ${absDir} failed (${why}):\n${res.stderr.trim() || "(no output on stderr)"}`);
+  if (r.code !== 0) throw failed("render", r, typeof r.code === "number" ? `exit ${r.code}` : r.code);
+  if (!/<svg[\s>]/.test(r.stdout)) throw failed("render", r, "exit 0, but it printed no SVG");
+  if (x.code !== 0) throw failed("layout extract", x, typeof x.code === "number" ? `exit ${x.code}` : x.code);
   let problem: LayoutProblem;
   try {
     problem = JSON.parse(x.stdout);
   } catch {
-    throw new Error(`dyad layout extract ${component} did not print JSON`);
+    throw failed("layout extract", x, "exit 0, but it printed no JSON");
   }
-  return { svg: r.stdout, renderLog: r.stderr, problem };
+  if (!problem?.structure) throw failed("layout extract", x, "its JSON has no structure");
+  return { svg: r.stdout, renderLog: r.stderr, problem, extractLog: x.stderr, source: componentSource(absDir, component) };
 }
 
 /** Get a component's diagram from the CLI. */
 export async function diagramFromDyadCli(dir: string, component: string, options: DyadCliOptions = {}): Promise<DiagramData> {
   const outputs = await runDyadCli(dir, component, options);
-  return diagramFromCliOutputs(component, outputs);
+  return diagramFromCliOutputs(component, outputs, options.onDiagnostic);
+}
+
+/**
+ * The text of a component definition, from the `.dyad` files of the
+ * library at `dir` (`Lib.Component`, or `Lib.module.Component` in a
+ * sub-folder of `dyad/`). Undefined if it cannot be found.
+ */
+export function componentSource(dir: string, component: string): string | undefined {
+  const parts = component.split(".");
+  const name = parts[parts.length - 1];
+  const folder = join(dir, "dyad", ...parts.slice(1, -1));
+  const start = new RegExp(`^[ \\t]*(?:(?:partial|external|test)\\s+)*component\\s+${name.replace(/[^\w]/g, "")}\\b`, "m");
+  let files: string[];
+  try {
+    files = readdirSync(folder, { withFileTypes: true }).filter((f) => f.isFile() && f.name.endsWith(".dyad")).map((f) => join(folder, f.name));
+  } catch {
+    return undefined;
+  }
+  for (const f of files.sort()) {
+    const text = readFileSync(f, "utf8");
+    const m = start.exec(text);
+    if (!m) continue;
+    const rest = text.slice(m.index);
+    const end = /^end\b/m.exec(rest.slice(m[0].length));
+    return end ? rest.slice(0, m[0].length + end.index) : rest;
+  }
+  return undefined;
+}
+
+/** A connector reference in Dyad source: `comp.conn`, `conn`, indices dropped. */
+function sourceEnd(ref: string): ConnectionEnd {
+  const parts = ref.replace(/\[[^\]]*\]/g, "").split(".");
+  return parts.length >= 2 ? { component: parts[0], connector: parts[1] } : { connector: parts[0] };
+}
+
+/** The analysis points of a component's source: `name: analysis_point(a.b, c.d)`. */
+export function analysisPointsIn(source: string): Array<{ name: string; ends: [ConnectionEnd, ConnectionEnd] }> {
+  const out: Array<{ name: string; ends: [ConnectionEnd, ConnectionEnd] }> = [];
+  for (const m of source.matchAll(/^[ \t]*(\w+)\s*:\s*analysis_point\(\s*([\w.\[\]]+)\s*,\s*([\w.\[\]]+)\s*\)/gm)) {
+    out.push({ name: m[1], ends: [sourceEnd(m[2]), sourceEnd(m[3])] });
+  }
+  return out;
 }
 
 /** Components that `dyad render` warned have no diagram placement. */
@@ -117,13 +202,21 @@ export function unplacedComponents(renderLog: string): Set<string> {
 }
 
 /** Combine the two commands' outputs into a {@link DiagramData}. */
-export function diagramFromCliOutputs(component: string, outputs: CliOutputs): DiagramData {
+export function diagramFromCliOutputs(
+  component: string,
+  outputs: CliOutputs,
+  onDiagnostic: (message: string) => void = defaultDiagnostic,
+): DiagramData {
   const drawn: RenderedDiagram = parseRenderSvg(outputs.svg);
   const { structure: raw } = outputs.problem;
   // `extract` lists each junction of a routed connection as a pseudo
   // component, `__junction_<n>`; the kernel draws them as dots.
   const structure = { ...raw, components: raw.components.filter((c) => !c.id.startsWith("__junction_")) };
   const warnings: string[] = [];
+  // dyad's own diagnostics, passed on (once: both commands report most of them).
+  for (const log of [outputs.renderLog, outputs.extractLog ?? ""]) {
+    for (const line of log.split("\n")) if (line.trim()) warnings.push(`dyad: ${line.trim()}`);
+  }
 
   const unplaced = unplacedComponents(outputs.renderLog);
   if (structure.components.length !== drawn.components.length) {
@@ -184,8 +277,8 @@ export function diagramFromCliOutputs(component: string, outputs: CliOutputs): D
     moved.add(c.name);
   }
   const byName = new Map(components.map((c) => [c.name, c]));
-  const connectorCenter = (end: ConnectionEnd): Point | undefined => {
-    if (end.component === undefined || !moved.has(end.component)) return undefined;
+  const connectorCenter = (end: ConnectionEnd, all = false): Point | undefined => {
+    if (end.component === undefined || (!all && !moved.has(end.component))) return undefined;
     const c = byName.get(end.component);
     const k = c?.connectors.find((x) => x.name === end.connector);
     if (!c || !k) return undefined;
@@ -209,6 +302,20 @@ export function diagramFromCliOutputs(component: string, outputs: CliOutputs): D
           const pts = [...x.points];
           pts[0] = connectorCenter(ends[j]) ?? pts[0];
           pts[pts.length - 1] = connectorCenter(ends[j + 1]) ?? pts[pts.length - 1];
+          // A wire that ends away from its connector meets one element of a
+          // fanned-out array connector, which the CLI draws only once.
+          for (const [end, p] of [
+            [ends[j], pts[0]],
+            [ends[j + 1], pts[pts.length - 1]],
+          ] as const) {
+            const at = connectorCenter(end, true);
+            if (at && Math.hypot(at.x - p.x, at.y - p.y) > 0.5) {
+              warnings.push(
+                `${end.component}.${end.connector}: a wire ends at (${p.x}, ${p.y}), not at the connector: an array connector Studio fans out, ` +
+                  `which the dyad CLI output does not describe, so it is drawn once`,
+              );
+            }
+          }
           return pts;
         }),
         junctions: [],
@@ -223,7 +330,17 @@ export function diagramFromCliOutputs(component: string, outputs: CliOutputs): D
     // their ends (which only auto layout needs).
     connections.push(...netsOf(wires, drawn.junctions));
   }
-  for (const m of warnings) process.emitWarning(m, { code: "DYAD_DIAGRAM_ADAPTER" });
+
+  // Analysis points, from the source, put on the connection they sit on.
+  const same = (a: ConnectionEnd, b: ConnectionEnd) => a.component === b.component && a.connector === b.connector;
+  for (const ap of outputs.source ? analysisPointsIn(outputs.source) : []) {
+    const conn = connections.find(
+      (c) => c.ends?.length === 2 && ((same(c.ends[0], ap.ends[0]) && same(c.ends[1], ap.ends[1])) || (same(c.ends[0], ap.ends[1]) && same(c.ends[1], ap.ends[0]))),
+    );
+    if (conn) conn.analysisPoint = { name: ap.name };
+    else warnings.push(`analysis point ${ap.name}: no connection between its two connectors could be matched, so it is not drawn`);
+  }
+  for (const m of [...new Set(warnings)]) onDiagnostic(m);
 
   return {
     schema: DIAGRAM_SCHEMA,

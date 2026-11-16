@@ -1,0 +1,20 @@
+component RotMirror
+  g0 = BlockComponents.Math.Gain(k = 1) {^g0}
+  g90 = BlockComponents.Math.Gain(k = 2) {^g90}
+  g180 = BlockComponents.Math.Gain(k = 3) {^g180}
+  g270 = BlockComponents.Math.Gain(k = 4) {^g270}
+  gmx = BlockComponents.Math.Gain(k = 5) {^gmx}
+  gmy = BlockComponents.Math.Gain(k = 6) {^gmy}
+  gmx90 = BlockComponents.Math.Gain(k = 7) {^gmx90}
+metadata {
+  "_links": {
+    "g0": {"Dyad": {"placement": {"diagram": {"x1": 100, "x2": 200, "y1": 100, "y2": 200, "rot": 0}}}},
+    "g90": {"Dyad": {"placement": {"diagram": {"x1": 350, "x2": 450, "y1": 100, "y2": 200, "rot": 90}}}},
+    "g180": {"Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 100, "y2": 200, "rot": 180}}}},
+    "g270": {"Dyad": {"placement": {"diagram": {"x1": 850, "x2": 950, "y1": 100, "y2": 200, "rot": 270}}}},
+    "gmx": {"Dyad": {"placement": {"diagram": {"x1": 200, "x2": 100, "y1": 450, "y2": 550, "rot": 0}}}},
+    "gmy": {"Dyad": {"placement": {"diagram": {"x1": 350, "x2": 450, "y1": 550, "y2": 450, "rot": 0}}}},
+    "gmx90": {"Dyad": {"placement": {"diagram": {"x1": 700, "x2": 600, "y1": 450, "y2": 550, "rot": 90}}}}
+  }
+}
+end

@@ -1,0 +1,26 @@
+component StretchNone
+metadata {"Dyad": {"icons": {"default": "dyad://RenderRef/stretch-none.svg"}, "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}]}}
+end
+
+component StretchMinMeet
+metadata {"Dyad": {"icons": {"default": "dyad://RenderRef/stretch-xMinYMinmeet.svg"}, "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}]}}
+end
+
+component StretchMaxSlice
+metadata {"Dyad": {"icons": {"default": "dyad://RenderRef/stretch-xMaxYMidslice.svg"}, "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}]}}
+end
+
+component Aspect
+  wide_none = StretchNone() {^wide_none}
+  tall_none = StretchNone() {^tall_none}
+  wide_meet = StretchMinMeet() {^wide_meet}
+  wide_slice = StretchMaxSlice() {^wide_slice}
+metadata {
+  "_links": {
+    "wide_none": {"Dyad": {"placement": {"diagram": {"x1": 100, "x2": 300, "y1": 100, "y2": 200, "rot": 0}}}},
+    "tall_none": {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 100, "y2": 300, "rot": 0}}}},
+    "wide_meet": {"Dyad": {"placement": {"diagram": {"x1": 100, "x2": 300, "y1": 400, "y2": 500, "rot": 0}}}},
+    "wide_slice": {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 650, "y1": 400, "y2": 500, "rot": 0}}}}
+  }
+}
+end

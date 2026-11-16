@@ -1,0 +1,12 @@
+name = "RenderRef"
+uuid = "7c4e0b8a-5b7e-4d6e-9a3b-2f1d6c0e9a11"
+version = "0.1.0"
+
+[deps]
+BlockComponents = "1ef5d832-be8e-447f-9f2c-8b5d17d15fd3"
+
+[compat]
+julia = "1.13.2"
+
+[dyad]
+kernel = "3.5.0"

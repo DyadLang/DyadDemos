@@ -73,8 +73,22 @@ away:
   measured with metrics read from the bundled font's own tables (`text.ts`),
   so output size and layout do not depend on the machine.
 - **Icons** are inlined, each copy scoped (`icon.ts`): classes and ids get a
-  per-copy prefix, every style-sheet selector is limited to the copy, and
-  scripts and handlers are removed.
+  per-copy prefix, every style-sheet selector is limited to the copy.
+  Icons are untrusted: scripts, `foreignObject` and other embedding elements,
+  `on*` handlers and link animations are removed, and every URL must be a
+  fragment of the icon (`#id`) or, on an `<image>`, a `data:` image of a
+  raster type or of SVG (which is sanitised the same way, recursively).
+  External `url()`, `@import` and other at-rules, and CSS escapes, are
+  dropped. Attribute values are decoded before they are checked or renamed,
+  so `url(&quot;#g&quot;)` is handled like `url(#g)`. Each removal is a
+  diagnostic.
+- **Escaping.** Everything from the data reaches the SVG escaped: text and
+  attributes through `escapeText`/`escapeAttr`, numbers through `fmt`, a
+  component's name as a `data-name` attribute (never a comment). `--data`
+  input is type-checked first (`validateDiagramData`).
+- **Diagnostics.** `renderDiagram` returns `diagnostics`: what was in the data
+  but is not drawn. The command line prints them as warnings, with the
+  adapter's (including `dyad`'s own standard error).
 - **PNG** (`png.ts`) uses resvg through `resvg-napi`, with only the bundled
   Inter loaded; every family maps to it. A PNG is therefore the same
   everywhere.
@@ -84,18 +98,27 @@ away:
 ### Visual language (Studio 3.5.1, measured from screenshots)
 
 The reference images come from `tools/dyad-ui-shot` (PR #53), used only as an
-image generator. Nothing was taken from Studio's code.
+image generator. Nothing was taken from Studio's code. Besides the demo
+libraries, a small reference library (`RenderRef`: rotated and mirrored
+`Gain`s, icons with `preserveAspectRatio` `none`/`xMinYMin meet`/`xMaxYMid
+slice` and content outside the viewBox, an analysis point, a `markers`
+connection, array connectors with and without `show`) was shot to settle
+the rows below; its components are kept as `test/fixtures/RenderRef.*`.
 
 | element | Studio | here |
 |---|---|---|
 | canvas | white, no grid (the axes and diagram-box outline are editor guides, off in screenshots) | `background: #ffffff` |
-| component icon | the library's icon, fitted into the placement box with its aspect kept (a 1000 × 800 box shows a square icon), no shadow, no frame of Studio's own (the light-blue frames are the BlockComponents icons) | `xMidYMid meet` per icon |
+| component icon | the library's icon, fitted into the placement box following the icon's own `preserveAspectRatio` (by default aspect kept: a 1000 × 800 box shows a square icon; `none` stretches; `slice` covers), and cut to the box (content outside it is not drawn); no shadow, no frame of Studio's own (the light-blue frames are the BlockComponents icons) | the icon's `preserveAspectRatio`, `overflow="hidden"`; the bounds are the fitted viewBox cut to the box, or the whole box when content may lie outside the viewBox |
 | connectors on a component | the connector type's icon at the kernel's stretched placement: RealInput a filled navy triangle, RealOutput a white triangle outlined in navy, rotational flanges grey `#aaa` circles, heat ports red squares | the same icons, same positions |
 | stacking | bodies, then wires, then connectors (an output's white fill hides the wire end), then labels | same |
 | boundary ports | the port's icon at full placement size, name below | same; name 22.5 units below the `(500, 1100)` anchor, which matches Studio within a pixel |
 | wires | connector type's `stroke` (`rgb(0,0,127)` signals, `#aaa` rotational), about 1.5 diagram units wide (scales with zoom), small rounded bends; overlapping runs of one net do not darken | 1.5 units, radius 4, one `<path>` per net, shared runs removed |
 | junctions | small dot in the wire colour | r = 2.5 |
-| labels | Inter, `#18181b`, about 16 diagram units whatever the component's size, centred on the label metadata's anchor (`$(instance)` at (500, 1100), so below; parameter labels where their metadata puts them, usually above); upright | same |
+| labels | Inter, `#18181b`, about 16 diagram units whatever the component's size, centred on the label metadata's anchor (`$(instance)` at (500, 1100), so below; parameter labels where their metadata puts them, usually above). The anchor turns and mirrors with the component; the text turns with it but is never upside down: at 90° it reads top to bottom, at 270° bottom to top, at 180° upright; mirroring moves labels but does not mirror the text (checked against `RenderRef.RotMirror`, below) | same |
+| analysis points | a crosshair in the wire's colour at the middle of the wire: white disc r 12 with a 2-unit ring, a dot r ≈ 3.75, four ticks from 9.5 to 15 units out; the name above, 20 units high, in the wire's colour, baseline 22.25 units above the wire | same |
+| `renderStyle: "markers"` | drawn exactly like `standard` in 3.5.1 | same |
+| array connectors | drawn once, unless the placement has a `show` and the array is no longer: then one copy per element along the edge (the kernel's fan-out) | same (`geometry.ts` `fanOut`) |
+| clock partitions (`isClocked`) | not checked: no clocked library could be instantiated offline for a reference | not drawn; reported as a diagnostic |
 | unplaced components (some placement elsewhere) | 100 × 100 at the diagram centre, straight wires | same |
 | nothing placed | laid out automatically (ELK): a left-to-right chain, supports and grounds hanging below | a layered layout tuned to the same spacing |
 
@@ -127,13 +150,14 @@ image generator. Nothing was taken from Studio's code.
    | DiagramData | from `GraphicalLayout` |
    |---|---|
    | `components[]` | `Object.entries(layout.components)`: `name` = key, `placement` = `transform`, `explicitPlacement`, `icon` = `getIcon(iconUrl)` (the base layer; not `generateIconFromComponentGraphics`, which bakes in connectors and labels), `labels` = `labels.map(l => ({text: l.text, x: l.location.x, y: l.location.y, rot: l.rot, attrs: l.attrs}))`, `connectors` from `connectors` likewise |
-   | `ports[]` | `Object.entries(layout.connectors)`, with `explicitPlacement` and `labels` |
-   | `connections[]` | `routes` = `routes.map(r => r.path)`, `junctions` = `junctions.map(j => j.location)`, `pathAttrs`, `ends` from `connectors` (`ComponentConnectorEnd` → `{component, connector}`) |
+   | `components[].connectors[]` | `name` = key, `placement` = `transform` (the whole array's, not fanned out), `icon`, and `count`, `show` and `clockInfo` as they are (`ConnectorGraphic.count`/`.show`/`.clockInfo`). The renderer fans an array out itself when `show` is set, so do not expand it while mapping |
+   | `ports[]` | `Object.entries(layout.connectors)`, with `explicitPlacement`, `labels`, `count`, `show` and `clockInfo` |
+   | `connections[]` | `routes` = `routes.map(r => r.path)` (already ending at the fanned-out element), `junctions` = `junctions.map(j => j.location)`, `pathAttrs`, `ends` from `connectors` (`ComponentConnectorEnd` → `{component, connector}`), `analysisPoint` (`{name}` or null), `isClocked`, `renderStyle` |
    | `labels` | `layout.labels` |
 
-   Array connectors that fan out (`count <= show`) should be expanded with
-   the kernel's `arrayConnectorFanOut`/`arrayConnectorSubPlacement` while
-   mapping. None of the test diagrams uses one.
+   Every field the kernel gives that the renderer does not draw (today:
+   `isClocked`, `clockInfo`) is reported in `RenderResult.diagnostics`, so
+   nothing is dropped silently.
 3. **Autolayout.** Decide between two options:
    - Use Studio's own: `if (hasNoPositionalInformation(layout)) layout = await autolayout(layout)`
      from `@juliacomputing/dyad-autolayout` before mapping, and pass
@@ -188,16 +212,27 @@ Further choices:
 | moves unplaced components from the 3.5.0 SVG's 0..1000 box to the kernel default 450..550 | already the kernel's `DEFAULT_CENTER` |
 | re-groups routed wires into nets by shared ends and junctions | `connections[]` |
 | gives every port the `$(instance)` label at (500, 1100) | the port's own `labels` (which may differ for non-default connector types) |
+| reads analysis points (`name: analysis_point(a, b)`) from the component's `.dyad` source and matches them to a connection by its ends; reports any it cannot match (routed connections have no ends) | `ConnectionGraphics.analysisPoint` |
+| cannot know array lengths, `show`, clocks or render styles (neither command prints them); reports wires that end away from their connector (a fanned-out array the CLI draws once) | `count`, `show`, `clockInfo`, `isClocked`, `renderStyle` |
+| resolves `--dir`, the `dyad` path and `JULIA_EXECUTABLE` to absolute paths (the commands run inside the library), fails on a non-zero exit status, and passes `dyad`'s standard error on as diagnostics | not needed |
 
 ## Known gaps
 
-- Label rotation for rotated components follows what Studio does for a
-  rotated port: the name stays upright and below. No test diagram has a
-  rotated component, so this is unverified for components.
 - Autolayout is not ELK. For DrivelineSystem the order, rows and wiring
   match Studio, but the spacing differs by a few units.
-- Array connectors that fan out, analysis-point badges, clock-partition
-  colours (`isClocked`) and the `markers` render style are not drawn.
+- Clock partitions (`isClocked`, `clockInfo`) are carried in the data but not
+  drawn, and reported as a diagnostic: no Studio reference was possible
+  (DiscreteComponents 0.6 cannot be instantiated offline here).
+- Through the stop-gap adapter, array connector lengths, `show`, clocks and
+  render styles are unknown (the 3.5.0 CLI does not print them), so a
+  fanned-out array connector is drawn once, with a diagnostic. Analysis
+  points on routed connections (with junctions) cannot be matched, also
+  with a diagnostic. In-tree, the kernel's data carries all of these.
+- Labels with a rotation of their own on a turned component, and text
+  turned by angles other than multiples of 90°, follow the same rule (turn
+  with the component, never upside down) but were not compared with Studio.
 - Icon text is drawn in Inter. Studio's Chrome uses the system's
   `sans-serif` (Noto Sans on the reference machine), so glyph shapes in icon
   text differ slightly.
+- dyad-ui-shot's `--fit content` measures icon content Studio cuts off at the
+  placement box, so its crops can be a little larger than ours.

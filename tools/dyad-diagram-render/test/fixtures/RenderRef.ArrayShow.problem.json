@@ -1,0 +1,152 @@
+{
+  "schema": "dyad-layout/problem@1",
+  "source": {
+    "package": "RenderRef",
+    "definition": "RenderRef.ArrayShow",
+    "structureHash": "fnv1a64:ba048a493d9be896"
+  },
+  "structure": {
+    "components": [
+      {
+        "id": "s1",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "y",
+            "edge": "right",
+            "position": 0,
+            "direction": "output"
+          }
+        ]
+      },
+      {
+        "id": "s2",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "y",
+            "edge": "right",
+            "position": 0,
+            "direction": "output"
+          }
+        ]
+      },
+      {
+        "id": "s3",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "y",
+            "edge": "right",
+            "position": 0,
+            "direction": "output"
+          }
+        ]
+      },
+      {
+        "id": "ab",
+        "width": 4,
+        "height": 4,
+        "connectors": [
+          {
+            "id": "u",
+            "edge": "left",
+            "position": 0,
+            "direction": "input"
+          },
+          {
+            "id": "y",
+            "edge": "right",
+            "position": 0,
+            "direction": "output"
+          }
+        ]
+      }
+    ],
+    "canvasConnectors": [],
+    "connections": [
+      {
+        "id": "__conn_0",
+        "from": {
+          "type": "component",
+          "componentId": "s1",
+          "connectorId": "y"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "ab",
+          "connectorId": "u"
+        }
+      },
+      {
+        "id": "__conn_1",
+        "from": {
+          "type": "component",
+          "componentId": "s2",
+          "connectorId": "y"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "ab",
+          "connectorId": "u"
+        }
+      },
+      {
+        "id": "__conn_2",
+        "from": {
+          "type": "component",
+          "componentId": "s3",
+          "connectorId": "y"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "ab",
+          "connectorId": "u"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "gridColumns": 10,
+    "gridRows": 10,
+    "options": {}
+  },
+  "hints": {
+    "components": {
+      "s1": {
+        "initialPosition": {
+          "x": 3,
+          "y": 6
+        },
+        "initialD4State": "identity"
+      },
+      "s2": {
+        "initialPosition": {
+          "x": 3,
+          "y": 10
+        },
+        "initialD4State": "identity"
+      },
+      "s3": {
+        "initialPosition": {
+          "x": 3,
+          "y": 14
+        },
+        "initialD4State": "identity"
+      },
+      "ab": {
+        "initialPosition": {
+          "x": 10,
+          "y": 10
+        },
+        "initialD4State": "identity"
+      }
+    },
+    "connections": {},
+    "canvasConnectors": {}
+  },
+  "constraints": []
+}

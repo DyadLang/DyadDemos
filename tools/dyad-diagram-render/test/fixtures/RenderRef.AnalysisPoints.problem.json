@@ -1,0 +1,125 @@
+{
+  "schema": "dyad-layout/problem@1",
+  "source": {
+    "package": "RenderRef",
+    "definition": "RenderRef.AnalysisPoints",
+    "structureHash": "fnv1a64:50195206121ef2cf"
+  },
+  "structure": {
+    "components": [
+      {
+        "id": "src",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "y",
+            "edge": "right",
+            "position": 0,
+            "direction": "output"
+          }
+        ]
+      },
+      {
+        "id": "g1",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "u",
+            "edge": "left",
+            "position": 0,
+            "direction": "input"
+          },
+          {
+            "id": "y",
+            "edge": "right",
+            "position": 0,
+            "direction": "output"
+          }
+        ]
+      },
+      {
+        "id": "g2",
+        "width": 2,
+        "height": 2,
+        "connectors": [
+          {
+            "id": "u",
+            "edge": "left",
+            "position": 0,
+            "direction": "input"
+          },
+          {
+            "id": "y",
+            "edge": "right",
+            "position": 0,
+            "direction": "output"
+          }
+        ]
+      }
+    ],
+    "canvasConnectors": [],
+    "connections": [
+      {
+        "id": "__conn_0",
+        "from": {
+          "type": "component",
+          "componentId": "src",
+          "connectorId": "y"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "g1",
+          "connectorId": "u"
+        }
+      },
+      {
+        "id": "__conn_1",
+        "from": {
+          "type": "component",
+          "componentId": "g1",
+          "connectorId": "y"
+        },
+        "to": {
+          "type": "component",
+          "componentId": "g2",
+          "connectorId": "u"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "gridColumns": 10,
+    "gridRows": 10,
+    "options": {}
+  },
+  "hints": {
+    "components": {
+      "src": {
+        "initialPosition": {
+          "x": 3,
+          "y": 10
+        },
+        "initialD4State": "identity"
+      },
+      "g1": {
+        "initialPosition": {
+          "x": 8,
+          "y": 10
+        },
+        "initialD4State": "identity"
+      },
+      "g2": {
+        "initialPosition": {
+          "x": 13,
+          "y": 10
+        },
+        "initialD4State": "identity"
+      }
+    },
+    "connections": {},
+    "canvasConnectors": {}
+  },
+  "constraints": []
+}

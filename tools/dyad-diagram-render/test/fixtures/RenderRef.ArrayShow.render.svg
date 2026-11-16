@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+      <defs>
+        <filter id='red-shadow' color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="100" flood-color="#ff0000" flood-opacity="0.5"/></filter>
+        <filter id='green-shadow' color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="100" flood-color="#00ff00" flood-opacity="0.5"/></filter>
+        <filter id='blue-shadow' color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="100" flood-color="#0000ff" flood-opacity="0.5"/></filter>
+        <filter id='drop-shadow' color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="40" flood-opacity="0.5"/></filter>
+      </defs>
+    <g filter="url(#drop-shadow)" transform="translate(-350 -200) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" id="a" viewBox="0 0 1000 1000">
+  <defs>
+    <style>
+      .b{stroke:#8f8f8f;stroke-linejoin:round;stroke-width:6px;fill:none}.d{fill:#8f8f8f;stroke-width:0}
+    </style>
+  </defs>
+  <path fill="#fff" stroke-width="0" d="M4 4h992v992H4z"/>
+  <path fill="#84bfed" stroke-width="0" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <path d="M120.01 154.86v747.06" class="b"/>
+  <path d="m102.58 166.75 17.43-65.04 17.43 65.04z" class="d"/>
+  <path d="M844.08 502.04H100.19" class="b"/>
+  <path d="m832.19 484.61 65.05 17.43-65.05 17.43z" class="d"/>
+  <path fill="none" stroke="#5757db" stroke-miterlimit="10" stroke-width="6.84" d="M118.02 503.15c58.02-230.51 125.03-341.59 182.16-341.37 139.3.54 199.96 699.91 360.36 699.91 57.13 0 121.25-118.59 179.27-349.1"/>
+</svg>
+</g>
+<g transform="translate(550 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg baseProfile="full" height="210" version="1.1" viewBox="0 0 210 210" width="210" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><polygon fill="rgb(255,255,255)" fill-opacity="1" points="5.0,5.0 205.0,105.0 5.0,205.0" stroke="rgb(0,0,127)" stroke-width="2mm" /><defs /></svg></g>
+    <text x="500" y="1100" transform="rotate(0, 0, 600)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">s1</text>
+    </svg></g>
+<g filter="url(#drop-shadow)" transform="translate(-350 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" id="a" viewBox="0 0 1000 1000">
+  <defs>
+    <style>
+      .b{stroke:#8f8f8f;stroke-linejoin:round;stroke-width:6px;fill:none}.d{fill:#8f8f8f;stroke-width:0}
+    </style>
+  </defs>
+  <path fill="#fff" stroke-width="0" d="M4 4h992v992H4z"/>
+  <path fill="#84bfed" stroke-width="0" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <path d="M120.01 154.86v747.06" class="b"/>
+  <path d="m102.58 166.75 17.43-65.04 17.43 65.04z" class="d"/>
+  <path d="M844.08 502.04H100.19" class="b"/>
+  <path d="m832.19 484.61 65.05 17.43-65.05 17.43z" class="d"/>
+  <path fill="none" stroke="#5757db" stroke-miterlimit="10" stroke-width="6.84" d="M118.02 503.15c58.02-230.51 125.03-341.59 182.16-341.37 139.3.54 199.96 699.91 360.36 699.91 57.13 0 121.25-118.59 179.27-349.1"/>
+</svg>
+</g>
+<g transform="translate(550 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg baseProfile="full" height="210" version="1.1" viewBox="0 0 210 210" width="210" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><polygon fill="rgb(255,255,255)" fill-opacity="1" points="5.0,5.0 205.0,105.0 5.0,205.0" stroke="rgb(0,0,127)" stroke-width="2mm" /><defs /></svg></g>
+    <text x="500" y="1100" transform="rotate(0, 0, 600)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">s2</text>
+    </svg></g>
+<g filter="url(#drop-shadow)" transform="translate(-350 200) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" id="a" viewBox="0 0 1000 1000">
+  <defs>
+    <style>
+      .b{stroke:#8f8f8f;stroke-linejoin:round;stroke-width:6px;fill:none}.d{fill:#8f8f8f;stroke-width:0}
+    </style>
+  </defs>
+  <path fill="#fff" stroke-width="0" d="M4 4h992v992H4z"/>
+  <path fill="#84bfed" stroke-width="0" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
+  <path d="M120.01 154.86v747.06" class="b"/>
+  <path d="m102.58 166.75 17.43-65.04 17.43 65.04z" class="d"/>
+  <path d="M844.08 502.04H100.19" class="b"/>
+  <path d="m832.19 484.61 65.05 17.43-65.05 17.43z" class="d"/>
+  <path fill="none" stroke="#5757db" stroke-miterlimit="10" stroke-width="6.84" d="M118.02 503.15c58.02-230.51 125.03-341.59 182.16-341.37 139.3.54 199.96 699.91 360.36 699.91 57.13 0 121.25-118.59 179.27-349.1"/>
+</svg>
+</g>
+<g transform="translate(550 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg baseProfile="full" height="210" version="1.1" viewBox="0 0 210 210" width="210" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><polygon fill="rgb(255,255,255)" fill-opacity="1" points="5.0,5.0 205.0,105.0 5.0,205.0" stroke="rgb(0,0,127)" stroke-width="2mm" /><defs /></svg></g>
+    <text x="500" y="1100" transform="rotate(0, 0, 600)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">s3</text>
+    </svg></g>
+<g filter="url(#drop-shadow)" transform="translate(0 0) rotate(0) scale(0.2 0.2)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 1000"
+    overflow="visible" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+    <style>
+    text {
+      transform-origin: center center;
+    }
+    </style><g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 200 200">
+  <g clip-path="url(#a)">
+    <path fill="#fff" stroke="#84bfed" stroke-width="2" d="M199 1v198H1V1z"/>
+    <path fill="#000" d="M36.3 76.636h-5.54L46.784 33h5.455l16.023 43.636h-5.54l-13.04-36.733h-.34zm2.046-17.045h22.33v4.687h-22.33zM134.772 77V33.363h15.256q4.56 0 7.521 1.577 2.962 1.555 4.411 4.197 1.449 2.622 1.449 5.817 0 2.812-1.002 4.645-.98 1.833-2.599 2.898a11.8 11.8 0 0 1-3.473 1.577v.426q2.003.128 4.027 1.406t3.388 3.665q1.363 2.386 1.363 5.838 0 3.281-1.491 5.902t-4.709 4.155T150.54 77zm5.285-4.688h10.483q5.177 0 7.35-2.003 2.195-2.025 2.195-4.9 0-2.217-1.129-4.091-1.13-1.896-3.218-3.026-2.087-1.15-4.943-1.15h-10.738zm0-19.773h9.801q2.386 0 4.304-.937 1.938-.938 3.068-2.642 1.15-1.705 1.15-4.006 0-2.876-2.002-4.88-2.004-2.023-6.35-2.023h-9.971zm-71.986 84.694h-5.284q-.469-2.28-1.64-4.006a10.9 10.9 0 0 0-2.813-2.897 11.9 11.9 0 0 0-3.644-1.79 14.5 14.5 0 0 0-4.176-.597q-3.963 0-7.18 2.003-3.196 2.003-5.092 5.902-1.875 3.899-1.875 9.567 0 5.667 1.875 9.567 1.896 3.898 5.092 5.902 3.217 2.002 7.18 2.002 2.174 0 4.176-.596a12.2 12.2 0 0 0 3.644-1.769 11.2 11.2 0 0 0 2.812-2.919q1.172-1.747 1.641-4.005h5.284q-.597 3.345-2.173 5.987a16.4 16.4 0 0 1-3.92 4.496 17.2 17.2 0 0 1-5.263 2.791q-2.898.959-6.2.959-5.583 0-9.93-2.728-4.345-2.727-6.84-7.755-2.492-5.03-2.492-11.932 0-6.904 2.493-11.932t6.84-7.756Q44.931 123 50.513 123q3.303 0 6.2.959 2.92.959 5.263 2.812a16.1 16.1 0 0 1 3.92 4.475q1.578 2.62 2.174 5.987m78.618 30.403h-13.466V124h14.062q6.35 0 10.867 2.621 4.516 2.6 6.924 7.478 2.408 4.858 2.408 11.634 0 6.818-2.429 11.74-2.429 4.9-7.074 7.543-4.645 2.62-11.292 2.62m-8.182-4.687h7.841q5.412 0 8.97-2.088t5.305-5.945 1.747-9.183q0-5.284-1.725-9.098-1.726-3.835-5.157-5.881-3.43-2.066-8.544-2.066h-8.437z"/>
+    <path stroke="silver" stroke-width="2" d="M100 178V22m-78 78h156" opacity=".2"/>
+  </g>
+  <defs>
+    <clipPath id="a">
+      <path fill="#fff" d="M0 0h200v200H0z"/>
+    </clipPath>
+  </defs>
+</svg>
+</g>
+<g transform="translate(-550 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg baseProfile="full" height="210" version="1.1" viewBox="0 0 210 210" width="210" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><polygon fill="rgb(0,0,127)" fill-opacity="1" points="5.0,5.0 205.0,105.0 5.0,205.0" stroke="rgb(0,0,127)" stroke-width="2mm" /><defs /></svg></g>
+<g transform="translate(550 0) rotate(0) scale(0.1 0.1)" transform-origin="center center"><svg baseProfile="full" height="210" version="1.1" viewBox="0 0 210 210" width="210" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><polygon fill="rgb(255,255,255)" fill-opacity="1" points="5.0,5.0 205.0,105.0 5.0,205.0" stroke="rgb(0,0,127)" stroke-width="2mm" /><defs /></svg></g>
+    <text x="500" y="1100" transform="rotate(0, 0, 600)" fill="black" font-size="200" dominant-baseline="central" text-anchor="middle">ab</text>
+    </svg></g>
+    <path d="M 205 300 L 390 460 " stroke-stroke="4" fill="transparent" stroke="rgb(0,0,127)" vector-effect="non-scaling-stroke"/>
+    <path d="M 205 500 L 390 500 " stroke-stroke="4" fill="transparent" stroke="rgb(0,0,127)" vector-effect="non-scaling-stroke"/>
+    <path d="M 205 700 L 390 540 " stroke-stroke="4" fill="transparent" stroke="rgb(0,0,127)" vector-effect="non-scaling-stroke"/>
+      </svg>

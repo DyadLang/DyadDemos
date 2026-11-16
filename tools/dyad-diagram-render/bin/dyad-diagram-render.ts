@@ -9,7 +9,7 @@
 import { writeFileSync, readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { performance } from "node:perf_hooks";
-import { type DiagramData, renderPng, renderSvg } from "../src/index.ts";
+import { type DiagramData, type RenderOptions, checkRenderOptions, renderPng, renderSvg, validateDiagramData } from "../src/index.ts";
 import { diagramFromDyadCli } from "../src/adapter/dyad-cli.ts";
 
 const usage = `usage:
@@ -59,40 +59,50 @@ async function main(): Promise<number> {
     console.error(usage);
     return 2;
   }
+  // The options are checked before anything slow runs.
+  let fit: { width: number; height: number } | undefined;
+  if (values.fit !== undefined) {
+    const m = /^(\d+)x(\d+)$/.exec(values.fit);
+    if (!m) throw new Error(`--fit wants WxH in pixels, e.g. 3200x2000; got ${values.fit}`);
+    fit = { width: Number(m[1]), height: Number(m[2]) };
+  }
+  const options: RenderOptions = {
+    scale: numberOption("--scale", values.scale),
+    fit,
+    margin: numberOption("--margin", values.margin),
+    layout: values["no-layout"] ? "never" : "auto",
+  };
+  try {
+    checkRenderOptions(options);
+  } catch (err) {
+    throw new Error(`bad options: ${err instanceof Error ? err.message : err}`);
+  }
+  const warn = (message: string) => console.error(`dyad-diagram-render: warning: ${message}`);
+
   const t0 = performance.now();
   let data: DiagramData;
   if (values.data !== undefined) {
-    data = JSON.parse(readFileSync(values.data, "utf8"));
+    data = validateDiagramData(JSON.parse(readFileSync(values.data, "utf8")));
   } else {
     data = await diagramFromDyadCli(values.dir ?? ".", positionals[0], {
       dyad: values.dyad,
       env: values.julia ? { JULIA_EXECUTABLE: values.julia } : undefined,
+      onDiagnostic: warn,
     });
   }
   const t1 = performance.now();
   if (values["save-data"]) writeFileSync(values["save-data"], JSON.stringify(data, null, 1));
-
-  let fit: { width: number; height: number } | undefined;
-  if (values.fit) {
-    const m = /^(\d+)x(\d+)$/.exec(values.fit);
-    if (!m) throw new Error(`--fit wants WxH, got ${values.fit}`);
-    fit = { width: Number(m[1]), height: Number(m[2]) };
-  }
-  const options = {
-    scale: values.scale ? Number(values.scale) : undefined,
-    fit,
-    margin: values.margin ? Number(values.margin) : undefined,
-    layout: values["no-layout"] ? ("never" as const) : ("auto" as const),
-  };
   const out = values.output;
   let t2: number;
   if (out?.endsWith(".png")) {
     const r = await renderPng(data, options);
     t2 = performance.now();
+    for (const d of r.diagnostics) warn(d);
     writeFileSync(out, r.png);
   } else {
     const r = renderSvg(data, options);
     t2 = performance.now();
+    for (const d of r.diagnostics) warn(d);
     if (out) writeFileSync(out, r.svg);
     else process.stdout.write(r.svg);
   }
@@ -101,6 +111,14 @@ async function main(): Promise<number> {
     console.error(`${src} ${(t1 - t0).toFixed(0)} ms, render ${(t2 - t1).toFixed(0)} ms`);
   }
   return 0;
+}
+
+/** A numeric option, or undefined when not given; anything but a number is an error. */
+function numberOption(flag: string, value: string | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  const n = Number(value);
+  if (value.trim() === "" || !Number.isFinite(n)) throw new Error(`${flag} wants a number, got ${JSON.stringify(value)}`);
+  return n;
 }
 
 main().then(
