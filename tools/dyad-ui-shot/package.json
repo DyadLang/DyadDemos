@@ -5,6 +5,9 @@
   "description": "Screenshot Dyad component diagrams as rendered by Dyad Studio, headlessly",
   "type": "module",
   "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/"
+  },
   "dependencies": {
     "puppeteer-core": "25.17.0",
     "vscode-jsonrpc": "8.2.1"

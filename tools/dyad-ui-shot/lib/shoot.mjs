@@ -39,6 +39,13 @@ function pageHelpers() {
         pendingImages: deepAll("img").filter((i) => !i.complete).length,
       };
     },
+    // Resolves once web fonts and every <img> (in any shadow root) have
+    // loaded or failed.
+    async assetsLoaded() {
+      await document.fonts.ready;
+      await Promise.all(deepAll("img").map((i) => (i.complete ? null : i.decode().catch(() => {}))));
+      return document.fonts.status === "loaded" && deepAll("img").every((i) => i.complete);
+    },
     // Same as the toolbar's layer switch.
     setLayer(layer) {
       const view = deepAll("dyad-component-definition-graphical-layout-view")[0];
@@ -149,37 +156,63 @@ async function frameRect(page, frame) {
   return { x: b.x, y: b.y, width: b.width, height: b.height };
 }
 
-// Wait until two consecutive screenshots are identical and nothing is pending.
-async function settle(page, frame, { isIdle, timeoutMs, clip }) {
-  const t0 = Date.now();
-  let prev = null;
-  while (Date.now() - t0 < timeoutMs) {
-    await frame.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
-    const pending = await frame.evaluate(() => window.__dyadUiShot.state().pendingImages);
-    const shot = Buffer.from(await page.screenshot({ type: "png", clip }));
-    if (prev && shot.equals(prev) && pending === 0 && isIdle()) return shot;
-    prev = shot;
-    await sleep(300);
+// Run `fn` with whatever is left of `until` (a Date.now() deadline).
+async function beforeDeadline(until, what, fn) {
+  const left = until - Date.now();
+  if (left <= 0) throw new Error(`${what}: timed out`);
+  let timer;
+  try {
+    return await Promise.race([
+      fn(),
+      new Promise((_, reject) => (timer = setTimeout(() => reject(new Error(`${what}: timed out`)), left))),
+    ]);
+  } finally {
+    clearTimeout(timer);
   }
-  return prev;
+}
+
+// Wait until `frames` consecutive screenshots are identical, with fonts and
+// images loaded and no message in flight. Throws if that does not happen
+// before `until`: a picture of a view that is still changing is not saved.
+async function settle(page, frame, { isIdle, until, clip, frames = 3, what = "diagram" }) {
+  let prev = null;
+  let same = 0;
+  let last = null;
+  while (Date.now() < until) {
+    const loaded = await beforeDeadline(until, "loading fonts and images", () =>
+      frame.evaluate(() => window.__dyadUiShot.assetsLoaded()),
+    ).catch(() => false);
+    await frame.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    const shot = Buffer.from(await page.screenshot({ type: "png", clip }));
+    same = prev && shot.equals(prev) ? same + 1 : 1;
+    prev = shot;
+    last = { loaded, idle: isIdle(), identicalFrames: same };
+    if (same >= frames && loaded && last.idle) return shot;
+    await sleep(Math.min(300, Math.max(0, until - Date.now())));
+  }
+  throw new Error(`the ${what} did not settle in time (last check: ${JSON.stringify(last)})`);
 }
 
 // fit: "studio" = Studio's own "Fit to view" (fits the diagram canvas box);
 //      the PNG is the whole diagram view.
 //      "content" = then zoom/pan so the drawn content fills the view and
 //      crop the PNG to it.
+// The whole capture must finish within timeoutMs, or it throws.
 export async function captureDiagram(
   page,
-  { frame = page.mainFrame(), fit, toolbar, guides = true, padding = 24, isIdle, timeoutMs = 30000, log },
+  { frame = page.mainFrame(), fit, toolbar, guides = false, padding = 24, isIdle, timeoutMs = 30000, log },
 ) {
+  const until = Date.now() + timeoutMs;
   const fr = await frameRect(page, frame);
   const whole = { x: fr.x, y: fr.y, width: fr.width, height: fr.height };
   const ev = (fn, arg) => frame.evaluate(fn, arg);
   await ev(pageHelpers);
   if (!toolbar) await ev(() => window.__dyadUiShot.hideToolbar());
   if (!guides) await ev(() => window.__dyadUiShot.hideGuides());
+  // Text must be measured in its final font before anything is fitted.
+  await beforeDeadline(until, "loading fonts and images", () => ev(() => window.__dyadUiShot.assetsLoaded()));
   await ev(() => window.__dyadUiShot.fit());
-  await settle(page, frame, { isIdle, timeoutMs: 5000, clip: whole });
+  await settle(page, frame, { isIdle, until, clip: whole });
 
   let clip = whole;
   if (fit === "content") {
@@ -200,7 +233,7 @@ export async function captureDiagram(
       log.debug(`content fit pass ${pass}: box=${JSON.stringify(box)} view=${JSON.stringify(view)} -> ${JSON.stringify(next)}`);
       if (Math.abs(kk - 1) < 0.01 && Math.abs(cx) < 1 && Math.abs(cy) < 1) break;
       await ev((v) => window.__dyadUiShot.setView(v), next);
-      await settle(page, frame, { isIdle, timeoutMs: 5000, clip: whole });
+      await settle(page, frame, { isIdle, until, clip: whole });
     }
     const box = await ev(() => window.__dyadUiShot.contentBox());
     if (box) {
@@ -214,5 +247,5 @@ export async function captureDiagram(
       };
     }
   }
-  return settle(page, frame, { isIdle, timeoutMs, clip });
+  return settle(page, frame, { isIdle, until, clip });
 }

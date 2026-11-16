@@ -7,11 +7,12 @@
 // Studio's activation waits for juliahub-vscode-auth to authenticate, so this
 // mode only works on a runner with a valid JuliaHub login. Nothing here
 // provides, fakes or refreshes one.
-import { spawn } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { paths, requireSetup, childEnv } from "./paths.mjs";
+import { spawnOwned, terminate } from "./procs.mjs";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -27,10 +28,11 @@ function freePort() {
   });
 }
 
-async function driver(port, method, route, body, timeoutMs = 10000) {
+// Every driver request carries the per-run token the driver was started with.
+async function driver({ port, token }, method, route, body, timeoutMs = 10000) {
   const res = await fetch(`http://127.0.0.1:${port}${route}`, {
     method,
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
     body: body ? JSON.stringify(body) : undefined,
     signal: AbortSignal.timeout(timeoutMs),
   });
@@ -54,11 +56,15 @@ async function waitFor(what, timeoutMs, fn) {
   throw new Error(`timed out after ${timeoutMs / 1000}s waiting for ${what}${lastErr ? ` (${lastErr.message})` : ""}`);
 }
 
-class StudioServer {
+export class StudioServer {
   constructor({ libraryDir, julia, log }) {
     this.libraryDir = libraryDir;
     this.julia = julia;
     this.log = log;
+    // Fresh random tokens per run: one for the workbench connection, one for
+    // the driver extension's routes.
+    this.connectionToken = randomBytes(32).toString("hex");
+    this.driver = { port: 0, token: randomBytes(32).toString("hex") };
   }
 
   async start() {
@@ -87,40 +93,68 @@ class StudioServer {
         2,
       ),
     );
+    const tokenFile = path.join(this.dataDir, "connection-token");
+    fs.writeFileSync(tokenFile, this.connectionToken, { mode: 0o600 });
     this.port = await freePort();
-    this.driverPort = await freePort();
-    this.proc = spawn(
+    this.driver.port = await freePort();
+    this.proc = spawnOwned(
       path.join(paths.openvscode, "bin", "openvscode-server"),
       [
         "--host", "127.0.0.1",
         "--port", String(this.port),
-        "--without-connection-token",
+        "--connection-token-file", tokenFile,
         "--server-data-dir", this.dataDir,
         "--extensions-dir", installed,
         "--default-folder", this.libraryDir,
         "--disable-telemetry",
       ],
-      { env: childEnv({ DYAD_UI_SHOT_DRIVER_PORT: String(this.driverPort) }), stdio: ["ignore", "pipe", "pipe"] },
+      {
+        env: childEnv({
+          DYAD_UI_SHOT_DRIVER_PORT: String(this.driver.port),
+          DYAD_UI_SHOT_DRIVER_TOKEN: this.driver.token,
+        }),
+        stdio: ["ignore", "pipe", "pipe"],
+      },
     );
     this.proc.stdout.on("data", (d) => this.log.debug(`[openvscode] ${String(d).trimEnd()}`));
     this.proc.stderr.on("data", (d) => this.log.debug(`[openvscode] ${String(d).trimEnd()}`));
-    this.exited = new Promise((r) => this.proc.on("exit", r));
-    await waitFor("openvscode-server", 60000, async () => (await fetch(`http://127.0.0.1:${this.port}/`)).ok);
+    await waitFor("openvscode-server", 60000, async () => {
+      const res = await fetch(this.url(), { redirect: "manual", signal: AbortSignal.timeout(5000) });
+      await res.body?.cancel();
+      return res.status < 400;
+    });
   }
 
+  // The token in the URL makes the workbench set its connection cookie.
   url() {
-    return `http://127.0.0.1:${this.port}/?folder=${encodeURIComponent(this.libraryDir)}`;
+    return `http://127.0.0.1:${this.port}/?tkn=${this.connectionToken}&folder=${encodeURIComponent(this.libraryDir)}`;
   }
 
+  // Safe to call after a failed or partial start().
   async stop() {
-    this.proc.kill("SIGTERM");
-    const t = setTimeout(() => this.proc.kill("SIGKILL"), 5000);
-    await this.exited;
-    clearTimeout(t);
+    await terminate(this.proc, 5000);
+    if (!this.dataDir) return;
     if (this.keepData || process.env.DYAD_UI_SHOT_KEEP_DATA) {
       this.log.info(`workbench logs kept in ${path.join(this.dataDir, "data", "logs")}`);
     } else fs.rmSync(this.dataDir, { recursive: true, force: true });
   }
+}
+
+// Load the workbench in `page` and wait for the driver extension to answer.
+export async function openWorkbench(page, server, timeoutMs = 120000) {
+  await page.goto(server.url(), { waitUntil: "domcontentloaded" });
+  // Extensions only run in a trusted workspace. The machine setting
+  // usually prevents the prompt; answer it if it shows up anyway.
+  return waitFor("the workbench and the dyad-ui-shot driver", timeoutMs, async () => {
+    await page
+      .evaluate(() =>
+        [...document.querySelectorAll(".dialog-buttons a, .dialog-buttons button")]
+          .find((b) => /trust the authors/i.test(b.textContent) && /^\s*Yes/.test(b.textContent))
+          ?.click(),
+      )
+      .catch(() => {});
+    return driver(server.driver, "GET", "/status");
+  });
 }
 
 // The frame (nested inside the webview iframes) that runs dyad-ui for `entity`.
@@ -134,35 +168,28 @@ async function findDiagramFrame(page, entity) {
   return null;
 }
 
-export async function runStudio(shots, opt, log, { launchChrome, captureHelpers, toEntity, renderPng }) {
+// Failures are pushed to `failures`; a library that fails does not stop the
+// run.
+export async function runStudio(shots, opt, log, failures, { launchChrome, captureHelpers, toEntity, renderPng, checkLibrary }) {
   requireSetup("openvscode", "chrome", "node");
   const { waitForDiagram, switchLayer, captureDiagram } = captureHelpers;
+  const timeoutMs = opt.timeout * 1000;
   const browser = await launchChrome(opt);
-  let failures = 0;
   try {
     for (const [lib, libShots] of Map.groupBy(shots, (s) => s.lib)) {
       const server = new StudioServer({ libraryDir: lib, julia: opt.julia || process.env.JULIA_EXECUTABLE || "julia +dyad-3.5.0", log });
-      log.info(`starting openvscode-server for ${lib}`);
-      await server.start();
-      const page = await browser.newPage();
+      const done = new Set();
+      let page;
       try {
+        checkLibrary(lib);
+        log.info(`starting openvscode-server for ${lib}`);
+        await server.start();
+        page = await browser.newPage();
         await page.setViewport({ width: opt.width, height: opt.height, deviceScaleFactor: opt.scale });
-        await page.goto(server.url(), { waitUntil: "domcontentloaded" });
-        // Extensions only run in a trusted workspace. The machine setting
-        // usually prevents the prompt; answer it if it shows up anyway.
-        await waitFor("the workbench and the dyad-ui-shot driver", 120000, async () => {
-          await page
-            .evaluate(() =>
-              [...document.querySelectorAll(".dialog-buttons a, .dialog-buttons button")]
-                .find((b) => /trust the authors/i.test(b.textContent) && /^\s*Yes/.test(b.textContent))
-                ?.click(),
-            )
-            .catch(() => {});
-          return driver(server.driverPort, "GET", "/status");
-        });
+        await openWorkbench(page, server);
         log.info("activating Dyad Studio (needs a valid JuliaHub login)");
         try {
-          await driver(server.driverPort, "POST", "/activate", null, opt.timeout * 1000);
+          await driver(server.driver, "POST", "/activate", null, timeoutMs);
         } catch (e) {
           throw new Error(
             `Dyad Studio did not activate (${e.message}). Its activation waits for ` +
@@ -172,30 +199,32 @@ export async function runStudio(shots, opt, log, { launchChrome, captureHelpers,
         }
         for (const shot of libShots) {
           const t0 = Date.now();
+          done.add(shot);
           try {
             const entity = toEntity(shot.component);
-            await driver(server.driverPort, "POST", "/open", { component: entity }, opt.timeout * 1000).catch((e) => {
+            await driver(server.driver, "POST", "/open", { component: entity }, timeoutMs).catch((e) => {
               throw new Error(
                 `Dyad Studio did not open the diagram (${e.message}). Studio's commands wait until it ` +
                   `has a Julia installation and a JuliaHub login; see the "Dyad Studio Client Log" and ` +
                   `"JuliaHub Authentication" logs.`,
               );
             });
-            const frame = await waitFor(`the diagram webview of ${shot.component}`, opt.timeout * 1000, () =>
+            const frame = await waitFor(`the diagram webview of ${shot.component}`, timeoutMs, () =>
               findDiagramFrame(page, entity),
             );
             // No message counter here: rely on the settle loop alone.
             let since = Date.now();
             const isIdle = () => Date.now() - since > 1000;
-            await waitForDiagram(frame, { timeoutMs: opt.timeout * 1000, isIdle });
-            await switchLayer(frame, opt.layer, { timeoutMs: opt.timeout * 1000, isIdle });
+            await waitForDiagram(frame, { timeoutMs, isIdle });
+            await switchLayer(frame, opt.layer, { timeoutMs, isIdle });
             since = Date.now();
             const png = await captureDiagram(page, {
               frame,
               fit: opt.fit,
               toolbar: opt.toolbar,
-              guides: !opt["no-guides"],
+              guides: opt.guides,
               isIdle,
+              timeoutMs,
               log,
             });
             fs.mkdirSync(path.dirname(shot.out), { recursive: true });
@@ -203,25 +232,24 @@ export async function runStudio(shots, opt, log, { launchChrome, captureHelpers,
             log.info(`wrote ${shot.out} (${((Date.now() - t0) / 1000).toFixed(1)}s, full Studio)`);
             if (shot.render) await renderPng(browser, shot, opt, log);
           } catch (e) {
-            failures++;
+            failures.push({ shot, error: e.message });
             server.keepData = true;
             log.warn(`${shot.component}: ${e.message}`);
           }
         }
       } catch (e) {
-        failures += libShots.length;
+        for (const shot of libShots) if (!done.has(shot)) failures.push({ shot, error: e.message });
         server.keepData = true;
-        log.warn(e.message);
+        log.warn(`${lib}: ${e.message}`);
         // What the workbench showed, for diagnosis.
         const shot = path.join(paths.tmp, "studio-mode-failure.png");
-        if (await page.screenshot({ path: shot }).then(() => true, () => false)) log.warn(`workbench screenshot: ${shot}`);
+        if (page && (await page.screenshot({ path: shot }).then(() => true, () => false))) log.warn(`workbench screenshot: ${shot}`);
       } finally {
-        await page.close().catch(() => {});
+        await page?.close().catch(() => {});
         await server.stop();
       }
     }
   } finally {
     await browser.close();
   }
-  return failures;
 }

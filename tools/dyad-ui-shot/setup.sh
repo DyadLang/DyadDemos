@@ -130,7 +130,8 @@ if (( WANT_STUDIO )); then
     log "openvscode-server $OPENVSCODE_VERSION unpacked"
   fi
   EXT_DIR="$OVS_DIR/extensions-installed"
-  stamp="$EXT_DIR/.ok-$DYAD_STUDIO_VERSION-$(echo "$STUDIO_DEPS" | sha256sum | cut -c1-12)"
+  # Reinstall when the pinned extensions or the driver extension change.
+  stamp="$EXT_DIR/.ok-$DYAD_STUDIO_VERSION-$({ echo "$STUDIO_DEPS"; cat "$TOOL_DIR"/driver-extension/*; } | sha256sum | cut -c1-12)"
   if [[ ! -f $stamp ]]; then
     rm -rf "$EXT_DIR"
     mkdir -p "$EXT_DIR"

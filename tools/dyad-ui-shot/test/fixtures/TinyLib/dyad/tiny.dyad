@@ -1,0 +1,34 @@
+"A two-pin port used by the test fixture"
+connector Pin
+  potential v::Real
+  flow i::Real
+metadata {"Dyad": {"icons": {"default": "dyad://TinyLib/pin.svg"}}}
+end
+
+"A box with two pins"
+component Box
+  p = Pin() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
+  n = Pin() [{"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}}}}]
+relations
+  p.i + n.i = 0
+  p.v = n.v
+metadata {"Dyad": {"icons": {"default": "dyad://TinyLib/box.svg"}}}
+end
+
+"A box whose icon is on a remote host, which dyad-ui-shot must not fetch"
+component RemoteIconBox
+  p = Pin() [{"Dyad": {"placement": {"icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550}}}}]
+relations
+  p.i = 0
+metadata {"Dyad": {"icons": {"default": "http://127.0.0.1:9/remote-icon.svg"}}}
+end
+
+"Two boxes in a row"
+component Chain
+  a = Box() [{"Dyad": {"placement": {"diagram": {"x1": 100, "y1": 400, "x2": 300, "y2": 600}}}}]
+  b = Box() [{"Dyad": {"placement": {"diagram": {"x1": 600, "y1": 400, "x2": 800, "y2": 600}}}}]
+  r = RemoteIconBox() [{"Dyad": {"placement": {"diagram": {"x1": 400, "y1": 700, "x2": 500, "y2": 800}}}}]
+relations
+  connect(a.n, b.p)
+  connect(a.p, r.p)
+end

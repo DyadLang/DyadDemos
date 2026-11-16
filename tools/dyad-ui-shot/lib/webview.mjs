@@ -5,9 +5,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { paths } from "./paths.mjs";
+import { DEFAULT_ICON, classifyIconUrl, fetchRemoteIcon, hostAllowed } from "./assets.mjs";
 
-// Pages are served from this made-up origin through request interception; no
-// port is opened and nothing is fetched from the network.
+// Pages are served from this made-up origin through request interception:
+// the page itself opens no port and fetches nothing from the network.
 const ORIGIN = "https://webview.dyad-ui-shot.invalid";
 
 // The defaults VS Code injects into every webview (src/vs/workbench/contrib/
@@ -107,19 +108,26 @@ function installVsCodeApiShim() {
 const MIME = { ".js": "text/javascript", ".woff2": "font/woff2", ".svg": "image/svg+xml", ".png": "image/png" };
 
 // One browser page showing one Dyad diagram, fed from `server`.
+// `remoteHosts`: hosts whose http(s) icons may be fetched (--allow-remote-assets).
 export class StudioWebview {
-  constructor({ browser, server, log }) {
+  constructor({ browser, server, log, remoteHosts = [] }) {
     this.browser = browser;
     this.server = server;
     this.log = log;
+    this.remoteHosts = remoteHosts;
     this.inflight = 0;
     this.lastActivity = Date.now();
     this.errors = [];
+    this.refused = new Set();
+    // Like Studio's per-webview astSubscriptions and subscriptionRequests:
+    // the layer each entity is subscribed to, and a counter per entity that
+    // makes a reply to a superseded request-entity drop its subscription.
+    this.subscriptions = new Map();
+    this.requestSeq = new Map();
   }
 
-  async open(entity, { width, height, scale = 1, layer = "diagram" }) {
+  async open(entity, { width, height, scale = 1 }) {
     this.entity = entity;
-    this.layer = layer;
     const page = await this.browser.newPage();
     this.page = page;
     await page.setViewport({ width, height, deviceScaleFactor: scale });
@@ -159,9 +167,8 @@ export class StudioWebview {
     await page.exposeFunction("__dyadUiShotPost", (json) => this.onMessage(JSON.parse(json)));
     await page.evaluateOnNewDocument(installVsCodeApiShim);
     this.server.onAstUpdated = (payload) => {
-      if (payload?.diagram?.origin === this.entity && payload.diagram.kind === this.layer) {
-        this.post({ kind: "diagram", diagram: payload });
-      }
+      const d = payload?.diagram;
+      if (d && this.subscriptions.get(d.origin) === d.kind) this.post({ kind: "diagram", diagram: payload });
     };
     await page.goto(`${ORIGIN}/index.html`, { waitUntil: "load" });
   }
@@ -187,8 +194,8 @@ export class StudioWebview {
         case "request-entity": {
           const entity = msg.entity ?? this.entity;
           const layer = msg.layer ?? "diagram";
-          this.layer = layer;
-          const payload = await this.server.subscribe(entity, layer);
+          const payload = await this.subscribe(entity, layer);
+          if (!payload) break;
           const errors = [];
           for (const p of payload.problems ?? []) {
             const text = `${p.title ?? p.message ?? JSON.stringify(p)}${p.details ? ` (${p.details})` : ""}`;
@@ -210,8 +217,8 @@ export class StudioWebview {
           break;
         }
         case "fetch-icon": {
-          const r = await this.server.fetchIcon(msg.url);
-          await this.post({ kind: "fetch-icon-response", icon: r.icon, uri: msg.url });
+          const icon = await this.fetchIcon(msg.url);
+          await this.post({ kind: "fetch-icon-response", icon, uri: msg.url });
           break;
         }
         case "list-parameter-types": {
@@ -221,9 +228,13 @@ export class StudioWebview {
           await this.post({ kind: "list-parameter-types-response", entity: msg.entity, types: r.types, problems: r.problems });
           break;
         }
-        case "unsubscribe-entity-command":
-          await this.server.unsubscribe(msg.entity, this.layer);
+        case "unsubscribe-entity-command": {
+          this.nextRequest(msg.entity);
+          const layer = this.subscriptions.get(msg.entity);
+          this.subscriptions.delete(msg.entity);
+          if (layer !== undefined) await this.server.release(msg.entity, layer);
           break;
+        }
         default:
           this.log.debug(`ignoring webview message '${msg.kind}' (read-only)`);
       }
@@ -237,9 +248,58 @@ export class StudioWebview {
     }
   }
 
+  nextRequest(entity) {
+    const n = (this.requestSeq.get(entity) ?? 0) + 1;
+    this.requestSeq.set(entity, n);
+    return n;
+  }
+
+  // Subscribe `entity` on `layer`, replacing its subscription on another layer
+  // (the toolbar's layer switch sends a new request-entity). Returns the
+  // payload, or null when the request was superseded or the page closed.
+  async subscribe(entity, layer) {
+    const seq = this.nextRequest(entity);
+    const payload = await this.server.acquire(entity, layer);
+    if (this.closed || this.requestSeq.get(entity) !== seq) {
+      await this.server.release(entity, layer);
+      return null;
+    }
+    const previous = this.subscriptions.get(entity);
+    this.subscriptions.set(entity, layer);
+    if (previous !== undefined) await this.server.release(entity, previous);
+    return payload;
+  }
+
+  // The SVG text of an icon. Only local URLs reach the language server; see
+  // assets.mjs. A refused URL gets Dyad's default icon, as a failed fetch
+  // does in Studio.
+  async fetchIcon(url) {
+    const kind = classifyIconUrl(url);
+    if (kind === "entity" || kind === "package" || kind === "data") return (await this.server.fetchIcon(url)).icon;
+    if (kind === "remote" && hostAllowed(url, this.remoteHosts)) {
+      try {
+        return await fetchRemoteIcon(url, { hosts: this.remoteHosts });
+      } catch (e) {
+        this.warnRefused(url, e.message);
+      }
+    } else {
+      this.warnRefused(url, kind === "remote" ? "remote asset; allow its host with --allow-remote-assets" : "not a local asset");
+    }
+    return (await this.server.fetchIcon(DEFAULT_ICON)).icon;
+  }
+
+  warnRefused(url, why) {
+    if (this.refused.has(url)) return;
+    this.refused.add(url);
+    this.log.warn(`icon ${url} not loaded (${why}); using the default icon`);
+  }
+
   async close() {
     this.closed = true;
     this.server.onAstUpdated = null;
     await this.page?.close().catch(() => {});
+    const subs = [...this.subscriptions];
+    this.subscriptions.clear();
+    for (const [entity, layer] of subs) await this.server.release(entity, layer);
   }
 }

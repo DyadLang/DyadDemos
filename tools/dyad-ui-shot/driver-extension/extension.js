@@ -1,7 +1,9 @@
 // dyad-ui-shot driver: a tiny VS Code extension that lets the dyad-ui-shot
 // script ask the running workbench to open Dyad diagrams. It listens on
-// 127.0.0.1 only, on the port given in DYAD_UI_SHOT_DRIVER_PORT, and does
-// nothing when that variable is unset.
+// 127.0.0.1 only, on the port given in DYAD_UI_SHOT_DRIVER_PORT, and answers
+// only requests that carry the per-run token from DYAD_UI_SHOT_DRIVER_TOKEN
+// (`Authorization: Bearer <token>`). It does nothing unless both are set.
+const crypto = require("crypto");
 const http = require("http");
 const vscode = require("vscode");
 
@@ -73,18 +75,26 @@ const handlers = {
     await hideChrome();
     return { entity };
   },
-  async "POST /command"(body) {
-    const result = await vscode.commands.executeCommand(body.command, ...(body.args || []));
-    return { result: result === undefined ? null : result };
-  },
 };
+
+function authorized(req, token) {
+  const got = Buffer.from(String(req.headers.authorization || ""));
+  const want = Buffer.from(`Bearer ${token}`);
+  return got.length === want.length && crypto.timingSafeEqual(got, want);
+}
 
 function activate(context) {
   const port = Number(process.env.DYAD_UI_SHOT_DRIVER_PORT);
-  if (!port) return;
+  const token = process.env.DYAD_UI_SHOT_DRIVER_TOKEN || "";
+  if (!port || token.length < 32) return;
   const server = http.createServer(async (req, res) => {
-    const handler = handlers[`${req.method} ${req.url}`];
     res.setHeader("Content-Type", "application/json");
+    if (!authorized(req, token)) {
+      res.statusCode = 401;
+      res.end(JSON.stringify({ error: "unauthorized" }));
+      return;
+    }
+    const handler = handlers[`${req.method} ${req.url}`];
     if (!handler) {
       res.statusCode = 404;
       res.end(JSON.stringify({ error: "not found" }));
@@ -102,4 +112,4 @@ function activate(context) {
   context.subscriptions.push({ dispose: () => server.close() });
 }
 
-module.exports = { activate, deactivate() {} };
+module.exports = { activate, deactivate() {}, handlers };

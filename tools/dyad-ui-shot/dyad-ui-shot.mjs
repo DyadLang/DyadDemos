@@ -4,8 +4,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { spawnSync } from "node:child_process";
 import { paths, requireSetup, importDep, childEnv, VERSIONS } from "./lib/paths.mjs";
+import { run, own, disown, installSignalHandlers } from "./lib/procs.mjs";
+import { parseHostList } from "./lib/assets.mjs";
 
 const USAGE = `\
 usage: dyad-ui-shot <library-dir> <Lib.Component> <out.png> [options]
@@ -28,8 +29,8 @@ options:
                      1000x1000 canvas box; PNG is the whole viewport
   --scale N          device pixel ratio of the PNG (default 2)
   --toolbar          keep Studio's floating diagram toolbar in the picture
-  --no-guides        hide the canvas axes and the diagram-box outline that
-                     Studio draws behind every diagram
+  --guides           keep the canvas axes and the diagram-box outline that
+                     Studio draws behind every diagram (hidden by default)
   --layer L          diagram (default) or icon
   --render-png P     also write \`dyad render\`'s SVG, rasterised by the same
                      Chrome, to P (needs setup.sh --dyad-cli)
@@ -40,7 +41,13 @@ options:
   --julia CMD        Julia command for the language server (default:
                      $JULIA_EXECUTABLE, else "julia +dyad-3.5.0")
   --no-instantiate   do not run Pkg.instantiate() when Manifest.toml is missing
-  --timeout S        per-diagram render timeout in seconds (default 120)
+  --allow-remote-assets HOSTS
+                     let diagrams load http(s) icons from these hosts
+                     (comma-separated); by default only the libraries' own
+                     dyad:// assets and data: URLs are loaded
+  --timeout S        deadline in seconds for each step: instantiating, starting
+                     the language server, each request to it, rendering and
+                     capturing each diagram, dyad render (default 120)
   --verbose          debug logging
   -h, --help         this text
 `;
@@ -69,7 +76,7 @@ function juliaCommand(opt) {
 // The language server resolves a library's Dyad dependencies by running Julia
 // against its Manifest.toml, so the library must be instantiated. Offline only:
 // this never contacts a package server.
-function ensureManifest(libDir, opt, log) {
+async function ensureManifest(libDir, opt, log) {
   if (fs.readdirSync(libDir).some((f) => /^(Julia)?Manifest(-v[\d.]+)?\.toml$/.test(f))) return;
   if (opt["no-instantiate"]) {
     log.warn(`${libDir} has no Manifest.toml; Dyad dependencies will not resolve`);
@@ -77,15 +84,21 @@ function ensureManifest(libDir, opt, log) {
   }
   log.info(`instantiating ${libDir} (offline)`);
   const [exe, ...pre] = juliaCommand(opt);
-  const r = spawnSync(exe, [...pre, "--startup-file=no", `--project=${libDir}`, "-e", "using Pkg; Pkg.instantiate()"], {
+  const r = await run(exe, [...pre, "--startup-file=no", `--project=${libDir}`, "-e", "using Pkg; Pkg.instantiate()"], {
     env: childEnv({ JULIA_PKG_OFFLINE: "true", JULIA_PKG_PRECOMPILE_AUTO: "0" }),
-    encoding: "utf8",
+    timeoutMs: opt.timeout * 1000,
+    what: `Pkg.instantiate() in ${libDir}`,
   });
-  if (r.status !== 0) {
+  if (r.code !== 0) {
     throw new Error(
       `Pkg.instantiate() failed in ${libDir}; instantiate it yourself and retry:\n${(r.stderr || "").split("\n").slice(-15).join("\n")}`,
     );
   }
+}
+
+function checkLibrary(lib) {
+  if (!fs.existsSync(path.join(lib, "Project.toml"))) throw new Error(`${lib} has no Project.toml`);
+  if (!fs.existsSync(path.join(lib, "dyad"))) throw new Error(`${lib} has no dyad/ folder`);
 }
 
 function parseBatch(file) {
@@ -107,12 +120,19 @@ function parseBatch(file) {
     });
 }
 
+// Chrome runs in its own process group (puppeteer's default on Linux), which
+// procs.mjs kills on exit and on signals.
 async function launchChrome(opt) {
   const puppeteer = (await importDep("puppeteer-core")).default;
-  return puppeteer.launch({
+  const browser = await puppeteer.launch({
     executablePath: paths.chrome,
     headless: "shell",
     env: childEnv(),
+    handleSIGINT: false,
+    handleSIGTERM: false,
+    handleSIGHUP: false,
+    timeout: Math.max(30, opt.timeout) * 1000,
+    protocolTimeout: Math.max(30, opt.timeout) * 1000,
     args: [
       "--no-sandbox",
       "--hide-scrollbars",
@@ -120,17 +140,28 @@ async function launchChrome(opt) {
       "--disable-gpu",
     ],
   });
+  const pid = browser.process()?.pid;
+  own(pid);
+  const close = browser.close.bind(browser);
+  browser.close = async () => {
+    try {
+      await close();
+    } finally {
+      disown(pid);
+    }
+  };
+  return browser;
 }
 
 // `dyad render` SVG, rasterised by the same Chrome at the same viewport size,
 // for side-by-side comparisons.
 async function renderPng(browser, shot, opt, log) {
-  const r = spawnSync(paths.dyadCli, ["render", shot.component, "--dir", shot.lib], {
-    encoding: "utf8",
+  const r = await run(paths.dyadCli, ["render", shot.component, "--dir", shot.lib], {
     env: childEnv(),
-    maxBuffer: 256 << 20,
+    timeoutMs: opt.timeout * 1000,
+    what: "dyad render",
   });
-  if (r.status !== 0 || !r.stdout.includes("<svg")) throw new Error(`dyad render failed: ${r.stderr || r.stdout}`);
+  if (r.code !== 0 || !r.stdout.includes("<svg")) throw new Error(`dyad render failed: ${r.stderr || r.stdout}`);
   const page = await browser.newPage();
   try {
     await page.setViewport({ width: opt.width, height: opt.height, deviceScaleFactor: opt.scale });
@@ -190,39 +221,45 @@ async function renderPng(browser, shot, opt, log) {
   }
 }
 
-async function runStandalone(shots, opt, log) {
+// Failures are collected rather than thrown: a library that fails (it cannot
+// be instantiated, its language server does not start) fails its own shots,
+// and the run goes on with the next library.
+async function runStandalone(shots, opt, log, failures) {
   requireSetup("studio", "chrome", "node");
   const { DyadLanguageServer } = await import("./lib/lsp.mjs");
   const { StudioWebview } = await import("./lib/webview.mjs");
   const { waitForDiagram, switchLayer, captureDiagram } = await import("./lib/shoot.mjs");
+  const timeoutMs = opt.timeout * 1000;
 
   const browser = await launchChrome(opt);
-  let failures = 0;
   try {
-    const byLib = Map.groupBy(shots, (s) => s.lib);
-    for (const [lib, libShots] of byLib) {
-      ensureManifest(lib, opt, log);
-      log.info(`starting language server for ${lib}`);
-      const server = new DyadLanguageServer({ libraryDir: lib, julia: juliaCommand(opt).join(" "), log });
-      await server.start();
+    for (const [lib, libShots] of Map.groupBy(shots, (s) => s.lib)) {
+      const server = new DyadLanguageServer({ libraryDir: lib, julia: juliaCommand(opt).join(" "), log, timeoutMs });
+      const done = new Set();
       try {
+        checkLibrary(lib);
+        await ensureManifest(lib, opt, log);
+        log.info(`starting language server for ${lib}`);
+        await server.start();
         // Waits for the workspace (and its Julia dependency resolution) to load.
         await server.tree();
         for (const shot of libShots) {
           const t0 = Date.now();
-          const view = new StudioWebview({ browser, server, log });
+          const view = new StudioWebview({ browser, server, log, remoteHosts: opt.remoteHosts });
+          done.add(shot);
           try {
             const entity = toEntity(shot.component);
             await view.open(entity, { width: opt.width, height: opt.height, scale: opt.scale });
             const isIdle = () => view.inflight === 0 && Date.now() - view.lastActivity > 300;
-            const waitOpts = { timeoutMs: opt.timeout * 1000, isIdle, fatal: () => view.fatal };
+            const waitOpts = { timeoutMs, isIdle, fatal: () => view.fatal };
             await waitForDiagram(view.page.mainFrame(), waitOpts);
             await switchLayer(view.page.mainFrame(), opt.layer, waitOpts);
             const png = await captureDiagram(view.page, {
               fit: opt.fit,
               toolbar: opt.toolbar,
-              guides: !opt["no-guides"],
+              guides: opt.guides,
               isIdle,
+              timeoutMs,
               log,
             });
             fs.mkdirSync(path.dirname(shot.out), { recursive: true });
@@ -231,13 +268,16 @@ async function runStandalone(shots, opt, log) {
             if (view.errors.length) log.warn(`page errors for ${shot.component}:\n  ${view.errors.join("\n  ")}`);
             if (shot.render) await renderPng(browser, shot, opt, log);
           } catch (e) {
-            failures++;
+            failures.push({ shot, error: e.message });
             log.warn(`${shot.component}: ${e.message}`);
             if (view.errors.length) log.warn(`page errors:\n  ${view.errors.join("\n  ")}`);
           } finally {
             await view.close();
           }
         }
+      } catch (e) {
+        log.warn(`${lib}: ${e.message}`);
+        for (const shot of libShots) if (!done.has(shot)) failures.push({ shot, error: e.message });
       } finally {
         await server.stop();
       }
@@ -245,7 +285,6 @@ async function runStandalone(shots, opt, log) {
   } finally {
     await browser.close();
   }
-  return failures;
 }
 
 async function main() {
@@ -258,7 +297,8 @@ async function main() {
       fit: { type: "string", default: "content" },
       scale: { type: "string", default: "2" },
       toolbar: { type: "boolean", default: false },
-      "no-guides": { type: "boolean", default: false },
+      guides: { type: "boolean", default: false },
+      "allow-remote-assets": { type: "string" },
       layer: { type: "string", default: "diagram" },
       "render-png": { type: "string" },
       mode: { type: "string", default: "standalone" },
@@ -280,6 +320,11 @@ async function main() {
   if (!["studio", "content"].includes(opt.fit)) throw new Error(`--fit must be studio or content`);
   if (!["diagram", "icon"].includes(opt.layer)) throw new Error(`--layer must be diagram or icon`);
   const log = makeLog(opt.verbose);
+  installSignalHandlers(log);
+  opt.remoteHosts = parseHostList(opt["allow-remote-assets"]);
+  if (opt["allow-remote-assets"] !== undefined && !opt.remoteHosts.length) {
+    throw new Error("--allow-remote-assets needs a comma-separated list of hosts");
+  }
 
   let shots;
   if (opt.batch) {
@@ -293,20 +338,21 @@ async function main() {
     const [lib, component, out] = positionals;
     shots = [{ lib: path.resolve(lib), component, out: path.resolve(out), render: opt["render-png"] ? path.resolve(opt["render-png"]) : null }];
   }
-  for (const s of shots) {
-    if (!fs.existsSync(path.join(s.lib, "Project.toml"))) throw new Error(`${s.lib} has no Project.toml`);
-    if (!fs.existsSync(path.join(s.lib, "dyad"))) throw new Error(`${s.lib} has no dyad/ folder`);
-  }
   if (shots.some((s) => s.render)) requireSetup("dyadCli");
 
-  let failures;
-  if (opt.mode === "standalone") failures = await runStandalone(shots, opt, log);
+  const failures = [];
+  if (opt.mode === "standalone") await runStandalone(shots, opt, log, failures);
   else if (opt.mode === "studio") {
     const { runStudio } = await import("./lib/studio-mode.mjs");
-    failures = await runStudio(shots, opt, log, { launchChrome, captureHelpers: await import("./lib/shoot.mjs"), toEntity, renderPng });
+    await runStudio(shots, opt, log, failures, { launchChrome, captureHelpers: await import("./lib/shoot.mjs"), toEntity, renderPng, checkLibrary });
   } else throw new Error(`--mode must be standalone or studio`);
-  if (failures) log.warn(`${failures} of ${shots.length} shot(s) failed`);
-  return failures ? 1 : 0;
+  if (failures.length) {
+    log.warn(
+      `${failures.length} of ${shots.length} shot(s) failed:\n` +
+        failures.map(({ shot, error }) => `  ${shot.component} (${shot.lib}): ${error.split("\n")[0]}`).join("\n"),
+    );
+  }
+  return failures.length ? 1 : 0;
 }
 
 main().then(

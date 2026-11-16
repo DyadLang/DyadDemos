@@ -1,12 +1,11 @@
 // A minimal LSP client for Dyad Studio's bundled language server
 // (out/server/server.js in the .vsix). It speaks the same dyad/* requests the
 // Studio extension sends on behalf of its diagram webview.
-import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import net from "node:net";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { paths, requireDep, childEnv } from "./paths.mjs";
+import { spawnOwned, terminate, deadline } from "./procs.mjs";
 
 const rpc = requireDep("vscode-jsonrpc/node");
 
@@ -22,37 +21,34 @@ function juliaExecutable(cmd) {
   return wrapper;
 }
 
-function freePort() {
-  return new Promise((resolve, reject) => {
-    const srv = net.createServer();
-    srv.unref();
-    srv.on("error", reject);
-    srv.listen(0, "127.0.0.1", () => {
-      const { port } = srv.address();
-      srv.close(() => resolve(port));
-    });
-  });
-}
+// Keeps the server from listening or reaching the network; see the file.
+export const SERVER_GUARD = fileURLToPath(new URL("./server-guard.cjs", import.meta.url));
+
+// The server's "MCP failed to start" error, which is expected here.
+const MCP_REFUSED = /MCP server failed to start/;
 
 export class DyadLanguageServer {
-  constructor({ libraryDir, julia, log }) {
+  // timeoutMs bounds every request, initialization included.
+  constructor({ libraryDir, julia, log, timeoutMs = 120000 }) {
     this.libraryDir = path.resolve(libraryDir);
     this.julia = julia;
     this.log = log;
+    this.timeoutMs = timeoutMs;
     this.messages = [];
+    this.subscriptionCounts = new Map();
   }
 
   async start() {
     const serverJs = path.join(paths.studio, "out", "server", "server.js");
-    this.proc = spawn(process.execPath, [serverJs, "--stdio"], {
+    this.proc = spawnOwned(process.execPath, ["--require", SERVER_GUARD, serverJs, "--stdio"], {
       cwd: this.libraryDir,
       env: childEnv(),
       stdio: ["pipe", "pipe", "pipe"],
     });
     this.proc.stderr.on("data", (d) => this.log.debug(`[server] ${String(d).trimEnd()}`));
-    this.exited = new Promise((resolve) => this.proc.on("exit", (code, sig) => resolve({ code, sig })));
-    this.exited.then(({ code, sig }) => {
-      if (!this.stopping) this.log.warn(`language server exited (${sig ?? code})`);
+    this.proc.exited.then(({ code, signal, error }) => {
+      if (!this.stopping) this.log.warn(`language server exited (${error?.message ?? signal ?? code})`);
+      this.conn?.dispose();
     });
 
     const conn = rpc.createMessageConnection(
@@ -68,6 +64,7 @@ export class DyadLanguageServer {
     conn.onRequest("window/workDoneProgress/create", () => null);
     conn.onRequest("window/showMessageRequest", () => null);
     conn.onNotification("window/showMessage", (m) => {
+      if (MCP_REFUSED.test(m.message)) return this.log.debug(`[server] ${m.message} (MCP is disabled)`);
       this.messages.push(m);
       (m.type === 1 ? this.log.warn : this.log.info)(`[server] ${m.message}`);
     });
@@ -78,7 +75,7 @@ export class DyadLanguageServer {
     });
     conn.listen();
 
-    await conn.sendRequest("initialize", {
+    await this.request("initialize", {
       processId: process.pid,
       rootUri: folders[0].uri,
       workspaceFolders: folders,
@@ -86,8 +83,11 @@ export class DyadLanguageServer {
       initializationOptions: {
         juliaExe: juliaExecutable(this.julia),
         juliaPkgServer: process.env.JULIA_PKG_SERVER ?? "",
-        // The server always starts its MCP endpoint; give it a free local port.
-        mcpServerPort: await freePort(),
+        // The server always starts its MCP endpoint (an HTTP server on all
+        // interfaces whose tools write files). An invalid port, and the
+        // listen() refusal in server-guard.cjs, make that fail; the server
+        // reports it and runs without MCP.
+        mcpServerPort: -1,
         unparseOptions: { inlineMetadata: false },
       },
     });
@@ -101,7 +101,7 @@ export class DyadLanguageServer {
   }
 
   request(method, params) {
-    return this.conn.sendRequest(method, params);
+    return deadline(this.conn.sendRequest(method, params), this.timeoutMs, `language server request ${method}`);
   }
 
   // The library tree (all libraries, modules and definitions the server knows).
@@ -119,6 +119,28 @@ export class DyadLanguageServer {
     return this.request("dyad/ast-unsubscribe", { layer, entity }).catch(() => {});
   }
 
+  // Reference-counted subscriptions, like Studio's notification hub: each
+  // acquire() gets the current payload, and the server is unsubscribed when
+  // the last holder of an (entity, layer) releases it.
+  async acquire(entity, layer = "diagram") {
+    const key = `${layer} ${entity}`;
+    this.subscriptionCounts.set(key, (this.subscriptionCounts.get(key) ?? 0) + 1);
+    try {
+      return await this.subscribe(entity, layer);
+    } catch (e) {
+      await this.release(entity, layer);
+      throw e;
+    }
+  }
+
+  async release(entity, layer = "diagram") {
+    const key = `${layer} ${entity}`;
+    const n = (this.subscriptionCounts.get(key) ?? 0) - 1;
+    if (n > 0) return this.subscriptionCounts.set(key, n);
+    this.subscriptionCounts.delete(key);
+    if (n === 0 && !this.stopping) await this.unsubscribe(entity, layer);
+  }
+
   fetchIcon(url) {
     return this.request("dyad/fetch-icon", { url });
   }
@@ -127,17 +149,19 @@ export class DyadLanguageServer {
     return this.request("dyad/list-parameter-types", { entity });
   }
 
+  // Safe to call after a failed or partial start(). Kills the server's whole
+  // process group (Julia included) if it does not exit by itself.
   async stop() {
     this.stopping = true;
-    try {
-      await Promise.race([this.conn.sendRequest("shutdown"), new Promise((r) => setTimeout(r, 3000))]);
-      this.conn.sendNotification("exit");
-    } catch {
-      // already gone
+    if (this.conn) {
+      try {
+        await deadline(this.conn.sendRequest("shutdown"), 3000, "shutdown");
+        await this.conn.sendNotification("exit");
+      } catch {
+        // already gone, or not answering
+      }
     }
-    const t = setTimeout(() => this.proc.kill("SIGKILL"), 3000);
-    await this.exited;
-    clearTimeout(t);
-    this.conn.dispose();
+    await terminate(this.proc, 3000);
+    this.conn?.dispose();
   }
 }
