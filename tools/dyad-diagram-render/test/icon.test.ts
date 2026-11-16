@@ -267,3 +267,32 @@ test("an icon's painted bounds include its strokes", () => {
 test("an unclosed style-sheet block runs to the end of the sheet", () => {
   assert.equal(scopeCss(".a{fill:red", "z"), ".z .z-a{fill:red}\n");
 });
+
+// Codex finding: smooth curves reflect the previous control point, and a
+// curve's box is its own, not its control points'.
+test("a path's bounds are its curves' extrema, smooth curves reflected as SVG does", () => {
+  const box = (d: string) => {
+    const p = pathPoints(d);
+    const xs = p.filter((_, i) => i % 2 === 0), ys = p.filter((_, i) => i % 2 === 1);
+    return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)].map((v) => Math.round(v * 1e9) / 1e9);
+  };
+  // T reflects Q's control (0,0) through (110,40) to (220,80): x reaches 165.
+  assert.deepEqual(box("M90 40 Q0 0 110 40 T110 80"), [49.5, 20, 165, 80]);
+  assert.deepEqual(box("m90 40 q-90 -40 20 0 t0 40"), [49.5, 20, 165, 80]);
+  // A T after a T reflects the reflected control point.
+  assert.deepEqual(box("M0 0 Q10 10 20 0 T40 0 T60 0"), [0, -5, 60, 5]);
+  // A T after anything but Q or T is a straight line (its control is the current point).
+  assert.deepEqual(box("M0 0 L10 0 T20 0"), [0, 0, 20, 0]);
+  assert.deepEqual(box("M0 0 C 0 10 10 10 10 0 T20 0"), [0, 0, 20, 7.5]);
+  // S reflects C's (or S's) second control; after a Q it takes the current point.
+  assert.deepEqual(box("M0 0 C0 10 10 10 10 0 S20 -10 20 0"), [0, -7.5, 20, 7.5]);
+  assert.deepEqual(box("M0 0 C0 10 10 10 10 0 s10 -10 10 0 S30 10 30 0"), [0, -7.5, 30, 7.5]);
+  assert.deepEqual(box("M0 0 Q5 10 10 0 S20 -10 20 0"), [0, -4.444444444, 20, 5]);
+  // After a closepath or a moveto there is nothing to reflect.
+  assert.deepEqual(box("M0 0 Q5 10 10 0 Z T 10 0"), [0, 0, 10, 5]);
+  // Exact, not the control hull: this cubic peaks at 7.5, its controls at 10.
+  assert.deepEqual(box("M0 0 C0 10 10 10 10 0"), [0, 0, 10, 7.5]);
+  // A cubic that is a quadratic in disguise (cubic coefficient 0) and one with an S-bend.
+  assert.deepEqual(box("M0 0 C 20 0 40 0 60 0"), [0, 0, 60, 0]);
+  assert.deepEqual(box("M0 0 C 30 30 -30 30 0 0"), [-8.660254038, 0, 8.660254038, 22.5]);
+});

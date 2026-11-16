@@ -250,4 +250,8 @@ Further choices:
 - Icon strokes are measured conservatively: style sheets are not matched to
   elements, so a sheet's widest `stroke-width` counts for every shape, and
   any corner counts as a miter join at the largest miter limit. Bounds can
-  therefore be a little larger than what is painted.
+  therefore be a little larger than what is painted. Path geometry itself is
+  measured exactly for lines and Bézier curves (their extrema, smooth curves
+  reflecting the previous control point as SVG does) and conservatively for
+  arcs (a box around their ellipse); a property test checks the bounds
+  against resvg's raster for random paths and placements.

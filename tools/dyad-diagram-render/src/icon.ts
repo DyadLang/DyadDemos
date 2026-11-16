@@ -522,7 +522,7 @@ function outside(b: Rect4 | undefined, viewBox: Rect4): boolean {
  * paint, strokes included; undefined when that cannot be told.
  *
  * Only simple shapes without transforms are measured (paths by their
- * control points, which bound the curve; arcs by their ellipse). Text,
+ * curves' extrema, arcs by their ellipse; see {@link pathPoints}). Text,
  * `<use>`, images, nested `<svg>`, transforms, markers, filters and
  * non-scaling strokes make the result unknown. A stroked shape is widened
  * by half its stroke width (from its own or inherited attributes and
@@ -591,8 +591,10 @@ export function paintedBounds(svg: XmlElement, viewBox: Rect4): Rect4 | undefine
         break;
       case "path":
         pts = pathPoints(attrValue(e, "d") ?? "");
-        // One straight segment has no join (a closed one is a join).
-        corners = pts.length > 4 || /z/i.test(attrValue(e, "d") ?? "");
+        // One straight segment has no join (a closed one is a join). A curve
+        // is taken to have corners: a stroker may draw one that doubles back
+        // as lines with a join where it turns.
+        corners = pts.length > 4 || /[zcsqta]/i.test(attrValue(e, "d") ?? "");
         break;
       default:
         return false;
@@ -704,8 +706,14 @@ function strokeStyle(
 }
 
 /**
- * The end and control points of a path, absolute, as `[x0, y0, x1, y1,
- * ...]`; for arcs, the corners of a box their ellipse stays in.
+ * Points whose bounding box is the bounding box of a path, absolute, as
+ * `[x0, y0, x1, y1, ...]`: every segment's ends; for a Bézier curve, the
+ * points where it turns in x or y (its extrema, so the box is the curve's
+ * own, not its control points'); for an arc, the corners of a box its
+ * ellipse stays in. The smooth curves (S/s, T/t) take their first control
+ * point as SVG does: the previous curve's last one reflected through the
+ * current point if that curve was of the same kind (C/S, or Q/T), else the
+ * current point.
  *
  * Path data is read as SVG specifies, with its implicit commands (pairs
  * after a moveto are linetos; a command's parameters may repeat), and, as
@@ -739,6 +747,9 @@ export function pathPoints(d: string): number[] {
   const arity: Record<string, number> = { m: 2, l: 2, h: 1, v: 1, c: 6, s: 4, q: 4, t: 2, a: 7 };
   let cmd = "";
   let x = 0, y = 0, sx = 0, sy = 0;
+  // The previous segment's last control point and its kind: "c" after C or
+  // S, "q" after Q or T, "" after anything else.
+  let kx = 0, ky = 0, kind = "";
   skip();
   while (pos < n) {
     const start = pos;
@@ -755,6 +766,7 @@ export function pathPoints(d: string): number[] {
     if (lower === "z") {
       x = sx;
       y = sy;
+      kind = "";
       skip();
       continue;
     }
@@ -767,6 +779,10 @@ export function pathPoints(d: string): number[] {
     if (a.length < arity[lower] || a.some((v) => !Number.isFinite(v))) break;
     const ox = rel ? x : 0;
     const oy = rel ? y : 0;
+    // The first control point a smooth curve reflects, else the current point.
+    const rx = kind === (lower === "s" ? "c" : "q") ? 2 * x - kx : x;
+    const ry = kind === (lower === "s" ? "c" : "q") ? 2 * y - ky : y;
+    let next = "";
     switch (lower) {
       case "h":
         x = ox + a[0];
@@ -786,11 +802,37 @@ export function pathPoints(d: string): number[] {
         y = ey;
         break;
       }
+      case "c":
+      case "s": {
+        const [x1, y1] = lower === "c" ? [ox + a[0], oy + a[1]] : [rx, ry];
+        const k = lower === "c" ? 2 : 0;
+        kx = ox + a[k];
+        ky = oy + a[k + 1];
+        const ex = ox + a[k + 2], ey = oy + a[k + 3];
+        bezierExtrema(out, [x, x1, kx, ex], [y, y1, ky, ey]);
+        out.push(ex, ey);
+        x = ex;
+        y = ey;
+        next = "c";
+        break;
+      }
+      case "q":
+      case "t": {
+        [kx, ky] = lower === "q" ? [ox + a[0], oy + a[1]] : [rx, ry];
+        const ex = ox + a[a.length - 2], ey = oy + a[a.length - 1];
+        bezierExtrema(out, [x, kx, ex], [y, ky, ey]);
+        out.push(ex, ey);
+        x = ex;
+        y = ey;
+        next = "q";
+        break;
+      }
       default:
-        for (let j = 0; j < a.length; j += 2) out.push(ox + a[j], oy + a[j + 1]);
-        x = ox + a[a.length - 2];
-        y = oy + a[a.length - 1];
+        x = ox + a[0];
+        y = oy + a[1];
+        out.push(x, y);
     }
+    kind = next;
     if (lower === "m") {
       sx = x;
       sy = y;
@@ -802,6 +844,39 @@ export function pathPoints(d: string): number[] {
     if (pos === start) break;
   }
   return out;
+}
+
+/**
+ * Push the points of a Bézier curve (2 or 3 control points after the start;
+ * `xs` and `ys` its coordinates) where it turns in x or y, strictly between
+ * its ends: there `dB/dt`, a polynomial of degree 1 or 2, is 0.
+ */
+function bezierExtrema(out: number[], xs: number[], ys: number[]): void {
+  const at = (p: number[], t: number): number => {
+    const u = 1 - t;
+    return p.length === 3 ? u * u * p[0] + 2 * u * t * p[1] + t * t * p[2] : u * u * u * p[0] + 3 * u * u * t * p[1] + 3 * u * t * t * p[2] + t * t * t * p[3];
+  };
+  for (const p of [xs, ys]) {
+    // dB/dt, up to a constant factor, is a t^2 + b t + c.
+    const [a, b, c] =
+      p.length === 3 ? [0, p[0] - 2 * p[1] + p[2], p[1] - p[0]] : [-p[0] + 3 * p[1] - 3 * p[2] + p[3], 2 * (p[0] - 2 * p[1] + p[2]), p[1] - p[0]];
+    const roots: number[] = [];
+    if (p.length === 3) {
+      // b t + c = 0
+      if (b !== 0) roots.push(-c / b);
+    } else {
+      const disc = b * b - 4 * a * c;
+      if (disc >= 0) {
+        // The stable form of the quadratic formula; a = 0 leaves -c / b.
+        const q = -0.5 * (b + (b < 0 ? -1 : 1) * Math.sqrt(disc));
+        if (a !== 0) roots.push(q / a);
+        if (q !== 0) roots.push(c / q);
+      }
+    }
+    for (const t of roots) {
+      if (t > 0 && t < 1) out.push(at(xs, t), at(ys, t));
+    }
+  }
 }
 
 /**
