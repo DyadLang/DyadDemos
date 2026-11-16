@@ -36,8 +36,15 @@ export interface AutoLayoutOptions {
 /** Lay the diagram out; returns a copy with new placements and routes. */
 export function autoLayout(d: DiagramData, options: AutoLayoutOptions = {}): DiagramData {
   const size = options.size ?? 100;
-  const colStep = size * (1 + (options.columnGap ?? 0.3));
-  const rowStep = size * (1 + (options.rowGap ?? 0.6));
+  const columnGap = options.columnGap ?? 0.3;
+  const rowGap = options.rowGap ?? 0.6;
+  // A negative gap would let the row search below move a component back
+  // onto the one it is moving past, for ever.
+  if (!(Number.isFinite(size) && size > 0) || !(Number.isFinite(columnGap) && columnGap >= 0) || !(Number.isFinite(rowGap) && rowGap >= 0)) {
+    throw new RangeError(`autoLayout: size must be > 0 and gaps >= 0, got size ${size}, columnGap ${columnGap}, rowGap ${rowGap}`);
+  }
+  const colStep = size * (1 + columnGap);
+  const rowStep = size * (1 + rowGap);
   const byName = new Map(d.components.map((c) => [c.name, c]));
 
   // Directed links between components, from the connector sides.

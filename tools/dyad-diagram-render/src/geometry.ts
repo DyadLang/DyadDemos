@@ -121,9 +121,13 @@ export function matrixAttr(m: Matrix): string {
   return `matrix(${m.map(fmt).join(" ")})`;
 }
 
+/** The longest array {@link fanOut} draws element by element (a copy per icon unit). */
+export const MAX_FAN_OUT = 1000;
+
 /**
  * The placements of an array connector's elements, fanned out the way the
- * Dyad kernel and Studio do it (in the icon's 0..1000 coordinates):
+ * Dyad kernel and Studio do it (in the icon's 0..1000 coordinates; for a
+ * boundary port, in the diagram's nominal 0..1000 box, as Studio does):
  *
  * - only arrays of at least 2 elements, and not more than `show` (when
  *   given), are fanned out; anything else is one placement. (Studio, and
@@ -135,11 +139,12 @@ export function matrixAttr(m: Matrix): string {
  * - an interior connector's box is cut into `count` equal cells along its
  *   longer side.
  *
- * Arrays too long for the span are drawn once.
+ * Arrays too long for the span, or longer than {@link MAX_FAN_OUT}, are
+ * drawn once.
  */
 export function fanOut(p: Placement, count: number, show: number | undefined): Placement[] {
   const { x1, y1, x2, y2 } = p;
-  if (!Number.isInteger(count) || count < 2 || (show !== undefined && count > show) || ![x1, y1, x2, y2].every(Number.isFinite)) {
+  if (!Number.isInteger(count) || count < 2 || count > MAX_FAN_OUT || (show !== undefined && count > show) || ![x1, y1, x2, y2].every(Number.isFinite)) {
     return [p];
   }
   const w = Math.abs(x2 - x1);

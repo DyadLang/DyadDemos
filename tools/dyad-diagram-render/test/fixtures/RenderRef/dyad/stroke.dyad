@@ -1,0 +1,14 @@
+component StrokeWide
+metadata {"Dyad": {"icons": {"default": "dyad://RenderRef/stroke-wide.svg"}, "labels": [{"label": "$(instance)", "x": 500, "y": 1100, "rot": 0}]}}
+end
+
+component StrokeRef
+  a = StrokeWide() {^a}
+  b = StrokeWide() {^b}
+metadata {
+  "_links": {
+    "a": {"Dyad": {"placement": {"diagram": {"x1": 100, "x2": 500, "y1": 400, "y2": 600, "rot": 0}}}},
+    "b": {"Dyad": {"placement": {"diagram": {"x1": 600, "x2": 1000, "y1": 400, "y2": 600, "rot": 0}}}}
+  }
+}
+end

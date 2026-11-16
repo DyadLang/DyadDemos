@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DIAGRAM_SCHEMA, type DiagramData, RenderOptionError, render, renderDiagram, renderSvg, validateDiagramData } from "../src/index.ts";
 import { labelAnchor, midpoint, normalizeUpright, removeOverlaps, roundedPath, simplify } from "../src/render.ts";
-import { fanOut } from "../src/geometry.ts";
+import { MAX_FAN_OUT, fanOut } from "../src/geometry.ts";
 import { type XmlElement, parseXml, rootElement, walk } from "../src/xml.ts";
 
 const triangle = `<svg viewBox="0 0 210 210"><polygon points="5,5 205,105 5,205" fill="navy"/></svg>`;
@@ -234,9 +234,13 @@ test("bounds follow preserveAspectRatio, as Studio fits the icon", () => {
   assert.deepEqual(renderDiagram(aspectDiagram("xMinYMin meet"), { margin: 0 }).bounds, { x0: 0, y0: 0, x1: 100, y1: 100 });
   // `slice` covers the box and is cut to it.
   assert.deepEqual(renderDiagram(aspectDiagram("xMaxYMid slice"), { margin: 0 }).bounds, { x0: 0, y0: 0, x1: 200, y1: 100 });
-  // Content outside the viewBox shows within the box (Studio cuts icons to their box).
+  // Content outside the viewBox shows within the box (Studio cuts icons to
+  // their box): this square ends at 1250 icon units, 125 diagram units.
   const over = renderDiagram(aspectDiagram("xMinYMin meet", `<rect x="1050" y="400" width="200" height="200"/>`), { margin: 0 });
-  assert.deepEqual(over.bounds, { x0: 0, y0: 0, x1: 200, y1: 100 });
+  assert.deepEqual(over.bounds, { x0: 0, y0: 0, x1: 125, y1: 100 });
+  // Content that cannot be measured may show anywhere in the box.
+  const text = renderDiagram(aspectDiagram("xMinYMin meet", `<text x="1050" y="400">t</text>`), { margin: 0 });
+  assert.deepEqual(text.bounds, { x0: 0, y0: 0, x1: 200, y1: 100 });
   assert.match(over.svg, /preserveAspectRatio="xMinYMin meet"[^>]*overflow="hidden"|overflow="hidden"[^>]*preserveAspectRatio/);
   // Turned by 90 degrees, a stretched icon spans 100 x 200.
   const turned = aspectDiagram("none");
@@ -363,4 +367,65 @@ test("array connectors fan out when their placement's show allows, as in Studio"
   assert.equal(count(d), 4, "with show >= count it is drawn once per element");
   u.show = 2;
   assert.equal(count(d), 2);
+});
+
+// Re-check finding 4: boundary array ports fan out like connectors. Studio
+// 3.5.1 draws `RenderRef.ArrayBlock`'s `u` (count 3, show 5, placed at
+// x -100..0, y 450..550) as three triangles at y 250, 450 and 650, with the
+// name below the first only.
+test("boundary array ports fan out as in Studio, the label under the first copy", () => {
+  const d = tiny();
+  d.ports.push({
+    name: "u",
+    placement: { x1: -100, y1: 450, x2: 0, y2: 550, rot: 0 },
+    icon: triangle,
+    labels: [{ text: "u", x: 500, y: 1100, rot: 0 }],
+    count: 3,
+    show: 5,
+  });
+  const polygons = (r: string) => (r.match(/<polygon/g) ?? []).length;
+  const r = renderDiagram(d, { margin: 0 });
+  assert.equal(polygons(r.svg), 5, "IN, gain.u and three copies of u");
+  const centres = [...r.svg.matchAll(/<g transform="matrix\(1 0 0 1 (-?[\d.]+) (-?[\d.]+)\)"><g class="i\w+"><svg[^>]*><polygon/g)].map((m) => [Number(m[1]), Number(m[2])]);
+  assert.deepEqual(centres.filter(([x]) => x === -50), [[-50, 300], [-50, 500], [-50, 700]]);
+  const labels = [...r.svg.matchAll(/<text x="(-?[\d.]+)" y="(-?[\d.]+)"[^>]*>u<\/text>/g)];
+  assert.equal(labels.length, 1);
+  assert.equal(Number(labels[0][1]), -50);
+  // 22.5 below the first copy's (500, 1100) anchor, at y 360, plus half a cap height.
+  assert.ok(Math.abs(Number(labels[0][2]) - (382.5 + (0.727 * 16) / 2)) < 0.01);
+  assert.equal(r.bounds.y1, 750);
+  // Without show, or longer than show, a port is drawn once, as a connector is.
+  d.ports[1].show = undefined;
+  assert.equal(polygons(render(d)), 3);
+  d.ports[1].show = 2;
+  assert.equal(polygons(render(d)), 3);
+});
+
+test("fanOut draws arrays longer than MAX_FAN_OUT once instead of looping over them", () => {
+  const p = { x1: 300, y1: 450, x2: 700, y2: 550, rot: 0 };
+  assert.equal(fanOut(p, MAX_FAN_OUT, undefined).length, MAX_FAN_OUT);
+  assert.equal(fanOut(p, 1e9, 1e9).length, 1);
+});
+
+// Re-check finding 3: Studio draws a heavy stroke past the fitted viewBox, up
+// to the placement box (`RenderRef.StrokeRef`: the 400-wide red line at
+// x = 980 of a 0..1000 viewBox, in a 400 x 200 box at x 100..500, reaches
+// x = 436); the bounds take it in.
+test("bounds include an icon's stroke beyond its viewBox, as Studio draws it", () => {
+  const icon = readFileSync(new URL("./fixtures/RenderRef/assets/stroke-wide.svg", import.meta.url), "utf8");
+  const d = aspectDiagram(undefined);
+  d.components[0].icon = icon;
+  d.components[0].placement = { x1: 100, y1: 400, x2: 500, y2: 600, rot: 0 };
+  assert.deepEqual(renderDiagram(d, { margin: 0 }).bounds, { x0: 200, y0: 400, x1: 436, y1: 600 });
+});
+
+// Re-check finding 5: a drawing smaller than a pixel is an error up front.
+test("rejects a scale that leaves less than one pixel", () => {
+  assert.throws(
+    () => renderDiagram(tiny(), { scale: 0.0001, margin: 0 }),
+    (e: unknown) => e instanceof RenderOptionError && /would be 0x0 px.*at least 1x1 px/.test(e.message),
+  );
+  assert.throws(() => renderDiagram(tiny(), { fit: { width: 0.4, height: 0.4 }, margin: 0 }), RenderOptionError);
+  // A tiny scale with a margin is fine: the margin alone is a drawing.
+  assert.equal(renderDiagram(tiny(), { scale: 0.0001, margin: 1 }).width, 2);
 });

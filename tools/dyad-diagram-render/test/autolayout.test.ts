@@ -43,3 +43,12 @@ test("orthogonal routes leave along each connector's side", () => {
     { x: 10, y: 20 },
   ]);
 });
+
+// The sweep: a negative row gap made the row search loop for ever.
+test("rejects layout options that cannot give a layout", () => {
+  const d: DiagramData = JSON.parse(readFileSync(new URL("./fixtures/DrivelineSystem.diagram.json", import.meta.url), "utf8"));
+  assert.throws(() => autoLayout(d, { rowGap: -0.5 }), RangeError);
+  assert.throws(() => autoLayout(d, { size: 0 }), RangeError);
+  assert.throws(() => autoLayout(d, { columnGap: Number.NaN }), RangeError);
+  assert.equal(autoLayout(d, { rowGap: 0 }).components.length, d.components.length);
+});

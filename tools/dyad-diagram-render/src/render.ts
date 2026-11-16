@@ -131,8 +131,12 @@ export function renderDiagram(input: DiagramData, options: RenderOptions = {}): 
   for (const c of data.components) drawComponentBody(ctx, c);
   for (const c of data.components) drawComponentConnectors(ctx, c);
   for (const conn of data.connections) drawWires(ctx, conn.routes, wireColor(ctx, conn));
+  // A boundary array port fans out on the diagram the way a connector does
+  // on its component's icon (Studio 3.5.1, checked against
+  // `RenderRef.ArrayBlock`); its labels go with the first copy.
+  const portPlacements = new Map(data.ports.map((p) => [p, arrayPlacements(p)]));
   for (const p of data.ports) {
-    drawIcon(ctx, ctx.ports, p.icon, placementMatrix(p.placement), `port ${p.name}`);
+    for (const q of portPlacements.get(p)!) drawIcon(ctx, ctx.ports, p.icon, placementMatrix(q), `port ${p.name}`);
     noteClock(ctx, p, `port ${p.name}`);
   }
   for (const conn of data.connections) {
@@ -155,7 +159,7 @@ export function renderDiagram(input: DiagramData, options: RenderOptions = {}): 
   }
   for (const p of data.ports) {
     for (const l of p.labels ?? []) {
-      const at = labelAnchor(p.placement, l);
+      const at = labelAnchor(portPlacements.get(p)![0], l);
       drawLabel(ctx, l, { x: at.x, y: at.y + style.portLabelOffset }, l.rot);
     }
   }
@@ -175,6 +179,11 @@ export function renderDiagram(input: DiagramData, options: RenderOptions = {}): 
   const height = Math.round(bh * s + 2 * margin);
   if (!(s > 0 && Number.isFinite(s)) || width > MAX_PIXELS || height > MAX_PIXELS) {
     throw new RenderOptionError(`the drawing would be ${width}x${height} px at scale ${s}; the limit is ${MAX_PIXELS} px a side`);
+  }
+  if (width < 1 || height < 1) {
+    throw new RenderOptionError(
+      `the drawing would be ${width}x${height} px at scale ${s} with a ${margin} px margin; it needs at least 1x1 px (raise the scale or the margin)`,
+    );
   }
   const vx = bounds.x0 - (width - bw * s) / 2 / s;
   const vy = bounds.y0 - (height - bh * s) / 2 / s;
@@ -273,10 +282,18 @@ function drawIcon(ctx: Context, out: string[], icon: string, m: Matrix, owner: s
   if (f.flip) frame = multiply(frame, scale(1, -1));
   out.push(`<g transform="${matrixAttr(frame)}">${prepared.markup}</g>`);
   // What is drawn is the icon fitted into the box, cut to the box; that,
-  // not the whole box, is what the drawing's bounds take in. Content outside
-  // the viewBox (when it may have any) can show anywhere in the box.
+  // not the whole box, is what the drawing's bounds take in. Content that
+  // paints outside the viewBox (a shape, or a stroke's width) shows up to
+  // the box's edge, as in Studio; content that cannot be measured may show
+  // anywhere in the box.
   const fitted = fitViewBox(prepared.viewBox, prepared.aspect, box);
-  const r = prepared.mayOverflow ? box : intersect(fitted, box);
+  let r: Rect = box;
+  if (prepared.painted) {
+    const [x0, y0, x1, y1] = prepared.painted;
+    const [vx, vy] = prepared.viewBox;
+    const painted = { x: fitted.x + (x0 - vx) * fitted.sx, y: fitted.y + (y0 - vy) * fitted.sy, width: (x1 - x0) * fitted.sx, height: (y1 - y0) * fitted.sy };
+    r = intersect(union(fitted, painted), box);
+  }
   for (const [dx, dy] of [
     [r.x, r.y],
     [r.x + r.width, r.y],
@@ -288,6 +305,12 @@ function drawIcon(ctx: Context, out: string[], icon: string, m: Matrix, owner: s
 }
 
 type Rect = { x: number; y: number; width: number; height: number };
+
+function union(a: Rect, b: Rect): Rect {
+  const x = Math.min(a.x, b.x);
+  const y = Math.min(a.y, b.y);
+  return { x, y, width: Math.max(a.x + a.width, b.x + b.width) - x, height: Math.max(a.y + a.height, b.y + b.height) - y };
+}
 
 function intersect(a: Rect, b: Rect): Rect {
   const x = Math.max(a.x, b.x);
@@ -310,14 +333,22 @@ function drawComponentConnectors(ctx: Context, c: ComponentShape): void {
 
 /**
  * A connector of a component. An array connector whose placement's `show`
- * allows it is fanned out into one copy per element, as Studio draws it.
+ * allows it is fanned out into one copy per element, as Studio draws it
+ * (see {@link arrayPlacements}).
  */
 function drawConnector(ctx: Context, conn: ConnectorShape, parent: Matrix, component: string): void {
   const owner = `connector ${component}.${conn.name}`;
-  // Studio fans an array connector out only when its placement has a `show`.
-  const placements = conn.count !== undefined && conn.show !== undefined ? fanOut(conn.placement, conn.count, conn.show) : [conn.placement];
-  for (const p of placements) drawIcon(ctx, ctx.connectors, conn.icon, multiply(parent, placementMatrix(p)), owner);
+  for (const p of arrayPlacements(conn)) drawIcon(ctx, ctx.connectors, conn.icon, multiply(parent, placementMatrix(p)), owner);
   noteClock(ctx, conn, owner);
+}
+
+/**
+ * Where a connector, or a boundary port, is drawn: once, or once per element
+ * for an array whose placement has a `show` that allows it. Studio fans an
+ * array connector out only when its placement has a `show`.
+ */
+function arrayPlacements(conn: ConnectorShape): Placement[] {
+  return conn.count !== undefined && conn.show !== undefined ? fanOut(conn.placement, conn.count, conn.show) : [conn.placement];
 }
 
 function noteClock(ctx: Context, conn: ConnectorShape, owner: string): void {

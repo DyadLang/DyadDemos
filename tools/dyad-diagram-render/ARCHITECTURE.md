@@ -75,8 +75,13 @@ away:
 - **Icons** are inlined, each copy scoped (`icon.ts`): classes and ids get a
   per-copy prefix, every style-sheet selector is limited to the copy.
   Icons are untrusted: scripts, `foreignObject` and other embedding elements,
-  `on*` handlers and link animations are removed, and every URL must be a
-  fragment of the icon (`#id`) or, on an `<image>`, a `data:` image of a
+  `on*` handlers and link animations are removed. Attributes are
+  allowlisted per element (core, presentation, the element's own geometry);
+  attributes that may hold a URL but are not links (`ping`, `src`,
+  `action`, `formaction`, `background`, `cite`, `longdesc`, `poster`,
+  `data`, `xml:base`, ...) are dropped with a diagnostic, other unknown
+  ones (editor metadata) silently. Every link (any `*href`) and every
+  `url(...)` must be a fragment of the icon (`#id`) or, on an `<image>`, a `data:` image of a
   raster type or of SVG (which is sanitised the same way, recursively).
   External `url()`, `@import` and other at-rules, and CSS escapes, are
   dropped. Attribute values are decoded before they are checked or renamed,
@@ -102,16 +107,19 @@ image generator. Nothing was taken from Studio's code. Besides the demo
 libraries, a small reference library (`RenderRef`: rotated and mirrored
 `Gain`s, icons with `preserveAspectRatio` `none`/`xMinYMin meet`/`xMaxYMid
 slice` and content outside the viewBox, an analysis point, a `markers`
-connection, array connectors with and without `show`) was shot to settle
-the rows below; its components are kept as `test/fixtures/RenderRef.*`.
+connection, array connectors with and without `show`, a boundary array port
+(`ArrayBlock`), an icon with a 400-unit stroke past its viewBox in a
+non-square box (`StrokeRef`)) was shot to settle the rows below; its
+components are kept as `test/fixtures/RenderRef.*`.
 
 | element | Studio | here |
 |---|---|---|
 | canvas | white, no grid (the axes and diagram-box outline are editor guides, off in screenshots) | `background: #ffffff` |
-| component icon | the library's icon, fitted into the placement box following the icon's own `preserveAspectRatio` (by default aspect kept: a 1000 × 800 box shows a square icon; `none` stretches; `slice` covers), and cut to the box (content outside it is not drawn); no shadow, no frame of Studio's own (the light-blue frames are the BlockComponents icons) | the icon's `preserveAspectRatio`, `overflow="hidden"`; the bounds are the fitted viewBox cut to the box, or the whole box when content may lie outside the viewBox |
+| component icon | the library's icon, fitted into the placement box following the icon's own `preserveAspectRatio` (by default aspect kept: a 1000 × 800 box shows a square icon; `none` stretches; `slice` covers), and cut to the box (content outside it is not drawn); no shadow, no frame of Studio's own (the light-blue frames are the BlockComponents icons) | the icon's `preserveAspectRatio`, `overflow="hidden"`; the bounds are the fitted viewBox together with what the content paints, strokes included (a 400-wide stroke past the viewBox's edge shows up to the box edge in Studio, `RenderRef.StrokeRef`), cut to the box; the whole box when the content cannot be measured (text, `<use>`, transforms, markers, filters) |
 | connectors on a component | the connector type's icon at the kernel's stretched placement: RealInput a filled navy triangle, RealOutput a white triangle outlined in navy, rotational flanges grey `#aaa` circles, heat ports red squares | the same icons, same positions |
 | stacking | bodies, then wires, then connectors (an output's white fill hides the wire end), then labels | same |
 | boundary ports | the port's icon at full placement size, name below | same; name 22.5 units below the `(500, 1100)` anchor, which matches Studio within a pixel |
+| boundary array ports | fanned out on the diagram by the same rule as a connector on an icon (`RenderRef.ArrayBlock`'s `u`, count 3, show 5, at y 450..550: three copies at y 250, 450, 650), the name under the first copy only | same |
 | wires | connector type's `stroke` (`rgb(0,0,127)` signals, `#aaa` rotational), about 1.5 diagram units wide (scales with zoom), small rounded bends; overlapping runs of one net do not darken | 1.5 units, radius 4, one `<path>` per net, shared runs removed |
 | junctions | small dot in the wire colour | r = 2.5 |
 | labels | Inter, `#18181b`, about 16 diagram units whatever the component's size, centred on the label metadata's anchor (`$(instance)` at (500, 1100), so below; parameter labels where their metadata puts them, usually above). The anchor turns and mirrors with the component; the text turns with it but is never upside down: at 90° it reads top to bottom, at 270° bottom to top, at 180° upright; mirroring moves labels but does not mirror the text (checked against `RenderRef.RotMirror`, below) | same |
@@ -235,4 +243,11 @@ Further choices:
   `sans-serif` (Noto Sans on the reference machine), so glyph shapes in icon
   text differ slightly.
 - dyad-ui-shot's `--fit content` measures icon content Studio cuts off at the
-  placement box, so its crops can be a little larger than ours.
+  placement box, so its crops can be a little larger than ours; and it does
+  not measure strokes, so a stroke that reaches past an icon's content can
+  be cut from its crop (`RenderRef.StrokeRef`'s right-hand copy) though
+  Studio draws it.
+- Icon strokes are measured conservatively: style sheets are not matched to
+  elements, so a sheet's widest `stroke-width` counts for every shape, and
+  any corner counts as a miter join at the largest miter limit. Bounds can
+  therefore be a little larger than what is painted.

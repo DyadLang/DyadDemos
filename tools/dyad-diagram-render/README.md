@@ -79,15 +79,17 @@ details are in ARCHITECTURE.md):
   but are never upside down;
 - analysis points: a crosshair in the wire's colour mid-wire, with the name
   above;
-- array connectors with a `show` in their placement, fanned out one copy per
-  element;
+- array connectors and boundary array ports with a `show` in their
+  placement, fanned out one copy per element (a port's name goes under the
+  first copy);
 - a white canvas with no grid.
 
 Whatever is in the data but not drawn (clock partitions; icon content
 removed because it could run code or load something) is reported: the
 command line prints a warning for each, `renderDiagram` returns them as
-`diagnostics`. Icons are sanitised (see ARCHITECTURE.md): only `#fragment`
-references and `data:` images survive.
+`diagnostics`. Icons are sanitised (see ARCHITECTURE.md): attributes are
+allowlisted per element, and only `#fragment` references and `data:` images
+survive.
 
 A diagram where nothing has a placement is laid out automatically, as Studio
 does: a layered left-to-right layout (`src/autolayout.ts`). A diagram with any
@@ -154,7 +156,8 @@ were recorded from the Dyad 3.5.0 CLI:
 - the `*.diagram.json` files are adapter output;
 - `RenderRef/` is a small library made to compare details with Studio
   (rotated and mirrored labels, `preserveAspectRatio`, analysis points,
-  `markers` connections, array connectors). Instantiate it offline
+  `markers` connections, array connectors and boundary array ports, heavy
+  strokes past the viewBox). Instantiate it offline
   (`JULIA_PKG_OFFLINE=true julia --project=. -e 'using Pkg; Pkg.instantiate()'`)
   to shoot it with dyad-ui-shot or render it with the adapter.
 

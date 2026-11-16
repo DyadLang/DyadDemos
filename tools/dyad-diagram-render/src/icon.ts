@@ -13,6 +13,10 @@
  *
  * - `<script>`, `<foreignObject>` and other embedding elements, event-handler
  *   attributes (`on*`) and animations of links are removed;
+ * - attributes are allowlisted per element (core, presentation and the
+ *   element's own geometry). Attributes that may hold a URL but are not
+ *   links (`ping`, `src`, `action`, `xml:base`, ...) are dropped; other
+ *   unknown attributes (editor metadata) are dropped silently;
  * - every URL (`href`, `xlink:href`, `url(...)` in attributes and in style
  *   sheets) must be a fragment of the icon itself (`#id`) or, on an
  *   `<image>`, a `data:` image of a raster type or of SVG; SVG data is
@@ -20,7 +24,8 @@
  * - style-sheet at-rules (`@import`, `@font-face`, `@media`, ...) and
  *   declarations with CSS escapes are dropped.
  *
- * Every removal is reported in {@link PreparedIcon.diagnostics}.
+ * Every removal but that of harmless unknown attributes is reported in
+ * {@link PreparedIcon.diagnostics}.
  */
 
 import {
@@ -55,9 +60,14 @@ export interface PreparedIcon {
   /**
    * Whether anything may be drawn outside the viewBox. Computed
    * conservatively: true unless every shape is simple enough to measure and
-   * lies inside.
+   * lies inside, strokes included.
    */
   mayOverflow: boolean;
+  /**
+   * What the content may paint, `[x0, y0, x1, y1]` in viewBox units, strokes
+   * included (see {@link paintedBounds}); undefined when that cannot be told.
+   */
+  painted: [number, number, number, number] | undefined;
   /** What was removed from the icon, and why. */
   diagnostics: string[];
 }
@@ -70,6 +80,105 @@ const imageElements = new Set(["image", "feImage"]);
 const safeRasterTypes = new Set(["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp", "image/bmp"]);
 /** How deep SVG `data:` images inside icons are followed. */
 const MAX_NESTING = 2;
+
+/**
+ * Attributes that hold a URL (or a list of them) in SVG, HTML or XLink, other
+ * than links. None is needed to draw an icon, so each is dropped with a
+ * diagnostic.
+ */
+const urlAttributes = new Set([
+  "ping", "src", "srcset", "action", "formaction", "background", "cite", "longdesc", "poster", "data", "codebase",
+  "archive", "classid", "usemap", "manifest", "profile", "icon", "lowsrc", "dynsrc", "base", "arcrole",
+  "requiredextensions", "itemtype", "itemid", "resource", "about", "vocab",
+]);
+
+/**
+ * Attributes an inlined icon keeps: an allowlist. Every element may carry
+ * the core attributes and SVG's presentation attributes; each element its
+ * own geometry on top. Anything else is dropped: silently when it is
+ * harmless (editor metadata such as `inkscape:label`, `data-name`), with a
+ * diagnostic when it can carry a URL ({@link urlAttributes}). Links
+ * (`href`, `xlink:href`, any `*href`) go through the URL policy, and so does
+ * every kept value that contains `url(`.
+ */
+const coreAttributes = ["id", "class", "style", "lang", "xml:space", "xml:lang", "systemLanguage", "requiredFeatures", "role"];
+const presentationAttributes = [
+  "alignment-baseline", "baseline-shift", "clip", "clip-path", "clip-rule", "color", "color-interpolation",
+  "color-interpolation-filters", "color-rendering", "direction", "display", "dominant-baseline",
+  "enable-background", "fill", "fill-opacity", "fill-rule", "filter", "flood-color", "flood-opacity", "font",
+  "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight",
+  "glyph-orientation-horizontal", "glyph-orientation-vertical", "image-rendering", "isolation", "kerning",
+  "letter-spacing", "lighting-color", "marker", "marker-end", "marker-mid", "marker-start", "mask", "mask-type",
+  "mix-blend-mode", "opacity", "overflow", "paint-order", "pointer-events", "shape-rendering", "stop-color",
+  "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin",
+  "stroke-miterlimit", "stroke-opacity", "stroke-width", "text-anchor", "text-decoration", "text-rendering",
+  "transform", "transform-origin", "unicode-bidi", "vector-effect", "visibility", "word-spacing", "writing-mode",
+];
+const box = ["x", "y", "width", "height"];
+const textPosition = ["x", "y", "dx", "dy", "rotate", "textLength", "lengthAdjust"];
+const gradient = ["gradientUnits", "gradientTransform", "spreadMethod"];
+const filterPrimitive = [
+  ...box, "result", "in", "in2", "stdDeviation", "edgeMode", "dx", "dy", "mode", "operator", "k1", "k2", "k3", "k4",
+  "values", "type", "tableValues", "slope", "intercept", "amplitude", "exponent", "offset", "order", "kernelMatrix",
+  "divisor", "bias", "targetX", "targetY", "preserveAlpha", "kernelUnitLength", "surfaceScale", "diffuseConstant",
+  "specularConstant", "specularExponent", "scale", "xChannelSelector", "yChannelSelector", "radius",
+  "baseFrequency", "numOctaves", "seed", "stitchTiles", "azimuth", "elevation", "z", "pointsAtX", "pointsAtY",
+  "pointsAtZ", "limitingConeAngle", "preserveAspectRatio", "crossorigin",
+];
+const animation = [
+  "attributeName", "attributeType", "from", "to", "by", "values", "dur", "begin", "end", "repeatCount", "repeatDur",
+  "fill", "calcMode", "keyTimes", "keySplines", "keyPoints", "additive", "accumulate", "restart", "min", "max",
+  "type", "path", "rotate", "origin",
+];
+const elementAttributes: Record<string, string[]> = {
+  svg: [...box, "viewBox", "preserveAspectRatio", "version", "baseProfile", "zoomAndPan"],
+  symbol: [...box, "viewBox", "preserveAspectRatio", "refX", "refY"],
+  use: box,
+  image: [...box, "preserveAspectRatio"],
+  rect: [...box, "rx", "ry", "pathLength"],
+  circle: ["cx", "cy", "r", "pathLength"],
+  ellipse: ["cx", "cy", "rx", "ry", "pathLength"],
+  line: ["x1", "y1", "x2", "y2", "pathLength"],
+  polyline: ["points", "pathLength"],
+  polygon: ["points", "pathLength"],
+  path: ["d", "pathLength"],
+  text: textPosition,
+  tspan: textPosition,
+  textPath: ["startOffset", "method", "spacing", "side", "textLength", "lengthAdjust"],
+  marker: ["viewBox", "preserveAspectRatio", "refX", "refY", "markerUnits", "markerWidth", "markerHeight", "orient"],
+  linearGradient: ["x1", "y1", "x2", "y2", ...gradient],
+  radialGradient: ["cx", "cy", "r", "fx", "fy", "fr", ...gradient],
+  stop: ["offset"],
+  pattern: [...box, "patternUnits", "patternContentUnits", "patternTransform", "viewBox", "preserveAspectRatio"],
+  clipPath: ["clipPathUnits"],
+  mask: [...box, "maskUnits", "maskContentUnits"],
+  filter: [...box, "filterUnits", "primitiveUnits"],
+  style: ["type", "media", "title"],
+  set: animation,
+  animate: animation,
+  animateColor: animation,
+  animateMotion: animation,
+  animateTransform: animation,
+};
+
+/** Whether an attribute (by its qualified name) is a link or may hold a URL. */
+function isUrlAttribute(qname: string): boolean {
+  const local = localName(qname).toLowerCase();
+  return local.endsWith("href") || urlAttributes.has(local) || qname === "xlink:role";
+}
+
+const allowedFor = new Map<string, Set<string>>();
+
+/** Whether an element may keep an attribute (by its qualified name). */
+function attributeAllowed(element: string, attr: string): boolean {
+  let set = allowedFor.get(element);
+  if (!set) {
+    const own = element.startsWith("fe") ? filterPrimitive : (elementAttributes[element] ?? []);
+    set = new Set([...coreAttributes, ...presentationAttributes, ...own]);
+    allowedFor.set(element, set);
+  }
+  return set.has(attr) || /^aria-[a-z]+$/.test(attr);
+}
 
 /**
  * Prepare an icon for inlining.
@@ -110,10 +219,11 @@ export function prepareIcon(
   collectIds(svg, ids);
   const renameId = (id: string) => (ids.has(id) ? `${scope}-${id}` : id);
   sanitizeElement(svg, { scope, renameId, diagnostics, depth: 0 });
-  const mayOverflow = contentMayOverflow(svg, viewBox);
+  const painted = paintedBounds(svg, viewBox);
+  const mayOverflow = outside(painted, viewBox);
 
   const wrapper: XmlElement = { kind: "element", name: "g", attrs: [["class", scope]], children: [svg] };
-  return { markup: serializeXml(wrapper), viewBox, aspect, mayOverflow, diagnostics };
+  return { markup: serializeXml(wrapper), viewBox, aspect, mayOverflow, painted, diagnostics };
 }
 
 function parseSvg(source: string): XmlElement | undefined {
@@ -158,7 +268,7 @@ function sanitizeElement(e: XmlElement, ctx: SanitizeContext): void {
     }
     if (animations.has(n)) {
       const target = attrValue(c, "attributeName") ?? "";
-      if (/(^|:)href$/i.test(target) || /^on/i.test(target)) {
+      if (isUrlAttribute(target) || /^on/i.test(target)) {
         ctx.diagnostics.push(`dropped <${c.name}> animating ${target}`);
         return false;
       }
@@ -174,16 +284,22 @@ function sanitizeElement(e: XmlElement, ctx: SanitizeContext): void {
       ctx.diagnostics.push(`dropped event handler ${k} on <${e.name}>`);
       continue;
     }
-    if (k === "xml:base") {
-      ctx.diagnostics.push(`dropped xml:base on <${e.name}>`);
+    // Namespace declarations name a namespace; nothing is loaded from them.
+    if (k === "xmlns" || k.startsWith("xmlns:")) {
+      attrs.push([k, escapeAttr(v)]);
       continue;
     }
+    if (isUrlAttribute(k) && !/href$/i.test(key)) {
+      ctx.diagnostics.push(`dropped ${k}="${clip(v)}" on <${e.name}>: it may hold a URL`);
+      continue;
+    }
+    if (!/href$/i.test(key) && !attributeAllowed(name, k)) continue;
     let out: string | undefined = v;
     if (k === "id") out = ctx.renameId(v);
     else if (k === "class" && ctx.scope !== undefined) {
       const scope = ctx.scope;
       out = v.split(/\s+/).filter(Boolean).map((c) => `${scope}-${c}`).join(" ");
-    } else if (key === "href") {
+    } else if (/href$/i.test(key)) {
       out = checkHref(v, imageElements.has(name), ctx);
       if (out === undefined) ctx.diagnostics.push(`dropped ${k}="${clip(v)}" on <${e.name}>: only #fragment links${imageElements.has(name) ? " and data: images" : ""} are allowed`);
     } else if (k === "style") {
@@ -383,35 +499,73 @@ function intrinsicViewBox(svg: XmlElement): [number, number, number, number] {
 /** Elements whose content is not drawn where it stands. */
 const notDrawn = new Set(["defs", "clipPath", "mask", "marker", "pattern", "symbol", "linearGradient", "radialGradient", "filter", "style", "title", "desc", "metadata"]);
 
+type Rect4 = [number, number, number, number];
+
 /**
- * Whether anything in an icon may be drawn outside its viewBox. Only simple
- * shapes without transforms are measured (paths by their control points,
- * which bound the curve); anything else (text, `<use>`, images, nested
- * `<svg>`, transforms) counts as possibly outside. A margin of 2 % of the
- * viewBox allows for strokes on the edge.
+ * Whether anything in an icon may be drawn outside its viewBox: true unless
+ * {@link paintedBounds} can measure the content and it lies inside.
  */
-export function contentMayOverflow(svg: XmlElement, viewBox: [number, number, number, number]): boolean {
+export function contentMayOverflow(svg: XmlElement, viewBox: Rect4): boolean {
+  return outside(paintedBounds(svg, viewBox), viewBox);
+}
+
+/** Whether painted bounds (undefined: unknown) may reach outside a viewBox. */
+function outside(b: Rect4 | undefined, viewBox: Rect4): boolean {
+  if (b === undefined) return true;
   const [vx, vy, vw, vh] = viewBox;
-  const pad = 0.02 * Math.max(vw, vh);
-  const inside = (x: number, y: number) => x >= vx - pad && x <= vx + vw + pad && y >= vy - pad && y <= vy + vh + pad;
+  const eps = 1e-9 * Math.max(vw, vh);
+  return b[0] < vx - eps || b[1] < vy - eps || b[2] > vx + vw + eps || b[3] > vy + vh + eps;
+}
+
+/**
+ * The box, `[x0, y0, x1, y1]` in viewBox units, that an icon's content may
+ * paint, strokes included; undefined when that cannot be told.
+ *
+ * Only simple shapes without transforms are measured (paths by their
+ * control points, which bound the curve; arcs by their ellipse). Text,
+ * `<use>`, images, nested `<svg>`, transforms, markers, filters and
+ * non-scaling strokes make the result unknown. A stroked shape is widened
+ * by half its stroke width (from its own or inherited attributes and
+ * `style`); a shape with corners by that times the largest
+ * `stroke-miterlimit` (4 by default) unless no join can be a miter; and √2
+ * times it if any cap is square. Style sheets are not matched to elements:
+ * if one sets `stroke` or `stroke-width`, every shape is taken to have the
+ * widest. With nothing drawn, the box is the viewBox.
+ */
+export function paintedBounds(svg: XmlElement, viewBox: Rect4): Rect4 | undefined {
+  const stroke = strokeStyle(svg, viewBox);
+  if (stroke === undefined) return undefined;
+  const out: Rect4 = [Infinity, Infinity, -Infinity, -Infinity];
   const num = (e: XmlElement, a: string, d = 0) => {
     const v = attrValue(e, a);
     if (v === undefined) return d;
     const n = Number(v.trim());
     return Number.isFinite(n) ? n : NaN;
   };
-  const check = (e: XmlElement): boolean => {
+  // False when the element's painting cannot be measured.
+  const visit = (e: XmlElement, inherited: { stroked: boolean; width: number }): boolean => {
     const n = localName(e.name);
-    if (notDrawn.has(n)) return false;
-    if (attrValue(e, "transform") !== undefined || /transform/i.test(attrValue(e, "style") ?? "")) return true;
+    if (notDrawn.has(n)) return true;
+    // The element's own stroke and width (a `style` declaration wins over
+    // the attribute), else its parent's.
+    const own = ownDeclarations(e);
+    const paint = own.get("stroke");
+    const stroked = paint === undefined || paint === "inherit" ? inherited.stroked : paint !== "none";
+    const ownWidth = own.get("stroke-width");
+    const parsed = ownWidth === undefined ? null : stroke.width(ownWidth);
+    if (parsed === undefined) return false;
+    const width = parsed ?? inherited.width;
+    if (attrValue(e, "transform") !== undefined || /transform/i.test(attrValue(e, "style") ?? "")) return false;
     let pts: number[] | undefined;
+    // Whether the shape has corners, where a miter join can reach further.
+    let corners = true;
     switch (n) {
       case "g":
       case "a":
       case "switch":
         break;
       case "svg":
-        if (e !== svg) return true;
+        if (e !== svg) return false;
         break;
       case "rect": {
         const x = num(e, "x"), y = num(e, "y"), w = num(e, "width"), h = num(e, "height");
@@ -424,10 +578,12 @@ export function contentMayOverflow(svg: XmlElement, viewBox: [number, number, nu
         const rx = n === "circle" ? num(e, "r") : num(e, "rx");
         const ry = n === "circle" ? num(e, "r") : num(e, "ry");
         pts = [cx - rx, cy - ry, cx + rx, cy + ry];
+        corners = false;
         break;
       }
       case "line":
         pts = [num(e, "x1"), num(e, "y1"), num(e, "x2"), num(e, "y2")];
+        corners = false;
         break;
       case "polyline":
       case "polygon":
@@ -435,48 +591,180 @@ export function contentMayOverflow(svg: XmlElement, viewBox: [number, number, nu
         break;
       case "path":
         pts = pathPoints(attrValue(e, "d") ?? "");
-        if (pts === undefined) return true;
+        // One straight segment has no join (a closed one is a join).
+        corners = pts.length > 4 || /z/i.test(attrValue(e, "d") ?? "");
         break;
       default:
-        return true;
+        return false;
     }
     if (pts) {
-      if (pts.some((p) => !Number.isFinite(p))) return true;
-      for (let i = 0; i + 1 < pts.length; i += 2) if (!inside(pts[i], pts[i + 1])) return true;
+      if (pts.some((p) => !Number.isFinite(p))) return false;
+      // A style sheet may stroke anything (its selectors are not matched).
+      const half = stroked || stroke.sheetStroked ? Math.max(width, stroke.sheetWidth) / 2 : 0;
+      const reach = half * (corners ? Math.max(stroke.cap, stroke.join) : stroke.cap);
+      for (let i = 0; i + 1 < pts.length; i += 2) {
+        out[0] = Math.min(out[0], pts[i] - reach);
+        out[1] = Math.min(out[1], pts[i + 1] - reach);
+        out[2] = Math.max(out[2], pts[i] + reach);
+        out[3] = Math.max(out[3], pts[i + 1] + reach);
+      }
     }
-    return e.children.some((c) => c.kind === "element" && check(c));
+    return e.children.every((c) => c.kind !== "element" || visit(c, { stroked, width }));
   };
-  return check(svg);
+  if (!visit(svg, { stroked: false, width: 1 })) return undefined;
+  if (!(out[2] >= out[0] && out[3] >= out[1])) {
+    const [vx, vy, vw, vh] = viewBox;
+    return [vx, vy, vx + vw, vy + vh];
+  }
+  return out;
+}
+
+/** An element's own presentation attributes and `style` declarations (which win), lower-cased. */
+function ownDeclarations(e: XmlElement): Map<string, string> {
+  const out = new Map<string, string>();
+  const put = (k: string, v: string) => out.set(k.trim().toLowerCase(), v.replace(/!\s*important\s*$/i, "").trim().toLowerCase());
+  for (const [k, raw] of e.attrs) if (k !== "style") put(k, decodeEntities(raw));
+  for (const d of splitDeclarations(attrValue(e, "style") ?? "")) {
+    const i = d.indexOf(":");
+    if (i > 0) put(d.slice(0, i), d.slice(i + 1));
+  }
+  return out;
+}
+
+/**
+ * What decides how far strokes reach in an icon (see {@link
+ * paintedBounds}): the factors for caps and joins, what its style sheets
+ * set (they may apply to any element), and how to read a stroke width.
+ * Undefined if that cannot be told (an unreadable width in a style sheet,
+ * markers, filters, non-scaling strokes).
+ */
+function strokeStyle(
+  svg: XmlElement,
+  viewBox: Rect4,
+): { cap: number; join: number; sheetStroked: boolean; sheetWidth: number; width: (v: string) => number | null | undefined } | undefined {
+  const all = new Map<string, string[]>();
+  const sheets = new Map<string, string[]>();
+  const add = (into: Map<string, string[]>, k: string, v: string) => {
+    const key = k.trim().toLowerCase();
+    into.set(key, [...(into.get(key) ?? []), v.replace(/!\s*important\s*$/i, "").trim().toLowerCase()]);
+  };
+  const walkElement = (e: XmlElement) => {
+    for (const [k, v] of ownDeclarations(e)) add(all, k, v);
+    if (localName(e.name) === "style") {
+      const css = e.children.map((c) => (c.kind === "text" ? cssText(c.text) : "")).join("");
+      // Every rule's declarations, whatever its selector.
+      for (const m of css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/\{([^{}]*)\}/g)) {
+        for (const d of splitDeclarations(m[1])) {
+          const i = d.indexOf(":");
+          if (i <= 0) continue;
+          add(all, d.slice(0, i), d.slice(i + 1));
+          add(sheets, d.slice(0, i), d.slice(i + 1));
+        }
+      }
+    }
+    for (const c of e.children) if (c.kind === "element") walkElement(c);
+  };
+  walkElement(svg);
+
+  const values = (k: string) => all.get(k) ?? [];
+  if (["marker", "marker-start", "marker-mid", "marker-end", "filter"].some((k) => values(k).some((v) => v !== "none"))) return undefined;
+  if (values("vector-effect").some((v) => v.includes("non-scaling-stroke"))) return undefined;
+
+  const [, , vw, vh] = viewBox;
+  const units: Record<string, number> = { "": 1, px: 1, pt: 4 / 3, pc: 16, in: 96, cm: 96 / 2.54, mm: 96 / 25.4, "%": Math.hypot(vw, vh) / Math.SQRT2 / 100 };
+  // A width in user units; null for one that is inherited; undefined if unreadable.
+  const width = (v: string): number | null | undefined => {
+    if (v === "inherit" || v === "initial" || v === "unset") return null;
+    const m = /^\+?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?(px|pt|pc|in|cm|mm|%)?$/.exec(v);
+    if (!m) return undefined;
+    const w = Number(m[1] + (m[2] ?? "")) * units[m[3] ?? ""];
+    return Number.isFinite(w) ? w : undefined;
+  };
+  let sheetWidth = 0;
+  for (const v of sheets.get("stroke-width") ?? []) {
+    const w = width(v);
+    if (w === undefined) return undefined;
+    sheetWidth = Math.max(sheetWidth, w ?? 0);
+  }
+  const sheetStroked = (sheets.get("stroke") ?? []).some((v) => v !== "none");
+  // A square cap reaches half the width diagonally past the end; butt and
+  // round caps (the default is butt) half the width.
+  const cap = values("stroke-linecap").some((v) => v !== "butt" && v !== "round") ? Math.SQRT2 : 1;
+  // A miter join (the default) reaches up to half the width times the miter
+  // limit (4 by default). None can be a miter when the root sets a round or
+  // bevel join, which everything inherits, and nothing sets another.
+  let miter = 4;
+  for (const v of values("stroke-miterlimit")) {
+    const n = Number(v);
+    if (Number.isFinite(n) && n >= 1) miter = Math.max(miter, n);
+  }
+  const rootJoin = ownDeclarations(svg).get("stroke-linejoin");
+  const noMiter = (rootJoin === "round" || rootJoin === "bevel") && values("stroke-linejoin").every((v) => v === "round" || v === "bevel");
+  return { cap, join: noMiter ? 1 : miter, sheetStroked, sheetWidth, width };
 }
 
 /**
  * The end and control points of a path, absolute, as `[x0, y0, x1, y1,
- * ...]`; for arcs, the corners of the box the arc's ellipse could reach.
- * Undefined if the path data cannot be read.
+ * ...]`; for arcs, the corners of a box their ellipse stays in.
+ *
+ * Path data is read as SVG specifies, with its implicit commands (pairs
+ * after a moveto are linetos; a command's parameters may repeat), and, as
+ * browsers do, only up to the first error: what follows is not drawn, so
+ * it is not measured. Every step reads at least one character, so no input
+ * can make it loop.
  */
-export function pathPoints(d: string): number[] | undefined {
-  const tokens = d.match(/[MmLlHhVvCcSsQqTtAaZz]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g);
-  if (!tokens) return [];
+export function pathPoints(d: string): number[] {
   const out: number[] = [];
-  let i = 0;
+  const n = d.length;
+  let pos = 0;
+  const skip = () => {
+    while (pos < n && /[\s,]/.test(d[pos])) pos++;
+  };
+  const numberAt = /[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/y;
+  const number = (): number | undefined => {
+    skip();
+    numberAt.lastIndex = pos;
+    const m = numberAt.exec(d);
+    if (!m) return undefined;
+    pos = numberAt.lastIndex;
+    return Number(m[0]);
+  };
+  const flag = (): number | undefined => {
+    skip();
+    const c = d[pos];
+    if (c !== "0" && c !== "1") return undefined;
+    pos++;
+    return Number(c);
+  };
+  const arity: Record<string, number> = { m: 2, l: 2, h: 1, v: 1, c: 6, s: 4, q: 4, t: 2, a: 7 };
   let cmd = "";
   let x = 0, y = 0, sx = 0, sy = 0;
-  const arity: Record<string, number> = { m: 2, l: 2, h: 1, v: 1, c: 6, s: 4, q: 4, t: 2, a: 7, z: 0 };
-  while (i < tokens.length) {
-    if (/[A-Za-z]/.test(tokens[i])) cmd = tokens[i++];
-    else if (cmd === "") return undefined;
+  skip();
+  while (pos < n) {
+    const start = pos;
+    if (/[MmLlHhVvCcSsQqTtAaZz]/.test(d[pos])) {
+      cmd = d[pos++];
+      // Path data must start with a moveto.
+      if (out.length === 0 && cmd !== "M" && cmd !== "m") break;
+    } else if (cmd === "" || cmd === "Z" || cmd === "z") {
+      // Numbers with no command to repeat: an error.
+      break;
+    }
     const lower = cmd.toLowerCase();
     const rel = cmd === lower;
     if (lower === "z") {
       x = sx;
       y = sy;
+      skip();
       continue;
     }
-    const k = arity[lower];
-    if (i + k > tokens.length) return undefined;
-    const a = tokens.slice(i, i + k).map(Number);
-    if (a.some((v) => !Number.isFinite(v))) return undefined;
-    i += k;
+    const a: number[] = [];
+    for (let j = 0; j < arity[lower]; j++) {
+      const v = lower === "a" && (j === 3 || j === 4) ? flag() : number();
+      if (v === undefined) break;
+      a.push(v);
+    }
+    if (a.length < arity[lower] || a.some((v) => !Number.isFinite(v))) break;
     const ox = rel ? x : 0;
     const oy = rel ? y : 0;
     switch (lower) {
@@ -490,17 +778,18 @@ export function pathPoints(d: string): number[] | undefined {
         break;
       case "a": {
         const ex = ox + a[5], ey = oy + a[6];
-        const rx = Math.abs(a[0]), ry = Math.abs(a[1]);
-        const r = Math.max(rx, ry);
-        out.push(Math.min(x, ex) - r, Math.min(y, ey) - r, Math.max(x, ex) + r, Math.max(y, ey) + r);
+        const r = arcReach(x, y, ex, ey, a[0], a[1], a[2]);
+        out.push(ex, ey);
+        // The ellipse's centre is within r of both ends, the arc within r of the centre.
+        if (r > 0) out.push(Math.max(x, ex) - 2 * r, Math.max(y, ey) - 2 * r, Math.min(x, ex) + 2 * r, Math.min(y, ey) + 2 * r);
         x = ex;
         y = ey;
         break;
       }
       default:
-        for (let j = 0; j < k; j += 2) out.push(ox + a[j], oy + a[j + 1]);
-        x = ox + a[k - 2];
-        y = oy + a[k - 1];
+        for (let j = 0; j < a.length; j += 2) out.push(ox + a[j], oy + a[j + 1]);
+        x = ox + a[a.length - 2];
+        y = oy + a[a.length - 1];
     }
     if (lower === "m") {
       sx = x;
@@ -508,8 +797,28 @@ export function pathPoints(d: string): number[] | undefined {
       // Further pairs after a moveto are linetos.
       cmd = rel ? "l" : "L";
     }
+    skip();
+    // Never reached (every step above reads something); a guard all the same.
+    if (pos === start) break;
   }
   return out;
+}
+
+/**
+ * The larger radius of an arc's ellipse, after SVG scales radii too small
+ * to join the ends; 0 for a straight line.
+ */
+function arcReach(x0: number, y0: number, x1: number, y1: number, rx: number, ry: number, angle: number): number {
+  rx = Math.abs(rx);
+  ry = Math.abs(ry);
+  if (rx === 0 || ry === 0) return 0;
+  const phi = (angle * Math.PI) / 180;
+  const dx = (x0 - x1) / 2;
+  const dy = (y0 - y1) / 2;
+  const px = Math.cos(phi) * dx + Math.sin(phi) * dy;
+  const py = -Math.sin(phi) * dx + Math.cos(phi) * dy;
+  const lambda = (px * px) / (rx * rx) + (py * py) / (ry * ry);
+  return Math.max(rx, ry) * Math.max(1, Math.sqrt(lambda));
 }
 
 /**
@@ -567,7 +876,8 @@ function eachRule(css: string, ctx: SanitizeContext, selectors: (prelude: string
       if (src[j] === "{") depth++;
       else if (src[j] === "}") depth--;
     }
-    const body = src.slice(open + 1, j - 1);
+    // An unclosed block runs to the end of the sheet.
+    const body = src.slice(open + 1, depth === 0 ? j - 1 : j);
     i = j;
     if (prelude.startsWith("@")) {
       ctx.diagnostics.push(`dropped "${clip(prelude)}" block from a style sheet`);
