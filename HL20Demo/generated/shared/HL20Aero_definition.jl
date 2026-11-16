@@ -11,6 +11,11 @@ HL-20 aerodynamic model. TM-4302 coefficient buildup via registered symbolic
 functions, expressed graphically: every operation is a wired BlockComponents
 block and each force/moment coefficient is built up in a dedicated subsystem.
 
+The diagram is organised into three sub-assemblies (see `AeroGroups.dyad`):
+`air` conditions the shared air-data inputs (|DRUD|, b/2V, c/2V), `lon` builds
+the longitudinal coefficients (CL, CD, Cm and the CX/CZ axis rotation), and
+`lat` builds the lateral-directional coefficients (CY, Cl, Cn).
+
 ## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
@@ -227,72 +232,15 @@ block and each force/moment coefficient is built up in a dedicated subsystem.
   __constants = Any[]
 
   ### Components
-  # Subcomponent deg2rad of type BlockComponents.Math.Gain
-  deg2rad_overrides = __pop_subcomponent_overrides!(__overrides, "deg2rad")
-  push!(__systems, @named deg2rad = BlockComponents.Math.Gain(; k=0.017453292519943295, __overrides = deg2rad_overrides))
-  # Subcomponent sin_a of type BlockComponents.Math.Sin
-  sin_a_overrides = __pop_subcomponent_overrides!(__overrides, "sin_a")
-  push!(__systems, @named sin_a = BlockComponents.Math.Sin(; __overrides = sin_a_overrides))
-  # Subcomponent cos_a of type BlockComponents.Math.Cos
-  cos_a_overrides = __pop_subcomponent_overrides!(__overrides, "cos_a")
-  push!(__systems, @named cos_a = BlockComponents.Math.Cos(; __overrides = cos_a_overrides))
-  # Subcomponent abs_drud of type BlockComponents.Math.Abs
-  abs_drud_overrides = __pop_subcomponent_overrides!(__overrides, "abs_drud")
-  push!(__systems, @named abs_drud = BlockComponents.Math.Abs(; __overrides = abs_drud_overrides))
-  # Subcomponent v_eps of type BlockComponents.Sources.Constant
-  v_eps_overrides = __pop_subcomponent_overrides!(__overrides, "v_eps")
-  push!(__systems, @named v_eps = BlockComponents.Sources.Constant(; k=0.1, __overrides = v_eps_overrides))
-  # Subcomponent vrw_denom of type BlockComponents.Math.Add
-  vrw_denom_overrides = __pop_subcomponent_overrides!(__overrides, "vrw_denom")
-  push!(__systems, @named vrw_denom = BlockComponents.Math.Add(; __overrides = vrw_denom_overrides))
-  # Subcomponent bspan_2 of type BlockComponents.Sources.Constant
-  bspan_2_overrides = __pop_subcomponent_overrides!(__overrides, "bspan_2")
-  push!(__systems, @named bspan_2 = BlockComponents.Sources.Constant(; k=BSPAN_ft / 2.0, __overrides = bspan_2_overrides))
-  # Subcomponent cbar_2 of type BlockComponents.Sources.Constant
-  cbar_2_overrides = __pop_subcomponent_overrides!(__overrides, "cbar_2")
-  push!(__systems, @named cbar_2 = BlockComponents.Sources.Constant(; k=CBAR_ft / 2.0, __overrides = cbar_2_overrides))
-  # Subcomponent damp_b of type BlockComponents.Math.Division
-  damp_b_overrides = __pop_subcomponent_overrides!(__overrides, "damp_b")
-  push!(__systems, @named damp_b = BlockComponents.Math.Division(; __overrides = damp_b_overrides))
-  # Subcomponent damp_c of type BlockComponents.Math.Division
-  damp_c_overrides = __pop_subcomponent_overrides!(__overrides, "damp_c")
-  push!(__systems, @named damp_c = BlockComponents.Math.Division(; __overrides = damp_c_overrides))
-  # Subcomponent cl of type HL20Demo.shared.HL20CL
-  cl_overrides = __pop_subcomponent_overrides!(__overrides, "cl")
-  push!(__systems, @named cl = HL20Demo.shared.HL20CL(; DLG=DLG, __overrides = cl_overrides))
-  # Subcomponent cd of type HL20Demo.shared.HL20CD
-  cd_overrides = __pop_subcomponent_overrides!(__overrides, "cd")
-  push!(__systems, @named cd = HL20Demo.shared.HL20CD(; DLG=DLG, __overrides = cd_overrides))
-  # Subcomponent cm of type HL20Demo.shared.HL20CM
-  cm_overrides = __pop_subcomponent_overrides!(__overrides, "cm")
-  push!(__systems, @named cm = HL20Demo.shared.HL20CM(; DLG=DLG, Cm_bias=Cm_bias, CMQ0=CMQ0, CMQ1=CMQ1, CMQ2=CMQ2, CMQ3=CMQ3, __overrides = cm_overrides))
-  # Subcomponent cy of type HL20Demo.shared.HL20CY
-  cy_overrides = __pop_subcomponent_overrides!(__overrides, "cy")
-  push!(__systems, @named cy = HL20Demo.shared.HL20CY(; DLG=DLG, __overrides = cy_overrides))
-  # Subcomponent cn of type HL20Demo.shared.HL20CN
-  cn_overrides = __pop_subcomponent_overrides!(__overrides, "cn")
-  push!(__systems, @named cn = HL20Demo.shared.HL20CN(; DLG=DLG, CNP0=CNP0, CNP1=CNP1, CNP2=CNP2, CNP3=CNP3, CNR0=CNR0, CNR1=CNR1, CNR2=CNR2, CNR3=CNR3, __overrides = cn_overrides))
-  # Subcomponent cr of type HL20Demo.shared.HL20CR
-  cr_overrides = __pop_subcomponent_overrides!(__overrides, "cr")
-  push!(__systems, @named cr = HL20Demo.shared.HL20CR(; DLG=DLG, CLP0=CLP0, CLP1=CLP1, CLP2=CLP2, CLP3=CLP3, CLR0=CLR0, CLR1=CLR1, CLR2=CLR2, CLR3=CLR3, __overrides = cr_overrides))
-  # Subcomponent cl_sin of type BlockComponents.Math.Product
-  cl_sin_overrides = __pop_subcomponent_overrides!(__overrides, "cl_sin")
-  push!(__systems, @named cl_sin = BlockComponents.Math.Product(; __overrides = cl_sin_overrides))
-  # Subcomponent cd_cos of type BlockComponents.Math.Product
-  cd_cos_overrides = __pop_subcomponent_overrides!(__overrides, "cd_cos")
-  push!(__systems, @named cd_cos = BlockComponents.Math.Product(; __overrides = cd_cos_overrides))
-  # Subcomponent cx_sum of type BlockComponents.Math.Add
-  cx_sum_overrides = __pop_subcomponent_overrides!(__overrides, "cx_sum")
-  push!(__systems, @named cx_sum = BlockComponents.Math.Add(; k2=-1.0, __overrides = cx_sum_overrides))
-  # Subcomponent cl_cos of type BlockComponents.Math.Product
-  cl_cos_overrides = __pop_subcomponent_overrides!(__overrides, "cl_cos")
-  push!(__systems, @named cl_cos = BlockComponents.Math.Product(; __overrides = cl_cos_overrides))
-  # Subcomponent cd_sin of type BlockComponents.Math.Product
-  cd_sin_overrides = __pop_subcomponent_overrides!(__overrides, "cd_sin")
-  push!(__systems, @named cd_sin = BlockComponents.Math.Product(; __overrides = cd_sin_overrides))
-  # Subcomponent cz_sum of type BlockComponents.Math.Add
-  cz_sum_overrides = __pop_subcomponent_overrides!(__overrides, "cz_sum")
-  push!(__systems, @named cz_sum = BlockComponents.Math.Add(; k1=-1.0, k2=-1.0, __overrides = cz_sum_overrides))
+  # Subcomponent air of type HL20Demo.shared.AeroAirData
+  air_overrides = __pop_subcomponent_overrides!(__overrides, "air")
+  push!(__systems, @named air = HL20Demo.shared.AeroAirData(; CBAR_ft=CBAR_ft, BSPAN_ft=BSPAN_ft, __overrides = air_overrides))
+  # Subcomponent lon of type HL20Demo.shared.AeroLongitudinal
+  lon_overrides = __pop_subcomponent_overrides!(__overrides, "lon")
+  push!(__systems, @named lon = HL20Demo.shared.AeroLongitudinal(; DLG=DLG, Cm_bias=Cm_bias, CMQ0=CMQ0, CMQ1=CMQ1, CMQ2=CMQ2, CMQ3=CMQ3, __overrides = lon_overrides))
+  # Subcomponent lat of type HL20Demo.shared.AeroLateralCoeffs
+  lat_overrides = __pop_subcomponent_overrides!(__overrides, "lat")
+  push!(__systems, @named lat = HL20Demo.shared.AeroLateralCoeffs(; DLG=DLG, CNP0=CNP0, CNP1=CNP1, CNP2=CNP2, CNP3=CNP3, CNR0=CNR0, CNR1=CNR1, CNR2=CNR2, CNR3=CNR3, CLP0=CLP0, CLP1=CLP1, CLP2=CLP2, CLP3=CLP3, CLR0=CLR0, CLR1=CLR1, CLR2=CLR2, CLR3=CLR3, __overrides = lat_overrides))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
@@ -305,43 +253,30 @@ block and each force/moment coefficient is built up in a dedicated subsystem.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(alpha_deg, deg2rad.u, cl.alpha_deg, cd.alpha_deg, cm.alpha_deg, cy.alpha_deg, cn.alpha_deg, cr.alpha_deg))
-  push!(__eqs, connect(deg2rad.y, sin_a.u, cos_a.u))
-  push!(__eqs, connect(DRUD, abs_drud.u))
-  push!(__eqs, connect(vrw_fps, vrw_denom.u1))
-  push!(__eqs, connect(v_eps.y, vrw_denom.u2))
-  push!(__eqs, connect(bspan_2.y, damp_b.u1))
-  push!(__eqs, connect(vrw_denom.y, damp_b.u2, damp_c.u2))
-  push!(__eqs, connect(cbar_2.y, damp_c.u1))
-  push!(__eqs, connect(mach, cl.mach, cd.mach, cm.mach, cy.mach, cn.mach, cr.mach))
-  push!(__eqs, connect(hob, cl.hob, cd.hob, cm.hob, cy.hob, cn.hob, cr.hob))
-  push!(__eqs, connect(DBFLL, cl.DBFLL, cd.DBFLL, cm.DBFLL, cy.DBFLL, cn.DBFLL, cr.DBFLL))
-  push!(__eqs, connect(DBFLR, cl.DBFLR, cd.DBFLR, cm.DBFLR, cy.DBFLR, cn.DBFLR, cr.DBFLR))
-  push!(__eqs, connect(DBFUL, cl.DBFUL, cd.DBFUL, cm.DBFUL, cy.DBFUL, cn.DBFUL, cr.DBFUL))
-  push!(__eqs, connect(DBFUR, cl.DBFUR, cd.DBFUR, cm.DBFUR, cy.DBFUR, cn.DBFUR, cr.DBFUR))
-  push!(__eqs, connect(DWFL, cl.DWFL, cd.DWFL, cm.DWFL, cy.DWFL, cn.DWFL, cr.DWFL))
-  push!(__eqs, connect(DWFR, cl.DWFR, cd.DWFR, cm.DWFR, cy.DWFR, cn.DWFR, cr.DWFR))
-  push!(__eqs, connect(abs_drud.y, cl.abs_drud, cd.abs_drud, cm.abs_drud, cy.abs_drud, cn.abs_drud, cr.abs_drud))
-  push!(__eqs, connect(qb, cm.qb))
-  push!(__eqs, connect(damp_c.y, cm.damp_c2v))
-  push!(__eqs, connect(beta_deg, cy.beta_deg, cn.beta_deg, cr.beta_deg))
-  push!(__eqs, connect(pb, cn.pb, cr.pb))
-  push!(__eqs, connect(rb, cn.rb, cr.rb))
-  push!(__eqs, connect(damp_b.y, cn.damp_b2v, cr.damp_b2v))
-  push!(__eqs, connect(cl.y, cl_sin.u1, cl_cos.u1))
-  push!(__eqs, connect(sin_a.y, cl_sin.u2, cd_sin.u2))
-  push!(__eqs, connect(cd.y, cd_cos.u1, cd_sin.u1))
-  push!(__eqs, connect(cos_a.y, cd_cos.u2, cl_cos.u2))
-  push!(__eqs, connect(cl_sin.y, cx_sum.u1))
-  push!(__eqs, connect(cd_cos.y, cx_sum.u2))
-  push!(__eqs, connect(cx_sum.y, CX))
-  push!(__eqs, connect(cl_cos.y, cz_sum.u1))
-  push!(__eqs, connect(cd_sin.y, cz_sum.u2))
-  push!(__eqs, connect(cz_sum.y, CZ))
-  push!(__eqs, connect(cy.y, CY))
-  push!(__eqs, connect(cr.y, Cl))
-  push!(__eqs, connect(cm.y, Cm))
-  push!(__eqs, connect(cn.y, Cn))
+  push!(__eqs, connect(alpha_deg, lon.alpha_deg, lat.alpha_deg))
+  push!(__eqs, connect(beta_deg, lat.beta_deg))
+  push!(__eqs, connect(mach, lon.mach, lat.mach))
+  push!(__eqs, connect(hob, lon.hob, lat.hob))
+  push!(__eqs, connect(DBFLL, lon.DBFLL, lat.DBFLL))
+  push!(__eqs, connect(DBFLR, lon.DBFLR, lat.DBFLR))
+  push!(__eqs, connect(DBFUL, lon.DBFUL, lat.DBFUL))
+  push!(__eqs, connect(DBFUR, lon.DBFUR, lat.DBFUR))
+  push!(__eqs, connect(DWFL, lon.DWFL, lat.DWFL))
+  push!(__eqs, connect(DWFR, lon.DWFR, lat.DWFR))
+  push!(__eqs, connect(air.abs_drud, lon.abs_drud, lat.abs_drud))
+  push!(__eqs, connect(air.damp_b2v, lat.damp_b2v))
+  push!(__eqs, connect(air.damp_c2v, lon.damp_c2v))
+  push!(__eqs, connect(DRUD, air.DRUD))
+  push!(__eqs, connect(vrw_fps, air.vrw_fps))
+  push!(__eqs, connect(pb, lat.pb))
+  push!(__eqs, connect(rb, lat.rb))
+  push!(__eqs, connect(qb, lon.qb))
+  push!(__eqs, connect(lon.CX, CX))
+  push!(__eqs, connect(lon.CZ, CZ))
+  push!(__eqs, connect(lon.Cm, Cm))
+  push!(__eqs, connect(lat.CY, CY))
+  push!(__eqs, connect(lat.Cl, Cl))
+  push!(__eqs, connect(lat.Cn, Cn))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

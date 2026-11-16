@@ -20,10 +20,10 @@ __dyad_run_test_case!(
   expected_initial=Tuple[],
   expected_final=Tuple[],
   signals=Tuple[
-    (m -> m.sys.ALPHA_DEG, "sys.ALPHA_DEG", 0.005, 1e-5),
-    (m -> m.sys.QDEG, "sys.QDEG", 0.005, 1e-5),
-    (m -> m.sys.DECMD, "sys.DECMD", 0.005, 1e-5),
-    (m -> m.sys.DLE, "sys.DLE", 0.005, 1e-5),
-    (m -> m.sys.NZ, "sys.NZ", 0.01, 1e-5),
+    (m -> m.sys.ALPHA_DEG, "sys.ALPHA_DEG", 1e-5, 1e-5),
+    (m -> m.sys.QDEG, "sys.QDEG", 0.0005, 1e-5),
+    (m -> m.sys.DECMD, "sys.DECMD", 0.0005, 1e-5),
+    (m -> m.sys.DLE, "sys.DLE", 0.0005, 1e-5),
+    (m -> m.sys.NZ, "sys.NZ", 1e-5, 1e-5),
   ],
 )

@@ -7,10 +7,10 @@
 @doc Markdown.doc"""
    HL20Vehicle(; name, ft_per_m, BSPAN, mass, g, rho_sl, knots_per_fps, p1_0, p2_0, p3_0, v1_0, v2_0, v3_0, q0_0, q1_0, q2_0, q3_0, w1_0, w2_0, w3_0, __overrides)
 
-HL-20 vehicle plant: wires RigidBody6DOF, Atmosphere1976, FlightState,
+HL-20 vehicle plant: wires RigidBody6DOF, AirData, FlightState,
 HL20Aero and AeroForceBuilder into the closed airframe model and exposes the
-feedback signals the control laws consume. Unit conversions and the flight
-computations of spec section 8 are wired blocks.
+feedback signals the control laws consume. Unit conversions live in
+AirData and VehicleOutputs.
 
 ## Parameters:
 
@@ -45,22 +45,22 @@ computations of spec section 8 are wired blocks.
  * `DWFL` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `DWFR` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `DRUD` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
+ * `POS_3` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `ALPHA_DEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `BETADEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `BETADOT` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `MACH_out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `PDEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `QDEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `RDEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `SINPHI` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `COSPHI` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `COSTHE` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `QBAR` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `BETADOT` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `EAS` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `NZ` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `V_FPS` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `QBAR` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `ALT_FT` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `POS_3` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `MACH_out` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `V_FPS` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `PDEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `QDEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `RDEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `NZ` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
 @component function HL20Vehicle(; name = nothing, var"ft_per_m"=3.28084, var"BSPAN"=13.89, var"mass"=8664.1, var"g"=9.81, var"rho_sl"=0.002378, var"knots_per_fps"=0.592484, var"p1_0"=Float64(0.0), var"p2_0"=Float64(0.0), var"p3_0"=-3048.0, var"v1_0"=170.678, var"v2_0"=Float64(0.0), var"v3_0"=52.18176, var"q0_0"=0.9950556, var"q1_0"=Float64(0.0), var"q2_0"=-0.09932, var"q3_0"=Float64(0.0), var"w1_0"=Float64(0.0), var"w2_0"=Float64(0.0), var"w3_0"=Float64(0.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
@@ -182,22 +182,22 @@ computations of spec section 8 are wired blocks.
   append!(__vars, @variables (DWFL(t)::Real), [input = true])
   append!(__vars, @variables (DWFR(t)::Real), [input = true])
   append!(__vars, @variables (DRUD(t)::Real), [input = true])
+  append!(__vars, @variables (POS_3(t)::Real), [output = true])
   append!(__vars, @variables (ALPHA_DEG(t)::Real), [output = true])
   append!(__vars, @variables (BETADEG(t)::Real), [output = true])
-  append!(__vars, @variables (BETADOT(t)::Real), [output = true])
-  append!(__vars, @variables (MACH_out(t)::Real), [output = true])
-  append!(__vars, @variables (PDEG(t)::Real), [output = true])
-  append!(__vars, @variables (QDEG(t)::Real), [output = true])
-  append!(__vars, @variables (RDEG(t)::Real), [output = true])
   append!(__vars, @variables (SINPHI(t)::Real), [output = true])
   append!(__vars, @variables (COSPHI(t)::Real), [output = true])
   append!(__vars, @variables (COSTHE(t)::Real), [output = true])
-  append!(__vars, @variables (QBAR(t)::Real), [output = true])
+  append!(__vars, @variables (BETADOT(t)::Real), [output = true])
   append!(__vars, @variables (EAS(t)::Real), [output = true])
-  append!(__vars, @variables (NZ(t)::Real), [output = true])
-  append!(__vars, @variables (V_FPS(t)::Real), [output = true])
+  append!(__vars, @variables (QBAR(t)::Real), [output = true])
   append!(__vars, @variables (ALT_FT(t)::Real), [output = true])
-  append!(__vars, @variables (POS_3(t)::Real), [output = true])
+  append!(__vars, @variables (MACH_out(t)::Real), [output = true])
+  append!(__vars, @variables (V_FPS(t)::Real), [output = true])
+  append!(__vars, @variables (PDEG(t)::Real), [output = true])
+  append!(__vars, @variables (QDEG(t)::Real), [output = true])
+  append!(__vars, @variables (RDEG(t)::Real), [output = true])
+  append!(__vars, @variables (NZ(t)::Real), [output = true])
 
   ### Variables (declarations)
 
@@ -210,9 +210,9 @@ computations of spec section 8 are wired blocks.
   # Subcomponent body of type HL20Demo.RigidBody6DOF
   body_overrides = __pop_subcomponent_overrides!(__overrides, "body")
   push!(__systems, @named body = HL20Demo.RigidBody6DOF(; mass=mass, g=g, p1_0=p1_0, p2_0=p2_0, p3_0=p3_0, v1_0=v1_0, v2_0=v2_0, v3_0=v3_0, q0_0=q0_0, q1_0=q1_0, q2_0=q2_0, q3_0=q3_0, w1_0=w1_0, w2_0=w2_0, w3_0=w3_0, __overrides = body_overrides))
-  # Subcomponent atmos of type HL20Demo.Atmosphere1976
-  atmos_overrides = __pop_subcomponent_overrides!(__overrides, "atmos")
-  push!(__systems, @named atmos = HL20Demo.Atmosphere1976(; __overrides = atmos_overrides))
+  # Subcomponent airdata of type HL20Demo.AirData
+  airdata_overrides = __pop_subcomponent_overrides!(__overrides, "airdata")
+  push!(__systems, @named airdata = HL20Demo.AirData(; ft_per_m=ft_per_m, BSPAN=BSPAN, rho_sl=rho_sl, knots_per_fps=knots_per_fps, __overrides = airdata_overrides))
   # Subcomponent flight of type HL20Demo.FlightState
   flight_overrides = __pop_subcomponent_overrides!(__overrides, "flight")
   push!(__systems, @named flight = HL20Demo.FlightState(; __overrides = flight_overrides))
@@ -222,69 +222,9 @@ computations of spec section 8 are wired blocks.
   # Subcomponent forces of type HL20Demo.AeroForceBuilder
   forces_overrides = __pop_subcomponent_overrides!(__overrides, "forces")
   push!(__systems, @named forces = HL20Demo.AeroForceBuilder(; __overrides = forces_overrides))
-  # Subcomponent alt_gain of type BlockComponents.Math.Gain
-  alt_gain_overrides = __pop_subcomponent_overrides!(__overrides, "alt_gain")
-  push!(__systems, @named alt_gain = BlockComponents.Math.Gain(; k=-ft_per_m, __overrides = alt_gain_overrides))
-  # Subcomponent vrw_gain of type BlockComponents.Math.Gain
-  vrw_gain_overrides = __pop_subcomponent_overrides!(__overrides, "vrw_gain")
-  push!(__systems, @named vrw_gain = BlockComponents.Math.Gain(; k=ft_per_m, __overrides = vrw_gain_overrides))
-  # Subcomponent sos_eps of type BlockComponents.Sources.Constant
-  sos_eps_overrides = __pop_subcomponent_overrides!(__overrides, "sos_eps")
-  push!(__systems, @named sos_eps = BlockComponents.Sources.Constant(; k=0.01, __overrides = sos_eps_overrides))
-  # Subcomponent sos_sum of type BlockComponents.Math.Add
-  sos_sum_overrides = __pop_subcomponent_overrides!(__overrides, "sos_sum")
-  push!(__systems, @named sos_sum = BlockComponents.Math.Add(; __overrides = sos_sum_overrides))
-  # Subcomponent mach_div of type BlockComponents.Math.Division
-  mach_div_overrides = __pop_subcomponent_overrides!(__overrides, "mach_div")
-  push!(__systems, @named mach_div = BlockComponents.Math.Division(; __overrides = mach_div_overrides))
-  # Subcomponent vrw2 of type BlockComponents.Math.Product
-  vrw2_overrides = __pop_subcomponent_overrides!(__overrides, "vrw2")
-  push!(__systems, @named vrw2 = BlockComponents.Math.Product(; __overrides = vrw2_overrides))
-  # Subcomponent qbar_pre of type BlockComponents.Math.Gain
-  qbar_pre_overrides = __pop_subcomponent_overrides!(__overrides, "qbar_pre")
-  push!(__systems, @named qbar_pre = BlockComponents.Math.Gain(; k=0.5 * rho_sl, __overrides = qbar_pre_overrides))
-  # Subcomponent qbar_prod of type BlockComponents.Math.Product
-  qbar_prod_overrides = __pop_subcomponent_overrides!(__overrides, "qbar_prod")
-  push!(__systems, @named qbar_prod = BlockComponents.Math.Product(; __overrides = qbar_prod_overrides))
-  # Subcomponent bspan_eps of type BlockComponents.Sources.Constant
-  bspan_eps_overrides = __pop_subcomponent_overrides!(__overrides, "bspan_eps")
-  push!(__systems, @named bspan_eps = BlockComponents.Sources.Constant(; k=BSPAN + 0.01, __overrides = bspan_eps_overrides))
-  # Subcomponent hob_div of type BlockComponents.Math.Division
-  hob_div_overrides = __pop_subcomponent_overrides!(__overrides, "hob_div")
-  push!(__systems, @named hob_div = BlockComponents.Math.Division(; __overrides = hob_div_overrides))
-  # Subcomponent p_sin of type BlockComponents.Math.Product
-  p_sin_overrides = __pop_subcomponent_overrides!(__overrides, "p_sin")
-  push!(__systems, @named p_sin = BlockComponents.Math.Product(; __overrides = p_sin_overrides))
-  # Subcomponent r_cos of type BlockComponents.Math.Product
-  r_cos_overrides = __pop_subcomponent_overrides!(__overrides, "r_cos")
-  push!(__systems, @named r_cos = BlockComponents.Math.Product(; __overrides = r_cos_overrides))
-  # Subcomponent betadot_d of type BlockComponents.Math.Add
-  betadot_d_overrides = __pop_subcomponent_overrides!(__overrides, "betadot_d")
-  push!(__systems, @named betadot_d = BlockComponents.Math.Add(; k2=-1.0, __overrides = betadot_d_overrides))
-  # Subcomponent betadot of type BlockComponents.Math.Gain
-  betadot_overrides = __pop_subcomponent_overrides!(__overrides, "betadot")
-  push!(__systems, @named betadot = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = betadot_overrides))
-  # Subcomponent p_deg of type BlockComponents.Math.Gain
-  p_deg_overrides = __pop_subcomponent_overrides!(__overrides, "p_deg")
-  push!(__systems, @named p_deg = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = p_deg_overrides))
-  # Subcomponent q_deg of type BlockComponents.Math.Gain
-  q_deg_overrides = __pop_subcomponent_overrides!(__overrides, "q_deg")
-  push!(__systems, @named q_deg = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = q_deg_overrides))
-  # Subcomponent r_deg of type BlockComponents.Math.Gain
-  r_deg_overrides = __pop_subcomponent_overrides!(__overrides, "r_deg")
-  push!(__systems, @named r_deg = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = r_deg_overrides))
-  # Subcomponent sqrt_sig of type BlockComponents.Math.Sqrt
-  sqrt_sig_overrides = __pop_subcomponent_overrides!(__overrides, "sqrt_sig")
-  push!(__systems, @named sqrt_sig = BlockComponents.Math.Sqrt(; __overrides = sqrt_sig_overrides))
-  # Subcomponent eas_prod of type BlockComponents.Math.Product
-  eas_prod_overrides = __pop_subcomponent_overrides!(__overrides, "eas_prod")
-  push!(__systems, @named eas_prod = BlockComponents.Math.Product(; __overrides = eas_prod_overrides))
-  # Subcomponent eas of type BlockComponents.Math.Gain
-  eas_overrides = __pop_subcomponent_overrides!(__overrides, "eas")
-  push!(__systems, @named eas = BlockComponents.Math.Gain(; k=knots_per_fps, __overrides = eas_overrides))
-  # Subcomponent nz of type BlockComponents.Math.Gain
-  nz_overrides = __pop_subcomponent_overrides!(__overrides, "nz")
-  push!(__systems, @named nz = BlockComponents.Math.Gain(; k=-1.0 / (mass * g), __overrides = nz_overrides))
+  # Subcomponent vout of type HL20Demo.VehicleOutputs
+  vout_overrides = __pop_subcomponent_overrides!(__overrides, "vout")
+  push!(__systems, @named vout = HL20Demo.VehicleOutputs(; mass=mass, g=g, __overrides = vout_overrides))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
@@ -297,40 +237,32 @@ computations of spec section 8 are wired blocks.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(body.pos_3, alt_gain.u))
-  push!(__eqs, connect(alt_gain.y, atmos.alt_ft))
-  push!(__eqs, connect(alt_gain.y, ALT_FT))
-  push!(__eqs, connect(body.pos_3, POS_3))
   push!(__eqs, connect(body.vel_1, flight.vel_1))
   push!(__eqs, connect(body.vel_2, flight.vel_2))
   push!(__eqs, connect(body.vel_3, flight.vel_3))
-  push!(__eqs, connect(body.qw, flight.qw))
-  push!(__eqs, connect(body.qx, flight.qx))
-  push!(__eqs, connect(body.qy, flight.qy))
-  push!(__eqs, connect(body.qz, flight.qz))
-  push!(__eqs, connect(flight.v_scalar, vrw_gain.u))
-  push!(__eqs, connect(vrw_gain.y, V_FPS))
-  push!(__eqs, connect(atmos.sos_mps, sos_sum.u1))
-  push!(__eqs, connect(sos_eps.y, sos_sum.u2))
-  push!(__eqs, connect(flight.v_scalar, mach_div.u1))
-  push!(__eqs, connect(sos_sum.y, mach_div.u2))
-  push!(__eqs, connect(mach_div.y, MACH_out))
-  push!(__eqs, connect(vrw_gain.y, vrw2.u1))
-  push!(__eqs, connect(vrw_gain.y, vrw2.u2))
-  push!(__eqs, connect(vrw2.y, qbar_pre.u))
-  push!(__eqs, connect(qbar_pre.y, qbar_prod.u1))
-  push!(__eqs, connect(atmos.sigma, qbar_prod.u2))
-  push!(__eqs, connect(qbar_prod.y, QBAR))
-  push!(__eqs, connect(alt_gain.y, hob_div.u1))
-  push!(__eqs, connect(bspan_eps.y, hob_div.u2))
-  push!(__eqs, connect(flight.alpha_deg, aero.alpha_deg))
-  push!(__eqs, connect(flight.beta_deg, aero.beta_deg))
-  push!(__eqs, connect(mach_div.y, aero.mach))
-  push!(__eqs, connect(vrw_gain.y, aero.vrw_fps))
-  push!(__eqs, connect(hob_div.y, aero.hob))
-  push!(__eqs, connect(body.omega_1, aero.pb))
-  push!(__eqs, connect(body.omega_2, aero.qb))
-  push!(__eqs, connect(body.omega_3, aero.rb))
+  push!(__eqs, connect(body.qw, flight.qw, forces.qw))
+  push!(__eqs, connect(body.qx, flight.qx, forces.qx))
+  push!(__eqs, connect(body.qy, flight.qy, forces.qy))
+  push!(__eqs, connect(body.qz, flight.qz, forces.qz))
+  push!(__eqs, connect(body.omega_1, airdata.p_rad, aero.pb, vout.p_rad))
+  push!(__eqs, connect(body.omega_2, aero.qb, vout.q_rad))
+  push!(__eqs, connect(body.omega_3, airdata.r_rad, aero.rb, vout.r_rad))
+  push!(__eqs, connect(body.pos_3, POS_3, airdata.pos_m))
+  push!(__eqs, connect(flight.v_scalar, airdata.v_mps))
+  push!(__eqs, connect(flight.sin_alpha, airdata.sin_alpha))
+  push!(__eqs, connect(flight.cos_alpha, airdata.cos_alpha))
+  push!(__eqs, connect(flight.alpha_deg, ALPHA_DEG, aero.alpha_deg))
+  push!(__eqs, connect(flight.beta_deg, BETADEG, aero.beta_deg))
+  push!(__eqs, connect(flight.sin_phi, SINPHI))
+  push!(__eqs, connect(flight.cos_phi, COSPHI))
+  push!(__eqs, connect(flight.cos_theta, COSTHE))
+  push!(__eqs, connect(airdata.mach, MACH_out, aero.mach))
+  push!(__eqs, connect(airdata.v_fps, V_FPS, aero.vrw_fps))
+  push!(__eqs, connect(airdata.hob, aero.hob))
+  push!(__eqs, connect(airdata.bdot, BETADOT))
+  push!(__eqs, connect(airdata.eas_kts, EAS))
+  push!(__eqs, connect(airdata.qbar, QBAR, forces.qbar_psf))
+  push!(__eqs, connect(airdata.alt_ft, ALT_FT))
   push!(__eqs, connect(DBFUL, aero.DBFUL))
   push!(__eqs, connect(DBFUR, aero.DBFUR))
   push!(__eqs, connect(DBFLL, aero.DBFLL))
@@ -344,43 +276,17 @@ computations of spec section 8 are wired blocks.
   push!(__eqs, connect(aero.Cl, forces.Cl))
   push!(__eqs, connect(aero.Cm, forces.Cm))
   push!(__eqs, connect(aero.Cn, forces.Cn))
-  push!(__eqs, connect(qbar_prod.y, forces.qbar_psf))
-  push!(__eqs, connect(body.qw, forces.qw))
-  push!(__eqs, connect(body.qx, forces.qx))
-  push!(__eqs, connect(body.qy, forces.qy))
-  push!(__eqs, connect(body.qz, forces.qz))
-  push!(__eqs, connect(forces.F1, body.F1))
-  push!(__eqs, connect(forces.F2, body.F2))
-  push!(__eqs, connect(forces.F3, body.F3))
-  push!(__eqs, connect(forces.T1, body.T1))
-  push!(__eqs, connect(forces.T2, body.T2))
   push!(__eqs, connect(forces.T3, body.T3))
-  push!(__eqs, connect(flight.alpha_deg, ALPHA_DEG))
-  push!(__eqs, connect(flight.beta_deg, BETADEG))
-  push!(__eqs, connect(body.omega_1, p_sin.u1))
-  push!(__eqs, connect(flight.sin_alpha, p_sin.u2))
-  push!(__eqs, connect(body.omega_3, r_cos.u1))
-  push!(__eqs, connect(flight.cos_alpha, r_cos.u2))
-  push!(__eqs, connect(p_sin.y, betadot_d.u1))
-  push!(__eqs, connect(r_cos.y, betadot_d.u2))
-  push!(__eqs, connect(betadot_d.y, betadot.u))
-  push!(__eqs, connect(betadot.y, BETADOT))
-  push!(__eqs, connect(body.omega_1, p_deg.u))
-  push!(__eqs, connect(body.omega_2, q_deg.u))
-  push!(__eqs, connect(body.omega_3, r_deg.u))
-  push!(__eqs, connect(p_deg.y, PDEG))
-  push!(__eqs, connect(q_deg.y, QDEG))
-  push!(__eqs, connect(r_deg.y, RDEG))
-  push!(__eqs, connect(flight.sin_phi, SINPHI))
-  push!(__eqs, connect(flight.cos_phi, COSPHI))
-  push!(__eqs, connect(flight.cos_theta, COSTHE))
-  push!(__eqs, connect(atmos.sigma, sqrt_sig.u))
-  push!(__eqs, connect(vrw_gain.y, eas_prod.u1))
-  push!(__eqs, connect(sqrt_sig.y, eas_prod.u2))
-  push!(__eqs, connect(eas_prod.y, eas.u))
-  push!(__eqs, connect(eas.y, EAS))
-  push!(__eqs, connect(forces.Fz_body, nz.u))
-  push!(__eqs, connect(nz.y, NZ))
+  push!(__eqs, connect(forces.T2, body.T2))
+  push!(__eqs, connect(forces.T1, body.T1))
+  push!(__eqs, connect(forces.F3, body.F3))
+  push!(__eqs, connect(forces.F2, body.F2))
+  push!(__eqs, connect(forces.F1, body.F1))
+  push!(__eqs, connect(forces.Fz_body, vout.fz_body))
+  push!(__eqs, connect(vout.pdeg, PDEG))
+  push!(__eqs, connect(vout.qdeg, QDEG))
+  push!(__eqs, connect(vout.rdeg, RDEG))
+  push!(__eqs, connect(vout.nz_g, NZ))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

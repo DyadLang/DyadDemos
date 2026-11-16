@@ -196,6 +196,11 @@ component.
 end
 
 
+include("AeroAirData_definition.jl")
+include("AeroCLCD_definition.jl")
+include("AeroCYCN_definition.jl")
+include("AeroLateralCoeffs_definition.jl")
+include("AeroLongitudinal_definition.jl")
 include("CubicPoly_definition.jl")
 include("HL20Aero_definition.jl")
 include("HL20CD_definition.jl")

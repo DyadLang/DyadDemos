@@ -195,144 +195,15 @@ operation is a wired BlockComponents block.
   __constants = Any[]
 
   ### Components
-  # Subcomponent a1 of type BlockComponents.Math.Gain
-  a1_overrides = __pop_subcomponent_overrides!(__overrides, "a1")
-  push!(__systems, @named a1 = BlockComponents.Math.Gain(; k=1.0 / mass, __overrides = a1_overrides))
-  # Subcomponent a2 of type BlockComponents.Math.Gain
-  a2_overrides = __pop_subcomponent_overrides!(__overrides, "a2")
-  push!(__systems, @named a2 = BlockComponents.Math.Gain(; k=1.0 / mass, __overrides = a2_overrides))
-  # Subcomponent a3 of type BlockComponents.Math.Gain
-  a3_overrides = __pop_subcomponent_overrides!(__overrides, "a3")
-  push!(__systems, @named a3 = BlockComponents.Math.Gain(; k=1.0 / mass, __overrides = a3_overrides))
-  # Subcomponent grav of type BlockComponents.Sources.Constant
-  grav_overrides = __pop_subcomponent_overrides!(__overrides, "grav")
-  push!(__systems, @named grav = BlockComponents.Sources.Constant(; k=g, __overrides = grav_overrides))
-  # Subcomponent acc3 of type BlockComponents.Math.Add
-  acc3_overrides = __pop_subcomponent_overrides!(__overrides, "acc3")
-  push!(__systems, @named acc3 = BlockComponents.Math.Add(; __overrides = acc3_overrides))
-  # Subcomponent int_v1 of type BlockComponents.Continuous.Integrator
-  int_v1_overrides = __pop_subcomponent_overrides!(__overrides, "int_v1")
-  push!(__systems, @named int_v1 = BlockComponents.Continuous.Integrator(; x0=v1_0, __overrides = int_v1_overrides))
-  # Subcomponent int_v2 of type BlockComponents.Continuous.Integrator
-  int_v2_overrides = __pop_subcomponent_overrides!(__overrides, "int_v2")
-  push!(__systems, @named int_v2 = BlockComponents.Continuous.Integrator(; x0=v2_0, __overrides = int_v2_overrides))
-  # Subcomponent int_v3 of type BlockComponents.Continuous.Integrator
-  int_v3_overrides = __pop_subcomponent_overrides!(__overrides, "int_v3")
-  push!(__systems, @named int_v3 = BlockComponents.Continuous.Integrator(; x0=v3_0, __overrides = int_v3_overrides))
-  # Subcomponent int_p1 of type BlockComponents.Continuous.Integrator
-  int_p1_overrides = __pop_subcomponent_overrides!(__overrides, "int_p1")
-  push!(__systems, @named int_p1 = BlockComponents.Continuous.Integrator(; x0=p1_0, __overrides = int_p1_overrides))
-  # Subcomponent int_p2 of type BlockComponents.Continuous.Integrator
-  int_p2_overrides = __pop_subcomponent_overrides!(__overrides, "int_p2")
-  push!(__systems, @named int_p2 = BlockComponents.Continuous.Integrator(; x0=p2_0, __overrides = int_p2_overrides))
-  # Subcomponent int_p3 of type BlockComponents.Continuous.Integrator
-  int_p3_overrides = __pop_subcomponent_overrides!(__overrides, "int_p3")
-  push!(__systems, @named int_p3 = BlockComponents.Continuous.Integrator(; x0=p3_0, __overrides = int_p3_overrides))
-  # Subcomponent w2w3 of type BlockComponents.Math.Product
-  w2w3_overrides = __pop_subcomponent_overrides!(__overrides, "w2w3")
-  push!(__systems, @named w2w3 = BlockComponents.Math.Product(; __overrides = w2w3_overrides))
-  # Subcomponent gyro1 of type BlockComponents.Math.Gain
-  gyro1_overrides = __pop_subcomponent_overrides!(__overrides, "gyro1")
-  push!(__systems, @named gyro1 = BlockComponents.Math.Gain(; k=Jyy - Jzz, __overrides = gyro1_overrides))
-  # Subcomponent sum_t1 of type BlockComponents.Math.Add
-  sum_t1_overrides = __pop_subcomponent_overrides!(__overrides, "sum_t1")
-  push!(__systems, @named sum_t1 = BlockComponents.Math.Add(; __overrides = sum_t1_overrides))
-  # Subcomponent accw1 of type BlockComponents.Math.Gain
-  accw1_overrides = __pop_subcomponent_overrides!(__overrides, "accw1")
-  push!(__systems, @named accw1 = BlockComponents.Math.Gain(; k=1.0 / Jxx, __overrides = accw1_overrides))
-  # Subcomponent int_w1 of type BlockComponents.Continuous.Integrator
-  int_w1_overrides = __pop_subcomponent_overrides!(__overrides, "int_w1")
-  push!(__systems, @named int_w1 = BlockComponents.Continuous.Integrator(; x0=w1_0, __overrides = int_w1_overrides))
-  # Subcomponent w3w1 of type BlockComponents.Math.Product
-  w3w1_overrides = __pop_subcomponent_overrides!(__overrides, "w3w1")
-  push!(__systems, @named w3w1 = BlockComponents.Math.Product(; __overrides = w3w1_overrides))
-  # Subcomponent gyro2 of type BlockComponents.Math.Gain
-  gyro2_overrides = __pop_subcomponent_overrides!(__overrides, "gyro2")
-  push!(__systems, @named gyro2 = BlockComponents.Math.Gain(; k=Jzz - Jxx, __overrides = gyro2_overrides))
-  # Subcomponent sum_t2 of type BlockComponents.Math.Add
-  sum_t2_overrides = __pop_subcomponent_overrides!(__overrides, "sum_t2")
-  push!(__systems, @named sum_t2 = BlockComponents.Math.Add(; __overrides = sum_t2_overrides))
-  # Subcomponent accw2 of type BlockComponents.Math.Gain
-  accw2_overrides = __pop_subcomponent_overrides!(__overrides, "accw2")
-  push!(__systems, @named accw2 = BlockComponents.Math.Gain(; k=1.0 / Jyy, __overrides = accw2_overrides))
-  # Subcomponent int_w2 of type BlockComponents.Continuous.Integrator
-  int_w2_overrides = __pop_subcomponent_overrides!(__overrides, "int_w2")
-  push!(__systems, @named int_w2 = BlockComponents.Continuous.Integrator(; x0=w2_0, __overrides = int_w2_overrides))
-  # Subcomponent w1w2 of type BlockComponents.Math.Product
-  w1w2_overrides = __pop_subcomponent_overrides!(__overrides, "w1w2")
-  push!(__systems, @named w1w2 = BlockComponents.Math.Product(; __overrides = w1w2_overrides))
-  # Subcomponent gyro3 of type BlockComponents.Math.Gain
-  gyro3_overrides = __pop_subcomponent_overrides!(__overrides, "gyro3")
-  push!(__systems, @named gyro3 = BlockComponents.Math.Gain(; k=Jxx - Jyy, __overrides = gyro3_overrides))
-  # Subcomponent sum_t3 of type BlockComponents.Math.Add
-  sum_t3_overrides = __pop_subcomponent_overrides!(__overrides, "sum_t3")
-  push!(__systems, @named sum_t3 = BlockComponents.Math.Add(; __overrides = sum_t3_overrides))
-  # Subcomponent accw3 of type BlockComponents.Math.Gain
-  accw3_overrides = __pop_subcomponent_overrides!(__overrides, "accw3")
-  push!(__systems, @named accw3 = BlockComponents.Math.Gain(; k=1.0 / Jzz, __overrides = accw3_overrides))
-  # Subcomponent int_w3 of type BlockComponents.Continuous.Integrator
-  int_w3_overrides = __pop_subcomponent_overrides!(__overrides, "int_w3")
-  push!(__systems, @named int_w3 = BlockComponents.Continuous.Integrator(; x0=w3_0, __overrides = int_w3_overrides))
-  # Subcomponent q1w1 of type BlockComponents.Math.Product
-  q1w1_overrides = __pop_subcomponent_overrides!(__overrides, "q1w1")
-  push!(__systems, @named q1w1 = BlockComponents.Math.Product(; __overrides = q1w1_overrides))
-  # Subcomponent q2w2 of type BlockComponents.Math.Product
-  q2w2_overrides = __pop_subcomponent_overrides!(__overrides, "q2w2")
-  push!(__systems, @named q2w2 = BlockComponents.Math.Product(; __overrides = q2w2_overrides))
-  # Subcomponent q3w3 of type BlockComponents.Math.Product
-  q3w3_overrides = __pop_subcomponent_overrides!(__overrides, "q3w3")
-  push!(__systems, @named q3w3 = BlockComponents.Math.Product(; __overrides = q3w3_overrides))
-  # Subcomponent dq0 of type BlockComponents.Math.Add3
-  dq0_overrides = __pop_subcomponent_overrides!(__overrides, "dq0")
-  push!(__systems, @named dq0 = BlockComponents.Math.Add3(; k1=-0.5, k2=-0.5, k3=-0.5, __overrides = dq0_overrides))
-  # Subcomponent int_q0 of type BlockComponents.Continuous.Integrator
-  int_q0_overrides = __pop_subcomponent_overrides!(__overrides, "int_q0")
-  push!(__systems, @named int_q0 = BlockComponents.Continuous.Integrator(; x0=q0_0, __overrides = int_q0_overrides))
-  # Subcomponent q0w1 of type BlockComponents.Math.Product
-  q0w1_overrides = __pop_subcomponent_overrides!(__overrides, "q0w1")
-  push!(__systems, @named q0w1 = BlockComponents.Math.Product(; __overrides = q0w1_overrides))
-  # Subcomponent q2w3 of type BlockComponents.Math.Product
-  q2w3_overrides = __pop_subcomponent_overrides!(__overrides, "q2w3")
-  push!(__systems, @named q2w3 = BlockComponents.Math.Product(; __overrides = q2w3_overrides))
-  # Subcomponent q3w2 of type BlockComponents.Math.Product
-  q3w2_overrides = __pop_subcomponent_overrides!(__overrides, "q3w2")
-  push!(__systems, @named q3w2 = BlockComponents.Math.Product(; __overrides = q3w2_overrides))
-  # Subcomponent dq1 of type BlockComponents.Math.Add3
-  dq1_overrides = __pop_subcomponent_overrides!(__overrides, "dq1")
-  push!(__systems, @named dq1 = BlockComponents.Math.Add3(; k1=0.5, k2=0.5, k3=-0.5, __overrides = dq1_overrides))
-  # Subcomponent int_q1 of type BlockComponents.Continuous.Integrator
-  int_q1_overrides = __pop_subcomponent_overrides!(__overrides, "int_q1")
-  push!(__systems, @named int_q1 = BlockComponents.Continuous.Integrator(; x0=q1_0, __overrides = int_q1_overrides))
-  # Subcomponent q0w2 of type BlockComponents.Math.Product
-  q0w2_overrides = __pop_subcomponent_overrides!(__overrides, "q0w2")
-  push!(__systems, @named q0w2 = BlockComponents.Math.Product(; __overrides = q0w2_overrides))
-  # Subcomponent q1w3 of type BlockComponents.Math.Product
-  q1w3_overrides = __pop_subcomponent_overrides!(__overrides, "q1w3")
-  push!(__systems, @named q1w3 = BlockComponents.Math.Product(; __overrides = q1w3_overrides))
-  # Subcomponent q3w1 of type BlockComponents.Math.Product
-  q3w1_overrides = __pop_subcomponent_overrides!(__overrides, "q3w1")
-  push!(__systems, @named q3w1 = BlockComponents.Math.Product(; __overrides = q3w1_overrides))
-  # Subcomponent dq2 of type BlockComponents.Math.Add3
-  dq2_overrides = __pop_subcomponent_overrides!(__overrides, "dq2")
-  push!(__systems, @named dq2 = BlockComponents.Math.Add3(; k1=0.5, k2=-0.5, k3=0.5, __overrides = dq2_overrides))
-  # Subcomponent int_q2 of type BlockComponents.Continuous.Integrator
-  int_q2_overrides = __pop_subcomponent_overrides!(__overrides, "int_q2")
-  push!(__systems, @named int_q2 = BlockComponents.Continuous.Integrator(; x0=q2_0, __overrides = int_q2_overrides))
-  # Subcomponent q0w3 of type BlockComponents.Math.Product
-  q0w3_overrides = __pop_subcomponent_overrides!(__overrides, "q0w3")
-  push!(__systems, @named q0w3 = BlockComponents.Math.Product(; __overrides = q0w3_overrides))
-  # Subcomponent q1w2 of type BlockComponents.Math.Product
-  q1w2_overrides = __pop_subcomponent_overrides!(__overrides, "q1w2")
-  push!(__systems, @named q1w2 = BlockComponents.Math.Product(; __overrides = q1w2_overrides))
-  # Subcomponent q2w1 of type BlockComponents.Math.Product
-  q2w1_overrides = __pop_subcomponent_overrides!(__overrides, "q2w1")
-  push!(__systems, @named q2w1 = BlockComponents.Math.Product(; __overrides = q2w1_overrides))
-  # Subcomponent dq3 of type BlockComponents.Math.Add3
-  dq3_overrides = __pop_subcomponent_overrides!(__overrides, "dq3")
-  push!(__systems, @named dq3 = BlockComponents.Math.Add3(; k1=0.5, k2=0.5, k3=-0.5, __overrides = dq3_overrides))
-  # Subcomponent int_q3 of type BlockComponents.Continuous.Integrator
-  int_q3_overrides = __pop_subcomponent_overrides!(__overrides, "int_q3")
-  push!(__systems, @named int_q3 = BlockComponents.Continuous.Integrator(; x0=q3_0, __overrides = int_q3_overrides))
+  # Subcomponent trans of type HL20Demo.TransDynamics
+  trans_overrides = __pop_subcomponent_overrides!(__overrides, "trans")
+  push!(__systems, @named trans = HL20Demo.TransDynamics(; mass=mass, g=g, v1_0=v1_0, v2_0=v2_0, v3_0=v3_0, p1_0=p1_0, p2_0=p2_0, p3_0=p3_0, __overrides = trans_overrides))
+  # Subcomponent rot of type HL20Demo.RotDynamics
+  rot_overrides = __pop_subcomponent_overrides!(__overrides, "rot")
+  push!(__systems, @named rot = HL20Demo.RotDynamics(; Jxx=Jxx, Jyy=Jyy, Jzz=Jzz, w1_0=w1_0, w2_0=w2_0, w3_0=w3_0, __overrides = rot_overrides))
+  # Subcomponent qkin of type HL20Demo.QuatKinematics
+  qkin_overrides = __pop_subcomponent_overrides!(__overrides, "qkin")
+  push!(__systems, @named qkin = HL20Demo.QuatKinematics(; q0_0=q0_0, q1_0=q1_0, q2_0=q2_0, q3_0=q3_0, __overrides = qkin_overrides))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
@@ -345,91 +216,28 @@ operation is a wired BlockComponents block.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(F1, a1.u))
-  push!(__eqs, connect(F2, a2.u))
-  push!(__eqs, connect(F3, a3.u))
-  push!(__eqs, connect(a3.y, acc3.u1))
-  push!(__eqs, connect(grav.y, acc3.u2))
-  push!(__eqs, connect(a1.y, int_v1.u))
-  push!(__eqs, connect(a2.y, int_v2.u))
-  push!(__eqs, connect(acc3.y, int_v3.u))
-  push!(__eqs, connect(int_v1.y, int_p1.u))
-  push!(__eqs, connect(int_v2.y, int_p2.u))
-  push!(__eqs, connect(int_v3.y, int_p3.u))
-  push!(__eqs, connect(int_w2.y, w2w3.u1))
-  push!(__eqs, connect(int_w3.y, w2w3.u2))
-  push!(__eqs, connect(w2w3.y, gyro1.u))
-  push!(__eqs, connect(T1, sum_t1.u1))
-  push!(__eqs, connect(gyro1.y, sum_t1.u2))
-  push!(__eqs, connect(sum_t1.y, accw1.u))
-  push!(__eqs, connect(accw1.y, int_w1.u))
-  push!(__eqs, connect(int_w3.y, w3w1.u1))
-  push!(__eqs, connect(int_w1.y, w3w1.u2))
-  push!(__eqs, connect(w3w1.y, gyro2.u))
-  push!(__eqs, connect(T2, sum_t2.u1))
-  push!(__eqs, connect(gyro2.y, sum_t2.u2))
-  push!(__eqs, connect(sum_t2.y, accw2.u))
-  push!(__eqs, connect(accw2.y, int_w2.u))
-  push!(__eqs, connect(int_w1.y, w1w2.u1))
-  push!(__eqs, connect(int_w2.y, w1w2.u2))
-  push!(__eqs, connect(w1w2.y, gyro3.u))
-  push!(__eqs, connect(T3, sum_t3.u1))
-  push!(__eqs, connect(gyro3.y, sum_t3.u2))
-  push!(__eqs, connect(sum_t3.y, accw3.u))
-  push!(__eqs, connect(accw3.y, int_w3.u))
-  push!(__eqs, connect(int_q1.y, q1w1.u1))
-  push!(__eqs, connect(int_w1.y, q1w1.u2))
-  push!(__eqs, connect(int_q2.y, q2w2.u1))
-  push!(__eqs, connect(int_w2.y, q2w2.u2))
-  push!(__eqs, connect(int_q3.y, q3w3.u1))
-  push!(__eqs, connect(int_w3.y, q3w3.u2))
-  push!(__eqs, connect(q1w1.y, dq0.u1))
-  push!(__eqs, connect(q2w2.y, dq0.u2))
-  push!(__eqs, connect(q3w3.y, dq0.u3))
-  push!(__eqs, connect(dq0.y, int_q0.u))
-  push!(__eqs, connect(int_q0.y, q0w1.u1))
-  push!(__eqs, connect(int_w1.y, q0w1.u2))
-  push!(__eqs, connect(int_q2.y, q2w3.u1))
-  push!(__eqs, connect(int_w3.y, q2w3.u2))
-  push!(__eqs, connect(int_q3.y, q3w2.u1))
-  push!(__eqs, connect(int_w2.y, q3w2.u2))
-  push!(__eqs, connect(q0w1.y, dq1.u1))
-  push!(__eqs, connect(q2w3.y, dq1.u2))
-  push!(__eqs, connect(q3w2.y, dq1.u3))
-  push!(__eqs, connect(dq1.y, int_q1.u))
-  push!(__eqs, connect(int_q0.y, q0w2.u1))
-  push!(__eqs, connect(int_w2.y, q0w2.u2))
-  push!(__eqs, connect(int_q1.y, q1w3.u1))
-  push!(__eqs, connect(int_w3.y, q1w3.u2))
-  push!(__eqs, connect(int_q3.y, q3w1.u1))
-  push!(__eqs, connect(int_w1.y, q3w1.u2))
-  push!(__eqs, connect(q0w2.y, dq2.u1))
-  push!(__eqs, connect(q1w3.y, dq2.u2))
-  push!(__eqs, connect(q3w1.y, dq2.u3))
-  push!(__eqs, connect(dq2.y, int_q2.u))
-  push!(__eqs, connect(int_q0.y, q0w3.u1))
-  push!(__eqs, connect(int_w3.y, q0w3.u2))
-  push!(__eqs, connect(int_q1.y, q1w2.u1))
-  push!(__eqs, connect(int_w2.y, q1w2.u2))
-  push!(__eqs, connect(int_q2.y, q2w1.u1))
-  push!(__eqs, connect(int_w1.y, q2w1.u2))
-  push!(__eqs, connect(q0w3.y, dq3.u1))
-  push!(__eqs, connect(q1w2.y, dq3.u2))
-  push!(__eqs, connect(q2w1.y, dq3.u3))
-  push!(__eqs, connect(dq3.y, int_q3.u))
-  push!(__eqs, connect(int_p1.y, pos_1))
-  push!(__eqs, connect(int_p2.y, pos_2))
-  push!(__eqs, connect(int_p3.y, pos_3))
-  push!(__eqs, connect(int_v1.y, vel_1))
-  push!(__eqs, connect(int_v2.y, vel_2))
-  push!(__eqs, connect(int_v3.y, vel_3))
-  push!(__eqs, connect(int_q0.y, qw))
-  push!(__eqs, connect(int_q1.y, qx))
-  push!(__eqs, connect(int_q2.y, qy))
-  push!(__eqs, connect(int_q3.y, qz))
-  push!(__eqs, connect(int_w1.y, omega_1))
-  push!(__eqs, connect(int_w2.y, omega_2))
-  push!(__eqs, connect(int_w3.y, omega_3))
+  push!(__eqs, connect(F1, trans.F1))
+  push!(__eqs, connect(T1, rot.T1))
+  push!(__eqs, connect(rot.w1, qkin.w1))
+  push!(__eqs, connect(trans.v1, vel_1))
+  push!(__eqs, connect(trans.p1, pos_1))
+  push!(__eqs, connect(rot.w1, omega_1))
+  push!(__eqs, connect(F2, trans.F2))
+  push!(__eqs, connect(T2, rot.T2))
+  push!(__eqs, connect(rot.w2, qkin.w2))
+  push!(__eqs, connect(trans.v2, vel_2))
+  push!(__eqs, connect(trans.p2, pos_2))
+  push!(__eqs, connect(rot.w2, omega_2))
+  push!(__eqs, connect(F3, trans.F3))
+  push!(__eqs, connect(T3, rot.T3))
+  push!(__eqs, connect(rot.w3, qkin.w3))
+  push!(__eqs, connect(trans.v3, vel_3))
+  push!(__eqs, connect(trans.p3, pos_3))
+  push!(__eqs, connect(rot.w3, omega_3))
+  push!(__eqs, connect(qkin.q0, qw))
+  push!(__eqs, connect(qkin.q1, qx))
+  push!(__eqs, connect(qkin.q2, qy))
+  push!(__eqs, connect(qkin.q3, qz))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

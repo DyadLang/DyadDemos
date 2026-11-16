@@ -16,7 +16,7 @@ component PitchControl
   QDEG = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
+        "icon": {"x1": 83,  "y1": 950, "x2": 183, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 1800, "y2": 1900}
       }
     }
@@ -24,7 +24,7 @@ component PitchControl
   RDEG = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
+        "icon": {"x1": 117, "y1": 950, "x2": 217, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 1600, "y2": 1700}
       }
     }
@@ -32,7 +32,7 @@ component PitchControl
   NZ = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
+        "icon": {"x1": 283, "y1": 950, "x2": 383, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 2400, "y2": 2500}
       }
     }
@@ -40,7 +40,7 @@ component PitchControl
   SINPHI = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500},
+        "icon": {"x1": 150, "y1": 950, "x2": 250, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 2000, "y2": 2100}
       }
     }
@@ -48,7 +48,7 @@ component PitchControl
   COSPHI = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
+        "icon": {"x1": 183, "y1": 950, "x2": 283, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 2200, "y2": 2300}
       }
     }
@@ -56,7 +56,7 @@ component PitchControl
   COSTHE = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700},
+        "icon": {"x1": 217, "y1": 950, "x2": 317, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 2600, "y2": 2700}
       }
     }
@@ -72,7 +72,7 @@ component PitchControl
   QBAR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 200, "y1": 950, "x2": 300, "y2": 1050},
+        "icon": {"x1": 250, "y1": 950, "x2": 350, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 1100, "y2": 1200}
       }
     }
@@ -80,7 +80,7 @@ component PitchControl
   MACH = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 400, "y1": 950, "x2": 500, "y2": 1050},
+        "icon": {"x1": 50,  "y1": 950, "x2": 150, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 1300, "y2": 1400}
       }
     }
@@ -88,7 +88,7 @@ component PitchControl
   VTOTALI = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 600, "y1": 950, "x2": 700, "y2": 1050},
+        "icon": {"x1": 317, "y1": 950, "x2": 417, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 2800, "y2": 2900}
       }
     }
@@ -870,7 +870,7 @@ component RollControl
   PDEG = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 650, "x2": 50, "y2": 750},
+        "icon": {"x1": 283, "y1": 950, "x2": 383, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 900, "y2": 1000}
       }
     }
@@ -998,7 +998,7 @@ component YawControl
   RDEG = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
+        "icon": {"x1": 550, "y1": 950, "x2": 650, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 625, "y2": 675}
       }
     }
@@ -1014,7 +1014,7 @@ component YawControl
   MACH = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
+        "icon": {"x1": 150, "y1": 950, "x2": 250, "y2": 1050},
         "diagram": {"x1": -50, "x2": 50, "y1": 350, "y2": 450}
       }
     }

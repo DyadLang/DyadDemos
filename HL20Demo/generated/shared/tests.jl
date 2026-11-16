@@ -16,6 +16,11 @@ end
 
 
 @testset "`HL20Demo.shared`" begin
+include("AeroAirData_test.jl")
+include("AeroCLCD_test.jl")
+include("AeroCYCN_test.jl")
+include("AeroLateralCoeffs_test.jl")
+include("AeroLongitudinal_test.jl")
 include("CubicPoly_test.jl")
 include("HL20Aero_test.jl")
 include("HL20CD_test.jl")

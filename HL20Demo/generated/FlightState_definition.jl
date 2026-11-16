@@ -105,129 +105,12 @@ wired BlockComponents block.
   # Subcomponent rot of type HL20Demo.QuatToBody
   rot_overrides = __pop_subcomponent_overrides!(__overrides, "rot")
   push!(__systems, @named rot = HL20Demo.QuatToBody(; __overrides = rot_overrides))
-  # Subcomponent uu of type BlockComponents.Math.Product
-  uu_overrides = __pop_subcomponent_overrides!(__overrides, "uu")
-  push!(__systems, @named uu = BlockComponents.Math.Product(; __overrides = uu_overrides))
-  # Subcomponent vv of type BlockComponents.Math.Product
-  vv_overrides = __pop_subcomponent_overrides!(__overrides, "vv")
-  push!(__systems, @named vv = BlockComponents.Math.Product(; __overrides = vv_overrides))
-  # Subcomponent ww of type BlockComponents.Math.Product
-  ww_overrides = __pop_subcomponent_overrides!(__overrides, "ww")
-  push!(__systems, @named ww = BlockComponents.Math.Product(; __overrides = ww_overrides))
-  # Subcomponent sum_uvw of type BlockComponents.Math.Add3
-  sum_uvw_overrides = __pop_subcomponent_overrides!(__overrides, "sum_uvw")
-  push!(__systems, @named sum_uvw = BlockComponents.Math.Add3(; __overrides = sum_uvw_overrides))
-  # Subcomponent v_eps of type BlockComponents.Sources.Constant
-  v_eps_overrides = __pop_subcomponent_overrides!(__overrides, "v_eps")
-  push!(__systems, @named v_eps = BlockComponents.Sources.Constant(; k=0.000001, __overrides = v_eps_overrides))
-  # Subcomponent sum_v of type BlockComponents.Math.Add
-  sum_v_overrides = __pop_subcomponent_overrides!(__overrides, "sum_v")
-  push!(__systems, @named sum_v = BlockComponents.Math.Add(; __overrides = sum_v_overrides))
-  # Subcomponent v_sqrt of type BlockComponents.Math.Sqrt
-  v_sqrt_overrides = __pop_subcomponent_overrides!(__overrides, "v_sqrt")
-  push!(__systems, @named v_sqrt = BlockComponents.Math.Sqrt(; __overrides = v_sqrt_overrides))
-  # Subcomponent sum_uw of type BlockComponents.Math.Add
-  sum_uw_overrides = __pop_subcomponent_overrides!(__overrides, "sum_uw")
-  push!(__systems, @named sum_uw = BlockComponents.Math.Add(; __overrides = sum_uw_overrides))
-  # Subcomponent sqrt_uw of type BlockComponents.Math.Sqrt
-  sqrt_uw_overrides = __pop_subcomponent_overrides!(__overrides, "sqrt_uw")
-  push!(__systems, @named sqrt_uw = BlockComponents.Math.Sqrt(; __overrides = sqrt_uw_overrides))
-  # Subcomponent atan_alpha of type BlockComponents.Math.Atan2
-  atan_alpha_overrides = __pop_subcomponent_overrides!(__overrides, "atan_alpha")
-  push!(__systems, @named atan_alpha = BlockComponents.Math.Atan2(; __overrides = atan_alpha_overrides))
-  # Subcomponent atan_beta of type BlockComponents.Math.Atan2
-  atan_beta_overrides = __pop_subcomponent_overrides!(__overrides, "atan_beta")
-  push!(__systems, @named atan_beta = BlockComponents.Math.Atan2(; __overrides = atan_beta_overrides))
-  # Subcomponent alpha_to_deg of type BlockComponents.Math.Gain
-  alpha_to_deg_overrides = __pop_subcomponent_overrides!(__overrides, "alpha_to_deg")
-  push!(__systems, @named alpha_to_deg = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = alpha_to_deg_overrides))
-  # Subcomponent beta_to_deg of type BlockComponents.Math.Gain
-  beta_to_deg_overrides = __pop_subcomponent_overrides!(__overrides, "beta_to_deg")
-  push!(__systems, @named beta_to_deg = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = beta_to_deg_overrides))
-  # Subcomponent p_qwqx of type BlockComponents.Math.Product
-  p_qwqx_overrides = __pop_subcomponent_overrides!(__overrides, "p_qwqx")
-  push!(__systems, @named p_qwqx = BlockComponents.Math.Product(; __overrides = p_qwqx_overrides))
-  # Subcomponent p_qyqz of type BlockComponents.Math.Product
-  p_qyqz_overrides = __pop_subcomponent_overrides!(__overrides, "p_qyqz")
-  push!(__systems, @named p_qyqz = BlockComponents.Math.Product(; __overrides = p_qyqz_overrides))
-  # Subcomponent p_qx2 of type BlockComponents.Math.Product
-  p_qx2_overrides = __pop_subcomponent_overrides!(__overrides, "p_qx2")
-  push!(__systems, @named p_qx2 = BlockComponents.Math.Product(; __overrides = p_qx2_overrides))
-  # Subcomponent p_qy2 of type BlockComponents.Math.Product
-  p_qy2_overrides = __pop_subcomponent_overrides!(__overrides, "p_qy2")
-  push!(__systems, @named p_qy2 = BlockComponents.Math.Product(; __overrides = p_qy2_overrides))
-  # Subcomponent p_qz2 of type BlockComponents.Math.Product
-  p_qz2_overrides = __pop_subcomponent_overrides!(__overrides, "p_qz2")
-  push!(__systems, @named p_qz2 = BlockComponents.Math.Product(; __overrides = p_qz2_overrides))
-  # Subcomponent p_qwqy of type BlockComponents.Math.Product
-  p_qwqy_overrides = __pop_subcomponent_overrides!(__overrides, "p_qwqy")
-  push!(__systems, @named p_qwqy = BlockComponents.Math.Product(; __overrides = p_qwqy_overrides))
-  # Subcomponent p_qzqx of type BlockComponents.Math.Product
-  p_qzqx_overrides = __pop_subcomponent_overrides!(__overrides, "p_qzqx")
-  push!(__systems, @named p_qzqx = BlockComponents.Math.Product(; __overrides = p_qzqx_overrides))
-  # Subcomponent p_qwqz of type BlockComponents.Math.Product
-  p_qwqz_overrides = __pop_subcomponent_overrides!(__overrides, "p_qwqz")
-  push!(__systems, @named p_qwqz = BlockComponents.Math.Product(; __overrides = p_qwqz_overrides))
-  # Subcomponent p_qxqy of type BlockComponents.Math.Product
-  p_qxqy_overrides = __pop_subcomponent_overrides!(__overrides, "p_qxqy")
-  push!(__systems, @named p_qxqy = BlockComponents.Math.Product(; __overrides = p_qxqy_overrides))
-  # Subcomponent one_phi of type BlockComponents.Sources.Constant
-  one_phi_overrides = __pop_subcomponent_overrides!(__overrides, "one_phi")
-  push!(__systems, @named one_phi = BlockComponents.Sources.Constant(; k=Float64(1.0), __overrides = one_phi_overrides))
-  # Subcomponent one_psi of type BlockComponents.Sources.Constant
-  one_psi_overrides = __pop_subcomponent_overrides!(__overrides, "one_psi")
-  push!(__systems, @named one_psi = BlockComponents.Sources.Constant(; k=Float64(1.0), __overrides = one_psi_overrides))
-  # Subcomponent phi_num of type BlockComponents.Math.Add
-  phi_num_overrides = __pop_subcomponent_overrides!(__overrides, "phi_num")
-  push!(__systems, @named phi_num = BlockComponents.Math.Add(; k1=Float64(2.0), k2=Float64(2.0), __overrides = phi_num_overrides))
-  # Subcomponent phi_den of type BlockComponents.Math.Add3
-  phi_den_overrides = __pop_subcomponent_overrides!(__overrides, "phi_den")
-  push!(__systems, @named phi_den = BlockComponents.Math.Add3(; k1=Float64(1.0), k2=-2.0, k3=-2.0, __overrides = phi_den_overrides))
-  # Subcomponent atan_phi of type BlockComponents.Math.Atan2
-  atan_phi_overrides = __pop_subcomponent_overrides!(__overrides, "atan_phi")
-  push!(__systems, @named atan_phi = BlockComponents.Math.Atan2(; __overrides = atan_phi_overrides))
-  # Subcomponent the_arg of type BlockComponents.Math.Add
-  the_arg_overrides = __pop_subcomponent_overrides!(__overrides, "the_arg")
-  push!(__systems, @named the_arg = BlockComponents.Math.Add(; k1=Float64(2.0), k2=-2.0, __overrides = the_arg_overrides))
-  # Subcomponent the_clamp of type BlockComponents.Nonlinear.Limiter
-  the_clamp_overrides = __pop_subcomponent_overrides!(__overrides, "the_clamp")
-  push!(__systems, @named the_clamp = BlockComponents.Nonlinear.Limiter(; y_min=-1.0, y_max=Float64(1.0), __overrides = the_clamp_overrides))
-  # Subcomponent asin_the of type BlockComponents.Math.Asin
-  asin_the_overrides = __pop_subcomponent_overrides!(__overrides, "asin_the")
-  push!(__systems, @named asin_the = BlockComponents.Math.Asin(; __overrides = asin_the_overrides))
-  # Subcomponent psi_num of type BlockComponents.Math.Add
-  psi_num_overrides = __pop_subcomponent_overrides!(__overrides, "psi_num")
-  push!(__systems, @named psi_num = BlockComponents.Math.Add(; k1=Float64(2.0), k2=Float64(2.0), __overrides = psi_num_overrides))
-  # Subcomponent psi_den of type BlockComponents.Math.Add3
-  psi_den_overrides = __pop_subcomponent_overrides!(__overrides, "psi_den")
-  push!(__systems, @named psi_den = BlockComponents.Math.Add3(; k1=Float64(1.0), k2=-2.0, k3=-2.0, __overrides = psi_den_overrides))
-  # Subcomponent atan_psi of type BlockComponents.Math.Atan2
-  atan_psi_overrides = __pop_subcomponent_overrides!(__overrides, "atan_psi")
-  push!(__systems, @named atan_psi = BlockComponents.Math.Atan2(; __overrides = atan_psi_overrides))
-  # Subcomponent phi_to_deg of type BlockComponents.Math.Gain
-  phi_to_deg_overrides = __pop_subcomponent_overrides!(__overrides, "phi_to_deg")
-  push!(__systems, @named phi_to_deg = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = phi_to_deg_overrides))
-  # Subcomponent theta_to_deg of type BlockComponents.Math.Gain
-  theta_to_deg_overrides = __pop_subcomponent_overrides!(__overrides, "theta_to_deg")
-  push!(__systems, @named theta_to_deg = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = theta_to_deg_overrides))
-  # Subcomponent psi_to_deg of type BlockComponents.Math.Gain
-  psi_to_deg_overrides = __pop_subcomponent_overrides!(__overrides, "psi_to_deg")
-  push!(__systems, @named psi_to_deg = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = psi_to_deg_overrides))
-  # Subcomponent s_phi of type BlockComponents.Math.Sin
-  s_phi_overrides = __pop_subcomponent_overrides!(__overrides, "s_phi")
-  push!(__systems, @named s_phi = BlockComponents.Math.Sin(; __overrides = s_phi_overrides))
-  # Subcomponent c_phi of type BlockComponents.Math.Cos
-  c_phi_overrides = __pop_subcomponent_overrides!(__overrides, "c_phi")
-  push!(__systems, @named c_phi = BlockComponents.Math.Cos(; __overrides = c_phi_overrides))
-  # Subcomponent c_the of type BlockComponents.Math.Cos
-  c_the_overrides = __pop_subcomponent_overrides!(__overrides, "c_the")
-  push!(__systems, @named c_the = BlockComponents.Math.Cos(; __overrides = c_the_overrides))
-  # Subcomponent s_alpha of type BlockComponents.Math.Sin
-  s_alpha_overrides = __pop_subcomponent_overrides!(__overrides, "s_alpha")
-  push!(__systems, @named s_alpha = BlockComponents.Math.Sin(; __overrides = s_alpha_overrides))
-  # Subcomponent c_alpha of type BlockComponents.Math.Cos
-  c_alpha_overrides = __pop_subcomponent_overrides!(__overrides, "c_alpha")
-  push!(__systems, @named c_alpha = BlockComponents.Math.Cos(; __overrides = c_alpha_overrides))
+  # Subcomponent aero of type HL20Demo.AeroAngles
+  aero_overrides = __pop_subcomponent_overrides!(__overrides, "aero")
+  push!(__systems, @named aero = HL20Demo.AeroAngles(; __overrides = aero_overrides))
+  # Subcomponent euler of type HL20Demo.EulerAngles
+  euler_overrides = __pop_subcomponent_overrides!(__overrides, "euler")
+  push!(__systems, @named euler = HL20Demo.EulerAngles(; __overrides = euler_overrides))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
@@ -240,92 +123,34 @@ wired BlockComponents block.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(qw, rot.qw))
-  push!(__eqs, connect(qx, rot.qx))
-  push!(__eqs, connect(qy, rot.qy))
-  push!(__eqs, connect(qz, rot.qz))
   push!(__eqs, connect(vel_1, rot.v1))
   push!(__eqs, connect(vel_2, rot.v2))
   push!(__eqs, connect(vel_3, rot.v3))
+  push!(__eqs, connect(qw, rot.qw))
+  push!(__eqs, connect(qw, euler.qw))
+  push!(__eqs, connect(qx, rot.qx))
+  push!(__eqs, connect(qx, euler.qx))
+  push!(__eqs, connect(qy, rot.qy))
+  push!(__eqs, connect(qy, euler.qy))
+  push!(__eqs, connect(qz, rot.qz))
+  push!(__eqs, connect(qz, euler.qz))
   push!(__eqs, connect(rot.b1, u_body))
   push!(__eqs, connect(rot.b2, v_body))
   push!(__eqs, connect(rot.b3, w_body))
-  push!(__eqs, connect(rot.b1, uu.u1))
-  push!(__eqs, connect(rot.b1, uu.u2))
-  push!(__eqs, connect(rot.b2, vv.u1))
-  push!(__eqs, connect(rot.b2, vv.u2))
-  push!(__eqs, connect(rot.b3, ww.u1))
-  push!(__eqs, connect(rot.b3, ww.u2))
-  push!(__eqs, connect(uu.y, sum_uvw.u1))
-  push!(__eqs, connect(vv.y, sum_uvw.u2))
-  push!(__eqs, connect(ww.y, sum_uvw.u3))
-  push!(__eqs, connect(sum_uvw.y, sum_v.u1))
-  push!(__eqs, connect(v_eps.y, sum_v.u2))
-  push!(__eqs, connect(sum_v.y, v_sqrt.u))
-  push!(__eqs, connect(v_sqrt.y, v_scalar))
-  push!(__eqs, connect(uu.y, sum_uw.u1))
-  push!(__eqs, connect(ww.y, sum_uw.u2))
-  push!(__eqs, connect(sum_uw.y, sqrt_uw.u))
-  push!(__eqs, connect(rot.b3, atan_alpha.u1))
-  push!(__eqs, connect(rot.b1, atan_alpha.u2))
-  push!(__eqs, connect(rot.b2, atan_beta.u1))
-  push!(__eqs, connect(sqrt_uw.y, atan_beta.u2))
-  push!(__eqs, connect(atan_alpha.y, alpha_to_deg.u))
-  push!(__eqs, connect(atan_beta.y, beta_to_deg.u))
-  push!(__eqs, connect(alpha_to_deg.y, alpha_deg))
-  push!(__eqs, connect(beta_to_deg.y, beta_deg))
-  push!(__eqs, connect(atan_alpha.y, s_alpha.u))
-  push!(__eqs, connect(atan_alpha.y, c_alpha.u))
-  push!(__eqs, connect(s_alpha.y, sin_alpha))
-  push!(__eqs, connect(c_alpha.y, cos_alpha))
-  push!(__eqs, connect(qw, p_qwqx.u1))
-  push!(__eqs, connect(qx, p_qwqx.u2))
-  push!(__eqs, connect(qy, p_qyqz.u1))
-  push!(__eqs, connect(qz, p_qyqz.u2))
-  push!(__eqs, connect(qx, p_qx2.u1))
-  push!(__eqs, connect(qx, p_qx2.u2))
-  push!(__eqs, connect(qy, p_qy2.u1))
-  push!(__eqs, connect(qy, p_qy2.u2))
-  push!(__eqs, connect(qz, p_qz2.u1))
-  push!(__eqs, connect(qz, p_qz2.u2))
-  push!(__eqs, connect(qw, p_qwqy.u1))
-  push!(__eqs, connect(qy, p_qwqy.u2))
-  push!(__eqs, connect(qz, p_qzqx.u1))
-  push!(__eqs, connect(qx, p_qzqx.u2))
-  push!(__eqs, connect(qw, p_qwqz.u1))
-  push!(__eqs, connect(qz, p_qwqz.u2))
-  push!(__eqs, connect(qx, p_qxqy.u1))
-  push!(__eqs, connect(qy, p_qxqy.u2))
-  push!(__eqs, connect(p_qwqx.y, phi_num.u1))
-  push!(__eqs, connect(p_qyqz.y, phi_num.u2))
-  push!(__eqs, connect(one_phi.y, phi_den.u1))
-  push!(__eqs, connect(p_qx2.y, phi_den.u2))
-  push!(__eqs, connect(p_qy2.y, phi_den.u3))
-  push!(__eqs, connect(phi_num.y, atan_phi.u1))
-  push!(__eqs, connect(phi_den.y, atan_phi.u2))
-  push!(__eqs, connect(atan_phi.y, phi_to_deg.u))
-  push!(__eqs, connect(phi_to_deg.y, phi_deg))
-  push!(__eqs, connect(atan_phi.y, s_phi.u))
-  push!(__eqs, connect(atan_phi.y, c_phi.u))
-  push!(__eqs, connect(s_phi.y, sin_phi))
-  push!(__eqs, connect(c_phi.y, cos_phi))
-  push!(__eqs, connect(p_qwqy.y, the_arg.u1))
-  push!(__eqs, connect(p_qzqx.y, the_arg.u2))
-  push!(__eqs, connect(the_arg.y, the_clamp.u))
-  push!(__eqs, connect(the_clamp.y, asin_the.u))
-  push!(__eqs, connect(asin_the.y, theta_to_deg.u))
-  push!(__eqs, connect(theta_to_deg.y, theta_deg))
-  push!(__eqs, connect(asin_the.y, c_the.u))
-  push!(__eqs, connect(c_the.y, cos_theta))
-  push!(__eqs, connect(p_qwqz.y, psi_num.u1))
-  push!(__eqs, connect(p_qxqy.y, psi_num.u2))
-  push!(__eqs, connect(one_psi.y, psi_den.u1))
-  push!(__eqs, connect(p_qy2.y, psi_den.u2))
-  push!(__eqs, connect(p_qz2.y, psi_den.u3))
-  push!(__eqs, connect(psi_num.y, atan_psi.u1))
-  push!(__eqs, connect(psi_den.y, atan_psi.u2))
-  push!(__eqs, connect(atan_psi.y, psi_to_deg.u))
-  push!(__eqs, connect(psi_to_deg.y, psi_deg))
+  push!(__eqs, connect(rot.b1, aero.u))
+  push!(__eqs, connect(rot.b2, aero.v))
+  push!(__eqs, connect(rot.b3, aero.w))
+  push!(__eqs, connect(aero.v_scalar, v_scalar))
+  push!(__eqs, connect(aero.alpha_deg, alpha_deg))
+  push!(__eqs, connect(aero.beta_deg, beta_deg))
+  push!(__eqs, connect(aero.sin_alpha, sin_alpha))
+  push!(__eqs, connect(aero.cos_alpha, cos_alpha))
+  push!(__eqs, connect(euler.phi_deg, phi_deg))
+  push!(__eqs, connect(euler.theta_deg, theta_deg))
+  push!(__eqs, connect(euler.psi_deg, psi_deg))
+  push!(__eqs, connect(euler.sin_phi, sin_phi))
+  push!(__eqs, connect(euler.cos_phi, cos_phi))
+  push!(__eqs, connect(euler.cos_theta, cos_theta))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

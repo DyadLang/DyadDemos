@@ -9,6 +9,11 @@ if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "shared",
 end
 
 
+include("AeroAirData_experiment.jl")
+include("AeroCLCD_experiment.jl")
+include("AeroCYCN_experiment.jl")
+include("AeroLateralCoeffs_experiment.jl")
+include("AeroLongitudinal_experiment.jl")
 include("CubicPoly_experiment.jl")
 include("HL20Aero_experiment.jl")
 include("HL20CD_experiment.jl")

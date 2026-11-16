@@ -7,15 +7,16 @@
 @doc Markdown.doc"""
    HL20FullSystem(; name, DETRIM0, __overrides)
 
-Closed-loop HL-20: the vehicle plant, the four SAS control laws and the
-control-surface mixer wired together. Pilot stick/pedal/speedbrake commands
-are the inputs; the vehicle feedback signals close the loop.
+HL20 full-system demo: four SAS controllers driving the HL20Mixer surface
+mixer, which drives the HL20Vehicle flight-dynamics model. Vehicle feedback
+signals return to the controllers; primary channels also tee to diagram
+outputs.
 
 ## Parameters:
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `DETRIM0`         |                          | --  |   5.5 |
+| `DETRIM0`         |                          | --  |   -5.3535 |
 
 ## Connectors
 
@@ -24,16 +25,16 @@ are the inputs; the vehicle feedback signals close the loop.
  * `DPPILOT` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `DLSBCOM` - This connector represents a real signal as an input to a component ([`RealInput`](@ref))
  * `DECMD` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `DACMD` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `DRCMD` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `DSBCMD` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `ALPHA_DEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `QDEG` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
- * `DLE` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `NZ` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `ALT_FT` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `DACMD` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `DRCMD` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `DLE` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
+ * `DSBCMD` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function HL20FullSystem(; name = nothing, var"DETRIM0"=5.5, __overrides = Dict{String, Any}())
+@component function HL20FullSystem(; name = nothing, var"DETRIM0"=-5.3535, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -79,14 +80,14 @@ are the inputs; the vehicle feedback signals close the loop.
   append!(__vars, @variables (DPPILOT(t)::Real), [input = true])
   append!(__vars, @variables (DLSBCOM(t)::Real), [input = true])
   append!(__vars, @variables (DECMD(t)::Real), [output = true])
-  append!(__vars, @variables (DACMD(t)::Real), [output = true])
-  append!(__vars, @variables (DRCMD(t)::Real), [output = true])
-  append!(__vars, @variables (DSBCMD(t)::Real), [output = true])
   append!(__vars, @variables (ALPHA_DEG(t)::Real), [output = true])
   append!(__vars, @variables (QDEG(t)::Real), [output = true])
-  append!(__vars, @variables (DLE(t)::Real), [output = true])
   append!(__vars, @variables (NZ(t)::Real), [output = true])
   append!(__vars, @variables (ALT_FT(t)::Real), [output = true])
+  append!(__vars, @variables (DACMD(t)::Real), [output = true])
+  append!(__vars, @variables (DRCMD(t)::Real), [output = true])
+  append!(__vars, @variables (DLE(t)::Real), [output = true])
+  append!(__vars, @variables (DSBCMD(t)::Real), [output = true])
 
   ### Variables (declarations)
 
@@ -96,24 +97,24 @@ are the inputs; the vehicle feedback signals close the loop.
   __constants = Any[]
 
   ### Components
-  # Subcomponent vehicle of type HL20Demo.HL20Vehicle
-  vehicle_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle")
-  push!(__systems, @named vehicle = HL20Demo.HL20Vehicle(; __overrides = vehicle_overrides))
-  # Subcomponent pitch_ctrl of type HL20Demo.PitchControl
-  pitch_ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "pitch_ctrl")
-  push!(__systems, @named pitch_ctrl = HL20Demo.PitchControl(; DETRIM0=DETRIM0, __overrides = pitch_ctrl_overrides))
-  # Subcomponent roll_ctrl of type HL20Demo.RollControl
-  roll_ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "roll_ctrl")
-  push!(__systems, @named roll_ctrl = HL20Demo.RollControl(; __overrides = roll_ctrl_overrides))
-  # Subcomponent yaw_ctrl of type HL20Demo.YawControl
-  yaw_ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "yaw_ctrl")
-  push!(__systems, @named yaw_ctrl = HL20Demo.YawControl(; __overrides = yaw_ctrl_overrides))
-  # Subcomponent speed_ctrl of type HL20Demo.SpeedControl
-  speed_ctrl_overrides = __pop_subcomponent_overrides!(__overrides, "speed_ctrl")
-  push!(__systems, @named speed_ctrl = HL20Demo.SpeedControl(; __overrides = speed_ctrl_overrides))
+  # Subcomponent pitch of type HL20Demo.PitchControl
+  pitch_overrides = __pop_subcomponent_overrides!(__overrides, "pitch")
+  push!(__systems, @named pitch = HL20Demo.PitchControl(; DETRIM0=DETRIM0, __overrides = pitch_overrides))
+  # Subcomponent roll of type HL20Demo.RollControl
+  roll_overrides = __pop_subcomponent_overrides!(__overrides, "roll")
+  push!(__systems, @named roll = HL20Demo.RollControl(; __overrides = roll_overrides))
+  # Subcomponent yaw of type HL20Demo.YawControl
+  yaw_overrides = __pop_subcomponent_overrides!(__overrides, "yaw")
+  push!(__systems, @named yaw = HL20Demo.YawControl(; __overrides = yaw_overrides))
+  # Subcomponent speed of type HL20Demo.SpeedControl
+  speed_overrides = __pop_subcomponent_overrides!(__overrides, "speed")
+  push!(__systems, @named speed = HL20Demo.SpeedControl(; __overrides = speed_overrides))
   # Subcomponent mixer of type HL20Demo.HL20Mixer
   mixer_overrides = __pop_subcomponent_overrides!(__overrides, "mixer")
   push!(__systems, @named mixer = HL20Demo.HL20Mixer(; __overrides = mixer_overrides))
+  # Subcomponent vehicle of type HL20Demo.HL20Vehicle
+  vehicle_overrides = __pop_subcomponent_overrides!(__overrides, "vehicle")
+  push!(__systems, @named vehicle = HL20Demo.HL20Vehicle(; __overrides = vehicle_overrides))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
@@ -126,43 +127,34 @@ are the inputs; the vehicle feedback signals close the loop.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(DCPILOT, pitch_ctrl.DCPILOT))
-  push!(__eqs, connect(vehicle.QDEG, pitch_ctrl.QDEG))
-  push!(__eqs, connect(vehicle.RDEG, pitch_ctrl.RDEG))
-  push!(__eqs, connect(vehicle.NZ, pitch_ctrl.NZ))
-  push!(__eqs, connect(vehicle.SINPHI, pitch_ctrl.SINPHI))
-  push!(__eqs, connect(vehicle.COSPHI, pitch_ctrl.COSPHI))
-  push!(__eqs, connect(vehicle.COSTHE, pitch_ctrl.COSTHE))
-  push!(__eqs, connect(mixer.DLEDEG, pitch_ctrl.DLEDEG))
-  push!(__eqs, connect(vehicle.QBAR, pitch_ctrl.QBAR))
-  push!(__eqs, connect(vehicle.MACH_out, pitch_ctrl.MACH))
-  push!(__eqs, connect(vehicle.V_FPS, pitch_ctrl.VTOTALI))
-  push!(__eqs, connect(DWPILOT, roll_ctrl.DWPILOT))
-  push!(__eqs, connect(vehicle.PDEG, roll_ctrl.PDEG))
-  push!(__eqs, connect(DPPILOT, yaw_ctrl.DPPILOT))
-  push!(__eqs, connect(vehicle.RDEG, yaw_ctrl.RDEG))
-  push!(__eqs, connect(roll_ctrl.DACMD, yaw_ctrl.DACMD))
-  push!(__eqs, connect(vehicle.MACH_out, yaw_ctrl.MACH))
-  push!(__eqs, connect(DLSBCOM, speed_ctrl.DLSBCOM))
-  push!(__eqs, connect(pitch_ctrl.DECMD, mixer.DECMD))
-  push!(__eqs, connect(roll_ctrl.DACMD, mixer.DACMD))
-  push!(__eqs, connect(yaw_ctrl.DRCMD, mixer.DRCMD))
-  push!(__eqs, connect(speed_ctrl.DSBCMD, mixer.DSBCMD))
+  push!(__eqs, connect(DCPILOT, pitch.DCPILOT))
+  push!(__eqs, connect(DWPILOT, roll.DWPILOT))
+  push!(__eqs, connect(DPPILOT, yaw.DPPILOT))
+  push!(__eqs, connect(DLSBCOM, speed.DLSBCOM))
+  push!(__eqs, connect(pitch.DECMD, DECMD, mixer.DECMD))
+  push!(__eqs, connect(roll.DACMD, DACMD, yaw.DACMD, mixer.DACMD))
+  push!(__eqs, connect(yaw.DRCMD, DRCMD, mixer.DRCMD))
+  push!(__eqs, connect(speed.DSBCMD, DSBCMD, mixer.DSBCMD))
   push!(__eqs, connect(mixer.DUL, vehicle.DBFUL))
   push!(__eqs, connect(mixer.DUR, vehicle.DBFUR))
   push!(__eqs, connect(mixer.DLL, vehicle.DBFLL))
   push!(__eqs, connect(mixer.DLR, vehicle.DBFLR))
-  push!(__eqs, connect(mixer.DLE, vehicle.DWFL))
-  push!(__eqs, connect(mixer.DRE, vehicle.DWFR))
   push!(__eqs, connect(mixer.DR, vehicle.DRUD))
-  push!(__eqs, connect(pitch_ctrl.DECMD, DECMD))
-  push!(__eqs, connect(roll_ctrl.DACMD, DACMD))
-  push!(__eqs, connect(yaw_ctrl.DRCMD, DRCMD))
-  push!(__eqs, connect(speed_ctrl.DSBCMD, DSBCMD))
-  push!(__eqs, connect(vehicle.ALPHA_DEG, ALPHA_DEG))
-  push!(__eqs, connect(vehicle.QDEG, QDEG))
+  push!(__eqs, connect(mixer.DRE, vehicle.DWFR))
+  push!(__eqs, connect(mixer.DLE, vehicle.DWFL))
+  push!(__eqs, connect(mixer.DLEDEG, pitch.DLEDEG))
   push!(__eqs, connect(mixer.DLE, DLE))
-  push!(__eqs, connect(vehicle.NZ, NZ))
+  push!(__eqs, connect(vehicle.MACH_out, pitch.MACH, yaw.MACH))
+  push!(__eqs, connect(vehicle.PDEG, roll.PDEG))
+  push!(__eqs, connect(vehicle.RDEG, pitch.RDEG, yaw.RDEG))
+  push!(__eqs, connect(vehicle.SINPHI, pitch.SINPHI))
+  push!(__eqs, connect(vehicle.COSPHI, pitch.COSPHI))
+  push!(__eqs, connect(vehicle.COSTHE, pitch.COSTHE))
+  push!(__eqs, connect(vehicle.QBAR, pitch.QBAR))
+  push!(__eqs, connect(vehicle.V_FPS, pitch.VTOTALI))
+  push!(__eqs, connect(vehicle.QDEG, QDEG, pitch.QDEG))
+  push!(__eqs, connect(vehicle.NZ, NZ, pitch.NZ))
+  push!(__eqs, connect(vehicle.ALPHA_DEG, ALPHA_DEG))
   push!(__eqs, connect(vehicle.ALT_FT, ALT_FT))
 
   # Return completely constructed System
