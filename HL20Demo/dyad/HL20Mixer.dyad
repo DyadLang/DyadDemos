@@ -6,102 +6,18 @@ the elevator assist, then drives each of the seven surfaces through a
 first-order actuator, slew-rate limiter and position limiter.
 """
 component HL20Mixer
-  DECMD = RealInput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1600, "y2": 1700}
-      }
-    }
-  }
-  DACMD = RealInput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
-        "diagram": {"x1": -50, "x2": 50, "y1": 850, "y2": 950}
-      }
-    }
-  }
-  DRCMD = RealInput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
-        "diagram": {"x1": -50, "x2": 50, "y1": 2850, "y2": 2950}
-      }
-    }
-  }
-  DSBCMD = RealInput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1200, "y2": 1300}
-      }
-    }
-  }
-  DLE = RealOutput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 100},
-        "diagram": {"x1": 5350, "x2": 5450, "y1": 5050, "y2": 5150}
-      }
-    }
-  }
-  DRE = RealOutput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": 950, "y1": 100, "x2": 1050, "y2": 200},
-        "diagram": {"x1": 5350, "x2": 5450, "y1": 5550, "y2": 5650}
-      }
-    }
-  }
-  DUL = RealOutput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
-        "diagram": {"x1": 5350, "x2": 5450, "y1": 2250, "y2": 2350}
-      }
-    }
-  }
-  DUR = RealOutput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": 950, "y1": 300, "x2": 1050, "y2": 400},
-        "diagram": {"x1": 5350, "x2": 5450, "y1": 3150, "y2": 3250}
-      }
-    }
-  }
-  DLL = RealOutput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500},
-        "diagram": {"x1": 5350, "x2": 5450, "y1": 1150, "y2": 1250}
-      }
-    }
-  }
-  DLR = RealOutput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": 950, "y1": 500, "x2": 1050, "y2": 600},
-        "diagram": {"x1": 5350, "x2": 5450, "y1": 4350, "y2": 4450}
-      }
-    }
-  }
-  DR = RealOutput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700},
-        "diagram": {"x1": 5350, "x2": 5450, "y1": 450, "y2": 550}
-      }
-    }
-  }
-  DLEDEG = RealOutput() {
-    "Dyad": {
-      "placement": {
-        "icon": {"x1": 950, "y1": 800, "x2": 1050, "y2": 900},
-        "diagram": {"x1": 5350, "x2": 5450, "y1": 4850, "y2": 4950}
-      }
-    }
-  }
+  DECMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200}, "diagram": {"x1": -50, "x2": 50, "y1": 1750, "y2": 1850}}}}
+  DACMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400}, "diagram": {"x1": -50, "x2": 50, "y1": 400, "y2": 500}}}}
+  DRCMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"x1": -50, "x2": 50, "y1": 150, "y2": 250}}}}
+  DSBCMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"x1": -50, "x2": 50, "y1": 1320, "y2": 1420}}}}
+  DLE = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 100}, "diagram": {"x1": 3950, "x2": 4050, "y1": 2550, "y2": 2650}}}}
+  DRE = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 100, "x2": 1050, "y2": 200}, "diagram": {"x1": 3950, "x2": 4050, "y1": 2850, "y2": 2950}}}}
+  DUL = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}, "diagram": {"x1": 3950, "x2": 4050, "y1": 650, "y2": 750}}}}
+  DUR = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 300, "x2": 1050, "y2": 400}, "diagram": {"x1": 3950, "x2": 4050, "y1": 950, "y2": 1050}}}}
+  DLL = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500}, "diagram": {"x1": 3950, "x2": 4050, "y1": 1250, "y2": 1350}}}}
+  DLR = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 500, "x2": 1050, "y2": 600}, "diagram": {"x1": 3950, "x2": 4050, "y1": 1550, "y2": 1650}}}}
+  DR = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700}, "diagram": {"x1": 3950, "x2": 4050, "y1": 150, "y2": 250}}}}
+  DLEDEG = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 800, "x2": 1050, "y2": 900}, "diagram": {"x1": 3950, "x2": 4050, "y1": 2700, "y2": 2800}}}}
   parameter DBFMAX::Real = 60.0
   parameter DLE0::Real = 5.5
   parameter DRE0::Real = 5.5
@@ -110,817 +26,111 @@ component HL20Mixer
   parameter DLL0::Real = 16.42
   parameter DLR0::Real = 16.42
   parameter DR0::Real = 0.0
-  dec_l = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 1600, "y2": 1700}}}
-  }
-  dac_l = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 850, "y2": 950}}}
-  }
-  drc_l = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 2850, "y2": 2950}}}
-  }
-  dac_abs = BlockComponents.Math.Abs() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 1100, "y2": 1200}}}
-  }
-  dbfmax = BlockComponents.Sources.Constant(k = DBFMAX) {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 1350, "y2": 1450}}}
-  }
-  sbauth = BlockComponents.Math.Add(k2 = -1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1100, "y2": 1200}}}
-  }
-  dsb_l = AdjustableUpperLimit(u_min = 0.001) {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 1200, "y2": 1300}}}
-  }
-  sb_low = BlockComponents.Math.Gain(k = -0.333) {
-    "Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 950, "y2": 1050}}}
-  }
-  sb_hi1 = BlockComponents.Math.Gain(k = -1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 700, "y2": 800}}}
-  }
-  sb_hi2 = BlockComponents.Sources.Constant(k = 10.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 450, "y2": 550}}}
-  }
-  sb_hi = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 1800, "x2": 1900, "y1": 700, "y2": 800}}}
-  }
-  sb_sel = Switch(threshold = 15.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 2050, "x2": 2150, "y1": 950, "y2": 1050}}}
-  }
-  dul_lim = BlockComponents.Nonlinear.Limiter(y_min = -100.0, y_max = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 200, "y2": 300}}}
-  }
-  dll_lim = BlockComponents.Nonlinear.Limiter(y_min = 0.0, y_max = 100.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 1600, "y2": 1700}}}
-  }
-  dur_neg = BlockComponents.Math.Gain(k = -1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 1850, "y2": 1950}}}
-  }
-  dur_lim = BlockComponents.Nonlinear.Limiter(y_min = -100.0, y_max = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1400, "y2": 1500}}}
-  }
-  dlr_lim = BlockComponents.Nonlinear.Limiter(y_min = 0.0, y_max = 100.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1850, "y2": 1950}}}
-  }
-  duf_p15 = BlockComponents.Sources.Constant(k = 15.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 700, "y2": 800}}}
-  }
-  duf_sum = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 650, "y2": 750}}}
-  }
-  duf_sel = Switch(threshold = -15.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 850, "y2": 950}}}
-  }
-  duf_zero = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 450, "y2": 550}}}
-  }
-  dlf_m15 = BlockComponents.Sources.Constant(k = -15.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 2300, "y2": 2400}}}
-  }
-  dlf_sum = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 2300, "y2": 2400}}}
-  }
-  dlf_sel = Switch(threshold = 15.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 2100, "y2": 2200}}}
-  }
-  dlf_zero = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 2550, "y2": 2650}}}
-  }
-  dulc = BlockComponents.Math.Add3() {
-    "Dyad": {"placement": {"diagram": {"x1": 2300, "x2": 2400, "y1": 700, "y2": 800}}}
-  }
-  durc = BlockComponents.Math.Add3() {
-    "Dyad": {"placement": {"diagram": {"x1": 2300, "x2": 2400, "y1": 1150, "y2": 1250}}}
-  }
-  dllc = BlockComponents.Math.Add3() {
-    "Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 1800, "y2": 1900}}}
-  }
-  dlrc = BlockComponents.Math.Add3() {
-    "Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 2050, "y2": 2150}}}
-  }
-  le_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 2750, "y2": 2850}}}
-  }
-  re_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 3000, "y2": 3100}}}
-  }
-  ul_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 2550, "x2": 2650, "y1": 1100, "y2": 1200}}}
-  }
-  ur_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 2550, "x2": 2650, "y1": 1500, "y2": 1600}}}
-  }
-  ll_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1800, "x2": 1900, "y1": 1750, "y2": 1850}}}
-  }
-  lr_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1800, "x2": 1900, "y1": 2000, "y2": 2100}}}
-  }
-  dr_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 3250, "y2": 3350}}}
-  }
-  le_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 2450, "y2": 2550}}}
-  }
-  re_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 2700, "y2": 2800}}}
-  }
-  ul_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {
-    "Dyad": {"placement": {"diagram": {"x1": 2800, "x2": 2900, "y1": 1300, "y2": 1400}}}
-  }
-  ur_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {
-    "Dyad": {"placement": {"diagram": {"x1": 2800, "x2": 2900, "y1": 1600, "y2": 1700}}}
-  }
-  ll_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {
-    "Dyad": {"placement": {"diagram": {"x1": 2050, "x2": 2150, "y1": 1700, "y2": 1800}}}
-  }
-  lr_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {
-    "Dyad": {"placement": {"diagram": {"x1": 2050, "x2": 2150, "y1": 2050, "y2": 2150}}}
-  }
-  dr_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 2950, "y2": 3050}}}
-  }
-  le_lim = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 2650, "y2": 2750}}}
-  }
-  re_lim = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 2900, "y2": 3000}}}
-  }
-  ul_lim = BlockComponents.Nonlinear.Limiter(y_min = -60.0, y_max = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 3050, "x2": 3150, "y1": 1850, "y2": 1950}}}
-  }
-  ur_lim = BlockComponents.Nonlinear.Limiter(y_min = -60.0, y_max = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 3050, "x2": 3150, "y1": 2100, "y2": 2200}}}
-  }
-  ll_lim = BlockComponents.Nonlinear.Limiter(y_min = 0.0, y_max = 60.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 2300, "x2": 2400, "y1": 1550, "y2": 1650}}}
-  }
-  lr_lim = BlockComponents.Nonlinear.Limiter(y_min = 0.0, y_max = 60.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 2300, "x2": 2400, "y1": 1900, "y2": 2000}}}
-  }
-  dr_lim = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 3150, "y2": 3250}}}
-  }
+  dec_l = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {"Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 1750, "y2": 1850}}}}
+  dac_l = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {"Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 400, "y2": 500}}}}
+  drc_l = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {"Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 150, "y2": 250}}}}
+  dac_abs = BlockComponents.Math.Abs() {"Dyad": {"placement": {"diagram": {"x1": 1200, "x2": 1300, "y1": 300, "y2": 400}}}}
+  dbfmax = BlockComponents.Sources.Constant(k = DBFMAX) {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1250, "y2": 1350}}}}
+  sbauth = BlockComponents.Math.Add(k2 = -1.0) {"Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 1100, "y2": 1200}}}}
+  dsb_l = AdjustableUpperLimit(u_min = 0.001) {"Dyad": {"placement": {"diagram": {"x1": 2050, "x2": 2150, "y1": 1350, "y2": 1450}}}}
+  sb_low = BlockComponents.Math.Gain(k = -0.333) {"Dyad": {"placement": {"diagram": {"x1": 2300, "x2": 2400, "y1": 400, "y2": 500}}}}
+  sb_hi1 = BlockComponents.Math.Gain(k = -1.0) {"Dyad": {"placement": {"diagram": {"x1": 2300, "x2": 2400, "y1": 600, "y2": 700}}}}
+  sb_hi2 = BlockComponents.Sources.Constant(k = 10.0) {"Dyad": {"placement": {"diagram": {"x1": 2300, "x2": 2400, "y1": 240, "y2": 340}}}}
+  sb_hi = BlockComponents.Math.Add() {"Dyad": {"placement": {"diagram": {"x1": 2700, "x2": 2800, "y1": 400, "y2": 500}}}}
+  sb_sel = Switch(threshold = 15.0) {"Dyad": {"placement": {"diagram": {"x1": 2400, "x2": 2500, "y1": 780, "y2": 880}}}}
+  dul_lim = BlockComponents.Nonlinear.Limiter(y_min = -100.0, y_max = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 550, "y2": 650}}}}
+  dll_lim = BlockComponents.Nonlinear.Limiter(y_min = 0.0, y_max = 100.0) {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1050, "y2": 1150}}}}
+  dur_neg = BlockComponents.Math.Gain(k = -1.0) {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 800, "y2": 900}}}}
+  dur_lim = BlockComponents.Nonlinear.Limiter(y_min = -100.0, y_max = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 600, "y2": 700}}}}
+  dlr_lim = BlockComponents.Nonlinear.Limiter(y_min = 0.0, y_max = 100.0) {"Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 1270, "y2": 1370}}}}
+  duf_p15 = BlockComponents.Sources.Constant(k = 15.0) {"Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1900, "y2": 2000}}}}
+  duf_sum = BlockComponents.Math.Add() {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1900, "y2": 2000}}}}
+  duf_sel = Switch(threshold = -15.0) {"Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 1800, "y2": 1900}}}}
+  duf_zero = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1500, "y2": 1600}}}}
+  dlf_m15 = BlockComponents.Sources.Constant(k = -15.0) {"Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2200, "y2": 2300}}}}
+  dlf_sum = BlockComponents.Math.Add() {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 2030, "y2": 2130}}}}
+  dlf_sel = Switch(threshold = 15.0) {"Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 2130, "y2": 2230}}}}
+  dlf_zero = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 2260, "y2": 2360}}}}
+  dulc = BlockComponents.Math.Add3() {"Dyad": {"placement": {"diagram": {"x1": 2600, "x2": 2700, "y1": 650, "y2": 750}}}}
+  durc = BlockComponents.Math.Add3() {"Dyad": {"placement": {"diagram": {"x1": 2600, "x2": 2700, "y1": 950, "y2": 1050}}}}
+  dllc = BlockComponents.Math.Add3() {"Dyad": {"placement": {"diagram": {"x1": 2600, "x2": 2700, "y1": 1250, "y2": 1350}}}}
+  dlrc = BlockComponents.Math.Add3() {"Dyad": {"placement": {"diagram": {"x1": 2600, "x2": 2700, "y1": 1550, "y2": 1650}}}}
+  le_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 2550, "y2": 2650}}}}
+  re_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 2850, "y2": 2950}}}}
+  ul_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 650, "y2": 750}}}}
+  ur_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 950, "y2": 1050}}}}
+  ll_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 1250, "y2": 1350}}}}
+  lr_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 1550, "y2": 1650}}}}
+  dr_fo = BlockComponents.Continuous.FirstOrder(T = 0.05, k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 150, "y2": 250}}}}
+  le_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {"Dyad": {"placement": {"diagram": {"x1": 3300, "x2": 3400, "y1": 2550, "y2": 2650}}}}
+  re_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {"Dyad": {"placement": {"diagram": {"x1": 3300, "x2": 3400, "y1": 2850, "y2": 2950}}}}
+  ul_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {"Dyad": {"placement": {"diagram": {"x1": 3300, "x2": 3400, "y1": 650, "y2": 750}}}}
+  ur_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {"Dyad": {"placement": {"diagram": {"x1": 3300, "x2": 3400, "y1": 950, "y2": 1050}}}}
+  ll_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {"Dyad": {"placement": {"diagram": {"x1": 3300, "x2": 3400, "y1": 1250, "y2": 1350}}}}
+  lr_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {"Dyad": {"placement": {"diagram": {"x1": 3300, "x2": 3400, "y1": 1550, "y2": 1650}}}}
+  dr_sr = BlockComponents.Nonlinear.SlewRateLimiter(rising = 20.0, falling = -20.0, td = 0.01) {"Dyad": {"placement": {"diagram": {"x1": 3300, "x2": 3400, "y1": 150, "y2": 250}}}}
+  le_lim = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {"Dyad": {"placement": {"diagram": {"x1": 3650, "x2": 3750, "y1": 2550, "y2": 2650}}}}
+  re_lim = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {"Dyad": {"placement": {"diagram": {"x1": 3650, "x2": 3750, "y1": 2850, "y2": 2950}}}}
+  ul_lim = BlockComponents.Nonlinear.Limiter(y_min = -60.0, y_max = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 3650, "x2": 3750, "y1": 650, "y2": 750}}}}
+  ur_lim = BlockComponents.Nonlinear.Limiter(y_min = -60.0, y_max = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 3650, "x2": 3750, "y1": 950, "y2": 1050}}}}
+  ll_lim = BlockComponents.Nonlinear.Limiter(y_min = 0.0, y_max = 60.0) {"Dyad": {"placement": {"diagram": {"x1": 3650, "x2": 3750, "y1": 1250, "y2": 1350}}}}
+  lr_lim = BlockComponents.Nonlinear.Limiter(y_min = 0.0, y_max = 60.0) {"Dyad": {"placement": {"diagram": {"x1": 3650, "x2": 3750, "y1": 1550, "y2": 1650}}}}
+  dr_lim = BlockComponents.Nonlinear.Limiter(y_min = -30.0, y_max = 30.0) {"Dyad": {"placement": {"diagram": {"x1": 3650, "x2": 3750, "y1": 150, "y2": 250}}}}
 relations
-  connect(DECMD, dec_l.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(DACMD, dac_l.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(DRCMD, drc_l.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(dac_l.y, dac_abs.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 775, "y": 900}, {"x": 775, "y": 1150}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dbfmax.y, sbauth.u1) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1000, "y": 1400},
-            {"x": 1000, "y": 1125},
-            {"x": 1025, "y": 1125},
-            {"x": 1025, "y": 1120}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dac_abs.y, sbauth.u2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1025, "y": 1150}, {"x": 1025, "y": 1180}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(DSBCMD, dsb_l.u1) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 975, "y": 1250},
-            {"x": 975, "y": 1050},
-            {"x": 1275, "y": 1050},
-            {"x": 1275, "y": 1220}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(sbauth.y, dsb_l.u2) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1250, "y": 1150},
-            {"x": 1250, "y": 1275},
-            {"x": 1275, "y": 1275},
-            {"x": 1275, "y": 1280}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dsb_l.y, sb_low.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1525, "y": 1250}, {"x": 1525, "y": 1000}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dsb_l.y, sb_hi1.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1475, "y": 1250}, {"x": 1475, "y": 750}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(sb_hi1.y, sb_hi.u1) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1775, "y": 750}, {"x": 1775, "y": 720}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(sb_hi2.y, sb_hi.u2) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1675, "y": 500},
-            {"x": 1675, "y": 650},
-            {"x": 1500, "y": 650},
-            {"x": 1500, "y": 850},
-            {"x": 1775, "y": 850},
-            {"x": 1775, "y": 780}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dsb_l.y, sb_sel.u_sel) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1500, "y": 1250},
-            {"x": 1500, "y": 900},
-            {"x": 2000, "y": 900},
-            {"x": 2000, "y": 975},
-            {"x": 2025, "y": 975},
-            {"x": 2025, "y": 1000}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(sb_hi.y, sb_sel.u_a) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2025, "y": 750}, {"x": 2025, "y": 960}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(sb_low.y, sb_sel.u_b) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1700, "y": 1000}, {"x": 1700, "y": 1040}, {"x": 2025, "y": 1040}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dac_l.y, dul_lim.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 750, "y": 900}, {"x": 750, "y": 250}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dac_l.y, dll_lim.u) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 750, "y": 900},
-            {"x": 750, "y": 1625},
-            {"x": 775, "y": 1625},
-            {"x": 775, "y": 1650}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dac_l.y, dur_neg.u) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 750, "y": 900},
-            {"x": 750, "y": 1625},
-            {"x": 775, "y": 1625},
-            {"x": 775, "y": 1900}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dur_neg.y, dur_lim.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1000, "y": 1900}, {"x": 1000, "y": 1450}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dur_neg.y, dlr_lim.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(dec_l.y, duf_sum.u1) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 725, "y": 1650},
-            {"x": 725, "y": 675},
-            {"x": 775, "y": 675},
-            {"x": 775, "y": 670}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(duf_p15.y, duf_sum.u2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 775, "y": 750}, {"x": 775, "y": 730}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dec_l.y, duf_sel.u_sel) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 725, "y": 1650},
-            {"x": 725, "y": 925},
-            {"x": 975, "y": 925},
-            {"x": 975, "y": 900}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(duf_zero.y, duf_sel.u_a) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1025, "y": 500}, {"x": 1025, "y": 860}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(duf_sum.y, duf_sel.u_b) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1000, "y": 700},
-            {"x": 1000, "y": 925},
-            {"x": 1025, "y": 925},
-            {"x": 1025, "y": 940}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dec_l.y, dlf_sum.u1) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 750, "y": 1650},
-            {"x": 750, "y": 2300},
-            {"x": 775, "y": 2300},
-            {"x": 775, "y": 2320}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dlf_m15.y, dlf_sum.u2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 775, "y": 2350}, {"x": 775, "y": 2380}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dec_l.y, dlf_sel.u_sel) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 750, "y": 1650}, {"x": 750, "y": 2150}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dlf_sum.y, dlf_sel.u_a) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1000, "y": 2350},
-            {"x": 1000, "y": 2125},
-            {"x": 1025, "y": 2125},
-            {"x": 1025, "y": 2110}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dlf_zero.y, dlf_sel.u_b) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 975, "y": 2600},
-            {"x": 975, "y": 2375},
-            {"x": 1025, "y": 2375},
-            {"x": 1025, "y": 2190}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dul_lim.y, dulc.u1) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2275, "y": 250}, {"x": 2275, "y": 720}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(sb_sel.y, dulc.u2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2250, "y": 1000}, {"x": 2250, "y": 750}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(duf_sel.y, dulc.u3) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1450, "y": 900},
-            {"x": 1450, "y": 400},
-            {"x": 2225, "y": 400},
-            {"x": 2225, "y": 800},
-            {"x": 2275, "y": 800},
-            {"x": 2275, "y": 780}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dur_lim.y, durc.u1) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 2225, "y": 1450},
-            {"x": 2225, "y": 1175},
-            {"x": 2275, "y": 1175},
-            {"x": 2275, "y": 1170}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(sb_sel.y, durc.u2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2250, "y": 1000}, {"x": 2250, "y": 1200}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(duf_sel.y, durc.u3) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1450, "y": 900},
-            {"x": 1450, "y": 400},
-            {"x": 2200, "y": 400},
-            {"x": 2200, "y": 1225},
-            {"x": 2275, "y": 1225},
-            {"x": 2275, "y": 1230}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dll_lim.y, dllc.u1) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1525, "y": 1650}, {"x": 1525, "y": 1820}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dsb_l.y, dllc.u2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1500, "y": 1250}, {"x": 1500, "y": 1850}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dlf_sel.y, dllc.u3) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1475, "y": 2150},
-            {"x": 1475, "y": 1925},
-            {"x": 1525, "y": 1925},
-            {"x": 1525, "y": 1880}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dlr_lim.y, dlrc.u1) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1500, "y": 1900},
-            {"x": 1500, "y": 2050},
-            {"x": 1525, "y": 2050},
-            {"x": 1525, "y": 2070}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dsb_l.y, dlrc.u2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1450, "y": 1250}, {"x": 1450, "y": 2100}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dlf_sel.y, dlrc.u3) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1525, "y": 2150}, {"x": 1525, "y": 2130}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dec_l.y, le_fo.u) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 675, "y": 1650},
-            {"x": 675, "y": 2250},
-            {"x": 250, "y": 2250},
-            {"x": 250, "y": 2800}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(le_fo.y, le_sr.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1000, "y": 2800}, {"x": 1000, "y": 2500}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(le_sr.y, le_lim.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1275, "y": 2500}, {"x": 1275, "y": 2700}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(le_lim.y, DLE) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2950, "y": 2700}, {"x": 2950, "y": 5100}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(le_lim.y, DLEDEG) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2950, "y": 2700}, {"x": 2950, "y": 4900}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dec_l.y, re_fo.u) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 675, "y": 1650},
-            {"x": 675, "y": 2250},
-            {"x": 250, "y": 2250},
-            {"x": 250, "y": 2800},
-            {"x": 775, "y": 2800},
-            {"x": 775, "y": 3050}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(re_fo.y, re_sr.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1025, "y": 3050}, {"x": 1025, "y": 2750}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(re_sr.y, re_lim.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1250, "y": 2750}, {"x": 1250, "y": 2950}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(re_lim.y, DRE) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2925, "y": 2950}, {"x": 2925, "y": 5600}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dulc.y, ul_fo.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2525, "y": 750}, {"x": 2525, "y": 1150}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(ul_fo.y, ul_sr.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2775, "y": 1150}, {"x": 2775, "y": 1350}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(ul_sr.y, ul_lim.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 3025, "y": 1350}, {"x": 3025, "y": 1900}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(ul_lim.y, DUL) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 5175, "y": 1900}, {"x": 5175, "y": 2300}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(durc.y, ur_fo.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2500, "y": 1200}, {"x": 2500, "y": 1550}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(ur_fo.y, ur_sr.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2775, "y": 1550}, {"x": 2775, "y": 1650}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(ur_sr.y, ur_lim.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 3000, "y": 1650}, {"x": 3000, "y": 2150}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(ur_lim.y, DUR) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 5150, "y": 2150}, {"x": 5150, "y": 3200}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dllc.y, ll_fo.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1775, "y": 1850}, {"x": 1775, "y": 1800}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(ll_fo.y, ll_sr.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2025, "y": 1800}, {"x": 2025, "y": 1750}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(ll_sr.y, ll_lim.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2275, "y": 1750}, {"x": 2275, "y": 1600}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(ll_lim.y, DLL) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 2475, "y": 1600},
-            {"x": 2475, "y": 1250},
-            {"x": 5175, "y": 1250},
-            {"x": 5175, "y": 1200}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dlrc.y, lr_fo.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1775, "y": 2100}, {"x": 1775, "y": 2050}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(lr_fo.y, lr_sr.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2025, "y": 2050}, {"x": 2025, "y": 2100}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(lr_sr.y, lr_lim.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2275, "y": 2100}, {"x": 2275, "y": 1950}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(lr_lim.y, DLR) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2975, "y": 1950}, {"x": 2975, "y": 4400}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(drc_l.y, dr_fo.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 725, "y": 2900}, {"x": 725, "y": 3300}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dr_fo.y, dr_sr.u) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 925, "y": 3300},
-            {"x": 925, "y": 3150},
-            {"x": 750, "y": 3150},
-            {"x": 750, "y": 2950},
-            {"x": 1000, "y": 2950},
-            {"x": 1000, "y": 3000}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(dr_sr.y, dr_lim.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1250, "y": 3000}, {"x": 1250, "y": 3200}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(dr_lim.y, DR) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 5125, "y": 3200}, {"x": 5125, "y": 500}], "E": 2}],
-      "path": {}
-    }
-  }
+  connect(DECMD, dec_l.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 550, "y": 1800}], "E": 2}], "path": {}} }
+  connect(DACMD, dac_l.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 550, "y": 450}], "E": 2}], "path": {}} }
+  connect(DRCMD, drc_l.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 550, "y": 200}], "E": 2}], "path": {}} }
+    connect(dac_l.y, dac_abs.u, dul_lim.u, dur_neg.u, dll_lim.u) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 750, "y": 450}], "E": -1}, {"S": -1, "M": [{"x": 1200, "y": 350}], "E": 2}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [{"x": 1050, "y": 600}], "E": 3}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [{"x": 750, "y": 850}, {"x": 1050, "y": 850}], "E": 4}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [{"x": 1050, "y": 1100}], "E": 5}], "path": {}, "junctions": [{"x": 750, "y": 350}, {"x": 750, "y": 600}, {"x": 750, "y": 900}, {"x": 750, "y": 1100}]}}
+  connect(dbfmax.y, sbauth.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1350, "y": 1300}, {"x": 1350, "y": 1120}, {"x": 1550, "y": 1120}], "E": 2}], "path": {}} }
+  connect(dac_abs.y, sbauth.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 350}, {"x": 1500, "y": 1180}, {"x": 1550, "y": 1180}], "E": 2}], "path": {}} }
+  connect(DSBCMD, dsb_l.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2050, "y": 1370}], "E": 2}], "path": {}} }
+  connect(sbauth.y, dsb_l.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2000, "y": 1150}, {"x": 2000, "y": 1430}, {"x": 2050, "y": 1430}], "E": 2}], "path": {}} }
+    connect(dsb_l.y, sb_low.u, sb_hi1.u, sb_sel.u_sel, dllc.u2, dlrc.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2220, "y": 1400}], "E": -4}, {"S": -4, "M": [{"x": 2600, "y": 1300}], "E": 5}, {"S": -4, "M": [], "E": -5}, {"S": -5, "M": [{"x": 2600, "y": 1600}], "E": 6}, {"S": -4, "M": [], "E": -3}, {"S": -3, "M": [{"x": 2400, "y": 830}], "E": 4}, {"S": -3, "M": [], "E": -2}, {"S": -2, "M": [{"x": 2300, "y": 650}], "E": 3}, {"S": -2, "M": [], "E": -1}, {"S": -1, "M": [{"x": 2300, "y": 450}], "E": 2}], "path": {}, "junctions": [{"x": 2220, "y": 450}, {"x": 2220, "y": 650}, {"x": 2220, "y": 830}, {"x": 2220, "y": 1300}, {"x": 2220, "y": 1600}]}}
+    connect(sb_hi1.y, sb_hi.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2640, "y": 650}, {"x": 2640, "y": 420}, {"x": 2700, "y": 420}], "E": 2}], "path": {}} }
+  connect(sb_hi2.y, sb_hi.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2520, "y": 290}, {"x": 2520, "y": 480}, {"x": 2700, "y": 480}], "E": 2}], "path": {}} }
+    connect(sb_hi.y, sb_sel.u_a) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2850, "y": 450}, {"x": 2850, "y": 380}, {"x": 2450, "y": 380}, {"x": 2450, "y": 770}, {"x": 2390, "y": 770}, {"x": 2390, "y": 790}, {"x": 2400, "y": 790}], "E": 2}], "path": {}} }
+  connect(sb_low.y, sb_sel.u_b) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2430, "y": 450}, {"x": 2430, "y": 750}, {"x": 2360, "y": 750}, {"x": 2360, "y": 870}, {"x": 2400, "y": 870}], "E": 2}], "path": {}} }
+          connect(dur_neg.y, dur_lim.u, dlr_lim.u) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1200, "y": 850}], "E": -1}, {"S": -1, "M": [{"x": 1200, "y": 650}, {"x": 1550, "y": 650}], "E": 2}, {"S": -1, "M": [{"x": 1380, "y": 850}, {"x": 1380, "y": 1320}, {"x": 1550, "y": 1320}], "E": 3}], "path": {}, "junctions": [{"x": 1200, "y": 850}]}}
+      connect(duf_p15.y, duf_sum.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 540, "y": 1950}, {"x": 540, "y": 1980}, {"x": 1050, "y": 1980}], "E": 2}], "path": {}} }
+    connect(dec_l.y, duf_sel.u_sel, duf_sum.u1, dlf_sum.u1, dlf_sel.u_sel, le_fo.u, re_fo.u) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 750, "y": 1800}], "E": -1}, {"S": -1, "M": [{"x": 1550, "y": 1850}], "E": 2}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [{"x": 1050, "y": 1920}], "E": 3}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [{"x": 1050, "y": 2050}], "E": 4}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [{"x": 1550, "y": 2180}], "E": 5}, {"S": -4, "M": [], "E": -5}, {"S": -5, "M": [{"x": 2950, "y": 2600}], "E": 6}, {"S": -5, "M": [], "E": -6}, {"S": -6, "M": [{"x": 2950, "y": 2900}], "E": 7}], "path": {}, "junctions": [{"x": 750, "y": 1850}, {"x": 750, "y": 1920}, {"x": 750, "y": 2050}, {"x": 750, "y": 2180}, {"x": 750, "y": 2600}, {"x": 750, "y": 2900}]}}
+  connect(duf_zero.y, duf_sel.u_a) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1400, "y": 1550}, {"x": 1400, "y": 1810}, {"x": 1550, "y": 1810}], "E": 2}], "path": {}} }
+  connect(duf_sum.y, duf_sel.u_b) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 1950}, {"x": 1500, "y": 1890}, {"x": 1550, "y": 1890}], "E": 2}], "path": {}} }
+    connect(dlf_m15.y, dlf_sum.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 560, "y": 2250}, {"x": 560, "y": 2110}, {"x": 1050, "y": 2110}], "E": 2}], "path": {}} }
+    connect(dlf_sum.y, dlf_sel.u_a) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 2080}, {"x": 1500, "y": 2140}, {"x": 1550, "y": 2140}], "E": 2}], "path": {}} }
+  connect(dlf_zero.y, dlf_sel.u_b) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 2310}, {"x": 1500, "y": 2220}, {"x": 1550, "y": 2220}], "E": 2}], "path": {}} }
+  connect(dul_lim.y, dulc.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1190, "y": 600}, {"x": 1190, "y": 520}, {"x": 2560, "y": 520}, {"x": 2560, "y": 670}, {"x": 2600, "y": 670}], "E": 2}], "path": {}} }
+    connect(sb_sel.y, dulc.u2, durc.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2590, "y": 830}], "E": -1}, {"S": -1, "M": [{"x": 2590, "y": 700}, {"x": 2600, "y": 700}], "E": 2}, {"S": -1, "M": [{"x": 2590, "y": 1000}, {"x": 2600, "y": 1000}], "E": 3}], "path": {}, "junctions": [{"x": 2590, "y": 830}]}}
+    connect(duf_sel.y, dulc.u3, durc.u3) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2180, "y": 1850}, {"x": 2180, "y": 1030}, {"x": 2510, "y": 1030}], "E": -2}, {"S": -2, "M": [{"x": 2600, "y": 1030}], "E": 3}, {"S": -2, "M": [], "E": -1}, {"S": -1, "M": [{"x": 2600, "y": 730}], "E": 2}], "path": {}, "junctions": [{"x": 2510, "y": 730}, {"x": 2510, "y": 1030}]}}
+  connect(dur_lim.y, durc.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1800, "y": 650}, {"x": 1800, "y": 1010}, {"x": 2570, "y": 1010}, {"x": 2570, "y": 970}, {"x": 2600, "y": 970}], "E": 2}], "path": {}} }
+      connect(dll_lim.y, dllc.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1210, "y": 1100}, {"x": 1210, "y": 1080}, {"x": 2210, "y": 1080}, {"x": 2210, "y": 1270}, {"x": 2600, "y": 1270}], "E": 2}], "path": {}} }
+      connect(dlf_sel.y, dllc.u3, dlrc.u3) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2360, "y": 2180}], "E": -2}, {"S": -2, "M": [{"x": 2600, "y": 1630}], "E": 3}, {"S": -2, "M": [], "E": -1}, {"S": -1, "M": [{"x": 2600, "y": 1330}], "E": 2}], "path": {}, "junctions": [{"x": 2360, "y": 1330}, {"x": 2360, "y": 1630}]}}
+  connect(dlr_lim.y, dlrc.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2480, "y": 1320}, {"x": 2480, "y": 1570}, {"x": 2600, "y": 1570}], "E": 2}], "path": {}} }
+        connect(le_fo.y, le_sr.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3300, "y": 2600}], "E": 2}], "path": {}} }
+  connect(le_sr.y, le_lim.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3650, "y": 2600}], "E": 2}], "path": {}} }
+    connect(le_lim.y, DLE, DLEDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 3850, "y": 2600}], "E": -1}, {"S": -1, "M": [{"x": 4000, "y": 2600}], "E": 2}, {"S": -1, "M": [{"x": 3850, "y": 2750}, {"x": 4000, "y": 2750}], "E": 3}], "path": {}, "junctions": [{"x": 3850, "y": 2600}]}}
+      connect(re_fo.y, re_sr.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3300, "y": 2900}], "E": 2}], "path": {}} }
+  connect(re_sr.y, re_lim.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3650, "y": 2900}], "E": 2}], "path": {}} }
+  connect(re_lim.y, DRE) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 4000, "y": 2900}], "E": 2}], "path": {}} }
+  connect(dulc.y, ul_fo.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2950, "y": 700}], "E": 2}], "path": {}} }
+  connect(ul_fo.y, ul_sr.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3300, "y": 700}], "E": 2}], "path": {}} }
+  connect(ul_sr.y, ul_lim.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3650, "y": 700}], "E": 2}], "path": {}} }
+  connect(ul_lim.y, DUL) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 4000, "y": 700}], "E": 2}], "path": {}} }
+  connect(durc.y, ur_fo.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2950, "y": 1000}], "E": 2}], "path": {}} }
+  connect(ur_fo.y, ur_sr.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3300, "y": 1000}], "E": 2}], "path": {}} }
+  connect(ur_sr.y, ur_lim.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3650, "y": 1000}], "E": 2}], "path": {}} }
+  connect(ur_lim.y, DUR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 4000, "y": 1000}], "E": 2}], "path": {}} }
+  connect(dllc.y, ll_fo.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2950, "y": 1300}], "E": 2}], "path": {}} }
+  connect(ll_fo.y, ll_sr.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3300, "y": 1300}], "E": 2}], "path": {}} }
+  connect(ll_sr.y, ll_lim.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3650, "y": 1300}], "E": 2}], "path": {}} }
+  connect(ll_lim.y, DLL) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 4000, "y": 1300}], "E": 2}], "path": {}} }
+  connect(dlrc.y, lr_fo.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2950, "y": 1600}], "E": 2}], "path": {}} }
+  connect(lr_fo.y, lr_sr.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3300, "y": 1600}], "E": 2}], "path": {}} }
+  connect(lr_sr.y, lr_lim.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3650, "y": 1600}], "E": 2}], "path": {}} }
+  connect(lr_lim.y, DLR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 4000, "y": 1600}], "E": 2}], "path": {}} }
+  connect(drc_l.y, dr_fo.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2950, "y": 200}], "E": 2}], "path": {}} }
+  connect(dr_fo.y, dr_sr.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3300, "y": 200}], "E": 2}], "path": {}} }
+  connect(dr_sr.y, dr_lim.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3650, "y": 200}], "E": 2}], "path": {}} }
+  connect(dr_lim.y, DR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 4000, "y": 200}], "E": 2}], "path": {}} }
   initial le_fo.x = DLE0
   initial re_fo.x = DRE0
   initial ul_fo.x = DUL0
