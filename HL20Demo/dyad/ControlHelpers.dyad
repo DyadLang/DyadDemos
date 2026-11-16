@@ -5,7 +5,7 @@ component Switch
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550},
-        "diagram": {"x1": -50, "x2": 50, "y1": 200, "y2": 300}
+        "diagram": {"x1": -50, "x2": 50, "y1": 250, "y2": 350}
       }
     }
   }
@@ -14,7 +14,7 @@ component Switch
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 50, "x2": 50, "y2": 150},
-        "diagram": {"x1": -50, "x2": 50, "y1": 150, "y2": 250}
+        "diagram": {"x1": -50, "x2": 50, "y1": 100, "y2": 200}
       }
     }
   }
@@ -23,7 +23,7 @@ component Switch
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 850, "x2": 50, "y2": 950},
-        "diagram": {"x1": -50, "x2": 50, "y1": 250, "y2": 350}
+        "diagram": {"x1": -50, "x2": 50, "y1": 400, "y2": 500}
       }
     }
   }
@@ -32,7 +32,7 @@ component Switch
     "Dyad": {
       "placement": {
         "icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550},
-        "diagram": {"x1": 950, "x2": 1050, "y1": 200, "y2": 300}
+        "diagram": {"x1": 950, "x2": 1050, "y1": 250, "y2": 350}
       }
     }
   }

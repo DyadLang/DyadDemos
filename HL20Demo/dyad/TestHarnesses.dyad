@@ -1,103 +1,60 @@
 "RigidBody6DOF alone in gravity-only freefall (spec scenario 1)."
 test component TestGravityOnly
   body = RigidBody6DOF(mass = 1000.0, Jxx = 100.0, Jyy = 200.0, Jzz = 300.0, g = 9.81, p3_0 = -1000.0, v1_0 = 100.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 575, "y1": 850, "y2": 950}}}
+    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 675, "y1": 525, "y2": 1275}}}
   }
   z1 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 200, "y2": 300}}}
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 500, "y2": 600}}}
   }
   z2 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 450, "y2": 550}}}
+    "Dyad": {"placement": {"diagram": {"x1": 325, "x2": 425, "y1": 600, "y2": 700}}}
   }
   z3 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 700, "y2": 800}}}
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 675, "y2": 775}}}
   }
   z4 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 950, "y2": 1050}}}
+    "Dyad": {"placement": {"diagram": {"x1": 325, "x2": 425, "y1": 800, "y2": 900}}}
   }
   z5 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 1200, "y2": 1300}}}
+    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 875, "y2": 975}}}
   }
   z6 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 1450, "y2": 1550}}}
+    "Dyad": {"placement": {"diagram": {"x1": 325, "x2": 425, "y1": 950, "y2": 1050}}}
   }
 relations
   connect(z1.y, body.F1) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [{"x": 462.5, "y": 250}, {"x": 462.5, "y": 855.0000000000001}],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 550}, {"x": 450, "y": 562.5}], "E": 2}],
       "path": {}
     }
   }
   connect(z2.y, body.F2) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 337.5, "y": 500},
-            {"x": 337.5, "y": 675},
-            {"x": 200, "y": 675},
-            {"x": 200, "y": 862.5},
-            {"x": 462.5, "y": 862.5},
-            {"x": 462.5, "y": 865}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 650}, {"x": 450, "y": 637.5}], "E": 2}],
       "path": {}
     }
   }
   connect(z3.y, body.F3) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 450, "y": 750}, {"x": 450, "y": 875}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 725}, {"x": 450, "y": 712.5}], "E": 2}],
       "path": {}
     }
   }
   connect(z4.y, body.T1) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 450, "y": 1000},
-            {"x": 450, "y": 900},
-            {"x": 462.5, "y": 900},
-            {"x": 462.5, "y": 894.9999999999999}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 850}, {"x": 450, "y": 862.5}], "E": 2}],
       "path": {}
     }
   }
   connect(z5.y, body.T2) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 337.5, "y": 1250},
-            {"x": 337.5, "y": 1075},
-            {"x": 200, "y": 1075},
-            {"x": 200, "y": 912.5},
-            {"x": 462.5, "y": 912.5},
-            {"x": 462.5, "y": 905.0000000000001}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 925}, {"x": 450, "y": 937.5}], "E": 2}],
       "path": {}
     }
   }
   connect(z6.y, body.T3) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 462.5, "y": 1500}, {"x": 462.5, "y": 915}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 1000}, {"x": 450, "y": 1012.5}], "E": 2}],
       "path": {}
     }
   }
@@ -136,279 +93,164 @@ end
 test component TestAeroSweep
   aero = HL20Demo.shared.HL20Aero() {
     "Dyad": {
-      "placement": {"diagram": {"x1": 800, "x2": 900, "y1": 1850, "y2": 1950, "rot": 90}}
+      "placement": {"diagram": {"x1": 625, "x2": 1325, "y1": 1000, "y2": 2500}}
     }
   }
   ramp = BlockComponents.Sources.Ramp(height = 35.0, duration = 35.0, offset = -5.0, start_time = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 250, "x2": 350, "y1": 200, "y2": 300, "rot": 90}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1025, "y2": 1125}}
     }
   }
   c_beta = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 500, "x2": 600, "y1": 350, "y2": 450, "rot": 90}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1175, "y2": 1275}}
     }
   }
   c_mach = BlockComponents.Sources.Constant(k = 0.2) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 500, "y2": 600, "rot": 90}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1325, "y2": 1425}}
     }
   }
   c_vrw = BlockComponents.Sources.Constant(k = 223.3) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 750, "y2": 850, "rot": 90}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1475, "y2": 1575}}
     }
   }
   c_hob = BlockComponents.Sources.Constant(k = 100.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 350, "x2": 450, "y1": 1000, "y2": 1100, "rot": 90}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1625, "y2": 1725}}
     }
   }
   c_pb = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1250, "y2": 1350, "rot": 90}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1775, "y2": 1875}}
     }
   }
   c_qb = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1500, "y2": 1600}}}
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1925, "y2": 2025}}}
   }
   c_rb = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1750, "y2": 1850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2075, "y2": 2175}}}
   }
   c_dbful = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 2000, "y2": 2100}}}
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2600, "y2": 2700}}}
   }
   c_dbfur = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 2250, "y2": 2350}}}
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2750, "y2": 2850}}}
   }
   c_dbfll = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2500, "y2": 2600, "rot": 270}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2900, "y2": 3000}}
     }
   }
   c_dbflr = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2750, "y2": 2850, "rot": 270}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3050, "y2": 3150}}
     }
   }
   c_dwfl = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3000, "y2": 3100, "rot": 270}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3200, "y2": 3300}}
     }
   }
   c_dwfr = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3250, "y2": 3350, "rot": 270}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3350, "y2": 3450}}
     }
   }
   c_drud = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3500, "y2": 3600, "rot": 270}}
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3500, "y2": 3600}}
     }
   }
 relations
   connect(ramp.y, aero.alpha_deg) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 300, "y": 350},
-            {"x": 400, "y": 350},
-            {"x": 400, "y": 250},
-            {"x": 850, "y": 250},
-            {"x": 850, "y": 1450},
-            {"x": 894.9999999999999, "y": 1450}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [], "E": 2}],
       "path": {}
     }
   }
   connect(c_beta.y, aero.beta_deg) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 550, "y": 650},
-            {"x": 800, "y": 650},
-            {"x": 800, "y": 1500},
-            {"x": 885, "y": 1500}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [], "E": 2}],
       "path": {}
     }
   }
   connect(c_mach.y, aero.mach) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 250, "y": 700},
-            {"x": 750, "y": 700},
-            {"x": 750, "y": 1550},
-            {"x": 875, "y": 1550}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [], "E": 2}],
       "path": {}
     }
   }
   connect(c_vrw.y, aero.vrw_fps) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 450, "y": 900},
-            {"x": 700, "y": 900},
-            {"x": 700, "y": 1600},
-            {"x": 865, "y": 1600}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [], "E": 2}],
       "path": {}
     }
   }
   connect(c_hob.y, aero.hob) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 400, "y": 1150},
-            {"x": 650, "y": 1150},
-            {"x": 650, "y": 1650},
-            {"x": 855.0000000000001, "y": 1650}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [], "E": 2}],
       "path": {}
     }
   }
   connect(c_pb.y, aero.pb) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 450, "y": 1400},
-            {"x": 600, "y": 1400},
-            {"x": 600, "y": 1700},
-            {"x": 844.9999999999999, "y": 1700}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [], "E": 2}],
       "path": {}
     }
   }
   connect(c_qb.y, aero.qb) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [{"x": 550, "y": 1550}, {"x": 550, "y": 1750}, {"x": 835, "y": 1750}],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [], "E": 2}],
       "path": {}
     }
   }
   connect(c_rb.y, aero.rb) {
-    "Dyad": {"edges": [{"S": 1, "M": [{"x": 825, "y": 1800}], "E": 2}], "path": {}}
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": 2}],
+      "path": {}
+    }
   }
   connect(c_dbful.y, aero.DBFUL) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 450, "y": 2050}, {"x": 450, "y": 1855}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 660, "y": 2650}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dbfur.y, aero.DBFUR) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [{"x": 500, "y": 2300}, {"x": 500, "y": 1864.9999999999998}],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 730, "y": 2800}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dbfll.y, aero.DBFLL) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [{"x": 450, "y": 2450}, {"x": 550, "y": 2450}, {"x": 550, "y": 1875}],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 800, "y": 2950}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dbflr.y, aero.DBFLR) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 450, "y": 2700},
-            {"x": 600, "y": 2700},
-            {"x": 600, "y": 1885.0000000000002}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 870, "y": 3100}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dwfl.y, aero.DWFL) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [{"x": 450, "y": 2950}, {"x": 650, "y": 2950}, {"x": 650, "y": 1895}],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 940, "y": 3250}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dwfr.y, aero.DWFR) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [{"x": 450, "y": 3200}, {"x": 700, "y": 3200}, {"x": 700, "y": 1905}],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 1010, "y": 3400}], "E": 2}],
       "path": {}
     }
   }
   connect(c_drud.y, aero.DRUD) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 450, "y": 3450},
-            {"x": 750, "y": 3450},
-            {"x": 750, "y": 1914.9999999999998}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 1080, "y": 3550}], "E": 2}],
       "path": {}
     }
   }
@@ -531,12 +373,6 @@ metadata {
     "tests": {
       "trim": {
         "stop": 10,
-        "atol": {
-          "vehicle.ALPHA_DEG": 0.005,
-          "vehicle.NZ": 0.01,
-          "vehicle.QBAR": 0.1,
-          "vehicle.POS_3": 0.5
-        },
         "expect": {
           "signals": ["vehicle.ALPHA_DEG", "vehicle.NZ", "vehicle.QBAR", "vehicle.POS_3"]
         }
@@ -870,17 +706,17 @@ relations
       "path": {}
     }
   }
+  # atol kept only on sys.QDEG, sys.DECMD, sys.DLE: reproducible solver
+  # jitter measured at ~1.3-1.7e-4 on these signals (5e-4 gives ~3x margin).
 metadata {
   "Dyad": {
     "tests": {
       "pitchpulse": {
         "stop": 10,
         "atol": {
-          "sys.ALPHA_DEG": 0.005,
-          "sys.QDEG": 0.005,
-          "sys.DECMD": 0.005,
-          "sys.DLE": 0.005,
-          "sys.NZ": 0.01
+          "sys.QDEG": 0.0005,
+          "sys.DECMD": 0.0005,
+          "sys.DLE": 0.0005
         },
         "expect": {"signals": ["sys.ALPHA_DEG", "sys.QDEG", "sys.DECMD", "sys.DLE", "sys.NZ"]}
       }

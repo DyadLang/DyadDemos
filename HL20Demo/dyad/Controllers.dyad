@@ -9,7 +9,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 250, "y2": 350}
+        "diagram": {"x1": -50, "x2": 50, "y1": 600, "y2": 700}
       }
     }
   }
@@ -17,7 +17,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 2200, "y2": 2300}
+        "diagram": {"x1": -50, "x2": 50, "y1": 1800, "y2": 1900}
       }
     }
   }
@@ -25,7 +25,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
-        "diagram": {"x1": -50, "x2": 50, "y1": 2150, "y2": 2250}
+        "diagram": {"x1": -50, "x2": 50, "y1": 1600, "y2": 1700}
       }
     }
   }
@@ -33,7 +33,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
-        "diagram": {"x1": -50, "x2": 50, "y1": 2700, "y2": 2800}
+        "diagram": {"x1": -50, "x2": 50, "y1": 2400, "y2": 2500}
       }
     }
   }
@@ -41,7 +41,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500},
-        "diagram": {"x1": -50, "x2": 50, "y1": 2250, "y2": 2350}
+        "diagram": {"x1": -50, "x2": 50, "y1": 2000, "y2": 2100}
       }
     }
   }
@@ -49,7 +49,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
-        "diagram": {"x1": -50, "x2": 50, "y1": 2450, "y2": 2550}
+        "diagram": {"x1": -50, "x2": 50, "y1": 2200, "y2": 2300}
       }
     }
   }
@@ -57,7 +57,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700},
-        "diagram": {"x1": -50, "x2": 50, "y1": 2650, "y2": 2750}
+        "diagram": {"x1": -50, "x2": 50, "y1": 2600, "y2": 2700}
       }
     }
   }
@@ -65,7 +65,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
-        "diagram": {"x1": -50, "x2": 50, "y1": 3400, "y2": 3500}
+        "diagram": {"x1": -50, "x2": 50, "y1": 3000, "y2": 3100}
       }
     }
   }
@@ -73,7 +73,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": 200, "y1": 950, "x2": 300, "y2": 1050},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1150, "y2": 1250}
+        "diagram": {"x1": -50, "x2": 50, "y1": 1100, "y2": 1200}
       }
     }
   }
@@ -81,7 +81,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": 400, "y1": 950, "x2": 500, "y2": 1050},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1600, "y2": 1700}
+        "diagram": {"x1": -50, "x2": 50, "y1": 1300, "y2": 1400}
       }
     }
   }
@@ -89,7 +89,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": 600, "y1": 950, "x2": 700, "y2": 1050},
-        "diagram": {"x1": -50, "x2": 50, "y1": 3100, "y2": 3200}
+        "diagram": {"x1": -50, "x2": 50, "y1": 2800, "y2": 2900}
       }
     }
   }
@@ -97,7 +97,7 @@ component PitchControl
     "Dyad": {
       "placement": {
         "icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550},
-        "diagram": {"x1": 3950, "x2": 4050, "y1": 2750, "y2": 2850}
+        "diagram": {"x1": 5350, "x2": 5450, "y1": 2800, "y2": 2900}
       }
     }
   }
@@ -117,152 +117,157 @@ component PitchControl
   parameter QDEGF0::Real = 0.0
   parameter GAMDOTF0::Real = 0.0
   abs_c = BlockComponents.Math.Abs() {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 250, "y2": 350}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1700, "x2": 1800, "y1": 250, "y2": 350}}}
   }
   c_quad = BlockComponents.Math.Product() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 650, "y2": 750}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1950, "x2": 2050, "y1": 450, "y2": 550}}}
   }
   c_g1 = BlockComponents.Math.Gain(k = RSQLAW / COLMAX) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 650, "y2": 750}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2200, "x2": 2300, "y1": 300, "y2": 400}}}
   }
   c_lin = BlockComponents.Math.Gain(k = 1.0 - RSQLAW) {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 700, "y2": 800}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1700, "x2": 1800, "y1": 700, "y2": 800}}}
   }
   colshc = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 800, "y2": 900}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2450, "x2": 2550, "y1": 600, "y2": 700}}}
   }
   qeps = BlockComponents.Sources.Constant(k = 0.1) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 1100, "y2": 1200}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1950, "x2": 2050, "y1": 1400, "y2": 1500}}}
   }
   qsum = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 1150, "y2": 1250}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2200, "x2": 2300, "y1": 1400, "y2": 1500}}}
   }
   gq1 = BlockComponents.Sources.Constant(k = GQBAR1) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 850, "y2": 950}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2200, "x2": 2300, "y1": 1650, "y2": 1750}}}
   }
   gdiv = BlockComponents.Math.Division() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 1300, "y2": 1400}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2450, "x2": 2550, "y1": 1850, "y2": 1950}}}
   }
   gqbar = BlockComponents.Nonlinear.Limiter(y_min = 0.2, y_max = 2.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1300, "y2": 1400}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "x2": 2800, "y1": 1950, "y2": 2050}}}
   }
   g5 = BlockComponents.Math.Gain(k = 5.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 1600, "y2": 1700}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2200, "x2": 2300, "y1": 1900, "y2": 2000}}}
   }
   gm4 = BlockComponents.Sources.Constant(k = -4.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 1500, "y2": 1600}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2200, "x2": 2300, "y1": 2150, "y2": 2250}}}
   }
   gsum = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 1600, "y2": 1700}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2450, "x2": 2550, "y1": 2100, "y2": 2200}}}
   }
   gmach = BlockComponents.Nonlinear.Limiter(y_min = 1.0, y_max = 6.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1600, "y2": 1700}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "x2": 2800, "y1": 2200, "y2": 2300}}}
   }
   gq = BlockComponents.Math.Product() {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 1650, "y2": 1750}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 2150, "y2": 2250}}}
   }
   ceps = BlockComponents.Sources.Constant(k = 1e-6) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 2350, "y2": 2450}}}
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2050, "y2": 2150}}}
   }
   csum = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 2450, "y2": 2550}}}
+    "Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 1950, "y2": 2050}}}
   }
   tdiv = BlockComponents.Math.Division() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 2250, "y2": 2350}}}
+    "Dyad": {"placement": {"diagram": {"x1": 950, "x2": 1050, "y1": 1700, "y2": 1800}}}
   }
   tanphil = BlockComponents.Nonlinear.Limiter(y_min = -1.0, y_max = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 2250, "y2": 2350}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1200, "x2": 1300, "y1": 1700, "y2": 1800}}}
   }
   rt = BlockComponents.Math.Product() {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 2200, "y2": 2300}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1450, "x2": 1550, "y1": 1650, "y2": 1750}}}
   }
   qcoord = BlockComponents.Math.Add(k2 = -1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 2200, "y2": 2300}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1700, "x2": 1800, "y1": 1600, "y2": 1700}}}
   }
   q_fb = BlockComponents.Math.Feedback() {
-    "Dyad": {"placement": {"diagram": {"x1": 1800, "x2": 1900, "y1": 2100, "y2": 2200}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1950, "x2": 2050, "y1": 950, "y2": 1050}}}
   }
   q_rate = BlockComponents.Math.Gain(k = 1.0 / FQBT) {
-    "Dyad": {"placement": {"diagram": {"x1": 2050, "x2": 2150, "y1": 1950, "y2": 2050}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2200, "x2": 2300, "y1": 750, "y2": 850}}}
   }
   int_qdegf = BlockComponents.Continuous.Integrator(x0 = QDEGF0) {
-    "Dyad": {"placement": {"diagram": {"x1": 2300, "x2": 2400, "y1": 2050, "y2": 2150}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2450, "x2": 2550, "y1": 1150, "y2": 1250}}}
   }
   qfil = BlockComponents.Math.Add(k1 = FQBA / FQBT, k2 = FQBB - FQBA / FQBT) {
-    "Dyad": {"placement": {"diagram": {"x1": 2550, "x2": 2650, "y1": 2200, "y2": 2300}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "x2": 2800, "y1": 1700, "y2": 1800}}}
   }
   gdc = BlockComponents.Math.Gain(k = GDQDC) {
-    "Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 800, "y2": 900}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "x2": 2800, "y1": 600, "y2": 700}}}
   }
   q_err = BlockComponents.Math.Add(k2 = -1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 2800, "x2": 2900, "y1": 1500, "y2": 1600}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 1900, "y2": 2000}}}
   }
   deq = BlockComponents.Math.Product() {
-    "Dyad": {"placement": {"diagram": {"x1": 3050, "x2": 3150, "y1": 1550, "y2": 1650}}}
+    "Dyad": {"placement": {"diagram": {"x1": 3200, "x2": 3300, "y1": 2000, "y2": 2100}}}
   }
   nzdiv = BlockComponents.Math.Division() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 2700, "y2": 2800}}}
+    "Dyad": {"placement": {"diagram": {"x1": 950, "x2": 1050, "y1": 2450, "y2": 2550}}}
   }
   coordnz = BlockComponents.Nonlinear.Limiter(y_min = 0.90, y_max = 1.41) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 2700, "y2": 2800}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1200, "x2": 1300, "y1": 2450, "y2": 2550}}}
   }
   nz_err = BlockComponents.Math.Add(k2 = -1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 2700, "y2": 2800}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1450, "x2": 1550, "y1": 2400, "y2": 2500}}}
   }
   g1843 = BlockComponents.Math.Gain(k = 1843.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 2700, "y2": 2800}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1700, "x2": 1800, "y1": 2400, "y2": 2500}}}
   }
   veps = BlockComponents.Sources.Constant(k = 0.1) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 3050, "y2": 3150}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1450, "x2": 1550, "y1": 2700, "y2": 2800}}}
   }
   vsum = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 3100, "y2": 3200}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1700, "x2": 1800, "y1": 2800, "y2": 2900}}}
   }
   gamdot = BlockComponents.Math.Division() {
-    "Dyad": {"placement": {"diagram": {"x1": 1800, "x2": 1900, "y1": 2750, "y2": 2850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1950, "x2": 2050, "y1": 2800, "y2": 2900}}}
   }
   g_fb = BlockComponents.Math.Feedback() {
-    "Dyad": {"placement": {"diagram": {"x1": 2050, "x2": 2150, "y1": 2600, "y2": 2700}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2200, "x2": 2300, "y1": 2650, "y2": 2750}}}
   }
   g_rate = BlockComponents.Math.Gain(k = 1.0 / FNZT) {
-    "Dyad": {"placement": {"diagram": {"x1": 2300, "x2": 2400, "y1": 2500, "y2": 2600}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2450, "x2": 2550, "y1": 2550, "y2": 2650}}}
   }
   int_gamdotf = BlockComponents.Continuous.Integrator(x0 = GAMDOTF0) {
-    "Dyad": {"placement": {"diagram": {"x1": 2550, "x2": 2650, "y1": 2600, "y2": 2700}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2700, "x2": 2800, "y1": 2650, "y2": 2750}}}
   }
   gfil = BlockComponents.Math.Add(k1 = FNZA / FNZT, k2 = FNZB - FNZA / FNZT) {
-    "Dyad": {"placement": {"diagram": {"x1": 2800, "x2": 2900, "y1": 2750, "y2": 2850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 2800, "y2": 2900}}}
   }
   degc_p = BlockComponents.Math.Product() {
-    "Dyad": {"placement": {"diagram": {"x1": 3050, "x2": 3150, "y1": 2750, "y2": 2850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 3200, "x2": 3300, "y1": 2750, "y2": 2850}}}
   }
   degc = BlockComponents.Math.Gain(k = -GDEGCM) {
-    "Dyad": {"placement": {"diagram": {"x1": 3300, "x2": 3400, "y1": 2750, "y2": 2850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 3450, "x2": 3550, "y1": 2800, "y2": 2900}}}
   }
   t_fb = BlockComponents.Math.Feedback() {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 3400, "y2": 3500}}}
+    "Dyad": {"placement": {"diagram": {"x1": 2950, "x2": 3050, "y1": 3050, "y2": 3150}}}
   }
   t_rate = BlockComponents.Math.Gain(k = 1.0 / FATT) {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 3400, "y2": 3500}}}
+    "Dyad": {"placement": {"diagram": {"x1": 3200, "x2": 3300, "y1": 3000, "y2": 3100}}}
   }
   int_detrim = BlockComponents.Continuous.Integrator(x0 = DETRIM0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 3400, "y2": 3500}}}
+    "Dyad": {"placement": {"diagram": {"x1": 3450, "x2": 3550, "y1": 3050, "y2": 3150}}}
   }
   decmd = BlockComponents.Math.Add3() {
-    "Dyad": {"placement": {"diagram": {"x1": 3550, "x2": 3650, "y1": 2750, "y2": 2850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 3700, "x2": 3800, "y1": 2800, "y2": 2900}}}
   }
 relations
-  connect(DCPILOT, abs_c.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(DCPILOT, abs_c.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1675, "y": 650}, {"x": 1675, "y": 300}], "E": 2}],
+      "path": {}
+    }
+  }
   connect(DCPILOT, c_quad.u1) {
     "Dyad": {
       "edges": [
         {
           "S": 1,
           "M": [
-            {"x": 500, "y": 300},
-            {"x": 500, "y": 200},
-            {"x": 775, "y": 200},
-            {"x": 775, "y": 670}
+            {"x": 1650, "y": 650},
+            {"x": 1650, "y": 200},
+            {"x": 1925, "y": 200},
+            {"x": 1925, "y": 470}
           ],
           "E": 2
         }
@@ -276,10 +281,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 750, "y": 300},
-            {"x": 750, "y": 725},
-            {"x": 775, "y": 725},
-            {"x": 775, "y": 730}
+            {"x": 1900, "y": 300},
+            {"x": 1900, "y": 525},
+            {"x": 1925, "y": 525},
+            {"x": 1925, "y": 530}
           ],
           "E": 2
         }
@@ -287,10 +292,15 @@ relations
       "path": {}
     }
   }
-  connect(c_quad.y, c_g1.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(c_quad.y, c_g1.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2175, "y": 500}, {"x": 2175, "y": 350}], "E": 2}],
+      "path": {}
+    }
+  }
   connect(DCPILOT, c_lin.u) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 500, "y": 300}, {"x": 500, "y": 750}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1675, "y": 650}, {"x": 1675, "y": 750}], "E": 2}],
       "path": {}
     }
   }
@@ -300,10 +310,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 750, "y": 750},
-            {"x": 750, "y": 800},
-            {"x": 1275, "y": 800},
-            {"x": 1275, "y": 819.9999999999999}
+            {"x": 2150, "y": 750},
+            {"x": 2150, "y": 625},
+            {"x": 2425, "y": 625},
+            {"x": 2425, "y": 620}
           ],
           "E": 2
         }
@@ -317,10 +327,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 1250, "y": 700},
-            {"x": 1250, "y": 875},
-            {"x": 1275, "y": 875},
-            {"x": 1275, "y": 880.0000000000001}
+            {"x": 2400, "y": 350},
+            {"x": 2400, "y": 675},
+            {"x": 2425, "y": 675},
+            {"x": 2425, "y": 680}
           ],
           "E": 2
         }
@@ -334,10 +344,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 250, "y": 1200},
-            {"x": 250, "y": 1050},
-            {"x": 525, "y": 1050},
-            {"x": 525, "y": 1170}
+            {"x": 1875, "y": 1150},
+            {"x": 1875, "y": 1375},
+            {"x": 2175, "y": 1375},
+            {"x": 2175, "y": 1420}
           ],
           "E": 2
         }
@@ -347,24 +357,13 @@ relations
   }
   connect(qeps.y, qsum.u2) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 500, "y": 1150},
-            {"x": 500, "y": 1225},
-            {"x": 525, "y": 1225},
-            {"x": 525, "y": 1230}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 2175, "y": 1450}, {"x": 2175, "y": 1480}], "E": 2}],
       "path": {}
     }
   }
   connect(gq1.y, gdiv.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 775, "y": 900}, {"x": 775, "y": 1320}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 2425, "y": 1700}, {"x": 2425, "y": 1870}], "E": 2}],
       "path": {}
     }
   }
@@ -374,10 +373,14 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 750, "y": 1200},
-            {"x": 750, "y": 1375},
-            {"x": 775, "y": 1375},
-            {"x": 775, "y": 1380}
+            {"x": 2325, "y": 1450},
+            {"x": 2325, "y": 1600},
+            {"x": 2150, "y": 1600},
+            {"x": 2150, "y": 1850},
+            {"x": 2400, "y": 1850},
+            {"x": 2400, "y": 1925},
+            {"x": 2425, "y": 1925},
+            {"x": 2425, "y": 1930}
           ],
           "E": 2
         }
@@ -385,52 +388,45 @@ relations
       "path": {}
     }
   }
-  connect(gdiv.y, gqbar.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(MACH, g5.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(gdiv.y, gqbar.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2675, "y": 1900}, {"x": 2675, "y": 2000}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(MACH, g5.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1850, "y": 1350}, {"x": 1850, "y": 1950}], "E": 2}],
+      "path": {}
+    }
+  }
   connect(g5.y, gsum.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 775, "y": 1650}, {"x": 775, "y": 1620}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 2425, "y": 1950}, {"x": 2425, "y": 2120}], "E": 2}],
       "path": {}
     }
   }
   connect(gm4.y, gsum.u2) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 750, "y": 1550},
-            {"x": 750, "y": 1675},
-            {"x": 775, "y": 1675},
-            {"x": 775, "y": 1680}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 2425, "y": 2200}, {"x": 2425, "y": 2180}], "E": 2}],
       "path": {}
     }
   }
-  connect(gsum.y, gmach.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(gsum.y, gmach.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2675, "y": 2150}, {"x": 2675, "y": 2250}], "E": 2}],
+      "path": {}
+    }
+  }
   connect(gqbar.y, gq.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1275, "y": 1350}, {"x": 1275, "y": 1670}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 2925, "y": 2000}, {"x": 2925, "y": 2170}], "E": 2}],
       "path": {}
     }
   }
   connect(gmach.y, gq.u2) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 1250, "y": 1650},
-            {"x": 1250, "y": 1725},
-            {"x": 1275, "y": 1725},
-            {"x": 1275, "y": 1730}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 2925, "y": 2250}, {"x": 2925, "y": 2230}], "E": 2}],
       "path": {}
     }
   }
@@ -440,10 +436,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 250, "y": 2500},
-            {"x": 250, "y": 2300},
-            {"x": 525, "y": 2300},
-            {"x": 525, "y": 2470}
+            {"x": 400, "y": 2250},
+            {"x": 400, "y": 1975},
+            {"x": 675, "y": 1975},
+            {"x": 675, "y": 1970}
           ],
           "E": 2
         }
@@ -453,18 +449,7 @@ relations
   }
   connect(ceps.y, csum.u2) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 500, "y": 2400},
-            {"x": 500, "y": 2525},
-            {"x": 525, "y": 2525},
-            {"x": 525, "y": 2530}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 675, "y": 2100}, {"x": 675, "y": 2030}], "E": 2}],
       "path": {}
     }
   }
@@ -474,10 +459,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 225, "y": 2300},
-            {"x": 225, "y": 2275},
-            {"x": 775, "y": 2275},
-            {"x": 775, "y": 2270}
+            {"x": 375, "y": 2050},
+            {"x": 375, "y": 1725},
+            {"x": 925, "y": 1725},
+            {"x": 925, "y": 1720}
           ],
           "E": 2
         }
@@ -487,20 +472,20 @@ relations
   }
   connect(csum.y, tdiv.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 775, "y": 2500}, {"x": 775, "y": 2330}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 925, "y": 2000}, {"x": 925, "y": 1780}], "E": 2}],
       "path": {}
     }
   }
   connect(tdiv.y, tanphil.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(RDEG, rt.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1275, "y": 2200}, {"x": 1275, "y": 2220}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1425, "y": 1650}, {"x": 1425, "y": 1670}], "E": 2}],
       "path": {}
     }
   }
   connect(tanphil.y, rt.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1275, "y": 2300}, {"x": 1275, "y": 2280}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1425, "y": 1750}, {"x": 1425, "y": 1730}], "E": 2}],
       "path": {}
     }
   }
@@ -510,10 +495,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 750, "y": 2250},
-            {"x": 750, "y": 2150},
-            {"x": 1525, "y": 2150},
-            {"x": 1525, "y": 2220}
+            {"x": 350, "y": 1850},
+            {"x": 350, "y": 1625},
+            {"x": 1675, "y": 1625},
+            {"x": 1675, "y": 1620}
           ],
           "E": 2
         }
@@ -523,13 +508,13 @@ relations
   }
   connect(rt.y, qcoord.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1525, "y": 2250}, {"x": 1525, "y": 2280}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1675, "y": 1700}, {"x": 1675, "y": 1680}], "E": 2}],
       "path": {}
     }
   }
   connect(qcoord.y, q_fb.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1775, "y": 2250}, {"x": 1775, "y": 2150}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1900, "y": 1650}, {"x": 1900, "y": 1000}], "E": 2}],
       "path": {}
     }
   }
@@ -538,7 +523,7 @@ relations
       "edges": [
         {
           "S": 1,
-          "M": [{"x": 2425, "y": 2100}, {"x": 2425, "y": 2225}, {"x": 1850, "y": 2225}],
+          "M": [{"x": 2575, "y": 1200}, {"x": 2575, "y": 1275}, {"x": 2000, "y": 1275}],
           "E": 2
         }
       ],
@@ -547,19 +532,30 @@ relations
   }
   connect(q_fb.y, q_rate.u) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2025, "y": 2150}, {"x": 2025, "y": 2000}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 2175, "y": 1000}, {"x": 2175, "y": 800}], "E": 2}],
       "path": {}
     }
   }
   connect(q_rate.y, int_qdegf.u) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2275, "y": 2000}, {"x": 2275, "y": 2100}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 2425, "y": 800}, {"x": 2425, "y": 1200}], "E": 2}],
       "path": {}
     }
   }
   connect(qcoord.y, qfil.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2525, "y": 2250}, {"x": 2525, "y": 2220}], "E": 2}],
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1900, "y": 1650},
+            {"x": 1900, "y": 1350},
+            {"x": 2675, "y": 1350},
+            {"x": 2675, "y": 1720}
+          ],
+          "E": 2
+        }
+      ],
       "path": {}
     }
   }
@@ -569,10 +565,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 2500, "y": 2100},
-            {"x": 2500, "y": 2275},
-            {"x": 2525, "y": 2275},
-            {"x": 2525, "y": 2280}
+            {"x": 2650, "y": 1200},
+            {"x": 2650, "y": 1775},
+            {"x": 2675, "y": 1775},
+            {"x": 2675, "y": 1780}
           ],
           "E": 2
         }
@@ -583,18 +579,7 @@ relations
   connect(colshc.y, gdc.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(qfil.y, q_err.u1) {
     "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 2750, "y": 2250},
-            {"x": 2750, "y": 1525},
-            {"x": 2775, "y": 1525},
-            {"x": 2775, "y": 1520}
-          ],
-          "E": 2
-        }
-      ],
+      "edges": [{"S": 1, "M": [{"x": 2925, "y": 1750}, {"x": 2925, "y": 1920}], "E": 2}],
       "path": {}
     }
   }
@@ -604,10 +589,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 2700, "y": 850},
-            {"x": 2700, "y": 1575},
-            {"x": 2775, "y": 1575},
-            {"x": 2775, "y": 1580}
+            {"x": 2900, "y": 650},
+            {"x": 2900, "y": 1975},
+            {"x": 2925, "y": 1975},
+            {"x": 2925, "y": 1980}
           ],
           "E": 2
         }
@@ -621,10 +606,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 2725, "y": 1700},
-            {"x": 2725, "y": 1450},
-            {"x": 3025, "y": 1450},
-            {"x": 3025, "y": 1570}
+            {"x": 3325, "y": 2200},
+            {"x": 3325, "y": 1975},
+            {"x": 3175, "y": 1975},
+            {"x": 3175, "y": 2020}
           ],
           "E": 2
         }
@@ -638,10 +623,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 3000, "y": 1550},
-            {"x": 3000, "y": 1625},
-            {"x": 3025, "y": 1625},
-            {"x": 3025, "y": 1630}
+            {"x": 3150, "y": 1950},
+            {"x": 3150, "y": 2075},
+            {"x": 3175, "y": 2075},
+            {"x": 3175, "y": 2080}
           ],
           "E": 2
         }
@@ -651,7 +636,18 @@ relations
   }
   connect(COSTHE, nzdiv.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 775, "y": 2700}, {"x": 775, "y": 2720}], "E": 2}],
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 875, "y": 2650},
+            {"x": 875, "y": 2475},
+            {"x": 925, "y": 2475},
+            {"x": 925, "y": 2470}
+          ],
+          "E": 2
+        }
+      ],
       "path": {}
     }
   }
@@ -661,10 +657,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 750, "y": 2500},
-            {"x": 750, "y": 2775},
-            {"x": 775, "y": 2775},
-            {"x": 775, "y": 2780}
+            {"x": 900, "y": 2000},
+            {"x": 900, "y": 2525},
+            {"x": 925, "y": 2525},
+            {"x": 925, "y": 2530}
           ],
           "E": 2
         }
@@ -679,12 +675,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 725, "y": 2750},
-            {"x": 725, "y": 2850},
-            {"x": 1250, "y": 2850},
-            {"x": 1250, "y": 2725},
-            {"x": 1275, "y": 2725},
-            {"x": 1275, "y": 2720}
+            {"x": 875, "y": 2450},
+            {"x": 875, "y": 2400},
+            {"x": 1425, "y": 2400},
+            {"x": 1425, "y": 2420}
           ],
           "E": 2
         }
@@ -694,7 +688,7 @@ relations
   }
   connect(coordnz.y, nz_err.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1275, "y": 2750}, {"x": 1275, "y": 2780}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1425, "y": 2500}, {"x": 1425, "y": 2480}], "E": 2}],
       "path": {}
     }
   }
@@ -705,10 +699,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 250, "y": 3150},
-            {"x": 250, "y": 3000},
-            {"x": 525, "y": 3000},
-            {"x": 525, "y": 3120}
+            {"x": 1400, "y": 2850},
+            {"x": 1400, "y": 2650},
+            {"x": 1675, "y": 2650},
+            {"x": 1675, "y": 2820}
           ],
           "E": 2
         }
@@ -722,10 +716,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 500, "y": 3100},
-            {"x": 500, "y": 3175},
-            {"x": 525, "y": 3175},
-            {"x": 525, "y": 3180}
+            {"x": 1650, "y": 2750},
+            {"x": 1650, "y": 2875},
+            {"x": 1675, "y": 2875},
+            {"x": 1675, "y": 2880}
           ],
           "E": 2
         }
@@ -735,19 +729,19 @@ relations
   }
   connect(g1843.y, gamdot.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1775, "y": 2750}, {"x": 1775, "y": 2770}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1925, "y": 2450}, {"x": 1925, "y": 2820}], "E": 2}],
       "path": {}
     }
   }
   connect(vsum.y, gamdot.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1775, "y": 3150}, {"x": 1775, "y": 2830}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1925, "y": 2850}, {"x": 1925, "y": 2880}], "E": 2}],
       "path": {}
     }
   }
   connect(gamdot.y, g_fb.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2025, "y": 2800}, {"x": 2025, "y": 2650}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 2175, "y": 2850}, {"x": 2175, "y": 2700}], "E": 2}],
       "path": {}
     }
   }
@@ -756,7 +750,7 @@ relations
       "edges": [
         {
           "S": 1,
-          "M": [{"x": 2675, "y": 2650}, {"x": 2675, "y": 2725}, {"x": 2100, "y": 2725}],
+          "M": [{"x": 2825, "y": 2700}, {"x": 2825, "y": 2775}, {"x": 2250, "y": 2775}],
           "E": 2
         }
       ],
@@ -765,19 +759,19 @@ relations
   }
   connect(g_fb.y, g_rate.u) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2275, "y": 2650}, {"x": 2275, "y": 2550}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 2425, "y": 2700}, {"x": 2425, "y": 2600}], "E": 2}],
       "path": {}
     }
   }
   connect(g_rate.y, int_gamdotf.u) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2525, "y": 2550}, {"x": 2525, "y": 2650}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 2675, "y": 2600}, {"x": 2675, "y": 2700}], "E": 2}],
       "path": {}
     }
   }
   connect(gamdot.y, gfil.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2775, "y": 2800}, {"x": 2775, "y": 2770}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 2925, "y": 2850}, {"x": 2925, "y": 2820}], "E": 2}],
       "path": {}
     }
   }
@@ -787,10 +781,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 2750, "y": 2650},
-            {"x": 2750, "y": 2825},
-            {"x": 2775, "y": 2825},
-            {"x": 2775, "y": 2830}
+            {"x": 2900, "y": 2700},
+            {"x": 2900, "y": 2875},
+            {"x": 2925, "y": 2875},
+            {"x": 2925, "y": 2880}
           ],
           "E": 2
         }
@@ -800,42 +794,62 @@ relations
   }
   connect(gq.y, degc_p.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 3025, "y": 1700}, {"x": 3025, "y": 2770}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 3175, "y": 2200}, {"x": 3175, "y": 2770}], "E": 2}],
       "path": {}
     }
   }
   connect(gfil.y, degc_p.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 3025, "y": 2800}, {"x": 3025, "y": 2830}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 3175, "y": 2850}, {"x": 3175, "y": 2830}], "E": 2}],
       "path": {}
     }
   }
-  connect(degc_p.y, degc.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(DLEDEG, t_fb.u1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(degc_p.y, degc.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3425, "y": 2800}, {"x": 3425, "y": 2850}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(DLEDEG, t_fb.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2925, "y": 3050}, {"x": 2925, "y": 3100}], "E": 2}],
+      "path": {}
+    }
+  }
   connect(int_detrim.y, t_fb.u2) {
     "Dyad": {
       "edges": [
         {
           "S": 1,
-          "M": [{"x": 1175, "y": 3450}, {"x": 1175, "y": 3550}, {"x": 600, "y": 3550}],
+          "M": [{"x": 3575, "y": 3100}, {"x": 3575, "y": 3175}, {"x": 3000, "y": 3175}],
           "E": 2
         }
       ],
       "path": {}
     }
   }
-  connect(t_fb.y, t_rate.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(t_rate.y, int_detrim.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(t_fb.y, t_rate.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3175, "y": 3100}, {"x": 3175, "y": 3050}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(t_rate.y, int_detrim.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3425, "y": 3050}, {"x": 3425, "y": 3100}], "E": 2}],
+      "path": {}
+    }
+  }
   connect(deq.y, decmd.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 3525, "y": 1600}, {"x": 3525, "y": 2770}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 3675, "y": 2050}, {"x": 3675, "y": 2820}], "E": 2}],
       "path": {}
     }
   }
   connect(degc.y, decmd.u2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(int_detrim.y, decmd.u3) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 3525, "y": 3450}, {"x": 3525, "y": 2830}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 3675, "y": 3100}, {"x": 3675, "y": 2880}], "E": 2}],
       "path": {}
     }
   }
@@ -894,7 +908,7 @@ relations
   connect(DWPILOT, gl.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(DWPILOT, gr.u) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 200, "y": 250}, {"x": 200, "y": 500}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 275, "y": 250}, {"x": 275, "y": 500}], "E": 2}],
       "path": {}
     }
   }
@@ -904,10 +918,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 200, "y": 250},
-            {"x": 200, "y": 650},
-            {"x": 450, "y": 650},
-            {"x": 450, "y": 550}
+            {"x": 275, "y": 250},
+            {"x": 275, "y": 575},
+            {"x": 537.5, "y": 575},
+            {"x": 537.5, "y": 550}
           ],
           "E": 2
         }
@@ -920,7 +934,7 @@ relations
       "edges": [
         {
           "S": 1,
-          "M": [{"x": 500, "y": 500}, {"x": 500, "y": 509.99999999999994}],
+          "M": [{"x": 537.5, "y": 500}, {"x": 537.5, "y": 509.99999999999994}],
           "E": 2
         }
       ],
@@ -933,12 +947,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 450, "y": 250},
-            {"x": 450, "y": 350},
-            {"x": 250, "y": 350},
-            {"x": 250, "y": 600},
-            {"x": 500, "y": 600},
-            {"x": 500, "y": 590}
+            {"x": 525, "y": 250},
+            {"x": 525, "y": 587.5},
+            {"x": 537.5, "y": 587.5},
+            {"x": 537.5, "y": 590}
           ],
           "E": 2
         }
@@ -949,7 +961,7 @@ relations
   connect(PDEG, dap.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(sel.y, sum.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 750, "y": 550}, {"x": 750, "y": 770}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 787.5, "y": 550}, {"x": 787.5, "y": 770}], "E": 2}],
       "path": {}
     }
   }
@@ -958,7 +970,7 @@ relations
       "edges": [
         {
           "S": 1,
-          "M": [{"x": 750, "y": 950}, {"x": 750, "y": 830.0000000000001}],
+          "M": [{"x": 787.5, "y": 950}, {"x": 787.5, "y": 830.0000000000001}],
           "E": 2
         }
       ],
@@ -979,33 +991,39 @@ component YawControl
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 200, "y2": 300}
+        "diagram": {"x1": -50, "x2": 50, "y1": 1050, "y2": 1150}
       }
     }
   }
   RDEG = RealInput() {
     "Dyad": {
-      "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 300, "x2": 50, "y2": 400}}
+      "placement": {
+        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
+        "diagram": {"x1": -50, "x2": 50, "y1": 625, "y2": 675}
+      }
     }
   }
   DACMD = RealInput() {
     "Dyad": {
       "placement": {
         "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
-        "diagram": {"x1": -50, "x2": 50, "y1": 750, "y2": 850}
+        "diagram": {"x1": -50, "x2": 50, "y1": 525, "y2": 575}
       }
     }
   }
   MACH = RealInput() {
     "Dyad": {
-      "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 700, "x2": 50, "y2": 800}}
+      "placement": {
+        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
+        "diagram": {"x1": -50, "x2": 50, "y1": 350, "y2": 450}
+      }
     }
   }
   DRCMD = RealOutput() {
     "Dyad": {
       "placement": {
         "icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550},
-        "diagram": {"x1": 1950, "x2": 2050, "y1": 300, "y2": 400}
+        "diagram": {"x1": 2350, "x2": 2450, "y1": 900, "y2": 1000}
       }
     }
   }
@@ -1015,58 +1033,48 @@ component YawControl
   parameter TAU_WASH::Real = 2.0
   parameter RBWASH0::Real = 0.0
   drdir = BlockComponents.Math.Gain(k = GDRDP) {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 200, "y2": 300}}}
+    "Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 1050, "y2": 1150}}}
   }
   wash = BlockComponents.Continuous.FirstOrder(T = TAU_WASH, k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 300, "y2": 400}}}
+    "Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 600, "y2": 700}}}
   }
   g_const = BlockComponents.Sources.Constant(k = GDRDA) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 450, "y2": 550}}}
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 200, "y2": 300}}}
   }
   z_const = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 700, "y2": 800}}}
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 450, "y2": 550}}}
   }
   gsel = Switch(threshold = 0.9) {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 750, "y2": 850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 350, "y2": 450}}}
   }
   wash_err = BlockComponents.Math.Add(k2 = -1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 350, "y2": 450}}}
+    "Dyad": {"placement": {"diagram": {"x1": 950, "x2": 1050, "y1": 700, "y2": 800}}}
   }
   g_wash = BlockComponents.Math.Gain(k = GRSAS * 0.01745) {
-    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 450, "y2": 550}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1200, "x2": 1300, "y1": 700, "y2": 800}}}
   }
   ari = BlockComponents.Math.Product() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 750, "y2": 850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 950, "x2": 1050, "y1": 350, "y2": 450}}}
   }
   drsas = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 1300, "x2": 1400, "y1": 450, "y2": 550}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1450, "x2": 1550, "y1": 700, "y2": 800}}}
   }
   drcmd = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 1550, "x2": 1650, "y1": 300, "y2": 400}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1700, "x2": 1800, "y1": 900, "y2": 1000}}}
   }
 relations
   connect(DPPILOT, drdir.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(RDEG, wash.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(MACH, gsel.u_sel) {
+  connect(MACH, gsel.u_sel) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(g_const.y, gsel.u_a) {
     "Dyad": {
       "edges": [
         {
           "S": 1,
-          "M": [
-            {"x": 275, "y": 750},
-            {"x": 275, "y": 825},
-            {"x": 537.5, "y": 825},
-            {"x": 537.5, "y": 800}
-          ],
+          "M": [{"x": 675, "y": 250}, {"x": 675, "y": 359.99999999999994}],
           "E": 2
         }
       ],
-      "path": {}
-    }
-  }
-  connect(g_const.y, gsel.u_a) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 537.5, "y": 500}, {"x": 537.5, "y": 760}], "E": 2}],
       "path": {}
     }
   }
@@ -1075,12 +1083,7 @@ relations
       "edges": [
         {
           "S": 1,
-          "M": [
-            {"x": 525, "y": 750},
-            {"x": 525, "y": 837.5},
-            {"x": 537.5, "y": 837.5},
-            {"x": 537.5, "y": 840}
-          ],
+          "M": [{"x": 675, "y": 500}, {"x": 675, "y": 440.00000000000006}],
           "E": 2
         }
       ],
@@ -1093,10 +1096,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 525, "y": 350},
-            {"x": 525, "y": 275},
-            {"x": 787.5, "y": 275},
-            {"x": 787.5, "y": 370}
+            {"x": 650, "y": 650},
+            {"x": 650, "y": 550},
+            {"x": 925, "y": 550},
+            {"x": 925, "y": 719.9999999999999}
           ],
           "E": 2
         }
@@ -1110,10 +1113,10 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 775, "y": 350},
-            {"x": 775, "y": 425},
-            {"x": 787.5, "y": 425},
-            {"x": 787.5, "y": 430}
+            {"x": 900, "y": 650},
+            {"x": 900, "y": 775},
+            {"x": 925, "y": 775},
+            {"x": 925, "y": 780.0000000000001}
           ],
           "E": 2
         }
@@ -1121,15 +1124,16 @@ relations
       "path": {}
     }
   }
-  connect(wash_err.y, g_wash.u) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 400}, {"x": 1037.5, "y": 500}], "E": 2}],
-      "path": {}
-    }
-  }
+  connect(wash_err.y, g_wash.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(gsel.y, ari.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 787.5, "y": 800}, {"x": 787.5, "y": 770}], "E": 2}],
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 925, "y": 400}, {"x": 925, "y": 369.99999999999994}],
+          "E": 2
+        }
+      ],
       "path": {}
     }
   }
@@ -1139,10 +1143,12 @@ relations
         {
           "S": 1,
           "M": [
-            {"x": 262.5, "y": 800},
-            {"x": 262.5, "y": 875},
-            {"x": 787.5, "y": 875},
-            {"x": 787.5, "y": 830.0000000000001}
+            {"x": 400, "y": 550},
+            {"x": 400, "y": 600},
+            {"x": 625, "y": 600},
+            {"x": 625, "y": 525},
+            {"x": 925, "y": 525},
+            {"x": 925, "y": 430.00000000000006}
           ],
           "E": 2
         }
@@ -1155,12 +1161,7 @@ relations
       "edges": [
         {
           "S": 1,
-          "M": [
-            {"x": 1275, "y": 800},
-            {"x": 1275, "y": 475},
-            {"x": 1287.5, "y": 475},
-            {"x": 1287.5, "y": 470}
-          ],
+          "M": [{"x": 1425, "y": 400}, {"x": 1425, "y": 719.9999999999999}],
           "E": 2
         }
       ],
@@ -1169,19 +1170,47 @@ relations
   }
   connect(g_wash.y, drsas.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1287.5, "y": 500}, {"x": 1287.5, "y": 530}], "E": 2}],
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1425, "y": 750}, {"x": 1425, "y": 780.0000000000001}],
+          "E": 2
+        }
+      ],
       "path": {}
     }
   }
   connect(drdir.y, drcmd.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1537.5, "y": 250}, {"x": 1537.5, "y": 320}], "E": 2}],
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1625, "y": 1100},
+            {"x": 1625, "y": 925},
+            {"x": 1675, "y": 925},
+            {"x": 1675, "y": 919.9999999999999}
+          ],
+          "E": 2
+        }
+      ],
       "path": {}
     }
   }
   connect(drsas.y, drcmd.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1537.5, "y": 500}, {"x": 1537.5, "y": 380}], "E": 2}],
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1650, "y": 750},
+            {"x": 1650, "y": 975},
+            {"x": 1675, "y": 975},
+            {"x": 1675, "y": 980.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
       "path": {}
     }
   }
@@ -1197,65 +1226,96 @@ section 4.1).
 component SpeedControl
   DLSBCOM = RealInput() {
     "Dyad": {
-      "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
+      "placement": {
+        "icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550},
+        "diagram": {"x1": -50, "x2": 50, "y1": 200, "y2": 300}
+      }
     }
   }
   DSBCMD = RealOutput() {
     "Dyad": {
       "placement": {
         "icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550},
-        "diagram": {"x1": 1150, "x2": 1250, "y1": 250, "y2": 350}
+        "diagram": {"x1": 1150, "x2": 1250, "y1": 400, "y2": 500}
       }
     }
   }
   parameter DSBSF1::Real = 0.0
   parameter DSBSF2::Real = 0.0375
   u2 = BlockComponents.Math.Product() {
-    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 450, "y2": 550}}}
-  }
-  g1 = BlockComponents.Math.Gain(k = DSBSF1) {
     "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 200, "y2": 300}}}
   }
+  g1 = BlockComponents.Math.Gain(k = DSBSF1) {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 450, "y2": 550}}}
+  }
   g2 = BlockComponents.Math.Gain(k = DSBSF2) {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 400, "y2": 500}}}
+    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 650, "y1": 250, "y2": 350}}}
   }
   sum = BlockComponents.Math.Add() {
-    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 250, "y2": 350}}}
+    "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 400, "y2": 500}}}
   }
 relations
   connect(DLSBCOM, u2.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 250, "y": 500}, {"x": 250, "y": 470}], "E": 2}],
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 275, "y": 250}, {"x": 275, "y": 220.00000000000003}],
+          "E": 2
+        }
+      ],
       "path": {}
     }
   }
   connect(DLSBCOM, u2.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 250, "y": 500}, {"x": 250, "y": 530}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 275, "y": 250}, {"x": 275, "y": 280}], "E": 2}],
       "path": {}
     }
   }
   connect(DLSBCOM, g1.u) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 200, "y": 500}, {"x": 200, "y": 250}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 250, "y": 250}, {"x": 250, "y": 500}], "E": 2}],
       "path": {}
     }
   }
   connect(u2.y, g2.u) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 500, "y": 500}, {"x": 500, "y": 450}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 525, "y": 250}, {"x": 525, "y": 300}], "E": 2}],
       "path": {}
     }
   }
   connect(g1.y, sum.u1) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 750, "y": 250}, {"x": 750, "y": 270}], "E": 2}],
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 500},
+            {"x": 725, "y": 425},
+            {"x": 775, "y": 425},
+            {"x": 775, "y": 420}
+          ],
+          "E": 2
+        }
+      ],
       "path": {}
     }
   }
   connect(g2.y, sum.u2) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 750, "y": 450}, {"x": 750, "y": 330}], "E": 2}],
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 750, "y": 300},
+            {"x": 750, "y": 475},
+            {"x": 775, "y": 475},
+            {"x": 775, "y": 480}
+          ],
+          "E": 2
+        }
+      ],
       "path": {}
     }
   }
