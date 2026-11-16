@@ -16,7 +16,7 @@ metadata {
   "Dyad": {
     "labels": [
       {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
-      {"label": "poly1d[$(group)]", "x": 500, "y": 500, "rot": 0}
+      {"label": "poly1d", "x": 500, "y": 500, "rot": 0}
     ],
     "icons": {"default": "dyad://HL20Demo/table.svg"}
   },
@@ -61,7 +61,7 @@ metadata {
   "Dyad": {
     "labels": [
       {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
-      {"label": "poly2dr[$(group)]", "x": 500, "y": 500, "rot": 0}
+      {"label": "poly2dr", "x": 500, "y": 500, "rot": 0}
     ],
     "icons": {"default": "dyad://HL20Demo/table.svg"}
   },
@@ -111,7 +111,7 @@ metadata {
   "Dyad": {
     "labels": [
       {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
-      {"label": "poly2de[$(group)]", "x": 500, "y": 500, "rot": 0}
+      {"label": "poly2de", "x": 500, "y": 500, "rot": 0}
     ],
     "icons": {"default": "dyad://HL20Demo/table.svg"}
   },
@@ -158,7 +158,7 @@ metadata {
   "Dyad": {
     "labels": [
       {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
-      {"label": "c0+c1u+c2u2+c3u3", "x": 500, "y": 500, "rot": 0}
+      {"label": "cubic", "x": 500, "y": 500, "rot": 0}
     ],
     "icons": {"default": "dyad://HL20Demo/poly.svg"}
   }
