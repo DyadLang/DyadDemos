@@ -1,0 +1,10 @@
+{
+  "name": "dyad-ui-shot-driver",
+  "displayName": "dyad-ui-shot driver",
+  "description": "Local-only control channel used by dyad-ui-shot to open Dyad diagrams",
+  "publisher": "dyad-ui-shot",
+  "version": "0.1.0",
+  "engines": { "vscode": "^1.101.0" },
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js"
+}

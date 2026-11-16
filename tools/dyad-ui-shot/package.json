@@ -1,0 +1,13 @@
+{
+  "name": "dyad-ui-shot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Screenshot Dyad component diagrams as rendered by Dyad Studio, headlessly",
+  "type": "module",
+  "bin": { "dyad-ui-shot": "./dyad-ui-shot.mjs" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@puppeteer/browsers": "3.2.7",
+    "puppeteer-core": "25.17.0"
+  }
+}
