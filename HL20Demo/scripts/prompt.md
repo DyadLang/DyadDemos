@@ -22,9 +22,9 @@ The authoritative engineering reference is in this assets directory:
 
 | File | Notes |
 |---|---|
-| `dyad/shared/HL20Aero.dyad` | Full TM-4302 body-axis coefficient buildup. Instantiate as `ChallengeComponent.shared.HL20Aero(...)` from `HL20Vehicle.dyad` (and `TestAeroSweep.dyad`). Do not modify. |
+| `dyad/shared/HL20Aero.dyad` | Full TM-4302 body-axis coefficient buildup. Instantiate as `HL20Demo.shared.HL20Aero(...)` from `HL20Vehicle.dyad` (and `TestAeroSweep.dyad`). Do not modify. |
 | `src/shared_utils.jl` | DAVE-ML loader and the registered symbolic functions (`hl20_poly1d`, `hl20_poly2dr`, `hl20_poly2de`) plus index accessors (`idx1d`, `grp2dr`, `grp2de`). Called by `HL20Aero.dyad`. Do not modify. |
-| `assets/shared/atmos_*.csv` | Reference atmosphere CSVs from `Atmosphere1976` as `dyad://ChallengeComponent/shared/atmos_sigma.csv` (and `…/atmos_sos.csv`). |
+| `assets/shared/atmos_*.csv` | Reference atmosphere CSVs from `Atmosphere1976` as `dyad://HL20Demo/shared/atmos_sigma.csv` (and `…/atmos_sos.csv`). |
 
 ## Files to create (in `dyad/`)
 

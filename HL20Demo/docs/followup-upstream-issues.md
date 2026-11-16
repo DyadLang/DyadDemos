@@ -10,6 +10,6 @@ constructor, and calls `full_equations(sys)`. On rc2 the example throws
 `ParameterBindingsGraph`'s cyclic-parameter error for `DLG`. The strict
 generated-document build remains failed; the physical model was preserved.
 
-The original 3.4 construction fails earlier on undefined `ChallengeComponent`; no successful old full-flight baseline exists. FIR independently demonstrates the cycle regression with an otherwise valid model on both versions.
+The original 3.4 construction fails earlier on undefined `HL20Demo`; no successful old full-flight baseline exists. FIR independently demonstrates the cycle regression with an otherwise valid model on both versions.
 
 Expected fix: keep generated symbolic overrides valid with the constructor seeding contract, and execute generated examples with example errors fatal. Do not change the physical model or downgrade example failures to warnings.

@@ -1,0 +1,55 @@
+"""
+1976 U.S. Standard Atmosphere table lookup. Altitude in feet maps to the
+density ratio sigma = rho/rho_SL and to the speed of sound in m/s. Linear
+interpolation with constant extrapolation over the bundled CSV tables.
+"""
+component Atmosphere1976
+  "Altitude above sea level (ft)"
+  alt_ft = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550},
+        "diagram": {"x1": -50, "x2": 50, "y1": 200, "y2": 300}
+      }
+    }
+  }
+  "Density ratio sigma = rho/rho_SL"
+  sigma = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 250, "x2": 1050, "y2": 350},
+        "diagram": {"x1": 650, "x2": 750, "y1": 200, "y2": 300}
+      }
+    }
+  }
+  "Speed of sound (m/s)"
+  sos_mps = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 650, "x2": 1050, "y2": 750},
+        "diagram": {"x1": 650, "x2": 750, "y1": 450, "y2": 550}
+      }
+    }
+  }
+  "Density-ratio table"
+  structural parameter sigma_ds::DyadData.DyadTimeseries = DyadData.DyadTimeseries("dyad://HL20Demo/shared/atmos_sigma.csv", independent_var = "alt_ft", dependent_vars = ["sigma"])
+  "Speed-of-sound table"
+  structural parameter sos_ds::DyadData.DyadTimeseries = DyadData.DyadTimeseries("dyad://HL20Demo/shared/atmos_sos.csv", independent_var = "alt_ft", dependent_vars = ["sos_mps"])
+  sig_tab = BlockComponents.Tables.Interpolation(dataset = sigma_ds, interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant()) {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 200, "y2": 300}}}
+  }
+  sos_tab = BlockComponents.Tables.Interpolation(dataset = sos_ds, interpolation_type = BlockComponents.Tables.InterpolationType.LinearInterpolation(), extrapolation_type = BlockComponents.Tables.ExtrapolationType.Constant()) {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 450, "y2": 550}}}
+  }
+relations
+  connect(alt_ft, sig_tab.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(alt_ft, sos_tab.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 200, "y": 250}, {"x": 200, "y": 500}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(sig_tab.y, sigma) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(sos_tab.y, sos_mps) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/atmosphere.svg"}}}
+end

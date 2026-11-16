@@ -1,0 +1,299 @@
+"""
+Drives the graphical HL20Aero with constant inputs so its outputs can be
+checked point-by-point against the reference coefficient equations.
+"""
+test component TestAeroPoint
+  aero = HL20Demo.shared.HL20Aero() {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 800, "x2": 900, "y1": 1850, "y2": 1950, "rot": 90}}
+    }
+  }
+  c_alpha = BlockComponents.Sources.Constant(k = alpha_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 250, "x2": 350, "y1": 200, "y2": 300, "rot": 90}}
+    }
+  }
+  c_beta = BlockComponents.Sources.Constant(k = beta_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 500, "x2": 600, "y1": 350, "y2": 450, "rot": 90}}
+    }
+  }
+  c_mach = BlockComponents.Sources.Constant(k = mach_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 500, "y2": 600, "rot": 90}}
+    }
+  }
+  c_vrw = BlockComponents.Sources.Constant(k = vrw_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 750, "y2": 850, "rot": 90}}
+    }
+  }
+  c_hob = BlockComponents.Sources.Constant(k = hob_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 350, "x2": 450, "y1": 1000, "y2": 1100, "rot": 90}}
+    }
+  }
+  c_pb = BlockComponents.Sources.Constant(k = pb_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1250, "y2": 1350, "rot": 90}}
+    }
+  }
+  c_qb = BlockComponents.Sources.Constant(k = qb_k) {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1500, "y2": 1600}}}
+  }
+  c_rb = BlockComponents.Sources.Constant(k = rb_k) {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1750, "y2": 1850}}}
+  }
+  c_dbful = BlockComponents.Sources.Constant(k = dbful_k) {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 2000, "y2": 2100}}}
+  }
+  c_dbfur = BlockComponents.Sources.Constant(k = dbfur_k) {
+    "Dyad": {"placement": {"diagram": {"x1": 300, "x2": 400, "y1": 2250, "y2": 2350}}}
+  }
+  c_dbfll = BlockComponents.Sources.Constant(k = dbfll_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2500, "y2": 2600, "rot": 270}}
+    }
+  }
+  c_dbflr = BlockComponents.Sources.Constant(k = dbflr_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2750, "y2": 2850, "rot": 270}}
+    }
+  }
+  c_dwfl = BlockComponents.Sources.Constant(k = dwfl_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3000, "y2": 3100, "rot": 270}}
+    }
+  }
+  c_dwfr = BlockComponents.Sources.Constant(k = dwfr_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3250, "y2": 3350, "rot": 270}}
+    }
+  }
+  c_drud = BlockComponents.Sources.Constant(k = drud_k) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3500, "y2": 3600, "rot": 270}}
+    }
+  }
+  parameter alpha_k::Real = 10.0
+  parameter beta_k::Real = 0.0
+  parameter mach_k::Real = 0.2
+  parameter vrw_k::Real = 223.3
+  parameter hob_k::Real = 100.0
+  parameter pb_k::Real = 0.0
+  parameter qb_k::Real = 0.0
+  parameter rb_k::Real = 0.0
+  parameter dbful_k::Real = 0.0
+  parameter dbfur_k::Real = 0.0
+  parameter dbfll_k::Real = 0.0
+  parameter dbflr_k::Real = 0.0
+  parameter dwfl_k::Real = 0.0
+  parameter dwfr_k::Real = 0.0
+  parameter drud_k::Real = 0.0
+relations
+  connect(c_alpha.y, aero.alpha_deg) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 300, "y": 350},
+            {"x": 400, "y": 350},
+            {"x": 400, "y": 250},
+            {"x": 850, "y": 250},
+            {"x": 850, "y": 1450},
+            {"x": 894.9999999999999, "y": 1450}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_beta.y, aero.beta_deg) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 550, "y": 650},
+            {"x": 800, "y": 650},
+            {"x": 800, "y": 1500},
+            {"x": 885, "y": 1500}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_mach.y, aero.mach) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 250, "y": 700},
+            {"x": 750, "y": 700},
+            {"x": 750, "y": 1550},
+            {"x": 875, "y": 1550}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_vrw.y, aero.vrw_fps) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 900},
+            {"x": 700, "y": 900},
+            {"x": 700, "y": 1600},
+            {"x": 865, "y": 1600}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_hob.y, aero.hob) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 400, "y": 1150},
+            {"x": 650, "y": 1150},
+            {"x": 650, "y": 1650},
+            {"x": 855.0000000000001, "y": 1650}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_pb.y, aero.pb) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 1400},
+            {"x": 600, "y": 1400},
+            {"x": 600, "y": 1700},
+            {"x": 844.9999999999999, "y": 1700}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_qb.y, aero.qb) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 550, "y": 1550}, {"x": 550, "y": 1750}, {"x": 835, "y": 1750}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_rb.y, aero.rb) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 825, "y": 1800}], "E": 2}], "path": {}}
+  }
+  connect(c_dbful.y, aero.DBFUL) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 2050}, {"x": 450, "y": 1855}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dbfur.y, aero.DBFUR) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 500, "y": 2300}, {"x": 500, "y": 1864.9999999999998}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_dbfll.y, aero.DBFLL) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 450, "y": 2450}, {"x": 550, "y": 2450}, {"x": 550, "y": 1875}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_dbflr.y, aero.DBFLR) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 2700},
+            {"x": 600, "y": 2700},
+            {"x": 600, "y": 1885.0000000000002}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_dwfl.y, aero.DWFL) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 450, "y": 2950}, {"x": 650, "y": 2950}, {"x": 650, "y": 1895}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_dwfr.y, aero.DWFR) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 450, "y": 3200}, {"x": 700, "y": 3200}, {"x": 700, "y": 1905}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_drud.y, aero.DRUD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 450, "y": 3450},
+            {"x": 750, "y": 3450},
+            {"x": 750, "y": 1914.9999999999998}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+end

@@ -1,0 +1,166 @@
+"HL-20 aero 1D polynomial table block. Wraps the registered symbolic function
+`HL20Demo.hl20_poly1d(group, alpha_deg, x)` so a DAVE-ML 1D table lookup can be
+placed as a block in a graphical diagram."
+component HL20Table1D
+  "Polynomial group index (varID group start)"
+  parameter group::Integer
+  "Angle of attack (deg)"
+  u1 = RealInput() {^u1}
+  "Second independent variable (mach, hob or gear deflection)"
+  u2 = RealInput() {^u2}
+  "Table value"
+  y = RealOutput() {^y}
+relations
+  y = HL20Demo.hl20_poly1d(group, u1, u2)
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
+      {"label": "poly1d[$(group)]", "x": 500, "y": 500, "rot": 0}
+    ],
+    "icons": {"default": "dyad://HL20Demo/table.svg"}
+  },
+  "_links": {
+    "u1": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 150, "x2": 50, "y2": 250}}
+      }
+    },
+    "u2": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 750, "x2": 50, "y2": 850}}
+      }
+    },
+    "y": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end
+
+"HL-20 aero 2D polynomial table block (referenced breakpoints). Wraps the
+registered symbolic function `HL20Demo.hl20_poly2dr(group, alpha_deg, defl,
+mach)` so a DAVE-ML referenced 2D table lookup can be placed as a block in a
+graphical diagram."
+component HL20Table2DR
+  "Polynomial group index (varID group start)"
+  parameter group::Integer
+  "Angle of attack (deg)"
+  u1 = RealInput() {^u1}
+  "Surface deflection (deg)"
+  u2 = RealInput() {^u2}
+  "Mach number"
+  u3 = RealInput() {^u3}
+  "Table value"
+  y = RealOutput() {^y}
+relations
+  y = HL20Demo.hl20_poly2dr(group, u1, u2, u3)
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
+      {"label": "poly2dr[$(group)]", "x": 500, "y": 500, "rot": 0}
+    ],
+    "icons": {"default": "dyad://HL20Demo/table.svg"}
+  },
+  "_links": {
+    "u1": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 50, "x2": 50, "y2": 150}}
+      }
+    },
+    "u2": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
+      }
+    },
+    "u3": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 850, "x2": 50, "y2": 950}}
+      }
+    },
+    "y": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end
+
+"HL-20 aero 2D polynomial table block (embedded breakpoints). Wraps the
+registered symbolic function `HL20Demo.hl20_poly2de(group, alpha_deg, defl,
+mach)` so a DAVE-ML embedded 2D table lookup can be placed as a block in a
+graphical diagram."
+component HL20Table2DE
+  "Polynomial group index (varID group start)"
+  parameter group::Integer
+  "Angle of attack (deg)"
+  u1 = RealInput() {^u1}
+  "Surface deflection magnitude (deg)"
+  u2 = RealInput() {^u2}
+  "Mach number"
+  u3 = RealInput() {^u3}
+  "Table value"
+  y = RealOutput() {^y}
+relations
+  y = HL20Demo.hl20_poly2de(group, u1, u2, u3)
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
+      {"label": "poly2de[$(group)]", "x": 500, "y": 500, "rot": 0}
+    ],
+    "icons": {"default": "dyad://HL20Demo/table.svg"}
+  },
+  "_links": {
+    "u1": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 50, "x2": 50, "y2": 150}}
+      }
+    },
+    "u2": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550}}
+      }
+    },
+    "u3": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": -50, "y1": 850, "x2": 50, "y2": 950}}
+      }
+    },
+    "y": {
+      "Dyad": {
+        "placement": {"icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550}}
+      }
+    }
+  }
+}
+end
+
+"Cubic polynomial block: y = c0 + c1*u + c2*u^2 + c3*u^3. Used for the alpha
+polynomials in the HL-20 dynamic-derivative (damping) terms."
+component CubicPoly
+  extends BlockComponents.Interfaces.SISO
+  "Constant coefficient"
+  parameter c0::Real = 0.0
+  "Linear coefficient"
+  parameter c1::Real = 0.0
+  "Quadratic coefficient"
+  parameter c2::Real = 0.0
+  "Cubic coefficient"
+  parameter c3::Real = 0.0
+relations
+  y = c0 + c1 * u + c2 * u ^ 2 + c3 * u ^ 3
+metadata {
+  "Dyad": {
+    "labels": [
+      {"label": "$(instance)", "x": 500, "y": 1100, "rot": 0},
+      {"label": "c0+c1u+c2u2+c3u3", "x": 500, "y": 500, "rot": 0}
+    ],
+    "icons": {"default": "dyad://HL20Demo/poly.svg"}
+  }
+}
+end

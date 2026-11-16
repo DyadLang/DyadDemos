@@ -8,6 +8,8 @@ using ModelingToolkit
 import Markdown
 using ModelingToolkit: t_nounits as t
 using OrdinaryDiffEqDefault
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
+using ModelingToolkit: SymbolicT, toggle_namespacing
 using RuntimeGeneratedFunctions
 RuntimeGeneratedFunctions.init(@__MODULE__)
 
@@ -15,6 +17,10 @@ if isfile(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
   include(joinpath((@__DIR__) |> Base.dirname, "dyad", "definitions.jl"))
 end
 
+import BlockComponents
+let api = isdefined(BlockComponents, :__dyad_constructor_api) ? BlockComponents.__dyad_constructor_api : 1
+  api == 2 || error("BlockComponents was generated with Dyad constructor API version $api, but HL20Demo requires version 2 (the `__overrides` dict override channel). Regenerate BlockComponents with the same Dyad compiler that generated HL20Demo.")
+end
 import DyadData
 import DyadInterface
 @doc Markdown.doc"""
@@ -194,3 +200,30 @@ component.
   return System(Equation[], t, __vars, __params; name, metadata = __metadata)
 end
 
+
+include("AdjustableUpperLimit_definition.jl")
+include("AeroForceBuilder_definition.jl")
+include("AeroSweepTransient_definition.jl")
+include("Atmosphere1976_definition.jl")
+include("FlightState_definition.jl")
+include("HL20FullSystem_definition.jl")
+include("HL20Mixer_definition.jl")
+include("HL20Vehicle_definition.jl")
+include("PitchControl_definition.jl")
+include("QuatToBody_definition.jl")
+include("QuatToInertial_definition.jl")
+include("RigidBody6DOF_definition.jl")
+include("RollControl_definition.jl")
+include("SpeedControl_definition.jl")
+include("Switch_definition.jl")
+include("TestAeroPoint_definition.jl")
+include("TestAeroSweep_definition.jl")
+include("TestControllersSim_definition.jl")
+include("TestControllers_definition.jl")
+include("TestGravityOnlySim_definition.jl")
+include("TestGravityOnly_definition.jl")
+include("TestHL20FullSystemSim_definition.jl")
+include("TestHL20FullSystem_definition.jl")
+include("TestHL20SubsonicSim_definition.jl")
+include("TestHL20Subsonic_definition.jl")
+include("YawControl_definition.jl")

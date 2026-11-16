@@ -9,4 +9,14 @@ if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "shared",
 end
 
 
+include("CubicPoly_experiment.jl")
 include("HL20Aero_experiment.jl")
+include("HL20CD_experiment.jl")
+include("HL20CL_experiment.jl")
+include("HL20CM_experiment.jl")
+include("HL20CN_experiment.jl")
+include("HL20CR_experiment.jl")
+include("HL20CY_experiment.jl")
+include("HL20Table1D_experiment.jl")
+include("HL20Table2DE_experiment.jl")
+include("HL20Table2DR_experiment.jl")

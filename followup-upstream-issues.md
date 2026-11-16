@@ -133,7 +133,7 @@ The same new-cycle failure occurs in generated behavior blocks for:
 | SatelliteGNC | SatelliteBody6DOF | `Ixx` | passes (review follow-up) |
 | SatelliteGNC | ThrusterAllocator | `F_max` | passes (review follow-up) |
 | SatelliteGNC | TrapezoidalProfile | `target_angle` | passes (review follow-up) |
-| HL20Demo | shared.HL20Aero | `DLG` | fails earlier on missing `ChallengeComponent` |
+| HL20Demo | shared.HL20Aero | `DLG` | historical only: failed earlier on missing `ChallengeComponent`; the restored block-based HL20Demo no longer references it |
 | MakieWebinar | Hello | `T_inf` | passes (0.289241 s in-block) |
 
 SatelliteGNC has seven failed generated blocks, rather than the three initially

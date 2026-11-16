@@ -1,0 +1,2067 @@
+"""
+Rotates an inertial NED vector into the body frame using the scalar-first
+body-to-inertial quaternion q = [qw, qx, qy, qz] (transpose of the
+body-to-inertial rotation matrix). Every product and sum is a wired block.
+"""
+component QuatToBody
+  "Quaternion scalar part"
+  qw = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
+        "diagram": {"x1": -50, "x2": 50, "y1": 2225, "y2": 2325}
+      }
+    }
+  }
+  "Quaternion x part"
+  qx = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1825, "y2": 1925}
+      }
+    }
+  }
+  "Quaternion y part"
+  qy = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
+        "diagram": {"x1": -50, "x2": 50, "y1": 625, "y2": 725}
+      }
+    }
+  }
+  "Quaternion z part"
+  qz = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
+        "diagram": {"x1": -50, "x2": 50, "y1": 425, "y2": 525}
+      }
+    }
+  }
+  "Inertial NED vector component 1 (North)"
+  v1 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
+        "diagram": {"x1": -50, "x2": 50, "y1": 325, "y2": 425}
+      }
+    }
+  }
+  "Inertial NED vector component 2 (East)"
+  v2 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700},
+        "diagram": {"x1": -50, "x2": 50, "y1": 525, "y2": 625}
+      }
+    }
+  }
+  "Inertial NED vector component 3 (Down)"
+  v3 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
+        "diagram": {"x1": -50, "x2": 50, "y1": 725, "y2": 825}
+      }
+    }
+  }
+  "Body vector component 1 (forward)"
+  b1 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
+        "diagram": {"x1": 3550, "x2": 3650, "y1": 525, "y2": 625}
+      }
+    }
+  }
+  "Body vector component 2 (right)"
+  b2 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500},
+        "diagram": {"x1": 3550, "x2": 3650, "y1": 1125, "y2": 1225}
+      }
+    }
+  }
+  "Body vector component 3 (down)"
+  b3 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700},
+        "diagram": {"x1": 3550, "x2": 3650, "y1": 1725, "y2": 1825}
+      }
+    }
+  }
+  qx2 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1825, "y2": 1925}}}
+  }
+  qy2 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 625, "y2": 725}}}
+  }
+  qz2 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 425, "y2": 525}}}
+  }
+  qxqy = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 825, "y2": 925}}}
+  }
+  qxqz = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1225, "y2": 1325}}}
+  }
+  qyqz = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2025, "y2": 2125}}}
+  }
+  qwqx = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2225, "y2": 2325}}}
+  }
+  qwqy = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1425, "y2": 1525}}}
+  }
+  qwqz = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1025, "y2": 1125}}}
+  }
+  r11 = BlockComponents.Math.Add3(k1 = 1.0, k2 = -2.0, k3 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 325, "y2": 425}}}
+  }
+  one1 = BlockComponents.Sources.Constant(k = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 225, "y2": 325}}}
+  }
+  r12 = BlockComponents.Math.Add(k1 = 2.0, k2 = 2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 525, "y2": 625}}}
+  }
+  r13 = BlockComponents.Math.Add(k1 = 2.0, k2 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 725, "y2": 825}}}
+  }
+  r21 = BlockComponents.Math.Add(k1 = 2.0, k2 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 925, "y2": 1025}}}
+  }
+  r22 = BlockComponents.Math.Add3(k1 = 1.0, k2 = -2.0, k3 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1125, "y2": 1225}}}
+  }
+  one2 = BlockComponents.Sources.Constant(k = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1625, "y2": 1725}}}
+  }
+  r23 = BlockComponents.Math.Add(k1 = 2.0, k2 = 2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1325, "y2": 1425}}}
+  }
+  r31 = BlockComponents.Math.Add(k1 = 2.0, k2 = 2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1525, "y2": 1625}}}
+  }
+  r32 = BlockComponents.Math.Add(k1 = 2.0, k2 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1725, "y2": 1825}}}
+  }
+  r33 = BlockComponents.Math.Add3(k1 = 1.0, k2 = -2.0, k3 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1925, "y2": 2025}}}
+  }
+  one3 = BlockComponents.Sources.Constant(k = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2425, "y2": 2525}}}
+  }
+  m11 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 325, "y2": 425}}}
+  }
+  m12 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 525, "y2": 625}}}
+  }
+  m13 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 725, "y2": 825}}}
+  }
+  b1s = BlockComponents.Math.Add3() {
+    "Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 525, "y2": 625}}}
+  }
+  m21 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 925, "y2": 1025}}}
+  }
+  m22 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1125, "y2": 1225}}}
+  }
+  m23 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1325, "y2": 1425}}}
+  }
+  b2s = BlockComponents.Math.Add3() {
+    "Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 1125, "y2": 1225}}}
+  }
+  m31 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1525, "y2": 1625}}}
+  }
+  m32 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1725, "y2": 1825}}}
+  }
+  m33 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1925, "y2": 2025}}}
+  }
+  b3s = BlockComponents.Math.Add3() {
+    "Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 1725, "y2": 1825}}}
+  }
+relations
+  connect(qx, qx2.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 1875}, {"x": 437.5, "y": 1845}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qx, qx2.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 1875}, {"x": 437.5, "y": 1905}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qy, qy2.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 675}, {"x": 437.5, "y": 645}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qy, qy2.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 675}, {"x": 437.5, "y": 705}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qz, qz2.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 475}, {"x": 437.5, "y": 445}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qz, qz2.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 475}, {"x": 437.5, "y": 505}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qx, qxqy.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 350, "y": 1875},
+            {"x": 350, "y": 850},
+            {"x": 437.5, "y": 850},
+            {"x": 437.5, "y": 844.9999999999999}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qy, qxqy.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 675},
+            {"x": 425, "y": 900},
+            {"x": 437.5, "y": 900},
+            {"x": 437.5, "y": 905.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qx, qxqz.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 400, "y": 1875},
+            {"x": 400, "y": 1250},
+            {"x": 437.5, "y": 1250},
+            {"x": 437.5, "y": 1245}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qz, qxqz.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 375, "y": 475},
+            {"x": 375, "y": 1300},
+            {"x": 437.5, "y": 1300},
+            {"x": 437.5, "y": 1305}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qy, qyqz.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 325, "y": 675},
+            {"x": 325, "y": 2037.5},
+            {"x": 437.5, "y": 2037.5},
+            {"x": 437.5, "y": 2045}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qz, qyqz.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 312.5, "y": 475},
+            {"x": 312.5, "y": 2100},
+            {"x": 437.5, "y": 2100},
+            {"x": 437.5, "y": 2105}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qw, qwqx.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 2275}, {"x": 437.5, "y": 2245}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qx, qwqx.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 1875},
+            {"x": 425, "y": 2300},
+            {"x": 437.5, "y": 2300},
+            {"x": 437.5, "y": 2305}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qw, qwqy.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 412.5, "y": 2275},
+            {"x": 412.5, "y": 1450},
+            {"x": 437.5, "y": 1450},
+            {"x": 437.5, "y": 1445}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qy, qwqy.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 362.5, "y": 675},
+            {"x": 362.5, "y": 1500},
+            {"x": 437.5, "y": 1500},
+            {"x": 437.5, "y": 1505}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qw, qwqz.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 387.5, "y": 2275},
+            {"x": 387.5, "y": 1150},
+            {"x": 400, "y": 1150},
+            {"x": 400, "y": 1112.5},
+            {"x": 425, "y": 1112.5},
+            {"x": 425, "y": 1050},
+            {"x": 437.5, "y": 1050},
+            {"x": 437.5, "y": 1045}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qz, qwqz.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 400, "y": 475},
+            {"x": 400, "y": 1100},
+            {"x": 437.5, "y": 1100},
+            {"x": 437.5, "y": 1105}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(one1.y, r11.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 737.5, "y": 275}, {"x": 737.5, "y": 345}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qy2.y, r11.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 725, "y": 675}, {"x": 725, "y": 375}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qz2.y, r11.u3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 737.5, "y": 475}, {"x": 737.5, "y": 405}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qxqy.y, r12.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 712.5, "y": 875},
+            {"x": 712.5, "y": 550},
+            {"x": 737.5, "y": 550},
+            {"x": 737.5, "y": 545}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqz.y, r12.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 1075},
+            {"x": 725, "y": 687.5},
+            {"x": 737.5, "y": 687.5},
+            {"x": 737.5, "y": 605}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qxqz.y, r13.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 1275},
+            {"x": 725, "y": 1087.5},
+            {"x": 875, "y": 1087.5},
+            {"x": 875, "y": 712.5},
+            {"x": 737.5, "y": 712.5},
+            {"x": 737.5, "y": 745}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqy.y, r13.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 562.5, "y": 1475},
+            {"x": 562.5, "y": 1350},
+            {"x": 412.5, "y": 1350},
+            {"x": 412.5, "y": 950},
+            {"x": 712.5, "y": 950},
+            {"x": 712.5, "y": 887.5},
+            {"x": 750, "y": 887.5},
+            {"x": 750, "y": 837.5},
+            {"x": 737.5, "y": 837.5},
+            {"x": 737.5, "y": 805.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qxqy.y, r21.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 737.5, "y": 875}, {"x": 737.5, "y": 944.9999999999999}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqz.y, r21.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 737.5, "y": 1075}, {"x": 737.5, "y": 1005.0000000000001}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(one2.y, r22.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 562.5, "y": 1675},
+            {"x": 562.5, "y": 1550},
+            {"x": 425, "y": 1550},
+            {"x": 425, "y": 1150},
+            {"x": 737.5, "y": 1150},
+            {"x": 737.5, "y": 1145}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qx2.y, r22.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 700, "y": 1875}, {"x": 700, "y": 1175}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qz2.y, r22.u3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1475, "y": 475},
+            {"x": 1475, "y": 1250},
+            {"x": 737.5, "y": 1250},
+            {"x": 737.5, "y": 1205}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qyqz.y, r23.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 712.5, "y": 2075},
+            {"x": 712.5, "y": 1350},
+            {"x": 737.5, "y": 1350},
+            {"x": 737.5, "y": 1345}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqx.y, r23.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 875, "y": 2275},
+            {"x": 875, "y": 1437.5},
+            {"x": 737.5, "y": 1437.5},
+            {"x": 737.5, "y": 1405}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qxqz.y, r31.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 1275},
+            {"x": 725, "y": 1462.5},
+            {"x": 737.5, "y": 1462.5},
+            {"x": 737.5, "y": 1545}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqy.y, r31.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 1475},
+            {"x": 725, "y": 1600},
+            {"x": 737.5, "y": 1600},
+            {"x": 737.5, "y": 1605}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qyqz.y, r32.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 712.5, "y": 2075},
+            {"x": 712.5, "y": 1750},
+            {"x": 737.5, "y": 1750},
+            {"x": 737.5, "y": 1745}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqx.y, r32.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 875, "y": 2275},
+            {"x": 875, "y": 1837.5},
+            {"x": 737.5, "y": 1837.5},
+            {"x": 737.5, "y": 1805}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(one3.y, r33.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 2475},
+            {"x": 725, "y": 1987.5},
+            {"x": 737.5, "y": 1987.5},
+            {"x": 737.5, "y": 1945}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qx2.y, r33.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 725, "y": 1875}, {"x": 725, "y": 1975}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qy2.y, r33.u3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 687.5, "y": 675},
+            {"x": 687.5, "y": 487.5},
+            {"x": 1500, "y": 487.5},
+            {"x": 1500, "y": 2050},
+            {"x": 737.5, "y": 2050},
+            {"x": 737.5, "y": 2005}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r11.y, m11.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 375}, {"x": 1037.5, "y": 345}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v1, m11.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 375},
+            {"x": 425, "y": 200},
+            {"x": 1025, "y": 200},
+            {"x": 1025, "y": 400},
+            {"x": 1037.5, "y": 400},
+            {"x": 1037.5, "y": 405}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r12.y, m12.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 575}, {"x": 1037.5, "y": 545}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v2, m12.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 700, "y": 575},
+            {"x": 700, "y": 500},
+            {"x": 1025, "y": 500},
+            {"x": 1025, "y": 600},
+            {"x": 1037.5, "y": 600},
+            {"x": 1037.5, "y": 605}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r13.y, m13.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 775}, {"x": 1037.5, "y": 745}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v3, m13.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 387.5, "y": 775},
+            {"x": 387.5, "y": 1137.5},
+            {"x": 712.5, "y": 1137.5},
+            {"x": 712.5, "y": 1100},
+            {"x": 1025, "y": 1100},
+            {"x": 1025, "y": 800},
+            {"x": 1037.5, "y": 800},
+            {"x": 1037.5, "y": 805.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(m11.y, b1s.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1337.5, "y": 375}, {"x": 1337.5, "y": 545}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(m12.y, b1s.u2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(m13.y, b1s.u3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1337.5, "y": 775}, {"x": 1337.5, "y": 605}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b1s.y, b1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(r21.y, m21.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1037.5, "y": 975}, {"x": 1037.5, "y": 944.9999999999999}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(v1, m21.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 375},
+            {"x": 425, "y": 200},
+            {"x": 1487.5, "y": 200},
+            {"x": 1487.5, "y": 1037.5},
+            {"x": 1037.5, "y": 1037.5},
+            {"x": 1037.5, "y": 1005.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r22.y, m22.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1175}, {"x": 1037.5, "y": 1145}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v2, m22.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 700, "y": 575},
+            {"x": 700, "y": 500},
+            {"x": 1012.5, "y": 500},
+            {"x": 1012.5, "y": 1200},
+            {"x": 1037.5, "y": 1200},
+            {"x": 1037.5, "y": 1205}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r23.y, m23.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1375}, {"x": 1037.5, "y": 1345}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v3, m23.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 337.5, "y": 775},
+            {"x": 337.5, "y": 1200},
+            {"x": 712.5, "y": 1200},
+            {"x": 712.5, "y": 1262.5},
+            {"x": 1025, "y": 1262.5},
+            {"x": 1025, "y": 1400},
+            {"x": 1037.5, "y": 1400},
+            {"x": 1037.5, "y": 1405}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(m21.y, b2s.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1337.5, "y": 975}, {"x": 1337.5, "y": 1145}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(m22.y, b2s.u2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(m23.y, b2s.u3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1337.5, "y": 1375}, {"x": 1337.5, "y": 1205}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b2s.y, b2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(r31.y, m31.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1575}, {"x": 1037.5, "y": 1545}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v1, m31.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 375},
+            {"x": 425, "y": 200},
+            {"x": 1487.5, "y": 200},
+            {"x": 1487.5, "y": 1512.5},
+            {"x": 1025, "y": 1512.5},
+            {"x": 1025, "y": 1600},
+            {"x": 1037.5, "y": 1600},
+            {"x": 1037.5, "y": 1605}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r32.y, m32.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1775}, {"x": 1037.5, "y": 1745}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v2, m32.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 300, "y": 575},
+            {"x": 300, "y": 2350},
+            {"x": 1025, "y": 2350},
+            {"x": 1025, "y": 1800},
+            {"x": 1037.5, "y": 1800},
+            {"x": 1037.5, "y": 1805}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r33.y, m33.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1975}, {"x": 1037.5, "y": 1945}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v3, m33.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 287.5, "y": 775},
+            {"x": 287.5, "y": 2362.5},
+            {"x": 1037.5, "y": 2362.5},
+            {"x": 1037.5, "y": 2005}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(m31.y, b3s.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1337.5, "y": 1575}, {"x": 1337.5, "y": 1745}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(m32.y, b3s.u2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(m33.y, b3s.u3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1337.5, "y": 1975}, {"x": 1337.5, "y": 1805}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b3s.y, b3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/quatrot.svg"}}}
+end
+
+"""
+Rotates a body-frame vector to inertial NED using the scalar-first
+body-to-inertial quaternion q = [qw, qx, qy, qz]. Every product and sum is a
+wired block.
+"""
+component QuatToInertial
+  "Quaternion scalar part"
+  qw = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
+        "diagram": {"x1": -50, "x2": 50, "y1": 2225, "y2": 2325}
+      }
+    }
+  }
+  "Quaternion x part"
+  qx = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1825, "y2": 1925}
+      }
+    }
+  }
+  "Quaternion y part"
+  qy = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
+        "diagram": {"x1": -50, "x2": 50, "y1": 625, "y2": 725}
+      }
+    }
+  }
+  "Quaternion z part"
+  qz = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
+        "diagram": {"x1": -50, "x2": 50, "y1": 425, "y2": 525}
+      }
+    }
+  }
+  "Body vector component 1 (forward)"
+  b1 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
+        "diagram": {"x1": -50, "x2": 50, "y1": 325, "y2": 425}
+      }
+    }
+  }
+  "Body vector component 2 (right)"
+  b2 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700},
+        "diagram": {"x1": -50, "x2": 50, "y1": 925, "y2": 1025}
+      }
+    }
+  }
+  "Body vector component 3 (down)"
+  b3 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1525, "y2": 1625}
+      }
+    }
+  }
+  "Inertial NED vector component 1 (North)"
+  v1 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
+        "diagram": {"x1": 3550, "x2": 3650, "y1": 925, "y2": 1025}
+      }
+    }
+  }
+  "Inertial NED vector component 2 (East)"
+  v2 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500},
+        "diagram": {"x1": 3550, "x2": 3650, "y1": 1125, "y2": 1225}
+      }
+    }
+  }
+  "Inertial NED vector component 3 (Down)"
+  v3 = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700},
+        "diagram": {"x1": 3550, "x2": 3650, "y1": 1325, "y2": 1425}
+      }
+    }
+  }
+  qx2 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1825, "y2": 1925}}}
+  }
+  qy2 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 625, "y2": 725}}}
+  }
+  qz2 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 425, "y2": 525}}}
+  }
+  qxqy = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 825, "y2": 925}}}
+  }
+  qxqz = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1225, "y2": 1325}}}
+  }
+  qyqz = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2025, "y2": 2125}}}
+  }
+  qwqx = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2225, "y2": 2325}}}
+  }
+  qwqy = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1425, "y2": 1525}}}
+  }
+  qwqz = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1025, "y2": 1125}}}
+  }
+  r11 = BlockComponents.Math.Add3(k1 = 1.0, k2 = -2.0, k3 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 325, "y2": 425}}}
+  }
+  one1 = BlockComponents.Sources.Constant(k = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 225, "y2": 325}}}
+  }
+  r12 = BlockComponents.Math.Add(k1 = 2.0, k2 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 525, "y2": 625}}}
+  }
+  r13 = BlockComponents.Math.Add(k1 = 2.0, k2 = 2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 725, "y2": 825}}}
+  }
+  r21 = BlockComponents.Math.Add(k1 = 2.0, k2 = 2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 925, "y2": 1025}}}
+  }
+  r22 = BlockComponents.Math.Add3(k1 = 1.0, k2 = -2.0, k3 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1125, "y2": 1225}}}
+  }
+  one2 = BlockComponents.Sources.Constant(k = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1625, "y2": 1725}}}
+  }
+  r23 = BlockComponents.Math.Add(k1 = 2.0, k2 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1325, "y2": 1425}}}
+  }
+  r31 = BlockComponents.Math.Add(k1 = 2.0, k2 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1525, "y2": 1625}}}
+  }
+  r32 = BlockComponents.Math.Add(k1 = 2.0, k2 = 2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1725, "y2": 1825}}}
+  }
+  r33 = BlockComponents.Math.Add3(k1 = 1.0, k2 = -2.0, k3 = -2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1925, "y2": 2025}}}
+  }
+  one3 = BlockComponents.Sources.Constant(k = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2425, "y2": 2525}}}
+  }
+  m11 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 325, "y2": 425}}}
+  }
+  m12 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 925, "y2": 1025}}}
+  }
+  m13 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1525, "y2": 1625}}}
+  }
+  v1s = BlockComponents.Math.Add3() {
+    "Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 925, "y2": 1025}}}
+  }
+  m21 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 525, "y2": 625}}}
+  }
+  m22 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1125, "y2": 1225}}}
+  }
+  m23 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1725, "y2": 1825}}}
+  }
+  v2s = BlockComponents.Math.Add3() {
+    "Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 1125, "y2": 1225}}}
+  }
+  m31 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 725, "y2": 825}}}
+  }
+  m32 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1325, "y2": 1425}}}
+  }
+  m33 = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1925, "y2": 2025}}}
+  }
+  v3s = BlockComponents.Math.Add3() {
+    "Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 1325, "y2": 1425}}}
+  }
+relations
+  connect(qx, qx2.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 1875}, {"x": 437.5, "y": 1845}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qx, qx2.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 1875}, {"x": 437.5, "y": 1905}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qy, qy2.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 675}, {"x": 437.5, "y": 645}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qy, qy2.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 675}, {"x": 437.5, "y": 705}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qz, qz2.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 475}, {"x": 437.5, "y": 445}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qz, qz2.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 475}, {"x": 437.5, "y": 505}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qx, qxqy.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 350, "y": 1875},
+            {"x": 350, "y": 850},
+            {"x": 437.5, "y": 850},
+            {"x": 437.5, "y": 844.9999999999999}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qy, qxqy.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 675},
+            {"x": 425, "y": 900},
+            {"x": 437.5, "y": 900},
+            {"x": 437.5, "y": 905.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qx, qxqz.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 400, "y": 1875},
+            {"x": 400, "y": 1250},
+            {"x": 437.5, "y": 1250},
+            {"x": 437.5, "y": 1245}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qz, qxqz.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 375, "y": 475},
+            {"x": 375, "y": 1300},
+            {"x": 437.5, "y": 1300},
+            {"x": 437.5, "y": 1305}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qy, qyqz.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 362.5, "y": 675},
+            {"x": 362.5, "y": 2037.5},
+            {"x": 437.5, "y": 2037.5},
+            {"x": 437.5, "y": 2045}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qz, qyqz.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 312.5, "y": 475},
+            {"x": 312.5, "y": 2100},
+            {"x": 437.5, "y": 2100},
+            {"x": 437.5, "y": 2105}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qw, qwqx.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 437.5, "y": 2275}, {"x": 437.5, "y": 2245}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qx, qwqx.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 1875},
+            {"x": 425, "y": 2300},
+            {"x": 437.5, "y": 2300},
+            {"x": 437.5, "y": 2305}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qw, qwqy.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 412.5, "y": 2275},
+            {"x": 412.5, "y": 1450},
+            {"x": 437.5, "y": 1450},
+            {"x": 437.5, "y": 1445}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qy, qwqy.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 362.5, "y": 675},
+            {"x": 362.5, "y": 1500},
+            {"x": 437.5, "y": 1500},
+            {"x": 437.5, "y": 1505}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qw, qwqz.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 325, "y": 2275},
+            {"x": 325, "y": 1050},
+            {"x": 437.5, "y": 1050},
+            {"x": 437.5, "y": 1045}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qz, qwqz.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 400, "y": 475},
+            {"x": 400, "y": 1100},
+            {"x": 437.5, "y": 1100},
+            {"x": 437.5, "y": 1105}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(one1.y, r11.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 737.5, "y": 275}, {"x": 737.5, "y": 345}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qy2.y, r11.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 725, "y": 675}, {"x": 725, "y": 375}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qz2.y, r11.u3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 737.5, "y": 475}, {"x": 737.5, "y": 405}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qxqy.y, r12.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 712.5, "y": 875},
+            {"x": 712.5, "y": 550},
+            {"x": 737.5, "y": 550},
+            {"x": 737.5, "y": 545}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqz.y, r12.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 1075},
+            {"x": 725, "y": 687.5},
+            {"x": 737.5, "y": 687.5},
+            {"x": 737.5, "y": 605}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qxqz.y, r13.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 1275},
+            {"x": 725, "y": 1087.5},
+            {"x": 875, "y": 1087.5},
+            {"x": 875, "y": 712.5},
+            {"x": 737.5, "y": 712.5},
+            {"x": 737.5, "y": 745}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqy.y, r13.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 562.5, "y": 1475},
+            {"x": 562.5, "y": 1350},
+            {"x": 412.5, "y": 1350},
+            {"x": 412.5, "y": 950},
+            {"x": 712.5, "y": 950},
+            {"x": 712.5, "y": 887.5},
+            {"x": 750, "y": 887.5},
+            {"x": 750, "y": 837.5},
+            {"x": 737.5, "y": 837.5},
+            {"x": 737.5, "y": 805.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qxqy.y, r21.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 737.5, "y": 875}, {"x": 737.5, "y": 944.9999999999999}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqz.y, r21.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 737.5, "y": 1075}, {"x": 737.5, "y": 1005.0000000000001}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(one2.y, r22.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 562.5, "y": 1675},
+            {"x": 562.5, "y": 1550},
+            {"x": 425, "y": 1550},
+            {"x": 425, "y": 1150},
+            {"x": 737.5, "y": 1150},
+            {"x": 737.5, "y": 1145}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qx2.y, r22.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 687.5, "y": 1875}, {"x": 687.5, "y": 1175}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qz2.y, r22.u3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 887.5, "y": 475},
+            {"x": 887.5, "y": 1237.5},
+            {"x": 737.5, "y": 1237.5},
+            {"x": 737.5, "y": 1205}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qyqz.y, r23.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 712.5, "y": 2075},
+            {"x": 712.5, "y": 1350},
+            {"x": 737.5, "y": 1350},
+            {"x": 737.5, "y": 1345}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqx.y, r23.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 875, "y": 2275},
+            {"x": 875, "y": 1437.5},
+            {"x": 737.5, "y": 1437.5},
+            {"x": 737.5, "y": 1405}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qxqz.y, r31.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 1275},
+            {"x": 725, "y": 1462.5},
+            {"x": 737.5, "y": 1462.5},
+            {"x": 737.5, "y": 1545}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqy.y, r31.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 1475},
+            {"x": 725, "y": 1600},
+            {"x": 737.5, "y": 1600},
+            {"x": 737.5, "y": 1605}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qyqz.y, r32.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 712.5, "y": 2075},
+            {"x": 712.5, "y": 1750},
+            {"x": 737.5, "y": 1750},
+            {"x": 737.5, "y": 1745}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qwqx.y, r32.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 875, "y": 2275},
+            {"x": 875, "y": 1837.5},
+            {"x": 737.5, "y": 1837.5},
+            {"x": 737.5, "y": 1805}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(one3.y, r33.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 725, "y": 2475},
+            {"x": 725, "y": 1987.5},
+            {"x": 737.5, "y": 1987.5},
+            {"x": 737.5, "y": 1945}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(qx2.y, r33.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 725, "y": 1875}, {"x": 725, "y": 1975}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(qy2.y, r33.u3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 700, "y": 675},
+            {"x": 700, "y": 500},
+            {"x": 1500, "y": 500},
+            {"x": 1500, "y": 2050},
+            {"x": 737.5, "y": 2050},
+            {"x": 737.5, "y": 2005}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r11.y, m11.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 375}, {"x": 1037.5, "y": 345}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b1, m11.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 375},
+            {"x": 425, "y": 200},
+            {"x": 1025, "y": 200},
+            {"x": 1025, "y": 400},
+            {"x": 1037.5, "y": 400},
+            {"x": 1037.5, "y": 405}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r21.y, m12.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1037.5, "y": 975}, {"x": 1037.5, "y": 944.9999999999999}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(b2, m12.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 387.5, "y": 975},
+            {"x": 387.5, "y": 1137.5},
+            {"x": 712.5, "y": 1137.5},
+            {"x": 712.5, "y": 1100},
+            {"x": 1037.5, "y": 1100},
+            {"x": 1037.5, "y": 1005.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r31.y, m13.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1575}, {"x": 1037.5, "y": 1545}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b3, m13.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 1575},
+            {"x": 425, "y": 1750},
+            {"x": 700, "y": 1750},
+            {"x": 700, "y": 1650},
+            {"x": 1037.5, "y": 1650},
+            {"x": 1037.5, "y": 1605}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(m11.y, v1s.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1337.5, "y": 375}, {"x": 1337.5, "y": 944.9999999999999}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(m12.y, v1s.u2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(m13.y, v1s.u3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1475, "y": 1575},
+            {"x": 1475, "y": 1037.5},
+            {"x": 1337.5, "y": 1037.5},
+            {"x": 1337.5, "y": 1005.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(v1s.y, v1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(r12.y, m21.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 575}, {"x": 1037.5, "y": 545}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b1, m21.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 375},
+            {"x": 425, "y": 200},
+            {"x": 1025, "y": 200},
+            {"x": 1025, "y": 600},
+            {"x": 1037.5, "y": 600},
+            {"x": 1037.5, "y": 605}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r22.y, m22.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1175}, {"x": 1037.5, "y": 1145}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b2, m22.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 387.5, "y": 975},
+            {"x": 387.5, "y": 1200},
+            {"x": 712.5, "y": 1200},
+            {"x": 712.5, "y": 1250},
+            {"x": 1037.5, "y": 1250},
+            {"x": 1037.5, "y": 1205}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r32.y, m23.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1775}, {"x": 1037.5, "y": 1745}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b3, m23.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 1575},
+            {"x": 425, "y": 1800},
+            {"x": 725, "y": 1800},
+            {"x": 725, "y": 1850},
+            {"x": 1037.5, "y": 1850},
+            {"x": 1037.5, "y": 1805}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(m21.y, v2s.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1325, "y": 575},
+            {"x": 1325, "y": 1137.5},
+            {"x": 1337.5, "y": 1137.5},
+            {"x": 1337.5, "y": 1145}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(m22.y, v2s.u2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(m23.y, v2s.u3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1487.5, "y": 1775},
+            {"x": 1487.5, "y": 1237.5},
+            {"x": 1337.5, "y": 1237.5},
+            {"x": 1337.5, "y": 1205}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(v2s.y, v2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(r13.y, m31.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 775}, {"x": 1037.5, "y": 745}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b1, m31.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 425, "y": 375},
+            {"x": 425, "y": 200},
+            {"x": 1025, "y": 200},
+            {"x": 1025, "y": 800},
+            {"x": 1037.5, "y": 800},
+            {"x": 1037.5, "y": 805.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r23.y, m32.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1375}, {"x": 1037.5, "y": 1345}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b2, m32.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 387.5, "y": 975},
+            {"x": 387.5, "y": 1200},
+            {"x": 712.5, "y": 1200},
+            {"x": 712.5, "y": 1262.5},
+            {"x": 1025, "y": 1262.5},
+            {"x": 1025, "y": 1400},
+            {"x": 1037.5, "y": 1400},
+            {"x": 1037.5, "y": 1405}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(r33.y, m33.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 1975}, {"x": 1037.5, "y": 1945}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(b3, m33.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 337.5, "y": 1575},
+            {"x": 337.5, "y": 2350},
+            {"x": 1037.5, "y": 2350},
+            {"x": 1037.5, "y": 2005}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(m31.y, v3s.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1312.5, "y": 775},
+            {"x": 1312.5, "y": 1337.5},
+            {"x": 1337.5, "y": 1337.5},
+            {"x": 1337.5, "y": 1345}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(m32.y, v3s.u2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(m33.y, v3s.u3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1337.5, "y": 1975}, {"x": 1337.5, "y": 1405}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v3s.y, v3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/quatrot.svg"}}}
+end

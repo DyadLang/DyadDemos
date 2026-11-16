@@ -8,7 +8,7 @@ See [the workflow audit](../../followup-workflows.md) for complete commands, cov
 
 RC2 documentation generation: pass (0.866 s). Full generated HTML build: **fail**, 27.895 s. Documenter 1.19.0 was used.
 
-Generated `shared.HL20Aero` behavior block fails with a cyclic binding for `DLG`. The original 3.4 core instead fails earlier because `ChallengeComponent` is undefined, so this project has no successful original construction/full-flight baseline. The common cycle mechanism is independently reproduced with FIR on both versions.
+Generated `shared.HL20Aero` behavior block fails with a cyclic binding for `DLG`. The original 3.4 core instead fails earlier because `HL20Demo` is undefined, so this project has no successful original construction/full-flight baseline. The common cycle mechanism is independently reproduced with FIR on both versions.
 
 ## Notebook and flight coverage
 

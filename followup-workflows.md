@@ -69,6 +69,9 @@ comparison, not a complete old site build. See the
 
 Original HL20 construction instead fails earlier on undefined
 `ChallengeComponent`; no successful original full-flight baseline exists.
+(This note is historical: the restored block-based HL20Demo no longer
+references `ChallengeComponent` — its aerodynamics are built from explicit
+table/poly/gain/sum blocks.)
 The initial SVG-only documentation fixture fails the default HTML limit under
 3.4 as well (722.04 KiB, 40.616872 s process time). That fixture tests the same
 generated SVG content, not an independently rebuilt 3.4 documentation generator.

@@ -165,7 +165,7 @@ where R is the standard quaternion rotation matrix from q=[qw,qx,qy,qz].
 
 ## 7. HL20Aero Model (Pre-provided)
 
-`dyad/shared/HL20Aero.dyad` and the registered symbolic functions in `src/shared_utils.jl` are **pre-provided**. Do not modify them or rebuild the coefficient buildup. Instantiate the component as `ChallengeComponent.shared.HL20Aero(...)` from inside your `HL20Vehicle.dyad` (and `TestAeroSweep.dyad`) and wire its ports.
+`dyad/shared/HL20Aero.dyad` and the registered symbolic functions in `src/shared_utils.jl` are **pre-provided**. Do not modify them or rebuild the coefficient buildup. Instantiate the component as `HL20Demo.shared.HL20Aero(...)` from inside your `HL20Vehicle.dyad` (and `TestAeroSweep.dyad`) and wire its ports.
 
 ### Interface (for wiring into HL20Vehicle)
 
@@ -184,7 +184,7 @@ where R is the standard quaternion rotation matrix from q=[qw,qx,qy,qz].
 
 ### Registered Symbolic Functions (FYI, used inside `HL20Aero.dyad`)
 
-Loaded by the project module from the DAVE-ML files in `assets/shared/` and exposed as `ChallengeComponent.<name>`:
+Loaded by the project module from the DAVE-ML files in `assets/shared/` and exposed as `HL20Demo.<name>`:
 
 | Function | Signature | Purpose |
 |----------|-----------|---------|
@@ -193,9 +193,9 @@ Loaded by the project module from the DAVE-ML files in `assets/shared/` and expo
 | `hl20_poly2de` | `(group_idx, alpha_deg, defl, mach)` | 2D table, embedded breakpoints |
 
 Index accessors (called at model-construction time, return constant `Integer`s):
-- `ChallengeComponent.idx1d("CL0A")`
-- `ChallengeComponent.grp2dr("CLBFLL")`
-- `ChallengeComponent.grp2de("CLRUD")`
+- `HL20Demo.idx1d("CL0A")`
+- `HL20Demo.grp2dr("CLBFLL")`
+- `HL20Demo.grp2de("CLRUD")`
 
 ---
 
@@ -533,7 +533,7 @@ mixer.dr_fo.x = 0.0
 ## 12. Debugging Guide
 
 - **Gravity-only fails:** Check gravity direction (+pos_3 = NED down). Check quaternion kinematics signs. Check all six force/torque inputs are wired.
-- **Aero sweep discontinuities:** Check that the aero model compiles and the lookup functions are accessible via `ChallengeComponent.hl20_poly1d(...)` etc.
+- **Aero sweep discontinuities:** Check that the aero model compiles and the lookup functions are accessible via `HL20Demo.hl20_poly1d(...)` etc.
 - **Integrated tests fail after gravity-only passes:** Check frame contracts — forces must be in inertial NED, torques in body frame, altitude = −pos_3 × ft_per_m.
 - **NaN / divergence:** Check division safety (v_scalar, vrw_fps denominators). Check missing initial conditions.
 - **Mixer startup transient:** Ensure all FirstOrder actuator states are initialized at their equilibrium values.

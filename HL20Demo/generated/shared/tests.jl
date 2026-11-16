@@ -16,5 +16,15 @@ end
 
 
 @testset "`HL20Demo.shared`" begin
+include("CubicPoly_test.jl")
 include("HL20Aero_test.jl")
+include("HL20CD_test.jl")
+include("HL20CL_test.jl")
+include("HL20CM_test.jl")
+include("HL20CN_test.jl")
+include("HL20CR_test.jl")
+include("HL20CY_test.jl")
+include("HL20Table1D_test.jl")
+include("HL20Table2DE_test.jl")
+include("HL20Table2DR_test.jl")
 end

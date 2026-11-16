@@ -1,16 +1,19 @@
 ```@cardmeta
-Title = "HL-20 Aerodynamic Core and Flight Simulator Prompts"
-Description = "The NASA HL-20 aerodynamic core, engineering spec, and Dyad Agent prompts for building a 6-DOF flight simulator. Flight analyses are not included."
+Title = "HL-20 Fully Graphical 6-DOF Flight Simulation"
+Description = "The NASA HL-20 as a fully graphical Dyad model: every math block and connection visible — block aerodynamics, rigid-body dynamics, atmosphere, control laws, mixer, and closed-loop pitch-pulse validation."
 Tags = ["aerospace", "flight-dynamics", "control", "agent-built"]
 Cover = "assets/icon.svg"
 ```
 
 # HL-20 Flight Simulator
 
-This checkout provides the aerodynamic core, atmosphere/table helpers, an
-engineering spec (`assets/shared/hl20_spec.md`), and two Dyad Agent prompts in
-`scripts/`. The prompts describe how to build a full flight simulator; the
-closed-loop vehicle and flight analyses are not present in this checkout.
+This checkout contains a **fully graphical** 6-DOF simulation of the NASA
+HL-20 lifting body: every operation that feeds the dynamics — aerodynamic
+coefficient build-up, forces and moments, atmosphere, flight-state kinematics,
+integrators, the surface mixer and the SAS control laws — is a wired
+`BlockComponents` block laid out in hierarchical diagrams. The engineering
+spec (`assets/shared/hl20_spec.md`) and the Dyad Agent prompts in `scripts/`
+document how the model was derived.
 
 The vehicle is the **NASA HL-20**, a proposed crew-carrying spaceplane that
 flies on the shape of its own body rather than on wings. The requested
@@ -26,9 +29,10 @@ pointing — using these parts:
 | Flight-control laws | Steers pitch, roll, yaw, and speed toward the commanded values |
 | Surface mixer and actuators | Spreads each command across the seven moving surfaces |
 
-The spec requests comparison with a golden solution and NASA's published
-pitch-pulse test case from TM-107580 Appendix F. No flight result or such
-comparison is included here.
+The closed-loop analysis `TestHL20FullSystemSim` reproduces the Appendix F
+aft pitch-stick pulse end-to-end; see `docs/diagrams/` for rendered images of
+every component diagram and `docs/LAYOUT_NOTES.md` for how each layout was
+produced.
 
 !!! note
     This is a heavy, agent-generated demo. The aerodynamic core's Dyad source is
