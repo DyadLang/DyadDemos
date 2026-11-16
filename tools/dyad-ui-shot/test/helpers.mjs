@@ -35,20 +35,81 @@ export function fixtureLib(name = "TinyLib", edit) {
   return dir;
 }
 
-// Run the CLI. `onSpawn(child)` runs right after it starts.
+// Every process seen under a CLI this file started, as "pid:starttime" (the
+// kernel's start time makes a reused pid not count as ours). If one is still
+// running when the test file exits, for instance because a test failed or
+// timed out, it is killed; nothing else is touched.
+const owned = new Map();
+
+// The start time of a running (not zombie) process, or null.
+function startTime(pid) {
+  try {
+    const stat = fs.readFileSync(`/proc/${pid}/stat`, "utf8");
+    const fields = stat.slice(stat.lastIndexOf(")") + 2).split(" ");
+    return fields[0] === "Z" ? null : fields[19];
+  } catch {
+    return null;
+  }
+}
+
+const stillOwned = () => [...owned].filter(([key, pid]) => `${pid}:${startTime(pid)}` === key);
+
+// Wait up to `ms` for the recorded processes to exit, then reap the rest.
+export async function settleAndReap(ms = 1000) {
+  for (const t0 = Date.now(); stillOwned().length && Date.now() - t0 < ms; ) {
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  return reapLeftovers();
+}
+
+function recordTree(root) {
+  for (const pid of [root, ...descendants(root)]) {
+    const st = startTime(pid);
+    if (st) owned.set(`${pid}:${st}`, pid);
+  }
+}
+
+// Kill whatever is left of the processes recorded under CLIs started here.
+// Returns the pids that were still running.
+export function reapLeftovers() {
+  const left = [];
+  for (const [, pid] of stillOwned()) {
+    left.push(pid);
+    try {
+      process.kill(pid, "SIGKILL");
+    } catch {
+      // exited meanwhile
+    }
+  }
+  owned.clear();
+  return left;
+}
+process.on("exit", () => {
+  const left = reapLeftovers();
+  if (left.length) console.error(`test helpers: killed leftover processes ${left.join(" ")}`);
+});
+
+// Run the CLI in its own process group. `onSpawn(child)` runs right after it
+// starts. Its process tree is sampled while it runs, for reapLeftovers().
 export function runCli(args, { env = {}, onSpawn } = {}) {
   return new Promise((resolve) => {
     const t0 = Date.now();
     const child = spawn(process.execPath, [CLI, ...args], {
       env: { ...process.env, ...env },
       stdio: ["ignore", "pipe", "pipe"],
+      detached: true,
     });
+    const sampler = setInterval(() => recordTree(child.pid), 100);
+    recordTree(child.pid);
     let stderr = "";
     let stdout = "";
     child.stdout.on("data", (d) => (stdout += d));
     child.stderr.on("data", (d) => (stderr += d));
     onSpawn?.(child);
-    child.on("exit", (code, signal) => resolve({ code, signal, stdout, stderr, seconds: (Date.now() - t0) / 1000 }));
+    child.on("exit", (code, signal) => {
+      clearInterval(sampler);
+      resolve({ code, signal, stdout, stderr, seconds: (Date.now() - t0) / 1000 });
+    });
   });
 }
 

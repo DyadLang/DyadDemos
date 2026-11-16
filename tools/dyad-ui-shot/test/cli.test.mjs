@@ -1,7 +1,7 @@
 // End to end, standalone mode, on the fixture library with a fake Julia (no
 // real Julia needed): findings 1 (nothing listens), 2 (remote icons are not
 // fetched), 4 (deadlines, cleanup, batch failures) and the --guides flag.
-import { test } from "node:test";
+import { test, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import http from "node:http";
@@ -17,7 +17,15 @@ import {
   descendants,
   listeningSockets,
   isLoopback,
+  settleAndReap,
 } from "./helpers.mjs";
+
+// The tool must clean up after itself: any process it left behind fails the
+// test that left it (and is killed, so it cannot outlive the test run).
+afterEach(async () => {
+  const left = await settleAndReap();
+  assert.deepEqual(left, [], `the CLI left processes behind: ${left.join(" ")}`);
+});
 
 const isPng = (f) => fs.existsSync(f) && fs.readFileSync(f).subarray(1, 4).toString() === "PNG";
 
