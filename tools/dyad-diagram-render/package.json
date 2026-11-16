@@ -1,0 +1,30 @@
+{
+  "name": "dyad-diagram-render",
+  "version": "0.1.0",
+  "description": "Draw a Dyad component's diagram as SVG or PNG, the way Dyad Studio's diagram view draws it, without a browser",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "bin": {
+    "dyad-diagram-render": "bin/dyad-diagram-render.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./adapter": "./src/adapter/dyad-cli.ts"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test test/",
+    "typecheck": "tsc -p .",
+    "golden:update": "UPDATE_GOLDEN=1 node --test test/golden.test.ts"
+  },
+  "dependencies": {
+    "resvg-napi": "0.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "typescript": "5.9.3"
+  }
+}
