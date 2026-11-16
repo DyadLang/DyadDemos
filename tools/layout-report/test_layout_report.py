@@ -7,6 +7,7 @@ import sys
 import tempfile
 import textwrap
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import layout_report as lr  # noqa: E402
@@ -109,6 +110,47 @@ class Transforms(unittest.TestCase):
         dg = lr.parse_svg(svg([], [], extra=f'<g transform="translate(1000 0)">{BLOCK.format(tx=-400, ty=-300, name="a")}</g>'))
         self.assertEqual(tuple(round(v, 6) for v in dg.blocks[0].box), (1050, 150, 1150, 250))
 
+    def test_wires_wrapped_in_a_group_and_svg_are_still_wires(self):
+        # a <g> wrapping an <svg> is only a block when the svg holds icon art; wires keep it a plain group
+        wires = "".join(WIRE.format(d=d) for d in CROSS)
+        for inner in ('<svg viewBox="0 0 1000 1000">', '<svg x="0" y="0" width="1000" height="1000">', "<svg>"):
+            m = metrics(f"<g>{inner}{wires}</svg></g>")
+            self.assertEqual((m["blocks"], m["ports"], m["wires"], m["crossings"]), (0, 0, 2, 1), inner)
+        # the nested viewport still maps the wires: 100 user units drawn at 1000
+        dg = lr.parse_svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><g><svg viewBox="0 0 100 100">'
+                          + WIRE.format(d="M 0 10 L 50 10") + "</svg></g></svg>")
+        self.assertEqual([tuple(round(v, 6) for v in p) for p in dg.wires[0].pts], [(0, 100), (500, 100)])
+        # a real block next to the wires is still a block
+        m = metrics(f'<g>{BLOCK.format(tx=-400, ty=-300, name="a")}<svg viewBox="0 0 1000 1000">{wires}</svg></g>')
+        self.assertEqual((m["blocks"], m["wires"], m["crossings"]), (1, 2, 1))
+
+    def test_icon_svg_transform_moves_block_label_and_port(self):
+        plain = lr.parse_svg(svg([("a", 100, 200)], []))
+        moved = lr.parse_svg(svg([("a", 100, 200)], []).replace('<svg viewBox="0 0 1000 1000">',
+                                                               '<svg transform="translate(1000 0)" viewBox="0 0 1000 1000">'))
+        shift = lambda bb: tuple(round(v, 6) for v in (bb[0] + 100, bb[1], bb[2] + 100, bb[3]))  # 1000 icon units x 0.1
+        self.assertEqual(tuple(round(v, 6) for v in moved.blocks[0].box), shift(plain.blocks[0].box))
+        self.assertEqual(tuple(round(v, 6) for v in moved.blocks[0].labels[0][1]), shift(plain.blocks[0].labels[0][1]))
+        port = BLOCK.replace('filter="url(#drop-shadow)" ', "")
+        dg = lr.parse_svg(svg([], [], extra=port.replace("<svg ", '<svg transform="translate(1000 0)" ').format(tx=-400, ty=-300, name="p")))
+        self.assertTrue(dg.blocks[0].is_port)
+        self.assertEqual(tuple(round(v, 6) for v in dg.blocks[0].box), (150, 150, 250, 250))
+        # a label's own transform, and a free label's
+        dg = lr.parse_svg(svg([("a", 100, 200)], []).replace("<text ", '<text transform="translate(0 1000)" '))
+        self.assertAlmostEqual((dg.blocks[0].labels[0][1][1] + dg.blocks[0].labels[0][1][3]) / 2, 360)
+        dg = lr.parse_svg(svg([], [], extra='<g transform="translate(5 0)"><text x="10" y="20" font-size="10" '
+                                            'dominant-baseline="central" transform="translate(100 0)">t</text></g>'))
+        self.assertEqual(tuple(round(v, 6) for v in dg.free_labels[0][1]), (115, 15, 121, 25))
+
+    def test_unsupported_transforms_are_rejected(self):
+        for t in ("skewX(10)", "skewY(5)", "translate(1 0) skewX(10)", "rotate(1 2)", "matrix(1 0 0 1)", "translate(a)", "bogus"):
+            for body in (f'<g transform="{t}">' + WIRE.format(d=CROSS[0]) + "</g>",
+                         WIRE.format(d=CROSS[0]).replace("<path ", f'<path transform="{t}" '),
+                         BLOCK.format(tx=0, ty=0, name="a").replace("<svg ", f'<svg transform="{t}" '),
+                         BLOCK.format(tx=0, ty=0, name="a").replace("<text ", f'<text transform="{t}" ')):
+                with self.assertRaises(lr.UnsupportedSVG, msg=body):
+                    lr.parse_svg(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">{body}</svg>')
+
     def test_unsupported_structures_are_rejected(self):
         for body in ('<svg viewBox="0 0 10 10"><path d="M 0 0 L 5 0" fill="transparent"/></svg>',
                      '<use href="#w"/>'):
@@ -200,6 +242,15 @@ class Unmatched(unittest.TestCase):
         section = "\n".join(lr.scorer_section({"dir": "/w", "release": "v0.1.1", "version": "0.0.1", "pinned": True}, rows))
         self.assertIn("L.D: 1 of 2 connections unmatched", section)
 
+    def test_reroute_error_is_in_the_markdown(self):
+        rows = [{"diagram": "L.D", "metrics": {"badness": 1, "dl_status": "complete", "dl_crossings": 0},
+                 "dyad_layout": {"status": "complete", "connections": 2, "unmatchedConnections": 0,
+                                 "reroutedError": "Error: no legal route for c2\n    at score_layout_json"}}]
+        section = "\n".join(lr.scorer_section({"dir": "/w", "release": "v0.1.1", "version": "0.0.1", "pinned": True}, rows))
+        self.assertIn("Re-route failed", section)
+        self.assertIn("L.D: Error: no legal route for c2", section)
+        self.assertNotIn("at score_layout_json", section)
+
     @unittest.skipUnless(os.environ.get("LAYOUT_REPORT_WASM") and shutil.which("node"),
                          "set LAYOUT_REPORT_WASM to dyad-layout v0.1.1's wasm/pkg to run")
     def test_partial_score_with_the_real_scorer(self):
@@ -253,6 +304,9 @@ if args[0] == "render" and args[1].endswith("Broken"):
 if args[0] == "render":
     with open({svg!r}) as f:
         sys.stdout.write(f.read())
+elif args[:2] == ["layout", "extract"] and args[2].endswith("NoProblem"):
+    sys.stderr.write("ERROR: extract exploded\\n")
+    sys.exit(1)
 elif args[:2] == ["layout", "extract"]:
     with open({prob!r}) as f, open(args[args.index("-o") + 1], "w") as g:
         g.write(f.read())
@@ -275,7 +329,8 @@ class EndToEnd(unittest.TestCase):
         os.makedirs(os.path.join(lib, "dyad"))
         write(os.path.join(lib, "Project.toml"), 'name = "Lib"\n')
         write(os.path.join(lib, "dyad", "lib.dyad"),
-              "component Chain\n  connect(a.y, b.u)\nend\ncomponent Broken\n  connect(a.y, b.u)\nend\n")
+              "component Chain\n  connect(a.y, b.u)\nend\ncomponent Broken\n  connect(a.y, b.u)\nend\n"
+              "component NoProblem\n  connect(a.y, b.u)\nend\n")
         write(os.path.join(d, "chain.svg"), CHAIN_SVG)
         write(os.path.join(d, "prob.json"), json.dumps(chain_problem()))
         fake = os.path.join(d, "dyad")
@@ -302,6 +357,25 @@ class EndToEnd(unittest.TestCase):
         self.assertIn("missing", chain["dyad_layout"]["error"])
         self.assertIn("## dyad-layout scorer", md)
         self.assertIn("Not run: dyad-layout scorer not found", md)
+
+    def test_failed_extract_keeps_geometry_and_the_extract_error(self):
+        # a working scorer, but `dyad layout extract` fails for NoProblem: there is nothing to score
+        scorer = {"dir": "/w", "release": "v0.1.1", "version": "0.0.1", "pinned": True, "sha256": {}}
+        scored = {"status": "complete", "connections": 1, "unmatchedConnections": 0, "unmatchedIds": [],
+                  "existing": {"objective": {"crossings": 0, "illegalRoutes": 0, "turns": 0, "spacingPenalty": 0}},
+                  "rerouted": {"objective": {"crossings": 2, "illegalRoutes": 1}}}
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(lr, "check_scorer", return_value=scorer), \
+                mock.patch.object(lr, "score_with_wasm", return_value=scored):
+            rows, md, _ = self.run_main(d, "--dyad-layout-wasm", d)
+        row = rows["Lib.NoProblem"]
+        self.assertNotIn("error", row)
+        self.assertEqual((row["metrics"]["wires"], row["metrics"]["blocks"]), (1, 3))
+        self.assertIn("ERROR: extract exploded", row["extract_error"])
+        self.assertEqual(row["dyad_layout"], {"status": "unavailable", "error": "no extracted problem to score against"})
+        self.assertNotIn("dl_rerouted_crossings", row["metrics"])
+        self.assertIn("Lib.NoProblem: `dyad layout extract` failed: ERROR: extract exploded", md)
+        # the diagram that did extract still gets both scores
+        self.assertEqual((rows["Lib.Chain"]["metrics"]["dl_crossings"], rows["Lib.Chain"]["metrics"]["dl_rerouted_crossings"]), (0, 2))
 
     def test_failed_render_keeps_the_primary_error_and_the_log(self):
         with tempfile.TemporaryDirectory() as d:

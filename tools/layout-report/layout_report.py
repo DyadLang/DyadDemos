@@ -52,12 +52,34 @@ def translate(tx, ty):
     return (1.0, 0.0, 0.0, 1.0, tx, ty)
 
 
+class UnsupportedSVG(ValueError):
+    """The SVG uses a structure the parser does not model; measuring it would be wrong."""
+
+
+TRANSFORM_ARGS = {"translate": (1, 2), "scale": (1, 2), "rotate": (1, 3), "matrix": (6,)}
+
+
 def parse_transform(s: str | None):
+    """An SVG transform list as one affine matrix: translate, scale, rotate and matrix.
+
+    Anything else (skewX, skewY, malformed arguments) raises UnsupportedSVG
+    rather than being dropped, which would silently misplace the geometry.
+    """
     m = IDENT
-    if not s:
+    if not s or not s.strip():
         return m
+    rest = re.sub(r"(\w+)\s*\(([^)]*)\)", "", s)
+    if rest.strip(" \t\r\n,"):
+        raise UnsupportedSVG(f"transform={s!r}: cannot parse {rest.strip()!r}")
     for name, args in re.findall(r"(\w+)\s*\(([^)]*)\)", s):
-        v = [float(x) for x in re.split(r"[\s,]+", args.strip()) if x]
+        if name not in TRANSFORM_ARGS:
+            raise UnsupportedSVG(f"transform={s!r}: {name}() is not supported")
+        try:
+            v = [float(x) for x in re.split(r"[\s,]+", args.strip()) if x]
+        except ValueError:
+            raise UnsupportedSVG(f"transform={s!r}: bad {name}() arguments")
+        if len(v) not in TRANSFORM_ARGS[name]:
+            raise UnsupportedSVG(f"transform={s!r}: {name}() takes {' or '.join(map(str, TRANSFORM_ARGS[name]))} arguments")
         if name == "translate":
             t = translate(v[0], v[1] if len(v) > 1 else 0.0)
         elif name == "scale":
@@ -72,8 +94,6 @@ def parse_transform(s: str | None):
             t = r
         elif name == "matrix":
             t = tuple(v)
-        else:
-            continue
         m = mat_mul(m, t)
     return m
 
@@ -333,7 +353,7 @@ CHAR_W = 0.6  # average glyph width / font size for the sans-serif labels
 
 
 def text_box(el, m):
-    """Approximate global bbox of an SVG text element."""
+    """Approximate global bbox of an SVG text element; m maps its user space (its own transform included)."""
     txt = "".join(el.itertext()).strip()
     try:
         fs = float(el.get("font-size", "16"))
@@ -346,8 +366,7 @@ def text_box(el, m):
     x0 = x - w / 2 if anchor == "middle" else (x - w if anchor == "end" else x)
     base = el.get("dominant-baseline", "")
     y0 = y - fs / 2 if base == "central" else y - 0.8 * fs
-    local = parse_transform(el.get("transform"))
-    return txt, map_box(mat_mul(m, local), x0, y0, x0 + w, y0 + fs)
+    return txt, map_box(m, x0, y0, x0 + w, y0 + fs)
 
 
 def parse_path(d):
@@ -382,10 +401,6 @@ def parse_path(d):
         if not pts or seg_len(pts[-1], cur) > 1e-9:
             pts.append(cur)
     return pts
-
-
-class UnsupportedSVG(ValueError):
-    """The SVG uses a structure the parser does not model; measuring it would be wrong."""
 
 
 def _num(el, attr, default=None):
@@ -448,10 +463,13 @@ def parse_svg(svg_text, src_boxes=None):
     """Parse a `dyad render` SVG into blocks, wires, junctions and labels, in root user units.
 
     Transforms are accumulated down the tree (translate/scale/rotate/matrix on
-    any element, nested <svg> viewport mappings). A <g> with a direct <svg>
-    child is a block or boundary port: Dyad wraps each icon in one, with a drop
-    shadow on blocks only. Any other <g> is a plain group, and its wires,
-    junctions and labels are measured like top-level ones.
+    any element, the <svg> element included, and nested <svg> viewport
+    mappings); any other transform is rejected. Groups are classified by
+    content: Dyad wraps each block and boundary-port icon in a <g> with a direct
+    <svg> child (a drop shadow on blocks only), and icons hold no wires. A <g>
+    whose subtree holds a wire is a plain group whatever it wraps, so its
+    wires, junctions and labels are measured like top-level ones, through any
+    nested <svg> viewports.
     """
     # embedded icon SVGs carry their own XML declarations and doctypes
     svg_text = re.sub(r"<\?xml[^>]*\?>|<!DOCTYPE[^>]*>", "", svg_text)
@@ -460,19 +478,26 @@ def parse_svg(svg_text, src_boxes=None):
     center = (ICON_SIZE / 2, ICON_SIZE / 2)
     counter = [0]
 
+    def tag_of(el):
+        return el.tag.replace(SVGNS, "") if isinstance(el.tag, str) else ""
+
+    def is_wire(el):
+        return tag_of(el) == "path" and el.get("fill") == "transparent"
+
     def block(ch, m):
         shadow = "shadow" in (ch.get("filter") or "")
-        icons = [sub for sub in ch if sub.tag.replace(SVGNS, "") == "svg"]
-        # the block's frame is its icon's viewport, in the group's coordinates
-        vm, (x, y, w, h) = viewport_matrix(icons[0], ICON_SIZE, ICON_SIZE)
-        box = map_box(m, x, y, x + w, y + h)
-        rot = math.degrees(math.atan2(m[1], m[0])) % 360
+        icons = [sub for sub in ch if tag_of(sub) == "svg"]
+        # the block's frame is its icon's viewport, in the group's coordinates, moved by the icon's own transform
+        fm = mat_mul(m, _local(icons[0], center))
+        _vm, (x, y, w, h) = viewport_matrix(icons[0], ICON_SIZE, ICON_SIZE)
+        box = map_box(fm, x, y, x + w, y + h)
+        rot = math.degrees(math.atan2(fm[1], fm[0])) % 360
         texts = []
         for icon in icons:
-            im = mat_mul(m, viewport_matrix(icon, ICON_SIZE, ICON_SIZE)[0])
+            im = mat_mul(mat_mul(m, _local(icon, center)), viewport_matrix(icon, ICON_SIZE, ICON_SIZE)[0])
             for t in icon:
-                if t.tag.replace(SVGNS, "") == "text":
-                    txt, bb = text_box(t, im)
+                if tag_of(t) == "text":
+                    txt, bb = text_box(t, mat_mul(im, _local(t, center)))
                     if txt and bb:
                         texts.append((txt, bb))
         name, label = None, None
@@ -492,34 +517,47 @@ def parse_svg(svg_text, src_boxes=None):
             name = f"{'port' if not shadow else 'block'}#{counter[0]}"
         dg.blocks.append(Block(name, box, not shadow, rot, (label or []) if shadow else []))
 
-    def walk(parent, m):
+    def inner_size(el, w, h):
+        """Size of the viewport an <svg> establishes for its children (None if unknown)."""
+        vb = el.get("viewBox")
+        if vb:
+            vw, vh = (float(v) for v in re.split(r"[\s,]+", vb.strip())[2:4])
+            return vw, vh
+        return (w, h) if w is not None and h is not None else None
+
+    def walk(parent, m, vp):
         for ch in parent:
-            tag = ch.tag.replace(SVGNS, "") if isinstance(ch.tag, str) else ""
+            tag = tag_of(ch)
             if tag in ("defs", "style", "title", "desc", "metadata", "filter", "clipPath", "marker", "symbol", ""):
                 continue
             lm = mat_mul(m, _local(ch, center))
             if tag == "g":
-                if any(sub.tag.replace(SVGNS, "") == "svg" for sub in ch):
+                if any(tag_of(sub) == "svg" for sub in ch) and not any(is_wire(el) for el in ch.iter()):
                     block(ch, lm)
                 else:
-                    walk(ch, lm)
+                    walk(ch, lm, vp)
             elif tag == "svg":
-                vm, _ = viewport_matrix(ch)
-                walk(ch, mat_mul(lm, vm))
-            elif tag == "path" and ch.get("fill") == "transparent":
+                # width and height default to 100% of the parent viewport
+                vm, (_x, _y, w, h) = viewport_matrix(ch, *(vp or (None, None)))
+                walk(ch, mat_mul(lm, vm), inner_size(ch, w, h))
+            elif is_wire(ch):
                 pts = normalize_polyline([apply(lm, x, y) for x, y in parse_path(ch.get("d", ""))])
                 if len(pts) >= 2:
                     dg.wires.append(Wire(pts))
             elif tag == "circle":
                 dg.junctions.append(apply(lm, float(ch.get("cx", 0)), float(ch.get("cy", 0))))
             elif tag == "text":
-                txt, bb = text_box(ch, m)
+                txt, bb = text_box(ch, lm)
                 if bb:
                     dg.free_labels.append((txt, bb))
             elif tag in ("use", "image", "foreignObject", "switch", "a"):
                 raise UnsupportedSVG(f"<{tag}> at diagram level is not supported")
 
-    walk(root, IDENT)
+    try:  # the root's own size only matters to a nested <svg> that leaves out its width or height
+        root_vp = inner_size(root, _num(root, "width"), _num(root, "height"))
+    except (UnsupportedSVG, ValueError):
+        root_vp = None
+    walk(root, _local(root, center), root_vp)
     return dg
 
 
@@ -1284,6 +1322,7 @@ def scorer_section(scorer, rows):
                + ("" if scorer.get("pinned") else " (**not a pinned build**: checksums differ from every known release)") + ".")
     partial = [r for r in rows if r.get("dyad_layout", {}).get("status") == "partial"]
     missing = [r for r in rows if r.get("dyad_layout", {}).get("status") == "unavailable" or r.get("extract_error")]
+    reroute_failed = [r for r in rows if r.get("dyad_layout", {}).get("reroutedError")]
     if partial:
         out += ["", "Partial scores (marked * in the table): the drawn-route score covers only the connections a drawn wire was "
                 "matched to. Unmatched connections are not scored, and no route is invented for them.", ""]
@@ -1297,6 +1336,9 @@ def scorer_section(scorer, rows):
             if r.get("extract_error"):
                 why = f"`dyad layout extract` failed: {first_line(r['extract_error'])} (log: `{r.get('extract_log')}`)"
             out.append(f"- {r['diagram']}: {first_line(why)}")
+    if reroute_failed:
+        out += ["", "Re-route failed (no `reroute` columns; the drawn-route score stands):", ""]
+        out += [f"- {r['diagram']}: {first_line(r['dyad_layout']['reroutedError'])}" for r in reroute_failed]
     return out
 
 
@@ -1399,10 +1441,10 @@ def analyze_component(lib, libdir, sc, args, cache):
                 m["dl_illegal"] = o.get("illegalRoutes", 0)
                 m["dl_turns"] = o.get("turns")
                 m["dl_spacing"] = o.get("spacingPenalty")
-        if "rerouted" in sc_out:
-            o = sc_out["rerouted"]["objective"]
-            m["dl_rerouted_crossings"] = o.get("crossings")
-            m["dl_rerouted_illegal"] = o.get("illegalRoutes", 0)
+            if "rerouted" in sc_out:
+                o = sc_out["rerouted"]["objective"]
+                m["dl_rerouted_crossings"] = o.get("crossings")
+                m["dl_rerouted_illegal"] = o.get("illegalRoutes", 0)
     if prob and args.solve:
         spath = os.path.join(cache, q + ".solution.json")
         rc, _out, err = run_dyad(args.dyad, ["layout", "solve", "-i", os.path.join(cache, q + ".problem.json"), "-o", spath], libdir)

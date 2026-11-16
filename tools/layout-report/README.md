@@ -130,24 +130,30 @@ wire matched get no route. `dl_status` in `report.json` is `complete`,
 `dyad_layout.unmatchedIds` names them) or `unavailable` (nothing scored, with
 `dyad_layout.error` saying why). `report.md` lists the partial and unscored
 diagrams under *dyad-layout scorer*. The re-routed score (`reroute X`) uses
-only the placements, so it covers every connection.
+only the placements, so it covers every connection. If re-routing fails,
+`dyad_layout.reroutedError` in `report.json` and the *dyad-layout scorer*
+section of `report.md` say why.
 
 ## How the SVG is read
 
 Transforms are composed down the tree: `translate`, `scale`, `rotate` and
-`matrix` on any element, `transform-origin="center"`, and nested `<svg>`
-viewports (`x`, `y`, `width`, `height`, `viewBox`, with the default
-`preserveAspectRatio`). A `<g>` with a direct `<svg>` child is a block (with
-a drop shadow) or a boundary port (without one), as `dyad render` draws them.
-Any other `<g>` is a plain group, and the wires, junction dots and labels in
-it are measured like top-level ones. Before contacts are classified, every
+`matrix` on any element (the `<svg>` elements, block icons and labels
+included), `transform-origin="center"`, and nested `<svg>` viewports (`x`,
+`y`, `width`, `height`, `viewBox`, with the default `preserveAspectRatio`; a
+missing width or height is the parent viewport's). Groups are classified by
+what they hold, not by how they are wrapped. A `<g>` with a direct `<svg>`
+child and no wire anywhere inside it is a block (with a drop shadow) or a
+boundary port (without one), as `dyad render` draws them. Any other `<g>`,
+including one that wraps wires in a nested `<svg>`, is a plain group, and
+the wires, junction dots and labels in it are measured like top-level ones.
+Before contacts are classified, every
 wire polyline is normalised: repeated vertices and vertices in the middle of
 a straight run are dropped, and the shared runs of two wires are merged
 before they are counted, so a waypoint that does not bend the wire does not
 change the result. Structures the parser does not model (`<use>`,
-`<image>`, a nested `<svg>` viewBox without a size, other
-`preserveAspectRatio` values) are rejected with an error instead of
-being measured wrongly.
+`<image>`, `skewX`/`skewY` or malformed transforms, a nested `<svg>` viewBox
+whose size cannot be known, other `preserveAspectRatio` values) are rejected
+with an error instead of being measured wrongly.
 
 ## Limitations
 
