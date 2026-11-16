@@ -16,7 +16,7 @@ outputs.
 
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
-| `DETRIM0`         |                          | --  |   -5.3535 |
+| `DETRIM0`         |                          | --  |   5.5 |
 
 ## Connectors
 
@@ -34,7 +34,7 @@ outputs.
  * `DLE` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `DSBCMD` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function HL20FullSystem(; name = nothing, var"DETRIM0"=-5.3535, __overrides = Dict{String, Any}())
+@component function HL20FullSystem(; name = nothing, var"DETRIM0"=5.5, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:

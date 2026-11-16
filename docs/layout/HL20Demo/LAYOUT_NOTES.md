@@ -66,9 +66,9 @@ internal diagram laid out with the same conventions.
 | HL20Demo.HL20Vehicle | 276 | 128 | 0 |
 | HL20Demo.RigidBody6DOF | 222 | 3 | 0 |
 | HL20Demo.QuatToInertial | 195 | 3 | 0 |
-| HL20Demo.FlightState | 173 | 29 | 0 |
+| HL20Demo.FlightState | 173 | 25 | 0 |
 | HL20Demo.QuatToBody | 163 | 2 | 0 |
-| HL20Demo.HL20FullSystem | 138 | 94 | 0 |
+| HL20Demo.HL20FullSystem | 138 | 73 | 0 |
 | HL20Demo.shared.HL20CN | 122 | 91 | 0 |
 | HL20Demo.shared.HL20CR | 122 | 91 | 0 |
 | HL20Demo.shared.HL20CY | 113 | 81 | 0 |
@@ -114,7 +114,7 @@ Exceptions above the ~80-crossing target, one line each:
 - **HL20Vehicle (128)** — 46-pin strongly-connected loop; residual crossings
   are concentrated where the 6-signal force/moment feedback bus descends
   past the input-port wall; the bus lanes are ordered (deep dives first).
-- **HL20FullSystem (94)** — 16-signal feedback bus; feedback pins were moved
+- **HL20FullSystem (73)** — 16-signal feedback bus; feedback pins were moved
   to controller icon bottom edges making the bus itself near-zero-crossing;
   remaining crossings sit in the east-side output tap zone (the port-descent
   wall is solid, any eastbound wire pays ~10X).
@@ -157,3 +157,23 @@ touching these files:
   the corrected spec arithmetic (0.0375 × 20.9²), not drift.
 - NASA TM-107580 Appendix F CSV comparison is skipped: the reference CSV
   is missing from the restored assets.
+
+## Label-collision fix round
+
+A later pass addressed port glyphs covering neighbouring port labels in
+Studio renders (not visible to `dyad render`). Boundary ports that touched
+were respaced to ≥100-unit center spacing and their route waypoints
+re-threaded; affected diagrams:
+
+- `HL20FullSystem` — input port wall (DCPILOT/DWPILOT/DPPILOT, etc.) and
+  output port wall; crossings 94 → 73.
+- `AirData` — `sin_alpha`, `r_rad`, `cos_alpha`, `hob`, `qbar`, `mach`,
+  `eas_kts`; 14 crossings.
+- `VehicleOutputs` — `q_rad`, `r_rad`, `fz_body`, `qdeg`, `rdeg`, `nz_g`;
+  0 crossings.
+- `TransDynamics` — `v2`, `v3`; 0 crossings.
+- `FlightState` — `u_body`, `v_body`, `w_body`; crossings 29 → 25.
+
+Studio PNGs for all five were re-captured via `dyad-ui-shot` and verified
+label-readable; `layout-report` shows zero label/block, label/label and
+label/wire collisions on each.

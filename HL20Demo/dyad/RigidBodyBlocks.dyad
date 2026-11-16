@@ -45,7 +45,7 @@ component TransDynamics
     "Dyad": {
       "placement": {
         "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500},
-        "diagram": {"x1": 1450, "x2": 1550, "y1": 700, "y2": 800}
+        "diagram": {"x1": 1450, "x2": 1550, "y1": 750, "y2": 850}
       }
     }
   }
@@ -54,7 +54,7 @@ component TransDynamics
     "Dyad": {
       "placement": {
         "icon": {"x1": 950, "y1": 650, "x2": 1050, "y2": 750},
-        "diagram": {"x1": 1450, "x2": 1550, "y1": 1050, "y2": 1150}
+        "diagram": {"x1": 1450, "x2": 1550, "y1": 1100, "y2": 1200}
       }
     }
   }
@@ -174,9 +174,9 @@ relations
   }
   connect(int_v1.y, v1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(int_p1.y, p1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(int_v2.y, v2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(int_v2.y, v2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1420, "y": 750}, {"x": 1420, "y": 800}], "E": 2}], "path": {}}}
   connect(int_p2.y, p2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(int_v3.y, v3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(int_v3.y, v3) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1420, "y": 1100}, {"x": 1420, "y": 1150}], "E": 2}], "path": {}}}
   connect(int_p3.y, p3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
 metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/transdyn.svg"}}}
 end

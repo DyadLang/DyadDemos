@@ -1,6 +1,7 @@
 """
-Direction-cosine matrix (body-to-inertial NED) of the scalar-first
-quaternion q = [qw, qx, qy, qz]: m11..m33. The output pins are ordered
+Direction-cosine matrix (inertial-to-body NED) of the scalar-first
+quaternion q = [qw, qx, qy, qz]: m11..m33. For a +90 degree yaw this gives
+m12 = +1 and m21 = -1. The output pins are ordered
 m11, m12, m21, m13, m31, m22, m23, m32, m33 so each entry sits beside its
 transpose; wiring them straight into DCMMatVec applies the matrix and
 swapping each adjacent pair applies the transpose.
