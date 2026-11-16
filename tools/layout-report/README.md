@@ -36,6 +36,9 @@ Output in `-o DIR`:
   re-rendering.
 - `cache/<diagram>.problem.json`: the `dyad layout extract` output, with
   `--extract`.
+- `cache/<diagram>.render.log`, `.extract.log`, `.solve.log`: the full dyad
+  output of a step that failed. The report keeps the first error and its
+  message; the log keeps everything.
 - `cache/<diagram>.overlay.svg`: a plain schematic of the measured geometry
   with every finding marked. Red dots are crossings, magenta rings are false
   junctions, red lines go through a block, and orange marks a run shared by
@@ -43,7 +46,8 @@ Output in `-o DIR`:
 
 Requirements:
 
-- Python 3.9 or newer, standard library only.
+- Python 3.9 or newer, standard library only. The tests run on 3.9, 3.11 and
+  3.12.
 - The Dyad CLI (`--dyad`, default `$DYAD` or `dyad`) with a working
   `JULIA_EXECUTABLE`, as for any `dyad` command. It is needed for anything
   except `--svg`.
@@ -51,8 +55,16 @@ Requirements:
   [JuliaComputing/dyad-layout](https://github.com/JuliaComputing/dyad-layout).
   The repository is private. The Dyad 3.5.0 CLI ships dyad-layout 0.1.1:
   `gh repo clone JuliaComputing/dyad-layout -- --branch v0.1.1 --depth 1`.
+  The tool checks the sha256 of `dyad_layout_wasm_bg.wasm` and
+  `dyad_layout_wasm.js` against the builds it pins (`PINNED_SCORERS`; v0.1.1,
+  whose `version()` reports `0.0.1`) and refuses other builds unless you pass
+  `--allow-unpinned-scorer`. If the scorer is missing, unpinned or Node is not
+  installed, the geometry metrics are still measured, and `report.md` says
+  why the scorer did not run.
 
 Run the tests with `python3 -m unittest tools/layout-report/test_layout_report.py`.
+Set `LAYOUT_REPORT_WASM` to dyad-layout's `wasm/pkg` to also run the test
+against the real scorer.
 
 ## Metrics
 
@@ -77,7 +89,8 @@ Lengths are in Dyad diagram units. A dyad-layout half-square is 50 units.
 | `white`, `gap` | fraction of 50×50 cells with no block, label or wire, and the side of the largest empty square. |
 | `aspect` | width / height of everything drawn. |
 | `pitch` | the closest two pins on different nets. Under about 10 units the pins are unreadable and the block is too small for its pin count. |
-| `dl X`, `dl illegal`, `dl turns`, `dl spacing` | dyad-layout's own `score_existing_solution` on the drawn routes. `illegal` = overlapping runs + fallback routes. |
+| `dl X`, `dl illegal`, `dl turns`, `dl spacing` | dyad-layout's own `score_existing_solution` on the drawn routes. `illegal` = overlapping runs + fallback routes. A `*` marks a partial score (see `dl unmatched`). |
+| `dl unmatched` | problem connections no drawn wire was matched to. They are left out of the drawn-route score, never replaced by an invented route. |
 | `reroute X`, `reroute illegal` | dyad-layout's `score_layout`: the same placements, routed by its own router. If this is far below `dl X`, the routes are the problem. If it is about the same, the placement is. |
 
 `bad` (badness) is the ranking key. It is a plain weighted sum:
@@ -103,14 +116,38 @@ counted.
 `--dyad-layout-wasm` converts the drawn diagram into a dyad-layout
 `LayoutSolution`:
 
-- block centres come from the render, D4 states from the extracted problem;
+- block centres come from the render, D4 states from the extracted problem
+  (dyad-layout's names: `identity`, `r90`, `r180`, `r270`, `flipH`, `flipV`,
+  `flipH_r90`, `flipV_r90`; any other state is an error);
 - coordinates are divided by 50 and shifted by the origin that `extract` used;
 - each drawn wire becomes the route of the problem connection whose two
   connector positions are nearest its two ends.
 
 The result is passed to `score_existing_solution_json` and
-`score_layout_json` (`dyad_layout_score.mjs`). `dl_unmatched` in
-`report.json` counts problem connections no drawn wire matched.
+`score_layout_json` (`dyad_layout_score.mjs`). Connections that no drawn
+wire matched get no route. `dl_status` in `report.json` is `complete`,
+`partial` (some connections unmatched: `dl_unmatched` counts them and
+`dyad_layout.unmatchedIds` names them) or `unavailable` (nothing scored, with
+`dyad_layout.error` saying why). `report.md` lists the partial and unscored
+diagrams under *dyad-layout scorer*. The re-routed score (`reroute X`) uses
+only the placements, so it covers every connection.
+
+## How the SVG is read
+
+Transforms are composed down the tree: `translate`, `scale`, `rotate` and
+`matrix` on any element, `transform-origin="center"`, and nested `<svg>`
+viewports (`x`, `y`, `width`, `height`, `viewBox`, with the default
+`preserveAspectRatio`). A `<g>` with a direct `<svg>` child is a block (with
+a drop shadow) or a boundary port (without one), as `dyad render` draws them.
+Any other `<g>` is a plain group, and the wires, junction dots and labels in
+it are measured like top-level ones. Before contacts are classified, every
+wire polyline is normalised: repeated vertices and vertices in the middle of
+a straight run are dropped, and the shared runs of two wires are merged
+before they are counted, so a waypoint that does not bend the wire does not
+change the result. Structures the parser does not model (`<use>`,
+`<image>`, a nested `<svg>` viewBox without a size, other
+`preserveAspectRatio` values) are rejected with an error instead of
+being measured wrongly.
 
 ## Limitations
 

@@ -2,6 +2,7 @@
 //
 // stdin: {"wasmDir", "problem": LayoutProblem, "solution": LayoutSolution, "options"}
 // stdout: {"version", "existing": LayoutSolution, "rerouted": LayoutSolution}
+// With --version (stdin {"wasmDir"}): prints the version the WASM reports.
 //
 //   existing - score_existing_solution_json: the drawn routes, scored as they are
 //   rerouted - score_layout_json: the same placements, re-routed by dyad-layout's router
@@ -15,6 +16,10 @@ import { pathToFileURL } from "node:url";
 const input = JSON.parse(readFileSync(0, "utf8"));
 const glue = await import(pathToFileURL(join(input.wasmDir, "dyad_layout_wasm.js")).href);
 glue.initSync({ module: readFileSync(join(input.wasmDir, "dyad_layout_wasm_bg.wasm")) });
+if (process.argv.includes("--version")) {
+  process.stdout.write(glue.version());
+  process.exit(0);
+}
 
 const problem = JSON.stringify(input.problem);
 const options = JSON.stringify(input.options ?? {});

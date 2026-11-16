@@ -175,6 +175,30 @@ def seg_contact(p1, p2, p3, p4, tol=0.25):
     return None
 
 
+def normalize_polyline(pts, tol=0.25):
+    """Drop repeated vertices and vertices in the middle of a straight run.
+
+    A waypoint that does not change direction draws nothing, so it must not
+    change what the wire's contacts are classified as. Reversals (a run that
+    doubles back on itself) are kept: they draw ink beyond the turn.
+    """
+    out = []
+    for p in pts:
+        p = (float(p[0]), float(p[1]))
+        if out and seg_len(out[-1], p) <= 1e-9:
+            continue
+        out.append(p)
+        while len(out) >= 3:
+            a, b, c = out[-3], out[-2], out[-1]
+            lac = seg_len(a, c)
+            dot = (b[0] - a[0]) * (c[0] - b[0]) + (b[1] - a[1]) * (c[1] - b[1])
+            if lac > 1e-9 and abs(_cross(a, c, b)) / lac <= tol and dot > 0:
+                del out[-2]
+            else:
+                break
+    return out
+
+
 # ---------------------------------------------------------------------------
 # library / source discovery
 
@@ -360,57 +384,142 @@ def parse_path(d):
     return pts
 
 
+class UnsupportedSVG(ValueError):
+    """The SVG uses a structure the parser does not model; measuring it would be wrong."""
+
+
+def _num(el, attr, default=None):
+    v = el.get(attr)
+    if v is None:
+        return default
+    v = v.strip()
+    if v.endswith("px"):
+        v = v[:-2]
+    try:
+        return float(v)
+    except ValueError:
+        raise UnsupportedSVG(f"<svg {attr}={el.get(attr)!r}>: only plain user-unit lengths are supported")
+
+
+def viewport_matrix(el, default_w=None, default_h=None):
+    """Mapping from a nested <svg>'s user space to its parent's: x/y offset plus viewBox scaling.
+
+    Implements the default preserveAspectRatio (xMidYMid meet) and "none".
+    Width and height default to the given values; with neither, the nested
+    viewport's size is unknown and the SVG is rejected.
+    """
+    x = _num(el, "x", 0.0)
+    y = _num(el, "y", 0.0)
+    w = _num(el, "width", default_w)
+    h = _num(el, "height", default_h)
+    vb = el.get("viewBox")
+    if not vb:
+        return translate(x, y), (x, y, w, h)
+    if w is None or h is None:
+        raise UnsupportedSVG("nested <svg> with a viewBox but no width/height: its viewport is unknown")
+    vx, vy, vw, vh = (float(v) for v in re.split(r"[\s,]+", vb.strip()))
+    if vw <= 0 or vh <= 0:
+        raise UnsupportedSVG(f"nested <svg viewBox={vb!r}>")
+    sx, sy = w / vw, h / vh
+    par = (el.get("preserveAspectRatio") or "xMidYMid meet").split()
+    if par[0] != "none":
+        if par[0] != "xMidYMid" or (len(par) > 1 and par[1] != "meet"):
+            raise UnsupportedSVG(f"nested <svg preserveAspectRatio={el.get('preserveAspectRatio')!r}>")
+        s = min(sx, sy)
+        tx = x + (w - vw * s) / 2 - vx * s
+        ty = y + (h - vh * s) / 2 - vy * s
+        return (s, 0.0, 0.0, s, tx, ty), (x, y, w, h)
+    return (sx, 0.0, 0.0, sy, x - vx * sx, y - vy * sy), (x, y, w, h)
+
+
+ICON_SIZE = 1000.0  # Dyad draws every block and port icon as <svg viewBox="0 0 1000 1000"> in a 1000x1000 frame
+
+
+def _local(el, center):
+    m = parse_transform(el.get("transform"))
+    if el.get("transform-origin", "").startswith("center"):
+        m = mat_mul(translate(*center), mat_mul(m, translate(-center[0], -center[1])))
+    elif el.get("transform-origin"):
+        raise UnsupportedSVG(f"transform-origin={el.get('transform-origin')!r}")
+    return m
+
+
 def parse_svg(svg_text, src_boxes=None):
+    """Parse a `dyad render` SVG into blocks, wires, junctions and labels, in root user units.
+
+    Transforms are accumulated down the tree (translate/scale/rotate/matrix on
+    any element, nested <svg> viewport mappings). A <g> with a direct <svg>
+    child is a block or boundary port: Dyad wraps each icon in one, with a drop
+    shadow on blocks only. Any other <g> is a plain group, and its wires,
+    junctions and labels are measured like top-level ones.
+    """
     # embedded icon SVGs carry their own XML declarations and doctypes
     svg_text = re.sub(r"<\?xml[^>]*\?>|<!DOCTYPE[^>]*>", "", svg_text)
     root = ET.fromstring(svg_text)
     dg = Diagram()
-    center = (500.0, 500.0)
-    nport = 0
-    for ch in root:
-        tag = ch.tag.replace(SVGNS, "")
-        if tag == "g":
-            m = parse_transform(ch.get("transform"))
-            if ch.get("transform-origin", "").startswith("center"):
-                m = mat_mul(translate(*center), mat_mul(m, translate(-center[0], -center[1])))
-            box = map_box(m, 0, 0, 1000, 1000)
-            rot = math.degrees(math.atan2(m[1], m[0])) % 360
-            shadow = "shadow" in (ch.get("filter") or "")
-            name, label = None, None
-            texts = []
-            for sub in ch:
-                if sub.tag.replace(SVGNS, "") != "svg":
-                    continue
-                for t in sub:
-                    if t.tag.replace(SVGNS, "") == "text":
-                        txt, bb = text_box(t, m)
-                        if txt and bb:
-                            texts.append((txt, bb))
-            if texts:
-                # the instance-name label names the block; parameter labels are kept too
-                named = [t for t in texts if src_boxes and t[0] in src_boxes]
-                name = (named or texts)[0][0]
-                label = texts
-            if not shadow:
-                nport += 1
-            if name is None and src_boxes:
-                c = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)
-                best = min(src_boxes.items(), key=lambda kv: math.hypot((kv[1][0] + kv[1][2]) / 2 - c[0], (kv[1][1] + kv[1][3]) / 2 - c[1]))
-                if math.hypot((best[1][0] + best[1][2]) / 2 - c[0], (best[1][1] + best[1][3]) / 2 - c[1]) < 2:
-                    name = best[0]
-            if name is None:
-                name = f"{'port' if not shadow else 'block'}#{nport}"
-            dg.blocks.append(Block(name, box, not shadow, rot, (label or []) if shadow else []))
-        elif tag == "path" and ch.get("fill") == "transparent":
-            pts = parse_path(ch.get("d", ""))
-            if len(pts) >= 2:
-                dg.wires.append(Wire(pts))
-        elif tag == "circle":
-            dg.junctions.append((float(ch.get("cx", 0)), float(ch.get("cy", 0))))
-        elif tag == "text":
-            txt, bb = text_box(ch, IDENT)
-            if bb:
-                dg.free_labels.append((txt, bb))
+    center = (ICON_SIZE / 2, ICON_SIZE / 2)
+    counter = [0]
+
+    def block(ch, m):
+        shadow = "shadow" in (ch.get("filter") or "")
+        icons = [sub for sub in ch if sub.tag.replace(SVGNS, "") == "svg"]
+        # the block's frame is its icon's viewport, in the group's coordinates
+        vm, (x, y, w, h) = viewport_matrix(icons[0], ICON_SIZE, ICON_SIZE)
+        box = map_box(m, x, y, x + w, y + h)
+        rot = math.degrees(math.atan2(m[1], m[0])) % 360
+        texts = []
+        for icon in icons:
+            im = mat_mul(m, viewport_matrix(icon, ICON_SIZE, ICON_SIZE)[0])
+            for t in icon:
+                if t.tag.replace(SVGNS, "") == "text":
+                    txt, bb = text_box(t, im)
+                    if txt and bb:
+                        texts.append((txt, bb))
+        name, label = None, None
+        if texts:
+            # the instance-name label names the block; parameter labels are kept too
+            named = [t for t in texts if src_boxes and t[0] in src_boxes]
+            name = (named or texts)[0][0]
+            label = texts
+        if not shadow:
+            counter[0] += 1
+        if name is None and src_boxes:
+            c = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)
+            best = min(src_boxes.items(), key=lambda kv: math.hypot((kv[1][0] + kv[1][2]) / 2 - c[0], (kv[1][1] + kv[1][3]) / 2 - c[1]))
+            if math.hypot((best[1][0] + best[1][2]) / 2 - c[0], (best[1][1] + best[1][3]) / 2 - c[1]) < 2:
+                name = best[0]
+        if name is None:
+            name = f"{'port' if not shadow else 'block'}#{counter[0]}"
+        dg.blocks.append(Block(name, box, not shadow, rot, (label or []) if shadow else []))
+
+    def walk(parent, m):
+        for ch in parent:
+            tag = ch.tag.replace(SVGNS, "") if isinstance(ch.tag, str) else ""
+            if tag in ("defs", "style", "title", "desc", "metadata", "filter", "clipPath", "marker", "symbol", ""):
+                continue
+            lm = mat_mul(m, _local(ch, center))
+            if tag == "g":
+                if any(sub.tag.replace(SVGNS, "") == "svg" for sub in ch):
+                    block(ch, lm)
+                else:
+                    walk(ch, lm)
+            elif tag == "svg":
+                vm, _ = viewport_matrix(ch)
+                walk(ch, mat_mul(lm, vm))
+            elif tag == "path" and ch.get("fill") == "transparent":
+                pts = normalize_polyline([apply(lm, x, y) for x, y in parse_path(ch.get("d", ""))])
+                if len(pts) >= 2:
+                    dg.wires.append(Wire(pts))
+            elif tag == "circle":
+                dg.junctions.append(apply(lm, float(ch.get("cx", 0)), float(ch.get("cy", 0))))
+            elif tag == "text":
+                txt, bb = text_box(ch, m)
+                if bb:
+                    dg.free_labels.append((txt, bb))
+            elif tag in ("use", "image", "foreignObject", "switch", "a"):
+                raise UnsupportedSVG(f"<{tag}> at diagram level is not supported")
+
+    walk(root, IDENT)
     return dg
 
 
@@ -492,6 +601,33 @@ def largest_empty_square(grid):
     return best
 
 
+def merge_overlaps(runs, tol=0.25):
+    """Merge the collinear segment overlaps of one wire pair into contiguous runs.
+
+    Returns [(length, [segment pairs])]: one entry per contiguous shared run,
+    however many segments of either wire it spans.
+    """
+    ivs = []
+    for p1, p2, p3, p4 in runs:
+        l = seg_len(p1, p2)
+        ux, uy = (p2[0] - p1[0]) / l, (p2[1] - p1[1]) / l
+        if ux < -1e-9 or (abs(ux) <= 1e-9 and uy < 0):
+            ux, uy = -ux, -uy
+        off = -uy * p1[0] + ux * p1[1]  # signed distance of the supporting line from the origin
+        a0, a1 = sorted((p1[0] * ux + p1[1] * uy, p2[0] * ux + p2[1] * uy))
+        b0, b1 = sorted((p3[0] * ux + p3[1] * uy, p4[0] * ux + p4[1] * uy))
+        ivs.append(((round(ux, 3), round(uy, 3)), off, max(a0, b0), min(a1, b1), (p1, p2, p3, p4)))
+    ivs.sort(key=lambda v: (v[0], v[1], v[2]))
+    out = []
+    for d, off, lo, hi, seg in ivs:
+        if out and out[-1][0] == d and abs(out[-1][1] - off) <= tol and lo <= out[-1][3] + tol:
+            out[-1][3] = max(out[-1][3], hi)
+            out[-1][4].append(seg)
+        else:
+            out.append([d, off, lo, hi, [seg]])
+    return [(hi - lo, segs) for _d, _o, lo, hi, segs in out]
+
+
 def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
     assign_nets(dg)
     comps = [b for b in dg.blocks if not b.is_port]
@@ -560,15 +696,14 @@ def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
             if a[2] < b[0] - 1 or b[2] < a[0] - 1 or a[3] < b[1] - 1 or b[3] < a[1] - 1:
                 continue
             seen = set()
+            runs = []  # collinear shared runs of this pair, merged below
             for p1, p2 in zip(wi.pts, wi.pts[1:]):
                 for p3, p4 in zip(wj.pts, wj.pts[1:]):
                     c = seg_contact(p1, p2, p3, p4)
                     if c is None:
                         continue
                     if c[0] == "overlap":
-                        overlap_runs += 1
-                        overlap_len += c[1]
-                        dg.issues.setdefault("overlap", []).append((p1, p2, p3, p4))
+                        runs.append((p1, p2, p3, p4))
                     else:
                         k = (c[0], round(c[1][0]), round(c[1][1]))
                         if k in seen:
@@ -582,6 +717,10 @@ def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
                         else:
                             touches += 1
                             dg.issues.setdefault("touch", []).append(c[1])
+            for length, segs in merge_overlaps(runs):
+                overlap_runs += 1
+                overlap_len += length
+                dg.issues.setdefault("overlap", []).extend(segs)
     m["crossings"] = crossings
     dg.issues["cross"] = cross_pts
     m["crossings_per_wire"] = round(crossings / nw, 2)
@@ -798,16 +937,69 @@ def run_dyad(dyad, args, cwd, timeout=1800):
         return p.returncode, out.read(), p.stderr
 
 
-def dyad_errors(stderr):
-    lines = [l for l in stderr.splitlines() if not l.startswith("Julia stderr (exit 0)")]
-    return "\n".join(lines[-8:])
+ERROR_RE = re.compile(r"\bERROR\b|^\s*(?:error|Error|fatal)\b\s*:")
 
 
+def primary_error(log, context=12):
+    """The first error in a dyad/Julia log and its message, without the stack trace.
+
+    Julia prints the cause first (`ERROR: ...` and the lines after it) and
+    then pages of stack trace and follow-on failures, so the first ERROR is the
+    one that matters. Falls back to the last lines when there is no ERROR.
+    """
+    lines = [l.rstrip() for l in log.splitlines() if not l.startswith("Julia stderr (exit 0)")]
+    for i, l in enumerate(lines):
+        if ERROR_RE.search(l):
+            out = [l]
+            for nxt in lines[i + 1: i + 1 + context]:
+                if not nxt.strip() or nxt.lstrip().startswith(("Stacktrace:", "[1]", "in expression starting")):
+                    break
+                out.append(nxt)
+            return "\n".join(out)
+    tail = [l for l in lines if l.strip()]
+    return "\n".join(tail[-8:])
+
+
+def dyad_failure(cache, q, step, log):
+    """Save the full log next to the report and return (primary error, log path)."""
+    path = os.path.join(cache, f"{q}.{step}.log")
+    with open(path, "w") as f:
+        f.write(log)
+    return primary_error(log), path
+
+
+def first_line(text):
+    """One-line summary of an error for lists: its first line naming an error, else its first line."""
+    lines = [l for l in (text or "").splitlines() if l.strip()]
+    return next((l for l in lines if "rror" in l), lines[0] if lines else "")
+
+
+# dyad-layout's D4 states, names and maths as in its rust/core/src/d4.rs
+# (apply_d4): the flip comes before the rotation, flipH negates y, flipV
+# negates x, and r90 maps (x, y) to (-y, x).
 D4_PTS = {
     "identity": lambda x, y: (x, y), "r90": lambda x, y: (-y, x), "r180": lambda x, y: (-x, -y),
     "r270": lambda x, y: (y, -x), "flipH": lambda x, y: (x, -y), "flipV": lambda x, y: (-x, y),
-    "flipHR90": lambda x, y: (y, x), "flipVR90": lambda x, y: (-y, -x),
+    "flipH_r90": lambda x, y: (y, x), "flipV_r90": lambda x, y: (-y, -x),
 }
+
+
+def apply_d4(state, x, y):
+    try:
+        return D4_PTS[state](x, y)
+    except KeyError:
+        raise ValueError(f"unknown dyad-layout D4 state {state!r} (expected one of {', '.join(D4_PTS)})") from None
+
+
+def connector_offset(comp, connector_id, d4):
+    """Offset of a component connector from the component centre, after its D4 transform."""
+    cd = next((k for k in comp["connectors"] if k["id"] == connector_id), None)
+    if cd is None:
+        return None
+    hw, hh = comp["width"] / 2, comp["height"] / 2
+    e, t = cd["edge"], cd["position"]
+    lx, ly = {"top": (t * hw, -hh), "bottom": (t * hw, hh), "left": (-hw, t * hh), "right": (hw, t * hh)}[e]
+    return apply_d4(d4, lx, ly)
 
 
 def problem_to_layout(prob):
@@ -874,6 +1066,7 @@ def solution_from_drawing(prob, dg):
         else:
             continue
         d4 = h.get("initialD4State", "identity")
+        apply_d4(d4, 0, 0)  # reject unknown states here rather than mis-place every connector
         placements.append({"componentId": c["id"], "center": {"x": ctr[0], "y": ctr[1]}, "d4State": d4})
         comp_at[c["id"]] = (c, ctr, d4)
     canvas = []
@@ -898,14 +1091,10 @@ def solution_from_drawing(prob, dg):
         c, ctr, d4 = got
         if c["width"] == 0 and c["height"] == 0:
             return ctr
-        cd = next((k for k in c["connectors"] if k["id"] == r["connectorId"]), None)
-        if cd is None:
+        off = connector_offset(c, r["connectorId"], d4)
+        if off is None:
             return ctr
-        hw, hh = c["width"] / 2, c["height"] / 2
-        e, t = cd["edge"], cd["position"]
-        lx, ly = {"top": (t * hw, -hh), "bottom": (t * hw, hh), "left": (-hw, t * hh), "right": (hw, t * hh)}[e]
-        dx, dy = D4_PTS.get(d4, D4_PTS["identity"])(lx, ly)
-        return (ctr[0] + dx, ctr[1] + dy)
+        return (ctr[0] + off[0], ctr[1] + off[1])
 
     wires = [[tohg(p) for p in w.pts] for w in dg.wires]
     cands = []
@@ -926,32 +1115,97 @@ def solution_from_drawing(prob, dg):
         used_w.add(wi)
         pts = wires[wi][::-1] if rev else wires[wi]
         routed[ci] = pts
-    rcs = []
-    unmatched = 0
+    # Only drawn routes are scored. A connection no drawn wire matched gets no
+    # route at all: inventing one (say, a straight line between its ends) would
+    # be scored as if Dyad had drawn it.
+    rcs, unmatched = [], []
     for ci, c in enumerate(st["connections"]):
         pts = routed.get(ci)
         if pts is None:
-            unmatched += 1
-            a, b = ref_pos(c["from"]), ref_pos(c["to"])
-            if a is None or b is None:
-                continue
-            pts = [a, b]
+            unmatched.append(c["id"])
+            continue
         rcs.append({"connectionId": c["id"], "waypoints": [{"x": x, "y": y} for x, y in pts]})
     zero = {"crossings": 0, "totalLength": 0, "centralityPenalty": 0, "hintPenalty": 0, "turns": 0, "spacingPenalty": 0, "value": 0}
     sol = {"componentPlacements": placements, "canvasConnectorPlacements": canvas, "routedConnections": rcs, "objective": zero}
     return sol, unmatched
 
 
-def score_with_wasm(wasm_dir, prob, dg, options):
+# dyad-layout WASM builds this tool has been checked against: release tag ->
+# the sha256 of the files dyad_layout_score.mjs loads, and the string the
+# WASM's version() returns. v0.1.1 (commit bb4582c) is what the Dyad 3.5.0 CLI
+# ships; its crate version was never bumped, so it reports 0.0.1.
+PINNED_SCORERS = {
+    "v0.1.1": {
+        "reports": "0.0.1",
+        "sha256": {
+            "dyad_layout_wasm_bg.wasm": "75dd69d9fc2bc213b073ac8f2b86e05c3af3d02ba34cd67fb8665cc3049bb3db",
+            "dyad_layout_wasm.js": "867d0bf744646d3bac1e6b1471d8642ed0fe7f9727aaa68c9451dedb71d6ae01",
+        },
+    },
+}
+
+
+def check_scorer(wasm_dir, allow_unpinned=False, node="node"):
+    """Check the dyad-layout scorer before any diagram is measured.
+
+    Returns {"version", "release", "pinned", "sha256"}, plus "error" if it cannot be used. The files must match a
+    pinned build unless allow_unpinned; the version the WASM reports must
+    match the pin.
+    """
+    import hashlib
+    info = {"dir": os.path.abspath(wasm_dir)}
+    sums = {}
+    for fn in ("dyad_layout_wasm_bg.wasm", "dyad_layout_wasm.js"):
+        path = os.path.join(wasm_dir, fn)
+        if not os.path.isfile(path):
+            return dict(info, error=f"dyad-layout scorer not found: {path} is missing (give the wasm/pkg directory of dyad-layout v0.1.1)")
+        with open(path, "rb") as f:
+            sums[fn] = hashlib.sha256(f.read()).hexdigest()
+    info["sha256"] = sums
+    pinned = next((tag for tag, pin in PINNED_SCORERS.items() if pin["sha256"] == sums), None)
+    info["pinned"] = pinned is not None
+    info["release"] = pinned
+    if pinned is None and not allow_unpinned:
+        return dict(info, error=f"dyad-layout scorer in {wasm_dir} does not match a pinned build "
+                                f"({', '.join(PINNED_SCORERS)}); "
+                                "use --allow-unpinned-scorer to score with it anyway")
+    if not shutil.which(node):
+        return dict(info, error=f"Node is needed for --dyad-layout-wasm and was not found ({node})")
+    try:
+        p = subprocess.run([node, os.path.join(HERE, "dyad_layout_score.mjs"), "--version"],
+                           input=json.dumps({"wasmDir": info["dir"]}), capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError) as e:
+        return dict(info, error=f"cannot run the dyad-layout scorer: {e}")
+    if p.returncode != 0:
+        return dict(info, error="the dyad-layout scorer failed to load: " + primary_error(p.stderr))
+    info["version"] = p.stdout.strip()
+    if pinned is not None and info["version"] != PINNED_SCORERS[pinned]["reports"]:
+        return dict(info, error=f"dyad-layout scorer reports version {info['version']}, but its files are the "
+                                f"pinned {pinned} build, which reports {PINNED_SCORERS[pinned]['reports']}")
+    return info
+
+
+def score_with_wasm(wasm_dir, prob, dg, options, node="node"):
     lp = problem_to_layout(prob)
     sol, unmatched = solution_from_drawing(prob, dg)
+    total = len(prob["structure"]["connections"])
     payload = {"wasmDir": os.path.abspath(wasm_dir), "problem": lp, "solution": sol, "options": options or {}}
-    p = subprocess.run(["node", os.path.join(HERE, "dyad_layout_score.mjs")], input=json.dumps(payload),
-                       capture_output=True, text=True, timeout=600)
+    base = {"connections": total, "unmatchedConnections": len(unmatched), "unmatchedIds": unmatched,
+            # partial: the drawn-route score covers only the matched connections
+            "status": "partial" if unmatched else "complete"}
+    if total and len(unmatched) == total:
+        base["status"] = "unavailable"
+    try:
+        p = subprocess.run([node, os.path.join(HERE, "dyad_layout_score.mjs")], input=json.dumps(payload),
+                           capture_output=True, text=True, timeout=600)
+    except (OSError, subprocess.SubprocessError) as e:
+        return dict(base, status="unavailable", error=f"cannot run the dyad-layout scorer: {e}")
     if p.returncode != 0:
-        return {"error": p.stderr.strip()[-500:]}
+        return dict(base, status="unavailable", error=primary_error(p.stderr))
     out = json.loads(p.stdout)
-    out["unmatchedConnections"] = unmatched
+    if base["status"] == "unavailable":
+        out.pop("existing", None)  # nothing drawn was matched: there is no drawn geometry to score
+    out.update(base)
     return out
 
 
@@ -986,7 +1240,10 @@ TABLE_COLS = [
     ("min_pin_pitch", "pitch"),
 ]
 DL_COLS = [("dl_crossings", "dl X"), ("dl_illegal", "dl illegal"), ("dl_turns", "dl turns"),
-           ("dl_spacing", "dl spacing"), ("dl_rerouted_crossings", "reroute X"), ("dl_rerouted_illegal", "reroute illegal")]
+           ("dl_spacing", "dl spacing"), ("dl_unmatched", "dl unmatched"),
+           ("dl_rerouted_crossings", "reroute X"), ("dl_rerouted_illegal", "reroute illegal")]
+# drawn-route scores that only cover part of the diagram are marked in the table
+DL_PARTIAL = {"dl_crossings", "dl_illegal", "dl_turns", "dl_spacing"}
 
 
 def fmt(v):
@@ -999,13 +1256,48 @@ def fmt(v):
 
 def markdown(rows, sort_key):
     cols = list(TABLE_COLS)
-    if any("dl_crossings" in r["metrics"] for r in rows):
+    if any("dl_status" in r["metrics"] for r in rows):
         cols += DL_COLS
-    rows = sorted(rows, key=lambda r: (-(r["metrics"].get(sort_key) or 0)))
+
+    def cell(m, k):
+        v = fmt(m.get(k))
+        if k in DL_PARTIAL and m.get("dl_status") == "partial" and m.get(k) is not None:
+            v += "*"
+        return v
+
+    rows = sorted(rows, key=lambda r: (-(r["metrics"].get(sort_key) or 0) if isinstance(r["metrics"].get(sort_key), (int, float)) else 0))
     out = ["| diagram | " + " | ".join(h for _, h in cols) + " |", "|---|" + "---:|" * len(cols)]
     for r in rows:
-        out.append(f"| {r['diagram']} | " + " | ".join(fmt(r["metrics"].get(k)) for k, _ in cols) + " |")
+        out.append(f"| {r['diagram']} | " + " | ".join(cell(r["metrics"], k) for k, _ in cols) + " |")
     return "\n".join(out)
+
+
+def scorer_section(scorer, rows):
+    """Markdown lines on the dyad-layout scorer: which build ran, or why it did not."""
+    if not scorer:
+        return []
+    out = ["", "## dyad-layout scorer", ""]
+    if "error" in scorer:
+        out.append(f"Not run: {scorer['error']}. The geometry metrics above do not depend on it.")
+        return out
+    out.append(f"dyad-layout {scorer.get('release') or 'build'} (reports version {scorer.get('version')}) from `{scorer['dir']}`"
+               + ("" if scorer.get("pinned") else " (**not a pinned build**: checksums differ from every known release)") + ".")
+    partial = [r for r in rows if r.get("dyad_layout", {}).get("status") == "partial"]
+    missing = [r for r in rows if r.get("dyad_layout", {}).get("status") == "unavailable" or r.get("extract_error")]
+    if partial:
+        out += ["", "Partial scores (marked * in the table): the drawn-route score covers only the connections a drawn wire was "
+                "matched to. Unmatched connections are not scored, and no route is invented for them.", ""]
+        out += [f"- {r['diagram']}: {r['dyad_layout']['unmatchedConnections']} of {r['dyad_layout']['connections']} "
+                "connections unmatched" for r in partial]
+    if missing:
+        out += ["", "Not scored:", ""]
+        for r in missing:
+            why = r.get("dyad_layout", {}).get("error") or (
+                "all connections unmatched" if r.get("dyad_layout", {}).get("status") == "unavailable" else "")
+            if r.get("extract_error"):
+                why = f"`dyad layout extract` failed: {first_line(r['extract_error'])} (log: `{r.get('extract_log')}`)"
+            out.append(f"- {r['diagram']}: {first_line(why)}")
+    return out
 
 
 LEGEND = """Columns: bad = composite badness (see README); X = wire crossings between different nets;
@@ -1018,6 +1310,7 @@ shorter than 10 units; len = Dyad units; detours = wires >= 2.5x their Manhattan
 outer = wires leaving the blocks' bounding box by > 30 units; white = fraction of 50x50 cells with
 no block, label or wire; gap = side of the largest empty square; pitch = closest pins on different
 nets. dl X / dl illegal / dl turns / dl spacing = dyad-layout's own objective on the drawn geometry;
+dl unmatched = problem connections no drawn wire was matched to (a * marks scores that leave them out);
 reroute X / reroute illegal = dyad-layout's router re-routing the same placements."""
 
 
@@ -1051,7 +1344,9 @@ def analyze_component(lib, libdir, sc, args, cache):
     else:
         rc, out, err = run_dyad(args.dyad, ["render", q, "--dir", "."], libdir)
         if rc != 0 or not out.strip().startswith("<") or not out.rstrip().endswith("</svg>"):
-            row["error"] = "render failed: " + dyad_errors(err)
+            log = err if out.strip().startswith("<") else err + ("\n--- stdout ---\n" + out if out.strip() else "")
+            msg, row["error_log"] = dyad_failure(cache, q, "render", log)
+            row["error"] = "render failed: " + msg
             return row
         svg = out
         open(svg_path, "w").write(svg)
@@ -1060,6 +1355,9 @@ def analyze_component(lib, libdir, sc, args, cache):
         dg = parse_svg(svg, src_boxes)
     except ET.ParseError as e:
         row["error"] = f"cannot parse the rendered SVG: {e}"
+        return row
+    except UnsupportedSVG as e:
+        row["error"] = f"unsupported SVG structure: {e}"
         return row
     m, detail = compute_metrics(dg)
     with open(os.path.join(cache, q + ".overlay.svg"), "w") as f:
@@ -1075,19 +1373,32 @@ def analyze_component(lib, libdir, sc, args, cache):
         if not (args.reuse and os.path.exists(ppath)):
             rc, _out, err = run_dyad(args.dyad, ["layout", "extract", q, "--dir", ".", "-o", ppath], libdir)
             if rc != 0:
-                row["extract_error"] = dyad_errors(err)
+                row["extract_error"], row["extract_log"] = dyad_failure(cache, q, "extract", err)
         if os.path.exists(ppath):
             prob = json.load(open(ppath))
-    if prob and args.dyad_layout_wasm:
-        sc_out = score_with_wasm(args.dyad_layout_wasm, prob, dg, prob["settings"].get("options"))
-        row["dyad_layout"] = sc_out
-        if "existing" in sc_out:
-            o = sc_out["existing"]["objective"]
-            m["dl_crossings"] = o.get("crossings")
-            m["dl_illegal"] = o.get("illegalRoutes", 0)
-            m["dl_turns"] = o.get("turns")
-            m["dl_spacing"] = o.get("spacingPenalty")
+    scorer = getattr(args, "scorer", None) or {}
+    if args.dyad_layout_wasm and "error" in scorer:
+        row["dyad_layout"] = {"status": "unavailable", "error": scorer["error"]}
+        m["dl_status"] = "unavailable"
+    elif args.dyad_layout_wasm:
+        if prob is None:
+            row["dyad_layout"] = {"status": "unavailable", "error": "no extracted problem to score against"}
+            m["dl_status"] = "unavailable"
+        else:
+            try:
+                sc_out = score_with_wasm(args.dyad_layout_wasm, prob, dg, prob["settings"].get("options"))
+            except Exception as e:  # the geometry above stands even if scoring breaks
+                sc_out = {"status": "unavailable", "error": f"{type(e).__name__}: {e}"}
+            sc_out["scorer"] = {k: scorer.get(k) for k in ("release", "version", "pinned", "sha256")}
+            row["dyad_layout"] = sc_out
+            m["dl_status"] = sc_out.get("status")
             m["dl_unmatched"] = sc_out.get("unmatchedConnections")
+            if "existing" in sc_out:
+                o = sc_out["existing"]["objective"]
+                m["dl_crossings"] = o.get("crossings")
+                m["dl_illegal"] = o.get("illegalRoutes", 0)
+                m["dl_turns"] = o.get("turns")
+                m["dl_spacing"] = o.get("spacingPenalty")
         if "rerouted" in sc_out:
             o = sc_out["rerouted"]["objective"]
             m["dl_rerouted_crossings"] = o.get("crossings")
@@ -1097,6 +1408,8 @@ def analyze_component(lib, libdir, sc, args, cache):
         rc, _out, err = run_dyad(args.dyad, ["layout", "solve", "-i", os.path.join(cache, q + ".problem.json"), "-o", spath], libdir)
         sol = json.load(open(spath)) if os.path.exists(spath) else None
         row["fresh_solve"] = summarize_solve(err, sol)
+        if rc != 0:
+            row["fresh_solve"]["error"], row["fresh_solve"]["log"] = dyad_failure(cache, q, "solve", err)
     m["badness"] = badness(m)
     row["metrics"] = m
     return row
@@ -1114,6 +1427,8 @@ def main(argv=None):
     ap.add_argument("--extract", action="store_true", help="also run `dyad layout extract` (cached in the output dir)")
     ap.add_argument("--dyad-layout-wasm", metavar="DIR",
                     help="dyad-layout wasm/pkg directory: score the drawn geometry with dyad-layout's own objective")
+    ap.add_argument("--allow-unpinned-scorer", action="store_true",
+                    help="score with a dyad-layout WASM build whose checksums match no pinned release")
     ap.add_argument("--solve", action="store_true", help="also run `dyad layout solve` on the raw extracted problem")
     ap.add_argument("--reuse", action="store_true", help="reuse cached renders/problems in the output dir")
     ap.add_argument("--svg", action="append", default=[], help="analyse a rendered SVG file directly (no dyad needed)")
@@ -1138,9 +1453,20 @@ def main(argv=None):
     cache = os.path.join(args.out, "cache")
     os.makedirs(cache, exist_ok=True)
 
+    args.scorer = None
+    if args.dyad_layout_wasm:
+        args.scorer = check_scorer(args.dyad_layout_wasm, args.allow_unpinned_scorer)
+        if "error" in args.scorer:
+            print(f"[layout-report] dyad-layout scoring disabled: {args.scorer['error']}", file=sys.stderr)
+
     rows = []
     for svgf in args.svg:
-        dg = parse_svg(open(svgf).read())
+        try:
+            with open(svgf) as f:
+                dg = parse_svg(f.read())
+        except (ET.ParseError, UnsupportedSVG) as e:
+            rows.append({"diagram": os.path.basename(svgf), "error": f"cannot measure {svgf}: {e}"})
+            continue
         m, detail = compute_metrics(dg)
         with open(os.path.join(cache, os.path.basename(svgf) + ".overlay.svg"), "w") as f:
             f.write(overlay_svg(dg, os.path.basename(svgf)))
@@ -1161,7 +1487,7 @@ def main(argv=None):
             except Exception as e:  # keep going: one odd diagram must not lose the rest
                 row = {"diagram": sc.qualified(lib), "error": f"{type(e).__name__}: {e}"}
             if "error" in row:
-                print(f"  {sc.qualified(lib)}: {row['error'].splitlines()[-1] if row['error'] else ''}", file=sys.stderr)
+                print(f"  {sc.qualified(lib)}: {first_line(row['error'])}", file=sys.stderr)
             out.append(row)
         return out
 
@@ -1176,8 +1502,13 @@ def main(argv=None):
         json.dump(rows, f, indent=1)
     md = ["# Diagram layout report", "", f"{len(ok)} diagrams measured" + (f", {len(failed)} failed" if failed else "") + ".",
           "", "## Worst first", "", worst_first(ok, args.worst), "", "## All diagrams", "", markdown(ok, args.sort), "", LEGEND]
+    md += scorer_section(args.scorer, ok)
     if failed:
-        md += ["", "## Failed", ""] + [f"- {r['diagram']}: {next((l for l in r["error"].splitlines() if "Error" in l), r["error"].splitlines()[-1] if r["error"] else "")}" for r in failed]
+        md += ["", "## Failed", ""]
+        for r in failed:
+            err = r.get("error") or ""
+            md.append(f"- {r['diagram']}: " + "<br>".join(l.strip() for l in err.splitlines() if l.strip())[:600]
+                      + (f" (full log: `{r['error_log']}`)" if r.get("error_log") else ""))
     md += ["", "## Details (worst first)", ""]
     for r in sorted(ok, key=lambda r: -r["metrics"]["badness"])[: args.worst]:
         d = r["detail"]
