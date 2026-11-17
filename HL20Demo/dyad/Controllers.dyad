@@ -778,7 +778,7 @@ relations
     }
   }
   connect(decmd.y, DECMD) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-metadata {"Dyad": {"labels": [{"label": "$(instance)", "x": 225, "y": -75, "rot": 0}], "icons": {"default": "dyad://HL20Demo/ctrl_pitch.svg"}}}
+metadata {"Dyad": {"labels": [{"label": "$(instance)", "x": 225, "y": -320, "rot": 0}], "icons": {"default": "dyad://HL20Demo/ctrl_pitch.svg"}}}
 end
 
 "HL-20 roll-rate damper with asymmetric stick gain (TM-107580 section 4.1)."

@@ -29,15 +29,18 @@ Verified by:
   randomized input cases** (baseline was 4.44e-16).
 - `dyad compile` clean; **1549/1549 generated tests + 20/20 aero tests
   pass**, including TestQuatDirection, TestQuatRoundTrip, TestMixerAssist.
-- `layout-report` (2a72e1e, the Studio-geometry gate) on all 43 public
-  diagrams: **zero** in every scored class — overlapping ports/blocks,
-  wires through blocks or port glyphs, diagonal segments, false
-  junctions, unrouted connects, wires routed outside the diagram
-  bounding box, plus the new glyph classes `glyph_overlap`,
-  `glyph_detached`, `glyph_overhang`, `label_covered`,
-  `wire_thru_glyph`, `junction_on_glyph`, `near_diagonal`. Residual
-  `labels_hit_by_wires` contacts match the pre-change baseline exactly
-  (structural: a pin sitting in its own block's name-label band).
+- `layout-report` (f4bd2fe, the current Studio-geometry gate — measures
+  label text ink and boundary-port captions) on all 43 public diagrams:
+  **zero** in every scored class — overlapping ports/blocks, wires
+  through blocks or port glyphs, diagonal segments, false junctions,
+  unrouted connects, wires routed outside the diagram bounding box,
+  plus the glyph classes `glyph_overlap`, `glyph_detached`,
+  `glyph_overhang`, `label_covered`, `wire_thru_glyph`,
+  `junction_on_glyph`, `near_diagonal`, and the label classes
+  `label_block_overlaps`, `label_label_overlaps`,
+  `labels_hit_by_wires`. The earlier 2a72e1e tool version was also run
+  historically; its `labels_hit_by_wires` residuals at the time were
+  pin-in-own-label-band contacts, all since cleared.
 
 In a second routing pass the densest diagrams were re-laid with explicit
 trunk-and-tap buses (single shared trunks with orthogonal tap drops), and
@@ -74,8 +77,15 @@ internal diagram laid out with the same conventions.
 
 ## Conventions used
 
-- Boundary port glyphs 50 units tall; port centers ≥100 units apart.
-- Many-pin block icons grown to ~50 units per pin before routing.
+These are authoring targets, not checker-enforced invariants; a few
+diagrams deviate where the routing demanded it.
+
+- Boundary port glyphs ~50–100 units tall; port centers generally ≥100
+  units apart, tighter where a port row had to stay compact (e.g. the
+  `T1`/`T2`/`T3` wall in RotDynamics).
+- Many-pin block icons grown toward ~50 units per pin before routing;
+  PitchControl's nine-pin bus edge is at ~50.6-unit pitch, other dense
+  edges are somewhat tighter.
 - All placements on 50-unit multiples; orthogonal routes only — every
   `connect()` carries explicit edge metadata.
 - Multi-way `connect()` nets for shared-input fan-outs (single trunks with
@@ -83,15 +93,15 @@ internal diagram laid out with the same conventions.
 
 ## Before/after metrics (layout-report)
 
-| diagram | crossings before | crossings after | defects after¹ |
+| diagram | crossings before | crossings after¹ | defects after² |
 |---|---:|---:|---|
-| HL20Demo.shared.HL20Aero | 500 | 59 | 0 |
-| HL20Demo.HL20Vehicle | 276 | 119 | 2 lbl/wire |
+| HL20Demo.shared.HL20Aero | 500 | 53 | 0 |
+| HL20Demo.HL20Vehicle | 276 | 124 | 0 |
 | HL20Demo.RigidBody6DOF | 222 | 3 | 0 |
 | HL20Demo.QuatToInertial | 195 | 3 | 0 |
 | HL20Demo.FlightState | 173 | 9 | 0 |
 | HL20Demo.QuatToBody | 163 | 0 | 0 |
-| HL20Demo.HL20FullSystem | 138 | 62 | 1 lbl/wire |
+| HL20Demo.HL20FullSystem | 138 | 62 | 0 |
 | HL20Demo.shared.HL20CN | 122 | 35 | 0 |
 | HL20Demo.shared.HL20CR | 122 | 35 | 0 |
 | HL20Demo.shared.HL20CY | 113 | 26 | 0 |
@@ -104,63 +114,100 @@ internal diagram laid out with the same conventions.
 | HL20Demo.PitchControl | 10 | 12 | 0 |
 | HL20Demo.TestMixerAssist | 4 | 0 | 0 |
 | HL20Demo.TestQuatDirection | 4 | 0 | 0 |
-| HL20Demo.TestControllers | 3 | 1 | 1 lbl/wire |
+| HL20Demo.TestControllers | 3 | 1 | 0 |
 | HL20Demo.RollControl | 2 | 2 | 0 |
 | HL20Demo.YawControl | 2 | 1 | 0 |
 | HL20Demo.TestGravityOnly | 2 | 0 | 0 |
 | HL20Demo.SpeedControl | 0 | 1 | 0 |
 | HL20Demo.Atmosphere1976 | 0 | 0 | 0 |
-| HL20Demo.TestAeroPoint | 0 | 0 | 1 lbl/wire |
-| HL20Demo.TestAeroSweep | 0 | 0 | 1 lbl/wire |
+| HL20Demo.TestAeroPoint | 0 | 0 | 0 |
+| HL20Demo.TestAeroSweep | 0 | 0 | 0 |
 | HL20Demo.TestHL20FullSystem | 0 | 0 | 0 |
 | HL20Demo.TestHL20Subsonic | 0 | 0 | 0 |
 | HL20Demo.QuatKinematics | new | 55 | 0 |
 | HL20Demo.QuatToDCM | new | 25 | 0 |
-| HL20Demo.shared.AeroCYCN | new | 46 | 0 |
+| HL20Demo.shared.AeroCYCN | new | 49 | 0 |
 | HL20Demo.shared.AeroLateralCoeffs | new | 55 | 0 |
 | HL20Demo.EulerAngles | new | 19 | 0 |
-| HL20Demo.shared.AeroLongitudinal | new | 46 | 0 |
+| HL20Demo.shared.AeroLongitudinal | new | 47 | 0 |
 | HL20Demo.shared.AeroCLCD | new | 45 | 0 |
 | HL20Demo.DCMMatVec | new | 15 | 0 |
 | HL20Demo.AeroAngles | new | 18 | 0 |
 | HL20Demo.AirData | new | 10 | 0 |
-| HL20Demo.RotDynamics | new | 1 | 0 |
+| HL20Demo.RotDynamics | new | 4 | 0 |
 | HL20Demo.TransDynamics | new | 0 | 0 |
 | HL20Demo.VehicleOutputs | new | 0 | 0 |
 | HL20Demo.shared.AeroAirData | new | 0 | 0 |
 
-¹ defects = overlapping blocks + wires through blocks/ports + diagonal
+¹ "crossings after" is the current measurement from the f4bd2fe
+layout-report (the stricter tool version that measures label ink and
+boundary-port captions).
+
+² defects = overlapping blocks + wires through blocks/ports + diagonal
 segments + false junctions + label overlaps + unrouted connects +
-wires leaving the diagram bounds. The only non-zero defect class is
-label/wire.
-
-Remaining label/wire contacts (5 diagrams, 6 total) are structural: a
-bottom-edge pin sits directly above its own block's name label, so any
-orthogonal approach crosses the label band. Dodging every such pin
-requires braided edge-runs that add more crossings than they save;
-
-- **HL20Vehicle (2)** — `aero` and `forces` name labels.
-- **HL20FullSystem (1)** — the `pitch` controller name label.
-- **TestControllers, TestAeroPoint, TestAeroSweep (1 each)** — the
-  driven component's name label.
+wires leaving the diagram bounds + wires through glyphs/labels. Every
+scored class is zero on all 43 diagrams as of this writing.
 
 Exceptions above the ~80-crossing target, one line each:
 
-- **HL20Vehicle (119)** — 46-pin strongly-connected loop; residual
+- **HL20Vehicle (124)** — 46-pin strongly-connected loop; residual
   crossings concentrate at the mixer→vehicle command fan (a complete
   comb: every column through the fan crosses 7–8 wires) and the
   ALT_FT→NZ feedback descents across the riser fence. ~110 is the
   practical floor without moving blocks.
 - **HL20FullSystem (62)** — DLEDEG's mixer→pitch wire pays ~13X crossing
-  the command comb; ALT_FT's riser crosses all 10 feedback risers (~11X);
-  the `pitch` label contact is structural as above.
-- **HL20Aero (59), AeroLateralCoeffs (55), QuatKinematics (55),
-  AeroLongitudinal/AeroCYCN (46), AeroCLCD (45), HL20CN/CR (35)** —
+  the command comb; ALT_FT's riser crosses all 10 feedback risers (~11X).
+- **HL20Aero (53), AeroLateralCoeffs (55), QuatKinematics (55),
+  AeroLongitudinal (47), AeroCYCN (49), AeroCLCD (45), HL20CN/CR (35)** —
   same-order coefficient/product fans: a planar floor ≈ C(n,2) per fan
   (each tap must cross every other tap's drop when source and sink
   orders disagree); the layouts sit at or near that floor.
 - **HL20Mixer (33), QuatToDCM (25)** — residual fan-in crossings at the
   planarity floor for their fixed pin orders.
+
+## Final gate pass (layout-report f4bd2fe)
+
+The last round zeroed every scored class the stricter f4bd2fe gate
+measures, on all 43 public diagrams:
+
+- **Caption/wire contacts (16 → 0)** — instance captions moved above
+  their icons where a pin row sat in the name band (`PitchControl`'s
+  `$(instance)` label moved to y=-320, clearing the command-wire band in
+  both `HL20FullSystem` and `TestControllers`); boundary ports and feed
+  wires re-routed around captions in `HL20Vehicle` (`forces`),
+  `AeroCYCN` (`cy_y`/`cn_y` ports dropped to align with their wires),
+  `AeroLongitudinal` (`cd_sin` riser moved right of the `pair` glyphs;
+  a `cz_sum` feed re-routed under the `cd_sin` block), `HL20CM`
+  (`qb`/`damp_c2v`), `HL20CN`/`HL20CR`/`HL20CY` (`beta_deg`, `pb`,
+  `rb`, `damp_b2v` top-port jogs) and `AeroForceBuilder`.
+- **Glyph transits (3 → 0)** — the `abs_drud` trunk in AeroLateralCoeffs
+  moved right of the `Cl` output glyph; AeroLongitudinal's `pair`
+  feed riser moved to x=2130.
+- **Label/block overlaps (4 → 0)** — AeroForceBuilder's `qw`–`qz` port
+  labels separated from neighbouring glyphs; its `rot` caption pulled
+  up under its own block and the `qS` caption cleared of its wire.
+- **Screenshot-only items** — RotDynamics' `T2`/`T3` feeds re-routed
+  around the `sum_t1/t2/t3` pin columns via the block corridors instead
+  of through the pin glyphs, and its `w2`/`w3` feedback buses dropped
+  below the `w1w2`/`gyro3` caption ink; `T1`/`T2`/`T3` port glyphs
+  normalised to one size. `TestQuatRoundTrip`'s `rot_f.v1` wire jogged
+  below the `f_qz` constant's `k = …` label. `TestControllers`' constant
+  blocks staggered so each `k = …` label no longer touches the next
+  block's title.
+- **Icon text clipping** — `veh_outputs.svg` ("CONV" clipped at both
+  edges) and `veh_airdata.svg` ("DATA" touching the outline) shrunk to
+  fit inside their viewBoxes. These icons are hand-authored one-offs —
+  no generator script exists or was added; the other icon SVGs with
+  rotated text were audited and their text runs along the long axis
+  inside the outline by design.
+
+Remaining exception: **RotDynamics crossings 1 → 4**. Moving the `T2`
+and `T3` boundary feeds off the `sum_*` pin columns forces their drops
+through the per-row `u`-feed fanouts (two crossings) and the `w1`
+feedback bus (one more); every sub-450-unit left-margin path hits the
+feedback tap columns instead. All scored classes are still zero there
+— it is a crossing-count regression only, traded for removing wires
+through pin glyphs and captions.
 
 ## Pitch-bus fix round
 
@@ -190,7 +237,9 @@ Fixes applied:
   icons widened); connector icon placements were moved onto the new
   outline so the artwork fills the placement.
 - **Instance placements aspect-corrected** for the remaining
-  stdlib/icon-fixed blocks, sized so adjacent pins stay ≥50 units apart.
+  stdlib/icon-fixed blocks, sized so adjacent pins keep a comfortable
+  pitch (the ~50-unit target is met on most edges; a few dense edges
+  are tighter).
 - **Icon pin frames shrunk to a uniform 60-unit margin** (was 100+), and
   `TransDynamics`'s crowded bottom pins (v3/p-chain) re-spread, clearing
   every icon-space pin adjacency the gate flags as `glyph_overlap`.
@@ -208,10 +257,15 @@ Fixes applied:
 
 Crossing deltas vs the metric table below: HL20Aero 59→53 (improved),
 HL20Vehicle 119→124 (+4.2%, risers moved off the `v_mps` glyph zone),
-AeroCYCN 46→49 (+6.5%, port-row reroute). Every scored class is zero on
-all 43 diagrams; `labels_hit_by_wires` residuals are unchanged from
-baseline (HL20FullSystem/HL20Mixer/TestControllers 3, AeroLongitudinal 5,
-six others 1 each — the same pin-in-own-label-band contacts).
+AeroCYCN 46→49 (+6.5%, port-row reroute). Under the 2a72e1e tool every
+scored class was zero at that point except the pin-in-own-label-band
+`labels_hit_by_wires` contacts (HL20FullSystem/HL20Mixer/TestControllers
+3, AeroLongitudinal 5, six others 1 each). The newer f4bd2fe tool
+measures label text ink and boundary-port captions, and at c788222 it
+still scored 16 `labels_hit_by_wires` on 10 diagrams plus
+`label_block_overlaps` 4 (AeroForceBuilder) and `wire_thru_glyph` 3
+(AeroLateralCoeffs 1, AeroLongitudinal 2); the final gate pass below
+cleared all of them.
 
 ## Review items fixed in this pass
 
