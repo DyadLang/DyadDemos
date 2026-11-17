@@ -124,21 +124,19 @@ The four SAS controllers standalone on constant inputs (spec scenario 4).
   ### Equations
   push!(__eqs, connect(c_dcpilot.y, pitch_ctrl.DCPILOT))
   push!(__eqs, connect(c_qdeg.y, pitch_ctrl.QDEG))
-  push!(__eqs, connect(c_rdeg.y, pitch_ctrl.RDEG))
+  push!(__eqs, connect(c_rdeg.y, pitch_ctrl.RDEG, yaw_ctrl.RDEG))
   push!(__eqs, connect(c_nz.y, pitch_ctrl.NZ))
   push!(__eqs, connect(c_sinphi.y, pitch_ctrl.SINPHI))
   push!(__eqs, connect(c_cosphi.y, pitch_ctrl.COSPHI))
   push!(__eqs, connect(c_costhe.y, pitch_ctrl.COSTHE))
   push!(__eqs, connect(c_dledeg.y, pitch_ctrl.DLEDEG))
   push!(__eqs, connect(c_qbar.y, pitch_ctrl.QBAR))
-  push!(__eqs, connect(c_mach.y, pitch_ctrl.MACH))
+  push!(__eqs, connect(c_mach.y, pitch_ctrl.MACH, yaw_ctrl.MACH))
   push!(__eqs, connect(c_vtotali.y, pitch_ctrl.VTOTALI))
   push!(__eqs, connect(c_dwpilot.y, roll_ctrl.DWPILOT))
   push!(__eqs, connect(c_pdeg.y, roll_ctrl.PDEG))
   push!(__eqs, connect(c_dppilot.y, yaw_ctrl.DPPILOT))
-  push!(__eqs, connect(c_rdeg.y, yaw_ctrl.RDEG))
   push!(__eqs, connect(roll_ctrl.DACMD, yaw_ctrl.DACMD))
-  push!(__eqs, connect(c_mach.y, yaw_ctrl.MACH))
   push!(__eqs, connect(c_dlsbcom.y, speed_ctrl.DLSBCOM))
 
   # Return completely constructed System

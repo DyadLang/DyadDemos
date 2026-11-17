@@ -164,30 +164,24 @@ inertia. Every operation is a wired block.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(int_w2.y, w2w3.u1))
-  push!(__eqs, connect(int_w3.y, w2w3.u2))
   push!(__eqs, connect(w2w3.y, gyro1.u))
   push!(__eqs, connect(T1, sum_t1.u1))
   push!(__eqs, connect(gyro1.y, sum_t1.u2))
   push!(__eqs, connect(sum_t1.y, accw1.u))
   push!(__eqs, connect(accw1.y, int_w1.u))
-  push!(__eqs, connect(int_w3.y, w3w1.u1))
-  push!(__eqs, connect(int_w1.y, w3w1.u2))
   push!(__eqs, connect(w3w1.y, gyro2.u))
   push!(__eqs, connect(T2, sum_t2.u1))
   push!(__eqs, connect(gyro2.y, sum_t2.u2))
   push!(__eqs, connect(sum_t2.y, accw2.u))
   push!(__eqs, connect(accw2.y, int_w2.u))
-  push!(__eqs, connect(int_w1.y, w1w2.u1))
-  push!(__eqs, connect(int_w2.y, w1w2.u2))
   push!(__eqs, connect(w1w2.y, gyro3.u))
   push!(__eqs, connect(T3, sum_t3.u1))
   push!(__eqs, connect(gyro3.y, sum_t3.u2))
   push!(__eqs, connect(sum_t3.y, accw3.u))
   push!(__eqs, connect(accw3.y, int_w3.u))
-  push!(__eqs, connect(int_w1.y, w1))
-  push!(__eqs, connect(int_w2.y, w2))
-  push!(__eqs, connect(int_w3.y, w3))
+  push!(__eqs, connect(int_w1.y, w1, w3w1.u2, w1w2.u1))
+  push!(__eqs, connect(int_w2.y, w2, w2w3.u1, w1w2.u2))
+  push!(__eqs, connect(int_w3.y, w3, w2w3.u2, w3w1.u1))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

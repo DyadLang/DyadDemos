@@ -31,11 +31,27 @@ usage:
 Backwards compatible with the old call
   partition_check.py DYADDIR_REF DYADDIR_CUR FILE COMPONENT
 (the FILE argument was already ignored).
+
+The gate is EXACT: only an identical canonical endpoint partition passes.
+A result that matches only in "shape" (the same net signatures with
+internal instance names discarded) FAILS — shape matching cannot tell a
+rewire between two identically-shaped nets from no change at all, e.g.
+swapping `mv.a11` and `mv.a12` in QuatToBody. A renamed or extracted
+block passes only through an explicit entry in RENAMES below, which a
+reviewer can audit line by line.
 """
 import os, re, sys, functools, subprocess, tempfile
 
 COMPSTART = re.compile(r'\n((?:(?:abstract|test)\s+)?(?:component|model|connector|record|block)\s+)(\w+)')
 DEFAULT_REF = '2e80df8'
+
+# Reviewed endpoint renames: RENAMES[component][ref_path] = cur_path, where
+# each path is a canonical flattened endpoint or an instance-path prefix of
+# one (a match on PATH itself or on PATH.<anything> is rewritten). Use it
+# ONLY for a deliberate rename or extraction the reviewer has signed off
+# on; every entry must be justified in review. An empty table means no
+# rename is accepted anywhere.
+RENAMES = {}
 
 def lib_sections(dyaddir):
     secs = {}
@@ -195,13 +211,28 @@ def resolve_ref(ref, curdir):
                    check=True)
     return os.path.join(tmp, rel)
 
+def apply_renames(nets, comp):
+    """Rewrite canonical endpoints per RENAMES[comp] (ref -> cur names)."""
+    table = RENAMES.get(comp)
+    if not table: return nets
+    def ren(ep):
+        for old, new in table.items():
+            if ep == old: return new
+            if ep.startswith(old + '.'): return new + ep[len(old):]
+        return ep
+    return frozenset(frozenset(ren(ep) for ep in net) for net in nets)
+
 def compare(reflib, curlib, comp):
     """return (level, boundary_ok, diff_info) where level is
-    'match' | 'shape' | 'mismatch' | None(component missing)."""
+    'match' | 'shape' | 'mismatch' | None(component missing).
+    'match' is exact after canonicalisation and RENAMES. 'shape' (same
+    net signatures, different internal endpoints) is reported for
+    diagnosis but is a gate failure like 'mismatch'."""
     if comp not in reflib: return None, None, f"{comp} missing in REF"
     if comp not in curlib: return None, None, f"{comp} missing in CUR"
     cr, nr = full_partition(comp, reflib, curlib)
     cc, nc = full_partition(comp, curlib, reflib)
+    cr = apply_renames(cr, comp)
     ok = cr == cc
     shape = shape_partition(cr) == shape_partition(cc)
     br = boundary_partition(flat_nets(comp, frozenset(reflib.items())))
@@ -212,12 +243,18 @@ def compare(reflib, curlib, comp):
         only_cur = sorted(cc - cr, key=str)
         for b in only_ref[:10]: info.append("  only REF: " + ' '.join(sorted(b)))
         for b in only_cur[:10]: info.append("  only CUR: " + ' '.join(sorted(b)))
+        if shape:
+            info.append("  net SHAPES match — only internal endpoint names "
+                        "differ. If this is a reviewed rename or extraction, "
+                        "add it to RENAMES in this tool; otherwise the wiring "
+                        "changed.")
     return ('match' if ok else 'shape' if shape else 'mismatch'), br == bc, \
         '\n'.join(info)
 
 def selftest():
     """A swapped internal connection must fail the full check while the
-    old boundary-only check still passes."""
+    old boundary-only check still passes; and a same-shape rewire through
+    an extracted sub-component must fail the gate (not pass as 'shape')."""
     base = """component Swap
   a = RealInput()
   b = RealInput()
@@ -234,10 +271,79 @@ end
     lib_c = {'Swap': swapped}
     ok_full, ok_bound, _ = compare(lib_r, lib_c, 'Swap')
     print(f"selftest: full={ok_full} boundary={'MATCH' if ok_bound else 'MISMATCH'}")
-    if ok_full == 'mismatch' and ok_bound is True:
-        print("selftest PASS: internal swap detected by full check, invisible to boundary check")
+    if not (ok_full != 'match' and ok_bound is True):
+        print("selftest FAIL: internal swap not caught by full check")
+        return 1
+    print("selftest: internal swap detected by full check, invisible to boundary check")
+
+    # Regression: the QuatToBody mv.a11/mv.a12 swap. The reference wires its
+    # product blocks inline; the current version extracted them into a
+    # sub-component and swapped two of its pins. Every net keeps the same
+    # shape signature, so the old shape tier called this a match even
+    # though the result changes. It must now FAIL.
+    ref_inline = """component QuatToBody
+  a = RealInput()
+  b = RealInput()
+  y1 = RealOutput()
+  y2 = RealOutput()
+  s1 = Src()
+  s2 = Src()
+  p11 = Prod()
+  p12 = Prod()
+relations
+  connect(a, s1.u)
+  connect(b, s2.u)
+  connect(s1.y, p11.u)
+  connect(s2.y, p12.u)
+  connect(p11.y, y1)
+  connect(p12.y, y2)
+end
+"""
+    cur_extracted = """component QuatToBody
+  a = RealInput()
+  b = RealInput()
+  y1 = RealOutput()
+  y2 = RealOutput()
+  s1 = Src()
+  s2 = Src()
+  mv = Sink()
+relations
+  connect(a, s1.u)
+  connect(b, s2.u)
+  connect(s1.y, mv.a12)
+  connect(s2.y, mv.a11)
+  connect(mv.y1, y1)
+  connect(mv.y2, y2)
+end
+"""
+    sink = """component Sink
+  a11 = RealInput()
+  a12 = RealInput()
+  y1 = RealOutput()
+  y2 = RealOutput()
+  p11 = Prod()
+  p12 = Prod()
+relations
+  connect(a11, p11.u)
+  connect(a12, p12.u)
+  connect(p11.y, y1)
+  connect(p12.y, y2)
+end
+"""
+    lib_r = {'QuatToBody': ref_inline}
+    lib_c = {'QuatToBody': cur_extracted, 'Sink': sink}
+    lvl, _, info = compare(lib_r, lib_c, 'QuatToBody')
+    shape_ok = shape_partition(full_partition('QuatToBody', lib_r, lib_c)[0]) == \
+        shape_partition(full_partition('QuatToBody', lib_c, lib_r)[0])
+    print(f"selftest: extracted-swap level={lvl} (shapes {'equal' if shape_ok else 'differ'})")
+    if lvl == 'shape' and shape_ok:
+        print("selftest PASS: same-shape rewire reported as 'shape', which fails the gate")
         return 0
-    print("selftest FAIL")
+    if lvl == 'mismatch':
+        print("selftest PASS: same-shape rewire reported as mismatch (fails the gate)")
+        return 0
+    print("selftest FAIL: same-shape rewire was not flagged")
+    print(info)
     return 1
 
 def main(argv):
@@ -270,14 +376,14 @@ def main(argv):
         if level == 'match':
             status = 'MATCH'
         elif level == 'shape':
-            status = 'MATCH (shapes; internal names differ)'
+            status = 'MISMATCH (shape match only — internal endpoints differ)'
         else:
             status = 'MISMATCH'
         extra = '' if (level == 'match') == bok else \
             f" (boundary {'MATCH' if bok else 'MISMATCH'})"
         print(f"{comp}: flattened-graph {status}{extra}")
         if info and level != 'match': print(info)
-        worst = max(worst, 0 if level != 'mismatch' else 1)
+        worst = max(worst, 0 if level == 'match' else 1)
     return worst
 
 if __name__ == '__main__':

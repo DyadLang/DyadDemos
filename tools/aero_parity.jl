@@ -93,21 +93,39 @@ end
 outs = ["CX", "CY", "CZ", "Cl", "Cm", "Cn"]
 incols = ["alpha_deg","beta_deg","mach","vrw_fps","hob","pb","qb","rb",
           "DBFUL","DBFUR","DBFLL","DBFLR","DWFL","DWFR","DRUD"]
-maxdiff = Dict(o => 0.0 for o in outs)
+ncases = size(df, 1)
+maxdiff = Dict(o => -1.0 for o in outs)
+nonfinite = Dict(o => 0 for o in outs)
 open(report, "w") do io
-    for r in 1:size(df, 1)
+    for r in 1:ncases
         args = [indf[r, c] for c in incols]
         ref = aero_ref(args...)
         for (i, o) in enumerate(outs)
             got = df[r, "$(o)(t)"]
             d = abs(got - ref[i])
-            d > maxdiff[o] && (maxdiff[o] = d)
+            if !isfinite(d)
+                nonfinite[o] += 1
+            elseif d > maxdiff[o]
+                maxdiff[o] = d
+            end
         end
     end
     for o in outs
-        @printf(io, "%s  max |model - spec| = %.3e over %d cases\n", o, maxdiff[o], size(df, 1))
+        @printf(io, "%s  max |model - spec| = %.3e over %d cases\n", o, maxdiff[o], ncases)
+        nonfinite[o] > 0 &&
+            @printf(io, "%s  %d NON-FINITE results\n", o, nonfinite[o])
     end
     worst = maximum(values(maxdiff))
-    println(io, worst <= 1e-12 ? "PARITY OK" : "PARITY FAIL")
+    nbad = sum(values(nonfinite))
+    if ncases == 0
+        println(io, "PARITY FAIL: no result rows")
+    elseif nbad > 0
+        println(io, "PARITY FAIL: $nbad non-finite results")
+    else
+        println(io, worst <= 1e-12 ? "PARITY OK" : "PARITY FAIL")
+    end
 end
 println(read(report, String))
+ncases == 0 && error("parity check produced no result rows")
+sum(values(nonfinite)) > 0 && error("parity check produced non-finite results")
+maximum(values(maxdiff)) <= 1e-12 || error("parity check failed: worst |model - spec| = $(maximum(values(maxdiff)))")

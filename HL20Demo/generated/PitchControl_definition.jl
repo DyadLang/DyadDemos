@@ -228,9 +228,9 @@ elevator auto-trim.
   # Subcomponent qcoord of type BlockComponents.Math.Add
   qcoord_overrides = __pop_subcomponent_overrides!(__overrides, "qcoord")
   push!(__systems, @named qcoord = BlockComponents.Math.Add(; k2=-1.0, __overrides = qcoord_overrides))
-  # Subcomponent q_fb of type BlockComponents.Math.Feedback
+  # Subcomponent q_fb of type BlockComponents.Math.Add
   q_fb_overrides = __pop_subcomponent_overrides!(__overrides, "q_fb")
-  push!(__systems, @named q_fb = BlockComponents.Math.Feedback(; __overrides = q_fb_overrides))
+  push!(__systems, @named q_fb = BlockComponents.Math.Add(; k2=-1.0, __overrides = q_fb_overrides))
   # Subcomponent q_rate of type BlockComponents.Math.Gain
   q_rate_overrides = __pop_subcomponent_overrides!(__overrides, "q_rate")
   push!(__systems, @named q_rate = BlockComponents.Math.Gain(; k=1.0 / FQBT, __overrides = q_rate_overrides))
@@ -270,9 +270,9 @@ elevator auto-trim.
   # Subcomponent gamdot of type BlockComponents.Math.Division
   gamdot_overrides = __pop_subcomponent_overrides!(__overrides, "gamdot")
   push!(__systems, @named gamdot = BlockComponents.Math.Division(; __overrides = gamdot_overrides))
-  # Subcomponent g_fb of type BlockComponents.Math.Feedback
+  # Subcomponent g_fb of type BlockComponents.Math.Add
   g_fb_overrides = __pop_subcomponent_overrides!(__overrides, "g_fb")
-  push!(__systems, @named g_fb = BlockComponents.Math.Feedback(; __overrides = g_fb_overrides))
+  push!(__systems, @named g_fb = BlockComponents.Math.Add(; k2=-1.0, __overrides = g_fb_overrides))
   # Subcomponent g_rate of type BlockComponents.Math.Gain
   g_rate_overrides = __pop_subcomponent_overrides!(__overrides, "g_rate")
   push!(__systems, @named g_rate = BlockComponents.Math.Gain(; k=1.0 / FNZT, __overrides = g_rate_overrides))
@@ -288,9 +288,9 @@ elevator auto-trim.
   # Subcomponent degc of type BlockComponents.Math.Gain
   degc_overrides = __pop_subcomponent_overrides!(__overrides, "degc")
   push!(__systems, @named degc = BlockComponents.Math.Gain(; k=-GDEGCM, __overrides = degc_overrides))
-  # Subcomponent t_fb of type BlockComponents.Math.Feedback
+  # Subcomponent t_fb of type BlockComponents.Math.Add
   t_fb_overrides = __pop_subcomponent_overrides!(__overrides, "t_fb")
-  push!(__systems, @named t_fb = BlockComponents.Math.Feedback(; __overrides = t_fb_overrides))
+  push!(__systems, @named t_fb = BlockComponents.Math.Add(; k2=-1.0, __overrides = t_fb_overrides))
   # Subcomponent t_rate of type BlockComponents.Math.Gain
   t_rate_overrides = __pop_subcomponent_overrides!(__overrides, "t_rate")
   push!(__systems, @named t_rate = BlockComponents.Math.Gain(; k=1.0 / FATT, __overrides = t_rate_overrides))
@@ -312,11 +312,9 @@ elevator auto-trim.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(DCPILOT, abs_c.u))
-  push!(__eqs, connect(DCPILOT, c_quad.u1))
+  push!(__eqs, connect(DCPILOT, c_lin.u, abs_c.u, c_quad.u1))
   push!(__eqs, connect(abs_c.y, c_quad.u2))
   push!(__eqs, connect(c_quad.y, c_g1.u))
-  push!(__eqs, connect(DCPILOT, c_lin.u))
   push!(__eqs, connect(c_lin.y, colshc.u1))
   push!(__eqs, connect(c_g1.y, colshc.u2))
   push!(__eqs, connect(QBAR, qsum.u1))
