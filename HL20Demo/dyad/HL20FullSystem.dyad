@@ -204,7 +204,7 @@ relations
   connect(mixer.DR, vehicle.DRUD) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 664.28}, {"x": 1500, "y": 675}], "E": 2}], "path": {}} }
   connect(mixer.DRE, vehicle.DWFR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1510, "y": 535.72}, {"x": 1510, "y": 645}], "E": 2}], "path": {}} }
   connect(mixer.DLE, vehicle.DWFL) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1520, "y": 510}, {"x": 1520, "y": 615}], "E": 2}], "path": {}} }
-    connect(mixer.DLEDEG, pitch.DLEDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1510, "y": 690}, {"x": 1510, "y": 1050}, {"x": 685, "y": 1050}, {"x": 685, "y": 275}], "E": 2}], "path": {}}}
+    connect(mixer.DLEDEG, pitch.DLEDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1520, "y": 690}, {"x": 1520, "y": 1050}, {"x": 685, "y": 1050}, {"x": 685, "y": 275}], "E": 2}], "path": {}}}
   connect(mixer.DLE, DLE) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1518, "y": 510}, {"x": 1518, "y": 440}, {"x": 2885, "y": 440}, {"x": 2885, "y": 1400}, {"x": 3000, "y": 1400}], "E": 2}], "path": {}} }
     connect(vehicle.MACH_out, pitch.MACH, yaw.MACH) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2100, "y": 502.5}, {"x": 2100, "y": 1400}], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -1, "M": [{"x": 455, "y": 1400}, {"x": 455, "y": 800}], "E": 3}], "path": {}, "junctions": [{"x": 722.5, "y": 1400}]}}
     connect(vehicle.PDEG, roll.PDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2090, "y": 517.5}, {"x": 2090, "y": 1365}], "E": -1}, {"S": -1, "M": [{"x": 617, "y": 1365}, {"x": 617, "y": 600}], "E": 2}], "path": {}, "junctions": [{"x": 2090, "y": 1365}]}}
