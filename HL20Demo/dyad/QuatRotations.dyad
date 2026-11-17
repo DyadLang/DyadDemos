@@ -219,5 +219,5 @@ relations
   connect(mv.y2, v2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2590, "y": 570}, {"x": 2590, "y": 743.75}], "E": 2}], "path": {}} }
   connect(b3, mv.u3) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
   connect(mv.y3, v3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2580, "y": 1110}, {"x": 2580, "y": 1150}], "E": 2}], "path": {}} }
-metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/quatrot.svg"}}}
+metadata {"Dyad": {"labels": [{"label": "$(instance)", "x": 125, "y": 1035, "rot": 0}], "icons": {"default": "dyad://HL20Demo/quatrot.svg"}}}
 end

@@ -188,11 +188,11 @@ inertia. Every operation is a wired block.
 """
 component RotDynamics
   "External torque, body axis 1 (N.m)"
-  T1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230}, "diagram": {"x1": -50, "x2": 50, "y1": 0, "y2": 100}}}}
+  T1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230}, "diagram": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}}}}
   "External torque, body axis 2 (N.m)"
-  T2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": -130, "x2": -70, "y1": 120, "y2": 180}}}}
+  T2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": -30, "x2": 30, "y1": 140, "y2": 200}}}}
   "External torque, body axis 3 (N.m)"
-  T3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 670, "x2": 30, "y2": 730}, "diagram": {"x1": -230, "x2": -170, "y1": 220, "y2": 280}}}}
+  T3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 670, "x2": 30, "y2": 730}, "diagram": {"x1": -30, "x2": 30, "y1": 260, "y2": 320}}}}
   "Body angular rate, axis 1 (rad/s)"
   w1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 170, "x2": 1030, "y2": 230}, "diagram": {"x1": 1770, "x2": 1830, "y1": 280, "y2": 340}}}}
   "Body angular rate, axis 2 (rad/s)"
@@ -234,18 +234,18 @@ relations
   connect(sum_t1.y, accw1.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
   connect(accw1.y, int_w1.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
         connect(w3w1.y, gyro2.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
-  connect(T2, sum_t2.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -100, "y": -10}, {"x": 997, "y": -10}, {"x": 997, "y": 730}, {"x": 995, "y": 730}], "E": 2}], "path": {}} }
+  connect(T2, sum_t2.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -40, "y": 170}, {"x": -40, "y": -10}, {"x": 997, "y": -10}, {"x": 997, "y": 360}, {"x": 975, "y": 360}, {"x": 975, "y": 730}], "E": 2}], "path": {}} }
   connect(gyro2.y, sum_t2.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 920, "y": 760}, {"x": 920, "y": 790}, {"x": 995, "y": 790}], "E": 2}], "path": {}} }
   connect(sum_t2.y, accw2.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
   connect(accw2.y, int_w2.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
       connect(w1w2.y, gyro3.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
-  connect(T3, sum_t3.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -200, "y": -20}, {"x": 999, "y": -20}, {"x": 999, "y": 1180}, {"x": 995, "y": 1180}], "E": 2}], "path": {}} }
+  connect(T3, sum_t3.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -80, "y": 290}, {"x": -80, "y": -50}, {"x": 999, "y": -50}, {"x": 999, "y": 800}, {"x": 960, "y": 800}, {"x": 960, "y": 1180}], "E": 2}], "path": {}} }
   connect(gyro3.y, sum_t3.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 920, "y": 1210}, {"x": 920, "y": 1240}, {"x": 995, "y": 1240}], "E": 2}], "path": {}} }
   connect(sum_t3.y, accw3.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
   connect(accw3.y, int_w3.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
                 connect(int_w1.y, w3w1.u2, w1w2.u1, w1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 4}, {"S": -1, "M": [{"x": 1601, "y": 310}, {"x": 1601, "y": 960}, {"x": 450, "y": 960}], "E": -2}, {"S": -2, "M": [{"x": 450, "y": 790}], "E": 2}, {"S": -2, "M": [{"x": 450, "y": 1180}], "E": 3}], "path": {}, "junctions": [{"x": 1615, "y": 310}, {"x": 450, "y": 960}]}}
-                connect(int_w2.y, w2w3.u1, w1w2.u2, w2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 4}, {"S": -1, "M": [{"x": 1604, "y": 760}, {"x": 1604, "y": 1283}, {"x": 380, "y": 1283}], "E": -2}, {"S": -2, "M": [{"x": 380, "y": 280}], "E": -3}, {"S": -3, "M": [], "E": 2}, {"S": -2, "M": [{"x": 460, "y": 1283}, {"x": 460, "y": 1240}], "E": 3}], "path": {}, "junctions": [{"x": 1615, "y": 760}, {"x": 380, "y": 1283}, {"x": 380, "y": 280}]}}
-                connect(int_w3.y, w2w3.u2, w3w1.u1, w3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 4}, {"S": -1, "M": [{"x": 1606, "y": 1210}, {"x": 1606, "y": 1282}, {"x": 440, "y": 1282}], "E": -2}, {"S": -2, "M": [{"x": 440, "y": 340}], "E": -3}, {"S": -3, "M": [], "E": 2}, {"S": -2, "M": [{"x": 440, "y": 730}], "E": -4}, {"S": -4, "M": [], "E": 3}], "path": {}, "junctions": [{"x": 1609, "y": 1210}, {"x": 440, "y": 1282}, {"x": 440, "y": 340}, {"x": 440, "y": 730}]}}
+                connect(int_w2.y, w2w3.u1, w1w2.u2, w2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 4}, {"S": -1, "M": [{"x": 1604, "y": 760}, {"x": 1604, "y": 1310}, {"x": 380, "y": 1310}], "E": -2}, {"S": -2, "M": [{"x": 380, "y": 280}], "E": -3}, {"S": -3, "M": [], "E": 2}, {"S": -2, "M": [{"x": 430, "y": 1310}, {"x": 430, "y": 1240}], "E": 3}], "path": {}, "junctions": [{"x": 1615, "y": 760}, {"x": 380, "y": 1310}, {"x": 380, "y": 280}]}}
+                connect(int_w3.y, w2w3.u2, w3w1.u1, w3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 4}, {"S": -1, "M": [{"x": 1595, "y": 1210}, {"x": 1595, "y": 1295}, {"x": 440, "y": 1295}], "E": -2}, {"S": -2, "M": [{"x": 440, "y": 340}], "E": -3}, {"S": -3, "M": [], "E": 2}, {"S": -2, "M": [{"x": 440, "y": 730}], "E": -4}, {"S": -4, "M": [], "E": 3}], "path": {}, "junctions": [{"x": 1609, "y": 1210}, {"x": 440, "y": 1295}, {"x": 440, "y": 340}, {"x": 440, "y": 730}]}}
 metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/rotdyn.svg"}}}
 end
 

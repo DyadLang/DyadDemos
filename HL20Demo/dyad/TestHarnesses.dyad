@@ -392,17 +392,17 @@ test component TestControllers
   roll_ctrl = RollControl() {"Dyad": {"placement": {"diagram": {"x1": 500, "x2": 650, "y1": 2705, "y2": 2805}}}}
   yaw_ctrl = YawControl() {"Dyad": {"placement": {"diagram": {"x1": 950, "x2": 1100, "y1": 2700, "y2": 2800}}}}
   speed_ctrl = SpeedControl() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 3120, "y2": 3220}}}}
-  c_dcpilot = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1005, "y2": 1105}}}}
+  c_dcpilot = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1005, "y2": 1105}}}}
   c_qdeg = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1500, "y2": 1600}}}}
-  c_rdeg = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1650, "y2": 1750}}}}
+  c_rdeg = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1650, "y2": 1750}}}}
   c_nz = BlockComponents.Sources.Constant(k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2400, "y2": 2500}}}}
   c_sinphi = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1800, "y2": 1900}}}}
-  c_cosphi = BlockComponents.Sources.Constant(k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1950, "y2": 2050}}}}
+  c_cosphi = BlockComponents.Sources.Constant(k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1950, "y2": 2050}}}}
   c_costhe = BlockComponents.Sources.Constant(k = 0.98) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2100, "y2": 2200}}}}
   c_dledeg = BlockComponents.Sources.Constant(k = 5.5) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1160, "y2": 1260}}}}
-  c_qbar = BlockComponents.Sources.Constant(k = 300.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2250, "y2": 2350}}}}
-  c_mach = BlockComponents.Sources.Constant(k = 0.54) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1350, "y2": 1450}}}}
-  c_vtotali = BlockComponents.Sources.Constant(k = 585.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2550, "y2": 2650}}}}
+  c_qbar = BlockComponents.Sources.Constant(k = 300.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2250, "y2": 2350}}}}
+  c_mach = BlockComponents.Sources.Constant(k = 0.54) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1350, "y2": 1450}}}}
+  c_vtotali = BlockComponents.Sources.Constant(k = 585.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2550, "y2": 2650}}}}
   c_dwpilot = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2700, "y2": 2800}}}}
   c_pdeg = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2900, "y2": 3000}}}}
   c_dppilot = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 650, "x2": 750, "y1": 2600, "y2": 2700}}}}
