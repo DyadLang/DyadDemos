@@ -17,21 +17,27 @@ unchanged (equations and parameters moved verbatim into sub-components).
 
 Verified by:
 
-- `tools/partition_check.py` — flattened connect-endpoint partitions
-  (through sub-components) compared to the pre-pass snapshot: **every
-  existing component boundary MATCH** (e.g. HL20Aero 155/155 nets,
-  HL20Vehicle 338/338, HL20FullSystem 450/450).
+- `python3 tools/partition_check.py HL20Demo/dyad <COMPONENT...>` —
+  flattened connect-endpoint partitions (through sub-components) compared
+  against the `2e80df8` reference for every component. The gate is exact:
+  renamed or extracted blocks pass only through the audited `RENAMES`
+  table inside the script; a same-shape rewire (e.g. swapping `mv.a11`
+  and `mv.a12` in QuatToBody) still fails. Current run: **all components
+  MATCH** (`--selftest` also verifies the swap regression is detected).
 - Numeric parity of `HL20Demo.shared.HL20Aero` against the spec equations
   (the equation-level implementation): **max |Δ| = 4.44e-16 over 1000
   randomized input cases** (baseline was 4.44e-16).
 - `dyad compile` clean; **1549/1549 generated tests + 20/20 aero tests
   pass**, including TestQuatDirection, TestQuatRoundTrip, TestMixerAssist.
-- `layout-report` on all 43 diagrams: **zero** overlapping ports/blocks,
-  zero wires through blocks or port glyphs, zero diagonal segments, zero
-  false junctions, zero unrouted connects, zero wires routed outside the
-  diagram bounding box. Five diagrams carry a single structural
-  label/wire contact each (six total), documented below — a bottom-edge
-  pin sitting inside its own block's name-label band.
+- `layout-report` (2a72e1e, the Studio-geometry gate) on all 43 public
+  diagrams: **zero** in every scored class — overlapping ports/blocks,
+  wires through blocks or port glyphs, diagonal segments, false
+  junctions, unrouted connects, wires routed outside the diagram
+  bounding box, plus the new glyph classes `glyph_overlap`,
+  `glyph_detached`, `glyph_overhang`, `label_covered`,
+  `wire_thru_glyph`, `junction_on_glyph`, `near_diagonal`. Residual
+  `labels_hit_by_wires` contacts match the pre-change baseline exactly
+  (structural: a pin sitting in its own block's name-label band).
 
 In a second routing pass the densest diagrams were re-laid with explicit
 trunk-and-tap buses (single shared trunks with orthogonal tap drops), and
@@ -159,7 +165,7 @@ Exceptions above the ~80-crossing target, one line each:
 ## Pitch-bus fix round
 
 A follow-up pass fixed `PitchControl`'s crowded bottom bus edge: its icon
-was widened so the eight bottom pins sit ≥50 units apart (~50.6), and the
+was widened so the nine bottom pins sit ≥50 units apart (~50.6), and the
 `pitch` block in `HL20FullSystem` was grown to x 700–1150, y 200–300 so
 those pins land on its bottom edge with matching spacing. The grown block
 was placed to keep the existing command-drop corridor (x 1170–1300) clear,
@@ -168,6 +174,44 @@ so crossings held at 62 with zero diagonals and zero wires through blocks.
 attempt in the same round produced a worse `HL20FullSystem` (~88 crossings)
 and was reverted to the 8acf83e baseline; the final metric table above is
 the kept result.
+
+## Glyph-fit pass (layout-report 2a72e1e)
+
+A later pass targeted the Studio-geometry gate, which measures the icon
+artwork actually drawn — pins live on the placement rectangle's edges
+while the artwork is aspect-fitted and centred inside it, so square icons
+in tall/wide placements leave pins floating ("detached").
+
+Fixes applied:
+
+- **Icon artwork re-proportioned** for HL20Demo-owned blocks whose real
+  pin counts wanted a non-square frame (e.g. `dynamics6.svg` tall for
+  RigidBody6DOF, `aero_lon.svg`/`aero_lat.svg` squared up, controller
+  icons widened); connector icon placements were moved onto the new
+  outline so the artwork fills the placement.
+- **Instance placements aspect-corrected** for the remaining
+  stdlib/icon-fixed blocks, sized so adjacent pins stay ≥50 units apart.
+- **Icon pin frames shrunk to a uniform 60-unit margin** (was 100+), and
+  `TransDynamics`'s crowded bottom pins (v3/p-chain) re-spread, clearing
+  every icon-space pin adjacency the gate flags as `glyph_overlap`.
+- **Boundary port rows shrunk to match** so wires still meet port
+  glyphs; wires re-routed where pin moves shifted approaches
+  (`near_diagonal` waypoints snapped to exact pin coordinates:
+  HL20Vehicle ×11, HL20FullSystem ×6, AeroLongitudinal ×1).
+- **Glyph-corridor reroutes**: risers moved out of pin-glyph zones in
+  FlightState, QuatToBody, AeroLongitudinal, AeroCYCN, HL20Aero,
+  HL20Vehicle; QuatKinematics' fan-out junctions re-ordered to remove
+  false junctions/overlap runs at baseline crossings (55);
+  RigidBody6DOF's w-fanout junctions moved to far-end columns
+  (crossings held at 3); the mixer→pitch `DLEDEG` wire in
+  HL20FullSystem rerouted around the grown pitch box.
+
+Crossing deltas vs the metric table below: HL20Aero 59→53 (improved),
+HL20Vehicle 119→124 (+4.2%, risers moved off the `v_mps` glyph zone),
+AeroCYCN 46→49 (+6.5%, port-row reroute). Every scored class is zero on
+all 43 diagrams; `labels_hit_by_wires` residuals are unchanged from
+baseline (HL20FullSystem/HL20Mixer/TestControllers 3, AeroLongitudinal 5,
+six others 1 each — the same pin-in-own-label-band contacts).
 
 ## Review items fixed in this pass
 
