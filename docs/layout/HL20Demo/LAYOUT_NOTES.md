@@ -156,6 +156,19 @@ Exceptions above the ~80-crossing target, one line each:
 - **HL20Mixer (33), QuatToDCM (25)** — residual fan-in crossings at the
   planarity floor for their fixed pin orders.
 
+## Pitch-bus fix round
+
+A follow-up pass fixed `PitchControl`'s crowded bottom bus edge: its icon
+was widened so the eight bottom pins sit ≥50 units apart (~50.6), and the
+`pitch` block in `HL20FullSystem` was grown to x 700–1150, y 200–300 so
+those pins land on its bottom edge with matching spacing. The grown block
+was placed to keep the existing command-drop corridor (x 1170–1300) clear,
+so crossings held at 62 with zero diagonals and zero wires through blocks.
+`TestControllers` was re-pinned for the wider icon (1 crossing). An earlier
+attempt in the same round produced a worse `HL20FullSystem` (~88 crossings)
+and was reverted to the 8acf83e baseline; the final metric table above is
+the kept result.
+
 ## Review items fixed in this pass
 
 - **Block-crossing routes** (`shared/AeroLateral.dyad`, `shared/AeroCoefficients.dyad`):
