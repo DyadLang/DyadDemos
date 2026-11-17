@@ -388,5 +388,233 @@ class EndToEnd(unittest.TestCase):
             self.assertEqual(os.path.dirname(broken["error_log"]), os.path.join(out, "cache"))
 
 
+# ---------------------------------------------------------------------------
+# Glyphs as Studio draws them. These SVGs have the structure of `dyad render`: a block's <g> holds a
+# 1000-unit frame <svg>, its icon in a <g> covering the frame, one <g> per connector glyph, its labels.
+
+TRIANGLE = '<svg width="210" height="210" viewBox="0 0 210 210"><polygon points="5.0,5.0 205.0,105.0 5.0,205.0"/></svg>'
+
+
+def place(x1, y1, x2, y2, rot=0):
+    """The transform `dyad render` gives a placement box (x1..x2, y1..y2) in a 1000-unit frame."""
+    return (f'transform="translate({(x1 + x2) / 2 - 500:g} {(y1 + y2) / 2 - 500:g}) rotate({rot}) '
+            f'scale({(x2 - x1) / 1000:g} {(y2 - y1) / 1000:g})" transform-origin="center center"')
+
+
+def gblock(name, box, ports=(), rot=0, label_y=1100):
+    """A block in `box`, with connector glyphs at `ports` (boxes in its 1000-unit icon space)."""
+    glyphs = "".join(f"<g {place(*p)}>{TRIANGLE}</g>" for p in ports)
+    return (f'<g filter="url(#drop-shadow)" {place(*box, rot=rot)}><svg viewBox="0 0 1000 1000">'
+            f'<g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center">'
+            f'<svg viewBox="0 0 1000 1000"><path d="M4 4h992v992H4z"/></svg></g>{glyphs}'
+            f'<text x="500" y="{label_y}" transform="rotate({rot}, 0, 600)" font-size="200">{name}</text></svg></g>')
+
+
+def gport(box):
+    return f"<g {place(*box)}>{TRIANGLE}</g>"
+
+
+def gsvg(*parts, wires=(), junctions=()):
+    body = "".join(parts) + "".join(WIRE.format(d=d) for d in wires)
+    body += "".join(f'<circle cx="{x}" cy="{y}" r="2"/>' for x, y in junctions)
+    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">{body}</svg>'
+
+
+def gm(text, src=None):
+    dg = lr.parse_svg(text, src)
+    return dg, lr.compute_metrics(dg)
+
+
+R = lambda b: tuple(round(v, 3) for v in b)
+
+
+class StudioGeometry(unittest.TestCase):
+    def test_icon_keeps_its_aspect_in_a_stretched_box(self):
+        # a 200 x 800 box: Studio draws the square icon 200 x 200 in the middle, the pins stay on the box edge
+        dg = lr.parse_svg(gsvg(gblock("b", (0, 0, 200, 800), ports=[(-50, 0, 50, 100)])))
+        b, = dg.blocks
+        self.assertEqual(R(b.frame), (0, 0, 200, 800))
+        self.assertEqual(R(b.body), (0, 300, 200, 500))
+        g, = dg.glyphs
+        self.assertEqual(R(g.frame), (-10, 0, 10, 80))  # the pin's frame, stretched like the box
+        self.assertEqual(R(g.pin), (0, 40))
+        # the 210-unit triangle fitted into the 20 x 80 frame: a 20 x 20 square, inset by its 5-unit margin
+        self.assertEqual(R(g.box), R((-10 + 20 * 5 / 210, 30 + 20 * 5 / 210, 10 - 20 * 5 / 210, 50 - 20 * 5 / 210)))
+        self.assertEqual(len(g.shape), 3)
+
+    def test_boundary_port_fills_its_box(self):
+        # the glyph <svg> says width="210", but Dyad sizes every frame for 1000 units: 50 x 100 box -> 50 x 50 glyph
+        dg = lr.parse_svg(gsvg(gport((100, 200, 150, 300))), {"P": (100, 200, 150, 300)})
+        p, = dg.blocks
+        self.assertTrue(p.is_port)
+        self.assertEqual(p.name, "P")
+        self.assertEqual(R(p.frame), (100, 200, 150, 300))
+        m = 50 * 5 / 210
+        self.assertEqual(R(p.box), R((100 + m, 225 + m, 150 - m, 275 - m)))
+        # its name under it: (500, 1100) of the frame grown by 20 units, at Studio's fixed label size
+        (_t, lb), = p.labels
+        self.assertAlmostEqual((lb[1] + lb[3]) / 2, 180 + 1.1 * 140)
+        self.assertAlmostEqual(lb[3] - lb[1], lr.LABEL_HEIGHT)
+
+    def test_labels_are_fixed_size_and_upright(self):
+        # a 400 x 100 box: render scales its label 4:1, Studio does not
+        dg = lr.parse_svg(gsvg(gblock("wide", (0, 0, 400, 100))))
+        (_t, lb), = dg.blocks[0].labels
+        self.assertAlmostEqual(lb[3] - lb[1], lr.LABEL_HEIGHT)
+        self.assertAlmostEqual(lb[2] - lb[0], lr.label_width("wide"))
+        self.assertEqual(((lb[0] + lb[2]) / 2, (lb[1] + lb[3]) / 2), (200, 110))
+        # a block turned 180 degrees: the anchor turns with it (above the box), the text stays upright
+        dg = lr.parse_svg(gsvg(gblock("flip", (0, 0, 100, 100), rot=180)))
+        (_t, lb), = dg.blocks[0].labels
+        self.assertEqual(R(((lb[0] + lb[2]) / 2, (lb[1] + lb[3]) / 2)), (50, -10))
+        self.assertAlmostEqual(lb[3] - lb[1], lr.LABEL_HEIGHT)
+
+    def test_connector_names_from_the_source(self):
+        lib = """
+partial component Two
+  u1 = RealInput() {^u1}
+  y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 1000, "y1": 450, "x2": 1100, "y2": 550}}}}
+metadata {"Dyad": {}, "_links": {"u1": {"Dyad": {"placement": {"icon": {"iconName": "input", "x1": -100, "y1": 200, "x2": 0, "y2": 300},
+  "diagram": {"x1": 0, "y1": 0, "x2": 1, "y2": 1}}}}}}
+end
+component Three
+  extends Two()
+  u2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -100, "y1": 700, "x2": 0, "y2": 800}}}}
+end
+"""
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "dyad"))
+            with open(os.path.join(d, "dyad", "t.dyad"), "w") as f:
+                f.write(lib)
+            idx = lr.connector_index([os.path.join(d, "dyad")])
+        self.assertEqual(sorted(idx["Three"]), [("u1", (-100, 200, 0, 300)), ("u2", (-100, 700, 0, 800)), ("y", (1000, 450, 1100, 550))])
+        dg = lr.parse_svg(gsvg(gblock("t", (0, 0, 100, 100), ports=[(-100, 200, 0, 300), (-100, 450, 0, 550)])),
+                          {"t": (0, 0, 100, 100)}, {"t": idx["Three"]})
+        self.assertEqual([g.name for g in dg.glyphs], ["t.u1", "t.#2"])
+
+    def test_instance_boxes_follow_links(self):
+        block = """
+  a = Lib.Gain(k = 1) {^a}
+  b = Lib.Gain() {"Dyad": {"placement": {"diagram": {"x1": 0, "y1": 0, "x2": 100, "y2": 100}}}}
+relations
+metadata {"Dyad": {}, "_links": {"a": {"Dyad": {"placement": {"icon": {"x1": 1, "y1": 1, "x2": 2, "y2": 2},
+  "diagram": {"x1": 200, "y1": 0, "x2": 300, "y2": 100}}}}}}
+"""
+        self.assertEqual(lr.instance_boxes(block), {"a": (200, 0, 300, 100), "b": (0, 0, 100, 100)})
+
+
+class GlyphChecks(unittest.TestCase):
+    def test_glyph_overlap(self):
+        # three ports in a column, 100 apart: the first two touch, the third is 50 units clear
+        dg, (m, d) = gm(gsvg(gport((0, 0, 100, 100)), gport((0, 100, 100, 200)), gport((0, 250, 100, 350))))
+        self.assertEqual((m["glyph_overlap"], m["glyph_overlap_unwired"]), (1, 0))
+        # triangles whose boxes only touch at a corner do not touch
+        _dg, (m, _d) = gm(gsvg(gport((0, 0, 100, 100)), gport((100, 100, 200, 200))))
+        self.assertEqual(m["glyph_overlap"], 0)
+        # a port glyph on another block's icon
+        _dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 100, 100)), gport((60, 20, 160, 120))))
+        self.assertEqual((m["glyph_overlap"], d["glyph_overlap"]), (1, ["port#1 on b"]))
+
+    def test_unwired_pins_piled_on_one_block_are_reported_apart(self):
+        stacked = [(950, y, 1050, y + 50) for y in (0, 50)]
+        _dg, (m, _d) = gm(gsvg(gblock("b", (0, 0, 1000, 1000), ports=stacked)))
+        self.assertEqual((m["glyph_overlap"], m["glyph_overlap_unwired"]), (0, 1))
+        # once one is wired, it is this diagram's layout
+        _dg, (m, _d) = gm(gsvg(gblock("b", (0, 0, 1000, 1000), ports=stacked), wires=["M 1000 25 L 1200 25"]))
+        self.assertEqual((m["glyph_overlap"], m["glyph_overlap_unwired"]), (1, 0))
+
+    def test_glyph_detached_and_overhang(self):
+        # 400 x 100 box: the icon is the middle 100 x 100; a pin on the box's left edge floats 150 away
+        _dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 400, 100), ports=[(-50, 450, 50, 550), (450, -50, 550, 50)])))
+        self.assertEqual(m["glyph_detached"], 1)
+        self.assertEqual(d["glyph_detached"], ["b.#1 (145 from b)"])  # its 10 x 10 glyph is centred on x = 0
+        self.assertEqual(m["glyph_overhang"], 0)  # the top pin straddles the top side
+        # on a 100-unit block: a pin past the corner of its side, a standard pin standing just off the side
+        # (BlockComponents' `x1 = -100, x2 = 0`: 10 units out, fine), and a 40-unit glyph standing off it
+        _dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 100, 100), ports=[(-50, 1000, 50, 1100), (-100, 300, 0, 400),
+                                                                  (-400, 600, 0, 1000)])))
+        self.assertEqual((m["glyph_detached"], m["glyph_overhang"]), (0, 2))
+        self.assertIn("past the end of the left side", d["glyph_overhang"][0])
+        self.assertIn("outside the left side", d["glyph_overhang"][1])
+
+    def test_label_covered(self):
+        # a port right under another port's name; a block's own bottom pin over its own label does not count
+        _dg, (m, d) = gm(gsvg(gport((0, 0, 100, 100)), gport((0, 110, 100, 210)),
+                              gblock("b", (500, 0, 600, 100), ports=[(450, 1000, 550, 1100)])),
+                         {"A": (0, 0, 100, 100), "B": (0, 110, 100, 210), "b": (500, 0, 600, 100)})
+        self.assertEqual((m["label_covered"], d["label_covered"]), (1, ["A under B"]))
+
+    def test_wire_thru_glyph(self):
+        port = gport((200, 0, 300, 100))
+        # through the middle of a 95-unit triangle; ending at it; grazing its tip
+        for wire, want in (("M 0 50 L 400 50", 1), ("M 0 50 L 250 50", 0), ("M 290 -50 L 290 150", 0)):
+            _dg, (m, _d) = gm(gsvg(port, wires=[wire]))
+            self.assertEqual((m["wire_thru_glyph"], m["wire_through_port"]), (want, want), wire)
+        # a wire of the glyph's own net (the two wires share an end) is not counted
+        _dg, (m, _d) = gm(gsvg(port, wires=["M 250 50 L 250 200 L 600 200", "M 600 200 L 600 50 L 0 50"]))
+        self.assertEqual(m["wire_thru_glyph"], 0)
+        # a block's 10-unit pin is too small to test: a wire has to run over it to reach the pin
+        _dg, (m, _d) = gm(gsvg(gblock("b", (500, 0, 600, 100), ports=[(-100, 450, 0, 550)]), wires=["M 495 -50 L 495 150"]))
+        self.assertEqual(m["wire_thru_glyph"], 0)
+
+    def test_junction_on_glyph(self):
+        port = gport((200, 0, 300, 100))
+        for jp, want in (((260, 50), 1), ((300, 50), 1), ((320, 50), 0)):
+            _dg, (m, _d) = gm(gsvg(port, junctions=[jp]))
+            self.assertEqual(m["junction_on_glyph"], want, jp)
+
+    def test_near_diagonal(self):
+        _dg, (m, d) = gm(gsvg(wires=["M 0 561.42 L 300 561.4 L 300 900", "M 0 0 L 300 0.0000001", "M 0 1000 L 300 1001"]))
+        self.assertEqual(m["near_diagonal"], 1)
+        self.assertEqual(m["diagonal_segments"], 1)
+
+
+# ---------------------------------------------------------------------------
+# Regression fixtures: `dyad render` output of HL20Demo diagrams at 99ffbc0 (draft PR #51), gzipped,
+# with the counts the glyph checks must give. Every listed defect was checked against Dyad Studio's own
+# drawing (dyad-ui-shot); the clean ones look clean there. studio.json holds the geometry Studio drew
+# for them, read from its DOM, which the model must reproduce.
+
+FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
+
+
+def fixture(name):
+    import gzip
+    with gzip.open(os.path.join(FIXTURES, name + ".svg.gz"), "rt", encoding="utf-8") as f:
+        return f.read()
+
+
+class Fixtures(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        with open(os.path.join(FIXTURES, "expected.json")) as f:
+            cls.expected = json.load(f)
+        with open(os.path.join(FIXTURES, "studio.json")) as f:
+            cls.studio = json.load(f)
+
+    def test_counts(self):
+        for name, exp in self.expected.items():
+            dg = lr.parse_svg(fixture(name), {k: tuple(v) for k, v in exp["src_boxes"].items()})
+            m, _d = lr.compute_metrics(dg)
+            self.assertEqual({k: m[k] for k in exp["counts"]}, exp["counts"], name)
+
+    def test_matches_studio(self):
+        for name, st in self.studio.items():
+            src = {k: tuple(v) for k, v in self.expected[name]["src_boxes"].items()}
+            dg = lr.parse_svg(fixture(name), src)
+            close = lambda a, b, tol=1.0: max(abs(u - v) for u, v in zip(a, b)) <= tol
+            bodies = {b.name: b.body for b in dg.blocks if not b.is_port}
+            for nm, ink in st["bodies"].items():
+                self.assertTrue(close(bodies[nm], ink), (name, nm, bodies[nm], ink))
+            glyphs = [g.box for g in dg.glyphs]
+            for ink in st["glyphs"]:
+                self.assertTrue(any(close(g, ink) for g in glyphs), (name, ink))
+            self.assertEqual(len(glyphs), len(st["glyphs"]), name)
+            labels = [(t, bb) for b in dg.blocks for t, bb in b.labels]
+            for text, box in st["labels"]:
+                centre = lambda bb: ((bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2)
+                self.assertTrue(any(t == text and close(centre(bb), centre(box)) for t, bb in labels), (name, text, box))
+
+
 if __name__ == "__main__":
     unittest.main()
