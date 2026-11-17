@@ -6,18 +6,18 @@ the elevator assist, then drives each of the seven surfaces through a
 first-order actuator, slew-rate limiter and position limiter.
 """
 component HL20Mixer
-  DECMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200}, "diagram": {"x1": -50, "x2": 50, "y1": 1750, "y2": 1850}}}}
-  DACMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400}, "diagram": {"x1": -50, "x2": 50, "y1": 400, "y2": 500}}}}
-  DRCMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"x1": -50, "x2": 50, "y1": 150, "y2": 250}}}}
-  DSBCMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"x1": -50, "x2": 50, "y1": 1320, "y2": 1420}}}}
-  DLE = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 960, "x2": 1040, "y1": 10, "y2": 90}, "diagram": {"x1": 3950, "x2": 4050, "y1": 2550, "y2": 2650}}}}
-  DRE = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 960, "x2": 1040, "y1": 138.6, "y2": 218.6}, "diagram": {"x1": 3950, "x2": 4050, "y1": 2850, "y2": 2950}}}}
-  DUL = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 960, "x2": 1040, "y1": 267.1, "y2": 347.1}, "diagram": {"x1": 3950, "x2": 4050, "y1": 650, "y2": 750}}}}
-  DUR = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 960, "x2": 1040, "y1": 395.7, "y2": 475.7}, "diagram": {"x1": 3950, "x2": 4050, "y1": 950, "y2": 1050}}}}
-  DLL = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 960, "x2": 1040, "y1": 524.3, "y2": 604.3}, "diagram": {"x1": 3950, "x2": 4050, "y1": 1250, "y2": 1350}}}}
-  DLR = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 960, "x2": 1040, "y1": 652.9, "y2": 732.9}, "diagram": {"x1": 3950, "x2": 4050, "y1": 1550, "y2": 1650}}}}
-  DR = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 960, "x2": 1040, "y1": 781.4, "y2": 861.4}, "diagram": {"x1": 3950, "x2": 4050, "y1": 150, "y2": 250}}}}
-  DLEDEG = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 960, "x2": 1040, "y1": 910, "y2": 990}, "diagram": {"x1": 3950, "x2": 4050, "y1": 2700, "y2": 2800}}}}
+  DECMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180}, "diagram": {"x1": -30, "x2": 30, "y1": 1770, "y2": 1830}}}}
+  DACMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380}, "diagram": {"x1": -30, "x2": 30, "y1": 420, "y2": 480}}}}
+  DRCMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}}}}
+  DSBCMD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": -30, "x2": 30, "y1": 1340, "y2": 1400}}}}
+  DLE = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 20, "y2": 80}, "diagram": {"x1": 3970, "x2": 4030, "y1": 2570, "y2": 2630}}}}
+  DRE = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 148.6, "y2": 208.6}, "diagram": {"x1": 3970, "x2": 4030, "y1": 2870, "y2": 2930}}}}
+  DUL = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 277.1, "y2": 337.1}, "diagram": {"x1": 3970, "x2": 4030, "y1": 670, "y2": 730}}}}
+  DUR = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 405.7, "y2": 465.7}, "diagram": {"x1": 3970, "x2": 4030, "y1": 970, "y2": 1030}}}}
+  DLL = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 534.3, "y2": 594.3}, "diagram": {"x1": 3970, "x2": 4030, "y1": 1270, "y2": 1330}}}}
+  DLR = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 662.9, "y2": 722.9}, "diagram": {"x1": 3970, "x2": 4030, "y1": 1570, "y2": 1630}}}}
+  DR = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 791.4, "y2": 851.4}, "diagram": {"x1": 3970, "x2": 4030, "y1": 170, "y2": 230}}}}
+  DLEDEG = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 920, "y2": 980}, "diagram": {"x1": 3970, "x2": 4030, "y1": 2720, "y2": 2780}}}}
   parameter DBFMAX::Real = 60.0
   parameter DLE0::Real = 5.5
   parameter DRE0::Real = 5.5

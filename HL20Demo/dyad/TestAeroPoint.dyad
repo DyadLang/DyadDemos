@@ -5,7 +5,7 @@ checked point-by-point against the reference coefficient equations.
 test component TestAeroPoint
   aero = HL20Demo.shared.HL20Aero() {
     "Dyad": {
-      "placement": {"diagram": {"x1": 625, "x2": 1325, "y1": 1000, "y2": 2500}}
+      "placement": {"diagram": {"x1": 625, "x2": 1375, "y1": 1000, "y2": 2500}}
     }
   }
   c_alpha = BlockComponents.Sources.Constant(k = alpha_k) {
@@ -141,43 +141,43 @@ relations
   }
   connect(c_dbful.y, aero.DBFUL) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 660, "y": 2650}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 662.5, "y": 2650}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dbfur.y, aero.DBFUR) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 730, "y": 2800}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 737.5, "y": 2800}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dbfll.y, aero.DBFLL) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 800, "y": 2950}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 812.5, "y": 2950}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dbflr.y, aero.DBFLR) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 870, "y": 3100}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 887.5, "y": 3100}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dwfl.y, aero.DWFL) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 940, "y": 3250}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 962.5, "y": 3250}], "E": 2}],
       "path": {}
     }
   }
   connect(c_dwfr.y, aero.DWFR) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1010, "y": 3400}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 3400}], "E": 2}],
       "path": {}
     }
   }
   connect(c_drud.y, aero.DRUD) {
     "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1080, "y": 3550}], "E": 2}],
+      "edges": [{"S": 1, "M": [{"x": 1112.5, "y": 3550}], "E": 2}],
       "path": {}
     }
   }

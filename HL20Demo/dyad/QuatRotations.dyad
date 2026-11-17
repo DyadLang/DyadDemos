@@ -8,8 +8,8 @@ component QuatToBody
   qw = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 325, "y2": 425}
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 345, "y2": 405}
       }
     }
   }
@@ -17,8 +17,8 @@ component QuatToBody
   qx = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 525, "y2": 625}
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 545, "y2": 605}
       }
     }
   }
@@ -26,8 +26,8 @@ component QuatToBody
   qy = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
-        "diagram": {"x1": -50, "x2": 50, "y1": 725, "y2": 825}
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 745, "y2": 805}
       }
     }
   }
@@ -35,23 +35,23 @@ component QuatToBody
   qz = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
-        "diagram": {"x1": -50, "x2": 50, "y1": 925, "y2": 1025}
+        "icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380},
+        "diagram": {"x1": -30, "x2": 30, "y1": 945, "y2": 1005}
       }
     }
   }
   "Inertial NED vector component 1 (North)"
-  v1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"x1": 930, "x2": 1030, "y1": 1950, "y2": 2050}}}}
+  v1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": 950, "x2": 1010, "y1": 1970, "y2": 2030}}}}
   "Inertial NED vector component 2 (East)"
-  v2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700}, "diagram": {"x1": 1600, "x2": 1700, "y1": 1950, "y2": 2050}}}}
+  v2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1970, "y2": 2030}}}}
   "Inertial NED vector component 3 (Down)"
-  v3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"x1": 1770, "x2": 1870, "y1": 1950, "y2": 2050}}}}
+  v3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": 1790, "x2": 1850, "y1": 1970, "y2": 2030}}}}
   "Body vector component 1 (forward)"
   b1 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
-        "diagram": {"x1": 2650, "x2": 2750, "y1": 275, "y2": 375}
+        "icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280},
+        "diagram": {"x1": 2670, "x2": 2730, "y1": 295, "y2": 355}
       }
     }
   }
@@ -59,8 +59,8 @@ component QuatToBody
   b2 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500},
-        "diagram": {"x1": 2650, "x2": 2750, "y1": 675, "y2": 775}
+        "icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480},
+        "diagram": {"x1": 2670, "x2": 2730, "y1": 695, "y2": 755}
       }
     }
   }
@@ -68,8 +68,8 @@ component QuatToBody
   b3 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700},
-        "diagram": {"x1": 2650, "x2": 2750, "y1": 1075, "y2": 1175}
+        "icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680},
+        "diagram": {"x1": 2670, "x2": 2730, "y1": 1095, "y2": 1155}
       }
     }
   }
@@ -88,9 +88,9 @@ relations
   connect(dcm.m13, mv.a13) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 630, "y": 837.5}, {"x": 630, "y": 480}], "E": 2}], "path": {}} }
   connect(dcm.m31, mv.a31) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 640, "y": 862.5}, {"x": 640, "y": 660}], "E": 2}], "path": {}} }
   connect(dcm.m22, mv.a22) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 650, "y": 887.5}, {"x": 650, "y": 840}], "E": 2}], "path": {}} }
-  connect(dcm.m23, mv.a23) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 680, "y": 912.5}, {"x": 680, "y": 1020}], "E": 2}], "path": {}} }
-  connect(dcm.m32, mv.a32) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 670, "y": 937.5}, {"x": 670, "y": 1200}], "E": 2}], "path": {}} }
-  connect(dcm.m33, mv.a33) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 660, "y": 962.5}, {"x": 660, "y": 1380}], "E": 2}], "path": {}} }
+  connect(dcm.m23, mv.a23) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 655, "y": 912.5}, {"x": 655, "y": 1020}], "E": 2}], "path": {}} }
+  connect(dcm.m32, mv.a32) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 635, "y": 937.5}, {"x": 635, "y": 1200}], "E": 2}], "path": {}} }
+  connect(dcm.m33, mv.a33) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 625, "y": 962.5}, {"x": 625, "y": 1380}], "E": 2}], "path": {}} }
   connect(v1, mv.u1) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
   connect(mv.y1, b1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2200, "y": 30}, {"x": 2200, "y": 325}], "E": 2}], "path": {}} }
   connect(v2, mv.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1650, "y": 1650}], "E": 2}], "path": {}} }
@@ -110,8 +110,8 @@ component QuatToInertial
   qw = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 550, "y2": 650}
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}
       }
     }
   }
@@ -119,8 +119,8 @@ component QuatToInertial
   qx = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 725, "y2": 825}
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 745, "y2": 805}
       }
     }
   }
@@ -128,8 +128,8 @@ component QuatToInertial
   qy = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
-        "diagram": {"x1": -50, "x2": 50, "y1": 900, "y2": 1000}
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 920, "y2": 980}
       }
     }
   }
@@ -137,23 +137,23 @@ component QuatToInertial
   qz = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1075, "y2": 1175}
+        "icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1095, "y2": 1155}
       }
     }
   }
   "Body vector component 1 (forward)"
-  b1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"x1": 1330, "x2": 1430, "y1": 1850, "y2": 1950}}}}
+  b1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": 1350, "x2": 1410, "y1": 1870, "y2": 1930}}}}
   "Body vector component 2 (right)"
-  b2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700}, "diagram": {"x1": 2000, "x2": 2100, "y1": 1850, "y2": 1950}}}}
+  b2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": 2020, "x2": 2080, "y1": 1870, "y2": 1930}}}}
   "Body vector component 3 (down)"
-  b3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"x1": 2170, "x2": 2270, "y1": 1850, "y2": 1950}}}}
+  b3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": 2190, "x2": 2250, "y1": 1870, "y2": 1930}}}}
   "Inertial NED vector component 1 (North)"
   v1 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
-        "diagram": {"x1": 2750, "x2": 2850, "y1": 287.5, "y2": 387.5}
+        "icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280},
+        "diagram": {"x1": 2770, "x2": 2830, "y1": 307.5, "y2": 367.5}
       }
     }
   }
@@ -161,8 +161,8 @@ component QuatToInertial
   v2 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500},
-        "diagram": {"x1": 2750, "x2": 2850, "y1": 693.75, "y2": 793.75}
+        "icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480},
+        "diagram": {"x1": 2770, "x2": 2830, "y1": 713.75, "y2": 773.75}
       }
     }
   }
@@ -170,8 +170,8 @@ component QuatToInertial
   v3 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700},
-        "diagram": {"x1": 2750, "x2": 2850, "y1": 1100, "y2": 1200}
+        "icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680},
+        "diagram": {"x1": 2770, "x2": 2830, "y1": 1120, "y2": 1180}
       }
     }
   }

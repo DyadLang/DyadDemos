@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
-  <path fill="#fff" stroke-width="0" d="M4 4h992v992H4z"/>
-  <path fill="#f2c1a0" stroke-width="0" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
-  <text x="500" y="590" font-family="sans-serif" font-size="340" font-weight="bold" text-anchor="middle" fill="#12203a">ψ</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 100">
+  <path fill="#fff" stroke-width="0" d="M4 4h142v92H4z"/>
+  <path fill="#f2c1a0" stroke-width="0" d="M142 8v84H8V8zm8-8H0v100h150z"/>
+  <text x="75" y="74" font-family="sans-serif" font-size="70" font-weight="bold" text-anchor="middle" fill="#12203a">ψ</text>
 </svg>

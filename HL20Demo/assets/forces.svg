@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
-  <path fill="#fff" stroke-width="0" d="M4 4h992v992H4z"/>
-  <path fill="#f2a9a9" stroke-width="0" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
-  <text x="500" y="590" font-family="sans-serif" font-size="230" font-weight="bold" text-anchor="middle" fill="#12203a">F·M</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 730">
+  <path fill="#fff" stroke-width="0" d="M4 4h192v722H4z"/>
+  <path fill="#f2a9a9" stroke-width="0" d="M192 8v714H8V8zm8-8H0v730h200z"/>
+  <text x="124" y="365" font-family="sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="#12203a" transform="rotate(-90 124 365)">F·M</text>
 </svg>

@@ -10,8 +10,8 @@ component RigidBody6DOF
   F1 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 350, "y2": 450}
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}
       }
     }
   }
@@ -19,8 +19,8 @@ component RigidBody6DOF
   F2 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 550, "y2": 650}
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}
       }
     }
   }
@@ -28,8 +28,8 @@ component RigidBody6DOF
   F3 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
-        "diagram": {"x1": -50, "x2": 50, "y1": 700, "y2": 800}
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}
       }
     }
   }
@@ -37,8 +37,8 @@ component RigidBody6DOF
   T1 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1600, "y2": 1700}
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1620, "y2": 1680}
       }
     }
   }
@@ -46,8 +46,8 @@ component RigidBody6DOF
   T2 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1800, "y2": 1900}
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1820, "y2": 1880}
       }
     }
   }
@@ -55,37 +55,37 @@ component RigidBody6DOF
   T3 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1950, "y2": 2050}
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1970, "y2": 2030}
       }
     }
   }
   "Position, inertial NED axis 1 (m)"
-  pos_1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 50}, "diagram": {"x1": 3300, "x2": 3400, "y1": 700, "y2": 800}}}}
+  pos_1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 5, "x2": 1030, "y2": 45}, "diagram": {"x1": 3320, "x2": 3380, "y1": 720, "y2": 780}}}}
   "Position, inertial NED axis 2 (m)"
-  pos_2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 50, "x2": 1050, "y2": 100}, "diagram": {"x1": 3300, "x2": 3400, "y1": 850, "y2": 950}}}}
+  pos_2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 55, "x2": 1030, "y2": 95}, "diagram": {"x1": 3320, "x2": 3380, "y1": 870, "y2": 930}}}}
   "Position, inertial NED axis 3 (m)"
-  pos_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 100, "x2": 1050, "y2": 150}, "diagram": {"x1": 3300, "x2": 3400, "y1": 1000, "y2": 1100}}}}
+  pos_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 105, "x2": 1030, "y2": 145}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1020, "y2": 1080}}}}
   "Velocity, inertial NED axis 1 (m/s)"
-  vel_1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 150, "x2": 1050, "y2": 200}, "diagram": {"x1": 3300, "x2": 3400, "y1": 250, "y2": 350}}}}
+  vel_1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 155, "x2": 1030, "y2": 195}, "diagram": {"x1": 3320, "x2": 3380, "y1": 270, "y2": 330}}}}
   "Velocity, inertial NED axis 2 (m/s)"
-  vel_2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 250}, "diagram": {"x1": 3300, "x2": 3400, "y1": 400, "y2": 500}}}}
+  vel_2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 205, "x2": 1030, "y2": 245}, "diagram": {"x1": 3320, "x2": 3380, "y1": 420, "y2": 480}}}}
   "Velocity, inertial NED axis 3 (m/s)"
-  vel_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 250, "x2": 1050, "y2": 300}, "diagram": {"x1": 3300, "x2": 3400, "y1": 550, "y2": 650}}}}
+  vel_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 255, "x2": 1030, "y2": 295}, "diagram": {"x1": 3320, "x2": 3380, "y1": 570, "y2": 630}}}}
   "Quaternion scalar part"
-  qw = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 350, "x2": 1050, "y2": 400}, "diagram": {"x1": 3300, "x2": 3400, "y1": 1150, "y2": 1250}}}}
+  qw = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 355, "x2": 1030, "y2": 395}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1170, "y2": 1230}}}}
   "Quaternion x part"
-  qx = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 450}, "diagram": {"x1": 3300, "x2": 3400, "y1": 1300, "y2": 1400}}}}
+  qx = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 405, "x2": 1030, "y2": 445}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1320, "y2": 1380}}}}
   "Quaternion y part"
-  qy = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 500}, "diagram": {"x1": 3300, "x2": 3400, "y1": 1450, "y2": 1550}}}}
+  qy = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 455, "x2": 1030, "y2": 495}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1470, "y2": 1530}}}}
   "Quaternion z part"
-  qz = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 500, "x2": 1050, "y2": 550}, "diagram": {"x1": 3300, "x2": 3400, "y1": 1600, "y2": 1700}}}}
+  qz = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 505, "x2": 1030, "y2": 545}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1620, "y2": 1680}}}}
   "Body angular rate, roll (rad/s)"
-  omega_1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 650}, "diagram": {"x1": 3300, "x2": 3400, "y1": 2000, "y2": 2100}}}}
+  omega_1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 605, "x2": 1030, "y2": 645}, "diagram": {"x1": 3320, "x2": 3380, "y1": 2020, "y2": 2080}}}}
   "Body angular rate, pitch (rad/s)"
-  omega_2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 650, "x2": 1050, "y2": 700}, "diagram": {"x1": 3300, "x2": 3400, "y1": 2150, "y2": 2250}}}}
+  omega_2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 655, "x2": 1030, "y2": 695}, "diagram": {"x1": 3320, "x2": 3380, "y1": 2170, "y2": 2230}}}}
   "Body angular rate, yaw (rad/s)"
-  omega_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 750}, "diagram": {"x1": 3300, "x2": 3400, "y1": 2300, "y2": 2400}}}}
+  omega_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 705, "x2": 1030, "y2": 745}, "diagram": {"x1": 3320, "x2": 3380, "y1": 2320, "y2": 2380}}}}
   "Vehicle mass (kg)"
   parameter mass::Real = 8664.1
   "Roll moment of inertia (kg.m^2)"
@@ -151,8 +151,8 @@ relations
     }
   }
       connect(trans.v1, vel_1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1700, "y": 360}, {"x": 1700, "y": 300}, {"x": 3350, "y": 300}], "E": 2}], "path": {}} }
-  connect(trans.p1, pos_1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1670, "y": 800}, {"x": 1670, "y": 750}, {"x": 3350, "y": 750}], "E": 2}], "path": {}} }
-    connect(rot.w1, qkin.w1, omega_1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1660, "y": 1160}], "E": 2}, {"S": -1, "M": [{"x": 1710, "y": 1610}, {"x": 1710, "y": 2050}], "E": 3}], "path": {}, "junctions": [{"x": 1660, "y": 1610}]}}
+  connect(trans.p1, pos_1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1670, "y": 760}, {"x": 1670, "y": 750}, {"x": 3350, "y": 750}], "E": 2}], "path": {}} }
+    connect(rot.w1, qkin.w1, omega_1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1710, "y": 1160}], "E": 2}, {"S": -1, "M": [{"x": 1710, "y": 2050}], "E": 3}], "path": {}, "junctions": [{"x": 1710, "y": 1610}]}}
   connect(F2, trans.F2) {
     "Dyad": {
       "edges": [{"S": 1, "M": [{"x": 643.75, "y": 600}, {"x": 643.75, "y": 560}], "E": 2}],
@@ -172,8 +172,8 @@ relations
     }
   }
       connect(trans.v2, vel_2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1690, "y": 560}, {"x": 1690, "y": 450}, {"x": 3350, "y": 450}], "E": 2}], "path": {}} }
-  connect(trans.p2, pos_2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1655, "y": 920}, {"x": 1655, "y": 900}, {"x": 3350, "y": 900}], "E": 2}], "path": {}} }
-    connect(rot.w2, qkin.w2, omega_2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1670, "y": 1360}], "E": 2}, {"S": -1, "M": [{"x": 1700, "y": 1810}, {"x": 1700, "y": 2200}], "E": 3}], "path": {}, "junctions": [{"x": 1670, "y": 1810}]}}
+  connect(trans.p2, pos_2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1655, "y": 840}, {"x": 1655, "y": 900}, {"x": 3350, "y": 900}], "E": 2}], "path": {}} }
+    connect(rot.w2, qkin.w2, omega_2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1700, "y": 1360}], "E": 2}, {"S": -1, "M": [{"x": 1700, "y": 2200}], "E": 3}], "path": {}, "junctions": [{"x": 1700, "y": 1810}]}}
   connect(F3, trans.F3) {
     "Dyad": {
       "edges": [{"S": 1, "M": [{"x": 643.75, "y": 750}, {"x": 643.75, "y": 760}], "E": 2}],
@@ -192,9 +192,9 @@ relations
       "path": {}
     }
   }
-      connect(trans.v3, vel_3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1660, "y": 760}, {"x": 1660, "y": 600}, {"x": 3350, "y": 600}], "E": 2}], "path": {}} }
-  connect(trans.p3, pos_3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1658, "y": 1040}, {"x": 1658, "y": 985}, {"x": 3290, "y": 985}, {"x": 3290, "y": 1050}, {"x": 3350, "y": 1050}], "E": 2}], "path": {}} }
-    connect(rot.w3, qkin.w3, omega_3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1680, "y": 1560}], "E": 2}, {"S": -1, "M": [{"x": 1690, "y": 2010}, {"x": 1690, "y": 2350}], "E": 3}], "path": {}, "junctions": [{"x": 1680, "y": 2010}]}}
+      connect(trans.v3, vel_3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1660, "y": 680}, {"x": 1660, "y": 600}, {"x": 3350, "y": 600}], "E": 2}], "path": {}} }
+  connect(trans.p3, pos_3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1658, "y": 920}, {"x": 1658, "y": 985}, {"x": 3290, "y": 985}, {"x": 3290, "y": 1050}, {"x": 3350, "y": 1050}], "E": 2}], "path": {}} }
+    connect(rot.w3, qkin.w3, omega_3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1690, "y": 1560}], "E": 2}, {"S": -1, "M": [{"x": 1690, "y": 2350}], "E": 3}], "path": {}, "junctions": [{"x": 1690, "y": 2010}]}}
   connect(qkin.q0, qw) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2840, "y": 1120}, {"x": 2840, "y": 1200}, {"x": 3350, "y": 1200}], "E": 2}], "path": {}} }
   connect(qkin.q1, qx) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2830, "y": 1280}, {"x": 2830, "y": 1350}, {"x": 3350, "y": 1350}], "E": 2}], "path": {}} }
   connect(qkin.q2, qy) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2820, "y": 1440}, {"x": 2820, "y": 1500}, {"x": 3350, "y": 1500}], "E": 2}], "path": {}} }

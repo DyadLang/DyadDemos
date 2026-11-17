@@ -8,8 +8,8 @@ component TransDynamics
   F1 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 150, "x2": 50, "y2": 250},
-        "diagram": {"x1": -50, "x2": 50, "y1": 350, "y2": 450}
+        "icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230},
+        "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}
       }
     }
   }
@@ -17,8 +17,8 @@ component TransDynamics
   F2 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500},
-        "diagram": {"x1": -50, "x2": 50, "y1": 700, "y2": 800}
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}
       }
     }
   }
@@ -26,8 +26,8 @@ component TransDynamics
   F3 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 650, "x2": 50, "y2": 750},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1000, "y2": 1100}
+        "icon": {"x1": -30, "y1": 670, "x2": 30, "y2": 730},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1020, "y2": 1080}
       }
     }
   }
@@ -35,8 +35,8 @@ component TransDynamics
   v1 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 150, "x2": 1050, "y2": 250},
-        "diagram": {"x1": 1450, "x2": 1550, "y1": 350, "y2": 450}
+        "icon": {"x1": 970, "y1": 170, "x2": 1030, "y2": 230},
+        "diagram": {"x1": 1470, "x2": 1530, "y1": 370, "y2": 430}
       }
     }
   }
@@ -44,8 +44,8 @@ component TransDynamics
   v2 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500},
-        "diagram": {"x1": 1450, "x2": 1550, "y1": 750, "y2": 850}
+        "icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480},
+        "diagram": {"x1": 1470, "x2": 1530, "y1": 770, "y2": 830}
       }
     }
   }
@@ -53,8 +53,8 @@ component TransDynamics
   v3 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 650, "x2": 1050, "y2": 750},
-        "diagram": {"x1": 1450, "x2": 1550, "y1": 1100, "y2": 1200}
+        "icon": {"x1": 970, "y1": 570, "x2": 1030, "y2": 630},
+        "diagram": {"x1": 1470, "x2": 1530, "y1": 1120, "y2": 1180}
       }
     }
   }
@@ -62,8 +62,8 @@ component TransDynamics
   p1 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800},
-        "diagram": {"x1": 1450, "x2": 1550, "y1": 200, "y2": 300}
+        "icon": {"x1": 970, "y1": 670, "x2": 1030, "y2": 730},
+        "diagram": {"x1": 1470, "x2": 1530, "y1": 220, "y2": 280}
       }
     }
   }
@@ -71,8 +71,8 @@ component TransDynamics
   p2 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 850, "x2": 1050, "y2": 950},
-        "diagram": {"x1": 1450, "x2": 1550, "y1": 600, "y2": 700}
+        "icon": {"x1": 970, "y1": 770, "x2": 1030, "y2": 830},
+        "diagram": {"x1": 1470, "x2": 1530, "y1": 620, "y2": 680}
       }
     }
   }
@@ -80,8 +80,8 @@ component TransDynamics
   p3 = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 1000, "x2": 1050, "y2": 1100},
-        "diagram": {"x1": 1450, "x2": 1550, "y1": 950, "y2": 1050}
+        "icon": {"x1": 970, "y1": 870, "x2": 1030, "y2": 930},
+        "diagram": {"x1": 1470, "x2": 1530, "y1": 970, "y2": 1030}
       }
     }
   }
@@ -188,17 +188,17 @@ inertia. Every operation is a wired block.
 """
 component RotDynamics
   "External torque, body axis 1 (N.m)"
-  T1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 150, "x2": 50, "y2": 250}, "diagram": {"x1": -50, "x2": 50, "y1": 0, "y2": 100}}}}
+  T1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230}, "diagram": {"x1": -50, "x2": 50, "y1": 0, "y2": 100}}}}
   "External torque, body axis 2 (N.m)"
-  T2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500}, "diagram": {"x1": -150, "x2": -50, "y1": 100, "y2": 200}}}}
+  T2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": -130, "x2": -70, "y1": 120, "y2": 180}}}}
   "External torque, body axis 3 (N.m)"
-  T3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 650, "x2": 50, "y2": 750}, "diagram": {"x1": -250, "x2": -150, "y1": 200, "y2": 300}}}}
+  T3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 670, "x2": 30, "y2": 730}, "diagram": {"x1": -230, "x2": -170, "y1": 220, "y2": 280}}}}
   "Body angular rate, axis 1 (rad/s)"
-  w1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 150, "x2": 1050, "y2": 250}, "diagram": {"x1": 1750, "x2": 1850, "y1": 260, "y2": 360}}}}
+  w1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 170, "x2": 1030, "y2": 230}, "diagram": {"x1": 1770, "x2": 1830, "y1": 280, "y2": 340}}}}
   "Body angular rate, axis 2 (rad/s)"
-  w2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500}, "diagram": {"x1": 1750, "x2": 1850, "y1": 710, "y2": 810}}}}
+  w2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480}, "diagram": {"x1": 1770, "x2": 1830, "y1": 730, "y2": 790}}}}
   "Body angular rate, axis 3 (rad/s)"
-  w3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 650, "x2": 1050, "y2": 750}, "diagram": {"x1": 1750, "x2": 1850, "y1": 1160, "y2": 1260}}}}
+  w3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 670, "x2": 1030, "y2": 730}, "diagram": {"x1": 1770, "x2": 1830, "y1": 1180, "y2": 1240}}}}
   "Roll moment of inertia (kg.m^2)"
   parameter Jxx::Real = 10186.272
   "Pitch moment of inertia (kg.m^2)"
@@ -256,19 +256,19 @@ quaternion q = [q0, q1, q2, q3]. Every operation is a wired block.
 """
 component QuatKinematics
   "Body angular rate, axis 1 (rad/s)"
-  w1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 150, "x2": 50, "y2": 250}, "diagram": {"x1": 615, "x2": 715, "y1": 240, "y2": 340}}}}
+  w1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230}, "diagram": {"x1": 635, "x2": 695, "y1": 260, "y2": 320}}}}
   "Body angular rate, axis 2 (rad/s)"
-  w2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500}, "diagram": {"x1": 915, "x2": 1015, "y1": 240, "y2": 340}}}}
+  w2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": 935, "x2": 995, "y1": 260, "y2": 320}}}}
   "Body angular rate, axis 3 (rad/s)"
-  w3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 650, "x2": 50, "y2": 750}, "diagram": {"x1": 1215, "x2": 1315, "y1": 240, "y2": 340}}}}
+  w3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 670, "x2": 30, "y2": 730}, "diagram": {"x1": 1235, "x2": 1295, "y1": 260, "y2": 320}}}}
   "Quaternion scalar part"
-  q0 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 100, "x2": 1050, "y2": 200}, "diagram": {"x1": -300, "x2": -200, "y1": 60, "y2": 160}}}}
+  q0 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 120, "x2": 1030, "y2": 180}, "diagram": {"x1": -280, "x2": -220, "y1": 80, "y2": 140}}}}
   "Quaternion x part"
-  q1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 300, "x2": 1050, "y2": 400}, "diagram": {"x1": -160, "x2": -60, "y1": 350, "y2": 450}}}}
+  q1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380}, "diagram": {"x1": -140, "x2": -80, "y1": 370, "y2": 430}}}}
   "Quaternion y part"
-  q2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 500, "x2": 1050, "y2": 600}, "diagram": {"x1": -160, "x2": -60, "y1": 650, "y2": 750}}}}
+  q2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 520, "x2": 1030, "y2": 580}, "diagram": {"x1": -140, "x2": -80, "y1": 670, "y2": 730}}}}
   "Quaternion z part"
-  q3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}, "diagram": {"x1": -160, "x2": -60, "y1": 1600, "y2": 1700}}}}
+  q3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 720, "x2": 1030, "y2": 780}, "diagram": {"x1": -140, "x2": -80, "y1": 1620, "y2": 1680}}}}
   "Initial quaternion scalar part"
   parameter q0_0::Real = 1.0
   "Initial quaternion x part"

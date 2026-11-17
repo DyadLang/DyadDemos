@@ -13,8 +13,8 @@ component AeroAirData
   vrw_fps = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 150, "y2": 250}
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}
       }
     }
   }
@@ -22,8 +22,8 @@ component AeroAirData
   DRUD = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 150, "x2": 50, "y2": 250},
-        "diagram": {"x1": -50, "x2": 50, "y1": 0, "y2": 100}
+        "icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230},
+        "diagram": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}
       }
     }
   }
@@ -31,8 +31,8 @@ component AeroAirData
   abs_drud = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 100},
-        "diagram": {"x1": 1100, "x2": 1200, "y1": 0, "y2": 100}
+        "icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80},
+        "diagram": {"x1": 1120, "x2": 1180, "y1": 20, "y2": 80}
       }
     }
   }
@@ -40,8 +40,8 @@ component AeroAirData
   damp_b2v = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 150, "x2": 1050, "y2": 250},
-        "diagram": {"x1": 1100, "x2": 1200, "y1": 150, "y2": 250}
+        "icon": {"x1": 970, "y1": 170, "x2": 1030, "y2": 230},
+        "diagram": {"x1": 1120, "x2": 1180, "y1": 170, "y2": 230}
       }
     }
   }
@@ -49,8 +49,8 @@ component AeroAirData
   damp_c2v = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 300, "x2": 1050, "y2": 400},
-        "diagram": {"x1": 1100, "x2": 1200, "y1": 300, "y2": 400}
+        "icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380},
+        "diagram": {"x1": 1120, "x2": 1180, "y1": 320, "y2": 380}
       }
     }
   }
@@ -138,29 +138,29 @@ the shared input fanout is only two pins deep.
 """
 component AeroCLCD
   "Angle of attack (deg)"
-  alpha_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100}, "diagram": {"x1": -50, "x2": 50, "y1": 150.0, "y2": 250.0}}}}
+  alpha_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80}, "diagram": {"x1": -50, "x2": 50, "y1": 150.0, "y2": 250.0}}}}
   "Mach number"
-  mach = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200}, "diagram": {"x1": 70, "x2": 170, "y1": 300.0, "y2": 400.0}}}}
+  mach = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180}, "diagram": {"x1": 70, "x2": 170, "y1": 300.0, "y2": 400.0}}}}
   "Height over body span (ground effect)"
-  hob = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}, "diagram": {"x1": 190, "x2": 290, "y1": 450.0, "y2": 550.0}}}}
+  hob = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": 190, "x2": 290, "y1": 450.0, "y2": 550.0}}}}
   "Left body flap deflection (deg)"
-  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400}, "diagram": {"x1": 310, "x2": 410, "y1": 600.0, "y2": 700.0}}}}
+  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380}, "diagram": {"x1": 310, "x2": 410, "y1": 600.0, "y2": 700.0}}}}
   "Right body flap deflection (deg)"
-  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500}, "diagram": {"x1": 430, "x2": 530, "y1": 750.0, "y2": 850.0}}}}
+  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": 430, "x2": 530, "y1": 750.0, "y2": 850.0}}}}
   "Upper left body flap deflection (deg)"
-  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"x1": 550, "x2": 650, "y1": 900.0000000000001, "y2": 1000.0000000000001}}}}
+  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": 550, "x2": 650, "y1": 900.0000000000001, "y2": 1000.0000000000001}}}}
   "Upper right body flap deflection (deg)"
-  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700}, "diagram": {"x1": 670, "x2": 770, "y1": 1050.0, "y2": 1150.0}}}}
+  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": 670, "x2": 770, "y1": 1050.0, "y2": 1150.0}}}}
   "Left wing flap deflection (deg)"
-  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"x1": 790, "x2": 890, "y1": 1200.0, "y2": 1300.0}}}}
+  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": 790, "x2": 890, "y1": 1200.0, "y2": 1300.0}}}}
   "Right wing flap deflection (deg)"
-  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 800, "x2": 50, "y2": 900}, "diagram": {"x1": 910, "x2": 1010, "y1": 1350.0, "y2": 1450.0}}}}
+  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 820, "x2": 30, "y2": 880}, "diagram": {"x1": 910, "x2": 1010, "y1": 1350.0, "y2": 1450.0}}}}
   "Rudder deflection magnitude (deg)"
-  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 900, "x2": 50, "y2": 1000}, "diagram": {"x1": 1030, "x2": 1130, "y1": 1500.0, "y2": 1600.0}}}}
+  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 920, "x2": 30, "y2": 980}, "diagram": {"x1": 1030, "x2": 1130, "y1": 1500.0, "y2": 1600.0}}}}
   "Total lift coefficient"
-  cl_y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500}, "diagram": {"x1": 2900, "x2": 3000, "y1": 825, "y2": 925}}}}
+  cl_y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480}, "diagram": {"x1": 2920, "x2": 2980, "y1": 845, "y2": 905}}}}
   "Total drag coefficient"
-  cd_y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700}, "diagram": {"x1": 2900, "x2": 3000, "y1": 2500, "y2": 2600}}}}
+  cd_y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680}, "diagram": {"x1": 2920, "x2": 2980, "y1": 2520, "y2": 2580}}}}
   "Landing gear deflection (deg)"
   parameter DLG::Real = 0.0
   cl = HL20CL(DLG = DLG) {"Dyad": {"placement": {"diagram": {"x1": 1400, "x2": 2400, "y1": 125, "y2": 1625}}}}
@@ -190,8 +190,8 @@ component AeroCYCN
   alpha_deg = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 0, "y2": 100}
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}
       }
     }
   }
@@ -199,8 +199,8 @@ component AeroCYCN
   beta_deg = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 150, "y2": 250}
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}
       }
     }
   }
@@ -208,8 +208,8 @@ component AeroCYCN
   mach = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
-        "diagram": {"x1": -50, "x2": 50, "y1": 300, "y2": 400}
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}
       }
     }
   }
@@ -217,8 +217,8 @@ component AeroCYCN
   hob = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
-        "diagram": {"x1": -50, "x2": 50, "y1": 450, "y2": 550}
+        "icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380},
+        "diagram": {"x1": -30, "x2": 30, "y1": 470, "y2": 530}
       }
     }
   }
@@ -226,8 +226,8 @@ component AeroCYCN
   DBFLL = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500},
-        "diagram": {"x1": -50, "x2": 50, "y1": 600, "y2": 700}
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 620, "y2": 680}
       }
     }
   }
@@ -235,8 +235,8 @@ component AeroCYCN
   DBFLR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
-        "diagram": {"x1": -50, "x2": 50, "y1": 750, "y2": 850}
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 770, "y2": 830}
       }
     }
   }
@@ -244,8 +244,8 @@ component AeroCYCN
   DBFUL = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700},
-        "diagram": {"x1": -50, "x2": 50, "y1": 900, "y2": 1000}
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 920, "y2": 980}
       }
     }
   }
@@ -253,8 +253,8 @@ component AeroCYCN
   DBFUR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1050, "y2": 1150}
+        "icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1070, "y2": 1130}
       }
     }
   }
@@ -262,8 +262,8 @@ component AeroCYCN
   DWFL = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 800, "x2": 50, "y2": 900},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1200, "y2": 1300}
+        "icon": {"x1": -30, "y1": 820, "x2": 30, "y2": 880},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1220, "y2": 1280}
       }
     }
   }
@@ -271,8 +271,8 @@ component AeroCYCN
   DWFR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 900, "x2": 50, "y2": 1000},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1350, "y2": 1450}
+        "icon": {"x1": -30, "y1": 920, "x2": 30, "y2": 980},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1370, "y2": 1430}
       }
     }
   }
@@ -280,8 +280,8 @@ component AeroCYCN
   abs_drud = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 50, "y1": 950, "x2": 150, "y2": 1050},
-        "diagram": {"x1": 1650, "x2": 1750, "y1": 2950, "y2": 3050}
+        "icon": {"x1": 70, "y1": 970, "x2": 130, "y2": 1030},
+        "diagram": {"x1": 1670, "x2": 1730, "y1": 2970, "y2": 3030}
       }
     }
   }
@@ -289,8 +289,8 @@ component AeroCYCN
   pb = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 250, "y1": 950, "x2": 350, "y2": 1050},
-        "diagram": {"x1": 1850, "x2": 1950, "y1": 2950, "y2": 3050}
+        "icon": {"x1": 270, "y1": 970, "x2": 330, "y2": 1030},
+        "diagram": {"x1": 1870, "x2": 1930, "y1": 2970, "y2": 3030}
       }
     }
   }
@@ -298,8 +298,8 @@ component AeroCYCN
   rb = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050},
-        "diagram": {"x1": 2050, "x2": 2150, "y1": 2950, "y2": 3050}
+        "icon": {"x1": 470, "y1": 970, "x2": 530, "y2": 1030},
+        "diagram": {"x1": 2070, "x2": 2130, "y1": 2970, "y2": 3030}
       }
     }
   }
@@ -307,8 +307,8 @@ component AeroCYCN
   damp_b2v = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 650, "y1": 950, "x2": 750, "y2": 1050},
-        "diagram": {"x1": 2250, "x2": 2350, "y1": 2950, "y2": 3050}
+        "icon": {"x1": 670, "y1": 970, "x2": 730, "y2": 1030},
+        "diagram": {"x1": 2270, "x2": 2330, "y1": 2970, "y2": 3030}
       }
     }
   }
@@ -316,8 +316,8 @@ component AeroCYCN
   cy_y = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 350, "x2": 1050, "y2": 450},
-        "diagram": {"x1": 3000, "x2": 3100, "y1": 450, "y2": 550}
+        "icon": {"x1": 970, "y1": 370, "x2": 1030, "y2": 430},
+        "diagram": {"x1": 3020, "x2": 3080, "y1": 470, "y2": 530}
       }
     }
   }
@@ -325,8 +325,8 @@ component AeroCYCN
   cn_y = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 550, "x2": 1050, "y2": 650},
-        "diagram": {"x1": 3000, "x2": 3100, "y1": 1850, "y2": 1950}
+        "icon": {"x1": 970, "y1": 570, "x2": 1030, "y2": 630},
+        "diagram": {"x1": 3020, "x2": 3080, "y1": 1870, "y2": 1930}
       }
     }
   }
@@ -359,7 +359,7 @@ relations
           connect(DBFUR, cy.DBFUR, cn.DBFUR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 550, "y": 850.0}], "E": -1}, {"S": 3, "M": [{"x": 1050, "y": 2250.0}, {"x": 1050, "y": 1100.0}], "E": -1}], "path": {}, "junctions": [{"x": 550, "y": 1100.0}]}}
           connect(DWFL, cy.DWFL, cn.DWFL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 600, "y": 950.0}], "E": -1}, {"S": 3, "M": [{"x": 1000, "y": 2350.0}, {"x": 1000, "y": 1250.0}], "E": -1}], "path": {}, "junctions": [{"x": 600, "y": 1250.0}]}}
           connect(DWFR, cy.DWFR, cn.DWFR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 650, "y": 1050.0}], "E": -1}, {"S": 3, "M": [{"x": 950, "y": 2450.0}, {"x": 950, "y": 1400.0}], "E": -1}], "path": {}, "junctions": [{"x": 650, "y": 1400.0}]}}
-          connect(abs_drud, cy.abs_drud, cn.abs_drud) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 1800, "y": 1350}, {"x": 2650, "y": 1350}, {"x": 2650, "y": 3001}, {"x": 1700, "y": 3001}], "E": -1}, {"S": 3, "M": [{"x": 1700, "y": 2560}, {"x": 1640, "y": 2560}, {"x": 1640, "y": 2990}], "E": -1}], "path": {}, "junctions": [{"x": 1700, "y": 2990}]}}
+          connect(abs_drud, cy.abs_drud, cn.abs_drud) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 1800, "y": 1350}, {"x": 2650, "y": 1350}, {"x": 2650, "y": 2940}, {"x": 1700, "y": 2940}], "E": -1}, {"S": 3, "M": [{"x": 1700, "y": 2560}, {"x": 1640, "y": 2560}, {"x": 1640, "y": 2940}], "E": -1}], "path": {}, "junctions": [{"x": 1700, "y": 2940}]}}
   connect(pb, cn.pb) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
   connect(rb, cn.rb) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2100, "y": 2720}, {"x": 2250, "y": 2720}, {"x": 2250, "y": 2500}], "E": 2}], "path": {}} }
   connect(damp_b2v, cn.damp_b2v) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
@@ -381,8 +381,8 @@ component AeroLongitudinal
   alpha_deg = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 150, "y2": 250}
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}
       }
     }
   }
@@ -390,8 +390,8 @@ component AeroLongitudinal
   mach = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 350, "y2": 450}
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}
       }
     }
   }
@@ -399,8 +399,8 @@ component AeroLongitudinal
   hob = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
-        "diagram": {"x1": -50, "x2": 50, "y1": 550, "y2": 650}
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}
       }
     }
   }
@@ -408,8 +408,8 @@ component AeroLongitudinal
   DBFLL = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
-        "diagram": {"x1": -50, "x2": 50, "y1": 750, "y2": 850}
+        "icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380},
+        "diagram": {"x1": -30, "x2": 30, "y1": 770, "y2": 830}
       }
     }
   }
@@ -417,8 +417,8 @@ component AeroLongitudinal
   DBFLR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500},
-        "diagram": {"x1": -50, "x2": 50, "y1": 950, "y2": 1050}
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 970, "y2": 1030}
       }
     }
   }
@@ -426,8 +426,8 @@ component AeroLongitudinal
   DBFUL = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1150, "y2": 1250}
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}
       }
     }
   }
@@ -435,8 +435,8 @@ component AeroLongitudinal
   DBFUR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1350, "y2": 1450}
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1370, "y2": 1430}
       }
     }
   }
@@ -444,8 +444,8 @@ component AeroLongitudinal
   DWFL = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1550, "y2": 1650}
+        "icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1570, "y2": 1630}
       }
     }
   }
@@ -453,8 +453,8 @@ component AeroLongitudinal
   DWFR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 800, "x2": 50, "y2": 900},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1750, "y2": 1850}
+        "icon": {"x1": -30, "y1": 820, "x2": 30, "y2": 880},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1770, "y2": 1830}
       }
     }
   }
@@ -462,19 +462,19 @@ component AeroLongitudinal
   abs_drud = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 900, "x2": 50, "y2": 1000},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1950, "y2": 2050}
+        "icon": {"x1": -30, "y1": 920, "x2": 30, "y2": 980},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1970, "y2": 2030}
       }
     }
   }
   "Body pitch rate (rad/s)"
-  qb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 150, "y1": 950, "x2": 250, "y2": 1050}, "diagram": {"x1": 1176.67, "x2": 1276.67, "y1": 3050, "y2": 3150}}}}
+  qb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 170, "y1": 970, "x2": 230, "y2": 1030}, "diagram": {"x1": 1196.6666666666667, "x2": 1256.6666666666667, "y1": 3070, "y2": 3130}}}}
   "Chord damping factor cbar/(2 V)"
   damp_c2v = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 350, "y1": 950, "x2": 450, "y2": 1050},
-        "diagram": {"x1": 2150, "x2": 2250, "y1": 3050, "y2": 3150}
+        "icon": {"x1": 370, "y1": 970, "x2": 430, "y2": 1030},
+        "diagram": {"x1": 2170, "x2": 2230, "y1": 3070, "y2": 3130}
       }
     }
   }
@@ -482,8 +482,8 @@ component AeroLongitudinal
   CX = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 250, "x2": 1050, "y2": 350},
-        "diagram": {"x1": 4250, "x2": 4350, "y1": 550, "y2": 650}
+        "icon": {"x1": 970, "y1": 270, "x2": 1030, "y2": 330},
+        "diagram": {"x1": 4270, "x2": 4330, "y1": 570, "y2": 630}
       }
     }
   }
@@ -491,8 +491,8 @@ component AeroLongitudinal
   CZ = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 350, "x2": 1050, "y2": 450},
-        "diagram": {"x1": 4250, "x2": 4350, "y1": 850, "y2": 950}
+        "icon": {"x1": 970, "y1": 370, "x2": 1030, "y2": 430},
+        "diagram": {"x1": 4270, "x2": 4330, "y1": 870, "y2": 930}
       }
     }
   }
@@ -500,8 +500,8 @@ component AeroLongitudinal
   Cm = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 550, "x2": 1050, "y2": 650},
-        "diagram": {"x1": 4250, "x2": 4350, "y1": 2150, "y2": 2250}
+        "icon": {"x1": 970, "y1": 570, "x2": 1030, "y2": 630},
+        "diagram": {"x1": 4270, "x2": 4330, "y1": 2170, "y2": 2230}
       }
     }
   }
@@ -733,8 +733,8 @@ relations
           "M": [
             {"x": 1012.5, "y": 2053.3333333333335},
             {"x": 1012.5, "y": 2050},
-            {"x": 1000, "y": 2050},
-            {"x": 1000, "y": 1835},
+            {"x": 985, "y": 2050},
+            {"x": 985, "y": 1835},
             {"x": 2100, "y": 1835},
             {"x": 2100, "y": 487.5},
             {"x": 450, "y": 487.5}
@@ -764,8 +764,8 @@ relations
           "M": [
             {"x": 1012.5, "y": 2153.3333333333335},
             {"x": 1012.5, "y": 2150},
-            {"x": 950, "y": 2150},
-            {"x": 950, "y": 700}
+            {"x": 940, "y": 2150},
+            {"x": 940, "y": 700}
           ],
           "E": -1
         }
@@ -1224,8 +1224,8 @@ component AeroLateralCoeffs
   alpha_deg = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 0, "y2": 100}
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}
       }
     }
   }
@@ -1233,8 +1233,8 @@ component AeroLateralCoeffs
   beta_deg = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 150, "y2": 250}
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}
       }
     }
   }
@@ -1242,8 +1242,8 @@ component AeroLateralCoeffs
   mach = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
-        "diagram": {"x1": -50, "x2": 50, "y1": 300, "y2": 400}
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}
       }
     }
   }
@@ -1251,8 +1251,8 @@ component AeroLateralCoeffs
   hob = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
-        "diagram": {"x1": -50, "x2": 50, "y1": 450, "y2": 550}
+        "icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380},
+        "diagram": {"x1": -30, "x2": 30, "y1": 470, "y2": 530}
       }
     }
   }
@@ -1260,8 +1260,8 @@ component AeroLateralCoeffs
   DBFLL = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500},
-        "diagram": {"x1": -50, "x2": 50, "y1": 600, "y2": 700}
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 620, "y2": 680}
       }
     }
   }
@@ -1269,8 +1269,8 @@ component AeroLateralCoeffs
   DBFLR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
-        "diagram": {"x1": -50, "x2": 50, "y1": 750, "y2": 850}
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 770, "y2": 830}
       }
     }
   }
@@ -1278,8 +1278,8 @@ component AeroLateralCoeffs
   DBFUL = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700},
-        "diagram": {"x1": -50, "x2": 50, "y1": 900, "y2": 1000}
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 920, "y2": 980}
       }
     }
   }
@@ -1287,8 +1287,8 @@ component AeroLateralCoeffs
   DBFUR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1050, "y2": 1150}
+        "icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1070, "y2": 1130}
       }
     }
   }
@@ -1296,8 +1296,8 @@ component AeroLateralCoeffs
   DWFL = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 800, "x2": 50, "y2": 900},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1200, "y2": 1300}
+        "icon": {"x1": -30, "y1": 820, "x2": 30, "y2": 880},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1220, "y2": 1280}
       }
     }
   }
@@ -1305,25 +1305,25 @@ component AeroLateralCoeffs
   DWFR = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 900, "x2": 50, "y2": 1000},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1350, "y2": 1450}
+        "icon": {"x1": -30, "y1": 920, "x2": 30, "y2": 980},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1370, "y2": 1430}
       }
     }
   }
   "Rudder deflection magnitude (deg)"
-  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": 50, "y1": 950, "x2": 150, "y2": 1050}, "diagram": {"x1": 2570, "x2": 2670, "y1": 3000, "y2": 3100}}}}
+  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": 70, "y1": 970, "x2": 130, "y2": 1030}, "diagram": {"x1": 2590, "x2": 2650, "y1": 3020, "y2": 3080}}}}
   "Body roll rate (rad/s)"
-  pb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 250, "y1": 950, "x2": 350, "y2": 1050}, "diagram": {"x1": 2690, "x2": 2790, "y1": 3000, "y2": 3100}}}}
+  pb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 270, "y1": 970, "x2": 330, "y2": 1030}, "diagram": {"x1": 2710, "x2": 2770, "y1": 3020, "y2": 3080}}}}
   "Body yaw rate (rad/s)"
-  rb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}, "diagram": {"x1": 2810, "x2": 2910, "y1": 3000, "y2": 3100}}}}
+  rb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 470, "y1": 970, "x2": 530, "y2": 1030}, "diagram": {"x1": 2830, "x2": 2890, "y1": 3020, "y2": 3080}}}}
   "Span damping factor b/(2 V)"
-  damp_b2v = RealInput() {"Dyad": {"placement": {"icon": {"x1": 650, "y1": 950, "x2": 750, "y2": 1050}, "diagram": {"x1": 2930, "x2": 3030, "y1": 3000, "y2": 3100}}}}
+  damp_b2v = RealInput() {"Dyad": {"placement": {"icon": {"x1": 670, "y1": 970, "x2": 730, "y2": 1030}, "diagram": {"x1": 2950, "x2": 3010, "y1": 3020, "y2": 3080}}}}
   "Side-force coefficient"
   CY = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 350, "x2": 1050, "y2": 450},
-        "diagram": {"x1": 3100, "x2": 3200, "y1": 350, "y2": 450}
+        "icon": {"x1": 970, "y1": 370, "x2": 1030, "y2": 430},
+        "diagram": {"x1": 3120, "x2": 3180, "y1": 370, "y2": 430}
       }
     }
   }
@@ -1331,8 +1331,8 @@ component AeroLateralCoeffs
   Cl = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550},
-        "diagram": {"x1": 3100, "x2": 3200, "y1": 2100, "y2": 2200}
+        "icon": {"x1": 970, "y1": 470, "x2": 1030, "y2": 530},
+        "diagram": {"x1": 3120, "x2": 3180, "y1": 2120, "y2": 2180}
       }
     }
   }
@@ -1340,8 +1340,8 @@ component AeroLateralCoeffs
   Cn = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 550, "x2": 1050, "y2": 650},
-        "diagram": {"x1": 3100, "x2": 3200, "y1": 600, "y2": 700}
+        "icon": {"x1": 970, "y1": 570, "x2": 1030, "y2": 630},
+        "diagram": {"x1": 3120, "x2": 3180, "y1": 620, "y2": 680}
       }
     }
   }

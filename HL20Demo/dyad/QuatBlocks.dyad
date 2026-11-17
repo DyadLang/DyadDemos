@@ -8,31 +8,31 @@ swapping each adjacent pair applies the transpose.
 """
 component QuatToDCM
   "Quaternion scalar part"
-  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100}, "diagram": {"x1": -50, "x2": 50, "y1": 200, "y2": 300}}}}
+  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80}, "diagram": {"x1": -30, "x2": 30, "y1": 220, "y2": 280}}}}
   "Quaternion x part"
-  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200}, "diagram": {"x1": -50, "x2": 50, "y1": 350, "y2": 450}}}}
+  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180}, "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}}}}
   "Quaternion y part"
-  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}, "diagram": {"x1": -50, "x2": 50, "y1": 500, "y2": 600}}}}
+  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}}}}
   "Quaternion z part"
-  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400}, "diagram": {"x1": -50, "x2": 50, "y1": 650, "y2": 750}}}}
+  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380}, "diagram": {"x1": -30, "x2": 30, "y1": 670, "y2": 730}}}}
   "Direction-cosine entry m11"
-  m11 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 100}, "diagram": {"x1": 1200, "x2": 1300, "y1": 2450, "y2": 2550}}}}
+  m11 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80}, "diagram": {"x1": 1220, "x2": 1280, "y1": 2470, "y2": 2530}}}}
   "Direction-cosine entry m12"
-  m12 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 100, "x2": 1050, "y2": 200}, "diagram": {"x1": 1200, "x2": 1300, "y1": 1600, "y2": 1700}}}}
+  m12 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 120, "x2": 1030, "y2": 180}, "diagram": {"x1": 1220, "x2": 1280, "y1": 1620, "y2": 1680}}}}
   "Direction-cosine entry m21"
-  m21 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}, "diagram": {"x1": 1200, "x2": 1300, "y1": 1750, "y2": 1850}}}}
+  m21 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280}, "diagram": {"x1": 1220, "x2": 1280, "y1": 1770, "y2": 1830}}}}
   "Direction-cosine entry m13"
-  m13 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 300, "x2": 1050, "y2": 400}, "diagram": {"x1": 1200, "x2": 1300, "y1": 1300, "y2": 1400}}}}
+  m13 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380}, "diagram": {"x1": 1220, "x2": 1280, "y1": 1320, "y2": 1380}}}}
   "Direction-cosine entry m31"
-  m31 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500}, "diagram": {"x1": 1200, "x2": 1300, "y1": 1450, "y2": 1550}}}}
+  m31 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480}, "diagram": {"x1": 1220, "x2": 1280, "y1": 1470, "y2": 1530}}}}
   "Direction-cosine entry m22"
-  m22 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 500, "x2": 1050, "y2": 600}, "diagram": {"x1": 1200, "x2": 1300, "y1": 2250, "y2": 2350}}}}
+  m22 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 520, "x2": 1030, "y2": 580}, "diagram": {"x1": 1220, "x2": 1280, "y1": 2270, "y2": 2330}}}}
   "Direction-cosine entry m23"
-  m23 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700}, "diagram": {"x1": 1200, "x2": 1300, "y1": 950, "y2": 1050}}}}
+  m23 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680}, "diagram": {"x1": 1220, "x2": 1280, "y1": 970, "y2": 1030}}}}
   "Direction-cosine entry m32"
-  m32 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800}, "diagram": {"x1": 1200, "x2": 1300, "y1": 1100, "y2": 1200}}}}
+  m32 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 720, "x2": 1030, "y2": 780}, "diagram": {"x1": 1220, "x2": 1280, "y1": 1120, "y2": 1180}}}}
   "Direction-cosine entry m33"
-  m33 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 800, "x2": 1050, "y2": 900}, "diagram": {"x1": 1200, "x2": 1300, "y1": 2000, "y2": 2100}}}}
+  m33 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 820, "x2": 1030, "y2": 880}, "diagram": {"x1": 1220, "x2": 1280, "y1": 2020, "y2": 2080}}}}
   qwqx = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 900, "y2": 1000}}}}
   qx2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 1800, "y2": 1900}}}}
   qwqy = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 1200, "y2": 1300}}}}
@@ -91,35 +91,35 @@ the vector u enters on the bottom edge and y exits on the right.
 """
 component DCMMatVec
   "Matrix entry a11"
-  a11 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100}, "diagram": {"x1": -50, "x2": 50, "y1": 170, "y2": 270}}}}
+  a11 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80}, "diagram": {"x1": -30, "x2": 30, "y1": 190, "y2": 250}}}}
   "Matrix entry a12"
-  a12 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200}, "diagram": {"x1": -50, "x2": 50, "y1": 920, "y2": 1020}}}}
+  a12 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180}, "diagram": {"x1": -30, "x2": 30, "y1": 940, "y2": 1000}}}}
   "Matrix entry a21"
-  a21 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}, "diagram": {"x1": -50, "x2": 50, "y1": 420, "y2": 520}}}}
+  a21 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": -30, "x2": 30, "y1": 440, "y2": 500}}}}
   "Matrix entry a13"
-  a13 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400}, "diagram": {"x1": -50, "x2": 50, "y1": 1670, "y2": 1770}}}}
+  a13 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380}, "diagram": {"x1": -30, "x2": 30, "y1": 1690, "y2": 1750}}}}
   "Matrix entry a31"
-  a31 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500}, "diagram": {"x1": -50, "x2": 50, "y1": 670, "y2": 770}}}}
+  a31 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": -30, "x2": 30, "y1": 690, "y2": 750}}}}
   "Matrix entry a22"
-  a22 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"x1": -50, "x2": 50, "y1": 1170, "y2": 1270}}}}
+  a22 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": -30, "x2": 30, "y1": 1190, "y2": 1250}}}}
   "Matrix entry a23"
-  a23 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700}, "diagram": {"x1": -50, "x2": 50, "y1": 1920, "y2": 2020}}}}
+  a23 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": -30, "x2": 30, "y1": 1940, "y2": 2000}}}}
   "Matrix entry a32"
-  a32 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"x1": -50, "x2": 50, "y1": 1420, "y2": 1520}}}}
+  a32 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": -30, "x2": 30, "y1": 1440, "y2": 1500}}}}
   "Matrix entry a33"
-  a33 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 800, "x2": 50, "y2": 900}, "diagram": {"x1": -50, "x2": 50, "y1": 2170, "y2": 2270}}}}
+  a33 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 820, "x2": 30, "y2": 880}, "diagram": {"x1": -30, "x2": 30, "y1": 2190, "y2": 2250}}}}
   "Vector component u1"
-  u1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": 150, "y1": 950, "x2": 250, "y2": 1050}, "diagram": {"x1": -50, "x2": 50, "y1": 280, "y2": 380}}}}
+  u1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": 170, "y1": 970, "x2": 230, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 300, "y2": 360}}}}
   "Product component y1"
-  y1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 50, "x2": 1050, "y2": 150}, "diagram": {"x1": 1650, "x2": 1750, "y1": 950, "y2": 1050}}}}
+  y1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 70, "x2": 1030, "y2": 130}, "diagram": {"x1": 1670, "x2": 1730, "y1": 970, "y2": 1030}}}}
   "Vector component u2"
-  u2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": 450, "y1": 950, "x2": 550, "y2": 1050}, "diagram": {"x1": -50, "x2": 50, "y1": 1030, "y2": 1130}}}}
+  u2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": 470, "y1": 970, "x2": 530, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 1050, "y2": 1110}}}}
   "Product component y2"
-  y2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 350, "x2": 1050, "y2": 450}, "diagram": {"x1": 1650, "x2": 1750, "y1": 1200, "y2": 1300}}}}
+  y2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 370, "x2": 1030, "y2": 430}, "diagram": {"x1": 1670, "x2": 1730, "y1": 1220, "y2": 1280}}}}
   "Vector component u3"
-  u3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": 750, "y1": 950, "x2": 850, "y2": 1050}, "diagram": {"x1": -50, "x2": 50, "y1": 1780, "y2": 1880}}}}
+  u3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": 770, "y1": 970, "x2": 830, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 1800, "y2": 1860}}}}
   "Product component y3"
-  y3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 650, "x2": 1050, "y2": 750}, "diagram": {"x1": 1650, "x2": 1750, "y1": 1450, "y2": 1550}}}}
+  y3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 670, "x2": 1030, "y2": 730}, "diagram": {"x1": 1670, "x2": 1730, "y1": 1470, "y2": 1530}}}}
   p11 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 200, "y2": 300}}}}
   p12 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 950, "y2": 1050}}}}
   p13 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 1700, "y2": 1800}}}}

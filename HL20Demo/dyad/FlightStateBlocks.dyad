@@ -8,8 +8,8 @@ component AeroAngles
   u = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 400, "y2": 500}
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 420, "y2": 480}
       }
     }
   }
@@ -17,8 +17,8 @@ component AeroAngles
   v = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
-        "diagram": {"x1": -50, "x2": 50, "y1": 700, "y2": 800}
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}
       }
     }
   }
@@ -26,8 +26,8 @@ component AeroAngles
   w = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1000, "y2": 1100}
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1020, "y2": 1080}
       }
     }
   }
@@ -35,8 +35,8 @@ component AeroAngles
   v_scalar = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 100},
-        "diagram": {"x1": 2550, "x2": 2650, "y1": 350, "y2": 450}
+        "icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 370, "y2": 430}
       }
     }
   }
@@ -44,8 +44,8 @@ component AeroAngles
   alpha_deg = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
-        "diagram": {"x1": 2550, "x2": 2650, "y1": 650, "y2": 750}
+        "icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 670, "y2": 730}
       }
     }
   }
@@ -53,8 +53,8 @@ component AeroAngles
   beta_deg = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500},
-        "diagram": {"x1": 2550, "x2": 2650, "y1": 950, "y2": 1050}
+        "icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 970, "y2": 1030}
       }
     }
   }
@@ -62,8 +62,8 @@ component AeroAngles
   sin_alpha = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700},
-        "diagram": {"x1": 2550, "x2": 2650, "y1": 1250, "y2": 1350}
+        "icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 1270, "y2": 1330}
       }
     }
   }
@@ -71,8 +71,8 @@ component AeroAngles
   cos_alpha = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 800, "x2": 1050, "y2": 900},
-        "diagram": {"x1": 2550, "x2": 2650, "y1": 1550, "y2": 1650}
+        "icon": {"x1": 970, "y1": 820, "x2": 1030, "y2": 880},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 1570, "y2": 1630}
       }
     }
   }
@@ -311,25 +311,25 @@ control laws consume.
 """
 component EulerAngles
   "Quaternion scalar part"
-  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100}, "diagram": {"x1": -50, "x2": 50, "y1": 700, "y2": 800}}}}
+  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80}, "diagram": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}}}}
   "Quaternion x part"
-  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}, "diagram": {"x1": -50, "x2": 50, "y1": 500, "y2": 600}}}}
+  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}}}}
   "Quaternion y part"
-  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500}, "diagram": {"x1": -50, "x2": 50, "y1": 2400, "y2": 2500}}}}
+  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": -30, "x2": 30, "y1": 2420, "y2": 2480}}}}
   "Quaternion z part"
-  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700}, "diagram": {"x1": -50, "x2": 50, "y1": 2550, "y2": 2650}}}}
+  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": -30, "x2": 30, "y1": 2570, "y2": 2630}}}}
   "Euler roll angle (deg)"
-  phi_deg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 100}, "diagram": {"x1": 2350, "x2": 2450, "y1": 700, "y2": 800}}}}
+  phi_deg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80}, "diagram": {"x1": 2370, "x2": 2430, "y1": 720, "y2": 780}}}}
   "Euler pitch angle (deg)"
-  theta_deg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 150, "x2": 1050, "y2": 250}, "diagram": {"x1": 2350, "x2": 2450, "y1": 1350, "y2": 1450}}}}
+  theta_deg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 170, "x2": 1030, "y2": 230}, "diagram": {"x1": 2370, "x2": 2430, "y1": 1370, "y2": 1430}}}}
   "Euler yaw angle (deg)"
-  psi_deg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 300, "x2": 1050, "y2": 400}, "diagram": {"x1": 2350, "x2": 2450, "y1": 1950, "y2": 2050}}}}
+  psi_deg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380}, "diagram": {"x1": 2370, "x2": 2430, "y1": 1970, "y2": 2030}}}}
   "sin of Euler roll angle"
-  sin_phi = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 550}, "diagram": {"x1": 2350, "x2": 2450, "y1": 950, "y2": 1050}}}}
+  sin_phi = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 470, "x2": 1030, "y2": 530}, "diagram": {"x1": 2370, "x2": 2430, "y1": 970, "y2": 1030}}}}
   "cos of Euler roll angle"
-  cos_phi = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700}, "diagram": {"x1": 2350, "x2": 2450, "y1": 1150, "y2": 1250}}}}
+  cos_phi = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680}, "diagram": {"x1": 2370, "x2": 2430, "y1": 1170, "y2": 1230}}}}
   "cos of Euler pitch angle"
-  cos_theta = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 750, "x2": 1050, "y2": 850}, "diagram": {"x1": 2350, "x2": 2450, "y1": 1550, "y2": 1650}}}}
+  cos_theta = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 770, "x2": 1030, "y2": 830}, "diagram": {"x1": 2370, "x2": 2430, "y1": 1570, "y2": 1630}}}}
   p_qwqx = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 750, "y2": 850}}}}
   p_qyqz = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 2000, "y2": 2100}}}}
   p_qx2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 550, "y2": 650}}}}

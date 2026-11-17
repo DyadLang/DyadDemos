@@ -10,8 +10,8 @@ component FlightState
   vel_1 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1450, "y2": 1550}
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1470, "y2": 1530}
       }
     }
   }
@@ -19,8 +19,8 @@ component FlightState
   vel_2 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1600, "y2": 1700}
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1620, "y2": 1680}
       }
     }
   }
@@ -28,8 +28,8 @@ component FlightState
   vel_3 = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1750, "y2": 1850}
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1770, "y2": 1830}
       }
     }
   }
@@ -37,8 +37,8 @@ component FlightState
   qw = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500},
-        "diagram": {"x1": -50, "x2": 50, "y1": 850, "y2": 950}
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 870, "y2": 930}
       }
     }
   }
@@ -46,8 +46,8 @@ component FlightState
   qx = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1000, "y2": 1100}
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1020, "y2": 1080}
       }
     }
   }
@@ -55,8 +55,8 @@ component FlightState
   qy = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 600, "x2": 50, "y2": 700},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1150, "y2": 1250}
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}
       }
     }
   }
@@ -64,8 +64,8 @@ component FlightState
   qz = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
-        "diagram": {"x1": -50, "x2": 50, "y1": 1300, "y2": 1400}
+        "icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1320, "y2": 1380}
       }
     }
   }
@@ -73,8 +73,8 @@ component FlightState
   u_body = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 50},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 1000, "y2": 1100}
+        "icon": {"x1": 970, "y1": 5, "x2": 1030, "y2": 45},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 1020, "y2": 1080}
       }
     }
   }
@@ -82,8 +82,8 @@ component FlightState
   v_body = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 50, "x2": 1050, "y2": 100},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 1150, "y2": 1250}
+        "icon": {"x1": 970, "y1": 55, "x2": 1030, "y2": 95},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 1170, "y2": 1230}
       }
     }
   }
@@ -91,8 +91,8 @@ component FlightState
   w_body = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 100, "x2": 1050, "y2": 150},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 1300, "y2": 1400}
+        "icon": {"x1": 970, "y1": 105, "x2": 1030, "y2": 145},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 1320, "y2": 1380}
       }
     }
   }
@@ -100,8 +100,8 @@ component FlightState
   v_scalar = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 150, "x2": 1050, "y2": 200},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 150, "y2": 250}
+        "icon": {"x1": 970, "y1": 155, "x2": 1030, "y2": 195},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 170, "y2": 230}
       }
     }
   }
@@ -109,8 +109,8 @@ component FlightState
   alpha_deg = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 250, "x2": 1050, "y2": 300},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 350, "y2": 450}
+        "icon": {"x1": 970, "y1": 255, "x2": 1030, "y2": 295},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 370, "y2": 430}
       }
     }
   }
@@ -118,8 +118,8 @@ component FlightState
   beta_deg = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 300, "x2": 1050, "y2": 350},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 500, "y2": 600}
+        "icon": {"x1": 970, "y1": 305, "x2": 1030, "y2": 345},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 520, "y2": 580}
       }
     }
   }
@@ -127,8 +127,8 @@ component FlightState
   phi_deg = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 350, "x2": 1050, "y2": 400},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 2100, "y2": 2200}
+        "icon": {"x1": 970, "y1": 355, "x2": 1030, "y2": 395},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2120, "y2": 2180}
       }
     }
   }
@@ -136,8 +136,8 @@ component FlightState
   theta_deg = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 450},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 2250, "y2": 2350}
+        "icon": {"x1": 970, "y1": 405, "x2": 1030, "y2": 445},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2270, "y2": 2330}
       }
     }
   }
@@ -145,8 +145,8 @@ component FlightState
   psi_deg = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 450, "x2": 1050, "y2": 500},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 2400, "y2": 2500}
+        "icon": {"x1": 970, "y1": 455, "x2": 1030, "y2": 495},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2420, "y2": 2480}
       }
     }
   }
@@ -154,8 +154,8 @@ component FlightState
   sin_phi = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 550, "x2": 1050, "y2": 600},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 2550, "y2": 2650}
+        "icon": {"x1": 970, "y1": 555, "x2": 1030, "y2": 595},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2570, "y2": 2630}
       }
     }
   }
@@ -163,8 +163,8 @@ component FlightState
   cos_phi = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 650},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 2700, "y2": 2800}
+        "icon": {"x1": 970, "y1": 605, "x2": 1030, "y2": 645},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2720, "y2": 2780}
       }
     }
   }
@@ -172,8 +172,8 @@ component FlightState
   cos_theta = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 650, "x2": 1050, "y2": 700},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 2850, "y2": 2950}
+        "icon": {"x1": 970, "y1": 655, "x2": 1030, "y2": 695},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2870, "y2": 2930}
       }
     }
   }
@@ -181,8 +181,8 @@ component FlightState
   sin_alpha = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 750},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 700, "y2": 800}
+        "icon": {"x1": 970, "y1": 705, "x2": 1030, "y2": 745},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 720, "y2": 780}
       }
     }
   }
@@ -190,13 +190,13 @@ component FlightState
   cos_alpha = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 750, "x2": 1050, "y2": 800},
-        "diagram": {"x1": 3750, "x2": 3850, "y1": 850, "y2": 950}
+        "icon": {"x1": 970, "y1": 755, "x2": 1030, "y2": 795},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 870, "y2": 930}
       }
     }
   }
   rot = QuatToBody() {
-    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1900, "y1": 950, "y2": 1750}}}
+    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1100, "y1": 950, "y2": 1750}}}
   }
   aero = AeroAngles() {
     "Dyad": {"placement": {"diagram": {"x1": 2050, "x2": 3050, "y1": 200, "y2": 1200}}}
@@ -209,19 +209,19 @@ relations
   connect(vel_2, rot.v2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 875, "y": 1650}, {"x": 875, "y": 1470}], "E": 2}], "path": {}} }
   connect(vel_3, rot.v3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 880, "y": 1800}, {"x": 880, "y": 1550}], "E": 2}], "path": {}} }
   connect(qw, rot.qw) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 850, "y": 900}, {"x": 850, "y": 990}], "E": 2}], "path": {}} }
-  connect(qw, euler.qw) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -25, "y": 900}, {"x": -25, "y": 2100}], "E": 2}], "path": {}} }
+  connect(qw, euler.qw) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -35, "y": 900}, {"x": -35, "y": 2100}], "E": 2}], "path": {}} }
   connect(qx, rot.qx) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 855, "y": 1050}, {"x": 855, "y": 1070}], "E": 2}], "path": {}} }
-  connect(qx, euler.qx) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -20, "y": 1050}, {"x": -20, "y": 2300}], "E": 2}], "path": {}} }
+  connect(qx, euler.qx) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -42, "y": 1050}, {"x": -42, "y": 2300}], "E": 2}], "path": {}} }
   connect(qy, rot.qy) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 860, "y": 1200}, {"x": 860, "y": 1150}], "E": 2}], "path": {}} }
-  connect(qy, euler.qy) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -15, "y": 1200}, {"x": -15, "y": 2500}], "E": 2}], "path": {}} }
+  connect(qy, euler.qy) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -49, "y": 1200}, {"x": -49, "y": 2500}], "E": 2}], "path": {}} }
   connect(qz, rot.qz) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 865, "y": 1350}, {"x": 865, "y": 1230}], "E": 2}], "path": {}} }
-  connect(qz, euler.qz) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -10, "y": 1350}, {"x": -10, "y": 2700}], "E": 2}], "path": {}} }
+  connect(qz, euler.qz) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -56, "y": 1350}, {"x": -56, "y": 2700}], "E": 2}], "path": {}} }
   connect(rot.b1, u_body) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2048, "y": 1150}, {"x": 2048, "y": 1490}, {"x": 3660, "y": 1490}, {"x": 3660, "y": 1050}], "E": 2}], "path": {}} }
   connect(rot.b2, v_body) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1990, "y": 1310}, {"x": 1990, "y": 1510}, {"x": 3670, "y": 1510}, {"x": 3670, "y": 1200}], "E": 2}], "path": {}} }
   connect(rot.b3, w_body) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1960, "y": 1470}, {"x": 1960, "y": 1515}, {"x": 1998, "y": 1515}, {"x": 1998, "y": 1530}, {"x": 3680, "y": 1530}, {"x": 3680, "y": 1350}], "E": 2}], "path": {}} }
-  connect(rot.b1, aero.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2030, "y": 1150}, {"x": 2030, "y": 250}], "E": 2}], "path": {}} }
-  connect(rot.b2, aero.v) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2040, "y": 1310}, {"x": 2040, "y": 450}], "E": 2}], "path": {}} }
-  connect(rot.b3, aero.w) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2045, "y": 1470}, {"x": 2045, "y": 650}], "E": 2}], "path": {}} }
+  connect(rot.b1, aero.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2000, "y": 1150}, {"x": 2000, "y": 250}], "E": 2}], "path": {}} }
+  connect(rot.b2, aero.v) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2008, "y": 1310}, {"x": 2008, "y": 450}], "E": 2}], "path": {}} }
+  connect(rot.b3, aero.w) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2016, "y": 1470}, {"x": 2016, "y": 650}], "E": 2}], "path": {}} }
   connect(aero.v_scalar, v_scalar) {
     "Dyad": {
       "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 250}, {"x": 3593.75, "y": 200}], "E": 2}],

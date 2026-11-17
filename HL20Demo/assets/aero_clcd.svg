@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1100" viewBox="0 0 1000 1100">
-  <rect x="0" y="0" width="1000" height="1100" fill="#f5f0ff" stroke="#5e35b1" stroke-width="8" rx="40"/>
-  <text x="500" y="330" font-family="Helvetica, Arial, sans-serif" font-size="190" font-weight="bold" fill="#311b92" text-anchor="middle">CL</text>
-  <text x="500" y="600" font-family="Helvetica, Arial, sans-serif" font-size="190" font-weight="bold" fill="#311b92" text-anchor="middle">CD</text>
-  <text x="500" y="840" font-family="Helvetica, Arial, sans-serif" font-size="110" fill="#4527a0" text-anchor="middle">lift + drag</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+  <rect x="0" y="0" width="1000" height="1000" fill="#f5f0ff" stroke="#5e35b1" stroke-width="8" rx="40"/>
+  <text x="500" y="300" font-family="Helvetica, Arial, sans-serif" font-size="190" font-weight="bold" fill="#311b92" text-anchor="middle">CL</text>
+  <text x="500" y="570" font-family="Helvetica, Arial, sans-serif" font-size="190" font-weight="bold" fill="#311b92" text-anchor="middle">CD</text>
+  <text x="500" y="800" font-family="Helvetica, Arial, sans-serif" font-size="110" fill="#4527a0" text-anchor="middle">lift + drag</text>
 </svg>

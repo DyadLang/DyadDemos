@@ -6,41 +6,41 @@ a wired BlockComponents block.
 """
 component AeroForceBuilder
   "Body-axis force coefficient, x"
-  CX = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 0, "x2": 50, "y2": 100}, "diagram": {"x1": -50, "x2": 50, "y1": 680, "y2": 780}}}}
+  CX = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80}, "diagram": {"x1": -30, "x2": 30, "y1": 700, "y2": 760}}}}
   "Body-axis force coefficient, y"
-  CY = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200}, "diagram": {"x1": -50, "x2": 50, "y1": 830, "y2": 930}}}}
+  CY = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180}, "diagram": {"x1": -30, "x2": 30, "y1": 850, "y2": 910}}}}
   "Body-axis force coefficient, z"
-  CZ = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 200, "x2": 50, "y2": 300}, "diagram": {"x1": -50, "x2": 50, "y1": 930, "y2": 1030}}}}
+  CZ = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": -30, "x2": 30, "y1": 950, "y2": 1010}}}}
   "Rolling-moment coefficient"
-  Cl = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400}, "diagram": {"x1": -50, "x2": 50, "y1": 1110, "y2": 1210}}}}
+  Cl = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380}, "diagram": {"x1": -30, "x2": 30, "y1": 1130, "y2": 1190}}}}
   "Pitching-moment coefficient"
-  Cm = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 400, "x2": 50, "y2": 500}, "diagram": {"x1": -50, "x2": 50, "y1": 1380, "y2": 1480}}}}
+  Cm = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": -30, "x2": 30, "y1": 1400, "y2": 1460}}}}
   "Yawing-moment coefficient"
-  Cn = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"x1": -50, "x2": 50, "y1": 1220, "y2": 1320}}}}
+  Cn = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": -30, "x2": 30, "y1": 1240, "y2": 1300}}}}
   "Dynamic pressure (psf)"
-  qbar_psf = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"x1": -50, "x2": 50, "y1": 550, "y2": 650}}}}
+  qbar_psf = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}}}}
   "Quaternion scalar part"
-  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": 200, "y1": 950, "x2": 300, "y2": 1050}, "diagram": {"x1": -50, "x2": 50, "y1": 150, "y2": 250}}}}
+  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": 220, "y1": 970, "x2": 280, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}}}}
   "Quaternion x part"
-  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": 300, "y1": 950, "x2": 400, "y2": 1050}, "diagram": {"x1": -50, "x2": 50, "y1": 250, "y2": 350}}}}
+  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": 320, "y1": 970, "x2": 380, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 270, "y2": 330}}}}
   "Quaternion y part"
-  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": 400, "y1": 950, "x2": 500, "y2": 1050}, "diagram": {"x1": -50, "x2": 50, "y1": 350, "y2": 450}}}}
+  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": 420, "y1": 970, "x2": 480, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}}}}
   "Quaternion z part"
-  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": 500, "y1": 950, "x2": 600, "y2": 1050}, "diagram": {"x1": -50, "x2": 50, "y1": 450, "y2": 550}}}}
+  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": 520, "y1": 970, "x2": 580, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 470, "y2": 530}}}}
   "Aero force, inertial NED axis 1 (N)"
-  F1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 100}, "diagram": {"x1": 1600, "x2": 1700, "y1": 350, "y2": 450}}}}
+  F1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80}, "diagram": {"x1": 1620, "x2": 1680, "y1": 370, "y2": 430}}}}
   "Aero force, inertial NED axis 2 (N)"
-  F2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 100, "x2": 1050, "y2": 200}, "diagram": {"x1": 1600, "x2": 1700, "y1": 550, "y2": 650}}}}
+  F2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 120, "x2": 1030, "y2": 180}, "diagram": {"x1": 1620, "x2": 1680, "y1": 570, "y2": 630}}}}
   "Aero force, inertial NED axis 3 (N)"
-  F3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300}, "diagram": {"x1": 1600, "x2": 1700, "y1": 750, "y2": 850}}}}
+  F3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280}, "diagram": {"x1": 1620, "x2": 1680, "y1": 770, "y2": 830}}}}
   "Aero moment, body axis 1 (N.m)"
-  T1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500}, "diagram": {"x1": 1600, "x2": 1700, "y1": 1450, "y2": 1550}}}}
+  T1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1470, "y2": 1530}}}}
   "Aero moment, body axis 2 (N.m)"
-  T2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 500, "x2": 1050, "y2": 600}, "diagram": {"x1": 1600, "x2": 1700, "y1": 1550, "y2": 1650}}}}
+  T2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 520, "x2": 1030, "y2": 580}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1570, "y2": 1630}}}}
   "Aero moment, body axis 3 (N.m)"
-  T3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700}, "diagram": {"x1": 1600, "x2": 1700, "y1": 1700, "y2": 1800}}}}
+  T3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1720, "y2": 1780}}}}
   "Aero force, body axis 3 (N), for NZ computation"
-  Fz_body = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 950, "y1": 800, "x2": 1050, "y2": 900}, "diagram": {"x1": 1600, "x2": 1700, "y1": 1800, "y2": 1900}}}}
+  Fz_body = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 820, "x2": 1030, "y2": 880}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1820, "y2": 1880}}}}
   "Reference area (ft^2)"
   parameter S_ref::Real = 286.45
   "Reference chord (ft)"

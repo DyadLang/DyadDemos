@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
-  <path fill="#fff" stroke-width="0" d="M4 4h992v992H4z"/>
-  <path fill="#b8e6e0" stroke-width="0" d="M992 8v984H8V8zm8-8H0v1000h1000z"/>
-  <text x="500" y="470" font-family="sans-serif" font-size="200" font-weight="bold" text-anchor="middle" fill="#12203a">UNIT</text>
-  <text x="500" y="700" font-family="sans-serif" font-size="200" font-weight="bold" text-anchor="middle" fill="#12203a">CONV</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <path fill="#fff" stroke-width="0" d="M4 4h292v392H4z"/>
+  <path fill="#b8e6e0" stroke-width="0" d="M292 8v384H8V8zm8-8H0v400h300z"/>
+  <text x="150" y="172" font-family="sans-serif" font-size="110" font-weight="bold" text-anchor="middle" fill="#12203a">UNIT</text>
+  <text x="150" y="305" font-family="sans-serif" font-size="110" font-weight="bold" text-anchor="middle" fill="#12203a">CONV</text>
 </svg>

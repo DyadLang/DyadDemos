@@ -8,8 +8,8 @@ component Atmosphere1976
   alt_ft = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -50, "y1": 450, "x2": 50, "y2": 550},
-        "diagram": {"x1": -50, "x2": 50, "y1": 200, "y2": 300}
+        "icon": {"x1": -30, "y1": 470, "x2": 30, "y2": 530},
+        "diagram": {"x1": -30, "x2": 30, "y1": 220, "y2": 280}
       }
     }
   }
@@ -17,8 +17,8 @@ component Atmosphere1976
   sigma = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 250, "x2": 1050, "y2": 350},
-        "diagram": {"x1": 650, "x2": 750, "y1": 200, "y2": 300}
+        "icon": {"x1": 970, "y1": 270, "x2": 1030, "y2": 330},
+        "diagram": {"x1": 670, "x2": 730, "y1": 220, "y2": 280}
       }
     }
   }
@@ -26,8 +26,8 @@ component Atmosphere1976
   sos_mps = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 950, "y1": 650, "x2": 1050, "y2": 750},
-        "diagram": {"x1": 650, "x2": 750, "y1": 450, "y2": 550}
+        "icon": {"x1": 970, "y1": 670, "x2": 1030, "y2": 730},
+        "diagram": {"x1": 670, "x2": 730, "y1": 470, "y2": 530}
       }
     }
   }
