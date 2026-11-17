@@ -333,7 +333,7 @@ label/wire collisions on each.
   (non-zero exit on any difference). `HL20Demo/assets/icon.svg` is the
   only hand-authored icon (NASA HL-20 clip art) and is not generated.
 - **Spacing** — `TestGravityOnly`: source columns `z1`/`z3`/`z5` (x
-  215–315) and `z2`/`z4`/`z6` (x 335–435) now sit 30 units apart instead
+  215–315) and `z2`/`z4`/`z6` (x 335–435) now sit 20 units apart instead
   of sharing the x=325 edge. `TestAeroPoint` and `TestAeroSweep`:
   alternate constant sources staggered to the x 200–300 column so each
   `k = …` caption is horizontally clear of the next block's name (same

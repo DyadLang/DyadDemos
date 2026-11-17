@@ -111,11 +111,12 @@ def main():
     bad = []
     for name, text in sorted(want.items()):
         path = ASSETS / name
-        current = path.read_text() if path.exists() else None
-        if current != text:
+        expected = text.encode("utf-8")
+        current = path.read_bytes() if path.exists() else None
+        if current != expected:
             bad.append(name)
             if not check:
-                path.write_text(text)
+                path.write_bytes(expected)
     if bad:
         verb = "differ" if check else "rewrote"
         for name in bad:
