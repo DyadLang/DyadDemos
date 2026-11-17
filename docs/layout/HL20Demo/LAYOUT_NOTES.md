@@ -28,7 +28,22 @@ Verified by:
   pass**, including TestQuatDirection, TestQuatRoundTrip, TestMixerAssist.
 - `layout-report` on all 43 diagrams: **zero** overlapping ports/blocks,
   zero wires through blocks or port glyphs, zero diagonal segments, zero
-  false junctions, zero unrouted connects.
+  false junctions, zero unrouted connects, zero wires routed outside the
+  diagram bounding box. Five diagrams carry a single structural
+  label/wire contact each (six total), documented below — a bottom-edge
+  pin sitting inside its own block's name-label band.
+
+In a second routing pass the densest diagrams were re-laid with explicit
+trunk-and-tap buses (single shared trunks with orthogonal tap drops), and
+the vehicle/system, quaternion and test diagrams were re-routed in the
+same style. Crossings fell further — HL20CL 69→25, HL20CD 69→25,
+HL20CY 81→26, HL20CM 77→29, HL20CN/CR 91→35, HL20Mixer 44→33,
+AeroForceBuilder 56→25, HL20Aero 82→59, AeroCLCD 45→45, AeroCYCN 61→46,
+AeroLongitudinal 46→46, AeroLateralCoeffs 60→55, QuatKinematics 65→55,
+QuatToDCM 62→25, FlightState 25→9, HL20Vehicle 128→119, HL20FullSystem
+73→62, TestControllers 23→1 (AeroCLCD and AeroLongitudinal were re-laid
+and held at 45 and 46) — with every non-crossing defect class at zero on
+all 43 diagrams.
 
 ## New component hierarchy
 
@@ -62,67 +77,87 @@ internal diagram laid out with the same conventions.
 
 | diagram | crossings before | crossings after | defects after¹ |
 |---|---:|---:|---|
-| HL20Demo.shared.HL20Aero | 500 | 82 | 0 |
-| HL20Demo.HL20Vehicle | 276 | 128 | 0 |
+| HL20Demo.shared.HL20Aero | 500 | 59 | 0 |
+| HL20Demo.HL20Vehicle | 276 | 119 | 2 lbl/wire |
 | HL20Demo.RigidBody6DOF | 222 | 3 | 0 |
 | HL20Demo.QuatToInertial | 195 | 3 | 0 |
-| HL20Demo.FlightState | 173 | 25 | 0 |
-| HL20Demo.QuatToBody | 163 | 2 | 0 |
-| HL20Demo.HL20FullSystem | 138 | 73 | 0 |
-| HL20Demo.shared.HL20CN | 122 | 91 | 0 |
-| HL20Demo.shared.HL20CR | 122 | 91 | 0 |
-| HL20Demo.shared.HL20CY | 113 | 81 | 0 |
-| HL20Demo.shared.HL20CM | 100 | 77 | 0 |
-| HL20Demo.shared.HL20CD | 97 | 69 | 0 |
-| HL20Demo.shared.HL20CL | 97 | 69 | 0 |
-| HL20Demo.AeroForceBuilder | 48 | 56 | 0 |
-| HL20Demo.HL20Mixer | 33 | 44 | 0 |
+| HL20Demo.FlightState | 173 | 9 | 0 |
+| HL20Demo.QuatToBody | 163 | 0 | 0 |
+| HL20Demo.HL20FullSystem | 138 | 62 | 1 lbl/wire |
+| HL20Demo.shared.HL20CN | 122 | 35 | 0 |
+| HL20Demo.shared.HL20CR | 122 | 35 | 0 |
+| HL20Demo.shared.HL20CY | 113 | 26 | 0 |
+| HL20Demo.shared.HL20CM | 100 | 29 | 0 |
+| HL20Demo.shared.HL20CD | 97 | 25 | 0 |
+| HL20Demo.shared.HL20CL | 97 | 25 | 0 |
+| HL20Demo.AeroForceBuilder | 48 | 25 | 0 |
+| HL20Demo.HL20Mixer | 33 | 33 | 0 |
 | HL20Demo.TestQuatRoundTrip | 12 | 0 | 0 |
 | HL20Demo.PitchControl | 10 | 12 | 0 |
 | HL20Demo.TestMixerAssist | 4 | 0 | 0 |
 | HL20Demo.TestQuatDirection | 4 | 0 | 0 |
-| HL20Demo.TestControllers | 3 | 23 | 0 |
+| HL20Demo.TestControllers | 3 | 1 | 1 lbl/wire |
 | HL20Demo.RollControl | 2 | 2 | 0 |
 | HL20Demo.YawControl | 2 | 1 | 0 |
 | HL20Demo.TestGravityOnly | 2 | 0 | 0 |
 | HL20Demo.SpeedControl | 0 | 1 | 0 |
 | HL20Demo.Atmosphere1976 | 0 | 0 | 0 |
-| HL20Demo.TestAeroPoint | 0 | 0 | 0 |
-| HL20Demo.TestAeroSweep | 0 | 0 | 0 |
+| HL20Demo.TestAeroPoint | 0 | 0 | 1 lbl/wire |
+| HL20Demo.TestAeroSweep | 0 | 0 | 1 lbl/wire |
 | HL20Demo.TestHL20FullSystem | 0 | 0 | 0 |
 | HL20Demo.TestHL20Subsonic | 0 | 0 | 0 |
-| HL20Demo.QuatKinematics | new | 65 | 0 |
-| HL20Demo.QuatToDCM | new | 62 | 0 |
-| HL20Demo.shared.AeroCYCN | new | 61 | 0 |
-| HL20Demo.shared.AeroLateralCoeffs | new | 60 | 0 |
-| HL20Demo.EulerAngles | new | 53 | 0 |
+| HL20Demo.QuatKinematics | new | 55 | 0 |
+| HL20Demo.QuatToDCM | new | 25 | 0 |
+| HL20Demo.shared.AeroCYCN | new | 46 | 0 |
+| HL20Demo.shared.AeroLateralCoeffs | new | 55 | 0 |
+| HL20Demo.EulerAngles | new | 19 | 0 |
 | HL20Demo.shared.AeroLongitudinal | new | 46 | 0 |
 | HL20Demo.shared.AeroCLCD | new | 45 | 0 |
-| HL20Demo.DCMMatVec | new | 29 | 0 |
+| HL20Demo.DCMMatVec | new | 15 | 0 |
 | HL20Demo.AeroAngles | new | 18 | 0 |
-| HL20Demo.AirData | new | 14 | 0 |
-| HL20Demo.RotDynamics | new | 11 | 0 |
+| HL20Demo.AirData | new | 10 | 0 |
+| HL20Demo.RotDynamics | new | 1 | 0 |
 | HL20Demo.TransDynamics | new | 0 | 0 |
 | HL20Demo.VehicleOutputs | new | 0 | 0 |
 | HL20Demo.shared.AeroAirData | new | 0 | 0 |
 
 ¹ defects = overlapping blocks + wires through blocks/ports + diagonal
-segments + false junctions + label overlaps + unrouted connects.
+segments + false junctions + label overlaps + unrouted connects +
+wires leaving the diagram bounds. The only non-zero defect class is
+label/wire.
+
+Remaining label/wire contacts (5 diagrams, 6 total) are structural: a
+bottom-edge pin sits directly above its own block's name label, so any
+orthogonal approach crosses the label band. Dodging every such pin
+requires braided edge-runs that add more crossings than they save;
+
+- **HL20Vehicle (2)** — `aero` and `forces` name labels.
+- **HL20FullSystem (1)** — the `pitch` controller name label.
+- **TestControllers, TestAeroPoint, TestAeroSweep (1 each)** — the
+  driven component's name label.
 
 Exceptions above the ~80-crossing target, one line each:
 
-- **HL20Vehicle (128)** — 46-pin strongly-connected loop; residual crossings
-  are concentrated where the 6-signal force/moment feedback bus descends
-  past the input-port wall; the bus lanes are ordered (deep dives first).
-- **HL20FullSystem (73)** — 16-signal feedback bus; feedback pins were moved
-  to controller icon bottom edges making the bus itself near-zero-crossing;
-  remaining crossings sit in the east-side output tap zone (the port-descent
-  wall is solid, any eastbound wire pays ~10X).
-- **HL20CN / HL20CR (91), HL20CY (81), HL20Aero (82)** — coefficient
-  fan-in diagrams: ~12 deflection buses share each table column; crossings
-  are the buses crossing each other's taps and are order-optimal for the
-  fixed pin order.
-- **HL20CM (77)** — same fan-in structure plus the pitch-damper chain.
+- **HL20Vehicle (119)** — 46-pin strongly-connected loop; residual
+  crossings concentrate at the mixer→vehicle command fan (a complete
+  comb: every column through the fan crosses 7–8 wires) and the
+  ALT_FT→NZ feedback descents across the riser fence. ~110 is the
+  practical floor without moving blocks.
+- **HL20FullSystem (62)** — DLEDEG's mixer→pitch wire pays ~13X crossing
+  the command comb; ALT_FT's riser crosses all 10 feedback risers (~11X);
+  the `pitch` label contact is structural as above.
+- **HL20Aero (59), AeroLateralCoeffs (55), QuatKinematics (55),
+  AeroLongitudinal/AeroCYCN (46), AeroCLCD (45), HL20CN/CR (35)** —
+  same-order coefficient/product fans: a planar floor ≈ C(n,2) per fan
+  (each tap must cross every other tap's drop when source and sink
+  orders disagree); the layouts sit at or near that floor.
+- **HL20Mixer (33), QuatToDCM (25)** — residual fan-in crossings at the
+  planarity floor for their fixed pin orders.
+
+`AeroPointAero` (the equation-level component embedded in
+`TestAeroPoint.dyad` for reference comparison) is a helper component, not
+one of the 43 public diagrams; it is excluded from the gate count and
+the screenshot set.
 
 ## Review items fixed in this pass
 
