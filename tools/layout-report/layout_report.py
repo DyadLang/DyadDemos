@@ -542,13 +542,59 @@ def _num(el, attr, default=None):
         raise UnsupportedSVG(f"<svg {attr}={el.get(attr)!r}>: only plain user-unit lengths are supported")
 
 
+class Label(tuple):
+    """A label as Studio draws it: unpacks as (text, box), where box is its element's box (what the DOM
+    gives, for calibration); `ink` is the box of its painted letters (for collisions)."""
+
+    def __new__(cls, text, box, ink=None):
+        self = super().__new__(cls, (text, box))
+        self.ink = ink if ink is not None else box
+        return self
+
+
 def studio_label_box(txt, anchor, sideways=False):
     """The box of a block or port label as Studio draws it: fixed size, centred on its anchor, and
     turned on its side when `sideways` (a block turned a quarter turn)."""
-    w, h = label_width(txt), LABEL_HEIGHT
-    if sideways:
-        w, h = h, w
-    return (anchor[0] - w / 2, anchor[1] - h / 2, anchor[0] + w / 2, anchor[1] + h / 2)
+    return studio_label(txt, anchor, 90 if sideways else 0)[1]
+
+
+def studio_label(txt, anchor, turn=0):
+    """A block or port label as Studio draws it (Label): fixed size, centred on its anchor, turned with
+    its block by `turn` (0, 90, 180 or 270 degrees clockwise; on a half turn the text is turned back
+    upright within its line box). Studio's <dyad-label> is a 2-unit top margin (LABEL_MARGIN) over a
+    line box 1.4 em high, the text on its baseline in the middle of it: the ink is the letters' extent
+    above and below that baseline (Inter's glyph bounds) and from the first letter's ink to the last's."""
+    W = label_width(txt)
+    fs = LABEL_FONT / _INTER["units_per_em"]
+    inks = [_INTER["ink"].get(c, _INTER["ink"]["n"]) for c in txt]
+    lit = [i for i, c in enumerate(txt) if not c.isspace() and inks[i][0] + inks[i][1] > 0]
+    if lit:
+        adv = [_INTER["advance"].get(c, _INTER["advance"]["n"]) for c in txt]
+        line = LABEL_HEIGHT - LABEL_MARGIN
+        base = LABEL_MARGIN + (line - (_INTER["ascent"] + _INTER["descent"]) * fs) / 2 + _INTER["ascent"] * fs
+        if turn == 180:
+            base -= LABEL_MARGIN  # the host turns over (its margin to the bottom), the text turns back
+        u0 = fs * (sum(adv[:lit[0]]) + inks[lit[0]][2])
+        u1 = W - fs * (sum(adv[lit[-1] + 1:]) + inks[lit[-1]][3])
+        v0 = base - fs * max(inks[i][0] for i in lit)
+        v1 = base + fs * max(inks[i][1] for i in lit)
+        ink = (u0, v0, u1, v1)
+    else:
+        ink = None
+    sideways = turn in (90, 270)
+    w, h = (LABEL_HEIGHT, W) if sideways else (W, LABEL_HEIGHT)
+    box = (anchor[0] - w / 2, anchor[1] - h / 2, anchor[0] + w / 2, anchor[1] + h / 2)
+    if ink is None:
+        return Label(txt, box, (anchor[0], anchor[1], anchor[0], anchor[1]))
+
+    def place(u, v):
+        x, y = u - W / 2, v - LABEL_HEIGHT / 2
+        if turn == 90:  # clockwise: the top of the letters faces right
+            x, y = -y, x
+        elif turn == 270:
+            x, y = y, -x
+        return (anchor[0] + x, anchor[1] + y)
+    return Label(txt, box, bbox([place(ink[0], ink[1]), place(ink[2], ink[3])]))
 
 
 INK_SKIP = ("defs", "style", "title", "desc", "metadata", "filter", "clipPath", "marker", "symbol", "mask", "pattern",
@@ -873,7 +919,7 @@ def art_ink_info(el, skip_labels=False, strokes=True):
         return polys
 
     try:
-        polys = walk(el, (vw, vh), {})
+        polys = walk(el, (vw, vh), style(el, "svg", {}))  # the icon <svg>'s own paint is inherited too
     except (ValueError, TypeError, IndexError, ZeroDivisionError) as e:
         return None, f"cannot measure {e}" if str(e).startswith("<") else f"cannot measure the art ({type(e).__name__}: {e})"
     hull = convex_hull([p for P in polys for p in P])
@@ -987,10 +1033,11 @@ ICON_SIZE = 1000.0  # Dyad draws every block and port icon as <svg viewBox="0 0 
 #   They are upright, except on a block turned a quarter turn, where they are drawn on their side.
 #   A boundary port's name is drawn at (500, 1100) of its frame grown by PORT_PAD.
 LABEL_FONT = 16.035  # Studio's label font size (em) in diagram units, whatever the size of the box (fitted to its DOM)
-LABEL_HEIGHT = 24.45  # the height of Studio's label line box
+LABEL_HEIGHT = 24.45  # the height of Studio's label element: LABEL_MARGIN over a line box 1.4 em high
+LABEL_MARGIN = 2.0  # Studio's label (`dyad-label`) has a 2px `margin-block-start` above its line box
 PORT_PAD = 20.0  # Studio's host element for a boundary port is its frame grown by this much on every side
 with open(os.path.join(HERE, "inter_metrics.json"), encoding="utf-8") as _f:
-    # Advance widths and pair kerning of Inter, Studio's label font, per 1000 em (inter_metrics.mjs).
+    # Advance widths, pair kerning and glyph ink of Inter, Studio's label font, per 1000 em (inter_metrics.mjs).
     # With them, label widths agree with Studio's DOM within 0.1 units for 1151 of the 1152 HL20Demo labels.
     _INTER = json.load(_f)
 
@@ -1091,7 +1138,7 @@ def parse_svg(svg_text, src_boxes=None, src_ports=None, strokes=True):
                     except ValueError:
                         continue
                     if txt:
-                        texts.append((txt, studio_label_box(txt, anchor, sideways=round(rot) % 180 == 90)))
+                        texts.append(studio_label(txt, anchor, int(round(rot / 90.0)) % 4 * 90))
         name, label = None, None
         if texts:
             # the instance-name label names the block; parameter labels are kept too
@@ -1129,7 +1176,7 @@ def parse_svg(svg_text, src_boxes=None, src_ports=None, strokes=True):
             if named_port:  # Studio writes a boundary port's name under its glyph
                 # its host element is the frame grown by PORT_PAD on every side; the label sits at (500, 1100) of that
                 h = box[3] - box[1] + 2 * PORT_PAD
-                labels.append((name, studio_label_box(name, ((box[0] + box[2]) / 2, box[1] - PORT_PAD + 1.1 * h))))
+                labels.append(studio_label(name, ((box[0] + box[2]) / 2, box[1] - PORT_PAD + 1.1 * h)))
             shape = fit_icon(art_m, view_size(art), art_ink_)
             dg.blocks.append(Block(name, body, True, rot, labels, frame=box, body=body))
             dg.glyphs.append(Glyph("", name, box, body, ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2), shape,
@@ -1167,7 +1214,7 @@ def parse_svg(svg_text, src_boxes=None, src_ports=None, strokes=True):
             elif tag == "text":
                 txt, bb = text_box(ch, lm)
                 if bb:
-                    dg.free_labels.append((txt, bb))
+                    dg.free_labels.append(Label(txt, bb))
             elif tag in ("use", "image", "foreignObject", "switch", "a"):
                 raise UnsupportedSVG(f"<{tag}> at diagram level is not supported")
 
@@ -1292,7 +1339,7 @@ DETACH_GAP = 0.25  # a block's glyph further than this fraction of its size (and
 OVERHANG = 0.5  # a glyph with more than this fraction of its length past the end of its side of the icon overhangs,
 OVERHANG_OUT = (0.75, 30.0)  # and so does one this much more outside the icon (area fraction), or this much outside
 # that sticks out this many units further than the same glyph, scaled, at the default size
-LABEL_COVER = 60.0  # a label with more than this area under a glyph (a quarter of a character) is covered
+LABEL_COVER = 25.0  # a label with more than this much of its text's ink under a glyph (a quarter of a character's) is covered
 STD_BLOCK = 100.0  # Dyad's default placement size: a block's own glyphs cover its own labels this much by design
 PIN_TOL = 0.5  # a wire end this close to a glyph's pin is wired to it (`dyad render` ends wires exactly on the pin)
 # A wire or junction dot is on a glyph once it gets this far inside the outline: half the depth of the
@@ -1492,29 +1539,25 @@ def glyph_fit(outline, body):
     return gap, side, past, out, sticks
 
 
-LABEL_INSET = 1.0  # a label's line box has this much padding around its text, across a wire running past it
+WIRE_HALF = 0.75  # half the width of a wire as Studio draws it (a 1.5-unit stroke)
 
 
-def label_ink(lb, p, q):
-    """The part of label box `lb` a wire segment pq must cross to hit the text: the box inset by
-    LABEL_INSET across the segment's direction (both ways for a slanted one)."""
-    dx, dy = abs(q[0] - p[0]), abs(q[1] - p[1])
-    ix = LABEL_INSET if dy >= dx * 1e-3 else 0.0  # not horizontal: the sides are padding
-    iy = LABEL_INSET if dx >= dy * 1e-3 else 0.0
-    return (lb[0] + ix, lb[1] + iy, lb[2] - ix, lb[3] - iy)
+def expand(bb, d):
+    return (bb[0] - d, bb[1] - d, bb[2] + d, bb[3] + d)
 
 
 def own_label_baseline(g, block, lb):
-    """How much of label box `lb` a block's own glyph `g` covers with the block at Dyad's default size
+    """How much of label `lb`'s text a block's own glyph `g` covers with the block at Dyad's default size
     (STD_BLOCK square, same centre): the overlap the child's icon causes whatever this diagram does.
     The label keeps its size (Studio draws labels at a fixed size); its anchor scales with the block."""
     if g.fm is None or block.frame is None:
         return 0.0
     S = to_default_size(block)
     outline = fit_icon(mat_mul(S, g.fm), g.vb, g.ink)
-    ax, ay = apply(S, (lb[0] + lb[2]) / 2, (lb[1] + lb[3]) / 2)
-    hw, hh = (lb[2] - lb[0]) / 2, (lb[3] - lb[1]) / 2
-    return poly_area(clip_poly_box(outline, (ax - hw, ay - hh, ax + hw, ay + hh)))
+    box, ink = lb[1], lb.ink
+    cx, cy = (box[0] + box[2]) / 2, (box[1] + box[3]) / 2  # the anchor: the centre of the line box
+    ax, ay = apply(S, cx, cy)
+    return poly_area(clip_poly_box(outline, (ink[0] + ax - cx, ink[1] + ay - cy, ink[2] + ax - cx, ink[3] + ay - cy)))
 
 
 def glyph_metrics(dg):
@@ -1581,7 +1624,8 @@ def glyph_metrics(dg):
     # LABEL_COVER (own_label_baseline), the child's icon puts a glyph where Studio writes the name: that
     # is label_covered_by_icon, the child component's finding, not this layout's.
     lc, lci = [], []
-    for owner, txt, lb in [("" if b.is_port else b.name, t, bb) for b in dg.blocks for t, bb in b.labels] + [("", t, bb) for t, bb in dg.free_labels]:
+    for owner, L in [("" if b.is_port else b.name, L) for b in dg.blocks for L in b.labels] + [("", L) for L in dg.free_labels]:
+        txt, lb = L[0], L.ink  # the text's ink, not its line box: the padding round it is not covered
         hit, icon = [], []
         for i, g in enumerate(gl):
             if box_overlap_area(g.box, lb) <= 0:
@@ -1589,7 +1633,7 @@ def glyph_metrics(dg):
             area = poly_area(clip_poly_box(outl[i], lb))
             if area <= LABEL_COVER:
                 continue
-            base = own_label_baseline(g, blocks[owner], lb) if owner and g.owner == owner else 0.0
+            base = own_label_baseline(g, blocks[owner], L) if owner and g.owner == owner else 0.0
             if base > LABEL_COVER and area - base <= LABEL_COVER:
                 icon.append(f"{g.name} ({area:.0f}; {base:.0f} at the default {STD_BLOCK:g}-unit size)")
             else:
@@ -1778,8 +1822,10 @@ def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
                 block_ov += 1
     m["block_overlaps"] = block_ov
     m["ink_estimated"] = len(dg.ink_notes)
-    # every label Studio draws: blocks' (name and parameters), boundary ports' names, free text
-    labels = [(b.name, bb) for b in dg.blocks for _t, bb in b.labels] + list(dg.free_labels)
+    # every label Studio draws: blocks' (name and parameters), boundary ports' names, free text. They
+    # collide by their text's ink; the line boxes (`boxes`) only size the drawing.
+    labels = [(b.name, L.ink) for b in dg.blocks for L in b.labels] + [(L[0], L.ink) for L in dg.free_labels]
+    boxes = [bb for b in dg.blocks for _t, bb in b.labels] + [bb for _t, bb in dg.free_labels]
     owners = {b.name for b in dg.blocks}
     lb_block = lb_label = lb_wire = 0
     lb_list = []
@@ -1799,7 +1845,7 @@ def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
                 lb_list.append((labels[i][0], labels[j][0]))
     lb_hit = []
     for name, lb in labels:
-        hit = [w.name for w in dg.wires if any(clip_len_in_box(p, q, label_ink(lb, p, q)) > 1 for p, q in zip(w.pts, w.pts[1:]))]
+        hit = [w.name for w in dg.wires if any(clip_len_in_box(p, q, expand(lb, WIRE_HALF)) > 1 for p, q in zip(w.pts, w.pts[1:]))]
         if hit:
             lb_wire += 1
             lb_hit.append(f"{name} under {', '.join(sorted(set(hit)))}")
@@ -1823,7 +1869,7 @@ def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
             outer += 1
     m["outer_wires"] = outer
     m["outer_excursion_max"] = round(max(excursion, 0), 1)
-    full = union([b.box for b in dg.blocks] + list(bbs) + [lb for _, lb in labels])
+    full = union([b.box for b in dg.blocks] + list(bbs) + boxes)
     W, H = full[2] - full[0], full[3] - full[1]
     m["width"] = round(W, 1)
     m["height"] = round(H, 1)
@@ -1841,7 +1887,7 @@ def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
 
     for b in dg.blocks:
         mark_box(b.box)
-    for _, lb in labels:
+    for lb in boxes:
         mark_box(lb)
     for w in dg.wires:
         for p, q in zip(w.pts, w.pts[1:]):

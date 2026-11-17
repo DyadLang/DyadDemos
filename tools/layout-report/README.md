@@ -76,8 +76,9 @@ Requirements:
 
 Run the tests with `python3 -m unittest tools/layout-report/test_layout_report.py`.
 Set `LAYOUT_REPORT_WASM` to dyad-layout's `wasm/pkg` to also run the test
-against the real scorer. `fixtures/` holds gzipped `dyad render` output of 22
-HL20Demo diagrams (at 99ffbc0, draft PR #51) with the counts the glyph checks
+against the real scorer. `fixtures/` holds gzipped `dyad render` output of 23
+HL20Demo diagrams (at 99ffbc0, draft PR #51) and DynamicSteadyState.ZoneRoom
+(PR #49, f47214b) with the counts the glyph checks
 must give (`expected.json`) and the geometry Studio drew for them
 (`studio.json`, see [Calibration](#calibration)).
 
@@ -103,7 +104,7 @@ Lengths are in Dyad diagram units. A dyad-layout half-square is 50 units.
 | `jct/glyph` | `junction_on_glyph`: junction dots on a glyph. |
 | `unrt` | `connect()` statements with no route metadata (the 3.5.0 `apply` bug, or never laid out). Connects inside `for` loops are counted separately, as `loop_connects`. |
 | `blk ovl` | overlapping block placement boxes or boundary-port glyphs. |
-| `lbl/blk`, `lbl/lbl`, `lbl/wire` | labels overlapping a block, another label, or a wire: block labels (instance names, parameter values), boundary-port names and free diagram text. One block's own labels are not tested against each other. Label boxes are placed and sized as Studio draws them (see [Studio geometry](#studio-geometry)). A wire hits a label when it runs more than a unit through the box less `LABEL_INSET` (1 unit) across the wire: the line box's padding around the text is not a hit. `report.json` names the labels a wire runs through (`labels_hit_by_wires`). |
+| `lbl/blk`, `lbl/lbl`, `lbl/wire` | labels overlapping a block, another label, or a wire: block labels (instance names, parameter values), boundary-port names and free diagram text. One block's own labels are not tested against each other. Labels collide by their text's ink, not their line box (see [Studio geometry](#studio-geometry)). A wire hits a label when it runs more than a unit through the ink grown by half the width of Studio's 1.5-unit wire (`WIRE_HALF`): a wire through the line box's padding around the text is not a hit. `report.json` names the labels a wire runs through (`labels_hit_by_wires`). |
 | `bends/w`, `bends max` | bends per wire. |
 | `jogs` | interior segments shorter than 10 units (staircase noise). |
 | `len`, `len max` | total and longest wire length. |
@@ -174,6 +175,18 @@ the defects people see are in Studio's drawing. Studio 3.5.1's diagram view
   DOM within 0.1 units for 1151 of the 1152 HL20Demo labels; the exception is
   `k=GRSAS * 0.01745`, drawn 2.2 units wider (1.1 at each edge), likely an
   Inter contextual alternate on the `*`.
+- **The text is smaller than its label.** Studio's label element is a 2-unit
+  top margin (`LABEL_MARGIN`, its `margin-block-start`) over a line box 1.4 em
+  high, with the text's baseline in the middle of the line box: 19.06 units
+  below the element's top. The letters reach only as far above and below the
+  baseline as Inter's glyphs do (`ink` in `inter_metrics.json`): the name
+  `cap` centred at y = 360 has its line box from 347.8 to 372.2 but its
+  letters from 357.8 to 370.4. A label's *ink* is that box, from the first
+  letter's ink to the last's, turned with the label (on a half turn the
+  margin goes to the bottom and the text turns back upright). Coverage by
+  glyphs, label and wire collisions use the ink; the full line boxes are only
+  compared with Studio's DOM ([Calibration](#calibration)) and size the
+  drawing (extents, whitespace).
 - **Only quarter turns.** Dyad places blocks in the eight D4 states. A
   rotation by any other angle is rejected (`UnsupportedSVG`, "only quarter
   turns are modelled") instead of being fitted into the turned frame's
@@ -222,8 +235,8 @@ what this diagram's placement adds.
 | `glyph_overlap` | two glyphs whose outlines overlap or are closer than a tenth of the smaller one's size (touching triangles in a column); or a glyph reaching more than 1 unit into another block's icon. Two **unwired** glyphs of the same block are counted apart, in `glyph_overlap_unwired` (weight 1, `g ovl unw` in the table, dashed in the overlay): their placement is the child's icon design. | `GLYPH_GAP` 0.1, `BODY_DEPTH` 1 |
 | `glyph_detached` | *baseline*: a block's glyph further from the icon Studio draws than a quarter of its size more than at the default size (gaps as fractions of the glyph's size, which scales with the block), and at least 2 units. | `DETACH_GAP` 0.25 |
 | `glyph_overhang` | *baseline*: a block's glyph (that is not detached) with more than half its length past the end of its side of the icon beyond what it has at the default size (1% slack, so a glyph centred on the corner is not counted however its stroke is drawn); or with 75% more of its area outside the icon than at the default size, or most of it outside and sticking out 30 units further than at the default size (scaled). A standard pin on a big block is a big pin standing as far off a big icon, which is no layout defect. | `OVERHANG` 0.5, `OVERHANG_OUT` (0.75, 30) |
-| `label_covered` | a label (block, boundary port, or free text) with more than 60 square units (a quarter of a character) under a glyph's outline, a block's own glyphs over its own labels included. A bottom pin covers 45 square units of a short name at 100 × 100; on a 200 × 200 block it is twice the size and covers 68.6, which counts. | `LABEL_COVER` 60 |
-| `label_covered_by_icon` | *baseline*: a label over 60 square units under its own block's glyph, when the block at the default size covers it within 60 square units as much (the label keeps its size, its anchor scales with the block). The child's icon puts its glyph where Studio writes the name, so it is reported apart, at weight 1, as the child component's finding; a placement that makes it more than 60 square units worse counts in `label_covered`. | `LABEL_COVER` 60, `STD_BLOCK` 100 |
+| `label_covered` | a label (block, boundary port, or free text) with more than 25 square units of its text's ink (a quarter of a character's) under a glyph's outline, a block's own glyphs over its own labels included. A connector centred on a short name covers 45 square units of its text at 100 × 100; on a 200 × 200 block it is twice the size and covers 159, which counts. A plain bottom pin reaches only the padding over the text (20 to 22 square units of ink, at either size). | `LABEL_COVER` 25 |
+| `label_covered_by_icon` | *baseline*: a label over 25 square units of ink under its own block's glyph, when the block at the default size covers it within 25 square units as much (the label keeps its size, its anchor scales with the block). The child's icon puts its glyph where Studio writes the name, so it is reported apart, at weight 1, as the child component's finding; a placement that makes it more than 25 square units worse counts in `label_covered`. | `LABEL_COVER` 25, `STD_BLOCK` 100 |
 | `wire_thru_glyph` | a wire of a net not wired to the glyph, along its route as drawn, with one continuous passage through the painted outline that gets further from its edge than `min(THRU_DEPTH` × the depth of the outline's centre, `GRAZE)`, or that runs at least `RUN_FRAC` of the glyph's size and `RUN_MIN` units at least `RUN_DEPTH` inside. Every glyph is tested, whatever its size, and a zigzag through a glyph is one passage however short its legs. Wires of the glyph's own nets may run over it: the wire to a 10-unit pin crosses it from whichever side it comes, and the spur `dyad render` leaves past a pin, to the block's edge and back, is on the pin's net. Shallower and shorter, a wire runs along the glyph's edge (the backs of a column of input pins, at most 1.4 units in and 9.2 units long in the clean HL20Demo diagrams). | `THRU_DEPTH` 0.6, `GRAZE` 2, `RUN_FRAC` 0.5, `RUN_MIN` 20, `RUN_DEPTH` 1 |
 | `junction_on_glyph` | a junction dot (radius 2.5) touching a glyph's outline, unless it is on one of the glyph's nets and either on its pin or no deeper than the same depth limit (at the rim, where the wire leaves the glyph). | `JUNCTION_R` 2.5 |
 | `near_diagonal` | a segment off the horizontal or vertical by more than 0.001 and at most 0.5 units. | `NEAR_DIAG` (0.001, 0.5) |
@@ -234,10 +247,12 @@ clean there. On the relaid demos of PR #49 (f47214b) they flag only
 FrictionBrakeDemo.BrakeThermalTest_Step (Studio draws its two step sources'
 outputs and its heat inputs' ports away from their icons, so the findings are
 real) and, in `glyph_overlap_unwired`, MakieWebinar's grid tests, whose
-resistor icons pile their two unwired pins up. `label_covered_by_icon` lists
-17 labels there, all of 100 × 100 thermal blocks (heat capacitors, sources,
-`brake_thermal`) whose own bottom heat port covers 72 square units of the
-name, exactly as at the default size.
+resistor icons pile their two unwired pins up. No label there is covered: on
+the 100 × 100 thermal blocks (heat capacitors, sources, `brake_thermal`), the
+block's own bottom heat port covers 72 square units of its name's line box but
+at most 4.5 of its letters (the top of the `k` of `disk_mass`). In HL20Demo
+the glyphs over labels cover 42 square units of text or more and the others
+reach no letter: `LABEL_COVER` sits in that gap.
 
 ## Calibration
 
@@ -325,6 +340,9 @@ the constructor's closing parenthesis however many lines its arguments take.
 
 ## Limitations
 
+- A label's ink is the box round its letters, not their shapes: a glyph or
+  wire in the gap above a run of short letters (the `a` after the `C` of
+  `Cap`) is counted as on the text.
 - Label widths are Inter's canvas metrics; a contextual alternate (as on the
   `*` of `k=GRSAS * 0.01745`) can make Studio's text up to about a unit wider
   at each edge.

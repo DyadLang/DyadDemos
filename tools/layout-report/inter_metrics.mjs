@@ -1,5 +1,5 @@
-// Regenerate inter_metrics.json: the advance widths and pair kerning of the font Dyad Studio draws
-// diagram labels in, measured by Chrome's own text shaping.
+// Regenerate inter_metrics.json: the advance widths, pair kerning and ink extents of the font Dyad
+// Studio draws diagram labels in, measured by Chrome's own text shaping.
 //
 //   node inter_metrics.mjs <chrome-headless-shell> <inter-latin-wght-normal.woff2> > inter_metrics.json
 //
@@ -29,18 +29,26 @@ try {
     const chars = [];
     for (let c = 32; c < 127; c++) chars.push(String.fromCharCode(c));
     for (const c of "αβγδεθλμπρστφψωΔΘΣΦΨΩ·×–—°µ²³ℓ∂") chars.push(c);
-    const advance = {}, kern = {};
-    for (const c of chars) advance[c] = Math.round(w(c) * 10) / 10;
+    const advance = {}, kern = {}, ink = {};
+    const r1 = (v) => Math.round(v * 10) / 10;
+    for (const c of chars) {
+      advance[c] = r1(w(c));
+      // the painted glyph: [height above the baseline, depth below it, left bearing, right bearing]
+      const m = ctx.measureText(c);
+      ink[c] = [r1(m.actualBoundingBoxAscent), r1(m.actualBoundingBoxDescent), r1(-m.actualBoundingBoxLeft),
+                r1(m.width - m.actualBoundingBoxRight)];
+    }
+    const fm = ctx.measureText("x");
     for (const a of chars) for (const b of chars) {
       const k = w(a + b) - w(a) - w(b);
       if (Math.abs(k) >= 0.5) kern[a + b] = Math.round(k);
     }
-    return { advance, kern };
+    return { advance, kern, ink, ascent: fm.fontBoundingBoxAscent, descent: fm.fontBoundingBoxDescent };
   });
   const kern = Object.fromEntries(Object.entries(res.kern).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
   process.stdout.write(JSON.stringify({
     font: "Inter, weight 400: out/fonts/inter-latin-wght-normal.woff2 of Dyad Studio 3.5.1, measured by inter_metrics.mjs",
-    units_per_em: 1000, advance: res.advance, kern,
+    units_per_em: 1000, ascent: res.ascent, descent: res.descent, advance: res.advance, kern, ink: res.ink,
   }) + "\n");
 } finally {
   await browser.close();

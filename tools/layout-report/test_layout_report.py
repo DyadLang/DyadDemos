@@ -433,7 +433,7 @@ def gm(text, src=None):
     return dg, lr.compute_metrics(dg)
 
 
-R = lambda b: tuple(round(v, 3) for v in b)
+R = lambda b, n=3: tuple(round(v, n) for v in b)
 
 
 class StudioGeometry(unittest.TestCase):
@@ -661,14 +661,20 @@ class ReviewFindings(unittest.TestCase):
         self.assertEqual(d["wire_thru_glyph"], ["?->? through port#1 (137 inside)"])
 
     def test_5_own_label_counts_beyond_the_default_size(self):
-        # a block with a bottom connector: at the default 100 x 100 its glyph covers 45 square units of its name
+        # the reviewer's bottom connector only reaches the padding over the text: 22 square units of the
+        # text's ink at the default 100 x 100, 20 at 200 x 200 (the glyph grows down, so does the label)
         bottom = [(450, 1000, 550, 1100)]
-        _dg, (m, _d) = gm(gsvg(gblock("block_b", (500, 0, 600, 100), ports=bottom)), {"block_b": (500, 0, 600, 100)})
-        self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (0, 0))
-        # at 200 x 200 the glyph is twice the size and covers 128 square units of the fixed-size label
-        dg, (m, d) = gm(gsvg(gblock("block_b", (500, 0, 700, 200), ports=bottom)), {"block_b": (500, 0, 700, 200)})
+        for s in (100, 200):
+            _dg, (m, _d) = gm(gsvg(gblock("block_b", (500, 0, 500 + s, s), ports=bottom)), {"block_b": (500, 0, 500 + s, s)})
+            self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (0, 0), s)
+        # a connector on the name: 45 square units of its text at 100 x 100, the child's icon's doing ...
+        on = [(450, 1050, 550, 1150)]
+        _dg, (m, d) = gm(gsvg(gblock("block_b", (500, 0, 600, 100), ports=on)), {"block_b": (500, 0, 600, 100)})
+        self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (0, 1))
+        # ... at 200 x 200 the glyph is twice the size and covers 159 square units of the fixed-size text
+        dg, (m, d) = gm(gsvg(gblock("block_b", (500, 0, 700, 200), ports=on)), {"block_b": (500, 0, 700, 200)})
         self.assertEqual(m["label_covered"], 1)
-        self.assertIn("its own: 128, 45 at the default size", d["label_covered"][0])
+        self.assertIn("its own: 159, 45 at the default size", d["label_covered"][0])
 
     def test_6_unwired_pileups_cost_and_show(self):
         self.assertEqual(lr.badness({"glyph_overlap_unwired": 8}), 8)
@@ -693,16 +699,16 @@ class ReviewFindings(unittest.TestCase):
         (_t, lb), = dg.blocks[0].labels
         self.assertAlmostEqual(lb[2] - lb[0], lr.LABEL_HEIGHT)
         self.assertAlmostEqual(lb[3] - lb[1], lr.label_width("side"))
-        # collisions decided at the label's edge: two port names half a unit apart, and half a unit over
-        wa, wb = lr.label_width("Alpha"), lr.label_width("Beta")
+        # collisions decided at the edge of the text's ink: two port names half a unit apart, and half a unit over
+        ia, ib = lr.studio_label("Alpha", (0, 0)).ink, lr.studio_label("Beta", (0, 0)).ink
         for off, want in ((0.5, 0), (-0.5, 1)):
-            x = (wa + wb) / 2 + off
+            x = ia[2] - ib[0] + off
             src = {"Alpha": (0, 0, 100, 100), "Beta": (x, 0, x + 100, 100)}
             _dg, (m, _d) = gm(gsvg(gport(src["Alpha"]), gport(src["Beta"])), src)
             self.assertEqual(m["label_label_overlaps"], want, off)
-        # a wire just clear of the right edge of a name's text (its box less LABEL_INSET), and just inside it
+        # a wire (1.5 units wide) just clear of the right edge of a name's text, and just over it
         for off, want in ((0.5, 0), (-0.5, 1)):
-            x = 50 + wa / 2 - lr.LABEL_INSET + off
+            x = 50 + ia[2] + lr.WIRE_HALF + off
             _dg, (m, _d) = gm(gsvg(gport((0, 0, 100, 100)), wires=[f"M {x} 0 L {x} 300"]), {"Alpha": (0, 0, 100, 100)})
             self.assertEqual(m["labels_hit_by_wires"], want, off)
 
@@ -764,27 +770,36 @@ class SecondReview(unittest.TestCase):
         # a 100 x 100 block `b` whose triangle connector at (0, 680)-(1000, 1680) covers all 240 square
         # units of its name: the child's icon does it at the default size, so it is the child's finding
         dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 100, 100), ports=[(0, 680, 1000, 1680)])), {"b": (0, 0, 100, 100)})
-        (_t, lb), = dg.blocks[0].labels
-        self.assertAlmostEqual(lr.poly_area(lr.clip_poly_box(dg.glyphs[0].outline(), lb)), (lb[2] - lb[0]) * (lb[3] - lb[1]))
+        ink = dg.blocks[0].labels[0].ink
+        self.assertAlmostEqual(lr.poly_area(lr.clip_poly_box(dg.glyphs[0].outline(), ink)), (ink[2] - ink[0]) * (ink[3] - ink[1]))
         self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (0, 1))
         self.assertGreater(lr.badness(m), 0)
         self.assertIn("b under b.#1", d["label_covered_by_icon"][0])
-        # a bottom connector on a 200 x 200 block `b` covers 68.6 square units (45 at the default size)
+        # the reviewer's bottom connector on a 200 x 200 block `b` covers 68.6 square units of the line
+        # box, but only 2.8 of the text (18.3 at the default size): the rest is the padding over it
         dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 200, 200), ports=[(450, 1000, 550, 1100)])), {"b": (0, 0, 200, 200)})
-        (_t, lb), = dg.blocks[0].labels
-        self.assertAlmostEqual(lr.poly_area(lr.clip_poly_box(dg.glyphs[0].outline(), lb)), 68.6, delta=0.1)
+        L = dg.blocks[0].labels[0]
+        self.assertAlmostEqual(lr.poly_area(lr.clip_poly_box(dg.glyphs[0].outline(), L[1])), 68.6, delta=0.1)
+        self.assertAlmostEqual(lr.poly_area(lr.clip_poly_box(dg.glyphs[0].outline(), L.ink)), 2.8, delta=0.1)
+        self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (0, 0))
+        # one centred on the name covers 72.5 square units of its text at 200 x 200 (37.4 at the default size)
+        dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 200, 200), ports=[(450, 1050, 550, 1150)])), {"b": (0, 0, 200, 200)})
         self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (1, 0))
+        self.assertIn("its own: 73, 37 at the default size", d["label_covered"][0])
 
     def test_5_label_line_box_padding(self):
-        # RotDynamics: a wire at y = 1282 clips 0.225 units of the padding under a label centred at 1259.6
-        lb = lr.studio_label_box("w1w2", (0, 1282.225 - lr.LABEL_HEIGHT / 2))
+        # RotDynamics: a wire at y = 1282 clips 0.225 units of the padding under a label centred at 1259.6;
+        # the text ends 5.2 units above it, and the wire is 1.5 units wide
+        L = lr.studio_label("w1w2", (0, 1282.225 - lr.LABEL_HEIGHT / 2))
+        lb, ink = L[1], L.ink
         self.assertAlmostEqual(lb[3] - 1282, 0.225)
+        self.assertAlmostEqual(1282 - ink[3], 5.16, delta=0.01)
         self.assertGreater(lr.clip_len_in_box((-100, 1282), (100, 1282), lb), 1)  # the full box is hit
-        self.assertEqual(lr.clip_len_in_box((-100, 1282), (100, 1282), lr.label_ink(lb, (-100, 1282), (100, 1282))), 0)
+        self.assertEqual(lr.clip_len_in_box((-100, 1282), (100, 1282), lr.expand(ink, lr.WIRE_HALF)), 0)
         # through the text it is a hit, both ways
         c = ((lb[0] + lb[2]) / 2, (lb[1] + lb[3]) / 2)
         for p, q in (((-100, c[1]), (100, c[1])), ((c[0], 1000), (c[0], 1400))):
-            self.assertGreater(lr.clip_len_in_box(p, q, lr.label_ink(lb, p, q)), 1)
+            self.assertGreater(lr.clip_len_in_box(p, q, lr.expand(ink, lr.WIRE_HALF)), 1)
         # in a diagram: a port name with a wire through its padding, and through its middle
         src = {"w1w2": (0, 0, 100, 100)}
         _dg, (m, _d) = gm(gsvg(gport(src["w1w2"])), src)
@@ -862,6 +877,77 @@ metadata {"Dyad": {}, "_links": {"a": {"Dyad": {"placement": {"diagram": {"x1": 
 # with the counts the glyph checks must give. Every listed defect was checked against Dyad Studio's own
 # drawing (dyad-ui-shot); the clean ones look clean there. studio.json holds the geometry Studio drew
 # for them, read from its DOM, which the model must reproduce.
+
+class TextInk(unittest.TestCase):
+    """The review of f10d23f: label collisions are decided by the text's ink, not its line box."""
+
+    @staticmethod
+    def diagram(name):
+        with open(os.path.join(FIXTURES, "expected.json")) as f:
+            src = {k: tuple(v) for k, v in json.load(f)[name]["src_boxes"].items()}
+        dg = lr.parse_svg(fixture(name), src)
+        return dg, lr.compute_metrics(dg)
+
+    @staticmethod
+    def label(dg, block, text):
+        L, = [L for b in dg.blocks if b.name == block for L in b.labels if L[0] == text]
+        return L
+
+    def test_ink_in_the_line_box(self):
+        # Studio's label: a 2-unit top margin over a 1.4 em line box, Inter's baseline 19.06 below its top;
+        # `cap` reaches 9.83 above it ('c', 'a') and 3.67 below ('p')
+        L = lr.studio_label("cap", (1050, 360))
+        self.assertEqual(R(L[1]), R((1050 - lr.label_width("cap") / 2, 360 - lr.LABEL_HEIGHT / 2, 1050 + lr.label_width("cap") / 2, 360 + lr.LABEL_HEIGHT / 2)))
+        self.assertEqual(R(L.ink, 2), (1036.67, 357.81, 1063.28, 370.35))
+        # turned with its block: on its side clockwise (the letters' tops to the right, its margin too) or
+        # anticlockwise; on a half turn the text is upright again but its margin goes to the bottom
+        for turn, want in ((90, (-10.35, -13.33, 2.19, 13.28)), (180, (-13.33, -4.19, 13.28, 8.35)),
+                           (270, (-2.19, -13.28, 10.35, 13.33))):
+            self.assertEqual(R(lr.studio_label("cap", (0, 0), turn).ink, 2), want, turn)
+        # free text and an empty label
+        self.assertEqual(lr.Label("t", (0, 0, 5, 5)).ink, (0, 0, 5, 5))
+        self.assertEqual(lr.studio_label("", (3, 4)).ink, (3, 4, 3, 4))
+
+    def test_zoneroom_cap(self):
+        # PR #49 ZoneRoom: the `cap` port ends at y = 355, its name's letters start at 357.8; the 72 square
+        # units it covers of the line box are the padding over the text
+        dg, (m, d) = self.diagram("DynamicSteadyState.ZoneRoom")
+        L = self.label(dg, "cap", "cap")
+        g, = [g for g in dg.glyphs if g.owner == "cap"]
+        self.assertAlmostEqual(g.box[3], 355, places=6)
+        self.assertAlmostEqual(L.ink[1], 357.81, places=2)
+        self.assertAlmostEqual(lr.poly_area(lr.clip_poly_box(g.outline(), L[1])), 72.1, delta=0.1)
+        self.assertEqual(lr.poly_area(lr.clip_poly_box(g.outline(), L.ink)), 0)
+        self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (0, 0))
+        # the wire from that port does run down through the name
+        self.assertEqual(d["labels_hit_by_wires"], ["cap under cap->junction"])
+
+    def test_airdata_sos_sum(self):
+        # HL20 AirData: the wire at y = 720 runs through the line box of `sos_sum` (to 722.2), but its text
+        # ends at 718.3 ('_') and the 1.5-unit wire clears it
+        dg, (m, d) = self.diagram("HL20Demo.AirData")
+        L = self.label(dg, "sos_sum", "sos_sum")
+        self.assertAlmostEqual(L.ink[3], 718.34, places=2)
+        w = [w for w in dg.wires if any(p[1] == q[1] == 720 and min(p[0], q[0]) < L[1][0] < L[1][2] < max(p[0], q[0])
+                                        for p, q in zip(w.pts, w.pts[1:]))]
+        self.assertTrue(w)
+        self.assertEqual(m["labels_hit_by_wires"], 0)
+
+    def test_hl20mixer(self):
+        # HL20 Mixer: wires at y = 1370 and 520 run through the line boxes of `k = DBFMAX` (dbfmax),
+        # `dlr_lim` and `sb_low`, 3.2, 4.5 and 1.7 units from their text
+        dg, (m, _d) = self.diagram("HL20Demo.HL20Mixer")
+        for block, text, y, gap in (("dbfmax", "k = DBFMAX", 1370, 3.16), ("dlr_lim", "dlr_lim", 1370, 4.55),
+                                    ("sb_low", "sb_low", 520, 1.66)):
+            L = self.label(dg, block, text)
+            self.assertTrue(L[1][1] < y < L[1][3], text)
+            self.assertAlmostEqual(min(abs(y - L.ink[1]), abs(y - L.ink[3])), gap, delta=0.01)
+        self.assertEqual(m["labels_hit_by_wires"], 0)
+
+    def test_root_svg_paint_is_inherited(self):
+        art = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" stroke="#000" stroke-width="20"><path d="M40 40H60V60H40Z"/></svg>'
+        self.assertEqual(R(tuple(100 * v for v in lr.bbox(lr.art_ink(lr.ET.fromstring(art))))), (30, 30, 70, 70))
+
 
 FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
