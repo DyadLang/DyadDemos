@@ -14,139 +14,37 @@ body vector (0,1,0) must map to (-1,0,0). The old (buggy) wiring applied
 R^T and would have produced (0,-1,0) and (+1,0,0).
 """
 test component TestQuatDirection
-  rot_a = QuatToInertial() {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 800, "y1": 250, "y2": 1250}}}
-  }
-  rot_b = QuatToInertial() {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 800, "y1": 1900, "y2": 2900}}}
-  }
-  a_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 250, "y2": 350}}}
-  }
-  a_qx = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 400, "y2": 500}}}
-  }
-  a_qy = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 550, "y2": 650}}}
-  }
-  a_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 700, "y2": 800}}}
-  }
-  a_b1 = BlockComponents.Sources.Constant(k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 850, "y2": 950}}}
-  }
-  a_b2 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1000, "y2": 1100}}}
-  }
-  a_b3 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1150, "y2": 1250}}}
-  }
-  b_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1900, "y2": 2000}}}
-  }
-  b_qx = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2050, "y2": 2150}}}
-  }
-  b_qy = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2200, "y2": 2300}}}
-  }
-  b_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2350, "y2": 2450}}}
-  }
-  b_b1 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2500, "y2": 2600}}}
-  }
-  b_b2 = BlockComponents.Sources.Constant(k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2650, "y2": 2750}}}
-  }
-  b_b3 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2800, "y2": 2900}}}
-  }
+  rot_a = QuatToInertial() {"Dyad": {"placement": {"diagram": {"x1": 550, "y1": 150, "x2": 1250, "y2": 850}}}}
+  rot_b = QuatToInertial() {"Dyad": {"placement": {"diagram": {"x1": 550, "y1": 1850, "x2": 1250, "y2": 2550}}}}
+  a_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 135, "x2": 220, "y2": 235}}}}
+  a_qx = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "y1": 240, "x2": 350, "y2": 340}}}}
+  a_qy = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 380, "y1": 345, "x2": 480, "y2": 445}}}}
+  a_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 450, "x2": 220, "y2": 550}}}}
+  a_b1 = BlockComponents.Sources.Constant(k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "y1": 555, "x2": 350, "y2": 655}}}}
+  a_b2 = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 380, "y1": 660, "x2": 480, "y2": 760}}}}
+  a_b3 = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 765, "x2": 220, "y2": 865}}}}
+  b_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 1835, "x2": 220, "y2": 1935}}}}
+  b_qx = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "y1": 1940, "x2": 350, "y2": 2040}}}}
+  b_qy = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 380, "y1": 2045, "x2": 480, "y2": 2145}}}}
+  b_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 2150, "x2": 220, "y2": 2250}}}}
+  b_b1 = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "y1": 2255, "x2": 350, "y2": 2355}}}}
+  b_b2 = BlockComponents.Sources.Constant(k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 380, "y1": 2360, "x2": 480, "y2": 2460}}}}
+  b_b3 = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 2465, "x2": 220, "y2": 2565}}}}
 relations
-  connect(a_qw.y, rot_a.qw) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_qx.y, rot_a.qx) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 410, "y": 450}, {"x": 410, "y": 400}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_qy.y, rot_a.qy) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 430, "y": 600}, {"x": 430, "y": 500}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_qz.y, rot_a.qz) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 460, "y": 750}, {"x": 460, "y": 600}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_b1.y, rot_a.b1) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 470, "y": 900}, {"x": 470, "y": 800}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_b2.y, rot_a.b2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 490, "y": 1050}, {"x": 490, "y": 900}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_b3.y, rot_a.b3) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 510, "y": 1200}, {"x": 510, "y": 1000}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_qw.y, rot_b.qw) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_qx.y, rot_b.qx) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 410, "y": 2100}, {"x": 410, "y": 2050}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_qy.y, rot_b.qy) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 430, "y": 2250}, {"x": 430, "y": 2150}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_qz.y, rot_b.qz) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 460, "y": 2400}, {"x": 460, "y": 2250}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_b1.y, rot_b.b1) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 470, "y": 2550}, {"x": 470, "y": 2450}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_b2.y, rot_b.b2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 490, "y": 2700}, {"x": 490, "y": 2550}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_b3.y, rot_b.b3) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 510, "y": 2850}, {"x": 510, "y": 2650}], "E": 2}],
-      "path": {}
-    }
-  }
+  connect(a_qw.y, rot_a.qw) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(a_qx.y, rot_a.qx) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(a_qy.y, rot_a.qy) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(a_qz.y, rot_a.qz) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(a_b1.y, rot_a.b1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(a_b2.y, rot_a.b2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(a_b3.y, rot_a.b3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(b_qw.y, rot_b.qw) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(b_qx.y, rot_b.qx) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(b_qy.y, rot_b.qy) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(b_qz.y, rot_b.qz) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(b_b1.y, rot_b.b1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(b_b2.y, rot_b.b2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(b_b3.y, rot_b.b3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
 metadata {
   "Dyad": {
     "tests": {
@@ -184,130 +82,34 @@ vector for b = (3, -2, 5) is R*b = (2, 3, 5); applying the transpose twice
 (both rotations buggy the same way) would return (-3, 2, 5) instead.
 """
 test component TestQuatRoundTrip
-  rot_f = QuatToInertial() {
-    "Dyad": {"placement": {"diagram": {"x1": 550, "x2": 800, "y1": 250, "y2": 1250}}}
-  }
-  rot_b = QuatToBody() {
-    "Dyad": {"placement": {"diagram": {"x1": 1250, "x2": 1500, "y1": 900, "y2": 1900}}}
-  }
-  c_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 250, "y2": 350}}}
-  }
-  c_qx = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 400, "y2": 500}}}
-  }
-  c_qy = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 550, "y2": 650}}}
-  }
-  c_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 700, "y2": 800}}}
-  }
-  f_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 1060, "x2": 1160, "y1": 900, "y2": 1000}}}
-  }
-  f_qx = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1060, "x2": 1160, "y1": 1050, "y2": 1150}}}
-  }
-  f_qy = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 1060, "x2": 1160, "y1": 1200, "y2": 1300}}}
-  }
-  f_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 1060, "x2": 1160, "y1": 1350, "y2": 1450}}}
-  }
-  c_b1 = BlockComponents.Sources.Constant(k = 3.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 850, "y2": 950}}}
-  }
-  c_b2 = BlockComponents.Sources.Constant(k = -2.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1000, "y2": 1100}}}
-  }
-  c_b3 = BlockComponents.Sources.Constant(k = 5.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1150, "y2": 1250}}}
-  }
+  rot_f = QuatToInertial() {"Dyad": {"placement": {"diagram": {"x1": 550, "y1": 150, "x2": 1250, "y2": 850}}}}
+  rot_b = QuatToBody() {"Dyad": {"placement": {"diagram": {"x1": 550, "y1": 1850, "x2": 1250, "y2": 2550}}}}
+  c_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 135, "x2": 220, "y2": 235}}}}
+  c_qx = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "y1": 240, "x2": 350, "y2": 340}}}}
+  c_qy = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 380, "y1": 345, "x2": 480, "y2": 445}}}}
+  c_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 450, "x2": 220, "y2": 550}}}}
+  f_qw = BlockComponents.Sources.Constant(k = 0.7071067811865476) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 1835, "x2": 220, "y2": 1935}}}}
+  f_qx = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "y1": 1940, "x2": 350, "y2": 2040}}}}
+  f_qy = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 380, "y1": 2045, "x2": 480, "y2": 2145}}}}
+  f_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 2150, "x2": 220, "y2": 2250}}}}
+  c_b1 = BlockComponents.Sources.Constant(k = 3.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "y1": 555, "x2": 350, "y2": 655}}}}
+  c_b2 = BlockComponents.Sources.Constant(k = -2.0) {"Dyad": {"placement": {"diagram": {"x1": 380, "y1": 660, "x2": 480, "y2": 760}}}}
+  c_b3 = BlockComponents.Sources.Constant(k = 5.0) {"Dyad": {"placement": {"diagram": {"x1": 120, "y1": 765, "x2": 220, "y2": 865}}}}
 relations
-  connect(c_qw.y, rot_f.qw) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_qx.y, rot_f.qx) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 410, "y": 450}, {"x": 410, "y": 400}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_qy.y, rot_f.qy) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 430, "y": 600}, {"x": 430, "y": 500}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_qz.y, rot_f.qz) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 460, "y": 750}, {"x": 460, "y": 600}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_b1.y, rot_f.b1) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 470, "y": 900}, {"x": 470, "y": 800}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_b2.y, rot_f.b2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 490, "y": 1050}, {"x": 490, "y": 900}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_b3.y, rot_f.b3) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 510, "y": 1200}, {"x": 510, "y": 1000}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(f_qw.y, rot_b.qw) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(f_qx.y, rot_b.qx) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1180, "y": 1100}, {"x": 1180, "y": 1050}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(f_qy.y, rot_b.qy) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1170, "y": 1250}, {"x": 1170, "y": 1150}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(f_qz.y, rot_b.qz) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 1190, "y": 1400}, {"x": 1190, "y": 1250}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(rot_f.v1, rot_b.v1) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 950, "y": 500}, {"x": 950, "y": 1450}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(rot_f.v2, rot_b.v2) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 920, "y": 700}, {"x": 920, "y": 1550}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(rot_f.v3, rot_b.v3) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 890, "y": 900}, {"x": 890, "y": 1650}], "E": 2}],
-      "path": {}
-    }
-  }
+  connect(c_qw.y, rot_f.qw) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(c_qx.y, rot_f.qx) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(c_qy.y, rot_f.qy) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(c_qz.y, rot_f.qz) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(c_b1.y, rot_f.b1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(c_b2.y, rot_f.b2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(c_b3.y, rot_f.b3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(f_qw.y, rot_b.qw) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(f_qx.y, rot_b.qx) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(f_qy.y, rot_b.qy) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(f_qz.y, rot_b.qz) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(rot_f.v1, rot_b.v1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1290, "y": 325}, {"x": 1290, "y": 2620}, {"x": 520, "y": 2620}, {"x": 520, "y": 2305}], "E": 2}], "path": {}}}
+  connect(rot_f.v2, rot_b.v2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1280, "y": 465}, {"x": 1280, "y": 2590}, {"x": 530, "y": 2590}, {"x": 530, "y": 2410}], "E": 2}], "path": {}}}
+  connect(rot_f.v3, rot_b.v3) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1270, "y": 605}, {"x": 1270, "y": 2560}, {"x": 540, "y": 2560}, {"x": 540, "y": 2515}], "E": 2}], "path": {}}}
 metadata {
   "Dyad": {
     "tests": {
@@ -352,18 +154,10 @@ Expected values come from the spec arithmetic, not from the model. The old
 (buggy) wiring gave DUFDE = DLEC + 15 above -15, i.e. +14.08 at trim.
 """
 test component TestMixerAssist
-  mix_t = HL20Mixer() {
-    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 575, "y1": 600, "y2": 700}}}
-  }
-  mix_b = HL20Mixer() {
-    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 575, "y1": 1600, "y2": 1700}}}
-  }
-  mix_e = HL20Mixer() {
-    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 575, "y1": 2600, "y2": 2700}}}
-  }
-  mix_a = HL20Mixer() {
-    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 575, "y1": 3600, "y2": 3700}}}
-  }
+  mix_t = HL20Mixer() {"Dyad": {"placement": {"diagram": {"x1": 475, "y1": 450, "x2": 875, "y2": 850}}}}
+  mix_b = HL20Mixer() {"Dyad": {"placement": {"diagram": {"x1": 475, "y1": 1450, "x2": 875, "y2": 1850}}}}
+  mix_e = HL20Mixer() {"Dyad": {"placement": {"diagram": {"x1": 475, "y1": 2450, "x2": 875, "y2": 2850}}}}
+  mix_a = HL20Mixer() {"Dyad": {"placement": {"diagram": {"x1": 475, "y1": 3450, "x2": 875, "y2": 3850}}}}
   t_dec = BlockComponents.Sources.Constant(k = 5.5) {
     "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 200, "y2": 300}}}
   }
@@ -413,102 +207,22 @@ test component TestMixerAssist
     "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 3950, "y2": 4050}}}
   }
 relations
-  connect(t_dec.y, mix_t.DECMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 460, "y": 250}, {"x": 460, "y": 615}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(t_dac.y, mix_t.DACMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 445, "y": 500}, {"x": 445, "y": 635}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(t_drc.y, mix_t.DRCMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 385, "y": 750}, {"x": 385, "y": 655}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(t_dsb.y, mix_t.DSBCMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 400, "y": 1000}, {"x": 400, "y": 675}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_dec.y, mix_b.DECMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 460, "y": 1250}, {"x": 460, "y": 1614.9999999999998}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_dac.y, mix_b.DACMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 445, "y": 1500}, {"x": 445, "y": 1635.0000000000002}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_drc.y, mix_b.DRCMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 385, "y": 1750}, {"x": 385, "y": 1655}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(b_dsb.y, mix_b.DSBCMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 400, "y": 2000}, {"x": 400, "y": 1675}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(e_dec.y, mix_e.DECMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 460, "y": 2250}, {"x": 460, "y": 2615}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(e_dac.y, mix_e.DACMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 445, "y": 2500}, {"x": 445, "y": 2635}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(e_drc.y, mix_e.DRCMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 385, "y": 2750}, {"x": 385, "y": 2655}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(e_dsb.y, mix_e.DSBCMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 400, "y": 3000}, {"x": 400, "y": 2675}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_dec.y, mix_a.DECMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 460, "y": 3250}, {"x": 460, "y": 3615}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_dac.y, mix_a.DACMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 445, "y": 3500}, {"x": 445, "y": 3635}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_drc.y, mix_a.DRCMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 385, "y": 3750}, {"x": 385, "y": 3654.9999999999995}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(a_dsb.y, mix_a.DSBCMD) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 400, "y": 4000}, {"x": 400, "y": 3675}], "E": 2}],
-      "path": {}
-    }
-  }
+  connect(t_dec.y, mix_t.DECMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 465, "y": 250}, {"x": 465, "y": 510}], "E": 2}], "path": {}}}
+  connect(t_dac.y, mix_t.DACMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 455, "y": 500}, {"x": 455, "y": 590}], "E": 2}], "path": {}}}
+  connect(t_drc.y, mix_t.DRCMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 435, "y": 750}, {"x": 435, "y": 670}], "E": 2}], "path": {}}}
+  connect(t_dsb.y, mix_t.DSBCMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 445, "y": 1000}, {"x": 445, "y": 750}], "E": 2}], "path": {}}}
+  connect(b_dec.y, mix_b.DECMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 465, "y": 1250}, {"x": 465, "y": 1510}], "E": 2}], "path": {}}}
+  connect(b_dac.y, mix_b.DACMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 455, "y": 1500}, {"x": 455, "y": 1590}], "E": 2}], "path": {}}}
+  connect(b_drc.y, mix_b.DRCMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 435, "y": 1750}, {"x": 435, "y": 1670}], "E": 2}], "path": {}}}
+  connect(b_dsb.y, mix_b.DSBCMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 445, "y": 2000}, {"x": 445, "y": 1750}], "E": 2}], "path": {}}}
+  connect(e_dec.y, mix_e.DECMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 465, "y": 2250}, {"x": 465, "y": 2510}], "E": 2}], "path": {}}}
+  connect(e_dac.y, mix_e.DACMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 455, "y": 2500}, {"x": 455, "y": 2590}], "E": 2}], "path": {}}}
+  connect(e_drc.y, mix_e.DRCMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 435, "y": 2750}, {"x": 435, "y": 2670}], "E": 2}], "path": {}}}
+  connect(e_dsb.y, mix_e.DSBCMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 445, "y": 3000}, {"x": 445, "y": 2750}], "E": 2}], "path": {}}}
+  connect(a_dec.y, mix_a.DECMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 465, "y": 3250}, {"x": 465, "y": 3510}], "E": 2}], "path": {}}}
+  connect(a_dac.y, mix_a.DACMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 455, "y": 3500}, {"x": 455, "y": 3590}], "E": 2}], "path": {}}}
+  connect(a_drc.y, mix_a.DRCMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 435, "y": 3750}, {"x": 435, "y": 3670}], "E": 2}], "path": {}}}
+  connect(a_dsb.y, mix_a.DSBCMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 445, "y": 4000}, {"x": 445, "y": 3750}], "E": 2}], "path": {}}}
 metadata {
   "Dyad": {
     "tests": {

@@ -43,7 +43,9 @@ AeroLongitudinal 46→46, AeroLateralCoeffs 60→55, QuatKinematics 65→55,
 QuatToDCM 62→25, FlightState 25→9, HL20Vehicle 128→119, HL20FullSystem
 73→62, TestControllers 23→1 (AeroCLCD and AeroLongitudinal were re-laid
 and held at 45 and 46) — with every non-crossing defect class at zero on
-all 43 diagrams.
+all 43 diagrams except six structural label/wire contacts on five
+diagrams (a bottom-edge pin above its own block's name-label band),
+listed in the metrics section below.
 
 ## New component hierarchy
 
@@ -153,11 +155,6 @@ Exceptions above the ~80-crossing target, one line each:
   orders disagree); the layouts sit at or near that floor.
 - **HL20Mixer (33), QuatToDCM (25)** — residual fan-in crossings at the
   planarity floor for their fixed pin orders.
-
-`AeroPointAero` (the equation-level component embedded in
-`TestAeroPoint.dyad` for reference comparison) is a helper component, not
-one of the 43 public diagrams; it is excluded from the gate count and
-the screenshot set.
 
 ## Review items fixed in this pass
 
