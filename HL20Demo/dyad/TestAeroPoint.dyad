@@ -15,7 +15,7 @@ test component TestAeroPoint
   }
   c_beta = BlockComponents.Sources.Constant(k = beta_k) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1175, "y2": 1275}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1175, "y2": 1275}}
     }
   }
   c_mach = BlockComponents.Sources.Constant(k = mach_k) {
@@ -25,7 +25,7 @@ test component TestAeroPoint
   }
   c_vrw = BlockComponents.Sources.Constant(k = vrw_k) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1475, "y2": 1575}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1475, "y2": 1575}}
     }
   }
   c_hob = BlockComponents.Sources.Constant(k = hob_k) {
@@ -35,20 +35,20 @@ test component TestAeroPoint
   }
   c_pb = BlockComponents.Sources.Constant(k = pb_k) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1775, "y2": 1875}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1775, "y2": 1875}}
     }
   }
   c_qb = BlockComponents.Sources.Constant(k = qb_k) {
     "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1925, "y2": 2025}}}
   }
   c_rb = BlockComponents.Sources.Constant(k = rb_k) {
-    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2075, "y2": 2175}}}
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2075, "y2": 2175}}}
   }
   c_dbful = BlockComponents.Sources.Constant(k = dbful_k) {
     "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2600, "y2": 2700}}}
   }
   c_dbfur = BlockComponents.Sources.Constant(k = dbfur_k) {
-    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2750, "y2": 2850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2750, "y2": 2850}}}
   }
   c_dbfll = BlockComponents.Sources.Constant(k = dbfll_k) {
     "Dyad": {
@@ -57,7 +57,7 @@ test component TestAeroPoint
   }
   c_dbflr = BlockComponents.Sources.Constant(k = dbflr_k) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3050, "y2": 3150}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 3050, "y2": 3150}}
     }
   }
   c_dwfl = BlockComponents.Sources.Constant(k = dwfl_k) {
@@ -67,7 +67,7 @@ test component TestAeroPoint
   }
   c_dwfr = BlockComponents.Sources.Constant(k = dwfr_k) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3350, "y2": 3450}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 3350, "y2": 3450}}
     }
   }
   c_drud = BlockComponents.Sources.Constant(k = drud_k) {

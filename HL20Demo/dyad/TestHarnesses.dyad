@@ -4,22 +4,22 @@ test component TestGravityOnly
     "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 675, "y1": 525, "y2": 1325}}}
   }
   z1 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 500, "y2": 600}}}
+    "Dyad": {"placement": {"diagram": {"x1": 215, "x2": 315, "y1": 500, "y2": 600}}}
   }
   z2 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 325, "x2": 425, "y1": 600, "y2": 700}}}
+    "Dyad": {"placement": {"diagram": {"x1": 335, "x2": 435, "y1": 600, "y2": 700}}}
   }
   z3 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 675, "y2": 775}}}
+    "Dyad": {"placement": {"diagram": {"x1": 215, "x2": 315, "y1": 675, "y2": 775}}}
   }
   z4 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 325, "x2": 425, "y1": 800, "y2": 900}}}
+    "Dyad": {"placement": {"diagram": {"x1": 335, "x2": 435, "y1": 800, "y2": 900}}}
   }
   z5 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 225, "x2": 325, "y1": 875, "y2": 975}}}
+    "Dyad": {"placement": {"diagram": {"x1": 215, "x2": 315, "y1": 875, "y2": 975}}}
   }
   z6 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 325, "x2": 425, "y1": 950, "y2": 1050}}}
+    "Dyad": {"placement": {"diagram": {"x1": 335, "x2": 435, "y1": 950, "y2": 1050}}}
   }
 relations
   connect(z1.y, body.F1) {
@@ -103,7 +103,7 @@ test component TestAeroSweep
   }
   c_beta = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1175, "y2": 1275}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1175, "y2": 1275}}
     }
   }
   c_mach = BlockComponents.Sources.Constant(k = 0.2) {
@@ -113,7 +113,7 @@ test component TestAeroSweep
   }
   c_vrw = BlockComponents.Sources.Constant(k = 223.3) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1475, "y2": 1575}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1475, "y2": 1575}}
     }
   }
   c_hob = BlockComponents.Sources.Constant(k = 100.0) {
@@ -123,20 +123,20 @@ test component TestAeroSweep
   }
   c_pb = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1775, "y2": 1875}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1775, "y2": 1875}}
     }
   }
   c_qb = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1925, "y2": 2025}}}
   }
   c_rb = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2075, "y2": 2175}}}
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2075, "y2": 2175}}}
   }
   c_dbful = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2600, "y2": 2700}}}
   }
   c_dbfur = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2750, "y2": 2850}}}
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2750, "y2": 2850}}}
   }
   c_dbfll = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
@@ -145,7 +145,7 @@ test component TestAeroSweep
   }
   c_dbflr = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3050, "y2": 3150}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 3050, "y2": 3150}}
     }
   }
   c_dwfl = BlockComponents.Sources.Constant(k = 0.0) {
@@ -155,7 +155,7 @@ test component TestAeroSweep
   }
   c_dwfr = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {
-      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3350, "y2": 3450}}
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 3350, "y2": 3450}}
     }
   }
   c_drud = BlockComponents.Sources.Constant(k = 0.0) {

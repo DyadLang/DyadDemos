@@ -24,19 +24,19 @@ test component TestQuatDirection
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 250, "y2": 350}}}
   }
   a_qx = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 400, "y2": 500}}}
+    "Dyad": {"placement": {"diagram": {"x1": 50, "x2": 150, "y1": 400, "y2": 500}}}
   }
   a_qy = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 550, "y2": 650}}}
   }
   a_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 700, "y2": 800}}}
+    "Dyad": {"placement": {"diagram": {"x1": 50, "x2": 150, "y1": 700, "y2": 800}}}
   }
   a_b1 = BlockComponents.Sources.Constant(k = 1.0) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 850, "y2": 950}}}
   }
   a_b2 = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1000, "y2": 1100}}}
+    "Dyad": {"placement": {"diagram": {"x1": 50, "x2": 150, "y1": 1000, "y2": 1100}}}
   }
   a_b3 = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1150, "y2": 1250}}}
@@ -45,19 +45,19 @@ test component TestQuatDirection
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1900, "y2": 2000}}}
   }
   b_qx = BlockComponents.Sources.Constant(k = 0.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2050, "y2": 2150}}}
+    "Dyad": {"placement": {"diagram": {"x1": 50, "x2": 150, "y1": 2050, "y2": 2150}}}
   }
   b_qy = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2200, "y2": 2300}}}
   }
   b_qz = BlockComponents.Sources.Constant(k = 0.7071067811865476) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2350, "y2": 2450}}}
+    "Dyad": {"placement": {"diagram": {"x1": 50, "x2": 150, "y1": 2350, "y2": 2450}}}
   }
   b_b1 = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2500, "y2": 2600}}}
   }
   b_b2 = BlockComponents.Sources.Constant(k = 1.0) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2650, "y2": 2750}}}
+    "Dyad": {"placement": {"diagram": {"x1": 50, "x2": 150, "y1": 2650, "y2": 2750}}}
   }
   b_b3 = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2800, "y2": 2900}}}
