@@ -1,0 +1,1406 @@
+# HL-20 aero sub-assemblies. Groupings of the coefficient buildup blocks used
+# inside `HL20Aero` so the top-level diagram stays readable: `AeroAirData`
+# conditions the shared air-data/damping inputs, `AeroLongitudinal` builds the
+# longitudinal coefficients (CL, CD, Cm and the stability-to-body axis rotation
+# into CX, CZ), and `AeroLateralCoeffs` builds the lateral-directional
+# coefficients (CY, Cl, Cn).
+"""
+Shared air-data conditioning: |DRUD| and the damping factors b/(2V), c/(2V)
+with division safety (V + 0.1 floor).
+"""
+component AeroAirData
+  "Wind-relative velocity (fps)"
+  vrw_fps = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}
+      }
+    }
+  }
+  "Rudder deflection (deg)"
+  DRUD = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230},
+        "diagram": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}
+      }
+    }
+  }
+  "Rudder deflection magnitude (deg)"
+  abs_drud = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80},
+        "diagram": {"x1": 1120, "x2": 1180, "y1": 20, "y2": 80}
+      }
+    }
+  }
+  "Span damping factor b/(2 V)"
+  damp_b2v = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 170, "x2": 1030, "y2": 230},
+        "diagram": {"x1": 1120, "x2": 1180, "y1": 170, "y2": 230}
+      }
+    }
+  }
+  "Chord damping factor cbar/(2 V)"
+  damp_c2v = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380},
+        "diagram": {"x1": 1120, "x2": 1180, "y1": 320, "y2": 380}
+      }
+    }
+  }
+  "Reference chord (ft)"
+  parameter CBAR_ft::Real = 28.24
+  "Reference span (ft)"
+  parameter BSPAN_ft::Real = 13.89
+  abs_d = BlockComponents.Math.Abs() {
+    "Dyad": {"placement": {"diagram": {"x1": 350, "x2": 450, "y1": 100, "y2": 200}}}
+  }
+  v_eps = BlockComponents.Sources.Constant(k = 0.1) {
+    "Dyad": {"placement": {"diagram": {"x1": 100, "x2": 200, "y1": 400, "y2": 500}}}
+  }
+  vrw_denom = BlockComponents.Math.Add() {
+    "Dyad": {"placement": {"diagram": {"x1": 350, "x2": 450, "y1": 250, "y2": 350}}}
+  }
+  bspan_2 = BlockComponents.Sources.Constant(k = BSPAN_ft / 2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 100, "y2": 200}}}
+  }
+  cbar_2 = BlockComponents.Sources.Constant(k = CBAR_ft / 2.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 600, "x2": 700, "y1": 350, "y2": 450}}}
+  }
+  damp_b = BlockComponents.Math.Division() {
+    "Dyad": {"placement": {"diagram": {"x1": 850, "x2": 950, "y1": 100, "y2": 200}}}
+  }
+  damp_c = BlockComponents.Math.Division() {
+    "Dyad": {"placement": {"diagram": {"x1": 850, "x2": 950, "y1": 350, "y2": 450}}}
+  }
+relations
+  connect(DRUD, abs_d.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 300, "y": 50}, {"x": 300, "y": 150}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(vrw_fps, vrw_denom.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 300, "y": 200}, {"x": 300, "y": 270}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v_eps.y, vrw_denom.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 300, "y": 450}, {"x": 300, "y": 330}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(bspan_2.y, damp_b.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 800, "y": 150}, {"x": 800, "y": 120}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(cbar_2.y, damp_c.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 800, "y": 400}, {"x": 800, "y": 370}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(vrw_denom.y, damp_b.u2, damp_c.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1100, "y": 300}], "E": -1}, {"S": 2, "M": [{"x": 800, "y": 180}, {"x": 800, "y": 250}, {"x": 1100, "y": 250}], "E": -1}, {"S": 3, "M": [{"x": 800, "y": 430}, {"x": 800, "y": 500}, {"x": 525, "y": 500}, {"x": 525, "y": 300}, {"x": 1100, "y": 300}], "E": -1}],
+      "junctions": [{"x": 1100, "y": 307.1428571428571}],
+      "path": {}
+    }
+  }
+  connect(abs_d.y, abs_drud) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 500, "y": 150}, {"x": 500, "y": 50}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(damp_b.y, damp_b2v) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 1150, "y": 150}], "E": 2}], "path": {}}
+  }
+  connect(damp_c.y, damp_c2v) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 1150, "y": 400}], "E": 2}], "path": {}}
+  }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/aero_air.svg"}}}
+end
+
+"""
+Lift/drag coefficient pair: the CL and CD buildup blocks behind one icon so
+the shared input fanout is only two pins deep.
+"""
+component AeroCLCD
+  "Angle of attack (deg)"
+  alpha_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80}, "diagram": {"x1": -50, "x2": 50, "y1": 150.0, "y2": 250.0}}}}
+  "Mach number"
+  mach = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180}, "diagram": {"x1": 70, "x2": 170, "y1": 300.0, "y2": 400.0}}}}
+  "Height over body span (ground effect)"
+  hob = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": 190, "x2": 290, "y1": 450.0, "y2": 550.0}}}}
+  "Left body flap deflection (deg)"
+  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380}, "diagram": {"x1": 310, "x2": 410, "y1": 600.0, "y2": 700.0}}}}
+  "Right body flap deflection (deg)"
+  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": 430, "x2": 530, "y1": 750.0, "y2": 850.0}}}}
+  "Upper left body flap deflection (deg)"
+  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": 550, "x2": 650, "y1": 900.0000000000001, "y2": 1000.0000000000001}}}}
+  "Upper right body flap deflection (deg)"
+  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": 670, "x2": 770, "y1": 1050.0, "y2": 1150.0}}}}
+  "Left wing flap deflection (deg)"
+  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": 790, "x2": 890, "y1": 1200.0, "y2": 1300.0}}}}
+  "Right wing flap deflection (deg)"
+  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 820, "x2": 30, "y2": 880}, "diagram": {"x1": 910, "x2": 1010, "y1": 1350.0, "y2": 1450.0}}}}
+  "Rudder deflection magnitude (deg)"
+  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 920, "x2": 30, "y2": 980}, "diagram": {"x1": 1030, "x2": 1130, "y1": 1500.0, "y2": 1600.0}}}}
+  "Total lift coefficient"
+  cl_y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480}, "diagram": {"x1": 2920, "x2": 2980, "y1": 845, "y2": 905}}}}
+  "Total drag coefficient"
+  cd_y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680}, "diagram": {"x1": 2920, "x2": 2980, "y1": 2520, "y2": 2580}}}}
+  "Landing gear deflection (deg)"
+  parameter DLG::Real = 0.0
+  cl = HL20CL(DLG = DLG) {"Dyad": {"placement": {"diagram": {"x1": 1400, "x2": 2400, "y1": 125, "y2": 1625}}}}
+  cd = HL20CD(DLG = DLG) {"Dyad": {"placement": {"diagram": {"x1": 1400, "x2": 2400, "y1": 2150, "y2": 3650}}}}
+relations
+                connect(alpha_deg, cl.alpha_deg, cd.alpha_deg) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1390, "y": 2225.0}, {"x": 1390, "y": 1865}, {"x": 70, "y": 1865}], "E": -1}], "path": {}, "junctions": [{"x": 70, "y": 200.0}]}}
+                connect(mach, cl.mach, cd.mach) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1365, "y": 2375.0}, {"x": 1365, "y": 1840}, {"x": 190, "y": 1840}], "E": -1}], "path": {}, "junctions": [{"x": 190, "y": 350.0}]}}
+                connect(hob, cl.hob, cd.hob) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1340, "y": 2525.0}, {"x": 1340, "y": 1815}, {"x": 310, "y": 1815}], "E": -1}], "path": {}, "junctions": [{"x": 310, "y": 500.0}]}}
+                connect(DBFLL, cl.DBFLL, cd.DBFLL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1315, "y": 2675.0}, {"x": 1315, "y": 1790}, {"x": 430, "y": 1790}], "E": -1}], "path": {}, "junctions": [{"x": 430, "y": 650.0}]}}
+                connect(DBFLR, cl.DBFLR, cd.DBFLR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1290, "y": 2825.0}, {"x": 1290, "y": 1765}, {"x": 550, "y": 1765}], "E": -1}], "path": {}, "junctions": [{"x": 550, "y": 800.0}]}}
+                connect(DBFUL, cl.DBFUL, cd.DBFUL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1265, "y": 2975.0}, {"x": 1265, "y": 1740}, {"x": 670, "y": 1740}], "E": -1}], "path": {}, "junctions": [{"x": 670, "y": 950.0000000000001}]}}
+                connect(DBFUR, cl.DBFUR, cd.DBFUR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1240, "y": 3125.0}, {"x": 1240, "y": 1715}, {"x": 790, "y": 1715}], "E": -1}], "path": {}, "junctions": [{"x": 790, "y": 1100.0}]}}
+                connect(DWFL, cl.DWFL, cd.DWFL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1215, "y": 3275.0}, {"x": 1215, "y": 1690}, {"x": 910, "y": 1690}], "E": -1}], "path": {}, "junctions": [{"x": 910, "y": 1250.0}]}}
+                connect(DWFR, cl.DWFR, cd.DWFR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1190, "y": 3425.0}, {"x": 1190, "y": 1665}, {"x": 1030, "y": 1665}], "E": -1}], "path": {}, "junctions": [{"x": 1030, "y": 1400.0}]}}
+                connect(abs_drud, cl.abs_drud, cd.abs_drud) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [], "E": -1}, {"S": 3, "M": [{"x": 1165, "y": 3575.0}, {"x": 1165, "y": 1640}, {"x": 1150, "y": 1640}], "E": -1}], "path": {}, "junctions": [{"x": 1150, "y": 1550.0}]}}
+  connect(cl.y, cl_y) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2700, "y": 875}], "E": 2}], "path": {}} }
+  connect(cd.y, cd_y) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2700, "y": 2900}, {"x": 2700, "y": 2550}], "E": 2}], "path": {}} }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/aero_clcd.svg"}}}
+end
+
+"""
+Side-force/yaw coefficient pair: the CY and Cn buildup blocks behind one icon
+so the shared input fanout is only two pins deep.
+"""
+component AeroCYCN
+  "Angle of attack (deg)"
+  alpha_deg = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}
+      }
+    }
+  }
+  "Sideslip angle (deg)"
+  beta_deg = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}
+      }
+    }
+  }
+  "Mach number"
+  mach = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}
+      }
+    }
+  }
+  "Height over body span (ground effect)"
+  hob = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380},
+        "diagram": {"x1": -30, "x2": 30, "y1": 470, "y2": 530}
+      }
+    }
+  }
+  "Left body flap deflection (deg)"
+  DBFLL = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 620, "y2": 680}
+      }
+    }
+  }
+  "Right body flap deflection (deg)"
+  DBFLR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 770, "y2": 830}
+      }
+    }
+  }
+  "Upper left body flap deflection (deg)"
+  DBFUL = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 920, "y2": 980}
+      }
+    }
+  }
+  "Upper right body flap deflection (deg)"
+  DBFUR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1070, "y2": 1130}
+      }
+    }
+  }
+  "Left wing flap deflection (deg)"
+  DWFL = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 820, "x2": 30, "y2": 880},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1220, "y2": 1280}
+      }
+    }
+  }
+  "Right wing flap deflection (deg)"
+  DWFR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 920, "x2": 30, "y2": 980},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1370, "y2": 1430}
+      }
+    }
+  }
+  "Rudder deflection magnitude (deg)"
+  abs_drud = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 70, "y1": 970, "x2": 130, "y2": 1030},
+        "diagram": {"x1": 1670, "x2": 1730, "y1": 2970, "y2": 3030}
+      }
+    }
+  }
+  "Body roll rate (rad/s)"
+  pb = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 270, "y1": 970, "x2": 330, "y2": 1030},
+        "diagram": {"x1": 1870, "x2": 1930, "y1": 2970, "y2": 3030}
+      }
+    }
+  }
+  "Body yaw rate (rad/s)"
+  rb = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 470, "y1": 970, "x2": 530, "y2": 1030},
+        "diagram": {"x1": 2070, "x2": 2130, "y1": 2970, "y2": 3030}
+      }
+    }
+  }
+  "Span damping factor b/(2 V)"
+  damp_b2v = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 670, "y1": 970, "x2": 730, "y2": 1030},
+        "diagram": {"x1": 2270, "x2": 2330, "y1": 2970, "y2": 3030}
+      }
+    }
+  }
+  "Side-force coefficient"
+  cy_y = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 370, "x2": 1030, "y2": 430},
+        "diagram": {"x1": 3020, "x2": 3080, "y1": 570, "y2": 630}
+      }
+    }
+  }
+  "Yawing-moment coefficient"
+  cn_y = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 570, "x2": 1030, "y2": 630},
+        "diagram": {"x1": 3020, "x2": 3080, "y1": 1970, "y2": 2030}
+      }
+    }
+  }
+  "Landing gear deflection (deg)"
+  parameter DLG::Real = 0.0
+  "Yaw damping (p) polynomial coefficients"
+  parameter CNP0::Real = 0.40031
+  parameter CNP1::Real = -0.015518
+  parameter CNP2::Real = -0.00012143
+  parameter CNP3::Real = 0.000018240
+  "Yaw damping (r) polynomial coefficients"
+  parameter CNR0::Real = -0.79533
+  parameter CNR1::Real = -0.012647
+  parameter CNR2::Real = 0.00032696
+  parameter CNR3::Real = -0.0000065929
+  cy = HL20CY(DLG = DLG) {
+    "Dyad": {"placement": {"diagram": {"x1": 1600, "x2": 2600, "y1": 100, "y2": 1100}}}
+  }
+  cn = HL20CN(DLG = DLG, CNP0 = CNP0, CNP1 = CNP1, CNP2 = CNP2, CNP3 = CNP3, CNR0 = CNR0, CNR1 = CNR1, CNR2 = CNR2, CNR3 = CNR3) {
+    "Dyad": {"placement": {"diagram": {"x1": 1600, "x2": 2600, "y1": 1500, "y2": 2500}}}
+  }
+relations
+          connect(alpha_deg, cy.alpha_deg, cn.alpha_deg) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 200, "y": 150.0}], "E": -1}, {"S": 3, "M": [{"x": 1400, "y": 1550.0}, {"x": 1400, "y": 50.0}], "E": -1}], "path": {}, "junctions": [{"x": 200, "y": 50.0}]}}
+          connect(beta_deg, cy.beta_deg, cn.beta_deg) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 250, "y": 250.0}], "E": -1}, {"S": 3, "M": [{"x": 1350, "y": 1650.0}, {"x": 1350, "y": 200.0}], "E": -1}], "path": {}, "junctions": [{"x": 250, "y": 200.0}]}}
+          connect(mach, cy.mach, cn.mach) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 300, "y": 350.0}], "E": -1}, {"S": 3, "M": [{"x": 1300, "y": 1750.0}, {"x": 1300, "y": 350.0}], "E": -1}], "path": {}, "junctions": [{"x": 300, "y": 350.0}]}}
+          connect(hob, cy.hob, cn.hob) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 350, "y": 450.0}], "E": -1}, {"S": 3, "M": [{"x": 1250, "y": 1850.0}, {"x": 1250, "y": 500.0}], "E": -1}], "path": {}, "junctions": [{"x": 350, "y": 500.0}]}}
+          connect(DBFLL, cy.DBFLL, cn.DBFLL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 400, "y": 550.0}], "E": -1}, {"S": 3, "M": [{"x": 1200, "y": 1950.0}, {"x": 1200, "y": 700}, {"x": 400, "y": 700}], "E": -1}], "path": {}, "junctions": [{"x": 400, "y": 650.0}]}}
+          connect(DBFLR, cy.DBFLR, cn.DBFLR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 450, "y": 650.0}], "E": -1}, {"S": 3, "M": [{"x": 1150, "y": 2050.0}, {"x": 1150, "y": 800.0}], "E": -1}], "path": {}, "junctions": [{"x": 450, "y": 800.0}]}}
+          connect(DBFUL, cy.DBFUL, cn.DBFUL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 500, "y": 750.0}], "E": -1}, {"S": 3, "M": [{"x": 1100, "y": 2150.0}, {"x": 1100, "y": 900}, {"x": 500, "y": 900}], "E": -1}], "path": {}, "junctions": [{"x": 500, "y": 950.0}]}}
+          connect(DBFUR, cy.DBFUR, cn.DBFUR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 550, "y": 850.0}], "E": -1}, {"S": 3, "M": [{"x": 1050, "y": 2250.0}, {"x": 1050, "y": 1100.0}], "E": -1}], "path": {}, "junctions": [{"x": 550, "y": 1100.0}]}}
+          connect(DWFL, cy.DWFL, cn.DWFL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 600, "y": 950.0}], "E": -1}, {"S": 3, "M": [{"x": 1000, "y": 2350.0}, {"x": 1000, "y": 1250.0}], "E": -1}], "path": {}, "junctions": [{"x": 600, "y": 1250.0}]}}
+          connect(DWFR, cy.DWFR, cn.DWFR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 650, "y": 1050.0}], "E": -1}, {"S": 3, "M": [{"x": 950, "y": 2450.0}, {"x": 950, "y": 1400.0}], "E": -1}], "path": {}, "junctions": [{"x": 650, "y": 1400.0}]}}
+          connect(abs_drud, cy.abs_drud, cn.abs_drud) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 1800, "y": 1350}, {"x": 2650, "y": 1350}, {"x": 2650, "y": 2940}, {"x": 1700, "y": 2940}], "E": -1}, {"S": 3, "M": [{"x": 1700, "y": 2560}, {"x": 1640, "y": 2560}, {"x": 1640, "y": 2940}], "E": -1}], "path": {}, "junctions": [{"x": 1700, "y": 2940}]}}
+  connect(pb, cn.pb) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(rb, cn.rb) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2100, "y": 2720}, {"x": 2250, "y": 2720}, {"x": 2250, "y": 2500}], "E": 2}], "path": {}} }
+  connect(damp_b2v, cn.damp_b2v) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(cy.y, cy_y) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 3050, "y": 600}], "E": 2}], "path": {}}
+  }
+  connect(cn.y, cn_y) {
+    "Dyad": {"edges": [{"S": 1, "M": [{"x": 3050, "y": 2000}], "E": 2}], "path": {}}
+  }
+metadata {"Dyad": {"labels": [{"label": "$(instance)", "x": 770, "y": 1100, "rot": 0}], "icons": {"default": "dyad://HL20Demo/aero_cycn.svg"}}}
+end
+
+"""
+Longitudinal coefficient buildup: the CL/CD pair plus the Cm subsystem and
+the stability-axis to body-axis rotation (sin/cos of alpha) producing CX, CZ.
+"""
+component AeroLongitudinal
+  "Angle of attack (deg)"
+  alpha_deg = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}
+      }
+    }
+  }
+  "Mach number"
+  mach = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}
+      }
+    }
+  }
+  "Height over body span (ground effect)"
+  hob = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}
+      }
+    }
+  }
+  "Left body flap deflection (deg)"
+  DBFLL = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380},
+        "diagram": {"x1": -30, "x2": 30, "y1": 770, "y2": 830}
+      }
+    }
+  }
+  "Right body flap deflection (deg)"
+  DBFLR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 970, "y2": 1030}
+      }
+    }
+  }
+  "Upper left body flap deflection (deg)"
+  DBFUL = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}
+      }
+    }
+  }
+  "Upper right body flap deflection (deg)"
+  DBFUR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1370, "y2": 1430}
+      }
+    }
+  }
+  "Left wing flap deflection (deg)"
+  DWFL = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1570, "y2": 1630}
+      }
+    }
+  }
+  "Right wing flap deflection (deg)"
+  DWFR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 820, "x2": 30, "y2": 880},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1770, "y2": 1830}
+      }
+    }
+  }
+  "Rudder deflection magnitude (deg)"
+  abs_drud = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 920, "x2": 30, "y2": 980},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1970, "y2": 2030}
+      }
+    }
+  }
+  "Body pitch rate (rad/s)"
+  qb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 170, "y1": 970, "x2": 230, "y2": 1030}, "diagram": {"x1": 1196.6666666666667, "x2": 1256.6666666666667, "y1": 3070, "y2": 3130}}}}
+  "Chord damping factor cbar/(2 V)"
+  damp_c2v = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 370, "y1": 970, "x2": 430, "y2": 1030},
+        "diagram": {"x1": 2170, "x2": 2230, "y1": 3070, "y2": 3130}
+      }
+    }
+  }
+  "Body-axis force coefficient, x"
+  CX = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 270, "x2": 1030, "y2": 330},
+        "diagram": {"x1": 4270, "x2": 4330, "y1": 570, "y2": 630}
+      }
+    }
+  }
+  "Body-axis force coefficient, z"
+  CZ = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 370, "x2": 1030, "y2": 430},
+        "diagram": {"x1": 4270, "x2": 4330, "y1": 870, "y2": 930}
+      }
+    }
+  }
+  "Pitching-moment coefficient"
+  Cm = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 570, "x2": 1030, "y2": 630},
+        "diagram": {"x1": 4270, "x2": 4330, "y1": 2170, "y2": 2230}
+      }
+    }
+  }
+  "Landing gear deflection (deg)"
+  parameter DLG::Real = 0.0
+  "Trim correction added to Cm"
+  parameter Cm_bias::Real = 0.006449
+  "Pitch damping polynomial coefficients"
+  parameter CMQ0::Real = -0.22364
+  parameter CMQ1::Real = 0.020457
+  parameter CMQ2::Real = -0.0016741
+  parameter CMQ3::Real = 0.000031618
+  # Stability-axis helpers
+  deg2rad = BlockComponents.Math.Gain(k = 0.017453292519943295) {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 1476.6666666666665,
+          "x2": 1576.6666666666665,
+          "y1": 253.33333333333331,
+          "y2": 353.3333333333333
+        }
+      }
+    }
+  }
+  sin_a = BlockComponents.Math.Sin() {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 2426.6666666666665,
+          "x2": 2526.6666666666665,
+          "y1": 253.33333333333331,
+          "y2": 353.3333333333333
+        }
+      }
+    }
+  }
+  cos_a = BlockComponents.Math.Cos() {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 2426.6666666666665,
+          "x2": 2526.6666666666665,
+          "y1": 503.33333333333337,
+          "y2": 603.3333333333334
+        }
+      }
+    }
+  }
+  # Coefficient buildup subsystems
+  pair = AeroCLCD(DLG = DLG) {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 976.6666666666665,
+          "x2": 2076.6666666666665,
+          "y1": 503.33333333333326,
+          "y2": 1603.3333333333333
+        }
+      }
+    }
+  }
+  cm = HL20CM(DLG = DLG, Cm_bias = Cm_bias, CMQ0 = CMQ0, CMQ1 = CMQ1, CMQ2 = CMQ2, CMQ3 = CMQ3) {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 1026.6666666666665,
+          "x2": 2026.6666666666665,
+          "y1": 1903.3333333333335,
+          "y2": 2903.3333333333335
+        }
+      }
+    }
+  }
+  # Stability-axis to body-axis conversion
+  cl_sin = BlockComponents.Math.Product() {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 2876.6666666666665,
+          "x2": 2976.6666666666665,
+          "y1": 1153.3333333333333,
+          "y2": 1253.3333333333333
+        }
+      }
+    }
+  }
+  cl_cos = BlockComponents.Math.Product() {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 2876.6666666666665,
+          "x2": 2976.6666666666665,
+          "y1": 653.3333333333334,
+          "y2": 753.3333333333334,
+          "rot": 180
+        }
+      }
+    }
+  }
+  cd_cos = BlockComponents.Math.Product() {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 2876.6666666666665,
+          "x2": 2976.6666666666665,
+          "y1": 1403.3333333333333,
+          "y2": 1503.3333333333333,
+          "rot": 90
+        }
+      }
+    }
+  }
+  cd_sin = BlockComponents.Math.Product() {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 2876.6666666666665,
+          "x2": 2976.6666666666665,
+          "y1": 903.3333333333334,
+          "y2": 1003.3333333333334,
+          "rot": 180
+        }
+      }
+    }
+  }
+  cx_sum = BlockComponents.Math.Add(k2 = -1.0) {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 3126.6666666666665,
+          "x2": 3226.6666666666665,
+          "y1": 1103.3333333333333,
+          "y2": 1203.3333333333333
+        }
+      }
+    }
+  }
+  cz_sum = BlockComponents.Math.Add(k1 = -1.0, k2 = -1.0) {
+    "Dyad": {
+      "placement": {
+        "diagram": {
+          "x1": 3126.6666666666665,
+          "x2": 3226.6666666666665,
+          "y1": 853.3333333333334,
+          "y2": 953.3333333333334
+        }
+      }
+    }
+  }
+relations
+  connect(alpha_deg, deg2rad.u, pair.alpha_deg, cm.alpha_deg) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 400, "y": 200}], "E": -1},
+        {
+          "S": 2,
+          "M": [{"x": 1462.5, "y": 303.3333333333333}, {"x": 1462.5, "y": 300}],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [{"x": 962.5, "y": 558.3333333333333}, {"x": 962.5, "y": 300}],
+          "E": -1
+        },
+        {
+          "S": 4,
+          "M": [
+            {"x": 1012.5, "y": 1953.3333333333335},
+            {"x": 1012.5, "y": 1850},
+            {"x": 2112.5, "y": 1850},
+            {"x": 2112.5, "y": 375},
+            {"x": 400, "y": 375}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 400, "y": 300}],
+      "path": {}
+    }
+  }
+  connect(deg2rad.y, sin_a.u, cos_a.u) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1675, "y": 303.3333333333333},
+            {"x": 1675, "y": 237.5},
+            {"x": 2800, "y": 237.5}
+          ],
+          "E": -1
+        },
+        {
+          "S": 2,
+          "M": [{"x": 2412.5, "y": 303.3333333333333}, {"x": 2412.5, "y": 250}],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 2412.5, "y": 553.3333333333334},
+            {"x": 2412.5, "y": 375},
+            {"x": 2800, "y": 375}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 2800, "y": 250}],
+      "path": {}
+    }
+  }
+  connect(mach, pair.mach, cm.mach) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 450, "y": 400}], "E": -1},
+        {
+          "S": 2,
+          "M": [
+            {"x": 962.5, "y": 668.3333333333334},
+            {"x": 962.5, "y": 662.5},
+            {"x": 512.5, "y": 662.5},
+            {"x": 512.5, "y": 500}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 1012.5, "y": 2053.3333333333335},
+            {"x": 1012.5, "y": 2050},
+            {"x": 985, "y": 2050},
+            {"x": 985, "y": 1835},
+            {"x": 2130, "y": 1835},
+            {"x": 2130, "y": 487.5},
+            {"x": 450, "y": 487.5}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 450, "y": 500}],
+      "path": {}
+    }
+  }
+  connect(hob, pair.hob, cm.hob) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 500, "y": 600}], "E": -1},
+        {
+          "S": 2,
+          "M": [
+            {"x": 962.5, "y": 778.3333333333334},
+            {"x": 962.5, "y": 775},
+            {"x": 500, "y": 775}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 1012.5, "y": 2153.3333333333335},
+            {"x": 1012.5, "y": 2150},
+            {"x": 940, "y": 2150},
+            {"x": 940, "y": 700}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 500, "y": 700}],
+      "path": {}
+    }
+  }
+  connect(DBFLL, pair.DBFLL, cm.DBFLL) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 550, "y": 800}], "E": -1},
+        {
+          "S": 2,
+          "M": [{"x": 962.5, "y": 888.3333333333333}, {"x": 962.5, "y": 900}],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 1012.5, "y": 2253.3333333333335},
+            {"x": 1012.5, "y": 2250},
+            {"x": 937.5, "y": 2250},
+            {"x": 937.5, "y": 900}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 550, "y": 900}],
+      "path": {}
+    }
+  }
+  connect(DBFLR, pair.DBFLR, cm.DBFLR) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 600, "y": 1000}], "E": -1},
+        {
+          "S": 2,
+          "M": [
+            {"x": 962.5, "y": 998.3333333333335},
+            {"x": 962.5, "y": 1000},
+            {"x": 600, "y": 1000}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 1012.5, "y": 2353.3333333333335},
+            {"x": 1012.5, "y": 2350},
+            {"x": 925, "y": 2350},
+            {"x": 925, "y": 1100}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 600, "y": 1100}],
+      "path": {}
+    }
+  }
+  connect(DBFUL, pair.DBFUL, cm.DBFUL) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 650, "y": 1200}], "E": -1},
+        {
+          "S": 2,
+          "M": [
+            {"x": 962.5, "y": 1108.3333333333335},
+            {"x": 962.5, "y": 1112.5},
+            {"x": 650, "y": 1112.5}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 1012.5, "y": 2453.3333333333335},
+            {"x": 1012.5, "y": 2450},
+            {"x": 912.5, "y": 2450},
+            {"x": 912.5, "y": 1300}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 650, "y": 1300}],
+      "path": {}
+    }
+  }
+  connect(DBFUR, pair.DBFUR, cm.DBFUR) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 700, "y": 1400}], "E": -1},
+        {
+          "S": 2,
+          "M": [
+            {"x": 962.5, "y": 1218.3333333333333},
+            {"x": 962.5, "y": 1225},
+            {"x": 700, "y": 1225}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 1012.5, "y": 2553.3333333333335},
+            {"x": 1012.5, "y": 2550},
+            {"x": 900, "y": 2550},
+            {"x": 900, "y": 1500}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 700, "y": 1500}],
+      "path": {}
+    }
+  }
+  connect(DWFL, pair.DWFL, cm.DWFL) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 750, "y": 1600}], "E": -1},
+        {
+          "S": 2,
+          "M": [
+            {"x": 962.5, "y": 1328.3333333333333},
+            {"x": 962.5, "y": 1337.5},
+            {"x": 750, "y": 1337.5}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 1012.5, "y": 2653.3333333333335},
+            {"x": 1012.5, "y": 2650},
+            {"x": 887.5, "y": 2650},
+            {"x": 887.5, "y": 1700}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 750, "y": 1700}],
+      "path": {}
+    }
+  }
+  connect(DWFR, pair.DWFR, cm.DWFR) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 800, "y": 1800}], "E": -1},
+        {
+          "S": 2,
+          "M": [
+            {"x": 962.5, "y": 1438.3333333333333},
+            {"x": 962.5, "y": 1450},
+            {"x": 800, "y": 1450}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 1012.5, "y": 2753.3333333333335},
+            {"x": 1012.5, "y": 2750},
+            {"x": 875, "y": 2750},
+            {"x": 875, "y": 1900}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 800, "y": 1900}],
+      "path": {}
+    }
+  }
+  connect(abs_drud, pair.abs_drud, cm.abs_drud) {
+    "Dyad": {
+      "edges": [
+        {"S": 1, "M": [{"x": 850, "y": 2000}], "E": -1},
+        {
+          "S": 2,
+          "M": [{"x": 962.5, "y": 1548.3333333333333}, {"x": 962.5, "y": 2100}],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 1012.5, "y": 2853.3333333333335},
+            {"x": 1012.5, "y": 2850},
+            {"x": 850, "y": 2850}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 850, "y": 2100}],
+      "path": {}
+    }
+  }
+  connect(qb, cm.qb) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(damp_c2v, cm.damp_c2v) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2200, "y": 2903.3333333333335}], "E": 2}], "path": {}} }
+  connect(pair.cl_y, cl_sin.u1, cl_cos.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2087.5, "y": 998.3333333333335},
+            {"x": 2087.5, "y": 775},
+            {"x": 3100, "y": 775}
+          ],
+          "E": -1
+        },
+        {
+          "S": 2,
+          "M": [
+            {"x": 2862.5, "y": 1173.3333333333333},
+            {"x": 2862.5, "y": 1037.5},
+            {"x": 3250, "y": 1037.5},
+            {"x": 3250, "y": 775}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [{"x": 2987.5, "y": 733.3333333333333}, {"x": 2987.5, "y": 775}, {"x": 3100, "y": 775}],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 3100, "y": 775}],
+      "path": {}
+    }
+  }
+  connect(sin_a.y, cl_sin.u2, cd_sin.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2537.5, "y": 303.3333333333333},
+            {"x": 2537.5, "y": 312.5},
+            {"x": 3200, "y": 312.5}
+          ],
+          "E": -1
+        },
+        {
+          "S": 2,
+          "M": [
+            {"x": 2862.5, "y": 1233.3333333333335},
+            {"x": 2862.5, "y": 1225},
+            {"x": 2837.5, "y": 1225},
+            {"x": 2837.5, "y": 350}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 2987.5, "y": 923.3333333333335},
+            {"x": 2987.5, "y": 880},
+            {"x": 2850, "y": 880},
+            {"x": 2850, "y": 350}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 3200, "y": 350}],
+      "path": {}
+    }
+  }
+  connect(pair.cd_y, cd_cos.u1, cd_sin.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2087.5, "y": 1218.3333333333333},
+            {"x": 2087.5, "y": 1025},
+            {"x": 3000, "y": 1025}
+          ],
+          "E": -1
+        },
+        {
+          "S": 2,
+          "M": [
+            {"x": 2956.6666666666665, "y": 1387.5},
+            {"x": 2962.5, "y": 1387.5},
+            {"x": 2962.5, "y": 1275},
+            {"x": 2850, "y": 1275},
+            {"x": 2850, "y": 1025},
+            {"x": 3000, "y": 1025}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [
+            {"x": 2987.5, "y": 983.3333333333334},
+            {"x": 2987.5, "y": 1025},
+            {"x": 3000, "y": 1025}
+          ],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 3000, "y": 1025}],
+      "path": {}
+    }
+  }
+  connect(cos_a.y, cd_cos.u2, cl_cos.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2537.5, "y": 553.3333333333334},
+            {"x": 2537.5, "y": 550},
+            {"x": 3200, "y": 550}
+          ],
+          "E": -1
+        },
+        {
+          "S": 2,
+          "M": [
+            {"x": 2896.6666666666665, "y": 1387.5},
+            {"x": 2850, "y": 1387.5},
+            {"x": 2850, "y": 1525},
+            {"x": 3262.5, "y": 1525},
+            {"x": 3262.5, "y": 500}
+          ],
+          "E": -1
+        },
+        {
+          "S": 3,
+          "M": [{"x": 2987.5, "y": 673.3333333333334}, {"x": 2987.5, "y": 500}],
+          "E": -1
+        }
+      ],
+      "junctions": [{"x": 3200, "y": 500}],
+      "path": {}
+    }
+  }
+  connect(cl_sin.y, cx_sum.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2987.5, "y": 1203.3333333333333},
+            {"x": 2987.5, "y": 1125},
+            {"x": 3112.5, "y": 1125},
+            {"x": 3112.5, "y": 1123.3333333333333}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(cd_cos.y, cx_sum.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2926.6666666666665, "y": 1512.5},
+            {"x": 3112.5, "y": 1512.5},
+            {"x": 3112.5, "y": 1183.3333333333335}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(cx_sum.y, CX) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 3237.5, "y": 1153.3333333333333},
+            {"x": 3237.5, "y": 1150},
+            {"x": 4087.5, "y": 1150},
+            {"x": 4087.5, "y": 600}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(cl_cos.y, cz_sum.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2862.5, "y": 703.3333333333334},
+            {"x": 2862.5, "y": 862.5},
+            {"x": 3112.5, "y": 862.5},
+            {"x": 3112.5, "y": 873.3333333333335}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(cd_sin.y, cz_sum.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 2840, "y": 953.3333333333334},
+            {"x": 2840, "y": 1010},
+            {"x": 2978, "y": 1010},
+            {"x": 2978, "y": 933.3333333333333},
+            {"x": 3121.6666666666665, "y": 933.3333333333333}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(cz_sum.y, CZ) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 3237.5, "y": 903.3333333333334}, {"x": 3237.5, "y": 900}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(cm.y, Cm) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 2037.5, "y": 2403.3333333333335}, {"x": 2037.5, "y": 2200}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/aero_lon.svg"}}}
+end
+
+"""
+Lateral-directional coefficient buildup: the CY/Cn pair plus the Cl (roll)
+subsystem, including sideslip (beta) and the roll/yaw damping terms driven by
+pb, rb and the span damping factor b/(2V).
+"""
+component AeroLateralCoeffs
+  "Angle of attack (deg)"
+  alpha_deg = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}
+      }
+    }
+  }
+  "Sideslip angle (deg)"
+  beta_deg = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}
+      }
+    }
+  }
+  "Mach number"
+  mach = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}
+      }
+    }
+  }
+  "Height over body span (ground effect)"
+  hob = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380},
+        "diagram": {"x1": -30, "x2": 30, "y1": 470, "y2": 530}
+      }
+    }
+  }
+  "Left body flap deflection (deg)"
+  DBFLL = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 620, "y2": 680}
+      }
+    }
+  }
+  "Right body flap deflection (deg)"
+  DBFLR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 770, "y2": 830}
+      }
+    }
+  }
+  "Upper left body flap deflection (deg)"
+  DBFUL = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 920, "y2": 980}
+      }
+    }
+  }
+  "Upper right body flap deflection (deg)"
+  DBFUR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1070, "y2": 1130}
+      }
+    }
+  }
+  "Left wing flap deflection (deg)"
+  DWFL = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 820, "x2": 30, "y2": 880},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1220, "y2": 1280}
+      }
+    }
+  }
+  "Right wing flap deflection (deg)"
+  DWFR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 920, "x2": 30, "y2": 980},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1370, "y2": 1430}
+      }
+    }
+  }
+  "Rudder deflection magnitude (deg)"
+  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": 70, "y1": 970, "x2": 130, "y2": 1030}, "diagram": {"x1": 2590, "x2": 2650, "y1": 3020, "y2": 3080}}}}
+  "Body roll rate (rad/s)"
+  pb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 270, "y1": 970, "x2": 330, "y2": 1030}, "diagram": {"x1": 2710, "x2": 2770, "y1": 3020, "y2": 3080}}}}
+  "Body yaw rate (rad/s)"
+  rb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 470, "y1": 970, "x2": 530, "y2": 1030}, "diagram": {"x1": 2830, "x2": 2890, "y1": 3020, "y2": 3080}}}}
+  "Span damping factor b/(2 V)"
+  damp_b2v = RealInput() {"Dyad": {"placement": {"icon": {"x1": 670, "y1": 970, "x2": 730, "y2": 1030}, "diagram": {"x1": 2950, "x2": 3010, "y1": 3020, "y2": 3080}}}}
+  "Side-force coefficient"
+  CY = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 370, "x2": 1030, "y2": 430},
+        "diagram": {"x1": 3120, "x2": 3180, "y1": 370, "y2": 430}
+      }
+    }
+  }
+  "Rolling-moment coefficient"
+  Cl = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 470, "x2": 1030, "y2": 530},
+        "diagram": {"x1": 3120, "x2": 3180, "y1": 2120, "y2": 2180}
+      }
+    }
+  }
+  "Yawing-moment coefficient"
+  Cn = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 570, "x2": 1030, "y2": 630},
+        "diagram": {"x1": 3120, "x2": 3180, "y1": 620, "y2": 680}
+      }
+    }
+  }
+  "Landing gear deflection (deg)"
+  parameter DLG::Real = 0.0
+  "Yaw damping (p) polynomial coefficients"
+  parameter CNP0::Real = 0.40031
+  parameter CNP1::Real = -0.015518
+  parameter CNP2::Real = -0.00012143
+  parameter CNP3::Real = 0.000018240
+  "Yaw damping (r) polynomial coefficients"
+  parameter CNR0::Real = -0.79533
+  parameter CNR1::Real = -0.012647
+  parameter CNR2::Real = 0.00032696
+  parameter CNR3::Real = -0.0000065929
+  "Roll damping (p) polynomial coefficients"
+  parameter CLP0::Real = -0.55242
+  parameter CLP1::Real = 0.014478
+  parameter CLP2::Real = -0.0011545
+  parameter CLP3::Real = 0.000017706
+  "Roll damping (r) polynomial coefficients"
+  parameter CLR0::Real = 0.44685
+  parameter CLR1::Real = 0.067411
+  parameter CLR2::Real = -0.0051866
+  parameter CLR3::Real = 0.00012659
+  pair = AeroCYCN(DLG = DLG, CNP0 = CNP0, CNP1 = CNP1, CNP2 = CNP2, CNP3 = CNP3, CNR0 = CNR0, CNR1 = CNR1, CNR2 = CNR2, CNR3 = CNR3) {
+    "Dyad": {"placement": {"diagram": {"x1": 1600, "x2": 2700, "y1": 100, "y2": 1200}}}
+  }
+  cr = HL20CR(DLG = DLG, CLP0 = CLP0, CLP1 = CLP1, CLP2 = CLP2, CLP3 = CLP3, CLR0 = CLR0, CLR1 = CLR1, CLR2 = CLR2, CLR3 = CLR3) {
+    "Dyad": {"placement": {"diagram": {"x1": 1600, "x2": 2600, "y1": 1600, "y2": 2600}}}
+  }
+relations
+              connect(alpha_deg, pair.alpha_deg, cr.alpha_deg) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 200, "y": 155.0}], "E": -1}, {"S": 3, "M": [{"x": 1400, "y": 1650.0}, {"x": 1400, "y": 50.0}], "E": -1}], "path": {}, "junctions": [{"x": 200, "y": 50.0}]}}
+              connect(beta_deg, pair.beta_deg, cr.beta_deg) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 250, "y": 265.0}], "E": -1}, {"S": 3, "M": [{"x": 1350, "y": 1750.0}, {"x": 1350, "y": 200.0}], "E": -1}], "path": {}, "junctions": [{"x": 250, "y": 200.0}]}}
+              connect(mach, pair.mach, cr.mach) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 300, "y": 375.0}], "E": -1}, {"S": 3, "M": [{"x": 1300, "y": 1850.0}, {"x": 1300, "y": 350.0}], "E": -1}], "path": {}, "junctions": [{"x": 300, "y": 350.0}]}}
+              connect(hob, pair.hob, cr.hob) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 350, "y": 485.0}], "E": -1}, {"S": 3, "M": [{"x": 1250, "y": 1950.0}, {"x": 1250, "y": 500.0}], "E": -1}], "path": {}, "junctions": [{"x": 350, "y": 500.0}]}}
+              connect(DBFLL, pair.DBFLL, cr.DBFLL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 400, "y": 595.0}], "E": -1}, {"S": 3, "M": [{"x": 1200, "y": 2050.0}, {"x": 1200, "y": 650.0}], "E": -1}], "path": {}, "junctions": [{"x": 400, "y": 650.0}]}}
+              connect(DBFLR, pair.DBFLR, cr.DBFLR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 450, "y": 705.0}], "E": -1}, {"S": 3, "M": [{"x": 1150, "y": 2150.0}, {"x": 1150, "y": 800.0}], "E": -1}], "path": {}, "junctions": [{"x": 450, "y": 800.0}]}}
+              connect(DBFUL, pair.DBFUL, cr.DBFUL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 500, "y": 815.0}], "E": -1}, {"S": 3, "M": [{"x": 1100, "y": 2250.0}, {"x": 1100, "y": 950.0}], "E": -1}], "path": {}, "junctions": [{"x": 500, "y": 950.0}]}}
+              connect(DBFUR, pair.DBFUR, cr.DBFUR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 550, "y": 925.0}], "E": -1}, {"S": 3, "M": [{"x": 1050, "y": 2350.0}, {"x": 1050, "y": 1100.0}], "E": -1}], "path": {}, "junctions": [{"x": 550, "y": 1100.0}]}}
+              connect(DWFL, pair.DWFL, cr.DWFL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 600, "y": 1035.0}], "E": -1}, {"S": 3, "M": [{"x": 1000, "y": 2450.0}, {"x": 1000, "y": 1250.0}], "E": -1}], "path": {}, "junctions": [{"x": 600, "y": 1250.0}]}}
+              connect(DWFR, pair.DWFR, cr.DWFR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 650, "y": 1145.0}], "E": -1}, {"S": 3, "M": [{"x": 950, "y": 2550.0}, {"x": 950, "y": 1400.0}], "E": -1}], "path": {}, "junctions": [{"x": 650, "y": 1400.0}]}}
+              connect(abs_drud, pair.abs_drud, cr.abs_drud) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2650, "y": 3050}], "E": -1}, {"S": 2, "M": [{"x": 1710, "y": 1560}, {"x": 2650, "y": 1560}], "E": -1}, {"S": 3, "M": [{"x": 1700, "y": 2900}, {"x": 2650, "y": 2900}], "E": -1}], "path": {}, "junctions": [{"x": 2650, "y": 2990}]}}
+              connect(pb, pair.pb, cr.pb) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 1930, "y": 1530}, {"x": 2740, "y": 1530}], "E": -1}, {"S": 3, "M": [{"x": 1900, "y": 2870}, {"x": 2740, "y": 2870}], "E": -1}], "path": {}, "junctions": [{"x": 2740, "y": 2990}]}}
+              connect(rb, pair.rb, cr.rb) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 2150, "y": 1500}, {"x": 2860, "y": 1500}], "E": -1}, {"S": 3, "M": [{"x": 2230, "y": 2600}, {"x": 2230, "y": 2840}, {"x": 2860, "y": 2840}], "E": -1}], "path": {}, "junctions": [{"x": 2860, "y": 2990}]}}
+              connect(damp_b2v, pair.damp_b2v, cr.damp_b2v) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 2720, "y": 1200}, {"x": 2720, "y": 1470}, {"x": 2980, "y": 1470}], "E": -1}, {"S": 3, "M": [{"x": 2300, "y": 2810}, {"x": 2980, "y": 2810}], "E": -1}], "path": {}, "junctions": [{"x": 2980, "y": 2990}]}}
+  connect(pair.cy_y, CY) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2750, "y": 540}, {"x": 2750, "y": 400}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(cr.y, Cl) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3150, "y": 2100}], "E": 2}], "path": {}} }
+  connect(pair.cn_y, Cn) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2750, "y": 760}, {"x": 2750, "y": 650}], "E": 2}],
+      "path": {}
+    }
+  }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/aero_lat.svg"}}}
+end

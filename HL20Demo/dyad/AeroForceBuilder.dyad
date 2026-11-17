@@ -1,0 +1,105 @@
+"""
+Dimensionalises the HL-20 body-axis aero coefficients into forces and
+moments (TM-4302 eqs 7-12), applies the CG-offset correction to the moments,
+and rotates the force vector into the inertial NED frame. Every operation is
+a wired BlockComponents block.
+"""
+component AeroForceBuilder
+  "Body-axis force coefficient, x"
+  CX = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80}, "diagram": {"x1": -30, "x2": 30, "y1": 700, "y2": 760}}}}
+  "Body-axis force coefficient, y"
+  CY = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180}, "diagram": {"x1": -30, "x2": 30, "y1": 850, "y2": 910}}}}
+  "Body-axis force coefficient, z"
+  CZ = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": -30, "x2": 30, "y1": 950, "y2": 1010}}}}
+  "Rolling-moment coefficient"
+  Cl = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380}, "diagram": {"x1": -30, "x2": 30, "y1": 1130, "y2": 1190}}}}
+  "Pitching-moment coefficient"
+  Cm = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": -30, "x2": 30, "y1": 1400, "y2": 1460}}}}
+  "Yawing-moment coefficient"
+  Cn = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": -30, "x2": 30, "y1": 1240, "y2": 1300}}}}
+  "Dynamic pressure (psf)"
+  qbar_psf = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}}}}
+  "Quaternion scalar part"
+  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": 220, "y1": 970, "x2": 280, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 40, "y2": 100}}}}
+  "Quaternion x part"
+  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": 320, "y1": 970, "x2": 380, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 180, "y2": 240}}}}
+  "Quaternion y part"
+  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": 420, "y1": 970, "x2": 480, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}}}}
+  "Quaternion z part"
+  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": 520, "y1": 970, "x2": 580, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 460, "y2": 520}}}}
+  "Aero force, inertial NED axis 1 (N)"
+  F1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80}, "diagram": {"x1": 1620, "x2": 1680, "y1": 370, "y2": 430}}}}
+  "Aero force, inertial NED axis 2 (N)"
+  F2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 120, "x2": 1030, "y2": 180}, "diagram": {"x1": 1620, "x2": 1680, "y1": 570, "y2": 630}}}}
+  "Aero force, inertial NED axis 3 (N)"
+  F3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280}, "diagram": {"x1": 1620, "x2": 1680, "y1": 770, "y2": 830}}}}
+  "Aero moment, body axis 1 (N.m)"
+  T1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1470, "y2": 1530}}}}
+  "Aero moment, body axis 2 (N.m)"
+  T2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 520, "x2": 1030, "y2": 580}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1570, "y2": 1630}}}}
+  "Aero moment, body axis 3 (N.m)"
+  T3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1720, "y2": 1780}}}}
+  "Aero force, body axis 3 (N), for NZ computation"
+  Fz_body = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 820, "x2": 1030, "y2": 880}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1820, "y2": 1880}}}}
+  "Reference area (ft^2)"
+  parameter S_ref::Real = 286.45
+  "Reference chord (ft)"
+  parameter CBAR::Real = 28.24
+  "Reference span (ft)"
+  parameter BSPAN::Real = 13.89
+  "CG location, fraction of body length"
+  parameter Xcg::Real = 0.555
+  "Moment reference point, fraction of body length"
+  parameter XRP::Real = 0.54
+  "Feet per metre"
+  parameter ft_per_m::Real = 3.28084
+  "psf to Pa conversion"
+  parameter psf_to_pa::Real = 47.880259
+  qbar_pa = BlockComponents.Math.Gain(k = psf_to_pa) {"Dyad": {"placement": {"diagram": {"x1": 150, "x2": 250, "y1": 550, "y2": 650}}}}
+  qS = BlockComponents.Math.Gain(k = S_ref / (ft_per_m ^ 2)) {"Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 550, "y2": 650}}}}
+  qSb = BlockComponents.Math.Gain(k = BSPAN / ft_per_m) {"Dyad": {"placement": {"diagram": {"x1": 500, "x2": 600, "y1": 1020, "y2": 1120}}}}
+  qSc = BlockComponents.Math.Gain(k = CBAR / ft_per_m) {"Dyad": {"placement": {"diagram": {"x1": 500, "x2": 600, "y1": 1300, "y2": 1400}}}}
+  fxb = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 650, "y2": 750}}}}
+  fyb = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 800, "y2": 900}}}}
+  fzb = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 950, "y2": 1050}}}}
+  mxb = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 1080, "y2": 1180}}}}
+  myb1 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 1350, "y2": 1450}}}}
+  mzb1 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 1210, "y2": 1310}}}}
+  dxcg_c = BlockComponents.Sources.Constant(k = (Xcg - XRP) * CBAR / ft_per_m) {"Dyad": {"placement": {"diagram": {"x1": 500, "x2": 600, "y1": 1550, "y2": 1650}}}}
+  cg_y = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1000, "y1": 1050, "y2": 1150}}}}
+  cg_z = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1000, "y1": 1200, "y2": 1300}}}}
+  myb = BlockComponents.Math.Add() {"Dyad": {"placement": {"diagram": {"x1": 1100, "x2": 1200, "y1": 1370, "y2": 1470}}}}
+  mzb = BlockComponents.Math.Add(k2 = -1.0) {"Dyad": {"placement": {"diagram": {"x1": 1100, "x2": 1200, "y1": 1520, "y2": 1620}}}}
+  rot = QuatToInertial() {"Dyad": {"placement": {"diagram": {"x1": 1100, "x2": 1350, "y1": 150, "y2": 1150}}}}
+relations
+  connect(qbar_psf, qbar_pa.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(qbar_pa.y, qS.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+    connect(qS.y, fxb.u1, fyb.u1, fzb.u1, qSb.u, qSc.u) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 530, "y": 600}, {"x": 530, "y": 680}, {"x": 430, "y": 680}], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [], "E": -5}, {"S": -1, "M": [{"x": 685, "y": 700}, {"x": 685, "y": 670}], "E": 2}, {"S": -2, "M": [], "E": 3}, {"S": -3, "M": [], "E": 4}, {"S": -4, "M": [], "E": 5}, {"S": -5, "M": [], "E": 6}], "path": {}, "junctions": [{"x": 430, "y": 700}, {"x": 430, "y": 820}, {"x": 430, "y": 970}, {"x": 430, "y": 1070}, {"x": 430, "y": 1350}]}}
+      connect(CX, fxb.u2) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+    connect(CY, fyb.u2) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+    connect(CZ, fzb.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 680, "y": 980}, {"x": 680, "y": 1030}], "E": 2}], "path": {}} }
+      connect(qSb.y, mxb.u1, mzb1.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 670, "y": 1070}], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -1, "M": [], "E": 2}, {"S": -2, "M": [], "E": 3}], "path": {}, "junctions": [{"x": 670, "y": 1100}, {"x": 670, "y": 1230}]}}
+  connect(Cl, mxb.u2) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(qSc.y, myb1.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 650, "y": 1350}, {"x": 650, "y": 1370}], "E": 2}], "path": {}} }
+  connect(Cm, myb1.u2) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+    connect(Cn, mzb1.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 680, "y": 1270}, {"x": 680, "y": 1290}], "E": 2}], "path": {}} }
+    connect(dxcg_c.y, cg_y.u1, cg_z.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 870, "y": 1600}], "E": -2}, {"S": -2, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -2, "M": [], "E": 3}], "path": {}, "junctions": [{"x": 870, "y": 1070}, {"x": 870, "y": 1220}]}}
+        connect(myb1.y, myb.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 830, "y": 1400}, {"x": 830, "y": 1040}, {"x": 1090, "y": 1040}, {"x": 1090, "y": 1390}], "E": 2}], "path": {}} }
+  connect(cg_y.y, myb.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1060, "y": 1100}, {"x": 1060, "y": 1450}], "E": 2}], "path": {}} }
+  connect(mzb1.y, mzb.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 810, "y": 1260}, {"x": 810, "y": 1540}], "E": 2}], "path": {}} }
+  connect(cg_z.y, mzb.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1020, "y": 1250}, {"x": 1020, "y": 1600}], "E": 2}], "path": {}} }
+  connect(mxb.y, T1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 810, "y": 1130}, {"x": 810, "y": 830}, {"x": 1080, "y": 830}, {"x": 1080, "y": 1500}], "E": 2}], "path": {}} }
+  connect(myb.y, T2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1250, "y": 1420}, {"x": 1250, "y": 1530}, {"x": 1500, "y": 1530}, {"x": 1500, "y": 1600}], "E": 2}], "path": {}} }
+  connect(mzb.y, T3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1450, "y": 1570}, {"x": 1450, "y": 1750}], "E": 2}], "path": {}} }
+  connect(qw, rot.qw) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1050, "y": 70}, {"x": 1050, "y": 200}], "E": 2}], "path": {}} }
+  connect(qx, rot.qx) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1060, "y": 210}, {"x": 1060, "y": 300}], "E": 2}], "path": {}} }
+  connect(qy, rot.qy) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1040, "y": 350}, {"x": 1040, "y": 400}], "E": 2}], "path": {}} }
+  connect(qz, rot.qz) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1030, "y": 490}, {"x": 1030, "y": 500}], "E": 2}], "path": {}} }
+  connect(fxb.y, rot.b1) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+    connect(fyb.y, rot.b2, cg_z.u2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 950, "y": 850}, {"x": 950, "y": 800}], "E": 2}, {"S": -1, "M": [{"x": 820, "y": 1280}, {"x": 900, "y": 1280}], "E": 3}], "path": {}, "junctions": [{"x": 820, "y": 850}]}}
+    connect(fzb.y, rot.b3, cg_y.u2, Fz_body) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [{"x": 1070, "y": 1000}, {"x": 1070, "y": 900}], "E": 2}, {"S": -1, "M": [{"x": 840, "y": 1130}, {"x": 900, "y": 1130}], "E": 3}, {"S": -2, "M": [{"x": 855, "y": 1850}, {"x": 1650, "y": 1850}], "E": 4}], "path": {}, "junctions": [{"x": 840, "y": 1000}, {"x": 855, "y": 1000}]}}
+  connect(rot.v1, F1) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(rot.v2, F2) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(rot.v3, F3) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+metadata {"Dyad": {"labels": [{"label": "$(instance)", "x": 155, "y": 810, "rot": 0}], "icons": {"default": "dyad://HL20Demo/forces.svg"}}}
+end

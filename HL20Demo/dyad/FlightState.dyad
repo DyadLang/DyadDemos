@@ -1,0 +1,292 @@
+"""
+Flight-state computation: rotates the inertial NED velocity into the body
+frame with the inverse quaternion rotation, then derives airspeed, the aero
+angles alpha and beta (deg) and the Euler angles phi, theta, psi (deg). Also
+exposes the sine/cosine signals the control laws consume. Every operation is a
+wired BlockComponents block.
+"""
+component FlightState
+  "Inertial NED velocity, axis 1 (m/s)"
+  vel_1 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1470, "y2": 1530}
+      }
+    }
+  }
+  "Inertial NED velocity, axis 2 (m/s)"
+  vel_2 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1620, "y2": 1680}
+      }
+    }
+  }
+  "Inertial NED velocity, axis 3 (m/s)"
+  vel_3 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1770, "y2": 1830}
+      }
+    }
+  }
+  "Quaternion scalar part"
+  qw = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 870, "y2": 930}
+      }
+    }
+  }
+  "Quaternion x part"
+  qx = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1020, "y2": 1080}
+      }
+    }
+  }
+  "Quaternion y part"
+  qy = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}
+      }
+    }
+  }
+  "Quaternion z part"
+  qz = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1320, "y2": 1380}
+      }
+    }
+  }
+  "Body velocity, forward (m/s)"
+  u_body = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 5, "x2": 1030, "y2": 45},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 1020, "y2": 1080}
+      }
+    }
+  }
+  "Body velocity, right (m/s)"
+  v_body = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 55, "x2": 1030, "y2": 95},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 1170, "y2": 1230}
+      }
+    }
+  }
+  "Body velocity, down (m/s)"
+  w_body = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 105, "x2": 1030, "y2": 145},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 1320, "y2": 1380}
+      }
+    }
+  }
+  "Total airspeed (m/s)"
+  v_scalar = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 155, "x2": 1030, "y2": 195},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 170, "y2": 230}
+      }
+    }
+  }
+  "Angle of attack (deg)"
+  alpha_deg = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 255, "x2": 1030, "y2": 295},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 370, "y2": 430}
+      }
+    }
+  }
+  "Sideslip angle (deg)"
+  beta_deg = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 305, "x2": 1030, "y2": 345},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 520, "y2": 580}
+      }
+    }
+  }
+  "Euler roll angle (deg)"
+  phi_deg = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 355, "x2": 1030, "y2": 395},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2120, "y2": 2180}
+      }
+    }
+  }
+  "Euler pitch angle (deg)"
+  theta_deg = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 405, "x2": 1030, "y2": 445},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2270, "y2": 2330}
+      }
+    }
+  }
+  "Euler yaw angle (deg)"
+  psi_deg = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 455, "x2": 1030, "y2": 495},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2420, "y2": 2480}
+      }
+    }
+  }
+  "sin of Euler roll angle"
+  sin_phi = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 555, "x2": 1030, "y2": 595},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2570, "y2": 2630}
+      }
+    }
+  }
+  "cos of Euler roll angle"
+  cos_phi = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 605, "x2": 1030, "y2": 645},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2720, "y2": 2780}
+      }
+    }
+  }
+  "cos of Euler pitch angle"
+  cos_theta = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 655, "x2": 1030, "y2": 695},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 2870, "y2": 2930}
+      }
+    }
+  }
+  "sin of angle of attack"
+  sin_alpha = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 705, "x2": 1030, "y2": 745},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 720, "y2": 780}
+      }
+    }
+  }
+  "cos of angle of attack"
+  cos_alpha = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 755, "x2": 1030, "y2": 795},
+        "diagram": {"x1": 3770, "x2": 3830, "y1": 870, "y2": 930}
+      }
+    }
+  }
+  rot = QuatToBody() {
+    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1100, "y1": 950, "y2": 1750}}}
+  }
+  aero = AeroAngles() {
+    "Dyad": {"placement": {"diagram": {"x1": 2050, "x2": 3050, "y1": 200, "y2": 1200}}}
+  }
+  euler = EulerAngles() {
+    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1900, "y1": 2050, "y2": 3050}}}
+  }
+relations
+  connect(vel_1, rot.v1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 870, "y": 1500}, {"x": 870, "y": 1390}], "E": 2}], "path": {}} }
+  connect(vel_2, rot.v2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 875, "y": 1650}, {"x": 875, "y": 1470}], "E": 2}], "path": {}} }
+  connect(vel_3, rot.v3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 880, "y": 1800}, {"x": 880, "y": 1550}], "E": 2}], "path": {}} }
+  connect(qw, rot.qw) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 850, "y": 900}, {"x": 850, "y": 990}], "E": 2}], "path": {}} }
+  connect(qw, euler.qw) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -35, "y": 900}, {"x": -35, "y": 2100}], "E": 2}], "path": {}} }
+  connect(qx, rot.qx) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 855, "y": 1050}, {"x": 855, "y": 1070}], "E": 2}], "path": {}} }
+  connect(qx, euler.qx) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -42, "y": 1050}, {"x": -42, "y": 2300}], "E": 2}], "path": {}} }
+  connect(qy, rot.qy) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 860, "y": 1200}, {"x": 860, "y": 1150}], "E": 2}], "path": {}} }
+  connect(qy, euler.qy) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -49, "y": 1200}, {"x": -49, "y": 2500}], "E": 2}], "path": {}} }
+  connect(qz, rot.qz) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 865, "y": 1350}, {"x": 865, "y": 1230}], "E": 2}], "path": {}} }
+  connect(qz, euler.qz) { "Dyad": {"edges": [{"S": 1, "M": [{"x": -56, "y": 1350}, {"x": -56, "y": 2700}], "E": 2}], "path": {}} }
+  connect(rot.b1, u_body) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2048, "y": 1150}, {"x": 2048, "y": 1490}, {"x": 3660, "y": 1490}, {"x": 3660, "y": 1050}], "E": 2}], "path": {}} }
+  connect(rot.b2, v_body) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1990, "y": 1310}, {"x": 1990, "y": 1510}, {"x": 3670, "y": 1510}, {"x": 3670, "y": 1200}], "E": 2}], "path": {}} }
+  connect(rot.b3, w_body) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1960, "y": 1470}, {"x": 1960, "y": 1515}, {"x": 1998, "y": 1515}, {"x": 1998, "y": 1530}, {"x": 3680, "y": 1530}, {"x": 3680, "y": 1350}], "E": 2}], "path": {}} }
+  connect(rot.b1, aero.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2000, "y": 1150}, {"x": 2000, "y": 250}], "E": 2}], "path": {}} }
+  connect(rot.b2, aero.v) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2008, "y": 1310}, {"x": 2008, "y": 450}], "E": 2}], "path": {}} }
+  connect(rot.b3, aero.w) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2016, "y": 1470}, {"x": 2016, "y": 650}], "E": 2}], "path": {}} }
+  connect(aero.v_scalar, v_scalar) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 250}, {"x": 3593.75, "y": 200}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(aero.alpha_deg, alpha_deg) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 450}, {"x": 3593.75, "y": 400}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(aero.beta_deg, beta_deg) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 650}, {"x": 3593.75, "y": 550}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(aero.sin_alpha, sin_alpha) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 850}, {"x": 3593.75, "y": 750}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(aero.cos_alpha, cos_alpha) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 1050}, {"x": 3593.75, "y": 900}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(euler.phi_deg, phi_deg) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 2100}, {"x": 3593.75, "y": 2150}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(euler.theta_deg, theta_deg) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 2250}, {"x": 3593.75, "y": 2300}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(euler.psi_deg, psi_deg) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 2400}, {"x": 3593.75, "y": 2450}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(euler.sin_phi, sin_phi) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 2550}, {"x": 3593.75, "y": 2600}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(euler.cos_phi, cos_phi) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 2700}, {"x": 3593.75, "y": 2750}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(euler.cos_theta, cos_theta) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 3593.75, "y": 2850}, {"x": 3593.75, "y": 2900}], "E": 2}],
+      "path": {}
+    }
+  }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/flightstate.svg"}}}
+end

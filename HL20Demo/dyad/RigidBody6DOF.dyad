@@ -1,0 +1,203 @@
+"""
+Flat-earth 6-DOF rigid-body dynamics with scalar-first quaternion
+orientation (body-to-inertial NED). Translational dynamics are integrated in
+the inertial NED frame with gravity added internally on the down axis; Euler's
+equations are integrated in the body frame with diagonal inertia. Every
+operation is a wired BlockComponents block.
+"""
+component RigidBody6DOF
+  "External force, inertial NED axis 1 (N)"
+  F1 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}
+      }
+    }
+  }
+  "External force, inertial NED axis 2 (N)"
+  F2 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
+        "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}
+      }
+    }
+  }
+  "External force, inertial NED axis 3 (N)"
+  F3 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}
+      }
+    }
+  }
+  "External torque, body axis 1 (N.m)"
+  T1 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1620, "y2": 1680}
+      }
+    }
+  }
+  "External torque, body axis 2 (N.m)"
+  T2 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1820, "y2": 1880}
+      }
+    }
+  }
+  "External torque, body axis 3 (N.m)"
+  T3 = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1970, "y2": 2030}
+      }
+    }
+  }
+  "Position, inertial NED axis 1 (m)"
+  pos_1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 5, "x2": 1030, "y2": 45}, "diagram": {"x1": 3320, "x2": 3380, "y1": 720, "y2": 780}}}}
+  "Position, inertial NED axis 2 (m)"
+  pos_2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 55, "x2": 1030, "y2": 95}, "diagram": {"x1": 3320, "x2": 3380, "y1": 870, "y2": 930}}}}
+  "Position, inertial NED axis 3 (m)"
+  pos_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 105, "x2": 1030, "y2": 145}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1020, "y2": 1080}}}}
+  "Velocity, inertial NED axis 1 (m/s)"
+  vel_1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 155, "x2": 1030, "y2": 195}, "diagram": {"x1": 3320, "x2": 3380, "y1": 270, "y2": 330}}}}
+  "Velocity, inertial NED axis 2 (m/s)"
+  vel_2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 205, "x2": 1030, "y2": 245}, "diagram": {"x1": 3320, "x2": 3380, "y1": 420, "y2": 480}}}}
+  "Velocity, inertial NED axis 3 (m/s)"
+  vel_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 255, "x2": 1030, "y2": 295}, "diagram": {"x1": 3320, "x2": 3380, "y1": 570, "y2": 630}}}}
+  "Quaternion scalar part"
+  qw = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 355, "x2": 1030, "y2": 395}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1170, "y2": 1230}}}}
+  "Quaternion x part"
+  qx = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 405, "x2": 1030, "y2": 445}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1320, "y2": 1380}}}}
+  "Quaternion y part"
+  qy = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 455, "x2": 1030, "y2": 495}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1470, "y2": 1530}}}}
+  "Quaternion z part"
+  qz = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 505, "x2": 1030, "y2": 545}, "diagram": {"x1": 3320, "x2": 3380, "y1": 1620, "y2": 1680}}}}
+  "Body angular rate, roll (rad/s)"
+  omega_1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 605, "x2": 1030, "y2": 645}, "diagram": {"x1": 3320, "x2": 3380, "y1": 2020, "y2": 2080}}}}
+  "Body angular rate, pitch (rad/s)"
+  omega_2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 655, "x2": 1030, "y2": 695}, "diagram": {"x1": 3320, "x2": 3380, "y1": 2170, "y2": 2230}}}}
+  "Body angular rate, yaw (rad/s)"
+  omega_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 705, "x2": 1030, "y2": 745}, "diagram": {"x1": 3320, "x2": 3380, "y1": 2320, "y2": 2380}}}}
+  "Vehicle mass (kg)"
+  parameter mass::Real = 8664.1
+  "Roll moment of inertia (kg.m^2)"
+  parameter Jxx::Real = 10186.272
+  "Pitch moment of inertia (kg.m^2)"
+  parameter Jyy::Real = 45557.464
+  "Yaw moment of inertia (kg.m^2)"
+  parameter Jzz::Real = 48333.264
+  "Gravitational acceleration (m/s^2)"
+  parameter g::Real = 9.81
+  "Initial position, axis 1 (m)"
+  parameter p1_0::Real = 0.0
+  "Initial position, axis 2 (m)"
+  parameter p2_0::Real = 0.0
+  "Initial position, axis 3 (m)"
+  parameter p3_0::Real = 0.0
+  "Initial velocity, axis 1 (m/s)"
+  parameter v1_0::Real = 0.0
+  "Initial velocity, axis 2 (m/s)"
+  parameter v2_0::Real = 0.0
+  "Initial velocity, axis 3 (m/s)"
+  parameter v3_0::Real = 0.0
+  "Initial quaternion scalar part"
+  parameter q0_0::Real = 1.0
+  "Initial quaternion x part"
+  parameter q1_0::Real = 0.0
+  "Initial quaternion y part"
+  parameter q2_0::Real = 0.0
+  "Initial quaternion z part"
+  parameter q3_0::Real = 0.0
+  "Initial body roll rate (rad/s)"
+  parameter w1_0::Real = 0.0
+  "Initial body pitch rate (rad/s)"
+  parameter w2_0::Real = 0.0
+  "Initial body yaw rate (rad/s)"
+  parameter w3_0::Real = 0.0
+  trans = TransDynamics(mass = mass, g = g, v1_0 = v1_0, v2_0 = v2_0, v3_0 = v3_0, p1_0 = p1_0, p2_0 = p2_0, p3_0 = p3_0) {
+    "Dyad": {"placement": {"diagram": {"x1": 650, "x2": 1650, "y1": 200, "y2": 1000}}}
+  }
+  rot = RotDynamics(Jxx = Jxx, Jyy = Jyy, Jzz = Jzz, w1_0 = w1_0, w2_0 = w2_0, w3_0 = w3_0) {
+    "Dyad": {"placement": {"diagram": {"x1": 650, "x2": 1650, "y1": 1450, "y2": 2250}}}
+  }
+  qkin = QuatKinematics(q0_0 = q0_0, q1_0 = q1_0, q2_0 = q2_0, q3_0 = q3_0) {
+    "Dyad": {"placement": {"diagram": {"x1": 1800, "x2": 2800, "y1": 1000, "y2": 1800}}}
+  }
+relations
+  connect(F1, trans.F1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 643.75, "y": 400}, {"x": 643.75, "y": 360}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(T1, rot.T1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 643.75, "y": 1650}, {"x": 643.75, "y": 1610.0000000000002}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+      connect(trans.v1, vel_1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1700, "y": 360}, {"x": 1700, "y": 300}, {"x": 3350, "y": 300}], "E": 2}], "path": {}} }
+  connect(trans.p1, pos_1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1670, "y": 760}, {"x": 1670, "y": 750}, {"x": 3350, "y": 750}], "E": 2}], "path": {}} }
+    connect(rot.w1, qkin.w1, omega_1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1690, "y": 1160}], "E": 2}, {"S": -1, "M": [{"x": 1760, "y": 1610}, {"x": 1760, "y": 2050}], "E": 3}], "path": {}, "junctions": [{"x": 1690, "y": 1610}]}}
+  connect(F2, trans.F2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 643.75, "y": 600}, {"x": 643.75, "y": 560}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(T2, rot.T2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 643.75, "y": 1850}, {"x": 643.75, "y": 1810.0000000000002}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+      connect(trans.v2, vel_2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1690, "y": 560}, {"x": 1690, "y": 450}, {"x": 3350, "y": 450}], "E": 2}], "path": {}} }
+  connect(trans.p2, pos_2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1655, "y": 840}, {"x": 1655, "y": 900}, {"x": 3350, "y": 900}], "E": 2}], "path": {}} }
+    connect(rot.w2, qkin.w2, omega_2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1700, "y": 1360}], "E": 2}, {"S": -1, "M": [{"x": 1745, "y": 1810}, {"x": 1745, "y": 2200}], "E": 3}], "path": {}, "junctions": [{"x": 1700, "y": 1810}]}}
+  connect(F3, trans.F3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 643.75, "y": 750}, {"x": 643.75, "y": 760}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(T3, rot.T3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 643.75, "y": 2000}, {"x": 643.75, "y": 2010.0000000000002}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+      connect(trans.v3, vel_3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1660, "y": 680}, {"x": 1660, "y": 600}, {"x": 3350, "y": 600}], "E": 2}], "path": {}} }
+  connect(trans.p3, pos_3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1658, "y": 920}, {"x": 1658, "y": 985}, {"x": 3290, "y": 985}, {"x": 3290, "y": 1050}, {"x": 3350, "y": 1050}], "E": 2}], "path": {}} }
+    connect(rot.w3, qkin.w3, omega_3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1710, "y": 1560}], "E": 2}, {"S": -1, "M": [{"x": 1730, "y": 2010}, {"x": 1730, "y": 2350}], "E": 3}], "path": {}, "junctions": [{"x": 1710, "y": 2010}]}}
+  connect(qkin.q0, qw) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2840, "y": 1120}, {"x": 2840, "y": 1200}, {"x": 3350, "y": 1200}], "E": 2}], "path": {}} }
+  connect(qkin.q1, qx) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2830, "y": 1280}, {"x": 2830, "y": 1350}, {"x": 3350, "y": 1350}], "E": 2}], "path": {}} }
+  connect(qkin.q2, qy) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2820, "y": 1440}, {"x": 2820, "y": 1500}, {"x": 3350, "y": 1500}], "E": 2}], "path": {}} }
+  connect(qkin.q3, qz) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2810, "y": 1600}, {"x": 2810, "y": 1650}, {"x": 3350, "y": 1650}], "E": 2}], "path": {}} }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/dynamics6.svg"}}}
+end

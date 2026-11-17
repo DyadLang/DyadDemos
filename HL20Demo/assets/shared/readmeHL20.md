@@ -39,17 +39,17 @@ The HL-20 aerodynamic database (~72 lookup tables) is encoded in
   functions (`hl20_poly1d`, `hl20_poly2dr`, `hl20_poly2de`) and three
   index accessors (`idx1d`, `grp2dr`, `grp2de`). Both the golden and the
   agent workspaces include this file, so the registered functions are
-  available as `ChallengeComponent.<name>` from any `.dyad` file.
+  available as `HL20Demo.<name>` from any `.dyad` file.
 - `dyad/shared/HL20Aero.dyad` — body-axis coefficient buildup that calls
   those registered functions. Already wired with the correct varID groups;
-  the agent only instantiates it as `ChallengeComponent.shared.HL20Aero(...)`.
+  the agent only instantiates it as `HL20Demo.shared.HL20Aero(...)`.
 
 ### Atmosphere model
 
 `Atmosphere1976` uses `DyadData.DyadTimeseries` + `BlockComponents.Tables.Interpolation`
 (linear interpolation, constant extrapolation) over `assets/shared/atmos_sigma.csv`
 and `assets/shared/atmos_sos.csv`, referenced as
-`dyad://ChallengeComponent/shared/atmos_sigma.csv` and `…/atmos_sos.csv`.
+`dyad://HL20Demo/shared/atmos_sigma.csv` and `…/atmos_sos.csv`.
 
 ## Component hierarchy
 
@@ -112,7 +112,7 @@ are in `hl20_spec.md` §11. Summary:
 ## Debugging guide
 
 - **Gravity-only fails:** check gravity direction (+pos_3 = NED down), quaternion kinematics signs, all six force/torque inputs wired.
-- **Aero sweep discontinuities:** confirm the project module exposes the registered functions as `ChallengeComponent.hl20_poly1d`, etc.
+- **Aero sweep discontinuities:** confirm the project module exposes the registered functions as `HL20Demo.hl20_poly1d`, etc.
 - **Integrated tests fail after gravity-only passes:** check frame contracts — forces in inertial NED, torques in body, altitude = `−pos_3 × ft_per_m`.
 - **NaN / divergence:** check division safety (`v_scalar`, `vrw_fps` denominators) and that all differential states have `initial` equations.
 - **Closed-loop transient at t = 0:** ensure mixer FirstOrder actuator states are initialized at their equilibrium values (spec §11), not zero.

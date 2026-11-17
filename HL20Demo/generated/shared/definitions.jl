@@ -15,6 +15,7 @@ if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "shared",
   include(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "shared", "definitions.jl"))
 end
 
+import BlockComponents
 import DyadData
 import DyadInterface
 @doc Markdown.doc"""
@@ -195,4 +196,19 @@ component.
 end
 
 
+include("AeroAirData_definition.jl")
+include("AeroCLCD_definition.jl")
+include("AeroCYCN_definition.jl")
+include("AeroLateralCoeffs_definition.jl")
+include("AeroLongitudinal_definition.jl")
+include("CubicPoly_definition.jl")
 include("HL20Aero_definition.jl")
+include("HL20CD_definition.jl")
+include("HL20CL_definition.jl")
+include("HL20CM_definition.jl")
+include("HL20CN_definition.jl")
+include("HL20CR_definition.jl")
+include("HL20CY_definition.jl")
+include("HL20Table1D_definition.jl")
+include("HL20Table2DE_definition.jl")
+include("HL20Table2DR_definition.jl")

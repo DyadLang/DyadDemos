@@ -1,0 +1,391 @@
+"""
+Airspeed and aero angles from body-axis velocity [u,v,w]: total airspeed,
+angle of attack alpha and sideslip beta in degrees plus the sine/cosine
+signals the control laws consume.
+"""
+component AeroAngles
+  "Body velocity, forward (m/s)"
+  u = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
+        "diagram": {"x1": -30, "x2": 30, "y1": 420, "y2": 480}
+      }
+    }
+  }
+  "Body velocity, right (m/s)"
+  v = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
+        "diagram": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}
+      }
+    }
+  }
+  "Body velocity, down (m/s)"
+  w = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
+        "diagram": {"x1": -30, "x2": 30, "y1": 1020, "y2": 1080}
+      }
+    }
+  }
+  "Total airspeed (m/s)"
+  v_scalar = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 370, "y2": 430}
+      }
+    }
+  }
+  "Angle of attack (deg)"
+  alpha_deg = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 670, "y2": 730}
+      }
+    }
+  }
+  "Sideslip angle (deg)"
+  beta_deg = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 970, "y2": 1030}
+      }
+    }
+  }
+  "sin of angle of attack"
+  sin_alpha = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 1270, "y2": 1330}
+      }
+    }
+  }
+  "cos of angle of attack"
+  cos_alpha = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 820, "x2": 1030, "y2": 880},
+        "diagram": {"x1": 2570, "x2": 2630, "y1": 1570, "y2": 1630}
+      }
+    }
+  }
+  uu = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 650, "x2": 750, "y1": 800, "y2": 900}}}
+  }
+  vv = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 650, "x2": 750, "y1": 350, "y2": 450}}}
+  }
+  ww = BlockComponents.Math.Product() {
+    "Dyad": {"placement": {"diagram": {"x1": 650, "x2": 750, "y1": 1050, "y2": 1150}}}
+  }
+  sum_uvw = BlockComponents.Math.Add3() {
+    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1000, "y1": 450, "y2": 550}}}
+  }
+  v_eps = BlockComponents.Sources.Constant(k = 1e-6) {
+    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1000, "y1": 200, "y2": 300}}}
+  }
+  sum_v = BlockComponents.Math.Add() {
+    "Dyad": {"placement": {"diagram": {"x1": 1150, "x2": 1250, "y1": 350, "y2": 450}}}
+  }
+  v_sqrt = BlockComponents.Math.Sqrt() {
+    "Dyad": {"placement": {"diagram": {"x1": 1400, "x2": 1500, "y1": 350, "y2": 450}}}
+  }
+  sum_uw = BlockComponents.Math.Add() {
+    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1000, "y1": 900, "y2": 1000}}}
+  }
+  sqrt_uw = BlockComponents.Math.Sqrt() {
+    "Dyad": {"placement": {"diagram": {"x1": 1150, "x2": 1250, "y1": 900, "y2": 1000}}}
+  }
+  atan_alpha = BlockComponents.Math.Atan2() {
+    "Dyad": {"placement": {"diagram": {"x1": 650, "x2": 750, "y1": 1300, "y2": 1400}}}
+  }
+  atan_beta = BlockComponents.Math.Atan2() {
+    "Dyad": {"placement": {"diagram": {"x1": 1400, "x2": 1500, "y1": 800, "y2": 900}}}
+  }
+  alpha_to_deg = BlockComponents.Math.Gain(k = 57.29577951308232) {
+    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1000, "y1": 1150, "y2": 1250}}}
+  }
+  beta_to_deg = BlockComponents.Math.Gain(k = 57.29577951308232) {
+    "Dyad": {"placement": {"diagram": {"x1": 1650, "x2": 1750, "y1": 800, "y2": 900}}}
+  }
+  s_alpha = BlockComponents.Math.Sin() {
+    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1000, "y1": 1400, "y2": 1500}}}
+  }
+  c_alpha = BlockComponents.Math.Cos() {
+    "Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1000, "y1": 1650, "y2": 1750}}}
+  }
+relations
+  connect(u, uu.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 637.5, "y": 450}, {"x": 637.5, "y": 818.75}, {"x": 643.75, "y": 818.75}, {"x": 643.75, "y": 820.0}], "E": 2}], "path": {}}}
+  connect(u, uu.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 637.5, "y": 450}, {"x": 637.5, "y": 875}, {"x": 643.75, "y": 875}, {"x": 643.75, "y": 880.0}], "E": 2}], "path": {}}}
+  connect(v, vv.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 643.75, "y": 750}, {"x": 643.75, "y": 370}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(v, vv.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 643.75, "y": 750}, {"x": 643.75, "y": 430}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(w, ww.u1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 643.75, "y": 1050}, {"x": 643.75, "y": 1070}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(w, ww.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 643.75, "y": 1050}, {"x": 643.75, "y": 1130}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(uu.y, sum_uvw.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 881.25, "y": 850},
+            {"x": 881.25, "y": 475},
+            {"x": 893.75, "y": 475},
+            {"x": 893.75, "y": 470}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(vv.y, sum_uvw.u2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 887.5, "y": 400}, {"x": 887.5, "y": 500}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(ww.y, sum_uvw.u3) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 887.5, "y": 1100},
+            {"x": 887.5, "y": 531.25},
+            {"x": 893.75, "y": 531.25},
+            {"x": 893.75, "y": 530}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(sum_uvw.y, sum_v.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1137.5, "y": 500},
+            {"x": 1137.5, "y": 375},
+            {"x": 1143.75, "y": 375},
+            {"x": 1143.75, "y": 370}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(v_eps.y, sum_v.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1131.25, "y": 250},
+            {"x": 1131.25, "y": 425},
+            {"x": 1143.75, "y": 425},
+            {"x": 1143.75, "y": 430}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(sum_v.y, v_sqrt.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(v_sqrt.y, v_scalar) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(uu.y, sum_uw.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 893.75, "y": 850}, {"x": 893.75, "y": 920.0}], "E": 2}], "path": {}}}
+  connect(ww.y, sum_uw.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 893.75, "y": 1100}, {"x": 893.75, "y": 980.0}], "E": 2}], "path": {}}}
+  connect(sum_uw.y, sqrt_uw.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(w, atan_alpha.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 637.5, "y": 1050},
+            {"x": 637.5, "y": 1318.75},
+            {"x": 643.75, "y": 1318.75},
+            {"x": 643.75, "y": 1320}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(u, atan_alpha.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 631.25, "y": 450},
+            {"x": 631.25, "y": 1375},
+            {"x": 643.75, "y": 1375},
+            {"x": 643.75, "y": 1380}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(v, atan_beta.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1393.75, "y": 750}, {"x": 1393.75, "y": 820.0}], "E": 2}], "path": {}}}
+  connect(sqrt_uw.y, atan_beta.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1393.75, "y": 950}, {"x": 1393.75, "y": 880.0}], "E": 2}], "path": {}}}
+  connect(atan_alpha.y, alpha_to_deg.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 870, "y": 1350}, {"x": 870, "y": 1200}], "E": 2}], "path": {}} }
+  connect(alpha_to_deg.y, alpha_deg) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2387.5, "y": 1200}, {"x": 2387.5, "y": 700}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(atan_beta.y, beta_to_deg.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
+  connect(beta_to_deg.y, beta_deg) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2393.75, "y": 850}, {"x": 2393.75, "y": 1000}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(atan_alpha.y, s_alpha.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 893.75, "y": 1350}, {"x": 893.75, "y": 1450}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(atan_alpha.y, c_alpha.u) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 887.5, "y": 1350}, {"x": 887.5, "y": 1700}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(s_alpha.y, sin_alpha) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2393.75, "y": 1450}, {"x": 2393.75, "y": 1300}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_alpha.y, cos_alpha) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 2393.75, "y": 1700}, {"x": 2393.75, "y": 1600}], "E": 2}],
+      "path": {}
+    }
+  }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/aeroangles.svg"}}}
+end
+
+"""
+Euler angles of the scalar-first quaternion q = [qw, qx, qy, qz]: roll phi,
+pitch theta and yaw psi in degrees plus the sine/cosine signals the
+control laws consume.
+"""
+component EulerAngles
+  "Quaternion scalar part"
+  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80}, "diagram": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}}}}
+  "Quaternion x part"
+  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}}}}
+  "Quaternion y part"
+  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": -30, "x2": 30, "y1": 2420, "y2": 2480}}}}
+  "Quaternion z part"
+  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": -30, "x2": 30, "y1": 2570, "y2": 2630}}}}
+  "Euler roll angle (deg)"
+  phi_deg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80}, "diagram": {"x1": 2370, "x2": 2430, "y1": 720, "y2": 780}}}}
+  "Euler pitch angle (deg)"
+  theta_deg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 170, "x2": 1030, "y2": 230}, "diagram": {"x1": 2370, "x2": 2430, "y1": 1370, "y2": 1430}}}}
+  "Euler yaw angle (deg)"
+  psi_deg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380}, "diagram": {"x1": 2370, "x2": 2430, "y1": 1970, "y2": 2030}}}}
+  "sin of Euler roll angle"
+  sin_phi = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 470, "x2": 1030, "y2": 530}, "diagram": {"x1": 2370, "x2": 2430, "y1": 970, "y2": 1030}}}}
+  "cos of Euler roll angle"
+  cos_phi = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680}, "diagram": {"x1": 2370, "x2": 2430, "y1": 1170, "y2": 1230}}}}
+  "cos of Euler pitch angle"
+  cos_theta = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 770, "x2": 1030, "y2": 830}, "diagram": {"x1": 2370, "x2": 2430, "y1": 1570, "y2": 1630}}}}
+  p_qwqx = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 750, "y2": 850}}}}
+  p_qyqz = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 2000, "y2": 2100}}}}
+  p_qx2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 550, "y2": 650}}}}
+  p_qy2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1700, "y2": 1800}}}}
+  p_qz2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 2300, "y2": 2400}}}}
+  p_qwqy = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1100, "y2": 1200}}}}
+  p_qzqx = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1250, "y2": 1350}}}}
+  p_qwqz = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1850, "y2": 1950}}}}
+  p_qxqy = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1550, "y2": 1650}}}}
+  one_phi = BlockComponents.Sources.Constant(k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 300, "y2": 400}}}}
+  one_psi = BlockComponents.Sources.Constant(k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 700, "x2": 800, "y1": 2450, "y2": 2550}}}}
+  phi_num = BlockComponents.Math.Add(k1 = 2.0, k2 = 2.0) {"Dyad": {"placement": {"diagram": {"x1": 1000, "x2": 1100, "y1": 950, "y2": 1050}}}}
+  phi_den = BlockComponents.Math.Add3(k1 = 1.0, k2 = -2.0, k3 = -2.0) {"Dyad": {"placement": {"diagram": {"x1": 1000, "x2": 1100, "y1": 650, "y2": 750}}}}
+  atan_phi = BlockComponents.Math.Atan2() {"Dyad": {"placement": {"diagram": {"x1": 1250, "x2": 1350, "y1": 850, "y2": 950}}}}
+  the_arg = BlockComponents.Math.Add(k1 = 2.0, k2 = -2.0) {"Dyad": {"placement": {"diagram": {"x1": 1000, "x2": 1100, "y1": 1200, "y2": 1300}}}}
+  the_clamp = BlockComponents.Nonlinear.Limiter(y_min = -1.0, y_max = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 1250, "x2": 1350, "y1": 1350, "y2": 1450}}}}
+  asin_the = BlockComponents.Math.Asin() {"Dyad": {"placement": {"diagram": {"x1": 1500, "x2": 1600, "y1": 1350, "y2": 1450}}}}
+  psi_num = BlockComponents.Math.Add(k1 = 2.0, k2 = 2.0) {"Dyad": {"placement": {"diagram": {"x1": 1000, "x2": 1100, "y1": 1600, "y2": 1700}}}}
+  psi_den = BlockComponents.Math.Add3(k1 = 1.0, k2 = -2.0, k3 = -2.0) {"Dyad": {"placement": {"diagram": {"x1": 1000, "x2": 1100, "y1": 2150, "y2": 2250}}}}
+  atan_psi = BlockComponents.Math.Atan2() {"Dyad": {"placement": {"diagram": {"x1": 1250, "x2": 1350, "y1": 1900, "y2": 2000}}}}
+  phi_to_deg = BlockComponents.Math.Gain(k = 57.29577951308232) {"Dyad": {"placement": {"diagram": {"x1": 1500, "x2": 1600, "y1": 650, "y2": 750}}}}
+  theta_to_deg = BlockComponents.Math.Gain(k = 57.29577951308232) {"Dyad": {"placement": {"diagram": {"x1": 1750, "x2": 1850, "y1": 1300, "y2": 1400}}}}
+  psi_to_deg = BlockComponents.Math.Gain(k = 57.29577951308232) {"Dyad": {"placement": {"diagram": {"x1": 1500, "x2": 1600, "y1": 2050, "y2": 2150}}}}
+  s_phi = BlockComponents.Math.Sin() {"Dyad": {"placement": {"diagram": {"x1": 1500, "x2": 1600, "y1": 950, "y2": 1050}}}}
+  c_phi = BlockComponents.Math.Cos() {"Dyad": {"placement": {"diagram": {"x1": 1500, "x2": 1600, "y1": 1200, "y2": 1300}}}}
+  c_the = BlockComponents.Math.Cos() {"Dyad": {"placement": {"diagram": {"x1": 1750, "x2": 1850, "y1": 1500, "y2": 1600}}}}
+relations
+                                connect(qw, p_qwqx.u1, p_qwqy.u1, p_qwqz.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 520, "y": 750}], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -1, "M": [], "E": 2}, {"S": -2, "M": [], "E": 3}, {"S": -3, "M": [], "E": 4}], "path": {}, "junctions": [{"x": 520, "y": 770}, {"x": 520, "y": 1120}, {"x": 520, "y": 1870}]}}
+    connect(qz, p_qzqx.u1, p_qwqz.u2, p_qyqz.u2, p_qz2.u1, p_qz2.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 610, "y": 2600}], "E": -5}, {"S": -5, "M": [], "E": -4}, {"S": -4, "M": [], "E": -3}, {"S": -3, "M": [], "E": -2}, {"S": -2, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -2, "M": [], "E": 3}, {"S": -3, "M": [], "E": 4}, {"S": -4, "M": [], "E": 5}, {"S": -5, "M": [], "E": 6}], "path": {}, "junctions": [{"x": 610, "y": 1270}, {"x": 610, "y": 1930}, {"x": 610, "y": 2080}, {"x": 610, "y": 2320}, {"x": 610, "y": 2380}]}}
+    connect(qx, p_qx2.u1, p_qx2.u2, p_qwqx.u2, p_qzqx.u2, p_qxqy.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 550, "y": 550}], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [], "E": -5}, {"S": -1, "M": [], "E": 2}, {"S": -2, "M": [], "E": 3}, {"S": -3, "M": [], "E": 4}, {"S": -4, "M": [], "E": 5}, {"S": -5, "M": [], "E": 6}], "path": {}, "junctions": [{"x": 550, "y": 570}, {"x": 550, "y": 630}, {"x": 550, "y": 830}, {"x": 550, "y": 1330}, {"x": 550, "y": 1570}]}}
+    connect(qy, p_qwqy.u2, p_qxqy.u2, p_qy2.u1, p_qy2.u2, p_qyqz.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 580, "y": 2450}], "E": -5}, {"S": -5, "M": [], "E": -4}, {"S": -4, "M": [], "E": -3}, {"S": -3, "M": [], "E": -2}, {"S": -2, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -2, "M": [], "E": 3}, {"S": -3, "M": [], "E": 4}, {"S": -4, "M": [], "E": 5}, {"S": -5, "M": [], "E": 6}], "path": {}, "junctions": [{"x": 580, "y": 1180}, {"x": 580, "y": 1630}, {"x": 580, "y": 1720}, {"x": 580, "y": 1780}, {"x": 580, "y": 2020}]}}
+  connect(p_qwqx.y, phi_num.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 930, "y": 800}, {"x": 930, "y": 970}], "E": 2}], "path": {}} }
+  connect(p_qyqz.y, phi_num.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 999, "y": 2050}, {"x": 999, "y": 1030}], "E": 2}], "path": {}} }
+  connect(one_phi.y, phi_den.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 985, "y": 350}, {"x": 985, "y": 670}], "E": 2}], "path": {}} }
+  connect(p_qx2.y, phi_den.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 950, "y": 600}, {"x": 950, "y": 700}], "E": 2}], "path": {}} }
+    connect(phi_num.y, atan_phi.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1220, "y": 1000}, {"x": 1220, "y": 870}], "E": 2}], "path": {}} }
+  connect(phi_den.y, atan_phi.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1200, "y": 700}, {"x": 1200, "y": 930}], "E": 2}], "path": {}} }
+    connect(phi_to_deg.y, phi_deg) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2200, "y": 700}, {"x": 2200, "y": 750}], "E": 2}], "path": {}} }
+      connect(atan_phi.y, phi_to_deg.u, s_phi.u, c_phi.u) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1420, "y": 900}], "E": -1}, {"S": -1, "M": [{"x": 1420, "y": 700}], "E": 2}, {"S": -1, "M": [{"x": 1440, "y": 900}, {"x": 1440, "y": 1000}], "E": 3}, {"S": -1, "M": [{"x": 1460, "y": 900}, {"x": 1460, "y": 1250}], "E": 4}], "path": {}, "junctions": [{"x": 1420, "y": 900}]}}
+  connect(s_phi.y, sin_phi) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(c_phi.y, cos_phi) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2200, "y": 1250}, {"x": 2200, "y": 1200}], "E": 2}], "path": {}} }
+  connect(p_qwqy.y, the_arg.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 960, "y": 1150}, {"x": 960, "y": 1220}], "E": 2}], "path": {}} }
+  connect(p_qzqx.y, the_arg.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 940, "y": 1300}, {"x": 940, "y": 1280}], "E": 2}], "path": {}} }
+  connect(the_arg.y, the_clamp.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1200, "y": 1250}, {"x": 1200, "y": 1400}], "E": 2}], "path": {}} }
+  connect(the_clamp.y, asin_the.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+    connect(theta_to_deg.y, theta_deg) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2200, "y": 1350}, {"x": 2200, "y": 1400}], "E": 2}], "path": {}} }
+    connect(asin_the.y, theta_to_deg.u, c_the.u) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1700, "y": 1400}], "E": -1}, {"S": -1, "M": [{"x": 1700, "y": 1350}], "E": 2}, {"S": -1, "M": [{"x": 1700, "y": 1550}], "E": 3}], "path": {}, "junctions": [{"x": 1700, "y": 1400}]}}
+  connect(c_the.y, cos_theta) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2200, "y": 1550}, {"x": 2200, "y": 1600}], "E": 2}], "path": {}} }
+  connect(p_qwqz.y, psi_num.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 998, "y": 1900}, {"x": 998, "y": 1620}], "E": 2}], "path": {}} }
+  connect(p_qxqy.y, psi_num.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 940, "y": 1600}, {"x": 940, "y": 1680}], "E": 2}], "path": {}} }
+  connect(one_psi.y, psi_den.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 920, "y": 2500}, {"x": 920, "y": 2170}], "E": 2}], "path": {}} }
+    connect(p_qy2.y, phi_den.u3, psi_den.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 870, "y": 1750}], "E": -1}, {"S": -1, "M": [{"x": 997, "y": 1750}, {"x": 997, "y": 730}], "E": 2}, {"S": -1, "M": [{"x": 960, "y": 1750}, {"x": 960, "y": 2200}], "E": 3}], "path": {}, "junctions": [{"x": 870, "y": 1750}]}}
+  connect(p_qz2.y, psi_den.u3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 940, "y": 2350}, {"x": 940, "y": 2230}], "E": 2}], "path": {}} }
+  connect(psi_num.y, atan_psi.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1200, "y": 1650}, {"x": 1200, "y": 1920}], "E": 2}], "path": {}} }
+  connect(psi_den.y, atan_psi.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1220, "y": 2200}, {"x": 1220, "y": 1980}], "E": 2}], "path": {}} }
+  connect(atan_psi.y, psi_to_deg.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1400, "y": 1950}, {"x": 1400, "y": 2100}], "E": 2}], "path": {}} }
+  connect(psi_to_deg.y, psi_deg) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2200, "y": 2100}, {"x": 2200, "y": 2000}], "E": 2}], "path": {}} }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/eulerangles.svg"}}}
+end

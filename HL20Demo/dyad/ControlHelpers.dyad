@@ -1,0 +1,54 @@
+"Three-input switch: y = u_a when u_sel > threshold, else u_b."
+component Switch
+  "Selector input"
+  u_sel = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 470, "x2": 30, "y2": 530},
+        "diagram": {"x1": -30, "x2": 30, "y1": 270, "y2": 330}
+      }
+    }
+  }
+  "Value passed when u_sel > threshold"
+  u_a = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 70, "x2": 30, "y2": 130},
+        "diagram": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}
+      }
+    }
+  }
+  "Value passed when u_sel <= threshold"
+  u_b = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -30, "y1": 870, "x2": 30, "y2": 930},
+        "diagram": {"x1": -30, "x2": 30, "y1": 420, "y2": 480}
+      }
+    }
+  }
+  "Switched output"
+  y = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 970, "y1": 470, "x2": 1030, "y2": 530},
+        "diagram": {"x1": 970, "x2": 1030, "y1": 270, "y2": 330}
+      }
+    }
+  }
+  "Switch threshold"
+  parameter threshold::Real = 0.0
+relations
+  y = ifelse(u_sel > threshold, u_a, u_b)
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/switch.svg"}}}
+end
+
+"Adjustable upper limit: y = max(min(u1, u2), u_min)."
+component AdjustableUpperLimit
+  extends BlockComponents.Interfaces.SI2SO
+  "Fixed lower limit"
+  parameter u_min::Real = 0.0
+relations
+  y = max(min(u1, u2), u_min)
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/adjlimit.svg"}}}
+end

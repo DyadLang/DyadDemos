@@ -1,0 +1,528 @@
+"RigidBody6DOF alone in gravity-only freefall (spec scenario 1)."
+test component TestGravityOnly
+  body = RigidBody6DOF(mass = 1000.0, Jxx = 100.0, Jyy = 200.0, Jzz = 300.0, g = 9.81, p3_0 = -1000.0, v1_0 = 100.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 475, "x2": 675, "y1": 525, "y2": 1325}}}
+  }
+  z1 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 215, "x2": 315, "y1": 500, "y2": 600}}}
+  }
+  z2 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 335, "x2": 435, "y1": 600, "y2": 700}}}
+  }
+  z3 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 215, "x2": 315, "y1": 675, "y2": 775}}}
+  }
+  z4 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 335, "x2": 435, "y1": 800, "y2": 900}}}
+  }
+  z5 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 215, "x2": 315, "y1": 875, "y2": 975}}}
+  }
+  z6 = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 335, "x2": 435, "y1": 950, "y2": 1050}}}
+  }
+relations
+  connect(z1.y, body.F1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 550}, {"x": 450, "y": 565}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(z2.y, body.F2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 650}, {"x": 450, "y": 645}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(z3.y, body.F3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 725}, {"x": 450, "y": 725}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(z4.y, body.T1) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 850}, {"x": 450, "y": 885}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(z5.y, body.T2) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 925}, {"x": 450, "y": 965}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(z6.y, body.T3) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 450, "y": 1000}, {"x": 450, "y": 1045}], "E": 2}],
+      "path": {}
+    }
+  }
+metadata {
+  "Dyad": {
+    "tests": {
+      "freefall": {
+        "stop": 5,
+        "atol": {
+          "body.pos_1": 0.001,
+          "body.pos_3": 0.001,
+          "body.vel_1": 1e-6,
+          "body.vel_3": 1e-6
+        },
+        "expect": {
+          "final": {
+            "body.pos_1": 500.0,
+            "body.pos_3": -877.375,
+            "body.vel_1": 100.0,
+            "body.vel_3": 49.05
+          }
+        }
+      }
+    }
+  }
+}
+end
+
+analysis TestGravityOnlySim
+  extends TransientAnalysis(stop = 5.0)
+  model = TestGravityOnly()
+relations
+end
+
+"HL20Aero alone on an alpha ramp -5 to +30 deg at Mach 0.2 (spec scenario 2)."
+test component TestAeroSweep
+  aero = HL20Demo.shared.HL20Aero() {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 625, "x2": 1375, "y1": 1000, "y2": 2500}}
+    }
+  }
+  ramp = BlockComponents.Sources.Ramp(height = 35.0, duration = 35.0, offset = -5.0, start_time = 0.0) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1025, "y2": 1125}}
+    }
+  }
+  c_beta = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1175, "y2": 1275}}
+    }
+  }
+  c_mach = BlockComponents.Sources.Constant(k = 0.2) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1325, "y2": 1425}}
+    }
+  }
+  c_vrw = BlockComponents.Sources.Constant(k = 223.3) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1475, "y2": 1575}}
+    }
+  }
+  c_hob = BlockComponents.Sources.Constant(k = 100.0) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1625, "y2": 1725}}
+    }
+  }
+  c_pb = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1775, "y2": 1875}}
+    }
+  }
+  c_qb = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 1925, "y2": 2025}}}
+  }
+  c_rb = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2075, "y2": 2175}}}
+  }
+  c_dbful = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2600, "y2": 2700}}}
+  }
+  c_dbfur = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 2750, "y2": 2850}}}
+  }
+  c_dbfll = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 2900, "y2": 3000}}
+    }
+  }
+  c_dbflr = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 3050, "y2": 3150}}
+    }
+  }
+  c_dwfl = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3200, "y2": 3300}}
+    }
+  }
+  c_dwfr = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 200, "x2": 300, "y1": 3350, "y2": 3450}}
+    }
+  }
+  c_drud = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {
+      "placement": {"diagram": {"x1": 400, "x2": 500, "y1": 3500, "y2": 3600}}
+    }
+  }
+relations
+  connect(ramp.y, aero.alpha_deg) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_beta.y, aero.beta_deg) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_mach.y, aero.mach) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_vrw.y, aero.vrw_fps) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_hob.y, aero.hob) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_pb.y, aero.pb) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_qb.y, aero.qb) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_rb.y, aero.rb) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dbful.y, aero.DBFUL) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 662.5, "y": 2650}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dbfur.y, aero.DBFUR) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 737.5, "y": 2800}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dbfll.y, aero.DBFLL) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 812.5, "y": 2950}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dbflr.y, aero.DBFLR) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 887.5, "y": 3100}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dwfl.y, aero.DWFL) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 962.5, "y": 3250}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dwfr.y, aero.DWFR) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1037.5, "y": 3400}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_drud.y, aero.DRUD) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 1112.5, "y": 3550}], "E": 2}],
+      "path": {}
+    }
+  }
+metadata {
+  "Dyad": {
+    "tests": {
+      "sweep": {
+        "stop": 35,
+        "atol": {"aero.Cm": 0.001, "aero.CZ": 0.001},
+        "expect": {"signals": ["aero.Cm", "aero.CZ", "aero.CX"]}
+      }
+    }
+  }
+}
+end
+
+analysis AeroSweepTransient
+  extends TransientAnalysis(stop = 35.0)
+  model = TestAeroSweep()
+relations
+end
+
+"""
+Open-loop HL20Vehicle at the NASA subsonic trim with constant surfaces
+(spec scenario 3).
+"""
+test component TestHL20Subsonic
+  vehicle = HL20Vehicle() {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 950, "y2": 1250}}}
+  }
+  c_dbful = BlockComponents.Sources.Constant(k = -6.42) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 200, "y2": 300}}}
+  }
+  c_dbfur = BlockComponents.Sources.Constant(k = -6.42) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 450, "y2": 550}}}
+  }
+  c_dbfll = BlockComponents.Sources.Constant(k = 16.42) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 700, "y2": 800}}}
+  }
+  c_dbflr = BlockComponents.Sources.Constant(k = 16.42) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 950, "y2": 1050}}}
+  }
+  c_dwfl = BlockComponents.Sources.Constant(k = 5.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1200, "y2": 1300}}}
+  }
+  c_dwfr = BlockComponents.Sources.Constant(k = 5.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1450, "y2": 1550}}}
+  }
+  c_drud = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1700, "y2": 1800}}}
+  }
+relations
+  connect(c_dbful.y, vehicle.DBFUL) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 430, "y": 250}, {"x": 430, "y": 995}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dbfur.y, vehicle.DBFUR) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 410, "y": 500}, {"x": 410, "y": 1025}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dbfll.y, vehicle.DBFLL) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 390, "y": 750}, {"x": 390, "y": 1055}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dbflr.y, vehicle.DBFLR) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 370, "y": 1000}, {"x": 370, "y": 1085}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_dwfl.y, vehicle.DWFL) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 320, "y": 1250}, {"x": 320, "y": 1115}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_dwfr.y, vehicle.DWFR) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 335, "y": 1500}, {"x": 335, "y": 1145}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_drud.y, vehicle.DRUD) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 350, "y": 1750},
+            {"x": 350, "y": 1175}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+metadata {
+  "Dyad": {
+    "tests": {
+      "trim": {
+        "stop": 10,
+        "expect": {
+          "signals": ["vehicle.ALPHA_DEG", "vehicle.NZ", "vehicle.QBAR", "vehicle.POS_3"]
+        }
+      }
+    }
+  }
+}
+end
+
+analysis TestHL20SubsonicSim
+  extends TransientAnalysis(stop = 10.0)
+  model = TestHL20Subsonic()
+relations
+end
+
+"The four SAS controllers standalone on constant inputs (spec scenario 4)."
+test component TestControllers
+  pitch_ctrl = PitchControl(DETRIM0 = 5.5) {"Dyad": {"placement": {"diagram": {"x1": 900, "x2": 1350, "y1": 1050, "y2": 1150}}}}
+  roll_ctrl = RollControl() {"Dyad": {"placement": {"diagram": {"x1": 500, "x2": 650, "y1": 2705, "y2": 2805}}}}
+  yaw_ctrl = YawControl() {"Dyad": {"placement": {"diagram": {"x1": 950, "x2": 1100, "y1": 2700, "y2": 2800}}}}
+  speed_ctrl = SpeedControl() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 3120, "y2": 3220}}}}
+  c_dcpilot = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1005, "y2": 1105}}}}
+  c_qdeg = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1500, "y2": 1600}}}}
+  c_rdeg = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1650, "y2": 1750}}}}
+  c_nz = BlockComponents.Sources.Constant(k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2400, "y2": 2500}}}}
+  c_sinphi = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1800, "y2": 1900}}}}
+  c_cosphi = BlockComponents.Sources.Constant(k = 1.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1950, "y2": 2050}}}}
+  c_costhe = BlockComponents.Sources.Constant(k = 0.98) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2100, "y2": 2200}}}}
+  c_dledeg = BlockComponents.Sources.Constant(k = 5.5) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 1160, "y2": 1260}}}}
+  c_qbar = BlockComponents.Sources.Constant(k = 300.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2250, "y2": 2350}}}}
+  c_mach = BlockComponents.Sources.Constant(k = 0.54) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 1350, "y2": 1450}}}}
+  c_vtotali = BlockComponents.Sources.Constant(k = 585.0) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 2550, "y2": 2650}}}}
+  c_dwpilot = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2700, "y2": 2800}}}}
+  c_pdeg = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 2900, "y2": 3000}}}}
+  c_dppilot = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 650, "x2": 750, "y1": 2600, "y2": 2700}}}}
+  c_dlsbcom = BlockComponents.Sources.Constant(k = 20.9) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 3120, "y2": 3220}}}}
+relations
+  connect(c_dcpilot.y, pitch_ctrl.DCPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 900, "y": 1055}], "E": 2}], "path": {}} }
+  connect(c_qdeg.y, pitch_ctrl.QDEG) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 973.125, "y": 1550.0}], "E": 2}], "path": {}} }
+      connect(c_rdeg.y, pitch_ctrl.RDEG, yaw_ctrl.RDEG) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -1, "M": [{"x": 1023.75, "y": 1772.5}, {"x": 235, "y": 1772.5}, {"x": 235, "y": 3070}, {"x": 1060, "y": 3070}, {"x": 1060, "y": 2800}], "E": 3}], "path": {}, "junctions": [{"x": 1023.75, "y": 1700}]}}
+  connect(c_nz.y, pitch_ctrl.NZ) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1276.875, "y": 2450.0}], "E": 2}], "path": {}} }
+  connect(c_sinphi.y, pitch_ctrl.SINPHI) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1074.375, "y": 1850.0}], "E": 2}], "path": {}} }
+  connect(c_cosphi.y, pitch_ctrl.COSPHI) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1125, "y": 2000.0}], "E": 2}], "path": {}} }
+  connect(c_costhe.y, pitch_ctrl.COSTHE) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1175.625, "y": 2150.0}], "E": 2}], "path": {}} }
+  connect(c_dledeg.y, pitch_ctrl.DLEDEG) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 700, "y": 1210}, {"x": 700, "y": 1125}, {"x": 900, "y": 1125}], "E": 2}], "path": {}} }
+  connect(c_qbar.y, pitch_ctrl.QBAR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1226.25, "y": 2300.0}], "E": 2}], "path": {}} }
+        connect(c_mach.y, pitch_ctrl.MACH, yaw_ctrl.MACH) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 930, "y": 1400}, {"x": 930, "y": 1150}], "E": 2}, {"S": -1, "M": [{"x": 960, "y": 1300}, {"x": 245, "y": 1300}, {"x": 245, "y": 3050}, {"x": 940, "y": 3050}, {"x": 940, "y": 2800}], "E": 3}], "path": {}, "junctions": [{"x": 960, "y": 1400}]}}
+      connect(c_vtotali.y, pitch_ctrl.VTOTALI) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1327.5, "y": 2600}], "E": 2}], "path": {}}}
+  connect(c_dwpilot.y, roll_ctrl.DWPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 450, "y": 2750}, {"x": 450, "y": 2725}, {"x": 500, "y": 2725}], "E": 2}], "path": {}} }
+    connect(c_pdeg.y, roll_ctrl.PDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 490, "y": 2950}, {"x": 490, "y": 2805}], "E": 2}], "path": {}}}
+  connect(c_dppilot.y, yaw_ctrl.DPPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 890, "y": 2650}, {"x": 890, "y": 2715}, {"x": 950, "y": 2715}], "E": 2}], "path": {}} }
+    connect(roll_ctrl.DACMD, yaw_ctrl.DACMD) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 950, "y": 2755}], "E": 2}], "path": {}} }
+    connect(c_dlsbcom.y, speed_ctrl.DLSBCOM) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 750, "y": 3170}], "E": 2}], "path": {}} }
+metadata {
+  "Dyad": {
+    "tests": {
+      "hold": {
+        "stop": 15,
+        "atol": {"speed_ctrl.DSBCMD": 0.01, "yaw_ctrl.DRCMD": 0.01},
+        "expect": {
+          "final": {"speed_ctrl.DSBCMD": 16.3804, "yaw_ctrl.DRCMD": 0.0},
+          "signals": ["pitch_ctrl.DECMD", "pitch_ctrl.int_detrim.y", "yaw_ctrl.wash.y"]
+        }
+      }
+    }
+  }
+}
+end
+
+analysis TestControllersSim
+  extends TransientAnalysis(stop = 15.0)
+  model = TestControllers()
+relations
+end
+
+"""
+Closed-loop pitch-pulse check case (spec scenario 5, TM-107580 Appendix F
+trim case 0 maneuver 1): a 1-unit aft pitch-stick pulse from t=1 to t=2.
+"""
+test component TestHL20FullSystem
+  sys = HL20FullSystem(DETRIM0 = 5.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 600, "y2": 700}}}
+  }
+  pulse_add = BlockComponents.Sources.Pulse(amplitude = 1.0, offset = 0.0, start_time = 1.0, duty_cycle = 1.0, period = 1.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 200, "y2": 300}}}
+  }
+  c_dwpilot = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 450, "y2": 550}}}
+  }
+  c_dppilot = BlockComponents.Sources.Constant(k = 0.0) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 700, "y2": 800}}}
+  }
+  c_dlsbcom = BlockComponents.Sources.Constant(k = 20.925) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 950, "y2": 1050}}}
+  }
+relations
+  connect(pulse_add.y, sys.DCPILOT) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 400, "y": 250}, {"x": 400, "y": 615}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dwpilot.y, sys.DWPILOT) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 350, "y": 500},
+            {"x": 350, "y": 650},
+            {"x": 400, "y": 650},
+            {"x": 400, "y": 635}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(c_dppilot.y, sys.DPPILOT) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 350, "y": 750}, {"x": 350, "y": 655}], "E": 2}],
+      "path": {}
+    }
+  }
+  connect(c_dlsbcom.y, sys.DLSBCOM) {
+    "Dyad": {
+      "edges": [{"S": 1, "M": [{"x": 400, "y": 1000}, {"x": 400, "y": 675}], "E": 2}],
+      "path": {}
+    }
+  }
+  # atol kept only on sys.QDEG, sys.DECMD, sys.DLE: reproducible solver
+  # jitter measured at ~1.3-1.7e-4 on these signals (5e-4 gives ~3x margin).
+metadata {
+  "Dyad": {
+    "tests": {
+      "pitchpulse": {
+        "stop": 10,
+        "atol": {
+          "sys.QDEG": 0.0005,
+          "sys.DECMD": 0.0005,
+          "sys.DLE": 0.0005
+        },
+        "expect": {"signals": ["sys.ALPHA_DEG", "sys.QDEG", "sys.DECMD", "sys.DLE", "sys.NZ"]}
+      }
+    }
+  }
+}
+end
+
+analysis TestHL20FullSystemSim
+  extends TransientAnalysis(stop = 10.0)
+  model = TestHL20FullSystem()
+relations
+end
