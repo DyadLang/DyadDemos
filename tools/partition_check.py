@@ -94,6 +94,23 @@ def _extraction(prefix, kind):
                 e[P(f'r{b}{a}')] = P(f'r{a}{b}')
     elif kind == 'aero':
         e[P('abs_drud')] = P('abs_d')
+    elif kind == 'qk':
+        # QuatDerRow extraction inside QuatKinematics: the twelve product
+        # blocks q_iw_j and four Add3 sums dq_i became four QuatDerRow
+        # instances r0..r3 (p1..p3 + s). The r_i prefix is transparent, so
+        # every row's blocks canonicalise to the same leaf names; the merge
+        # is safe because each ref name belongs to exactly one row.
+        # row 0: dq0 = q1w1 + q2w2 + q3w3   (k = -0.5, -0.5, -0.5)
+        # row 1: dq1 = q0w1 + q2w3 + q3w2   (k = +0.5, +0.5, -0.5)
+        # row 2: dq2 = q0w2 + q1w3 + q3w1   (k = +0.5, -0.5, +0.5)
+        # row 3: dq3 = q0w3 + q1w2 + q2w1   (k = +0.5, +0.5, -0.5)
+        for i, prods in enumerate((('q1w1', 'q2w2', 'q3w3'),
+                                  ('q0w1', 'q2w3', 'q3w2'),
+                                  ('q0w2', 'q1w3', 'q3w1'),
+                                  ('q0w3', 'q1w2', 'q2w1'))):
+            for k, prod in enumerate(prods):
+                e[P(prod)] = P(f'p{k + 1}')
+            e[P(f'dq{i}')] = P('s')
     else:
         raise ValueError(kind)
     return e
@@ -104,19 +121,24 @@ _EXTRACTIONS = {
     'HL20Aero': [('', 'aero')],
     'AeroForceBuilder': [('rot', 'qti')],
     'FlightState': [('rot', 'qtb')],
+    'RigidBody6DOF': [('', 'qk')],
     'HL20Vehicle': [('aero', 'aero'), ('flight.rot', 'qtb'),
-                    ('forces.rot', 'qti')],
+                    ('forces.rot', 'qti'), ('body', 'qk')],
     'HL20FullSystem': [('vehicle.aero', 'aero'),
                        ('vehicle.flight.rot', 'qtb'),
-                       ('vehicle.forces.rot', 'qti')],
+                       ('vehicle.forces.rot', 'qti'),
+                       ('vehicle.body', 'qk')],
     'TestAeroPoint': [('aero', 'aero')],
     'TestAeroSweep': [('aero', 'aero')],
+    'TestGravityOnly': [('body', 'qk')],
     'TestHL20FullSystem': [('sys.vehicle.aero', 'aero'),
                            ('sys.vehicle.flight.rot', 'qtb'),
-                           ('sys.vehicle.forces.rot', 'qti')],
+                           ('sys.vehicle.forces.rot', 'qti'),
+                           ('sys.vehicle.body', 'qk')],
     'TestHL20Subsonic': [('vehicle.aero', 'aero'),
                          ('vehicle.flight.rot', 'qtb'),
-                         ('vehicle.forces.rot', 'qti')],
+                         ('vehicle.forces.rot', 'qti'),
+                         ('vehicle.body', 'qk')],
     'TestQuatDirection': [('rot_a', 'qti'), ('rot_b', 'qti')],
     'TestQuatRoundTrip': [('rot_f', 'qti'), ('rot_b', 'qtb')],
 }
