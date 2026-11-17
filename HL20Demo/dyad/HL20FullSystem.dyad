@@ -5,55 +5,421 @@ signals return to the controllers; primary channels also tee to diagram
 outputs.
 """
 component HL20FullSystem
-  DCPILOT = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200}, "diagram": {"x1": -50.0, "x2": 50.0, "y1": 1450.0, "y2": 1550.0}}}}
-  DWPILOT = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400}, "diagram": {"x1": -50.0, "x2": 50.0, "y1": 1650.0, "y2": 1750.0}}}}
-  DPPILOT = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600}, "diagram": {"x1": -50.0, "x2": 50.0, "y1": 1850.0, "y2": 1950.0}}}}
-  DLSBCOM = RealInput() {"Dyad": {"placement": {"icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800}, "diagram": {"x1": -50.0, "x2": 50.0, "y1": 2050.0, "y2": 2150.0}}}}
-  DECMD = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 965, "x2": 1035, "y1": 15, "y2": 85}, "diagram": {"x1": 2950.0, "x2": 3050.0, "y1": 150.0, "y2": 250.0}}}}
-  ALPHA_DEG = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 965, "x2": 1035, "y1": 465, "y2": 535}, "diagram": {"x1": 2950.0, "x2": 3050.0, "y1": 950.0, "y2": 1050.0}}}}
-  QDEG = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 965, "x2": 1035, "y1": 577.5, "y2": 647.5}, "diagram": {"x1": 2950.0, "x2": 3050.0, "y1": 1550.0, "y2": 1650.0}}}}
-  NZ = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 965, "x2": 1035, "y1": 802.5, "y2": 872.5}, "diagram": {"x1": 2950.0, "x2": 3050.0, "y1": 1750.0, "y2": 1850.0}}}}
-  ALT_FT = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 965, "x2": 1035, "y1": 915, "y2": 985}, "diagram": {"x1": 2950.0, "x2": 3050.0, "y1": 1150.0, "y2": 1250.0}}}}
-  DACMD = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 965, "x2": 1035, "y1": 127.5, "y2": 197.5}, "diagram": {"x1": 2950, "x2": 3050, "y1": 300, "y2": 400}}}}
-  DRCMD = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 965, "x2": 1035, "y1": 240, "y2": 310}, "diagram": {"x1": 2950, "x2": 3050, "y1": 450, "y2": 550}}}}
-  DLE = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 965, "x2": 1035, "y1": 690, "y2": 760}, "diagram": {"x1": 2950.0, "x2": 3050.0, "y1": 1350.0, "y2": 1450.0}}}}
-  DSBCMD = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 965, "x2": 1035, "y1": 352.5, "y2": 422.5}, "diagram": {"x1": 2950, "x2": 3050, "y1": 600, "y2": 700}}}}
-  pitch = PitchControl(DETRIM0 = DETRIM0) {"Dyad": {"placement": {"diagram": {"x1": 400, "y1": 150, "x2": 900, "y2": 300}}}}
-  roll = RollControl() {"Dyad": {"placement": {"diagram": {"x1": 200, "y1": 1100, "x2": 350, "y2": 1200}}}}
-  yaw = YawControl() {"Dyad": {"placement": {"diagram": {"x1": 500, "y1": 1300, "x2": 650, "y2": 1400}}}}
-  speed = SpeedControl() {"Dyad": {"placement": {"diagram": {"x1": 700, "y1": 1500, "x2": 800, "y2": 1600}}}}
-  mixer = HL20Mixer() {"Dyad": {"placement": {"diagram": {"x1": 1300, "y1": 300, "x2": 1400, "y2": 700}}}}
-  vehicle = HL20Vehicle() {"Dyad": {"placement": {"diagram": {"x1": 1800, "y1": 250, "x2": 1900, "y2": 1150}}}}
+  DCPILOT = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 100, "x2": 50, "y2": 200},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1450, "y2": 1550}
+      }
+    }
+  }
+  DWPILOT = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 300, "x2": 50, "y2": 400},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1650, "y2": 1750}
+      }
+    }
+  }
+  DPPILOT = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 500, "x2": 50, "y2": 600},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1850, "y2": 1950}
+      }
+    }
+  }
+  DLSBCOM = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": -50, "y1": 700, "x2": 50, "y2": 800},
+        "diagram": {"x1": -50, "x2": 50, "y1": 2050, "y2": 2150}
+      }
+    }
+  }
+  DECMD = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 0, "x2": 1050, "y2": 100},
+        "diagram": {"x1": 2950, "x2": 3050, "y1": 150, "y2": 250}
+      }
+    }
+  }
+  ALPHA_DEG = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 400, "x2": 1050, "y2": 500},
+        "diagram": {"x1": 2950, "x2": 3050, "y1": 950, "y2": 1050}
+      }
+    }
+  }
+  QDEG = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 500, "x2": 1050, "y2": 600},
+        "diagram": {"x1": 2950, "x2": 3050, "y1": 1550, "y2": 1650}
+      }
+    }
+  }
+  NZ = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 700, "x2": 1050, "y2": 800},
+        "diagram": {"x1": 2950, "x2": 3050, "y1": 1750, "y2": 1850}
+      }
+    }
+  }
+  ALT_FT = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 800, "x2": 1050, "y2": 900},
+        "diagram": {"x1": 2950, "x2": 3050, "y1": 1150, "y2": 1250}
+      }
+    }
+  }
+  DACMD = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 100, "x2": 1050, "y2": 200},
+        "diagram": {"x1": 2950, "x2": 3050, "y1": 350, "y2": 450}
+      }
+    }
+  }
+  DRCMD = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 200, "x2": 1050, "y2": 300},
+        "diagram": {"x1": 2950, "x2": 3050, "y1": 550, "y2": 650}
+      }
+    }
+  }
+  DLE = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 600, "x2": 1050, "y2": 700},
+        "diagram": {"x1": 2950, "x2": 3050, "y1": 1350, "y2": 1450}
+      }
+    }
+  }
+  DSBCMD = RealOutput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 950, "y1": 300, "x2": 1050, "y2": 400},
+        "diagram": {"x1": 2950, "x2": 3050, "y1": 750, "y2": 850}
+      }
+    }
+  }
+  pitch = PitchControl(DETRIM0 = DETRIM0) {
+    "Dyad": {"placement": {"diagram": {"x1": 700, "y1": 200, "x2": 1150, "y2": 300}}}
+  }
+  roll = RollControl() {
+    "Dyad": {"placement": {"diagram": {"x1": 350, "y1": 500, "x2": 500, "y2": 600}}}
+  }
+  yaw = YawControl() {
+    "Dyad": {"placement": {"diagram": {"x1": 460, "y1": 700, "x2": 610, "y2": 800}}}
+  }
+  speed = SpeedControl() {
+    "Dyad": {"placement": {"diagram": {"x1": 250, "y1": 900, "x2": 350, "y2": 1000}}}
+  }
+  mixer = HL20Mixer() {
+    "Dyad": {"placement": {"diagram": {"x1": 1300, "y1": 500, "x2": 1400, "y2": 700}}}
+  }
+  vehicle = HL20Vehicle() {
+    "Dyad": {"placement": {"diagram": {"x1": 1900, "y1": 450, "x2": 2000, "y2": 750}}}
+  }
   parameter DETRIM0::Real = 5.5
 relations
-  connect(DCPILOT, pitch.DCPILOT) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 150, "y": 1500}, {"x": 150, "y": 157.5}], "E": 2}], "path": {}}}
-  connect(DWPILOT, roll.DWPILOT) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 160, "y": 1700}, {"x": 160, "y": 1120}], "E": 2}], "path": {}}}
-  connect(DPPILOT, yaw.DPPILOT) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 140, "y": 1900}, {"x": 140, "y": 1315}], "E": 2}], "path": {}}}
-  connect(DLSBCOM, speed.DLSBCOM) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 170, "y": 2100}, {"x": 170, "y": 1550}], "E": 2}], "path": {}}}
-    connect(pitch.DECMD, mixer.DECMD, DECMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1280, "y": 225}], "E": -1}, {"S": -1, "M": [{"x": 1298, "y": 360}], "E": 2}, {"S": -1, "M": [{"x": 1298, "y": 90}, {"x": 2890, "y": 90}, {"x": 2890, "y": 200}], "E": 3}], "path": {}, "junctions": [{"x": 1298, "y": 225}]}}
-    connect(roll.DACMD, yaw.DACMD, mixer.DACMD, DACMD) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": 2}, {"S": -1, "M": [], "E": -3}, {"S": -3, "M": [{"x": 1285, "y": 145}, {"x": 1285, "y": 440}], "E": 3}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [{"x": 2850, "y": 350}], "E": 4}], "path": {}, "junctions": [{"x": 370, "y": 1150}, {"x": 370, "y": 1355}, {"x": 370, "y": 145}, {"x": 2850, "y": 145}]}}
-    connect(yaw.DRCMD, mixer.DRCMD, DRCMD) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 660, "y": 1460}, {"x": 365, "y": 1460}, {"x": 365, "y": 125}], "E": -2}, {"S": -2, "M": [{"x": 1290, "y": 125}, {"x": 1290, "y": 520}], "E": 2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [{"x": 2840, "y": 500}], "E": 3}], "path": {}, "junctions": [{"x": 660, "y": 1350}, {"x": 365, "y": 125}, {"x": 2840, "y": 125}]}}
-    connect(speed.DSBCMD, mixer.DSBCMD, DSBCMD) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 860, "y": 1470}, {"x": 360, "y": 1470}, {"x": 360, "y": 105}], "E": -2}, {"S": -2, "M": [{"x": 1295, "y": 105}, {"x": 1295, "y": 600}], "E": 2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [{"x": 2830, "y": 650}], "E": 3}], "path": {}, "junctions": [{"x": 860, "y": 1550}, {"x": 360, "y": 105}, {"x": 2830, "y": 105}]}}
-  connect(mixer.DUL, vehicle.DBFUL) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1490, "y": 422.84000000000003}, {"x": 1490, "y": 295.0}], "E": 2}], "path": {}}}
-  connect(mixer.DUR, vehicle.DBFUR) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1470, "y": 474.28}, {"x": 1470, "y": 430.0}], "E": 2}], "path": {}}}
-  connect(mixer.DLL, vehicle.DBFLL) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1450, "y": 525.72}, {"x": 1450, "y": 565.0}], "E": 2}], "path": {}}}
-  connect(mixer.DLR, vehicle.DBFLR) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1430, "y": 577.16}, {"x": 1430, "y": 700.0}], "E": 2}], "path": {}}}
-  connect(mixer.DR, vehicle.DRUD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1410, "y": 628.56}, {"x": 1410, "y": 1105.0}], "E": 2}], "path": {}}}
-  connect(mixer.DRE, vehicle.DWFR) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1510, "y": 371.44}, {"x": 1510, "y": 970.0}], "E": 2}], "path": {}}}
-  connect(mixer.DLE, vehicle.DWFL) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1530, "y": 320.0}, {"x": 1530, "y": 835.0}], "E": 2}], "path": {}}}
-    connect(mixer.DLEDEG, pitch.DLEDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1460, "y": 680}, {"x": 1460, "y": 60}, {"x": 110, "y": 60}, {"x": 110, "y": 262.5}], "E": 2}], "path": {}}}
-  connect(mixer.DLE, DLE) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1405, "y": 320}, {"x": 1405, "y": 210}, {"x": 2700, "y": 210}, {"x": 2700, "y": 1400}], "E": 2}], "path": {}}}
-    connect(vehicle.MACH_out, pitch.MACH, yaw.MACH) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2135, "y": 457}, {"x": 2135, "y": 1450}], "E": -2}, {"S": -2, "M": [], "E": 3}, {"S": -2, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}], "path": {}, "junctions": [{"x": 425, "y": 1450}, {"x": 530, "y": 1450}]}}
-    connect(vehicle.PDEG, roll.PDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2115, "y": 511}, {"x": 2115, "y": 1490}, {"x": 249.95, "y": 1490}, {"x": 249.95, "y": 1200}], "E": 2}], "path": {}}}
-    connect(vehicle.RDEG, pitch.RDEG, yaw.RDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2075, "y": 619}, {"x": 2075, "y": 1440}], "E": -2}, {"S": -2, "M": [], "E": 3}, {"S": -2, "M": [], "E": -1}, {"S": -1, "M": [{"x": 480, "y": 310}, {"x": 537.5, "y": 310}], "E": 2}], "path": {}, "junctions": [{"x": 480, "y": 1440}, {"x": 590, "y": 1440}]}}
-  connect(vehicle.SINPHI, pitch.SINPHI) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2055, "y": 673}, {"x": 2055, "y": 1270}, {"x": 593.75, "y": 1270}, {"x": 593.75, "y": 300}], "E": 2}], "path": {}}}
-  connect(vehicle.COSPHI, pitch.COSPHI) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2035, "y": 727}, {"x": 2035, "y": 1260}, {"x": 650, "y": 1260}, {"x": 650, "y": 300}], "E": 2}], "path": {}}}
-  connect(vehicle.COSTHE, pitch.COSTHE) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2015, "y": 781}, {"x": 2015, "y": 1250}, {"x": 706.25, "y": 1250}, {"x": 706.25, "y": 300}], "E": 2}], "path": {}}}
-  connect(vehicle.QBAR, pitch.QBAR) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1995, "y": 835}, {"x": 1995, "y": 1240}, {"x": 762.5, "y": 1240}, {"x": 762.5, "y": 300}], "E": 2}], "path": {}}}
-  connect(vehicle.V_FPS, pitch.VTOTALI) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1955, "y": 997}, {"x": 1955, "y": 1220}, {"x": 875, "y": 1220}, {"x": 875, "y": 300}], "E": 2}], "path": {}}}
-    connect(vehicle.QDEG, pitch.QDEG, QDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2095, "y": 565}, {"x": 2095, "y": 1290}], "E": -1}, {"S": -1, "M": [{"x": 481.25, "y": 1290}, {"x": 481.25, "y": 300}], "E": 2}, {"S": -1, "M": [{"x": 2095, "y": 1500}, {"x": 2840, "y": 1500}, {"x": 2840, "y": 1600}], "E": 3}], "path": {}, "junctions": [{"x": 2095, "y": 1290}]}}
-        connect(vehicle.NZ, pitch.NZ, NZ) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1975, "y": 943}, {"x": 1975, "y": 1230}], "E": -1}, {"S": -1, "M": [{"x": 818.75, "y": 1230}, {"x": 818.75, "y": 300}], "E": 2}, {"S": -1, "M": [{"x": 1975, "y": 1520}, {"x": 2855, "y": 1520}, {"x": 2855, "y": 1800}], "E": 3}], "path": {}, "junctions": [{"x": 1975, "y": 1230}]}}
-  connect(vehicle.ALPHA_DEG, ALPHA_DEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1996, "y": 295}, {"x": 1996, "y": 205}, {"x": 2705, "y": 205}, {"x": 2705, "y": 1000}], "E": 2}], "path": {}}}
-  connect(vehicle.ALT_FT, ALT_FT) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2885, "y": 1051}, {"x": 2885, "y": 1200}], "E": 2}], "path": {}}}
+  connect(DCPILOT, pitch.DCPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 150, "y": 1500}, {"x": 150, "y": 310}, {"x": 611, "y": 310}, {"x": 611, "y": 205}, {"x": 700, "y": 205}], "E": 2}], "path": {}} }
+  connect(DWPILOT, roll.DWPILOT) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 170,
+                                  "y": 1700
+                            },
+                            {
+                                  "x": 170,
+                                  "y": 520
+                            }
+                      ],
+                      "E": 2
+                }
+          ],
+          "path": {}
+    }
+  }
+  connect(DPPILOT, yaw.DPPILOT) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 180,
+                                  "y": 1900
+                            },
+                            {
+                                  "x": 180,
+                                  "y": 715
+                            }
+                      ],
+                      "E": 2
+                }
+          ],
+          "path": {}
+    }
+  }
+  connect(DLSBCOM, speed.DLSBCOM) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 190,
+                                  "y": 2100
+                            },
+                            {
+                                  "x": 190,
+                                  "y": 950
+                            }
+                      ],
+                      "E": 2
+                }
+          ],
+          "path": {}
+    }
+  }
+    connect(pitch.DECMD, mixer.DECMD, DECMD) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1200, "y": 250}], "E": -1}, {"S": -1, "M": [{"x": 1200, "y": 530}], "E": 2}, {"S": -1, "M": [{"x": 1200, "y": 187}, {"x": 2945, "y": 187}, {"x": 2945, "y": 200}], "E": 3}], "path": {}, "junctions": [{"x": 1200, "y": 198}]}}
+    connect(roll.DACMD, yaw.DACMD, mixer.DACMD, DACMD) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 620, "y": 450}, {"x": 330, "y": 450}, {"x": 330, "y": 755}], "E": 2}, {"S": -2, "M": [{"x": 1190, "y": 192}, {"x": 1190, "y": 570}], "E": 3}, {"S": -2, "M": [{"x": 620, "y": 184}, {"x": 2930, "y": 184}, {"x": 2930, "y": 400}], "E": 4}, {"S": -1, "M": [], "E": -2}], "path": {}, "junctions": [{"x": 620, "y": 550}, {"x": 620, "y": 192}]}}
+    connect(yaw.DRCMD, mixer.DRCMD, DRCMD) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -2, "M": [{"x": 1180, "y": 194}, {"x": 1180, "y": 610}], "E": 2}, {"S": -2, "M": [{"x": 640, "y": 185}, {"x": 2925, "y": 185}, {"x": 2925, "y": 600}], "E": 3}, {"S": -1, "M": [], "E": -2}], "path": {}, "junctions": [{"x": 640, "y": 750}, {"x": 640, "y": 194}]}}
+    connect(speed.DSBCMD, mixer.DSBCMD, DSBCMD) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -2, "M": [{"x": 1170, "y": 196}, {"x": 1170, "y": 650}], "E": 2}, {"S": -2, "M": [{"x": 645, "y": 186}, {"x": 2915, "y": 186}, {"x": 2915, "y": 800}], "E": 3}, {"S": -1, "M": [], "E": -2}], "path": {}, "junctions": [{"x": 645, "y": 950}, {"x": 645, "y": 196}]}}
+  connect(mixer.DUL, vehicle.DBFUL) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1530, "y": 561.4}, {"x": 1530, "y": 495}], "E": 2}], "path": {}} }
+  connect(mixer.DUR, vehicle.DBFUR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1540, "y": 587.1}, {"x": 1540, "y": 525}], "E": 2}], "path": {}} }
+  connect(mixer.DLL, vehicle.DBFLL) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1550, "y": 612.9}, {"x": 1550, "y": 555}], "E": 2}], "path": {}} }
+  connect(mixer.DLR, vehicle.DBFLR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1560, "y": 638.6}, {"x": 1560, "y": 585}], "E": 2}], "path": {}} }
+  connect(mixer.DR, vehicle.DRUD) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1500, "y": 664.3}, {"x": 1500, "y": 675}], "E": 2}], "path": {}} }
+  connect(mixer.DRE, vehicle.DWFR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1510, "y": 535.7}, {"x": 1510, "y": 645}], "E": 2}], "path": {}} }
+  connect(mixer.DLE, vehicle.DWFL) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1520, "y": 510}, {"x": 1520, "y": 615}], "E": 2}], "path": {}} }
+    connect(mixer.DLEDEG, pitch.DLEDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1405, "y": 690}, {"x": 1405, "y": 1050}, {"x": 685, "y": 1050}, {"x": 685, "y": 275}], "E": 2}], "path": {}}}
+  connect(mixer.DLE, DLE) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1518, "y": 510}, {"x": 1518, "y": 440}, {"x": 2885, "y": 440}, {"x": 2885, "y": 1400}, {"x": 3000, "y": 1400}], "E": 2}], "path": {}} }
+    connect(vehicle.MACH_out, pitch.MACH, yaw.MACH) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2100, "y": 502.5}, {"x": 2100, "y": 1400}], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -1, "M": [{"x": 455, "y": 1400}, {"x": 455, "y": 800}], "E": 3}], "path": {}, "junctions": [{"x": 722.5, "y": 1400}]}}
+    connect(vehicle.PDEG, roll.PDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2090, "y": 517.5}, {"x": 2090, "y": 1365}], "E": -1}, {"S": -1, "M": [{"x": 617, "y": 1365}, {"x": 617, "y": 600}], "E": 2}], "path": {}, "junctions": [{"x": 2090, "y": 1365}]}}
+    connect(vehicle.RDEG, pitch.RDEG, yaw.RDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2070, "y": 547.5}, {"x": 2070, "y": 1340}], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -1, "M": [{"x": 625, "y": 1340}, {"x": 625, "y": 800}, {"x": 550, "y": 800}], "E": 3}], "path": {}, "junctions": [{"x": 823.75, "y": 1340}]}}
+  connect(vehicle.SINPHI, pitch.SINPHI) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 2060,
+                                  "y": 562.5
+                            },
+                            {
+                                  "x": 2060,
+                                  "y": 1320
+                            }
+                      ],
+                      "E": -1
+                },
+                {
+                      "S": -1,
+                      "M": [],
+                      "E": 2
+                }
+          ],
+          "junctions": [
+                {
+                      "x": 874.375,
+                      "y": 1320
+                }
+          ],
+          "path": {}
+    }
+  }
+  connect(vehicle.COSPHI, pitch.COSPHI) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 2050,
+                                  "y": 577.5
+                            },
+                            {
+                                  "x": 2050,
+                                  "y": 1300
+                            }
+                      ],
+                      "E": -1
+                },
+                {
+                      "S": -1,
+                      "M": [],
+                      "E": 2
+                }
+          ],
+          "junctions": [
+                {
+                      "x": 925,
+                      "y": 1300
+                }
+          ],
+          "path": {}
+    }
+  }
+  connect(vehicle.COSTHE, pitch.COSTHE) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 2040,
+                                  "y": 592.5
+                            },
+                            {
+                                  "x": 2040,
+                                  "y": 1280
+                            }
+                      ],
+                      "E": -1
+                },
+                {
+                      "S": -1,
+                      "M": [],
+                      "E": 2
+                }
+          ],
+          "junctions": [
+                {
+                      "x": 975.625,
+                      "y": 1280
+                }
+          ],
+          "path": {}
+    }
+  }
+  connect(vehicle.QBAR, pitch.QBAR) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 2030,
+                                  "y": 607.5
+                            },
+                            {
+                                  "x": 2030,
+                                  "y": 1260
+                            }
+                      ],
+                      "E": -1
+                },
+                {
+                      "S": -1,
+                      "M": [],
+                      "E": 2
+                }
+          ],
+          "junctions": [
+                {
+                      "x": 1026.25,
+                      "y": 1260
+                }
+          ],
+          "path": {}
+    }
+  }
+  connect(vehicle.V_FPS, pitch.VTOTALI) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 2010,
+                                  "y": 652.5
+                            },
+                            {
+                                  "x": 2010,
+                                  "y": 1220
+                            }
+                      ],
+                      "E": -1
+                },
+                {
+                      "S": -1,
+                      "M": [],
+                      "E": 2
+                }
+          ],
+          "junctions": [
+                {
+                      "x": 1127.5,
+                      "y": 1220
+                }
+          ],
+          "path": {}
+    }
+  }
+    connect(vehicle.QDEG, pitch.QDEG, QDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2080, "y": 532.5}, {"x": 2080, "y": 1360}], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -1, "M": [{"x": 773.125, "y": 1485}, {"x": 2870, "y": 1485}, {"x": 2870, "y": 1600}], "E": 3}], "path": {}, "junctions": [{"x": 773.125, "y": 1360}]}}
+        connect(vehicle.NZ, pitch.NZ, NZ) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2020, "y": 637.5}, {"x": 2020, "y": 1240}], "E": -1}, {"S": -1, "M": [{"x": 1076.875, "y": 1240}, {"x": 1076.875, "y": 300}], "E": 2}, {"S": -1, "M": [{"x": 2110, "y": 1240}, {"x": 2110, "y": 1480}, {"x": 2860, "y": 1480}, {"x": 2860, "y": 1800}], "E": 3}], "path": {}, "junctions": [{"x": 2020, "y": 1240}]}}
+  connect(vehicle.ALPHA_DEG, ALPHA_DEG) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 2900,
+                                  "y": 457.5
+                            },
+                            {
+                                  "x": 2900,
+                                  "y": 1000
+                            }
+                      ],
+                      "E": 2
+                }
+          ],
+          "path": {}
+    }
+  }
+  connect(vehicle.ALT_FT, ALT_FT) {
+    "Dyad": {
+          "edges": [
+                {
+                      "S": 1,
+                      "M": [
+                            {
+                                  "x": 2155,
+                                  "y": 667.5
+                            },
+                            {
+                                  "x": 2155,
+                                  "y": 1425
+                            },
+                            {
+                                  "x": 2880,
+                                  "y": 1425
+                            },
+                            {
+                                  "x": 2880,
+                                  "y": 1200
+                            }
+                      ],
+                      "E": 2
+                }
+          ],
+          "path": {}
+    }
+  }
 metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/fullsystem.svg"}}}
 end

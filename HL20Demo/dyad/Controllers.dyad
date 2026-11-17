@@ -13,12 +13,54 @@ component PitchControl
       }
     }
   }
-  QDEG = RealInput() {"Dyad": {"placement": {"icon": {"x1": 127.5, "x2": 197.5, "y1": 965, "y2": 1035}, "diagram": {"x1": -50, "x2": 50, "y1": 1800, "y2": 1900}}}}
-  RDEG = RealInput() {"Dyad": {"placement": {"icon": {"x1": 240, "x2": 310, "y1": 965, "y2": 1035}, "diagram": {"x1": -50, "x2": 50, "y1": 1600, "y2": 1700}}}}
-  NZ = RealInput() {"Dyad": {"placement": {"icon": {"x1": 802.5, "x2": 872.5, "y1": 965, "y2": 1035}, "diagram": {"x1": -50, "x2": 50, "y1": 2400, "y2": 2500}}}}
-  SINPHI = RealInput() {"Dyad": {"placement": {"icon": {"x1": 352.5, "x2": 422.5, "y1": 965, "y2": 1035}, "diagram": {"x1": -50, "x2": 50, "y1": 2000, "y2": 2100}}}}
-  COSPHI = RealInput() {"Dyad": {"placement": {"icon": {"x1": 465, "x2": 535, "y1": 965, "y2": 1035}, "diagram": {"x1": -50, "x2": 50, "y1": 2200, "y2": 2300}}}}
-  COSTHE = RealInput() {"Dyad": {"placement": {"icon": {"x1": 577.5, "x2": 647.5, "y1": 965, "y2": 1035}, "diagram": {"x1": -50, "x2": 50, "y1": 2600, "y2": 2700}}}}
+  QDEG = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 127.5, "x2": 197.5, "y1": 965, "y2": 1035},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1800, "y2": 1900}
+      }
+    }
+  }
+  RDEG = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 240, "x2": 310, "y1": 965, "y2": 1035},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1600, "y2": 1700}
+      }
+    }
+  }
+  NZ = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 802.5, "x2": 872.5, "y1": 965, "y2": 1035},
+        "diagram": {"x1": -50, "x2": 50, "y1": 2400, "y2": 2500}
+      }
+    }
+  }
+  SINPHI = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 352.5, "x2": 422.5, "y1": 965, "y2": 1035},
+        "diagram": {"x1": -50, "x2": 50, "y1": 2000, "y2": 2100}
+      }
+    }
+  }
+  COSPHI = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 465, "x2": 535, "y1": 965, "y2": 1035},
+        "diagram": {"x1": -50, "x2": 50, "y1": 2200, "y2": 2300}
+      }
+    }
+  }
+  COSTHE = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 577.5, "x2": 647.5, "y1": 965, "y2": 1035},
+        "diagram": {"x1": -50, "x2": 50, "y1": 2600, "y2": 2700}
+      }
+    }
+  }
   DLEDEG = RealInput() {
     "Dyad": {
       "placement": {
@@ -27,9 +69,30 @@ component PitchControl
       }
     }
   }
-  QBAR = RealInput() {"Dyad": {"placement": {"icon": {"x1": 690, "x2": 760, "y1": 965, "y2": 1035}, "diagram": {"x1": -50, "x2": 50, "y1": 1100, "y2": 1200}}}}
-  MACH = RealInput() {"Dyad": {"placement": {"icon": {"x1": 15, "x2": 85, "y1": 965, "y2": 1035}, "diagram": {"x1": -50, "x2": 50, "y1": 1300, "y2": 1400}}}}
-  VTOTALI = RealInput() {"Dyad": {"placement": {"icon": {"x1": 915, "x2": 985, "y1": 965, "y2": 1035}, "diagram": {"x1": -50, "x2": 50, "y1": 2800, "y2": 2900}}}}
+  QBAR = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 690, "x2": 760, "y1": 965, "y2": 1035},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1100, "y2": 1200}
+      }
+    }
+  }
+  MACH = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 15, "x2": 85, "y1": 965, "y2": 1035},
+        "diagram": {"x1": -50, "x2": 50, "y1": 1300, "y2": 1400}
+      }
+    }
+  }
+  VTOTALI = RealInput() {
+    "Dyad": {
+      "placement": {
+        "icon": {"x1": 915, "x2": 985, "y1": 965, "y2": 1035},
+        "diagram": {"x1": -50, "x2": 50, "y1": 2800, "y2": 2900}
+      }
+    }
+  }
   DECMD = RealOutput() {
     "Dyad": {
       "placement": {
@@ -189,7 +252,7 @@ component PitchControl
     "Dyad": {"placement": {"diagram": {"x1": 3700, "x2": 3800, "y1": 2800, "y2": 2900}}}
   }
 relations
-  connect(DCPILOT, c_lin.u, abs_c.u, c_quad.u1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1660, "y": 750}], "E": 2}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": 3}, {"S": -3, "M": [{"x": 1675, "y": 240}, {"x": 1950, "y": 240}], "E": 4}], "path": {}, "junctions": [{"x": 1660, "y": 650}, {"x": 1675, "y": 650}, {"x": 1675, "y": 300}]}}
+  connect(DCPILOT, c_lin.u, abs_c.u, c_quad.u1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1660, "y": 750}], "E": 2}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": 3}, {"S": -3, "M": [{"x": 1675, "y": 240}, {"x": 1945, "y": 240}], "E": 4}], "path": {}, "junctions": [{"x": 1660, "y": 650}, {"x": 1675, "y": 650}, {"x": 1675, "y": 300}]}}
   connect(abs_c.y, c_quad.u2) {
     "Dyad": {
       "edges": [
@@ -790,7 +853,18 @@ relations
       "path": {}
     }
   }
-  connect(gr.y, sel.u_a) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 537.5, "y": 500}, {"x": 537.5, "y": 510.0}], "E": 2}], "path": {}}}
+  connect(gr.y, sel.u_a) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 537.5, "y": 500}, {"x": 537.5, "y": 509.99999999999994}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   connect(gl.y, sel.u_b) {
     "Dyad": {
       "edges": [
@@ -815,7 +889,18 @@ relations
       "path": {}
     }
   }
-  connect(dap.y, sum.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 787.5, "y": 950}, {"x": 787.5, "y": 830.0}], "E": 2}], "path": {}}}
+  connect(dap.y, sum.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 787.5, "y": 950}, {"x": 787.5, "y": 830.0000000000001}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   connect(sum.y, lim.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(lim.y, DACMD) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
 metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/ctrl_roll.svg"}}}
@@ -905,17 +990,154 @@ relations
   connect(DPPILOT, drdir.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(RDEG, wash.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   connect(MACH, gsel.u_sel) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(g_const.y, gsel.u_a) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 675, "y": 250}, {"x": 675, "y": 360.0}], "E": 2}], "path": {}}}
-  connect(z_const.y, gsel.u_b) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 675, "y": 500}, {"x": 675, "y": 440.0}], "E": 2}], "path": {}}}
-  connect(RDEG, wash_err.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 650, "y": 650}, {"x": 650, "y": 550}, {"x": 925, "y": 550}, {"x": 925, "y": 720.0}], "E": 2}], "path": {}}}
-  connect(wash.y, wash_err.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 900, "y": 650}, {"x": 900, "y": 775}, {"x": 925, "y": 775}, {"x": 925, "y": 780.0}], "E": 2}], "path": {}}}
+  connect(g_const.y, gsel.u_a) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 675, "y": 250}, {"x": 675, "y": 359.99999999999994}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(z_const.y, gsel.u_b) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 675, "y": 500}, {"x": 675, "y": 440.00000000000006}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(RDEG, wash_err.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 650, "y": 650},
+            {"x": 650, "y": 550},
+            {"x": 925, "y": 550},
+            {"x": 925, "y": 719.9999999999999}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(wash.y, wash_err.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 900, "y": 650},
+            {"x": 900, "y": 775},
+            {"x": 925, "y": 775},
+            {"x": 925, "y": 780.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   connect(wash_err.y, g_wash.u) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
-  connect(gsel.y, ari.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 925, "y": 400}, {"x": 925, "y": 370.0}], "E": 2}], "path": {}}}
-  connect(DACMD, ari.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 400, "y": 550}, {"x": 400, "y": 600}, {"x": 625, "y": 600}, {"x": 625, "y": 525}, {"x": 925, "y": 525}, {"x": 925, "y": 430.0}], "E": 2}], "path": {}}}
-  connect(ari.y, drsas.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1425, "y": 400}, {"x": 1425, "y": 720.0}], "E": 2}], "path": {}}}
-  connect(g_wash.y, drsas.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1425, "y": 750}, {"x": 1425, "y": 780.0}], "E": 2}], "path": {}}}
-  connect(drdir.y, drcmd.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1625, "y": 1100}, {"x": 1625, "y": 925}, {"x": 1675, "y": 925}, {"x": 1675, "y": 920.0}], "E": 2}], "path": {}}}
-  connect(drsas.y, drcmd.u2) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1650, "y": 750}, {"x": 1650, "y": 975}, {"x": 1675, "y": 975}, {"x": 1675, "y": 980.0}], "E": 2}], "path": {}}}
+  connect(gsel.y, ari.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 925, "y": 400}, {"x": 925, "y": 369.99999999999994}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(DACMD, ari.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 400, "y": 550},
+            {"x": 400, "y": 600},
+            {"x": 625, "y": 600},
+            {"x": 625, "y": 525},
+            {"x": 925, "y": 525},
+            {"x": 925, "y": 430.00000000000006}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(ari.y, drsas.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1425, "y": 400}, {"x": 1425, "y": 719.9999999999999}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(g_wash.y, drsas.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 1425, "y": 750}, {"x": 1425, "y": 780.0000000000001}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(drdir.y, drcmd.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1625, "y": 1100},
+            {"x": 1625, "y": 925},
+            {"x": 1675, "y": 925},
+            {"x": 1675, "y": 919.9999999999999}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
+  connect(drsas.y, drcmd.u2) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [
+            {"x": 1650, "y": 750},
+            {"x": 1650, "y": 975},
+            {"x": 1675, "y": 975},
+            {"x": 1675, "y": 980.0000000000001}
+          ],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   connect(drcmd.y, DRCMD) {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}}
   initial wash.x = RBWASH0
 metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/ctrl_yaw.svg"}}}
@@ -957,7 +1179,18 @@ component SpeedControl
     "Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 400, "y2": 500}}}
   }
 relations
-  connect(DLSBCOM, u2.u1) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 275, "y": 250}, {"x": 275, "y": 220.0}], "E": 2}], "path": {}}}
+  connect(DLSBCOM, u2.u1) {
+    "Dyad": {
+      "edges": [
+        {
+          "S": 1,
+          "M": [{"x": 275, "y": 250}, {"x": 275, "y": 220.00000000000003}],
+          "E": 2
+        }
+      ],
+      "path": {}
+    }
+  }
   connect(DLSBCOM, u2.u2) {
     "Dyad": {
       "edges": [{"S": 1, "M": [{"x": 275, "y": 250}, {"x": 275, "y": 280}], "E": 2}],
