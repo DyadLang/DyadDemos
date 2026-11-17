@@ -563,9 +563,9 @@ class GlyphChecks(unittest.TestCase):
     def test_wire_thru_glyph(self):
         port = gport((200, 0, 300, 100))
         # through the middle of a 95-unit triangle; ending at it; through its tip (3.4 units in, like
-        # RigidBody6DOF's risers); along its edge (within GRAZE of it)
+        # RigidBody6DOF's risers); across the very tip; along its edge, half a unit in
         for wire, want in (("M 0 50 L 400 50", 1), ("M 0 50 L 250 50", 0), ("M 290 -50 L 290 150", 1),
-                           ("M 296 -50 L 296 150", 0), ("M 203.5 -50 L 203.5 150", 0)):
+                           ("M 296 -50 L 296 150", 0), ("M 202.9 -50 L 202.9 150", 0)):
             _dg, (m, _d) = gm(gsvg(port, wires=[wire]))
             self.assertEqual((m["wire_thru_glyph"], m["wire_through_port"]), (want, want), wire)
         # a wire of the glyph's own net (the two wires share an end) is not counted
@@ -661,19 +661,14 @@ class ReviewFindings(unittest.TestCase):
         self.assertEqual(d["wire_thru_glyph"], ["?->? through port#1 (137 inside)"])
 
     def test_5_own_label_counts_beyond_the_default_size(self):
-        # a block with a bottom connector: at the default 100 x 100 its glyph covers part of its name by design
+        # a block with a bottom connector: at the default 100 x 100 its glyph covers 45 square units of its name
         bottom = [(450, 1000, 550, 1100)]
         _dg, (m, _d) = gm(gsvg(gblock("block_b", (500, 0, 600, 100), ports=bottom)), {"block_b": (500, 0, 600, 100)})
-        self.assertEqual(m["label_covered"], 0)
-        # at 200 x 200 the glyph is twice the size and covers ~125 more square units of the fixed-size label
+        self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (0, 0))
+        # at 200 x 200 the glyph is twice the size and covers 128 square units of the fixed-size label
         dg, (m, d) = gm(gsvg(gblock("block_b", (500, 0, 700, 200), ports=bottom)), {"block_b": (500, 0, 700, 200)})
-        (_t, lb), = dg.blocks[0].labels
-        g, = dg.glyphs
-        actual = lr.poly_area(lr.clip_poly_box(g.outline(), lb))
-        base = lr.own_label_baseline(g, dg.blocks[0], lb)
-        self.assertGreater(actual - base, lr.LABEL_COVER)
         self.assertEqual(m["label_covered"], 1)
-        self.assertIn("over its 100-unit baseline", d["label_covered"][0])
+        self.assertIn("its own: 128, 45 at the default size", d["label_covered"][0])
 
     def test_6_unwired_pileups_cost_and_show(self):
         self.assertEqual(lr.badness({"glyph_overlap_unwired": 8}), 8)
@@ -705,11 +700,108 @@ class ReviewFindings(unittest.TestCase):
             src = {"Alpha": (0, 0, 100, 100), "Beta": (x, 0, x + 100, 100)}
             _dg, (m, _d) = gm(gsvg(gport(src["Alpha"]), gport(src["Beta"])), src)
             self.assertEqual(m["label_label_overlaps"], want, off)
-        # a wire just clear of the right edge of a name, and just inside it
+        # a wire just clear of the right edge of a name's text (its box less LABEL_INSET), and just inside it
         for off, want in ((0.5, 0), (-0.5, 1)):
-            x = 50 + wa / 2 + off
+            x = 50 + wa / 2 - lr.LABEL_INSET + off
             _dg, (m, _d) = gm(gsvg(gport((0, 0, 100, 100)), wires=[f"M {x} 0 L {x} 300"]), {"Alpha": (0, 0, 100, 100)})
             self.assertEqual(m["labels_hit_by_wires"], want, off)
+
+
+def gblock_art(name, box, art, ports=()):
+    """A block in `box` whose icon is the <svg> `art`, with TRIANGLE glyphs at `ports`."""
+    glyphs = "".join(f"<g {place(*p)}>{TRIANGLE}</g>" for p in ports)
+    return (f'<g filter="url(#drop-shadow)" {place(*box)}><svg viewBox="0 0 1000 1000">'
+            f'<g transform="translate(0 0)" transform-origin="center center">{art}</g>{glyphs}'
+            f'<text x="500" y="1100" font-size="200">{name}</text></svg></g>')
+
+
+class SecondReview(unittest.TestCase):
+    """The examples of the review of 59c8209, one test per finding."""
+
+    def test_1_renderer_spurs_are_kept_for_other_glyphs(self):
+        # neither end is the port's pin: the run to x = 280 and back is a real penetration
+        _dg, (m, _d) = gm(gsvg(gport((200, 0, 300, 100)), wires=["M 190 50 L 280 50 L 195 50"]))
+        self.assertEqual(m["wire_thru_glyph"], 1)
+        # a spur past the attached pin, to the block's edge and back, is the pin's own wire
+        _dg, (m, _d) = gm(gsvg(gblock("b", (500, 0, 600, 100), ports=[(-100, 450, 0, 550)]),
+                               wires=["M 400 50 L 500 50 L 495 50"]))
+        self.assertEqual(m["wire_thru_glyph"], 0)
+
+    def test_2_strokes_are_painted(self):
+        art = '<svg viewBox="0 0 100 100"><path d="M40 40H60V60H40Z" stroke="black" stroke-width="20"/></svg>'
+        dg = lr.parse_svg(gsvg(gport_named((0, 0, 100, 100), art)))
+        self.assertEqual(R(dg.glyphs[0].box), (30, 30, 70, 70))
+        self.assertEqual(R(lr.parse_svg(gsvg(gport_named((0, 0, 100, 100), art)), strokes=False).glyphs[0].box), (40, 40, 60, 60))
+        _dg, (m, _d) = gm(gsvg(gport_named((0, 0, 100, 100), art), wires=["M -50 35 L 150 35"]))
+        self.assertEqual(m["wire_thru_glyph"], 1)
+        # inherited from a group and set by a class rule; joins and caps
+        for art, want in (('<g stroke="#000" stroke-width="20"><path d="M40 40H60V60H40Z"/></g>', (30, 30, 70, 70)),
+                          ('<style>.b{stroke:#000;stroke-width:20px;fill:none}</style><path class="b" d="M40 40H60V60H40Z"/>', (30, 30, 70, 70)),
+                          ('<line x1="20" y1="50" x2="80" y2="50" stroke="#000" stroke-width="10"/>', (20, 45, 80, 55)),
+                          ('<line x1="20" y1="50" x2="80" y2="50" stroke="#000" stroke-width="10" stroke-linecap="square"/>', (15, 45, 85, 55)),
+                          ('<polyline points="20,80 50,20 80,80" fill="none" stroke="#000" stroke-width="4"/>', None)):
+            ink = lr.art_ink(lr.ET.fromstring(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">{art}</svg>'))
+            if want:
+                self.assertEqual(R(tuple(100 * v for v in lr.bbox(ink))), want, art)
+            else:  # the miter at the apex reaches 2 / sin(26.6 deg) = 4.47 above it
+                self.assertAlmostEqual(100 * lr.bbox(ink)[1], 20 - 2 / math.sin(math.atan(0.5)), places=6)
+
+    def test_3_nested_viewports_clip(self):
+        # an oversized rect in a nested viewport over the middle 20% of the icon draws only there: on a
+        # 400 x 100 block, at (190, 40)-(210, 60); a pin whose glyph ends at x = 164.762 floats 25 units off
+        art = ('<svg viewBox="0 0 100 100"><svg x="40" y="40" width="20" height="20" viewBox="0 0 20 20">'
+               '<rect x="-100" y="-100" width="300" height="300"/></svg></svg>')
+        dg, (m, d) = gm(gsvg(gblock_art("b", (0, 0, 400, 100), art, ports=[(350, 450, 450, 550)])))
+        self.assertEqual(R(dg.blocks[0].body), (190, 40, 210, 60))
+        self.assertAlmostEqual(dg.glyphs[0].box[2], 164.762, places=3)
+        self.assertEqual(m["glyph_detached"], 1)
+        self.assertEqual(d["glyph_detached"], ["b.#1 (25 from b)"])
+        # overflow="visible" does not clip
+        dg = lr.parse_svg(gsvg(gblock_art("b", (0, 0, 400, 100), art.replace('height="20" viewBox', 'height="20" overflow="visible" viewBox'))))
+        self.assertEqual(R(dg.blocks[0].body), (150, 0, 250, 100))
+
+    def test_4_own_label_coverage_scores(self):
+        # a 100 x 100 block `b` whose triangle connector at (0, 680)-(1000, 1680) covers all 240 square
+        # units of its name: the child's icon does it at the default size, so it is the child's finding
+        dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 100, 100), ports=[(0, 680, 1000, 1680)])), {"b": (0, 0, 100, 100)})
+        (_t, lb), = dg.blocks[0].labels
+        self.assertAlmostEqual(lr.poly_area(lr.clip_poly_box(dg.glyphs[0].outline(), lb)), (lb[2] - lb[0]) * (lb[3] - lb[1]))
+        self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (0, 1))
+        self.assertGreater(lr.badness(m), 0)
+        self.assertIn("b under b.#1", d["label_covered_by_icon"][0])
+        # a bottom connector on a 200 x 200 block `b` covers 68.6 square units (45 at the default size)
+        dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 200, 200), ports=[(450, 1000, 550, 1100)])), {"b": (0, 0, 200, 200)})
+        (_t, lb), = dg.blocks[0].labels
+        self.assertAlmostEqual(lr.poly_area(lr.clip_poly_box(dg.glyphs[0].outline(), lb)), 68.6, delta=0.1)
+        self.assertEqual((m["label_covered"], m["label_covered_by_icon"]), (1, 0))
+
+    def test_5_label_line_box_padding(self):
+        # RotDynamics: a wire at y = 1282 clips 0.225 units of the padding under a label centred at 1259.6
+        lb = lr.studio_label_box("w1w2", (0, 1282.225 - lr.LABEL_HEIGHT / 2))
+        self.assertAlmostEqual(lb[3] - 1282, 0.225)
+        self.assertGreater(lr.clip_len_in_box((-100, 1282), (100, 1282), lb), 1)  # the full box is hit
+        self.assertEqual(lr.clip_len_in_box((-100, 1282), (100, 1282), lr.label_ink(lb, (-100, 1282), (100, 1282))), 0)
+        # through the text it is a hit, both ways
+        c = ((lb[0] + lb[2]) / 2, (lb[1] + lb[3]) / 2)
+        for p, q in (((-100, c[1]), (100, c[1])), ((c[0], 1000), (c[0], 1400))):
+            self.assertGreater(lr.clip_len_in_box(p, q, lr.label_ink(lb, p, q)), 1)
+        # in a diagram: a port name with a wire through its padding, and through its middle
+        src = {"w1w2": (0, 0, 100, 100)}
+        _dg, (m, _d) = gm(gsvg(gport(src["w1w2"])), src)
+        (_t, lb), = _dg.blocks[0].labels
+        for y, want in ((lb[3] - 0.225, 0), ((lb[1] + lb[3]) / 2, 1)):
+            _dg, (m, _d) = gm(gsvg(gport(src["w1w2"]), wires=[f"M -100 {y} L 300 {y}"]), src)
+            self.assertEqual(m["labels_hit_by_wires"], want, y)
+
+    def test_6_long_runs_near_the_edge(self):
+        # 93 units inside the 95-unit triangle, 1.8 from its back edge: shallower than GRAZE, but long
+        _dg, (m, d) = gm(gsvg(gport((200, 0, 300, 100)), wires=["M 204.2 -10 L 204.2 110"]))
+        self.assertEqual(m["wire_thru_glyph"], 1)
+        self.assertIn("(93 inside)", d["wire_thru_glyph"][0])
+        # the same depth over a 10-unit pin's height is a graze (RotDynamics' int_w2.y: 9 units, 0.9 deep)
+        pin = gblock("b", (500, 0, 600, 100), ports=[(-100, 450, 0, 550)])
+        _dg, (m, _d) = gm(gsvg(pin, wires=["M 491.2 -50 L 491.2 150"]))
+        self.assertEqual(m["wire_thru_glyph"], 0)
 
 
 class NestedArt(unittest.TestCase):
@@ -797,7 +889,7 @@ class Fixtures(unittest.TestCase):
     def test_matches_studio(self):
         for name, st in self.studio.items():
             src = {k: tuple(v) for k, v in self.expected[name]["src_boxes"].items()}
-            dg = lr.parse_svg(fixture(name), src)
+            dg = lr.parse_svg(fixture(name), src, strokes=False)  # the DOM's boxes leave strokes out
             close = lambda a, b, tol=1.0: max(abs(u - v) for u, v in zip(a, b)) <= tol
             bodies = {b.name: b.body for b in dg.blocks if not b.is_port}
             for nm, ink in st["bodies"].items():

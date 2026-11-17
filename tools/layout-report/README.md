@@ -99,10 +99,11 @@ Lengths are in Dyad diagram units. A dyad-layout half-square is 50 units.
 | `g detach` | `glyph_detached`: a block's glyphs that are off the icon Studio draws. |
 | `g hang` | `glyph_overhang`: a block's glyphs past the end of their side of the icon, or standing far out of it. |
 | `lbl/glyph` | `label_covered`: labels a glyph lies on. |
+| `lbl/icon` | `label_covered_by_icon`: labels under their own block's glyph as much as at the block's default size (the child component's icon puts the glyph there). |
 | `jct/glyph` | `junction_on_glyph`: junction dots on a glyph. |
 | `unrt` | `connect()` statements with no route metadata (the 3.5.0 `apply` bug, or never laid out). Connects inside `for` loops are counted separately, as `loop_connects`. |
 | `blk ovl` | overlapping block placement boxes or boundary-port glyphs. |
-| `lbl/blk`, `lbl/lbl`, `lbl/wire` | labels overlapping a block, another label, or a wire: block labels (instance names, parameter values), boundary-port names and free diagram text. One block's own labels are not tested against each other. Label boxes are placed and sized as Studio draws them (see [Studio geometry](#studio-geometry)). `report.json` names the labels a wire runs through (`labels_hit_by_wires`). |
+| `lbl/blk`, `lbl/lbl`, `lbl/wire` | labels overlapping a block, another label, or a wire: block labels (instance names, parameter values), boundary-port names and free diagram text. One block's own labels are not tested against each other. Label boxes are placed and sized as Studio draws them (see [Studio geometry](#studio-geometry)). A wire hits a label when it runs more than a unit through the box less `LABEL_INSET` (1 unit) across the wire: the line box's padding around the text is not a hit. `report.json` names the labels a wire runs through (`labels_hit_by_wires`). |
 | `bends/w`, `bends max` | bends per wire. |
 | `jogs` | interior segments shorter than 10 units (staircase noise). |
 | `len`, `len max` | total and longest wire length. |
@@ -127,7 +128,7 @@ past:
 | 5 | `unrt`, `g hang`, `lbl/glyph` | a connect() with no route (Dyad invents one), a glyph past the end of its side, a label under a glyph |
 | 3 | `X` | a crossing: readable, but each one costs the reader |
 | 2 | `lbl/blk`, `lbl/lbl`, `outer`, `detours` | clutter |
-| 1 | `near diag`, `g ovl unw` | a hair off the axis, which shows only as a jag when zoomed in; unwired pins piled up by the child's icon, visible but only fixable in the child component |
+| 1 | `near diag`, `g ovl unw`, `lbl/icon` | a hair off the axis, which shows only as a jag when zoomed in; unwired pins piled up, or a label under its own block's glyph, by the child's icon: visible, but only fixable in the child component |
 | 0.5 | `lbl/wire`, `jogs` | |
 | 0.25 | each bend | |
 
@@ -178,12 +179,21 @@ the defects people see are in Studio's drawing. Studio 3.5.1's diagram view
   turns are modelled") instead of being fitted into the turned frame's
   bounding box.
 
-An icon's outline is the convex hull of its drawn shapes, measured through
+An icon's outline is the convex hull of what it paints, measured through
 nested `<g>` and `<svg>` elements and their transforms: `polygon`,
 `polyline`, `rect`, `circle`, `ellipse`, `line`, `path` (every command; curves
-and arcs are sampled), and the boxes of `image` and `foreignObject`, clipped
-to the icon's viewBox. A 20 × 20 rectangle in the middle of a 100 × 100 icon
-is drawn, and measured, as 20 × 20. Two things are only estimated, and each
+and arcs are sampled), and the boxes of `image` and `foreignObject`. A shape
+paints its fill (unless `fill` is `none`) and its stroke: half its
+`stroke-width` to each side, miter tips within `stroke-miterlimit` (or round
+joins), and square or round caps, styled by presentation attributes, the
+icon's `<style>` rules (tag, class and id selectors) and `style` attributes,
+inherited down the tree. A 20 × 20 square with a 20-unit stroke paints
+(30, 30)-(70, 70). Each nested `<svg>` clips what it holds to its viewport
+(unless `overflow` is `visible`), and the icon's viewBox clips the rest: a
+20 × 20 rectangle in the middle of a 100 × 100 icon, or an oversized one in a
+nested viewport there, is drawn, and measured, as 20 × 20. The calibration
+compares the shapes' geometry instead (`parse_svg(..., strokes=False)`):
+the DOM's client rectangles leave strokes out. Two things are only estimated, and each
 estimate is listed in `report.md` (*Estimated icon ink*, `ink est`): text,
 sized from an average character width, and art the tool cannot measure (a
 `<use>`, a malformed shape), which is taken to fill its viewBox. Port names come from the component
@@ -211,9 +221,10 @@ what this diagram's placement adds.
 |---|---|---|
 | `glyph_overlap` | two glyphs whose outlines overlap or are closer than a tenth of the smaller one's size (touching triangles in a column); or a glyph reaching more than 1 unit into another block's icon. Two **unwired** glyphs of the same block are counted apart, in `glyph_overlap_unwired` (weight 1, `g ovl unw` in the table, dashed in the overlay): their placement is the child's icon design. | `GLYPH_GAP` 0.1, `BODY_DEPTH` 1 |
 | `glyph_detached` | *baseline*: a block's glyph further from the icon Studio draws than a quarter of its size more than at the default size (gaps as fractions of the glyph's size, which scales with the block), and at least 2 units. | `DETACH_GAP` 0.25 |
-| `glyph_overhang` | *baseline*: a block's glyph (that is not detached) with more than half its length past the end of its side of the icon beyond what it has at the default size; or with 75% more of its area outside the icon than at the default size, or most of it outside and sticking out 30 units further than at the default size (scaled). A standard pin on a big block is a big pin standing as far off a big icon, which is no layout defect. | `OVERHANG` 0.5, `OVERHANG_OUT` (0.75, 30) |
-| `label_covered` | a label (block, boundary port, or free text) with more than 60 square units (a quarter of a character) under a glyph's outline. A block's own glyphs over its own labels are *baseline*: the label keeps its size and its anchor scales with the block, and only the cover beyond the default size's counts. A bottom pin covers part of its block's name at 100 × 100 by design; at 200 × 200 it is twice the size and covers ~125 square units more. | `LABEL_COVER` 60, `STD_BLOCK` 100 |
-| `wire_thru_glyph` | a wire of a net not wired to the glyph that runs inside its outline further than `min(THRU_DEPTH` × the depth of the outline's centre, `GRAZE)` from its edge. Every glyph is tested, whatever its size. Depth is measured over each continuous passage, so a zigzag through a glyph is one passage however short its legs. Wires of the glyph's own nets may run over it: the wire to a 10-unit pin crosses it from whichever side it comes, and `dyad render` runs some wires to the block's edge and back to the pin. Closer to the edge than that, a wire runs along the glyph's stroke (the backs of a column of input pins). | `THRU_DEPTH` 0.5, `GRAZE` 2 |
+| `glyph_overhang` | *baseline*: a block's glyph (that is not detached) with more than half its length past the end of its side of the icon beyond what it has at the default size (1% slack, so a glyph centred on the corner is not counted however its stroke is drawn); or with 75% more of its area outside the icon than at the default size, or most of it outside and sticking out 30 units further than at the default size (scaled). A standard pin on a big block is a big pin standing as far off a big icon, which is no layout defect. | `OVERHANG` 0.5, `OVERHANG_OUT` (0.75, 30) |
+| `label_covered` | a label (block, boundary port, or free text) with more than 60 square units (a quarter of a character) under a glyph's outline, a block's own glyphs over its own labels included. A bottom pin covers 45 square units of a short name at 100 × 100; on a 200 × 200 block it is twice the size and covers 68.6, which counts. | `LABEL_COVER` 60 |
+| `label_covered_by_icon` | *baseline*: a label over 60 square units under its own block's glyph, when the block at the default size covers it within 60 square units as much (the label keeps its size, its anchor scales with the block). The child's icon puts its glyph where Studio writes the name, so it is reported apart, at weight 1, as the child component's finding; a placement that makes it more than 60 square units worse counts in `label_covered`. | `LABEL_COVER` 60, `STD_BLOCK` 100 |
+| `wire_thru_glyph` | a wire of a net not wired to the glyph, along its route as drawn, with one continuous passage through the painted outline that gets further from its edge than `min(THRU_DEPTH` × the depth of the outline's centre, `GRAZE)`, or that runs at least `RUN_FRAC` of the glyph's size and `RUN_MIN` units at least `RUN_DEPTH` inside. Every glyph is tested, whatever its size, and a zigzag through a glyph is one passage however short its legs. Wires of the glyph's own nets may run over it: the wire to a 10-unit pin crosses it from whichever side it comes, and the spur `dyad render` leaves past a pin, to the block's edge and back, is on the pin's net. Shallower and shorter, a wire runs along the glyph's edge (the backs of a column of input pins, at most 1.4 units in and 9.2 units long in the clean HL20Demo diagrams). | `THRU_DEPTH` 0.6, `GRAZE` 2, `RUN_FRAC` 0.5, `RUN_MIN` 20, `RUN_DEPTH` 1 |
 | `junction_on_glyph` | a junction dot (radius 2.5) touching a glyph's outline, unless it is on one of the glyph's nets and either on its pin or no deeper than the same depth limit (at the rim, where the wire leaves the glyph). | `JUNCTION_R` 2.5 |
 | `near_diagonal` | a segment off the horizontal or vertical by more than 0.001 and at most 0.5 units. | `NEAR_DIAG` (0.001, 0.5) |
 
@@ -223,7 +234,10 @@ clean there. On the relaid demos of PR #49 (f47214b) they flag only
 FrictionBrakeDemo.BrakeThermalTest_Step (Studio draws its two step sources'
 outputs and its heat inputs' ports away from their icons, so the findings are
 real) and, in `glyph_overlap_unwired`, MakieWebinar's grid tests, whose
-resistor icons pile their two unwired pins up.
+resistor icons pile their two unwired pins up. `label_covered_by_icon` lists
+17 labels there, all of 100 × 100 thermal blocks (heat capacitors, sources,
+`brake_thermal`) whose own bottom heat port covers 72 square units of the
+name, exactly as at the default size.
 
 ## Calibration
 
@@ -240,7 +254,8 @@ python3 tools/layout-report/studio_geometry.py --dom DUMPS --svg OUT/cache --lib
 
 It lists every icon and glyph that is more than `--tol` (1) unit off, and
 every label whose box is more than `--label-tol` (`LABEL_TOL`, 1.25) off at
-any edge: the full box, not just its centre. All 43 HL20Demo diagrams at
+any edge: the full box, not just its centre. Icons and glyphs are compared
+by their shapes' geometry, as the DOM measures them (without strokes). All 43 HL20Demo diagrams at
 99ffbc0 match within these tolerances (every label but `k=GRSAS * 0.01745`
 within 0.1 units); so do DynamicSteadyState.ZoneRoom and
 FrictionBrakeDemo.BrakeThermalTest_Step from PR #49, whose path-drawn icons

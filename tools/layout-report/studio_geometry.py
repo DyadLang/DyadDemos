@@ -155,7 +155,8 @@ def main(argv=None):
         st = studio(os.path.join(args.dom, fn))
         sc = comps.get(q)
         with open(svg) as f:
-            dg = lr.parse_svg(f.read(), lr.instance_boxes(sc.block) if sc else None)
+            # the DOM's client rectangles leave strokes out: compare the shapes' geometry
+            dg = lr.parse_svg(f.read(), lr.instance_boxes(sc.block) if sc else None, strokes=False)
         diffs = compare(st, dg, args.tol, args.label_tol)
         bad += bool(diffs)
         print(f"{q}: " + ("matches Studio" if not diffs else f"{len(diffs)} differences"))
