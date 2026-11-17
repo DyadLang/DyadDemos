@@ -256,7 +256,8 @@ def find_components(libdir):
             path = os.path.join(dp, fn)
             rel = os.path.relpath(dp, root)
             module = "" if rel == "." else rel.replace(os.sep, ".")
-            src = open(path, encoding="utf-8").read()
+            with open(path, encoding="utf-8") as f:
+                src = f.read()
             for m in COMP_RE.finditer(src):
                 prefix = m.group(1).split()
                 if "partial" in prefix or "external" in prefix:
@@ -307,6 +308,33 @@ TYPED_DECL_RE = re.compile(r"^\s{2}(\w+)\s*=\s*([A-Za-z_][\w.]*)\s*\(", re.M)
 ANY_COMP_RE = re.compile(r"^(?:(?:test|example|partial|external)\s+)*component\s+(\w+)\b", re.M)
 
 
+def _close_paren(text, i):
+    """The index just past the ')' closing the '(' before text[i], skipping strings and comments;
+    len(text) if it is never closed."""
+    depth, q = 1, None
+    while i < len(text):
+        c = text[i]
+        if q:
+            if c == "\\":
+                i += 1
+            elif c == q:
+                q = None
+        elif c == '"':
+            q = c
+        elif c == "#":  # a comment, to the end of the line
+            i = text.find("\n", i)
+            if i < 0:
+                return len(text)
+        elif c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    return len(text)
+
+
 def _placements(block, key):
     """[(name, type, (x1, y1, x2, y2))] of the declarations in a component body with a `key` placement,
     inline or through a `{^link}` into the metadata's "_links"."""
@@ -318,7 +346,8 @@ def _placements(block, key):
     for i, d in enumerate(decls):
         seg = decl_part[d.end(): decls[i + 1].start() if i + 1 < len(decls) else len(decl_part)]
         m = re.search(r'"' + key + r'"\s*:\s*\{([^}]*)\}', seg)
-        ref = re.match(r"[^\n]*?\{\^(\w+)\}", seg)
+        # the `{^link}` follows the constructor's closing parenthesis, however many lines its arguments take
+        ref = re.match(r"\s*\{\^(\w+)\}", decl_part[_close_paren(decl_part, d.end()):])
         if not m and ref and links:
             m = re.search(r'"' + re.escape(ref.group(1)) + r'"\s*:\s*\{\s*"Dyad"\s*:\s*\{\s*"placement"\s*:\s*\{[^{}]*?(?:\{[^}]*\}[^{}]*?)*?"'
                           + key + r'"\s*:\s*\{([^}]*)\}', links)
@@ -343,7 +372,8 @@ def connector_index(dirs):
                 if not fn.endswith(".dyad"):
                     continue
                 try:
-                    src = open(os.path.join(dp, fn), encoding="utf-8").read()
+                    with open(os.path.join(dp, fn), encoding="utf-8") as f:
+                        src = f.read()
                 except OSError:
                     continue
                 for m in ANY_COMP_RE.finditer(src):
@@ -406,6 +436,7 @@ class Block:
     labels: list = field(default_factory=list)  # (text, bbox) of each label drawn with the block
     frame: tuple = None  # the placement box (x1..x2, y1..y2 of the diagram metadata)
     body: tuple = None  # the icon as Studio draws it: fitted into the frame with its aspect ratio kept
+    art: tuple = None  # (frame matrix, viewBox size, ink) of its icon's art, for refitting it into another box
 
 
 @dataclass
@@ -417,6 +448,9 @@ class Glyph:
     box: tuple  # the ink of its icon, fitted into the frame with the aspect ratio kept
     pin: tuple  # where wires attach: the centre of the frame
     shape: list = None  # its outline: the convex hull of the icon's ink (the box if it is not known)
+    fm: tuple = None  # the matrix mapping its 1000-unit frame into the diagram
+    vb: tuple = (1.0, 1.0)  # its art's viewBox size
+    ink: list = None  # its art's ink (art_ink), for refitting it into another frame
 
     def outline(self):
         return self.shape or [(self.box[0], self.box[1]), (self.box[2], self.box[1]), (self.box[2], self.box[3]), (self.box[0], self.box[3])]
@@ -438,6 +472,7 @@ class Diagram:
     free_labels: list = field(default_factory=list)  # (text, bbox)
     glyphs: list = field(default_factory=list)  # every connector glyph (Glyph), boundary ports included
     issues: dict = field(default_factory=dict)  # geometry of each finding, for the overlay
+    ink_notes: list = field(default_factory=list)  # (icon, why) for each icon whose ink is only estimated
 
 
 CHAR_W = 0.6  # average glyph width / font size for the sans-serif labels
@@ -507,63 +542,207 @@ def _num(el, attr, default=None):
         raise UnsupportedSVG(f"<svg {attr}={el.get(attr)!r}>: only plain user-unit lengths are supported")
 
 
-def studio_label_box(txt, anchor):
-    """The box of a block or port label as Studio draws it: fixed size, centred on its anchor."""
-    w = label_width(txt)
-    return (anchor[0] - w / 2, anchor[1] - LABEL_HEIGHT / 2, anchor[0] + w / 2, anchor[1] + LABEL_HEIGHT / 2)
+def studio_label_box(txt, anchor, sideways=False):
+    """The box of a block or port label as Studio draws it: fixed size, centred on its anchor, and
+    turned on its side when `sideways` (a block turned a quarter turn)."""
+    w, h = label_width(txt), LABEL_HEIGHT
+    if sideways:
+        w, h = h, w
+    return (anchor[0] - w / 2, anchor[1] - h / 2, anchor[0] + w / 2, anchor[1] + h / 2)
 
 
-INK_SKIP = ("defs", "style", "title", "desc", "metadata", "filter", "clipPath", "marker", "symbol", "mask", "pattern")
+INK_SKIP = ("defs", "style", "title", "desc", "metadata", "filter", "clipPath", "marker", "symbol", "mask", "pattern",
+            "linearGradient", "radialGradient", "stop", "animate", "animateTransform", "animateMotion", "set", "script")
+_NUM = r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?"
+
+
+def path_outline(d):
+    """Points on every subpath of an SVG path `d` (all commands): line ends exactly, curves and arcs
+    sampled finely enough that their convex hull is the path's within a fraction of a percent."""
+    toks = re.findall(r"[MLHVCSQTAZmlhvcsqtaz]|" + _NUM, d)
+    pts, i, cmd = [], 0, None
+    cur = start = (0.0, 0.0)
+    prev_ctrl = None  # the last control point, for S and T
+
+    def num():
+        nonlocal i
+        v = float(toks[i]); i += 1
+        return v
+
+    def flag():
+        # arc flags may be written without separators ("a1 1 0 01 5 5")
+        nonlocal i
+        t = toks[i]
+        if t in ("0", "1"):
+            i += 1
+            return int(t)
+        if t[0] in "01":
+            toks[i] = t[1:]
+            return int(t[0])
+        raise ValueError(f"arc flag {t!r}")
+
+    def bez(p0, *c, n=16):
+        for k in range(1, n + 1):
+            t = k / n
+            q = [p0, *c]
+            while len(q) > 1:
+                q = [(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t) for a, b in zip(q, q[1:])]
+            pts.append(q[0])
+
+    def arc(p0, rx, ry, phi, large, sweep, p1):
+        # SVG 1.1 F.6.5: endpoint to centre parameterisation
+        if rx == 0 or ry == 0 or p0 == p1:
+            pts.append(p1)
+            return
+        rx, ry = abs(rx), abs(ry)
+        c, s_ = math.cos(math.radians(phi)), math.sin(math.radians(phi))
+        dx, dy = (p0[0] - p1[0]) / 2, (p0[1] - p1[1]) / 2
+        x1, y1 = c * dx + s_ * dy, -s_ * dx + c * dy
+        lam = x1 * x1 / (rx * rx) + y1 * y1 / (ry * ry)
+        if lam > 1:
+            rx, ry = rx * math.sqrt(lam), ry * math.sqrt(lam)
+        num_ = rx * rx * ry * ry - rx * rx * y1 * y1 - ry * ry * x1 * x1
+        k = math.sqrt(max(0.0, num_ / (rx * rx * y1 * y1 + ry * ry * x1 * x1)))
+        if large == sweep:
+            k = -k
+        cx1, cy1 = k * rx * y1 / ry, -k * ry * x1 / rx
+        cx, cy = c * cx1 - s_ * cy1 + (p0[0] + p1[0]) / 2, s_ * cx1 + c * cy1 + (p0[1] + p1[1]) / 2
+        ang = lambda ux, uy: math.atan2(uy, ux)
+        t0 = ang((x1 - cx1) / rx, (y1 - cy1) / ry)
+        dt = ang((-x1 - cx1) / rx, (-y1 - cy1) / ry) - t0
+        if sweep and dt < 0:
+            dt += 2 * math.pi
+        elif not sweep and dt > 0:
+            dt -= 2 * math.pi
+        for k in range(1, 33):
+            t = t0 + dt * k / 32
+            pts.append((cx + rx * math.cos(t) * c - ry * math.sin(t) * s_, cy + rx * math.cos(t) * s_ + ry * math.sin(t) * c))
+
+    while i < len(toks):
+        if toks[i].isalpha():
+            cmd = toks[i]; i += 1
+            if cmd in "Zz":
+                cur = start
+                prev_ctrl = None
+                continue
+        if cmd is None:
+            raise ValueError("path data does not start with a command")
+        rel = cmd.islower()
+        o = cur if rel else (0.0, 0.0)
+        C = cmd.upper()
+        if C == "M":
+            cur = start = (o[0] + num(), o[1] + num())
+            pts.append(cur)
+            cmd = "l" if rel else "L"  # further pairs are lines
+            prev_ctrl = None
+            continue
+        if C == "L":
+            cur = (o[0] + num(), o[1] + num()); pts.append(cur); prev_ctrl = None
+        elif C == "H":
+            cur = ((cur[0] if rel else 0.0) + num(), cur[1]); pts.append(cur); prev_ctrl = None
+        elif C == "V":
+            cur = (cur[0], (cur[1] if rel else 0.0) + num()); pts.append(cur); prev_ctrl = None
+        elif C in "CSQT":
+            kind = "C" if C in "CS" else "Q"
+            if C in "CQ":
+                c1 = (o[0] + num(), o[1] + num())
+            elif prev_ctrl and prev_ctrl[0] == kind:  # S, T: the previous control point reflected
+                c1 = (2 * cur[0] - prev_ctrl[1][0], 2 * cur[1] - prev_ctrl[1][1])
+            else:
+                c1 = cur
+            ctrl = [c1] + ([(o[0] + num(), o[1] + num())] if kind == "C" else [])
+            p1 = (o[0] + num(), o[1] + num())
+            bez(cur, *ctrl, p1)
+            prev_ctrl, cur = (kind, ctrl[-1]), p1
+        elif C == "A":
+            rx, ry, phi = num(), num(), num()
+            large, sweep = flag(), flag()
+            p1 = (o[0] + num(), o[1] + num())
+            arc(cur, rx, ry, phi, large, sweep, p1)
+            cur, prev_ctrl = p1, None
+        else:
+            raise ValueError(f"path data: a number after {cmd}")
+    return pts
 
 
 def art_ink(el):
     """The outline of an icon <svg>'s ink: the convex hull of its shapes, as fractions of its
-    viewBox, or None for the whole viewBox.
+    viewBox, or None for the whole viewBox. See art_ink_info."""
+    return art_ink_info(el)[0]
 
-    Only simple shapes are measured (polygon, polyline, rect, circle, ellipse, line, without
-    transforms). Anything else, a path or text, is taken to fill the viewBox.
+
+def art_ink_info(el, skip_labels=False):
+    """(outline, note): the convex hull of an icon <svg>'s ink as fractions of its viewBox (None: the
+    whole viewBox), and why it is only an estimate (None if it is exact).
+
+    Shapes are measured through nested <g> and <svg> elements and their transforms: polygon, polyline,
+    rect, circle, ellipse, line, path (every command), image and foreignObject (their boxes). Text is
+    estimated from its font size and length (CHAR_W). Anything else (<use>, a malformed shape) makes
+    the whole viewBox the ink. The hull is clipped to the viewBox, as the icon's viewport clips it.
+    With `skip_labels`, the <svg>'s own <text> children are labels (parse_svg's), not ink.
     """
     vb = el.get("viewBox")
     if not vb:
-        return None
+        return None, "no viewBox"
     try:
         vx, vy, vw, vh = (float(v) for v in re.split(r"[\s,]+", vb.strip()))
-        if vw <= 0 or vh <= 0:
-            return None
-        pts = []
+    except ValueError:
+        return None, f"viewBox={vb!r}"
+    if vw <= 0 or vh <= 0:
+        return None, f"viewBox={vb!r}"
+    pts, notes = [], set()
+    f = lambda v, d=0.0: float(v) if v not in (None, "") else d
 
-        def walk(e):
-            for c in e:
-                t = c.tag.replace(SVGNS, "") if isinstance(c.tag, str) else ""
-                if t in INK_SKIP or not t:
-                    continue
-                if c.get("transform"):
-                    raise ValueError(t)
-                if t == "g":
-                    walk(c)
-                elif t in ("polygon", "polyline"):
-                    v = [float(x) for x in re.split(r"[\s,]+", (c.get("points") or "").strip()) if x]
-                    pts.extend(zip(v[0::2], v[1::2]))
-                elif t == "rect":
-                    x, y = float(c.get("x", 0)), float(c.get("y", 0))
-                    w, h = float(c.get("width")), float(c.get("height"))
-                    pts.extend(((x, y), (x + w, y), (x, y + h), (x + w, y + h)))
-                elif t in ("circle", "ellipse"):
-                    cx, cy = float(c.get("cx", 0)), float(c.get("cy", 0))
-                    rx = float(c.get("r") or c.get("rx")); ry = float(c.get("r") or c.get("ry"))
-                    pts.extend((cx + rx * math.cos(k * math.pi / 8), cy + ry * math.sin(k * math.pi / 8)) for k in range(16))
-                elif t == "line":
-                    pts.extend(((float(c.get("x1", 0)), float(c.get("y1", 0))), (float(c.get("x2", 0)), float(c.get("y2", 0)))))
-                else:
-                    raise ValueError(t)
+    def walk(e, m, vp):
+        for c in e:
+            t = c.tag.replace(SVGNS, "") if isinstance(c.tag, str) else ""
+            if t in INK_SKIP or not t or c.get("display") == "none" or c.get("visibility") == "hidden":
+                continue
+            if t == "text" and skip_labels and e is el:
+                continue
+            cm = mat_mul(m, parse_transform(c.get("transform")))
+            add = lambda ps: pts.extend(apply(cm, x, y) for x, y in ps)
+            if t in ("g", "a", "switch"):
+                walk(c, cm, vp)
+            elif t == "svg":
+                vm, (_x, _y, w, h) = viewport_matrix(c, *vp)
+                inner = tuple(float(v) for v in re.split(r"[\s,]+", c.get("viewBox").strip())[2:4]) if c.get("viewBox") else (w, h)
+                walk(c, mat_mul(cm, vm), inner)
+            elif t in ("polygon", "polyline"):
+                v = [float(x) for x in re.findall(_NUM, c.get("points") or "")]
+                add(zip(v[0::2], v[1::2]))
+            elif t in ("rect", "image", "foreignObject"):
+                x, y = f(c.get("x")), f(c.get("y"))
+                # a rect without a size draws nothing; an image or foreignObject is taken to fill the viewport
+                w, h = (f(c.get("width")), f(c.get("height"))) if t == "rect" else (f(c.get("width"), vp[0]), f(c.get("height"), vp[1]))
+                add(((x, y), (x + w, y), (x, y + h), (x + w, y + h)))
+            elif t in ("circle", "ellipse"):
+                cx, cy = f(c.get("cx")), f(c.get("cy"))
+                rx = f(c.get("r") if t == "circle" else c.get("rx")); ry = f(c.get("r") if t == "circle" else c.get("ry"))
+                add((cx + rx * math.cos(k * math.pi / 16), cy + ry * math.sin(k * math.pi / 16)) for k in range(32))
+            elif t == "line":
+                add(((f(c.get("x1")), f(c.get("y1"))), (f(c.get("x2")), f(c.get("y2")))))
+            elif t == "path":
+                add(path_outline(c.get("d") or ""))
+            elif t == "text":
+                _txt, bb = text_box(c, cm)
+                if bb:
+                    pts.extend(((bb[0], bb[1]), (bb[2], bb[1]), (bb[0], bb[3]), (bb[2], bb[3])))
+                    notes.add("text estimated")
+            else:
+                raise ValueError(f"<{t}>")
 
-        walk(el)
-    except (ValueError, TypeError):
-        return None
-    if len(pts) < 3:
-        return None
-    hull = convex_hull([(min(1.0, max(0.0, (x - vx) / vw)), min(1.0, max(0.0, (y - vy) / vh))) for x, y in pts])
-    return hull if len(hull) >= 3 else None
+    try:
+        walk(el, IDENT, (vw, vh))
+    except (ValueError, TypeError, IndexError, ZeroDivisionError) as e:
+        return None, f"cannot measure {e}" if str(e).startswith("<") else f"cannot measure the art ({type(e).__name__}: {e})"
+    hull = convex_hull(pts)
+    if len(hull) >= 3:
+        hull = clip_poly_box(hull, (vx, vy, vx + vw, vy + vh))
+    if len(hull) < 3:
+        return None, "no area"
+    note = "; ".join(sorted(notes)) or None
+    return convex_hull([((x - vx) / vw, (y - vy) / vh) for x, y in hull]), note
 
 
 def convex_hull(pts):
@@ -582,22 +761,32 @@ def convex_hull(pts):
     return half(pts) + half(pts[::-1])
 
 
-def fit_icon(m, art=None, ink=None):
-    """The outline Studio draws an icon with: the art (<svg viewBox>) fitted into the frame `m` maps
-    0..1000 to, aspect ratio kept, centred, and turned as `m` turns it. `ink` (from art_ink) narrows
-    it to the drawn shapes. Returns the outline's points."""
-    fx0, fy0, fx1, fy1 = map_box(m, 0, 0, ICON_SIZE, ICON_SIZE)
-    vw = vh = 1.0
+def view_size(art):
+    """(width, height) of an icon <svg>'s viewBox; (1, 1) if it has none."""
     if art is not None and art.get("viewBox"):
         try:
             vw, vh = (float(v) for v in re.split(r"[\s,]+", art.get("viewBox").strip())[2:4])
         except ValueError:
-            pass
-        if vw <= 0 or vh <= 0:
-            vw = vh = 1.0
+            return 1.0, 1.0
+        if vw > 0 and vh > 0:
+            return vw, vh
+    return 1.0, 1.0
+
+
+def fit_icon(m, vb=(1.0, 1.0), ink=None):
+    """The outline Studio draws an icon with: art with viewBox size `vb` fitted into the frame `m`
+    maps 0..1000 to, aspect ratio kept, centred, and turned as `m` turns it. `ink` (from art_ink)
+    narrows it to the drawn shapes. Returns the outline's points.
+
+    Only quarter turns and mirrors are modelled (Dyad's D4 placements); any other rotation raises
+    UnsupportedSVG rather than fitting the art into the turned frame's bounding box."""
+    fx0, fy0, fx1, fy1 = map_box(m, 0, 0, ICON_SIZE, ICON_SIZE)
+    vw, vh = vb
     a, b, c, d = m[:4]
     ref = max(abs(a), abs(b), abs(c), abs(d), 1e-300)
-    sg = lambda v: 0.0 if abs(v) < 1e-9 * ref else math.copysign(1.0, v)
+    if not ((abs(b) < 1e-6 * ref and abs(c) < 1e-6 * ref) or (abs(a) < 1e-6 * ref and abs(d) < 1e-6 * ref)):
+        raise UnsupportedSVG(f"an icon turned {math.degrees(math.atan2(b, a)):.4g} degrees: only quarter turns are modelled")
+    sg = lambda v: 0.0 if abs(v) < 1e-6 * ref else math.copysign(1.0, v)
     o = (sg(a), sg(b), sg(c), sg(d))
     turned = abs(b) > abs(a)  # a quarter turn swaps the art's width and height
     W, H = (vh, vw) if turned else (vw, vh)
@@ -655,27 +844,22 @@ ICON_SIZE = 1000.0  # Dyad draws every block and port icon as <svg viewBox="0 0 
 # - connector glyphs are placed the same way: the frame from the connector's icon placement, mapped
 #   through the block's (non-uniform) box; the glyph is fitted into that frame.
 # - labels are drawn at a fixed size, centred on their anchor; the anchor is mapped through the box.
+#   They are upright, except on a block turned a quarter turn, where they are drawn on their side.
 #   A boundary port's name is drawn at (500, 1100) of its frame grown by PORT_PAD.
-LABEL_FONT = 20.0  # Studio's label font size in diagram units, whatever the size of the box
-LABEL_HEIGHT = 24.0  # the height of Studio's label line box
+LABEL_FONT = 16.035  # Studio's label font size (em) in diagram units, whatever the size of the box (fitted to its DOM)
+LABEL_HEIGHT = 24.45  # the height of Studio's label line box
 PORT_PAD = 20.0  # Studio's host element for a boundary port is its frame grown by this much on every side
-# Advance / font size of Studio's label font (Inter) by kind of character, least-squares fitted to
-# 1150 labels measured in Studio's DOM: the width is within 3 units of Studio's for 90% of labels.
-LABEL_ADVANCE = {"ijl": 0.20, "ftr": 0.29, "mw": 0.67, "MW": 0.82, "upper": 0.52, "lower": 0.47,
-                 "digit": 0.46, " ": 0.23, "._,:;": 0.37, "other": 0.37}
+with open(os.path.join(HERE, "inter_metrics.json"), encoding="utf-8") as _f:
+    # Advance widths and pair kerning of Inter, Studio's label font, per 1000 em (inter_metrics.mjs).
+    # With them, label widths agree with Studio's DOM within 0.1 units for 1151 of the 1152 HL20Demo labels.
+    _INTER = json.load(_f)
 
 
 def label_width(txt):
-    def adv(c):
-        for k in ("ijl", "ftr", "mw", "MW", " ", "._,:;"):
-            if c in k:
-                return LABEL_ADVANCE[k]
-        if c.isupper():
-            return LABEL_ADVANCE["upper"]
-        if c.islower():
-            return LABEL_ADVANCE["lower"]
-        return LABEL_ADVANCE["digit" if c.isdigit() else "other"]
-    return LABEL_FONT * sum(adv(c) for c in txt) if txt else LABEL_FONT * LABEL_ADVANCE["other"]
+    """Width of a label as Studio draws it: Inter's advances and pair kerning at LABEL_FONT."""
+    adv, kern = _INTER["advance"], _INTER["kern"]
+    w = sum(adv.get(c, adv["n"]) for c in txt) + sum(kern.get(txt[i:i + 2], 0) for i in range(len(txt) - 1))
+    return LABEL_FONT * w / _INTER["units_per_em"]
 
 
 def _local(el, center):
@@ -737,7 +921,16 @@ def parse_svg(svg_text, src_boxes=None, src_ports=None):
         if parts and all(abs(u - v) < 1e-6 for u, v in zip(map_box(parts[0][1], 0, 0, ICON_SIZE, ICON_SIZE), (0, 0, ICON_SIZE, ICON_SIZE))):
             (art, gm), parts = parts[0], parts[1:]
             art_m = mat_mul(im, gm)
-        body = bbox(fit_icon(art_m, art, art_ink(art)))
+        notes = []
+
+        def ink(sub, what):
+            outline, note = art_ink_info(sub, skip_labels=sub is top)
+            if note:
+                notes.append((what, note))
+            return outline
+        # a block's frame <svg> also holds its glyphs and labels: without a wrapped icon, it is all icon
+        art_ink_ = None if shadow and art is top else ink(art, None)
+        body = bbox(fit_icon(art_m, view_size(art), art_ink_))
         texts = []
         for icon in icons:
             im_i = mat_mul(mat_mul(m, _local(icon, center)), viewport_matrix(icon, ICON_SIZE, ICON_SIZE, sized=True)[0])
@@ -746,8 +939,8 @@ def parse_svg(svg_text, src_boxes=None, src_ports=None):
                     txt = "".join(t.itertext()).strip()
                     _local(t, center)  # rejects what the parser does not model
                     # Dyad turns a label about its own centre (CSS `text { transform-origin: center }` in
-                    # the icon) to keep it upright: the rotation does not move its anchor, and Studio
-                    # draws every label upright.
+                    # the icon) to keep it readable: the rotation does not move its anchor. Studio draws
+                    # it upright on a block turned 0 or 180 degrees and on its side on a quarter turn.
                     upright = re.sub(r"rotate\s*\([^)]*\)", "", t.get("transform") or "")
                     tm = mat_mul(im_i, parse_transform(upright))
                     try:
@@ -755,7 +948,7 @@ def parse_svg(svg_text, src_boxes=None, src_ports=None):
                     except ValueError:
                         continue
                     if txt:
-                        texts.append((txt, studio_label_box(txt, anchor)))
+                        texts.append((txt, studio_label_box(txt, anchor, sideways=round(rot) % 180 == 90)))
         name, label = None, None
         if texts:
             # the instance-name label names the block; parameter labels are kept too
@@ -772,26 +965,32 @@ def parse_svg(svg_text, src_boxes=None, src_ports=None):
         named_port = name is not None
         if name is None:
             name = f"{'port' if not shadow else 'block'}#{counter[0]}"
+        dg.ink_notes.extend((what or name, note) for what, note in notes)
         if shadow:
-            dg.blocks.append(Block(name, box, False, rot, label or [], frame=box, body=body))
+            dg.blocks.append(Block(name, box, False, rot, label or [], frame=box, body=body, art=(art_m, view_size(art), art_ink_)))
             known = (src_ports or {}).get(name) or []
             for k, (sub, gm) in enumerate(parts):
                 local = map_box(gm, 0, 0, ICON_SIZE, ICON_SIZE)  # in the block's 1000-unit icon space
                 cname = next((n for n, bb in known if all(abs(u - v) <= 1.0 for u, v in zip(local, bb))), None)
                 gfm = mat_mul(im, gm)
                 fr = map_box(gfm, 0, 0, ICON_SIZE, ICON_SIZE)
-                shape = fit_icon(gfm, sub, art_ink(sub))
-                dg.glyphs.append(Glyph(name, f"{name}.{cname or '#%d' % (k + 1)}", fr, bbox(shape),
-                                       ((fr[0] + fr[2]) / 2, (fr[1] + fr[3]) / 2), shape))
+                gname = f"{name}.{cname or '#%d' % (k + 1)}"
+                vb, (gink, note) = view_size(sub), art_ink_info(sub)
+                if note:
+                    dg.ink_notes.append((gname, note))
+                shape = fit_icon(gfm, vb, gink)
+                dg.glyphs.append(Glyph(name, gname, fr, bbox(shape), ((fr[0] + fr[2]) / 2, (fr[1] + fr[3]) / 2), shape,
+                                       fm=gfm, vb=vb, ink=gink))
         else:
             labels = []
             if named_port:  # Studio writes a boundary port's name under its glyph
                 # its host element is the frame grown by PORT_PAD on every side; the label sits at (500, 1100) of that
                 h = box[3] - box[1] + 2 * PORT_PAD
                 labels.append((name, studio_label_box(name, ((box[0] + box[2]) / 2, box[1] - PORT_PAD + 1.1 * h))))
-            shape = fit_icon(art_m, art, art_ink(art))
+            shape = fit_icon(art_m, view_size(art), art_ink_)
             dg.blocks.append(Block(name, body, True, rot, labels, frame=box, body=body))
-            dg.glyphs.append(Glyph("", name, box, body, ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2), shape))
+            dg.glyphs.append(Glyph("", name, box, body, ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2), shape,
+                                   fm=art_m, vb=view_size(art), ink=art_ink_))
 
     def inner_size(el, w, h):
         """Size of the viewport an <svg> establishes for its children (None if unknown)."""
@@ -946,12 +1145,18 @@ def merge_overlaps(runs, tol=0.25):
 GLYPH_GAP = 0.1  # glyphs closer than this fraction of the smaller one's size touch (glyph_overlap)
 BODY_DEPTH = 1.0  # a glyph reaching this far into another block's icon lies on it (glyph_overlap)
 DETACH_GAP = 0.25  # a block's glyph further than this fraction of its size (and 2 units) from the drawn icon is detached
+# (each beyond what it is with the block at the default size STD_BLOCK: that is the child's icon's design)
 OVERHANG = 0.5  # a glyph with more than this fraction of its length past the end of its side of the icon overhangs,
-OVERHANG_OUT = (0.75, 30.0)  # and so does one this much outside the icon (area fraction) that sticks out this far
+OVERHANG_OUT = (0.75, 30.0)  # and so does one this much more outside the icon (area fraction), or this much outside
+# that sticks out this many units further than the same glyph, scaled, at the default size
 LABEL_COVER = 60.0  # a label with more than this area under a glyph (a quarter of a character) is covered
-THRU_GLYPH = 0.25  # a wire running inside a glyph's outline for this fraction of the glyph's size (and 1 unit) crosses it
+STD_BLOCK = 100.0  # Dyad's default placement size: a block's own glyphs cover its own labels this much by design
+PIN_TOL = 0.5  # a wire end this close to a glyph's pin is wired to it (`dyad render` ends wires exactly on the pin)
+# A wire or junction dot is on a glyph once it gets this far inside the outline: half the depth of the
+# outline's centre, or GRAZE units, whichever is less. Closer to the edge it runs along the glyph's stroke.
+THRU_DEPTH = 0.5
+GRAZE = 2.0
 JUNCTION_R = 2.5  # radius of Studio's junction dot
-MIN_GLYPH = 20.0  # smaller glyphs (the 10-unit pins of a standard 100-unit block) are not tested for wires and junctions
 NEAR_DIAG = (0.001, 0.5)  # a segment off the horizontal or vertical by this much is a near-diagonal
 
 
@@ -1006,8 +1211,8 @@ def poly_area(P):
     return abs(sum(P[i - 1][0] * P[i][1] - P[i][0] * P[i - 1][1] for i in range(len(P)))) / 2 if len(P) >= 3 else 0.0
 
 
-def clip_len_in_poly(p, q, P):
-    """Length of segment pq inside convex polygon P (Cyrus-Beck)."""
+def clip_t_in_poly(p, q, P):
+    """The parameter interval (t0, t1) of segment pq inside convex polygon P (Cyrus-Beck), or None."""
     cx = sum(x for x, _ in P) / len(P)
     cy = sum(y for _, y in P) / len(P)
     t0, t1 = 0.0, 1.0
@@ -1021,7 +1226,7 @@ def clip_len_in_poly(p, q, P):
         den = nx * dx + ny * dy
         if abs(den) < 1e-12:
             if num < 0:
-                return 0.0
+                return None
             continue
         t = -num / den
         if den > 0:
@@ -1029,8 +1234,92 @@ def clip_len_in_poly(p, q, P):
         else:
             t1 = min(t1, t)
         if t0 >= t1:
-            return 0.0
-    return (t1 - t0) * math.hypot(dx, dy)
+            return None
+    return t0, t1
+
+
+def clip_len_in_poly(p, q, P):
+    """Length of segment pq inside convex polygon P."""
+    t = clip_t_in_poly(p, q, P)
+    return (t[1] - t[0]) * seg_len(p, q) if t else 0.0
+
+
+def poly_depth(P, p):
+    """How far point p is inside convex polygon P: its distance to the nearest edge (negative outside)."""
+    cx = sum(x for x, _ in P) / len(P)
+    cy = sum(y for _, y in P) / len(P)
+    best = math.inf
+    for i in range(len(P)):
+        a, b = P[i], P[(i + 1) % len(P)]
+        n = seg_len(a, b)
+        if n < 1e-12:
+            continue
+        d = _cross(a, b, p) / n
+        best = min(best, d if _cross(a, b, (cx, cy)) >= 0 else -d)
+    return best
+
+
+def poly_centroid(P):
+    A = sum(P[i - 1][0] * P[i][1] - P[i][0] * P[i - 1][1] for i in range(len(P))) / 2
+    if abs(A) < 1e-12:
+        return (sum(x for x, _ in P) / len(P), sum(y for _, y in P) / len(P))
+    cx = sum((P[i - 1][0] + P[i][0]) * (P[i - 1][0] * P[i][1] - P[i][0] * P[i - 1][1]) for i in range(len(P))) / (6 * A)
+    cy = sum((P[i - 1][1] + P[i][1]) * (P[i - 1][0] * P[i][1] - P[i][0] * P[i - 1][1]) for i in range(len(P))) / (6 * A)
+    return (cx, cy)
+
+
+@dataclass
+class Passage:
+    """One continuous run of a wire inside a glyph's outline."""
+    length: float = 0.0
+    depth: float = -math.inf  # the furthest it gets from the outline
+    segs: list = field(default_factory=list)  # its pieces, as (p, q)
+    ends: list = field(default_factory=list)  # the wire's own ends it holds
+    first: tuple = None  # where it enters (or starts)
+    last: tuple = None  # where it leaves (or ends)
+
+
+def fold_ends(pts):
+    """The polyline without the spikes `dyad render` leaves at its ends: a wire that runs past its pin
+    (to the block's edge) and doubles back to it ends on the pin."""
+    pts = list(pts)
+    for _ in range(2):
+        while len(pts) >= 3:
+            a, b, c = pts[-3], pts[-2], pts[-1]
+            u, v = (b[0] - a[0], b[1] - a[1]), (c[0] - b[0], c[1] - b[1])
+            if abs(u[0] * v[1] - u[1] * v[0]) > 1e-6 * (seg_len(a, b) * seg_len(b, c) + 1e-12) or u[0] * v[0] + u[1] * v[1] >= 0:
+                break
+            del pts[-2]
+        pts.reverse()
+    return pts
+
+
+def passages(pts, P, eps=1e-9):
+    """The continuous runs of polyline `pts` inside convex polygon P. A run goes on across a waypoint
+    inside P, so a zigzag that never leaves P is one passage however short each leg is."""
+    out, cur = [], None
+    n = len(pts) - 1
+    for k, (p, q) in enumerate(zip(pts, pts[1:])):
+        t = clip_t_in_poly(p, q, P)
+        if t is None or (t[1] - t[0]) * seg_len(p, q) <= eps:
+            cur = None
+            continue
+        a = (p[0] + (q[0] - p[0]) * t[0], p[1] + (q[1] - p[1]) * t[0])
+        b = (p[0] + (q[0] - p[0]) * t[1], p[1] + (q[1] - p[1]) * t[1])
+        if cur is None or t[0] > eps:
+            cur = Passage(first=a)
+            out.append(cur)
+        cur.length += seg_len(a, b)
+        cur.segs.append((a, b))
+        cur.last = b
+        cur.depth = max(cur.depth, max(poly_depth(P, (a[0] + (b[0] - a[0]) * j / 32, a[1] + (b[1] - a[1]) * j / 32)) for j in range(33)))
+        if k == 0 and t[0] <= eps:
+            cur.ends.append(pts[0])
+        if k == n - 1 and t[1] >= 1 - eps:
+            cur.ends.append(pts[-1])
+        if t[1] < 1 - eps:
+            cur = None
+    return out
 
 
 def glyph_edge(box, body):
@@ -1043,16 +1332,61 @@ def glyph_edge(box, body):
     return side, min(1.0, past / max(hi - lo, 1e-9))
 
 
+def to_default_size(block):
+    """The matrix that resizes a block's frame to Dyad's default STD_BLOCK square about its centre."""
+    x0, y0, x1, y1 = block.frame
+    sx, sy = STD_BLOCK / max(x1 - x0, 1e-9), STD_BLOCK / max(y1 - y0, 1e-9)
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    return (sx, 0.0, 0.0, sy, cx - sx * cx, cy - sy * cy)
+
+
+def at_default_size(g, block):
+    """(glyph outline, icon body) of a block's glyph `g` with the block at Dyad's default size, or None
+    if they cannot be refitted: what the child's icon draws whatever this diagram does."""
+    if g.fm is None or block is None or block.frame is None or block.art is None:
+        return None
+    S = to_default_size(block)
+    fm, vb, ink = block.art
+    return fit_icon(mat_mul(S, g.fm), g.vb, g.ink), bbox(fit_icon(mat_mul(S, fm), vb, ink))
+
+
+def glyph_fit(outline, body):
+    """How a block's glyph sits on its icon: (gap to it, the side it is on, fraction of its length past
+    the end of that side, fraction of its area outside the icon, how far it sticks out)."""
+    box = bbox(outline)
+    gap = poly_sep(outline, box_poly(body))
+    side, past = glyph_edge(box, body)
+    out = 1 - box_overlap_area(box, body) / max((box[2] - box[0]) * (box[3] - box[1]), 1e-9)
+    sticks = max(body[0] - box[0], box[2] - body[2], body[1] - box[1], box[3] - body[3])
+    return gap, side, past, out, sticks
+
+
+def own_label_baseline(g, block, lb):
+    """How much of label box `lb` a block's own glyph `g` covers with the block at Dyad's default size
+    (STD_BLOCK square, same centre): the overlap the child's icon causes whatever this diagram does.
+    The label keeps its size (Studio draws labels at a fixed size); its anchor scales with the block."""
+    if g.fm is None or block.frame is None:
+        return 0.0
+    S = to_default_size(block)
+    outline = fit_icon(mat_mul(S, g.fm), g.vb, g.ink)
+    ax, ay = apply(S, (lb[0] + lb[2]) / 2, (lb[1] + lb[3]) / 2)
+    hw, hh = (lb[2] - lb[0]) / 2, (lb[3] - lb[1]) / 2
+    return poly_area(clip_poly_box(outline, (ax - hw, ay - hh, ax + hw, ay + hh)))
+
+
 def glyph_metrics(dg):
     """Defects of connector glyphs and labels as Studio draws them (see README, "Glyph checks")."""
     m, det = {}, {}
     gl = dg.glyphs
     bodies = {b.name: b.body for b in dg.blocks if not b.is_port and b.body}
+    blocks = {b.name: b for b in dg.blocks if not b.is_port}
     iss = dg.issues
-    infr = lambda g, p: g.frame[0] - 1 <= p[0] <= g.frame[2] + 1 and g.frame[1] - 1 <= p[1] <= g.frame[3] + 1
-    # the nets wired to each glyph
-    nets = [{w.net for w in dg.wires for p in (w.pts[0], w.pts[-1]) if infr(g, p)} for g in gl]
+    at_pin = lambda g, p: seg_len(p, g.pin) <= PIN_TOL
+    # the nets wired to each glyph: wires that end on its pin
+    nets = [{w.net for w in dg.wires for p in (w.pts[0], w.pts[-1]) if at_pin(g, p)} for g in gl]
     outl = [g.outline() for g in gl]
+    # how deep each outline is at its centre, the yardstick for how far a wire or a dot gets into it
+    core = [max(poly_depth(o, poly_centroid(o)), 1e-9) if len(o) >= 3 else 1e-9 for o in outl]
     # glyph_overlap: glyph pairs that overlap or touch, and glyphs on another block's icon. Two
     # unwired glyphs of one block piled up are the child's icon's doing: glyph_overlap_unwired.
     ov, unwired = [], []
@@ -1062,6 +1396,7 @@ def glyph_metrics(dg):
             if poly_sep(outl[i], outl[j]) < GLYPH_GAP * min(box_size(a.box), box_size(b.box)):
                 if a.owner and a.owner == b.owner and not nets[i] and not nets[j]:
                     unwired.append(f"{a.name} / {b.name}")
+                    iss.setdefault("glyph_unwired", []).extend((a.box, b.box))
                     continue
                 ov.append(f"{a.name} / {b.name}")
                 iss.setdefault("glyph", []).extend((a.box, b.box))
@@ -1071,63 +1406,84 @@ def glyph_metrics(dg):
                 iss.setdefault("glyph", []).append(gl[i].box)
     m["glyph_overlap"], m["glyph_overlap_unwired"] = len(ov), len(unwired)
     det["glyph_overlap"], det["glyph_overlap_unwired"] = ov, unwired
-    # glyph_detached / glyph_overhang: a block's glyphs against the icon Studio draws
+    # glyph_detached / glyph_overhang: a block's glyphs against the icon Studio draws. What the glyph
+    # already does with the block at Dyad's default size (at_default_size) is the child's icon's doing:
+    # only what this diagram's placement adds counts.
     dt, oh = [], []
     for i, g in enumerate(gl):
         body = bodies.get(g.owner)
         if not g.owner or body is None:
             continue
-        gap = poly_sep(outl[i], box_poly(body))
-        if gap > max(2.0, DETACH_GAP * box_size(g.box)):
+        size = box_size(g.box)
+        gap, side, past, out, sticks = glyph_fit(outl[i], body)
+        std = at_default_size(g, blocks.get(g.owner))
+        b_gap, _s, b_past, b_out, b_sticks = glyph_fit(*std) if std else (0.0, side, 0.0, 0.0, 0.0)
+        b_size = box_size(bbox(std[0])) if std else size
+        # compared as fractions of the glyph's size, which scales with the block: a standard pin on a big
+        # block is a big pin standing as far off its big icon, which is no defect of the layout
+        if gap > 2.0 and gap / max(size, 1e-9) - max(b_gap, 0.0) / max(b_size, 1e-9) > DETACH_GAP:
             dt.append(f"{g.name} ({gap:.0f} from {g.owner})")
             iss.setdefault("glyph", []).append(g.box)
             continue
-        side, past = glyph_edge(g.box, body)
-        out = 1 - box_overlap_area(g.box, body) / max((g.box[2] - g.box[0]) * (g.box[3] - g.box[1]), 1e-9)
-        sticks = max(body[0] - g.box[0], g.box[2] - body[2], body[1] - g.box[1], g.box[3] - body[3])
-        if past > OVERHANG:
+        if past - b_past > OVERHANG:
             oh.append(f"{g.name} ({int(100 * past)}% past the end of the {side} side of {g.owner})")
             iss.setdefault("glyph", []).append(g.box)
-        elif out > OVERHANG_OUT[0] and sticks > OVERHANG_OUT[1]:
+        elif out - b_out > OVERHANG_OUT[0] or (out > OVERHANG_OUT[0] and sticks - max(b_sticks, 0.0) * size / max(b_size, 1e-9) > OVERHANG_OUT[1]):
             oh.append(f"{g.name} ({sticks:.0f} outside the {side} side of {g.owner})")
             iss.setdefault("glyph", []).append(g.box)
     m["glyph_detached"], m["glyph_overhang"] = len(dt), len(oh)
     det["glyph_detached"], det["glyph_overhang"] = dt, oh
-    # label_covered: labels (block, port and free) a glyph lies on
+    # label_covered: labels (block, port and free) a glyph lies on. A block's own glyphs over its own
+    # labels count by how much more they cover than at Dyad's default size (own_label_baseline): Studio
+    # puts the name at (500, 1100), where a bottom pin's glyph is, so some overlap is the child's icon's.
     lc = []
-    # A block's own glyphs over its own labels are the child's icon's doing (Studio puts the label at
-    # (500, 1100), where a bottom port's glyph often is), not this diagram's.
     for owner, txt, lb in [("" if b.is_port else b.name, t, bb) for b in dg.blocks for t, bb in b.labels] + [("", t, bb) for t, bb in dg.free_labels]:
-        hit = [g.name for i, g in enumerate(gl) if not (owner and g.owner == owner)
-               and box_overlap_area(g.box, lb) > 0 and poly_area(clip_poly_box(outl[i], lb)) > LABEL_COVER]
+        hit = []
+        for i, g in enumerate(gl):
+            if box_overlap_area(g.box, lb) <= 0:
+                continue
+            area = poly_area(clip_poly_box(outl[i], lb))
+            own = owner and g.owner == owner
+            extra = area - own_label_baseline(g, blocks[owner], lb) if own else area
+            if extra > LABEL_COVER:
+                hit.append(g.name + (f" (+{extra:.0f} over its {STD_BLOCK:g}-unit baseline)" if own else ""))
         if hit:
             lc.append(f"{txt} under {', '.join(hit)}")
             iss.setdefault("label", []).append(lb)
     m["label_covered"] = len(lc)
     det["label_covered"] = lc
-    # wire_thru_glyph: a wire across a glyph that is neither at one of its ends nor wired to its net
+    # wire_thru_glyph: a wire running through a glyph, every glyph whatever its size. Wires of the net
+    # wired to the glyph's pin may run over it: that is the connection. Any other wire counts once one
+    # continuous passage through the outline gets deep enough (`deep`): a zigzag is one passage.
+    deep = [min(THRU_DEPTH * c, GRAZE) for c in core]
     tg = []
     for w in dg.wires:
+        wb = (min(p[0] for p in w.pts) - 1, min(p[1] for p in w.pts) - 1, max(p[0] for p in w.pts) + 1, max(p[1] for p in w.pts) + 1)
+        folded = None
         for i, g in enumerate(gl):
-            if box_size(g.box) < MIN_GLYPH or w.net in nets[i] or box_overlap_area(g.box, (min(p[0] for p in w.pts) - 1, min(p[1] for p in w.pts) - 1,
-                                                              max(p[0] for p in w.pts) + 1, max(p[1] for p in w.pts) + 1)) <= 0:
+            if len(outl[i]) < 3 or w.net in nets[i] or box_overlap_area(g.box, wb) <= 0:
                 continue
-            need = max(1.0, THRU_GLYPH * box_size(g.box))
-            segs = [(p, q) for p, q in zip(w.pts, w.pts[1:]) if clip_len_in_poly(p, q, outl[i]) > need]
-            if segs:
-                tg.append((w.name, g))
-                iss.setdefault("through", []).extend(segs)
+            folded = folded or fold_ends(w.pts)
+            bad = [ps for ps in passages(folded, outl[i]) if ps.depth >= deep[i]]
+            if bad:
+                tg.append((w.name, g, max(ps.length for ps in bad)))
+                iss.setdefault("through", []).extend(sg for ps in bad for sg in ps.segs)
     m["wire_thru_glyph"] = len(tg)
-    m["wire_through_port"] = sum(1 for _w, g in tg if not g.owner)
-    det["wire_thru_glyph"] = [f"{n} through {g.name}" for n, g in tg]
-    # junction_on_glyph: a junction dot on or touching a glyph
+    m["wire_through_port"] = sum(1 for _w, g, _l in tg if not g.owner)
+    det["wire_thru_glyph"] = [f"{n} through {g.name} ({L:.0f} inside)" for n, g, L in tg]
+    # junction_on_glyph: a junction dot on or touching a glyph. On the glyph's own net, a dot at its pin
+    # or not deep inside (at the rim, where the wire leaves it) is part of the connection.
     jg = []
     for jp in dg.junctions:
         dot = [(jp[0] + JUNCTION_R * math.cos(k * math.pi / 4), jp[1] + JUNCTION_R * math.sin(k * math.pi / 4)) for k in range(8)]
+        jnets = {w.net for w in dg.wires if point_on_polyline(jp, w.pts, 1.0)}
         for i, g in enumerate(gl):
-            if box_size(g.box) >= MIN_GLYPH and poly_sep(dot, outl[i]) <= 0:
-                jg.append(f"({jp[0]:g}, {jp[1]:g}) on {g.name}")
-                iss.setdefault("junction", []).append(jp)
+            if len(outl[i]) < 3 or poly_sep(dot, outl[i]) > 0:
+                continue
+            if jnets & nets[i] and (at_pin(g, jp) or poly_depth(outl[i], jp) < deep[i]):
+                continue
+            jg.append(f"({jp[0]:g}, {jp[1]:g}) on {g.name}")
+            iss.setdefault("junction", []).append(jp)
     m["junction_on_glyph"] = len(jg)
     det["junction_on_glyph"] = jg
     # near_diagonal: segments a hair off the horizontal or vertical (a rounded waypoint against an unrounded pin)
@@ -1270,7 +1626,10 @@ def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
             if box_overlap_area(allb[i].box, allb[j].box) > 1:
                 block_ov += 1
     m["block_overlaps"] = block_ov
-    labels = [(b.name, bb) for b in comps for _t, bb in b.labels] + list(dg.free_labels)
+    m["ink_estimated"] = len(dg.ink_notes)
+    # every label Studio draws: blocks' (name and parameters), boundary ports' names, free text
+    labels = [(b.name, bb) for b in dg.blocks for _t, bb in b.labels] + list(dg.free_labels)
+    owners = {b.name for b in dg.blocks}
     lb_block = lb_label = lb_wire = 0
     lb_list = []
     for name, lb in labels:
@@ -1282,14 +1641,17 @@ def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
                 lb_list.append((name, b.name))
     for i in range(len(labels)):
         for j in range(i + 1, len(labels)):
-            if labels[i][0] == labels[j][0] and labels[i][0] in {b.name for b in comps}:
-                continue
+            if labels[i][0] == labels[j][0] and labels[i][0] in owners:
+                continue  # one block's own labels are laid out by its icon
             if box_overlap_area(labels[i][1], labels[j][1]) > 1:
                 lb_label += 1
                 lb_list.append((labels[i][0], labels[j][0]))
+    lb_hit = []
     for name, lb in labels:
-        if any(clip_len_in_box(p, q, lb) > 1 for w in dg.wires for p, q in zip(w.pts, w.pts[1:])):
+        hit = [w.name for w in dg.wires if any(clip_len_in_box(p, q, lb) > 1 for p, q in zip(w.pts, w.pts[1:]))]
+        if hit:
             lb_wire += 1
+            lb_hit.append(f"{name} under {', '.join(sorted(set(hit)))}")
     m["label_block_overlaps"] = lb_block
     m["label_label_overlaps"] = lb_label
     m["labels_hit_by_wires"] = lb_wire
@@ -1363,6 +1725,8 @@ def compute_metrics(dg, cell=50.0, jog=10.0, outside_tol=30.0):
         "worst_wires": [{"wire": n, "crossings": c, "bends": b, "length": L} for _s, n, c, b, L in worst_wires],
         "through_block": [f"{a} through {b}" for a, b in through_list[:20]],
         "label_overlaps": [f"{a} / {b}" for a, b in lb_list[:20]],
+        "labels_hit_by_wires": lb_hit[:20],
+        "ink_estimated": [f"{what}: {why}" for what, why in dg.ink_notes[:20]],
         "detours": [f"{n} ({d}x)" for d, n in sorted(detour_wires, reverse=True)[:10]],
     }
     detail.update({k: v[:20] for k, v in gdet.items()})
@@ -1389,7 +1753,7 @@ def overlay_svg(dg, title=""):
          f"<rect x='{x0:g}' y='{y0:g}' width='{x1 - x0:g}' height='{y1 - y0:g}' fill='white'/>",
          f"<text x='{x0 + pad / 2:g}' y='{y0 + 30 * sw:g}' font-size='{12 * sw:g}' font-family='sans-serif'>{esc(title)}  "
          "(red dot = crossing, magenta = false junction, red line = through a block or glyph, orange = shared run, "
-         "orange box = glyph finding, purple box = covered label, orange ring = junction on a glyph, green = near-diagonal)</text>"]
+         "orange box = glyph finding (dashed: unwired glyphs piled up), purple box = covered label, orange ring = junction on a glyph, green = near-diagonal)</text>"]
     for b in dg.blocks:
         x, y, X, Y = b.frame or b.box
         # the placement box dashed; the icon as Studio draws it (ports: their glyph, below) solid
@@ -1410,6 +1774,9 @@ def overlay_svg(dg, title=""):
     for g in dg.glyphs:
         pts = " ".join(f"{x:g},{y:g}" for x, y in g.outline())
         o.append(f"<polygon points='{pts}' fill='#dde' stroke='#558' stroke-width='{0.8 * sw:g}'/>")
+    for x, y, X, Y in dg.issues.get("glyph_unwired", []):
+        o.append(f"<rect x='{x:g}' y='{y:g}' width='{X - x:g}' height='{Y - y:g}' fill='none' stroke='#e07000' "
+                 f"stroke-dasharray='{2 * sw:g}' stroke-width='{1.5 * sw:g}'/>")
     for x, y, X, Y in dg.issues.get("glyph", []):
         o.append(f"<rect x='{x:g}' y='{y:g}' width='{X - x:g}' height='{Y - y:g}' fill='none' stroke='#e07000' stroke-width='{2.5 * sw:g}'/>")
     for x, y, X, Y in dg.issues.get("label", []):
@@ -1439,16 +1806,27 @@ def overlay_svg(dg, title=""):
     return "\n".join(o)
 
 
+# Badness weights, per finding (see README, "Badness"). Roughly: how hard the defect is to see past
+# when reading the diagram. 20: the drawing is wrong (wires sharing a run, touching another net, through
+# a block, diagonal; blocks on blocks). 10: a connector glyph is misdrawn (on another glyph or icon,
+# away from its block, crossed by another net's wire or a junction dot). 5: a connect() with no route
+# (Dyad invents one), a glyph past the end of its side, a label under a glyph. 3: a crossing. 2: label
+# collisions, wires leaving the diagram, detours. 1: a near-diagonal (a hair off the axis, which shows
+# as a jag only when zoomed in) and a pair of unwired glyphs piled up by the child's icon (visible,
+# but only the child component can fix it). Bends and jogs cost a fraction.
+WEIGHTS = {
+    "overlap_runs": 20, "diagonal_segments": 20, "wire_through_block": 20, "false_junctions": 20, "block_overlaps": 20,
+    "glyph_overlap": 10, "glyph_detached": 10, "wire_thru_glyph": 10, "junction_on_glyph": 10,
+    "unrouted_connects": 5, "glyph_overhang": 5, "label_covered": 5,
+    "crossings": 3,
+    "label_block_overlaps": 2, "label_label_overlaps": 2, "outer_wires": 2, "detour_wires": 2,
+    "near_diagonal": 1, "glyph_overlap_unwired": 1,
+    "labels_hit_by_wires": 0.5, "micro_jogs": 0.5, "bends_total": 0.25,
+}
+
+
 def badness(m):
-    hard = (m.get("overlap_runs", 0) + m.get("diagonal_segments", 0) + m.get("wire_through_block", 0)
-            + m.get("false_junctions", 0) + m.get("block_overlaps", 0))
-    s = (20 * hard + 5 * m.get("unrouted_connects", 0) + 3 * m.get("crossings", 0)
-         + 2 * (m.get("label_block_overlaps", 0) + m.get("label_label_overlaps", 0))
-         + 0.5 * m.get("labels_hit_by_wires", 0) + 2 * m.get("outer_wires", 0)
-         + 2 * m.get("detour_wires", 0) + 0.25 * m.get("bends_total", 0) + 0.5 * m.get("micro_jogs", 0)
-         + 10 * (m.get("glyph_overlap", 0) + m.get("glyph_detached", 0) + m.get("wire_thru_glyph", 0)
-                 + m.get("junction_on_glyph", 0))
-         + 5 * (m.get("glyph_overhang", 0) + m.get("label_covered", 0) + m.get("near_diagonal", 0)))
+    s = sum(w * (m.get(k) or 0) for k, w in WEIGHTS.items())
     if m.get("whitespace", 0) > 0.6:
         s += 100 * (m["whitespace"] - 0.6)
     if m.get("min_pin_pitch") is not None and m["min_pin_pitch"] < 10:
@@ -1766,13 +2144,14 @@ def summarize_solve(stderr, sol):
 TABLE_COLS = [
     ("badness", "bad"), ("wires", "wires"), ("crossings", "X"), ("false_junctions", "T"),
     ("overlap_runs", "ovl"), ("wire_through_block", "thru"), ("wire_thru_glyph", "thru glyph"), ("diagonal_segments", "diag"),
-    ("near_diagonal", "near diag"), ("glyph_overlap", "g ovl"), ("glyph_detached", "g detach"), ("glyph_overhang", "g hang"),
+    ("near_diagonal", "near diag"), ("glyph_overlap", "g ovl"), ("glyph_overlap_unwired", "g ovl unw"),
+    ("glyph_detached", "g detach"), ("glyph_overhang", "g hang"),
     ("label_covered", "lbl/glyph"), ("junction_on_glyph", "jct/glyph"),
     ("unrouted_connects", "unrt"), ("block_overlaps", "blk ovl"), ("label_block_overlaps", "lbl/blk"), ("label_label_overlaps", "lbl/lbl"),
     ("labels_hit_by_wires", "lbl/wire"), ("bends_mean", "bends/w"), ("bends_max", "bends max"),
     ("micro_jogs", "jogs"), ("wire_len_total", "len"), ("wire_len_max", "len max"), ("detour_wires", "detours"),
     ("outer_wires", "outer"), ("whitespace", "white"), ("largest_gap", "gap"), ("aspect", "aspect"),
-    ("min_pin_pitch", "pitch"),
+    ("min_pin_pitch", "pitch"), ("ink_estimated", "ink est"),
 ]
 DL_COLS = [("dl_crossings", "dl X"), ("dl_illegal", "dl illegal"), ("dl_turns", "dl turns"),
            ("dl_spacing", "dl spacing"), ("dl_unmatched", "dl unmatched"),
@@ -1844,14 +2223,14 @@ T = false junctions (a wire end or bend touching another net's wire); ovl = coll
 two different nets; thru = (wire, block) pairs where the wire passes through a block; thru glyph = (wire, glyph)
 pairs where the wire crosses a connector glyph it is not wired to; diag = non-orthogonal segments; near diag =
 segments a hair (0.001 to 0.5 units) off the axis; g ovl = connector glyphs that overlap or touch another glyph or
-lie on another block's icon; g detach = a block's glyphs away from its icon as Studio draws it; g hang = glyphs
+lie on another block's icon; g ovl unw = unwired glyphs of one block piled up by its icon; g detach = a block's glyphs away from its icon as Studio draws it; g hang = glyphs
 past the end of their side of the icon, or sticking far out of it; lbl/glyph = labels covered by a glyph;
 jct/glyph = junction dots on a glyph; unrt = connect() statements with no route metadata; lbl/blk,
 lbl/lbl, lbl/wire = label overlaps; bends/w, bends max = bends per wire; jogs = interior segments
 shorter than 10 units; len = Dyad units; detours = wires >= 2.5x their Manhattan distance;
 outer = wires leaving the blocks' bounding box by > 30 units; white = fraction of 50x50 cells with
 no block, label or wire; gap = side of the largest empty square; pitch = closest pins on different
-nets. dl X / dl illegal / dl turns / dl spacing = dyad-layout's own objective on the drawn geometry;
+nets; ink est = icons whose drawn ink could only be estimated (see "Estimated icon ink"). dl X / dl illegal / dl turns / dl spacing = dyad-layout's own objective on the drawn geometry;
 dl unmatched = problem connections no drawn wire was matched to (a * marks scores that leave them out);
 reroute X / reroute illegal = dyad-layout's router re-routing the same placements."""
 
@@ -1865,6 +2244,7 @@ def worst_first(rows, n):
                          ("false_junctions", "false junctions"), ("wire_through_block", "wires through blocks"),
                          ("wire_thru_glyph", "wires through glyphs"), ("junction_on_glyph", "junctions on glyphs"),
                          ("glyph_overlap", "overlapping glyphs"), ("glyph_detached", "detached glyphs"),
+                         ("glyph_overlap_unwired", "unwired glyphs piled up"),
                          ("glyph_overhang", "overhanging glyphs"), ("label_covered", "labels under glyphs"),
                          ("near_diagonal", "near-diagonal segments"), ("block_overlaps", "overlapping blocks/ports"),
                          ("diagonal_segments", "diagonal segments"), ("crossings", "crossings"),
@@ -1980,6 +2360,8 @@ def main(argv=None):
     ap.add_argument("--svg", action="append", default=[], help="analyse a rendered SVG file directly (no dyad needed)")
     ap.add_argument("--sort", default="badness", help="metric to sort the markdown table by")
     ap.add_argument("--worst", type=int, default=10, help="length of the worst-first list")
+    ap.add_argument("--allow-failures", action="store_true",
+                    help="exit 0 even if some diagram could not be rendered or measured (default: exit 1)")
     ap.add_argument("-j", "--jobs", type=int, default=1,
                     help="libraries analysed in parallel (components of one library always run in sequence)")
     args = ap.parse_args(argv)
@@ -2055,12 +2437,21 @@ def main(argv=None):
             err = r.get("error") or ""
             md.append(f"- {r['diagram']}: " + "<br>".join(l.strip() for l in err.splitlines() if l.strip())[:600]
                       + (f" (full log: `{r['error_log']}`)" if r.get("error_log") else ""))
+    est = [r for r in ok if r["metrics"].get("ink_estimated")]
+    if est:
+        md += ["", "## Estimated icon ink", "",
+               "The glyph checks measure each icon's drawn shapes. For these icons the ink is only an estimate: text is sized "
+               "from an average character width, and art that cannot be measured (e.g. `<use>`) is taken to fill its viewBox, "
+               "which can hide a detached or overhanging glyph and make glyphs look bigger than drawn.", ""]
+        md += [f"- {r['diagram']}: " + "; ".join(r["detail"].get("ink_estimated", []))
+               + (" ..." if r["metrics"]["ink_estimated"] > len(r["detail"].get("ink_estimated", [])) else "") for r in est]
     md += ["", "## Details (worst first)", ""]
     for r in sorted(ok, key=lambda r: -r["metrics"]["badness"])[: args.worst]:
         d = r["detail"]
         md.append(f"### {r['diagram']}")
-        for k in ("worst_wires", "through_block", "label_overlaps", "detours", "glyph_overlap", "glyph_detached",
-                  "glyph_overhang", "label_covered", "wire_thru_glyph", "junction_on_glyph", "near_diagonal"):
+        for k in ("worst_wires", "through_block", "label_overlaps", "labels_hit_by_wires", "detours", "glyph_overlap",
+                  "glyph_overlap_unwired", "glyph_detached", "glyph_overhang", "label_covered", "wire_thru_glyph",
+                  "junction_on_glyph", "near_diagonal", "ink_estimated"):
             if d.get(k):
                 vals = d[k] if k != "worst_wires" else [f"{w['wire']} ({w['crossings']} X, {w['bends']} bends, len {w['length']})" for w in d[k]]
                 md.append(f"- {k.replace('_', ' ')}: " + "; ".join(vals))
@@ -2071,6 +2462,10 @@ def main(argv=None):
     with open(os.path.join(args.out, "report.md"), "w") as f:
         f.write("\n".join(md) + "\n")
     print(os.path.join(args.out, "report.md"))
+    if failed and not args.allow_failures:
+        print(f"[layout-report] {len(failed)} of {len(rows)} diagrams failed (see report.md); --allow-failures to exit 0",
+              file=sys.stderr)
+        return 1
     return 0
 
 

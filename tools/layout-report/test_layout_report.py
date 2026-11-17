@@ -1,8 +1,8 @@
 """Unit tests for layout_report's geometry: python3 -m unittest tools/layout-report/test_layout_report.py"""
 import json
+import math
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
 import textwrap
@@ -11,6 +11,7 @@ from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import layout_report as lr  # noqa: E402
+import studio_geometry  # noqa: E402
 
 BLOCK = ('<g filter="url(#drop-shadow)" transform="translate({tx} {ty}) rotate(0) scale(0.1 0.1)" '
          'transform-origin="center center"><svg viewBox="0 0 1000 1000">'
@@ -342,7 +343,7 @@ class EndToEnd(unittest.TestCase):
             old = sys.stdout, sys.stderr
             sys.stdout = sys.stderr = null
             try:
-                lr.main(["--dir", lib, "--dyad", fake, "-o", out] + list(extra))
+                self.rc = lr.main(["--dir", lib, "--dyad", fake, "-o", out] + list(extra))
             finally:
                 sys.stdout, sys.stderr = old
         rows = {r["diagram"]: r for r in json.loads(read(os.path.join(out, "report.json")))}
@@ -386,6 +387,13 @@ class EndToEnd(unittest.TestCase):
             with open(broken["error_log"]) as f:
                 self.assertEqual(f.read(), JULIA_LOG)
             self.assertEqual(os.path.dirname(broken["error_log"]), os.path.join(out, "cache"))
+        self.assertEqual(self.rc, 1)  # a diagram failed to render
+
+    def test_allow_failures(self):
+        with tempfile.TemporaryDirectory() as d:
+            rows, _md, _out = self.run_main(d, "--allow-failures")
+        self.assertIn("error", rows["Lib.Broken"])
+        self.assertEqual(self.rc, 0)
 
 
 # ---------------------------------------------------------------------------
@@ -406,7 +414,7 @@ def gblock(name, box, ports=(), rot=0, label_y=1100):
     glyphs = "".join(f"<g {place(*p)}>{TRIANGLE}</g>" for p in ports)
     return (f'<g filter="url(#drop-shadow)" {place(*box, rot=rot)}><svg viewBox="0 0 1000 1000">'
             f'<g transform="translate(0 0) scale(1.0) rotate(0)" transform-origin="center center">'
-            f'<svg viewBox="0 0 1000 1000"><path d="M4 4h992v992H4z"/></svg></g>{glyphs}'
+            f'<svg viewBox="0 0 1000 1000"><path d="M4 4h992v992H4z"/><path d="M992 8v984H8V8zm8-8H0v1000h1000z"/></svg></g>{glyphs}'
             f'<text x="500" y="{label_y}" transform="rotate({rot}, 0, 600)" font-size="200">{name}</text></svg></g>')
 
 
@@ -529,13 +537,21 @@ class GlyphChecks(unittest.TestCase):
         self.assertEqual(m["glyph_detached"], 1)
         self.assertEqual(d["glyph_detached"], ["b.#1 (145 from b)"])  # its 10 x 10 glyph is centred on x = 0
         self.assertEqual(m["glyph_overhang"], 0)  # the top pin straddles the top side
-        # on a 100-unit block: a pin past the corner of its side, a standard pin standing just off the side
-        # (BlockComponents' `x1 = -100, x2 = 0`: 10 units out, fine), and a 40-unit glyph standing off it
-        _dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 100, 100), ports=[(-50, 1000, 50, 1100), (-100, 300, 0, 400),
+        # a corner pin on a 100 x 112 box: the icon is drawn 6 units in from the box's top, so the pin's glyph
+        # ends up past the corner of the icon. On the 100 x 100 default box it is not.
+        _dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 100, 112), ports=[(-100, 0, 0, 100)])))
+        self.assertEqual((m["glyph_detached"], m["glyph_overhang"]), (0, 1))
+        self.assertIn("past the end of the top side", d["glyph_overhang"][0])
+        # On a 200-unit block, a pin past the corner of its side, a standard pin standing just off the side
+        # (BlockComponents' `x1 = -100, x2 = 0`) and a 40-unit glyph standing off it do not count: the
+        # child's icon draws them so at its default size too.
+        _dg, (m, d) = gm(gsvg(gblock("b", (0, 0, 200, 200), ports=[(-50, 1000, 50, 1100), (-100, 300, 0, 400),
                                                                   (-400, 600, 0, 1000)])))
-        self.assertEqual((m["glyph_detached"], m["glyph_overhang"]), (0, 2))
-        self.assertIn("past the end of the left side", d["glyph_overhang"][0])
-        self.assertIn("outside the left side", d["glyph_overhang"][1])
+        self.assertEqual((m["glyph_detached"], m["glyph_overhang"]), (0, 0))
+        # standard pins on an 1100-unit block are 104-unit glyphs standing 102 units off its icon: the
+        # same proportions as at the default size, so no overhang (they pile up: glyph_overlap)
+        _dg, (m, _d) = gm(gsvg(gblock("b", (0, 0, 1100, 1100), ports=[(-100, 100, 0, 200), (-100, 300, 0, 400)])))
+        self.assertEqual((m["glyph_detached"], m["glyph_overhang"]), (0, 0))
 
     def test_label_covered(self):
         # a port right under another port's name; a block's own bottom pin over its own label does not count
@@ -546,15 +562,22 @@ class GlyphChecks(unittest.TestCase):
 
     def test_wire_thru_glyph(self):
         port = gport((200, 0, 300, 100))
-        # through the middle of a 95-unit triangle; ending at it; grazing its tip
-        for wire, want in (("M 0 50 L 400 50", 1), ("M 0 50 L 250 50", 0), ("M 290 -50 L 290 150", 0)):
+        # through the middle of a 95-unit triangle; ending at it; through its tip (3.4 units in, like
+        # RigidBody6DOF's risers); along its edge (within GRAZE of it)
+        for wire, want in (("M 0 50 L 400 50", 1), ("M 0 50 L 250 50", 0), ("M 290 -50 L 290 150", 1),
+                           ("M 296 -50 L 296 150", 0), ("M 203.5 -50 L 203.5 150", 0)):
             _dg, (m, _d) = gm(gsvg(port, wires=[wire]))
             self.assertEqual((m["wire_thru_glyph"], m["wire_through_port"]), (want, want), wire)
         # a wire of the glyph's own net (the two wires share an end) is not counted
         _dg, (m, _d) = gm(gsvg(port, wires=["M 250 50 L 250 200 L 600 200", "M 600 200 L 600 50 L 0 50"]))
         self.assertEqual(m["wire_thru_glyph"], 0)
-        # a block's 10-unit pin is too small to test: a wire has to run over it to reach the pin
-        _dg, (m, _d) = gm(gsvg(gblock("b", (500, 0, 600, 100), ports=[(-100, 450, 0, 550)]), wires=["M 495 -50 L 495 150"]))
+        # a block's 10-unit pin: the wire to it may run over it, from any side; another wire may not
+        pin = gblock("b", (500, 0, 600, 100), ports=[(-100, 450, 0, 550)])
+        for wire, want in (("M 495 -50 L 495 50", 0), ("M 400 50 L 495 50", 0), ("M 495 -50 L 495 150", 1)):
+            _dg, (m, _d) = gm(gsvg(pin, wires=[wire]))
+            self.assertEqual(m["wire_thru_glyph"], want, wire)
+        # `dyad render` runs a wire to the block's edge and back to the pin: still just its attachment
+        _dg, (m, _d) = gm(gsvg(pin, wires=["M 400 50 L 500 50 L 495 50"]))
         self.assertEqual(m["wire_thru_glyph"], 0)
 
     def test_junction_on_glyph(self):
@@ -567,6 +590,179 @@ class GlyphChecks(unittest.TestCase):
         _dg, (m, d) = gm(gsvg(wires=["M 0 561.42 L 300 561.4 L 300 900", "M 0 0 L 300 0.0000001", "M 0 1000 L 300 1001"]))
         self.assertEqual(m["near_diagonal"], 1)
         self.assertEqual(m["diagonal_segments"], 1)
+
+
+def gport_named(box, svg=TRIANGLE):
+    return f"<g {place(*box)}>{svg}</g>"
+
+
+class ReviewFindings(unittest.TestCase):
+    """The examples of the review of 2a72e1e, one test per finding."""
+
+    def test_1_nets_come_from_the_pin_not_the_frame(self):
+        # a boundary port at (200,0)-(300,800): its glyph is drawn around (250,400). A wire starting at
+        # (250,0), inside the frame but not on the pin, loops through the glyph: it is not wired to it.
+        port = gport((200, 0, 300, 800))
+        _dg, (m, d) = gm(gsvg(port, wires=["M 250 0 L 250 -50 L 150 -50 L 150 400 L 400 400"]))
+        self.assertEqual((m["wire_thru_glyph"], m["wire_through_port"]), (1, 1))
+        self.assertIn("through port#1", d["wire_thru_glyph"][0])
+        # the wire ending on the pin is the port's own
+        _dg, (m, _d) = gm(gsvg(port, wires=["M 250 400 L 400 400"]))
+        self.assertEqual(m["wire_thru_glyph"], 0)
+        # and so is one wire of its net, which may cross it
+        _dg, (m, _d) = gm(gsvg(port, wires=["M 250 400 L 400 400", "M 400 400 L 400 300 L 100 300"]))
+        self.assertEqual(m["wire_thru_glyph"], 0)
+
+    def test_2_small_glyphs_are_checked(self):
+        # a 20 x 20 placement draws a 19.05-unit triangle: a wire straight through its centre (and its pin)
+        port = gport((200, 0, 220, 20))
+        _dg, (m, _d) = gm(gsvg(port, wires=["M 150 10 L 300 10"]))
+        self.assertEqual(m["wire_thru_glyph"], 1)
+        # a junction dot on it, of another net
+        _dg, (m, _d) = gm(gsvg(port, wires=["M 212 -50 L 212 60", "M 212 10 L 260 10"], junctions=[(212, 10)]))
+        self.assertEqual((m["junction_on_glyph"], m["wire_thru_glyph"]), (1, 2))
+        # the legitimate attachment: the wire ending on its pin, with a junction on the pin
+        _dg, (m, _d) = gm(gsvg(port, wires=["M 210 10 L 300 10", "M 210 10 L 210 100"], junctions=[(210, 10)]))
+        self.assertEqual((m["junction_on_glyph"], m["wire_thru_glyph"]), (0, 0))
+        # a 10-unit stdlib pin stays clear the same way: the wire to it over it, not another one
+        pin = gblock("b", (500, 0, 600, 100), ports=[(-100, 450, 0, 550)])
+        _dg, (m, _d) = gm(gsvg(pin, wires=["M 400 0 L 495 0 L 495 50"]))
+        self.assertEqual(m["wire_thru_glyph"], 0)
+        _dg, (m, _d) = gm(gsvg(pin, wires=["M 400 50 L 600 50"]))
+        self.assertEqual(m["wire_thru_glyph"], 1)
+
+    def test_3_boundary_port_names_are_labels(self):
+        src = {"P": (0, 0, 100, 100), "Q": (5, 0, 105, 100)}
+        # P's name, under it, against Q's (both at y = 134): label on label
+        _dg, (m, d) = gm(gsvg(gport(src["P"]), gport(src["Q"])), src)
+        self.assertEqual(m["label_label_overlaps"], 1)
+        self.assertIn("P / Q", d["label_overlaps"])
+        # a block right under P's name: label on block
+        _dg, (m, d) = gm(gsvg(gport(src["P"]), gblock("b", (40, 125, 140, 225))), {"P": src["P"], "b": (40, 125, 140, 225)})
+        self.assertIn("P / b", d["label_overlaps"])
+        # a wire through it
+        _dg, (m, d) = gm(gsvg(gport(src["P"]), wires=["M -100 134 L 300 134"]), {"P": src["P"]})
+        self.assertEqual(m["labels_hit_by_wires"], 1)
+        self.assertEqual(d["labels_hit_by_wires"], ["P under ?->?"])
+
+    def test_4_a_zigzag_is_one_passage(self):
+        # every leg under a quarter of the 95-unit triangle, 137 units inside in all
+        zig = [(190, 35), (212, 35), (212, 55), (222, 55), (222, 35), (232, 35), (232, 55), (242, 55), (242, 35),
+               (252, 35), (252, -10)]
+        tri = lr.fit_icon(lr.mat_mul(lr.translate(200, 0), (0.1, 0, 0, 0.1, 0, 0)), (210.0, 210.0),
+                          [(5 / 210, 5 / 210), (205 / 210, 105 / 210), (5 / 210, 205 / 210)])
+        legs = [lr.clip_len_in_poly(p, q, tri) for p, q in zip(zig, zig[1:])]
+        self.assertLess(max(legs), 0.25 * 95.2)
+        ps, = lr.passages(zig, tri)
+        self.assertAlmostEqual(ps.length, sum(legs))
+        self.assertGreater(ps.length, 135)
+        _dg, (m, d) = gm(gsvg(gport((200, 0, 300, 100)), wires=["M " + " L ".join(f"{x} {y}" for x, y in zig)]))
+        self.assertEqual(m["wire_thru_glyph"], 1)
+        self.assertEqual(d["wire_thru_glyph"], ["?->? through port#1 (137 inside)"])
+
+    def test_5_own_label_counts_beyond_the_default_size(self):
+        # a block with a bottom connector: at the default 100 x 100 its glyph covers part of its name by design
+        bottom = [(450, 1000, 550, 1100)]
+        _dg, (m, _d) = gm(gsvg(gblock("block_b", (500, 0, 600, 100), ports=bottom)), {"block_b": (500, 0, 600, 100)})
+        self.assertEqual(m["label_covered"], 0)
+        # at 200 x 200 the glyph is twice the size and covers ~125 more square units of the fixed-size label
+        dg, (m, d) = gm(gsvg(gblock("block_b", (500, 0, 700, 200), ports=bottom)), {"block_b": (500, 0, 700, 200)})
+        (_t, lb), = dg.blocks[0].labels
+        g, = dg.glyphs
+        actual = lr.poly_area(lr.clip_poly_box(g.outline(), lb))
+        base = lr.own_label_baseline(g, dg.blocks[0], lb)
+        self.assertGreater(actual - base, lr.LABEL_COVER)
+        self.assertEqual(m["label_covered"], 1)
+        self.assertIn("over its 100-unit baseline", d["label_covered"][0])
+
+    def test_6_unwired_pileups_cost_and_show(self):
+        self.assertEqual(lr.badness({"glyph_overlap_unwired": 8}), 8)
+        self.assertLess(lr.WEIGHTS["near_diagonal"], lr.WEIGHTS["crossings"])
+        row = {"diagram": "D", "metrics": {"glyph_overlap_unwired": 8, "badness": 8}, "detail": {}}
+        self.assertIn("g ovl unw", lr.markdown([row], "badness").splitlines()[0])
+        self.assertIn("8 unwired glyphs piled up", lr.worst_first([row], 1))
+
+    def test_7_only_quarter_turns(self):
+        for rot in (0, 90, 180, 270):
+            lr.parse_svg(gsvg(gblock("b", (0, 0, 100, 100), ports=[(-100, 450, 0, 550)], rot=rot)))
+        with self.assertRaisesRegex(lr.UnsupportedSVG, "turned 45 degrees: only quarter turns"):
+            lr.parse_svg(gsvg(gblock("b", (0, 0, 100, 100), rot=45)))
+        with self.assertRaises(lr.UnsupportedSVG):
+            lr.fit_icon((math.cos(0.3), math.sin(0.3), -math.sin(0.3), math.cos(0.3), 0, 0))
+
+    def test_8_label_boxes(self):
+        # Studio draws PitchControl's `k=GDQDC` 78.48 units wide (its DOM); the old table said 68.9
+        self.assertAlmostEqual(lr.label_width("k=GDQDC"), 78.48, delta=0.1)
+        # a quarter-turned block's labels are drawn on their side
+        dg = lr.parse_svg(gsvg(gblock("side", (0, 0, 100, 100), rot=90)))
+        (_t, lb), = dg.blocks[0].labels
+        self.assertAlmostEqual(lb[2] - lb[0], lr.LABEL_HEIGHT)
+        self.assertAlmostEqual(lb[3] - lb[1], lr.label_width("side"))
+        # collisions decided at the label's edge: two port names half a unit apart, and half a unit over
+        wa, wb = lr.label_width("Alpha"), lr.label_width("Beta")
+        for off, want in ((0.5, 0), (-0.5, 1)):
+            x = (wa + wb) / 2 + off
+            src = {"Alpha": (0, 0, 100, 100), "Beta": (x, 0, x + 100, 100)}
+            _dg, (m, _d) = gm(gsvg(gport(src["Alpha"]), gport(src["Beta"])), src)
+            self.assertEqual(m["label_label_overlaps"], want, off)
+        # a wire just clear of the right edge of a name, and just inside it
+        for off, want in ((0.5, 0), (-0.5, 1)):
+            x = 50 + wa / 2 + off
+            _dg, (m, _d) = gm(gsvg(gport((0, 0, 100, 100)), wires=[f"M {x} 0 L {x} 300"]), {"Alpha": (0, 0, 100, 100)})
+            self.assertEqual(m["labels_hit_by_wires"], want, off)
+
+
+class NestedArt(unittest.TestCase):
+    def test_nested_art_is_measured(self):
+        # a 20 x 20 rectangle in the middle of a 100 x 100 icon, through a nested <svg> and a transform
+        for art in ('<svg x="40" y="40" width="20" height="20" viewBox="0 0 10 10"><rect width="10" height="10"/></svg>',
+                    '<g transform="translate(40 40)"><rect width="20" height="20"/></g>',
+                    '<path d="M40 40h20v20h-20z"/>'):
+            dg = lr.parse_svg(gsvg(gport_named((0, 0, 100, 100), f'<svg viewBox="0 0 100 100">{art}</svg>')))
+            self.assertEqual(R(dg.glyphs[0].box), (40, 40, 60, 60), art)
+            self.assertEqual(dg.ink_notes, [])
+        # arcs and curves: a circle drawn as two arcs
+        ink = lr.art_ink(lr.ET.fromstring('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+                                          '<path d="M10 50a40 40 0 1 0 80 0a40 40 0 1 0-80 0z"/></svg>'))
+        self.assertEqual(R(lr.bbox(ink)), (0.1, 0.1, 0.9, 0.9))
+
+    def test_estimates_are_reported(self):
+        # (a <text> straight under the icon's <svg> is a label, not art)
+        for art, why in (('<use href="#x"/>', "cannot measure <use>"), ('<rect width="10" height="10"/><g><text x="50" y="50">t</text></g>', "text estimated")):
+            dg = lr.parse_svg(gsvg(gport_named((0, 0, 100, 100), f'<svg viewBox="0 0 100 100">{art}</svg>')))
+            m, d = lr.compute_metrics(dg)
+            self.assertEqual(m["ink_estimated"], 1)
+            self.assertIn(why, d["ink_estimated"][0])
+        md_row = {"diagram": "D", "metrics": {"ink_estimated": 1, "badness": 0}, "detail": {"ink_estimated": ["p: text estimated"]}}
+        self.assertIn("ink est", lr.markdown([md_row], "badness").splitlines()[0])
+
+    def test_icon_margins_are_the_childs(self):
+        # an icon drawn 5% in from its frame leaves a standard pin 5 units off it at any size: not detached
+        art = '<svg viewBox="0 0 1000 1000"><rect x="50" y="50" width="900" height="900"/></svg>'
+        blk = lambda box: (f'<g filter="url(#drop-shadow)" {place(*box)}><svg viewBox="0 0 1000 1000">'
+                           f'<g transform="translate(0 0)" transform-origin="center center">{art}</g>'
+                           f'<g {place(-100, 450, 0, 550)}>{TRIANGLE}</g></svg></g>')
+        for box in ((0, 0, 100, 100), (0, 0, 300, 300)):
+            _dg, (m, _d) = gm(gsvg(blk(box)))
+            self.assertEqual(m["glyph_detached"], 0, box)
+        # stretched, the icon is drawn in the middle of the box and the pin floats away: detached
+        _dg, (m, _d) = gm(gsvg(blk((0, 0, 400, 100))))
+        self.assertEqual(m["glyph_detached"], 1)
+
+
+class Sources(unittest.TestCase):
+    def test_multiline_linked_constructor(self):
+        block = """
+  a = Lib.Gain(
+    k = f(1, 2),  # a comment with a ( in it
+    s = "x)"
+  ) {^a}
+  b = Lib.Gain(k = 1) {^b}
+relations
+metadata {"Dyad": {}, "_links": {"a": {"Dyad": {"placement": {"diagram": {"x1": 200, "y1": 0, "x2": 300, "y2": 100}}}},
+  "b": {"Dyad": {"placement": {"diagram": {"x1": 400, "y1": 0, "x2": 500, "y2": 100}}}}}}
+"""
+        self.assertEqual(lr.instance_boxes(block), {"a": (200, 0, 300, 100), "b": (400, 0, 500, 100)})
 
 
 # ---------------------------------------------------------------------------
@@ -610,10 +806,12 @@ class Fixtures(unittest.TestCase):
             for ink in st["glyphs"]:
                 self.assertTrue(any(close(g, ink) for g in glyphs), (name, ink))
             self.assertEqual(len(glyphs), len(st["glyphs"]), name)
+            # labels: every edge of the box (fixtures round Studio's to 0.1 units)
             labels = [(t, bb) for b in dg.blocks for t, bb in b.labels]
             for text, box in st["labels"]:
-                centre = lambda bb: ((bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2)
-                self.assertTrue(any(t == text and close(centre(bb), centre(box)) for t, bb in labels), (name, text, box))
+                self.assertTrue(any(t == text and close(bb, box, studio_geometry.LABEL_TOL + 0.05) for t, bb in labels),
+                                (name, text, box, [bb for t, bb in labels if t == text]))
+            self.assertEqual(studio_geometry.compare(st, dg, 1.0 + 0.05, studio_geometry.LABEL_TOL + 0.05), [], name)
 
 
 if __name__ == "__main__":

@@ -27,12 +27,17 @@ python3 tools/layout-report/layout_report.py --root . -j 4 -o /tmp/all
 python3 tools/layout-report/layout_report.py --svg Foo.svg -o /tmp/r
 ```
 
+The exit status is 1 if any diagram could not be rendered or measured (they
+are listed under *Failed* in `report.md`), so a CI gate notices; pass
+`--allow-failures` to exit 0 anyway.
+
 Output in `-o DIR`:
 
 - `report.md`: a worst-first list with the reasons, a sortable table of
   every diagram (`--sort METRIC`), and details for the worst
   (`--worst N`): the wires with the most crossings, wires through blocks,
-  label clashes and detours.
+  label clashes and detours. *Estimated icon ink* lists the icons whose drawn
+  shapes could only be estimated (see [Studio geometry](#studio-geometry)).
 - `report.json`: every metric and detail per diagram, plus dyad-layout's
   full objective when it was run.
 - `cache/<diagram>.svg`, the `dyad render` output. `--reuse` skips
@@ -46,7 +51,8 @@ Output in `-o DIR`:
   with every finding marked: placement boxes dashed, icons and glyphs as Studio
   draws them. Red dots are crossings, magenta rings are false junctions, red
   lines go through a block or a glyph, orange lines mark a run shared by two
-  nets, orange boxes a glyph finding, purple boxes a covered label, orange
+  nets, orange boxes a glyph finding (dashed: unwired glyphs piled up by the
+  child's icon), purple boxes a covered label, orange
   rings a junction on a glyph and green lines a near-diagonal segment. Open it
   in a browser.
 
@@ -70,7 +76,7 @@ Requirements:
 
 Run the tests with `python3 -m unittest tools/layout-report/test_layout_report.py`.
 Set `LAYOUT_REPORT_WASM` to dyad-layout's `wasm/pkg` to also run the test
-against the real scorer. `fixtures/` holds gzipped `dyad render` output of 19
+against the real scorer. `fixtures/` holds gzipped `dyad render` output of 22
 HL20Demo diagrams (at 99ffbc0, draft PR #51) with the counts the glyph checks
 must give (`expected.json`) and the geometry Studio drew for them
 (`studio.json`, see [Calibration](#calibration)).
@@ -85,17 +91,18 @@ Lengths are in Dyad diagram units. A dyad-layout half-square is 50 units.
 | `T` | false junctions: a wire end or bend lying on another net's wire. It reads as a connection. |
 | `ovl` | collinear runs shared by two different nets. dyad-layout counts these as illegal routes. |
 | `thru` | (wire, block) pairs where the wire passes through a block's placement box. |
-| `thru glyph` | `wire_thru_glyph`: (wire, glyph) pairs where the wire crosses a connector glyph it is not wired to. See [Glyph checks](#glyph-checks). `report.json` also keeps `wire_through_port`, the boundary-port part of it. |
+| `thru glyph` | `wire_thru_glyph`: (wire, glyph) pairs where a wire of another net runs through a connector glyph. See [Glyph checks](#glyph-checks). `report.json` also keeps `wire_through_port`, the boundary-port part of it. |
 | `diag` | non-orthogonal segments. Stale routes and pins off the routing lattice cause them. |
 | `near diag` | `near_diagonal`: segments 0.001 to 0.5 units off the horizontal or vertical, too little for `diag`. A waypoint rounded to the grid against a pin that is not (`y 561.42` against `561.4`). Studio draws them as a hairline slope. |
 | `g ovl` | `glyph_overlap`: glyph pairs that overlap or touch, and glyphs lying on another block's icon. |
+| `g ovl unw` | `glyph_overlap_unwired`: unwired glyphs of one block piled up by its icon (the child component's doing). |
 | `g detach` | `glyph_detached`: a block's glyphs that are off the icon Studio draws. |
 | `g hang` | `glyph_overhang`: a block's glyphs past the end of their side of the icon, or standing far out of it. |
 | `lbl/glyph` | `label_covered`: labels a glyph lies on. |
 | `jct/glyph` | `junction_on_glyph`: junction dots on a glyph. |
 | `unrt` | `connect()` statements with no route metadata (the 3.5.0 `apply` bug, or never laid out). Connects inside `for` loops are counted separately, as `loop_connects`. |
 | `blk ovl` | overlapping block placement boxes or boundary-port glyphs. |
-| `lbl/blk`, `lbl/lbl`, `lbl/wire` | block labels (instance names, parameter values) and free diagram text overlapping a block, another label, or a wire. Label boxes are placed and sized as Studio draws them (see [Studio geometry](#studio-geometry)). |
+| `lbl/blk`, `lbl/lbl`, `lbl/wire` | labels overlapping a block, another label, or a wire: block labels (instance names, parameter values), boundary-port names and free diagram text. One block's own labels are not tested against each other. Label boxes are placed and sized as Studio draws them (see [Studio geometry](#studio-geometry)). `report.json` names the labels a wire runs through (`labels_hit_by_wires`). |
 | `bends/w`, `bends max` | bends per wire. |
 | `jogs` | interior segments shorter than 10 units (staircase noise). |
 | `len`, `len max` | total and longest wire length. |
@@ -104,24 +111,30 @@ Lengths are in Dyad diagram units. A dyad-layout half-square is 50 units.
 | `white`, `gap` | fraction of 50×50 cells with no block, label or wire, and the side of the largest empty square. |
 | `aspect` | width / height of everything drawn. |
 | `pitch` | the closest two pins on different nets. Under about 10 units the pins are unreadable and the block is too small for its pin count. |
+| `ink est` | `ink_estimated`: icons and glyphs whose drawn shapes could only be estimated (text, or art the tool cannot measure). Not a defect; the glyph checks on them are less certain. |
 | `dl X`, `dl illegal`, `dl turns`, `dl spacing` | dyad-layout's own `score_existing_solution` on the drawn routes. `illegal` = overlapping runs + fallback routes. A `*` marks a partial score (see `dl unmatched`). |
 | `dl unmatched` | problem connections no drawn wire was matched to. They are left out of the drawn-route score, never replaced by an invented route. |
 | `reroute X`, `reroute illegal` | dyad-layout's `score_layout`: the same placements, routed by its own router. If this is far below `dl X`, the routes are the problem. If it is about the same, the placement is. |
 
-`bad` (badness) is the ranking key. It is a plain weighted sum:
+`bad` (badness) is the ranking key. It is a plain weighted sum of the counts
+(`WEIGHTS` in `layout_report.py`), weighted by how hard the defect is to read
+past:
 
-```
-20 × (ovl + T + thru + diag + blk ovl) + 5 × unrt + 3 × X
-+ 10 × (g ovl + g detach + thru glyph + jct/glyph)
-+ 5 × (g hang + lbl/glyph + near diag)
-+ 2 × (lbl/blk + lbl/lbl + outer + detours)
-+ 0.5 × (lbl/wire + jogs) + 0.25 × total bends
-+ 100 × max(0, white − 0.6) + 10 if pitch < 10
-```
+| weight | counts | why |
+|---:|---|---|
+| 20 | `ovl`, `T`, `thru`, `diag`, `blk ovl` | the drawing is wrong: wires that read as connected, a wire through a block, a slanted wire, blocks on blocks |
+| 10 | `g ovl`, `g detach`, `thru glyph`, `jct/glyph` | a connector is misdrawn: on another glyph or icon, off its block, crossed by another net, a junction dot on it |
+| 5 | `unrt`, `g hang`, `lbl/glyph` | a connect() with no route (Dyad invents one), a glyph past the end of its side, a label under a glyph |
+| 3 | `X` | a crossing: readable, but each one costs the reader |
+| 2 | `lbl/blk`, `lbl/lbl`, `outer`, `detours` | clutter |
+| 1 | `near diag`, `g ovl unw` | a hair off the axis, which shows only as a jag when zoomed in; unwired pins piled up by the child's icon, visible but only fixable in the child component |
+| 0.5 | `lbl/wire`, `jogs` | |
+| 0.25 | each bend | |
 
-Defects that make a diagram wrong to read (a wire through a block, a false
-junction) outweigh ones that only make it busy. Sort by any other column with
-`--sort`.
+plus `100 × max(0, white − 0.6)` and 10 if `pitch` < 10. A near-diagonal
+costs less than a crossing: it is a cosmetic rounding slip that a reader does
+not notice at normal zoom, while every crossing makes a wire harder to
+follow. Sort by any other column with `--sort`.
 
 The tool's crossing count and dyad-layout's agree to within a few on every
 HL20Demo diagram (310 against 312 on HL20Vehicle, 805 against 807 on
@@ -148,44 +161,69 @@ the defects people see are in Studio's drawing. Studio 3.5.1's diagram view
   height="210">` does not change where it is drawn: a boundary port's glyph
   fills its placement box. (Before this, the tool read boundary ports at a
   fifth of their size, in the top-left corner of their box.)
-- **Labels are a fixed size.** 20-unit text, 24-unit line, centred on the
+- **Labels are a fixed size.** Studio sets them in Inter at 16.035 units
+  (em) on a 24.45-unit line, whatever the size of the box, centred on the
   label's anchor: (500, 1100) of a block's icon by default, mapped through the
-  box and turned with it, but drawn upright. A boundary port's name is drawn at
-  (500, 1100) of its box grown by 20 units on every side, i.e. 24 units lower
-  than a block's. Label widths use per-character advances fitted to 1150
-  labels Studio drew (within 3 units for 90% of them).
+  box and turned with it. They are drawn upright on a block turned 0 or 180
+  degrees and on their side on a block turned a quarter turn. A boundary
+  port's name is drawn at (500, 1100) of its box grown by 20 units on every
+  side, i.e. 24 units lower than a block's. Widths are Inter's advance widths
+  and pair kerning (`inter_metrics.json`, measured in Chrome by
+  `inter_metrics.mjs` from the font Studio ships). They agree with Studio's
+  DOM within 0.1 units for 1151 of the 1152 HL20Demo labels; the exception is
+  `k=GRSAS * 0.01745`, drawn 2.2 units wider (1.1 at each edge), likely an
+  Inter contextual alternate on the `*`.
+- **Only quarter turns.** Dyad places blocks in the eight D4 states. A
+  rotation by any other angle is rejected (`UnsupportedSVG`, "only quarter
+  turns are modelled") instead of being fitted into the turned frame's
+  bounding box.
 
-The glyph's outline is the convex hull of its icon's shapes (`polygon`,
-`rect`, `circle` and so on; the triangle of `RealInput`), or the fitted square
-when the icon uses paths or text. Port names come from the component
+An icon's outline is the convex hull of its drawn shapes, measured through
+nested `<g>` and `<svg>` elements and their transforms: `polygon`,
+`polyline`, `rect`, `circle`, `ellipse`, `line`, `path` (every command; curves
+and arcs are sampled), and the boxes of `image` and `foreignObject`, clipped
+to the icon's viewBox. A 20 × 20 rectangle in the middle of a 100 × 100 icon
+is drawn, and measured, as 20 × 20. Two things are only estimated, and each
+estimate is listed in `report.md` (*Estimated icon ink*, `ink est`): text,
+sized from an average character width, and art the tool cannot measure (a
+`<use>`, a malformed shape), which is taken to fill its viewBox. Port names come from the component
 definitions: the library's own `.dyad` files, then the newest version of each
 package in the Julia depot. Unresolved ones are numbered (`b.#2`); only the
 report text depends on the names.
 
 ## Glyph checks
 
-All in diagram units. A glyph's size is the shorter side of its box.
+All in diagram units. A glyph's size is the shorter side of its box. A wire
+is wired to a glyph if it ends on the glyph's pin (within `PIN_TOL`, 0.5
+units: `dyad render` ends wires exactly on the pin), and the glyph's nets are
+the nets of those wires. Nothing else counts as wired: a wire that starts
+elsewhere in a tall port's frame is not the port's.
+
+Some of what a glyph does is the child component's icon design, the same at
+any size: BlockComponents' pins stand just outside their block (`x1 = -100,
+x2 = 0`), a bottom pin sits where Studio writes the block's name, an icon
+drawn 5% in from its frame leaves its pins 5% off it. For a block's own glyphs
+the checks marked *baseline* compare with the same block at Dyad's default
+size, a 100 × 100 square (`STD_BLOCK`) about the same centre, and count only
+what this diagram's placement adds.
 
 | class | a finding is | tolerance |
 |---|---|---|
-| `glyph_overlap` | two glyphs whose outlines overlap or are closer than a tenth of the smaller one's size (touching triangles in a column); or a glyph reaching more than 1 unit into another block's icon. Two **unwired** glyphs of the same block are left out: their placement is the child component's icon design, not this diagram's layout. They are counted in `glyph_overlap_unwired`, which is reported but not in the badness. | `GLYPH_GAP` 0.1, `BODY_DEPTH` 1 |
-| `glyph_detached` | a block's glyph further from the icon Studio draws than a quarter of its size, and at least 2 units. | `DETACH_GAP` 0.25 |
-| `glyph_overhang` | a block's glyph (that is not detached) with more than half its length past the end of the side it sits on, or more than 75% of its area outside the icon while sticking out more than 30 units. BlockComponents' own pins stand just outside their block (`x1 = -100, x2 = 0`, 10 units out on a 100-unit block), so standing outside is only a finding for a big glyph. | `OVERHANG` 0.5, `OVERHANG_OUT` (0.75, 30) |
-| `label_covered` | a label (block, boundary port, or free text) with more than 60 square units (a quarter of a character) under a glyph's outline. A block's own glyphs over its own labels are left out: Studio's default label position (500, 1100) is where a bottom pin is, by the child's design. | `LABEL_COVER` 60 |
-| `wire_thru_glyph` | a wire running inside a glyph's outline for more than a quarter of the glyph's size (and 1 unit), when neither end of the wire is in the glyph's frame and the glyph is not wired to the wire's net. | `THRU_GLYPH` 0.25 |
-| `junction_on_glyph` | a junction dot (radius 2.5) touching a glyph's outline. | `JUNCTION_R` 2.5 |
+| `glyph_overlap` | two glyphs whose outlines overlap or are closer than a tenth of the smaller one's size (touching triangles in a column); or a glyph reaching more than 1 unit into another block's icon. Two **unwired** glyphs of the same block are counted apart, in `glyph_overlap_unwired` (weight 1, `g ovl unw` in the table, dashed in the overlay): their placement is the child's icon design. | `GLYPH_GAP` 0.1, `BODY_DEPTH` 1 |
+| `glyph_detached` | *baseline*: a block's glyph further from the icon Studio draws than a quarter of its size more than at the default size (gaps as fractions of the glyph's size, which scales with the block), and at least 2 units. | `DETACH_GAP` 0.25 |
+| `glyph_overhang` | *baseline*: a block's glyph (that is not detached) with more than half its length past the end of its side of the icon beyond what it has at the default size; or with 75% more of its area outside the icon than at the default size, or most of it outside and sticking out 30 units further than at the default size (scaled). A standard pin on a big block is a big pin standing as far off a big icon, which is no layout defect. | `OVERHANG` 0.5, `OVERHANG_OUT` (0.75, 30) |
+| `label_covered` | a label (block, boundary port, or free text) with more than 60 square units (a quarter of a character) under a glyph's outline. A block's own glyphs over its own labels are *baseline*: the label keeps its size and its anchor scales with the block, and only the cover beyond the default size's counts. A bottom pin covers part of its block's name at 100 × 100 by design; at 200 × 200 it is twice the size and covers ~125 square units more. | `LABEL_COVER` 60, `STD_BLOCK` 100 |
+| `wire_thru_glyph` | a wire of a net not wired to the glyph that runs inside its outline further than `min(THRU_DEPTH` × the depth of the outline's centre, `GRAZE)` from its edge. Every glyph is tested, whatever its size. Depth is measured over each continuous passage, so a zigzag through a glyph is one passage however short its legs. Wires of the glyph's own nets may run over it: the wire to a 10-unit pin crosses it from whichever side it comes, and `dyad render` runs some wires to the block's edge and back to the pin. Closer to the edge than that, a wire runs along the glyph's stroke (the backs of a column of input pins). | `THRU_DEPTH` 0.5, `GRAZE` 2 |
+| `junction_on_glyph` | a junction dot (radius 2.5) touching a glyph's outline, unless it is on one of the glyph's nets and either on its pin or no deeper than the same depth limit (at the rim, where the wire leaves the glyph). | `JUNCTION_R` 2.5 |
 | `near_diagonal` | a segment off the horizontal or vertical by more than 0.001 and at most 0.5 units. | `NEAR_DIAG` (0.001, 0.5) |
-
-`wire_thru_glyph` and `junction_on_glyph` skip glyphs smaller than 20 units
-(`MIN_GLYPH`): the 10-unit pins of a standard 100-unit block, which every
-wire to the pin runs over, and which a junction dot at the pin covers.
 
 At 99ffbc0 (draft PR #51), the checks flag every glyph defect listed for the
 HL20Demo diagrams in Studio screenshots, and nothing in the diagrams that look
 clean there. On the relaid demos of PR #49 (f47214b) they flag only
-FrictionBrakeDemo.BrakeThermalTest_Step: Studio draws its two step sources'
+FrictionBrakeDemo.BrakeThermalTest_Step (Studio draws its two step sources'
 outputs and its heat inputs' ports away from their icons, so the findings are
-real.
+real) and, in `glyph_overlap_unwired`, MakieWebinar's grid tests, whose
+resistor icons pile their two unwired pins up.
 
 ## Calibration
 
@@ -200,12 +238,24 @@ this yet; the calibration used a two-line local patch after its capture step.
 python3 tools/layout-report/studio_geometry.py --dom DUMPS --svg OUT/cache --lib HL20Demo
 ```
 
-It lists every icon, glyph and label that is more than `--tol` (1) unit off.
-All 43 HL20Demo diagrams at 99ffbc0 match within 1 unit. Icons whose artwork
-does not fill their viewBox are drawn smaller than the fitted square the tool
-uses (FrictionBrakeDemo's heat sources). The tool keeps the square, so
-`glyph_detached` errs on the side of not flagging. `--fixture` writes the
-compact geometry the unit tests compare with.
+It lists every icon and glyph that is more than `--tol` (1) unit off, and
+every label whose box is more than `--label-tol` (`LABEL_TOL`, 1.25) off at
+any edge: the full box, not just its centre. All 43 HL20Demo diagrams at
+99ffbc0 match within these tolerances (every label but `k=GRSAS * 0.01745`
+within 0.1 units); so do DynamicSteadyState.ZoneRoom and
+FrictionBrakeDemo.BrakeThermalTest_Step from PR #49, whose path-drawn icons
+are measured as drawn. `--fixture` writes the compact geometry the unit
+tests compare with.
+
+`inter_metrics.json` comes from Studio's own font:
+
+```sh
+node tools/layout-report/inter_metrics.mjs CHROME inter-latin-wght-normal.woff2 > tools/layout-report/inter_metrics.json
+```
+
+where `CHROME` is a Chrome or chrome-headless-shell binary (dyad-ui-shot
+downloads one) and the font is in Studio's VSIX under
+`extension/out/fonts/`. It needs `puppeteer-core`.
 
 ## How the dyad-layout scoring works
 
@@ -251,17 +301,25 @@ wire polyline is normalised: repeated vertices and vertices in the middle of
 a straight run are dropped, and the shared runs of two wires are merged
 before they are counted, so a waypoint that does not bend the wire does not
 change the result. Structures the parser does not model (`<use>`,
-`<image>`, `skewX`/`skewY` or malformed transforms, a nested `<svg>` viewBox
-whose size cannot be known, other `preserveAspectRatio` values) are rejected
-with an error instead of being measured wrongly.
+`<image>` at diagram level, `skewX`/`skewY` or malformed transforms, an icon
+turned by other than a quarter turn, a nested `<svg>` viewBox whose size
+cannot be known, other `preserveAspectRatio` values) are rejected with an
+error instead of being measured wrongly. Instance placements are read from
+the source inline or through a `{^link}` into the metadata's `_links`, after
+the constructor's closing parenthesis however many lines its arguments take.
 
 ## Limitations
 
-- Label widths are estimated from per-character advances fitted to Studio's
-  font, not measured.
-- The icon body is the icon fitted into its box, not its ink: icon artwork
-  drawn with paths is taken to fill its viewBox.
+- Label widths are Inter's canvas metrics; a contextual alternate (as on the
+  `*` of `k=GRSAS * 0.01745`) can make Studio's text up to about a unit wider
+  at each edge.
+- Icon text is sized from an average character width, and art the tool cannot
+  measure fills its viewBox; both are listed under *Estimated icon ink*.
+- The default size the *baseline* checks compare with is a 100 × 100 square;
+  a child component meant to be placed at another size is judged against it
+  all the same.
 - Diagrams whose connections only exist inside `for` loops draw no wires.
   Their metrics are empty apart from `loop_connects`.
 - A component whose render fails (for example, a `connect` to a nested
-  connector) is listed under *Failed* with the compiler's error.
+  connector) is listed under *Failed* with the compiler's error, and the run
+  exits 1 unless `--allow-failures` is given.

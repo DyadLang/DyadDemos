@@ -3,7 +3,8 @@
 
 Reads DOM dumps of Studio's diagram view (studio_dom_dump.js, run in dyad-ui-shot's page) and the
 `dyad render` SVGs of the same diagrams, and reports where layout_report.parse_svg's geometry (icon
-bodies, connector glyphs, labels) differs from Studio's by more than --tol units:
+bodies and connector glyphs, and the full box of every label) differs from Studio's by more than
+--tol units (labels: --label-tol at each edge):
 
     python3 studio_geometry.py --dom DOMDIR --svg SVGDIR --lib HL20Demo
 
@@ -21,6 +22,10 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import layout_report as lr  # noqa: E402
 
+# Allowed difference at each edge of a label's box. Inter's advances and kerning (inter_metrics.json) give
+# every HL20 label's width within 0.1 units of Studio's DOM but one: "k=GRSAS * 0.01745" is drawn 2.2 units
+# wider than Inter's canvas metrics say (1.1 at each edge), likely a contextual alternate on the '*'.
+LABEL_TOL = 1.25
 SHAPES = ("polygon", "path", "rect", "circle", "polyline", "ellipse", "image", "text", "line")
 
 
@@ -95,10 +100,10 @@ def studio(path):
     return g
 
 
-def compare(st, dg, tol):
-    """Differences between Studio's geometry and the model's, as messages."""
-    close = lambda a, b: max(abs(u - v) for u, v in zip(a, b)) <= tol
-    centre = lambda b: ((b[0] + b[2]) / 2, (b[1] + b[3]) / 2)
+def compare(st, dg, tol, label_tol=LABEL_TOL):
+    """Differences between Studio's geometry and the model's, as messages: icon bodies and glyphs
+    within `tol` units, every edge of every label's box within `label_tol`."""
+    close = lambda a, b, t=tol: max(abs(u - v) for u, v in zip(a, b)) <= t
     out = []
     bodies = {b.name: b.body for b in dg.blocks if not b.is_port}
     for name, ink in st["bodies"].items():
@@ -114,8 +119,9 @@ def compare(st, dg, tol):
         out.append(f"{len(st['glyphs'])} glyphs drawn, {len(glyphs)} modelled")
     labels = [(t, bb) for b in dg.blocks for t, bb in b.labels]
     for text, box in st["labels"]:
-        if not any(t == text and close(centre(bb), centre(box)) for t, bb in labels):
-            out.append(f"label {text!r} drawn at {fmt(box)}: not modelled there")
+        if not any(t == text and close(bb, box, label_tol) for t, bb in labels):
+            near = [fmt(bb) for t, bb in labels if t == text]
+            out.append(f"label {text!r} drawn at {fmt(box)}: modelled at {', '.join(near) or 'nowhere'}")
     return out
 
 
@@ -128,7 +134,9 @@ def main(argv=None):
     ap.add_argument("--dom", required=True, help="directory of <diagram>.dom.json dumps")
     ap.add_argument("--svg", required=True, help="directory of <diagram>.svg renders")
     ap.add_argument("--lib", help="the Dyad library, for instance and boundary-port names")
-    ap.add_argument("--tol", type=float, default=1.0, help="allowed difference in diagram units (default 1)")
+    ap.add_argument("--tol", type=float, default=1.0, help="allowed difference of icons and glyphs in diagram units (default 1)")
+    ap.add_argument("--label-tol", type=float, default=LABEL_TOL,
+                    help=f"allowed difference at each edge of a label's box (default {LABEL_TOL})")
     ap.add_argument("--fixture", help="write the compact Studio geometry of every diagram to this JSON file")
     args = ap.parse_args(argv)
     comps = {}
@@ -148,7 +156,7 @@ def main(argv=None):
         sc = comps.get(q)
         with open(svg) as f:
             dg = lr.parse_svg(f.read(), lr.instance_boxes(sc.block) if sc else None)
-        diffs = compare(st, dg, args.tol)
+        diffs = compare(st, dg, args.tol, args.label_tol)
         bad += bool(diffs)
         print(f"{q}: " + ("matches Studio" if not diffs else f"{len(diffs)} differences"))
         for d in diffs[:10]:
@@ -158,7 +166,7 @@ def main(argv=None):
                       "labels": [[t, r(v)] for t, v in st["labels"]]}
     if args.fixture:
         with open(args.fixture, "w") as f:
-            json.dump(fixture, f, indent=0, sort_keys=True)
+            json.dump(fixture, f, sort_keys=True, separators=(",", ":"))
     return 1 if bad else 0
 
 
