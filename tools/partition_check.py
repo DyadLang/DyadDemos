@@ -51,7 +51,79 @@ DEFAULT_REF = '2e80df8'
 # ONLY for a deliberate rename or extraction the reviewer has signed off
 # on; every entry must be justified in review. An empty table means no
 # rename is accepted anywhere.
-RENAMES = {}
+#
+# Audited for the DCMMatVec / QuatToDCM extraction (PR #51): the nine
+# Product + three Add3 blocks that built R*v / R^T*b inline moved into
+# shared sub-components. In the flattened graph of a parent the new
+# instance path is transparent, so a ref endpoint `X.m12.u1` compares
+# against cur `X.p12.u1` and the sum blocks `X.b1s`/`X.v1s` compare
+# against `X.s1`:
+#
+#   kind 'qtb'  QuatToBody instance: product blocks m_ij -> p_ij,
+#               column sums b1s/b2s/b3s -> s1/s2/s3. The shared
+#               QuatToDCM keeps QuatToBody's r_ij convention, so the
+#               r_ij endpoints compare unchanged.
+#   kind 'qti'  QuatToInertial instance: same m_ij -> p_ij products and
+#               v1s/v2s/v3s -> s1/s2/s3 sums. Its ref r_ij blocks carry
+#               the TRANSPOSED DCM (ref QuatToInertial.r12 ==
+#               QuatToDCM.r21), so the r_ij endpoints map as r_ij -> r_ji
+#               for i != j. Net effect: ref `m12.u1 r12.y` pairs with
+#               cur `p12.u1 r21.y`, preserving the v = R^T b semantics.
+#   kind 'aero' HL20Aero instance: the |DRUD| Abs block was renamed
+#               abs_drud -> abs_d.
+#
+# Each entry below is (instance path prefix inside the component, kind);
+# '' means the component itself. Verified: with this table the default
+# run is all-exact-match; the QuatToBody mv.a11<->mv.a12 swap still
+# fails because a_ij pins drive different product blocks, not
+# pass-throughs.
+def _extraction(prefix, kind):
+    def P(s):
+        return f"{prefix}.{s}" if prefix else s
+    e = {}
+    if kind in ('qtb', 'qti'):
+        for i in (1, 2, 3):
+            for j in (1, 2, 3):
+                e[P(f'm{i}{j}')] = P(f'p{i}{j}')
+        sums = 'b' if kind == 'qtb' else 'v'
+        for i in (1, 2, 3):
+            e[P(f'{sums}{i}s')] = P(f's{i}')
+        if kind == 'qti':
+            for a, b in ((1, 2), (1, 3), (2, 3)):
+                e[P(f'r{a}{b}')] = P(f'r{b}{a}')
+                e[P(f'r{b}{a}')] = P(f'r{a}{b}')
+    elif kind == 'aero':
+        e[P('abs_drud')] = P('abs_d')
+    else:
+        raise ValueError(kind)
+    return e
+
+_EXTRACTIONS = {
+    'QuatToBody': [('', 'qtb')],
+    'QuatToInertial': [('', 'qti')],
+    'HL20Aero': [('', 'aero')],
+    'AeroForceBuilder': [('rot', 'qti')],
+    'FlightState': [('rot', 'qtb')],
+    'HL20Vehicle': [('aero', 'aero'), ('flight.rot', 'qtb'),
+                    ('forces.rot', 'qti')],
+    'HL20FullSystem': [('vehicle.aero', 'aero'),
+                       ('vehicle.flight.rot', 'qtb'),
+                       ('vehicle.forces.rot', 'qti')],
+    'TestAeroPoint': [('aero', 'aero')],
+    'TestAeroSweep': [('aero', 'aero')],
+    'TestHL20FullSystem': [('sys.vehicle.aero', 'aero'),
+                           ('sys.vehicle.flight.rot', 'qtb'),
+                           ('sys.vehicle.forces.rot', 'qti')],
+    'TestHL20Subsonic': [('vehicle.aero', 'aero'),
+                         ('vehicle.flight.rot', 'qtb'),
+                         ('vehicle.forces.rot', 'qti')],
+    'TestQuatDirection': [('rot_a', 'qti'), ('rot_b', 'qti')],
+    'TestQuatRoundTrip': [('rot_f', 'qti'), ('rot_b', 'qtb')],
+}
+
+RENAMES = {comp: {k: v for prefix, kind in specs
+                  for k, v in _extraction(prefix, kind).items()}
+           for comp, specs in _EXTRACTIONS.items()}
 
 def lib_sections(dyaddir):
     secs = {}
@@ -280,7 +352,8 @@ end
     # product blocks inline; the current version extracted them into a
     # sub-component and swapped two of its pins. Every net keeps the same
     # shape signature, so the old shape tier called this a match even
-    # though the result changes. It must now FAIL.
+    # though the result changes. It must now FAIL. The same extraction
+    # WITHOUT the swap must PASS, through an audited RENAMES entry.
     ref_inline = """component QuatToBody
   a = RealInput()
   b = RealInput()
@@ -288,15 +361,15 @@ end
   y2 = RealOutput()
   s1 = Src()
   s2 = Src()
-  p11 = Prod()
-  p12 = Prod()
+  m11 = Prod()
+  m12 = Prod()
 relations
   connect(a, s1.u)
   connect(b, s2.u)
-  connect(s1.y, p11.u)
-  connect(s2.y, p12.u)
-  connect(p11.y, y1)
-  connect(p12.y, y2)
+  connect(s1.y, m11.u)
+  connect(s2.y, m12.u)
+  connect(m11.y, y1)
+  connect(m12.y, y2)
 end
 """
     cur_extracted = """component QuatToBody
@@ -310,8 +383,8 @@ end
 relations
   connect(a, s1.u)
   connect(b, s2.u)
-  connect(s1.y, mv.a12)
-  connect(s2.y, mv.a11)
+  connect(s1.y, mv.a11)
+  connect(s2.y, mv.a12)
   connect(mv.y1, y1)
   connect(mv.y2, y2)
 end
@@ -332,7 +405,22 @@ end
 """
     lib_r = {'QuatToBody': ref_inline}
     lib_c = {'QuatToBody': cur_extracted, 'Sink': sink}
+    saved = RENAMES.get('QuatToBody')
+    RENAMES['QuatToBody'] = {'m11': 'p11', 'm12': 'p12'}
     lvl, _, info = compare(lib_r, lib_c, 'QuatToBody')
+    if lvl != 'match':
+        print("selftest FAIL: reviewed extraction+rename did not match")
+        print(info)
+        return 1
+    print("selftest: reviewed extraction passes through its RENAMES entry")
+    cur_swapped = cur_extracted.replace('mv.a11', 'TMP') \
+        .replace('mv.a12', 'mv.a11').replace('TMP', 'mv.a12')
+    lib_c = {'QuatToBody': cur_swapped, 'Sink': sink}
+    lvl, _, info = compare(lib_r, lib_c, 'QuatToBody')
+    if saved is None:
+        del RENAMES['QuatToBody']
+    else:
+        RENAMES['QuatToBody'] = saved
     shape_ok = shape_partition(full_partition('QuatToBody', lib_r, lib_c)[0]) == \
         shape_partition(full_partition('QuatToBody', lib_c, lib_r)[0])
     print(f"selftest: extracted-swap level={lvl} (shapes {'equal' if shape_ok else 'differ'})")
