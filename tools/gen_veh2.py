@@ -167,7 +167,31 @@ def gen():
     lg.save_file(f"{LIB}/HL20Vehicle.dyad", src)
 
 
+def check():
+    """--check: run the gen_vd2 -> gen_veh2 pipeline and exit non-zero
+    if the committed file drifts."""
+    import subprocess
+    from pathlib import Path
+    target = f"{LIB}/HL20Vehicle.dyad"
+    orig = Path(target).read_bytes()
+    try:
+        subprocess.run([sys.executable, "tools/gen_vd2.py"], check=True)
+        repin_vd()
+        lg._LIB_CACHE.clear()
+        gen()
+    finally:
+        drift = Path(target).read_bytes() != orig
+        Path(target).write_bytes(orig)
+    if drift:
+        print(f"DRIFT: {target}")
+        sys.exit(1)
+    print(f"{target}: in sync")
+
+
 if __name__ == "__main__":
-    repin_vd()
-    lg._LIB_CACHE.clear()
-    gen()
+    if "--check" in sys.argv[1:]:
+        check()
+    else:
+        repin_vd()
+        lg._LIB_CACHE.clear()
+        gen()

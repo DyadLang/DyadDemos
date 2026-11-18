@@ -1,21 +1,29 @@
 #!/usr/bin/env python3
-"""VehicleDynamics re-layout v6 (right-om scheme).
+"""VehicleDynamics re-layout v7 (right-om scheme).
 
 body->flight down-up lanes unchanged. Quaternion taps ride their lane level
-rightward to px cols at x1930-1960, descend to y_p, then left to top-edge
-forces pins (approach from above, no box transit). Omega nets ride lanes at
-y2320-2370 rightward to ascents at x1880/1920 into bottom-edge AirData pins;
-boundary ports branch off the ascent columns above the tap band. om2's ports
-branch left off its column at y2365. qbar rides a top lane at y915, drops at
-x1672, jogs right at y2225, descends at x1970 to an under-run at y2460 into
-the top-edge qbar_psf pin. F/T detour: ccols x860-935, lanes y3305-3355,
-lcols x456-481. C* ports use right-edge pins so their stubs stay right of
-x540, clear of the lcols. Fz_body rides out at y2512, above the ccols.
+rightward to descent cols at x2065-2080 (right of the omega ascent columns,
+left of the omega port legs), under-run at y2486-2498, then drop onto the
+top-edge forces pins; a junction at each descent corner keeps every edge
+near its Manhattan bound. Omega nets ride lanes at y2290-2390 rightward to
+ascents at x2028/2056 into bottom-edge AirData pins; boundary ports branch
+off the ascent columns, with om2's qb leg heading straight left to its port.
+qbar rides the top lane at y940, drops at x2290 and under-runs at y2480
+(clear of the quat drops) into the top-edge qbar_psf pin, with a direct leg
+to the boundary port. F1/F2 keep the right-side detour via ccols x990/920,
+lanes y3355/3345, lcols x360/364 — a junction at each lane corner keeps
+each edge near its Manhattan bound; F3/T* ride ccols x860-905, lanes
+y3305-3335, lcols x368-380. C* ports use right-edge pins so their stubs
+stay right of x540, clear of the lcols. Fz_body rides out at y2772 and
+descends at x940, right of the ccol tops.
 """
 import sys, json
+from pathlib import Path
 import laygen as lg
 
 V = "HL20Demo/dyad/HL20Vehicle.dyad"
+_CHECK = "--check" in sys.argv[1:]
+_ORIG = Path(V).read_bytes() if _CHECK else None
 PINS = lg.library_pins("HL20Demo/dyad")
 
 BODY = {"x1": 600, "x2": 800, "y1": 1500, "y2": 2300}
@@ -91,18 +99,19 @@ BF = [("vel_1", 820, 1210, 1605), ("vel_2", 835, 1230, 1615),
       ("vel_3", 870, 1250, 1625),
       ("qw", 1060, 1255, 2230), ("qx", 1030, 1265, 2245),
       ("qy", 1000, 1275, 2260), ("qz", 970, 1285, 2275)]
-QTAP = {"qw": (1960, 2470), "qx": (1950, 2450), "qy": (1940, 2430),
-        "qz": (1930, 2410)}
+QTAP = {"qw": (2080, 2498), "qx": (2075, 2494), "qy": (2070, 2490),
+        "qz": (2065, 2486)}
 for nm, d, u, L in BF:
     bx, by = bp(nm); fx, fy = fp(nm)
     if nm in QTAP:
         fpx, fpy = fop(nm)
-        px, yp = QTAP[nm]
+        dc, ur = QTAP[nm]
         conn(["body."+nm, "flight."+nm, "forces."+nm],
              [(1, [(d, by), (d, L)], -1),
               (-1, [(u, L), (u, fy)], 2),
-              (-1, [(px, L), (px, yp), (fpx, yp), (fpx, fpy)], 3)],
-             [(u, L)])
+              (-1, [], -2),
+              (-2, [(dc, ur), (fpx, ur)], 3)],
+             [(u, L), (dc, L)])
     else:
         conn(["body."+nm, "flight."+nm],
              [(1, [(d, by), (d, L), (u, L), (u, fy)], 2)])
@@ -128,9 +137,9 @@ conn(["body.omega_3", "airdata.r_rad", "rb", "r_rad"],
 bx, by = bp("omega_2")
 conn(["body.omega_2", "qb", "q_rad"],
      [(1, [(885, by), (885, 2390), (1000, 2390)], -2),
-      (-1, [(950, 2390), (950, 2330)], 2),
+      (-3, [(950, 2330)], 2),
       (-2, [(995, 2390), (995, 2330)], 3)],
-     [(885, 2390), (1000, 2390)])
+     [(885, 2390), (1000, 2390), (950, 2390)])
 # om1: col 930 -> lane@2290 -> asc 2028 -> bottom-edge p_rad pin.
 bx, by = bp("omega_1")
 conn(["body.omega_1", "airdata.p_rad", "pb", "p_rad"],
@@ -177,25 +186,32 @@ ax, ay = ap("qbar"); fpx, fpy = fop("qbar_psf")
 conn(["airdata.qbar", "forces.qbar_psf", "qbar_psf"],
      [(1, [], -1),
       (-1, [(2290, 940), (2290, 2480), (560, 2480), (560, 2500)], 2),
-      (-2, [(2090, 940), (2090, 860)], 3)],
-     [(ax, 940), (2030, 940)])
+      (-3, [(2090, 860)], 3)],
+     [(ax, 940), (2030, 940), (2090, 940)])
 
 for nm in ["CX", "CY", "CZ", "Cl", "Cm", "Cn"]:
     conn([nm, "forces."+nm], [(1, [], 2)])
 
-# forces outputs -> body inputs (right-side detour)
-FT = [("F1", 990, 355), ("F2", 920, 360), ("F3", 905, 365),
-      ("T1", 890, 370), ("T2", 875, 375), ("T3", 860, 380)]
+# forces outputs -> body inputs (right-side detour; a junction at the
+# lane corner keeps each edge near its Manhattan bound)
+FT = [("F1", 990, 360), ("F2", 920, 364), ("F3", 905, 368),
+      ("T1", 890, 372), ("T2", 875, 376), ("T3", 860, 380)]
 for i, (nm, cc, lc) in enumerate(FT):
     fx, fy = fop(nm); bx, by = bp(nm)
     L = 3355 - 10*i
-    conn(["forces."+nm, "body."+nm],
-         [(1, [(cc, fy), (cc, L), (lc, L), (lc, by)], 2)])
+    if nm in ("F1", "F2"):
+        conn(["forces."+nm, "body."+nm],
+             [(1, [(cc, fy), (cc, L)], -1),
+              (-1, [(lc, L), (lc, by)], 2)],
+             [(cc, L)])
+    else:
+        conn(["forces."+nm, "body."+nm],
+             [(1, [(cc, fy), (cc, L), (lc, L), (lc, by)], 2)])
 
 # Fz_body -> port (jogs above the ccol tops, descends right of them)
 fx, fy = fop("Fz_body")
 conn(["forces.Fz_body", "Fz_body"],
-     [(1, [(910, fy), (910, 2660), (995, 2660), (995, 3410)], 2)])
+     [(1, [(940, fy), (940, 3410)], 2)])
 
 COMP = '''"""
 HL-20 vehicle dynamics: 6-DOF rigid body, flight-state resolver, air-data
@@ -236,3 +252,17 @@ import xcheck
 segs = lg.load_file(V)
 comp = next(s for s in segs if isinstance(s, lg.Component) and s.name == "VehicleDynamics")
 xcheck.check(comp, lg.Ctx(comp, lg.library_pins("HL20Demo/dyad")))
+
+if _CHECK:
+    # the committed file is produced by the gen_vd2 -> gen_veh2 pipeline;
+    # run the rest of it, compare bytes, restore.
+    import gen_veh2
+    gen_veh2.repin_vd()
+    lg._LIB_CACHE.clear()
+    gen_veh2.gen()
+    drift = Path(V).read_bytes() != _ORIG
+    Path(V).write_bytes(_ORIG)
+    if drift:
+        print(f"DRIFT: {V}")
+        sys.exit(1)
+    print(f"{V}: in sync")
