@@ -6,7 +6,17 @@ Connectivity is flattened through sub-components (any instance whose type is
 defined in the same library dir: an endpoint `inst.p` is merged with that
 component's internal nets as `inst.<inner>`). The comparison is done on the
 partition of *all* flattened endpoints, not just boundary pins, so an internal
-input swap (a-b becoming b-a) fails.
+input swap (a-b becoming b-a) fails. Nets are compared as multisets and two
+endpoints that canonicalise to the same path are a hard error.
+
+On top of the wiring the checker compares the semantics of every block
+instance (after canonicalisation): its component type — with audited
+aliases for renames — and its parameter arguments, with parent parameter
+values substituted down the hierarchy so `k=k` compares the same numbers
+on both sides. Top-level parameter defaults, non-connect equations,
+`initial` values and `analysis` sections are compared as well, so a
+Product→Division swap, a changed integrator x0, a mass/g swap or a
+changed default all FAIL.
 
 Because layout work legitimately restructures a component into new
 sub-components, endpoint names are canonicalised before comparing: an
@@ -14,10 +24,9 @@ instance path that exists on only one side (a newly introduced or inlined
 sub-component) is made transparent — its boundary-pin endpoints are dropped
 and its inner block paths are stripped of the prefix, so `airdata.p_sin.u2`
 compares against a reference that had `p_sin.u2` inline. Instance paths that
-exist on both sides keep their prefix. The residual blind spot: a swap of
-two sub-component boundary pins whose insides are pure pass-throughs is not
-visible; everything else (block-pin swaps, mis-attached multi-way arms,
-wiring to the wrong net) is.
+exist on both sides keep their prefix. Every transparency, rename and
+extraction must appear in RENAMES, _PATH_EQUIV or _EXTRACTIONS below;
+anything unmapped fails.
 
 usage:
   partition_check.py [--ref REF] DYADDIR_CUR COMPONENT...

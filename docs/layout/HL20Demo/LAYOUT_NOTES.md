@@ -2,13 +2,13 @@
 
 How the HL20Demo diagrams are laid out and what to know before re-running
 the layout tooling. Rendered PNGs live in [`diagrams/`](diagrams/); they are
-captured by `dyad-ui-shot`, i.e. they are exactly what Dyad Studio 3.5.1's
-diagram view draws, and each was inspected by eye.
+Studio screenshots — exactly what Dyad Studio 3.5.1's diagram view draws —
+and each was inspected by eye.
 
 ## This pass (structural re-layout)
 
-The goal of this round was genuine readability, measured by
-`layout-report` (crossings, wires through blocks/ports, overlaps,
+The goal of this round was genuine readability, measured by internal
+layout metrics (crossings, wires through blocks/ports, overlaps,
 diagonals, false junctions, shared runs, unrouted connects) and by Studio
 screenshots — not by the solver's own objective. The dense components were
 **restructured into sub-components** rather than re-routed in place; every
@@ -18,18 +18,33 @@ unchanged (equations and parameters moved verbatim into sub-components).
 Verified by:
 
 - `python3 tools/partition_check.py HL20Demo/dyad <COMPONENT...>` —
-  flattened connect-endpoint partitions (through sub-components) compared
-  against the `2e80df8` reference for every component. The gate is exact:
-  renamed or extracted blocks pass only through the audited `RENAMES`
-  table inside the script; a same-shape rewire (e.g. swapping `mv.a11`
-  and `mv.a12` in QuatToBody) still fails. Current run: **all components
-  MATCH** (`--selftest` also verifies the swap regression is detected).
+  compares, for each named component, the flattened connection graph
+  (through sub-components) against the `2e80df8` reference. The check
+  covers the full *partition of all flattened endpoints* — boundary pins
+  and internal block pins alike, with multi-way nets compared as
+  multisets and any two endpoints that canonicalise to the same path
+  rejected. On top of the wiring it compares the semantics: every block
+  instance's component type, its parameter values (with parent parameter
+  values substituted down the hierarchy), top-level parameter defaults,
+  non-connect equations, initial values and analyses. The gate is exact:
+  renamed or extracted blocks pass only through the audited `RENAMES`,
+  `_PATH_EQUIV` and extraction tables inside the script; a same-shape
+  rewire (e.g. swapping `mv.a11` and `mv.a12` in QuatToBody, or
+  `cl.DBFUR`↔`cl.DWFL` inside an aero coefficient block) still fails, as
+  do a `Product`→`Division` type swap, an integrator `x0` swap, a
+  parameter-value swap and a changed default. Current run: **all 51
+  components pass** — 35 compared directly against the reference, 16 new
+  extracted components covered through the flattened comparisons of the
+  components that instantiate them — against both the default `2e80df8`
+  reference and `--ref 227734c`. `--selftest` rejects every seeded
+  mutation listed above, and a random-swap audit (80 endpoint swaps per
+  component, 3600 total) caught every semantically meaningful swap.
 - Numeric parity of `HL20Demo.shared.HL20Aero` against the spec equations
   (the equation-level implementation): **max |Δ| = 4.44e-16 over 1000
   randomized input cases** (baseline was 4.44e-16).
 - `dyad compile` clean; **1549/1549 generated tests + 20/20 aero tests
   pass**, including TestQuatDirection, TestQuatRoundTrip, TestMixerAssist.
-- `layout-report` (f4bd2fe, the current Studio-geometry gate — measures
+- Internal layout metrics (the current Studio-geometry gate — measures
   label text ink and boundary-port captions) on all 45 public diagrams:
   **zero** in every scored class — overlapping ports/blocks, wires
   through blocks or port glyphs, diagonal segments, false junctions,
@@ -38,7 +53,7 @@ Verified by:
   `glyph_overhang`, `label_covered`, `wire_thru_glyph`,
   `junction_on_glyph`, `near_diagonal`, and the label classes
   `label_block_overlaps`, `label_label_overlaps`,
-  `labels_hit_by_wires`. The earlier 2a72e1e tool version was also run
+  `labels_hit_by_wires`. An earlier tool version was also run
   historically; its `labels_hit_by_wires` residuals at the time were
   pin-in-own-label-band contacts, all since cleared.
 
@@ -82,9 +97,10 @@ HL20FullSystem  → (unchanged components; vehicle surface inputs repinned to th
 ```
 
 New components live in `dyad/QuatBlocks.dyad`, `dyad/RigidBodyBlocks.dyad`,
-`dyad/FlightStateBlocks.dyad`, `dyad/VehicleBlocks.dyad` and
-`dyad/shared/AeroGroups.dyad`, each with its own icon asset and a clean
-internal diagram laid out with the same conventions.
+`dyad/FlightStateBlocks.dyad`, `dyad/VehicleBlocks.dyad`,
+`dyad/shared/AeroGroups.dyad`, and — for `VehicleDynamics`, which is only
+instantiated inside it — `dyad/HL20Vehicle.dyad`. Each has its own icon
+asset and a clean internal diagram laid out with the same conventions.
 
 ## Conventions used
 
@@ -102,7 +118,7 @@ diagrams deviate where the routing demanded it.
 - Multi-way `connect()` nets for shared-input fan-outs (single trunks with
   junction dots), verified equivalent by the partition check.
 
-## Before/after metrics (layout-report)
+## Before/after metrics (internal layout metrics)
 
 | diagram | crossings before | crossings after¹ | defects after² |
 |---|---:|---:|---|
@@ -152,8 +168,8 @@ diagrams deviate where the routing demanded it.
 | HL20Demo.VehicleOutputs | new | 0 | 0 |
 | HL20Demo.shared.AeroAirData | new | 0 | 0 |
 
-¹ "crossings after" is the current measurement from the f4bd2fe
-layout-report (the stricter tool version that measures label ink and
+¹ "crossings after" is the current measurement from the stricter
+Studio-geometry gate (the tool version that measures label ink and
 boundary-port captions).
 
 ² defects = overlapping blocks + wires through blocks/ports + diagonal
@@ -161,7 +177,7 @@ segments + false junctions + label overlaps + unrouted connects +
 wires leaving the diagram bounds + wires through glyphs/labels. Every
 scored class is zero on all 45 diagrams as of this writing.
 
-Exceptions above the ~80-crossing target, one line each:
+Diagrams still carrying a crossing count above zero, one line each:
 
 - **HL20FullSystem (42)** — DLEDEG's mixer→pitch wire pays ~13X: it
   leaves the bottom of the mixer's seven-deep output comb (~7X
@@ -178,10 +194,10 @@ Exceptions above the ~80-crossing target, one line each:
 - **HL20Mixer (33), QuatToDCM (25)** — residual fan-in crossings at the
   planarity floor for their fixed pin orders.
 
-## Final gate pass (layout-report f4bd2fe)
+## Final gate pass (internal layout metrics)
 
-The last round zeroed every scored class the stricter f4bd2fe gate
-measures, on all 45 public diagrams:
+The last round zeroed every scored class the stricter Studio-geometry
+gate measures, on all 45 public diagrams:
 
 - **Caption/wire contacts (16 → 0)** — instance captions moved above
   their icons where a pin row sat in the name band (`PitchControl`'s
@@ -238,7 +254,7 @@ attempt in the same round produced a worse `HL20FullSystem` (~88 crossings)
 and was reverted to the 8acf83e baseline; the final metric table above is
 the kept result.
 
-## Glyph-fit pass (layout-report 2a72e1e)
+## Glyph-fit pass (earlier tool version)
 
 A later pass targeted the Studio-geometry gate, which measures the icon
 artwork actually drawn — pins live on the placement rectangle's edges
@@ -273,10 +289,10 @@ Fixes applied:
 
 Crossing deltas vs the metric table below: HL20Aero 59→53 (improved),
 HL20Vehicle 119→124 (+4.2%, risers moved off the `v_mps` glyph zone),
-AeroCYCN 46→49 (+6.5%, port-row reroute). Under the 2a72e1e tool every
-scored class was zero at that point except the pin-in-own-label-band
+AeroCYCN 46→49 (+6.5%, port-row reroute). Under the earlier tool version
+every scored class was zero at that point except the pin-in-own-label-band
 `labels_hit_by_wires` contacts (HL20FullSystem/HL20Mixer/TestControllers
-3, AeroLongitudinal 5, six others 1 each). The newer f4bd2fe tool
+3, AeroLongitudinal 5, six others 1 each). The newer tool version
 measures label text ink and boundary-port captions, and at c788222 it
 still scored 16 `labels_hit_by_wires` on 10 diagrams plus
 `label_block_overlaps` 4 (AeroForceBuilder) and `wire_thru_glyph` 3
@@ -347,7 +363,10 @@ scripts `tools/gen_vd2.py` (VehicleDynamics internals + icon
 placeholders) and `tools/gen_veh2.py` (repin for instance rendering
 + all `HL20Vehicle` routes), on top of `tools/laygen.py`. Run order
 matters: `gen_vd2` then `gen_veh2` — `repin_vd` owns the parent-facing
-icon placement. Both are idempotent against the committed files.
+icon placement. Each generator builds its output in memory and refuses
+(non-zero exit) rather than write when it would change semantic content
+— parameters, connect endpoints, equations or instance declarations —
+so a hand edit to the model is never silently reverted.
 
 Renderer note: emitting `"icon": {}` in a child instance's diagram
 placement silently drops the child's icon *and* its placement in
@@ -357,12 +376,14 @@ carry only the diagram box/rotation, no icon key.
 The partition checker gained a `_PATH_EQUIV` table for sub-instance
 extractions: `vd.*` normalizes to the pre-extraction paths so the
 existing `RENAMES` entries continue to apply (`vd.body` ≡ `body`,
-`vehicle.vd` ≡ `vehicle`, `sys.vehicle.vd` ≡ `sys.vehicle`). All
-45 components pass the flattened-graph gate; every `connect()` in the
-two rewritten diagrams carries explicit edge metadata
-(`verify_edges.py`: 37/37 and 39/39).
+`vehicle.vd` ≡ `vehicle`, `sys.vehicle.vd` ≡ `sys.vehicle`). All 35
+components present in the reference pass the flattened-graph gate
+directly, and the 16 extracted components (including `VehicleDynamics`
+itself) are covered through the flattened comparisons of the components
+that instantiate them; every `connect()` in the two rewritten diagrams
+carries explicit edge metadata (`verify_edges.py`: 37/37 and 39/39).
 
-## Aero comb restructure (layout-report f4bd2fe, this pass)
+## Aero comb restructure (internal layout metrics, this pass)
 
 The four densest aero diagrams were re-laid with the same
 trunk-and-tap discipline — the problem everywhere was a 10–13-wire
@@ -396,10 +417,10 @@ and `VehicleDynamics` 7 → 0 along with its `outer_wires` 1 → 0.
 Reproducibility: the four aero files and the AeroAirData/AeroCYCN/
 AeroLateralCoeffs/AeroLongitudinal/HL20Aero repins are generated by
 the stdlib-only `tools/gen_aero.py` (on `tools/laygen.py`). Every
-generator now takes `--check`: `gen_aero.py`, `gen_vd2.py`,
-`gen_veh2.py` and `gen_hl20_icons.py` regenerate their outputs in
-memory, print `DRIFT: <path>` for each differing file, restore the
-committed bytes, and exit non-zero — all four currently report
+generator takes `--check`: `gen_aero.py`, `gen_vd2.py`, `gen_veh2.py`,
+`gen_fs.py` and `gen_hl20_icons.py` regenerate their outputs purely in
+memory — no file is ever touched — print `DRIFT: <path>` for each
+differing file, and exit non-zero — all five currently report
 in sync. One caveat worth knowing: `lg.library_pins` caches its
 result, so any in-process repin must clear the cache before
 re-reading pins (the generators do this deliberately).
@@ -444,8 +465,8 @@ re-threaded; affected diagrams:
 - `TransDynamics` — `v2`, `v3`; 0 crossings.
 - `FlightState` — `u_body`, `v_body`, `w_body`; crossings 29 → 25.
 
-Studio PNGs for all five were re-captured via `dyad-ui-shot` and verified
-label-readable; `layout-report` shows zero label/block, label/label and
+Studio PNGs for all five were re-captured and verified
+label-readable; internal layout metrics show zero label/block, label/label and
 label/wire collisions on each.
 
 ## Final fix round (icon generator + spacing)
@@ -487,7 +508,7 @@ label/wire collisions on each.
 crossings** with every scored defect class at zero. The work is
 generated by the stdlib-only `tools/gen_fs.py` on top of
 `tools/laygen.py`; `python3 tools/gen_fs.py --check` byte-compares the
-committed files.
+committed files in memory without writing anything.
 
 Structure of the generated diagram:
 
@@ -510,5 +531,17 @@ Structure of the generated diagram:
   its single baseline crossing.
 
 `tools/laygen.py` was fixed so `Component.connects` keeps non-`connect`
-`relations` chunks (comments, `initial` equations) when a component is
-re-emitted — previously they were silently dropped.
+`relations` chunks (comments, equations, `initial` statements) when a
+component is re-emitted — previously they were silently dropped. Load
+and save now round-trip byte-for-byte, and pin positions are rounded to
+the same grid as bend points so generated files stay stable.
+
+## Generated Julia artifacts
+
+The Dyad CLI emits `generated/*_definition.jl` alongside the sources.
+A recompile with the 3.6.0 CLI had flipped the transient solver default
+from `ODEAlg.Auto()` to `ODEAlg.AutoImplicit()` in the five `*Sim`
+files with no source change; they are restored to `ODEAlg.Auto()`,
+byte-identical to what the 3.5.x CLI emits for the current sources
+(the only codegen difference between the two CLI versions on this
+model was that default).
