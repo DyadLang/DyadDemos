@@ -129,7 +129,7 @@ class Component:
         self.decls = [_parse_decl(c) for c in _split_decls(self.decl_region)
                       if c.strip()]
         self.connects = [_parse_connect(c) for c in _split_connects(self.rel_region)
-                         if c.strip() and c.strip().startswith("connect")]
+                         if c.strip()]
 
     # ----- decl helpers -----
     def decl(self, name):
@@ -339,6 +339,22 @@ STDLIB_PINS = {
                                  "y": {"x1": 970, "y1": 450, "x2": 1030, "y2": 550}},
     "BlockComponents.Continuous.Integrator": {
         "u": {"x1": -30, "y1": 450, "x2": 30, "y2": 550},
+        "y": {"x1": 970, "y1": 450, "x2": 1030, "y2": 550}},
+    "BlockComponents.Continuous.FirstOrder": {
+        "u": {"x1": -30, "y1": 450, "x2": 30, "y2": 550},
+        "y": {"x1": 970, "y1": 450, "x2": 1030, "y2": 550}},
+    "BlockComponents.Nonlinear.Limiter": {
+        "u": {"x1": -30, "y1": 450, "x2": 30, "y2": 550},
+        "y": {"x1": 970, "y1": 450, "x2": 1030, "y2": 550}},
+    "BlockComponents.Nonlinear.SlewRateLimiter": {
+        "u": {"x1": -30, "y1": 450, "x2": 30, "y2": 550},
+        "y": {"x1": 970, "y1": 450, "x2": 1030, "y2": 550}},
+    "BlockComponents.Math.Abs": {
+        "u": {"x1": -30, "y1": 450, "x2": 30, "y2": 550},
+        "y": {"x1": 970, "y1": 450, "x2": 1030, "y2": 550}},
+    "AdjustableUpperLimit": {
+        "u1": {"x1": -30, "y1": 150, "x2": 30, "y2": 250},
+        "u2": {"x1": -30, "y1": 750, "x2": 30, "y2": 850},
         "y": {"x1": 970, "y1": 450, "x2": 1030, "y2": 550}},
     "BlockComponents.Math.Gain": {"u": {"x1": -30, "y1": 450, "x2": 30, "y2": 550},
                                   "y": {"x1": 970, "y1": 450, "x2": 1030, "y2": 550}},

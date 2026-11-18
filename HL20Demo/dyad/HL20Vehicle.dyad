@@ -102,13 +102,13 @@ AirData and VehicleOutputs.
 """
 component HL20Vehicle
   # Control-surface deflection commands (deg)
-  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180}, "diagram": {"x1": 2900, "x2": 2960, "y1": 1850, "y2": 1910}}}}
-  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": 2960, "x2": 3020, "y1": 1950, "y2": 2010}}}}
-  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380}, "diagram": {"x1": 3020, "x2": 3080, "y1": 1850, "y2": 1910}}}}
-  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": 3080, "x2": 3140, "y1": 1950, "y2": 2010}}}}
-  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": 3140, "x2": 3200, "y1": 1850, "y2": 1910}}}}
-  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": 3200, "x2": 3260, "y1": 1950, "y2": 2010}}}}
-  DRUD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": 3260, "x2": 3320, "y1": 1850, "y2": 1910}}}}
+  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 325, "y2": 375}, "diagram": {"x1": 2900, "x2": 2960, "y1": 1850, "y2": 1910}}}}
+  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 425, "y2": 475}, "diagram": {"x1": 2960, "x2": 3020, "y1": 1950, "y2": 2010}}}}
+  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 525, "y2": 575}, "diagram": {"x1": 3020, "x2": 3080, "y1": 1850, "y2": 1910}}}}
+  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 625, "y2": 675}, "diagram": {"x1": 3080, "x2": 3140, "y1": 1950, "y2": 2010}}}}
+  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 125, "y2": 175}, "diagram": {"x1": 3140, "x2": 3200, "y1": 1850, "y2": 1910}}}}
+  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 225, "y2": 275}, "diagram": {"x1": 3200, "x2": 3260, "y1": 1950, "y2": 2010}}}}
+  DRUD = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 725, "y2": 775}, "diagram": {"x1": 3260, "x2": 3320, "y1": 1850, "y2": 1910}}}}
   parameter ft_per_m::Real = 3.28084
   parameter BSPAN::Real = 13.89
   parameter mass::Real = 8664.1
@@ -129,78 +129,78 @@ component HL20Vehicle
   parameter w2_0::Real = 0.0
   parameter w3_0::Real = 0.0
   # Feedback outputs (spec section 8)
-  POS_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 755, "x2": 1030, "y2": 795}, "diagram": {"x1": 2740, "x2": 2800, "y1": 2470, "y2": 2530}}}}
+  POS_3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 750, "y2": 800}, "diagram": {"x1": 2740, "x2": 2800, "y1": 2470, "y2": 2530}}}}
   ALPHA_DEG = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 0, "x2": 1030, "y2": 50}, "diagram": {"x1": 4500, "x2": 4560, "y1": 120, "y2": 180}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 50, "y2": 100}, "diagram": {"x1": 4500, "x2": 4560, "y1": 120, "y2": 180}}
     }
   }
   BETADEG = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 55, "x2": 1030, "y2": 95}, "diagram": {"x1": 4380, "x2": 4440, "y1": 200, "y2": 260}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 100, "y2": 150}, "diagram": {"x1": 4380, "x2": 4440, "y1": 200, "y2": 260}}
     }
   }
   SINPHI = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 355, "x2": 1030, "y2": 395}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1629.9999999999998, "y2": 1689.9999999999998}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 400, "y2": 450}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1629.9999999999998, "y2": 1689.9999999999998}}
     }
   }
   COSPHI = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 405, "x2": 1030, "y2": 445}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1750, "y2": 1810}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 450, "y2": 500}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1750, "y2": 1810}}
     }
   }
   COSTHE = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 455, "x2": 1030, "y2": 495}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1870, "y2": 1930}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 500, "y2": 550}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1870, "y2": 1930}}
     }
   }
   BETADOT = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 105, "x2": 1030, "y2": 145}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1990, "y2": 2050}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 150, "y2": 200}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1990, "y2": 2050}}
     }
   }
   EAS = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 555, "x2": 1030, "y2": 595}, "diagram": {"x1": 2740, "x2": 2800, "y1": 2110, "y2": 2170}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 600, "y2": 650}, "diagram": {"x1": 2740, "x2": 2800, "y1": 2110, "y2": 2170}}
     }
   }
   QBAR = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 505, "x2": 1030, "y2": 545}, "diagram": {"x1": 2740, "x2": 2800, "y1": 2350, "y2": 2410}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 550, "y2": 600}, "diagram": {"x1": 2740, "x2": 2800, "y1": 2350, "y2": 2410}}
     }
   }
   ALT_FT = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 705, "x2": 1030, "y2": 745}, "diagram": {"x1": 2740, "x2": 2800, "y1": 2230, "y2": 2290}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 0, "y2": 50}, "diagram": {"x1": 2740, "x2": 2800, "y1": 2230, "y2": 2290}}
     }
   }
   MACH_out = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 155, "x2": 1030, "y2": 195}, "diagram": {"x1": 4500, "x2": 4560, "y1": 270, "y2": 330}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 250, "y2": 300}, "diagram": {"x1": 4500, "x2": 4560, "y1": 270, "y2": 330}}
     }
   }
   V_FPS = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 655, "x2": 1030, "y2": 695}, "diagram": {"x1": 4380, "x2": 4440, "y1": 340, "y2": 400}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 700, "y2": 750}, "diagram": {"x1": 4380, "x2": 4440, "y1": 340, "y2": 400}}
     }
   }
   PDEG = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 205, "x2": 1030, "y2": 245}, "diagram": {"x1": 4780, "x2": 4840, "y1": 3010, "y2": 3070}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 200, "y2": 250}, "diagram": {"x1": 4780, "x2": 4840, "y1": 3010, "y2": 3070}}
     }
   }
   QDEG = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 255, "x2": 1030, "y2": 295}, "diagram": {"x1": 4780, "x2": 4840, "y1": 3114, "y2": 3174}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 350, "y2": 400}, "diagram": {"x1": 4780, "x2": 4840, "y1": 3114, "y2": 3174}}
     }
   }
   RDEG = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "y1": 305, "x2": 1030, "y2": 345}, "diagram": {"x1": 4780, "x2": 4840, "y1": 3218, "y2": 3278}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 300, "y2": 350}, "diagram": {"x1": 4780, "x2": 4840, "y1": 3218, "y2": 3278}}
     }
   }
-  NZ = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 605, "x2": 1030, "y2": 645}, "diagram": {"x1": 4780, "x2": 4840, "y1": 3322, "y2": 3382}}}}
+  NZ = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 650, "y2": 700}, "diagram": {"x1": 4780, "x2": 4840, "y1": 3322, "y2": 3382}}}}
   # Airframe dynamics
   vd = VehicleDynamics(ft_per_m=ft_per_m, BSPAN=BSPAN, mass=mass, g=g, rho_sl=rho_sl, knots_per_fps=knots_per_fps, p1_0=p1_0, p2_0=p2_0, p3_0=p3_0, v1_0=v1_0, v2_0=v2_0, v3_0=v3_0, q0_0=q0_0, q1_0=q1_0, q2_0=q2_0, q3_0=q3_0, w1_0=w1_0, w2_0=w2_0, w3_0=w3_0) {
     "Dyad": {"placement": {"diagram": {"x1": 400, "x2": 1000, "y1": 200, "y2": 2600}}}
