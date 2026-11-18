@@ -41,9 +41,11 @@ block passes only through an explicit entry in RENAMES below, which a
 reviewer can audit line by line.
 """
 import os, re, sys, functools, subprocess, tempfile
+from collections import Counter
 
 COMPSTART = re.compile(r'\n((?:(?:abstract|test)\s+)?(?:component|model|connector|record|block)\s+)(\w+)')
 DEFAULT_REF = '2e80df8'
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 # Reviewed endpoint renames: RENAMES[component][ref_path] = cur_path, where
 # each path is a canonical flattened endpoint or an instance-path prefix of
@@ -95,25 +97,27 @@ def _extraction(prefix, kind):
     elif kind == 'aero':
         e[P('abs_drud')] = P('abs_d')
     elif kind == 'qk':
-        # QuatDerRow extraction inside QuatKinematics: the twelve product
-        # blocks q_iw_j and four Add3 sums dq_i became four QuatDerRow
-        # instances r0..r3 (p1..p3 + s). The r_i prefix is transparent, so
-        # every row's blocks canonicalise to the same leaf names; the merge
-        # is safe because each ref name belongs to exactly one row.
-        # row 0: dq0 = q1w1 + q2w2 + q3w3   (k = -0.5, -0.5, -0.5)
-        # row 1: dq1 = q0w1 + q2w3 + q3w2   (k = +0.5, +0.5, -0.5)
-        # row 2: dq2 = q0w2 + q1w3 + q3w1   (k = +0.5, -0.5, +0.5)
-        # row 3: dq3 = q0w3 + q1w2 + q2w1   (k = +0.5, +0.5, -0.5)
-        for i, prods in enumerate((('q1w1', 'q2w2', 'q3w3'),
-                                  ('q0w1', 'q2w3', 'q3w2'),
-                                  ('q0w2', 'q1w3', 'q3w1'),
-                                  ('q0w3', 'q1w2', 'q2w1'))):
-            for k, prod in enumerate(prods):
-                e[P(prod)] = P(f'p{k + 1}')
-            e[P(f'dq{i}')] = P('s')
+        # The QuatDerRow extraction is handled by the CUR-side rewrite in
+        # _cur_qk_map, not by ref-side RENAMES: each row's blocks map back
+        # to that row's ORIGINAL names (qkin.r{i}.p{k} -> q_j w_l,
+        # qkin.r{i}.s -> dq{i}) so a cross-row swap cannot collapse into an
+        # identical canonical name.
+        pass
     else:
         raise ValueError(kind)
     return e
+
+
+# Original inline block names of QuatKinematics' four derivative rows, one
+# (p1, p2, p3) product triple and one Add3 sum dq_i per QuatDerRow r_i:
+#   row 0: dq0 = q1w1 + q2w2 + q3w3   (k = -0.5, -0.5, -0.5)
+#   row 1: dq1 = q0w1 + q2w3 + q3w2   (k = +0.5, +0.5, -0.5)
+#   row 2: dq2 = q0w2 + q1w3 + q3w1   (k = +0.5, -0.5, +0.5)
+#   row 3: dq3 = q0w3 + q1w2 + q2w1   (k = +0.5, +0.5, -0.5)
+_QK_ROWS = (('q1w1', 'q2w2', 'q3w3'),
+            ('q0w1', 'q2w3', 'q3w2'),
+            ('q0w2', 'q1w3', 'q3w1'),
+            ('q0w3', 'q1w2', 'q2w1'))
 
 _EXTRACTIONS = {
     'QuatToBody': [('', 'qtb')],
@@ -147,6 +151,17 @@ RENAMES = {comp: {k: v for prefix, kind in specs
                   for k, v in _extraction(prefix, kind).items()}
            for comp, specs in _EXTRACTIONS.items()}
 
+# Controller instance renames made in this PR (ref `*_ctrl` -> cur
+# short names); the inverse _PATH_EQUIV entries keep children attached.
+for _pfx, _comps in (('', ['HL20FullSystem']),
+                     ('sys.', ['TestHL20FullSystem'])):
+    for _c in _comps:
+        RENAMES.setdefault(_c, {}).update(
+            {_pfx + n + '_ctrl': _pfx + n
+             for n in ('pitch', 'roll', 'yaw', 'speed')})
+
+ANALYSIS = re.compile(r'(?ms)^analysis\s+(\w+)\b(.*?)^end\s*$')
+
 def lib_sections(dyaddir):
     secs = {}
     for root, _, files in os.walk(dyaddir):
@@ -159,8 +174,23 @@ def lib_sections(dyaddir):
             marks = sorted(set(marks))
             for i, (pos, name) in enumerate(marks):
                 end = marks[i + 1][0] if i + 1 < len(marks) else len(text)
-                secs[name] = text[pos:end]
+                # `analysis` blocks sit between components; strip them so
+                # `model = X()` inside is not mistaken for a sub-instance.
+                secs[name] = ANALYSIS.sub('\n', text[pos:end])
     return secs
+
+
+def lib_analyses(dyaddir):
+    """{analysis_name: normalised text} for every analysis block."""
+    out = {}
+    for root, _, files in os.walk(dyaddir):
+        for f in files:
+            if not f.endswith('.dyad'): continue
+            text = open(os.path.join(root, f)).read()
+            for m in ANALYSIS.finditer(text):
+                body = re.sub(r'#.*$', '', m.group(2), flags=re.M)
+                out[m.group(1)] = re.sub(r'\s+', '', body)
+    return out
 
 CON = re.compile(r'connect\s*\(')
 def connects(text):
@@ -251,18 +281,33 @@ def canon_ep(ep, comp, lib, newpaths, imaps, prefix=''):
         return inner if (inner is not None and '.' in inner) else None
     return segs[0] + '.' + inner if inner is not None else None
 
-def canon_nets(nets, comp, lib, newpaths):
+class CanonError(Exception):
+    """Two distinct flattened endpoints canonicalised to the same name —
+    a transparent-prefix collision that would hide a rewire."""
+    pass
+
+
+def canon_nets(nets, comp, lib, newpaths, cur_rw=None):
     imapcache = {}
     def imaps(c):
         if c not in imapcache: imapcache[c] = instances(lib[c], lib)
         return imapcache[c]
-    out = set()
+    out = Counter()
     for net in nets:
-        cn = frozenset(c for c in
-                       (canon_ep(ep, comp, lib, newpaths, imaps) for ep in net)
-                       if c is not None)
-        out.add(cn)
-    return frozenset(out)
+        cns = []
+        for ep in net:
+            if cur_rw:
+                ep = _apply_prefix_map(ep, cur_rw)
+            c = canon_ep(ep, comp, lib, newpaths, imaps)
+            if c is not None:
+                cns.append(c)
+        dup = sorted(x for x, n in Counter(cns).items() if n > 1)
+        if dup:
+            raise CanonError(
+                f"{comp}: distinct endpoints canonicalise to the same "
+                f"name {dup} in net {sorted(net)}")
+        out[frozenset(cns)] += 1
+    return out
 
 def boundary_partition(nets):
     """frozenset of boundary-pin sets per net (legacy, weaker check)."""
@@ -292,40 +337,155 @@ def shape_partition(nets):
 # `vd` itself stays a new path (transparent), but `vd.body` no longer
 # counts as new, so `body.` prefixes are kept on both sides and the
 # RENAMES extraction entries above continue to apply verbatim.
+#
+# The aero entries map the six coefficient blocks out of the lon/lat/pair
+# group wrappers: without them `lon.pair.cl` normalises to a path that
+# does not exist on the REF side (REF had `cl` inline), so `cl` counted
+# as new on both sides and every endpoint inside the six coefficient
+# blocks was silently dropped. With the mapping, `lon.pair.cl` keeps the
+# literal `cl` prefix on the CUR side and `cl` is not new on the REF
+# side, so a swap like cl.DBFUR <-> cl.DWFL is a real diff. The lon/lat/
+# pair/air wrappers themselves stay transparent: REF's inline contents
+# (the trig chain, the air-data conditioning, the CX/CZ products) match
+# the stripped CUR names one to one.
+def _aero_equiv(a):
+    P = lambda s: f'{a}.{s}' if a else s
+    return {P('lon.pair.cl'): (P('cl'), True),
+            P('lon.pair.cd'): (P('cd'), True),
+            P('lon.cm'): (P('cm'), True),
+            P('lat.pair.cy'): (P('cy'), True),
+            P('lat.pair.cn'): (P('cn'), True),
+            P('lat.cr'): (P('cr'), True)}
+
+
+def _ctrl_equiv(pfx):
+    """Controller instance renames inside HL20FullSystem-family
+    components: CUR `pitch` is REF `pitch_ctrl`, etc. The self-map makes
+    the renamed instance keep its (new) literal name; children normalise
+    to the REF `*_ctrl` path."""
+    return {pfx + 'pitch': (pfx + 'pitch_ctrl', True),
+            pfx + 'roll': (pfx + 'roll_ctrl', True),
+            pfx + 'yaw': (pfx + 'yaw_ctrl', True),
+            pfx + 'speed': (pfx + 'speed_ctrl', True)}
+
+
 _PATH_EQUIV = {
-    'HL20Vehicle': {'vd': ''},
-    'HL20FullSystem': {'vehicle.vd': 'vehicle'},
-    'TestHL20Subsonic': {'vehicle.vd': 'vehicle'},
-    'TestHL20FullSystem': {'sys.vehicle.vd': 'sys.vehicle'},
+    'HL20Aero': _aero_equiv(''),
+    'TestAeroPoint': _aero_equiv('aero'),
+    'TestAeroSweep': _aero_equiv('aero'),
+    'HL20Vehicle': {'vd': ('', False), 'vd.airdata': ('', False),
+                    **_aero_equiv('aero')},
+    'HL20FullSystem': {'vehicle.vd': ('vehicle', False),
+                       'vehicle.vd.airdata': ('vehicle', False),
+                       **_aero_equiv('vehicle.aero'),
+                       **_ctrl_equiv('')},
+    'TestHL20Subsonic': {'vehicle.vd': ('vehicle', False),
+                         'vehicle.vd.airdata': ('vehicle', False),
+                         **_aero_equiv('vehicle.aero')},
+    'TestHL20FullSystem': {'sys.vehicle.vd': ('sys.vehicle', False),
+                           'sys.vehicle.vd.airdata': ('sys.vehicle', False),
+                           **_aero_equiv('sys.vehicle.aero'),
+                           **_ctrl_equiv('sys.')},
 }
 
 
-def _norm_path(p, comp):
-    """Collapse extraction prefixes in a CUR instance path to its REF
-    equivalent for new-path comparison. The wrapper instance itself is
-    NOT collapsed: it stays a new path (transparent) so its boundary pins
-    drop, but its children match their REF counterparts and keep their
-    prefixes."""
-    for old, new in _PATH_EQUIV.get(comp, {}).items():
-        if p == old:
-            return p
-        if p.startswith(old + '.'):
-            return new + p[len(old):] if new else p[len(old) + 1:]
-    return p
+def _norm_paths(p, comp):
+    """The SET of REF-equivalent candidate paths for a CUR instance path.
+    Each _PATH_EQUIV entry is (new, selfmap): a `selfmap` entry also maps
+    `p == old` to `new` (a renamed instance); any entry maps children
+    `old.*` to `new.*` (or `*` when new is ''). A cur path counts as new
+    only when NO candidate — not its literal name, not any normalisation —
+    exists on the REF side, so the same CUR file compares exactly against
+    both the pre-layout ref (2e80df8: no `vd`, `airdata`, `lon`/`lat`
+    wrappers, `*_ctrl` names) and the PR-base ref (227734c: `airdata`,
+    `lon`/`lat` present, still no `vd`)."""
+    out = {p}
+    for old, (new, selfmap) in _PATH_EQUIV.get(comp, {}).items():
+        if p == old and selfmap:
+            out.add(new if new else p[len(old) + 1:])
+        elif p.startswith(old + '.'):
+            out.add(new + p[len(old):] if new else p[len(old) + 1:])
+    return out
+
+
+# Type equivalences an auditor has signed off on: a decl of the key type
+# is semantically the same as the mapped type instantiated with the
+# mapped default args (stdlib `Feedback` computes u1 - u2).
+_TYPE_ALIAS = {
+    'BlockComponents.Math.Feedback':
+        ('BlockComponents.Math.Add', {'k2': -1.0}),
+}
+
+# Connector/port type suffixes: a leaf instance of one of these types
+# whose parent instance is transparent is a boundary pin of the wrapper,
+# so it drops (the same rule canon_ep applies via the '.' check).
+_PORT_SUFFIXES = ('Input', 'Output', 'Port', 'Port_a', 'Port_b', 'Pin',
+                  'Flange', 'Flange_a', 'Flange_b', 'Frame', 'Frame_a',
+                  'Frame_b', 'Support', 'Node')
+
+
+def _newpaths(comp, lib, other_lib, cur):
+    """Instance paths present on this side but with no counterpart on the
+    other. A CUR path is new when no candidate normalisation exists in
+    REF; a REF path is new when it is neither a literal CUR path nor any
+    candidate normalisation of one."""
+    if cur:
+        ref_paths = inst_paths(comp, other_lib)
+        return {p for p in inst_paths(comp, lib)
+                if not (_norm_paths(p, comp) & ref_paths)}
+    cur_paths = inst_paths(comp, other_lib)
+    cur_norm = set()
+    for p in cur_paths:
+        cur_norm |= _norm_paths(p, comp)
+    return {p for p in inst_paths(comp, lib)
+            if p not in cur_paths and p not in cur_norm}
+
+
+def _cur_qk_map(comp, lib):
+    """CUR-side endpoint rewrites for the audited QuatDerRow extraction:
+    map each row's blocks back to that row's ORIGINAL inline names
+    (`<c>.r{i}.p{k}` -> `<c>.q_j w_l`, `<c>.r{i}.s` -> `<c>.dq{i}`) for
+    every flattened container `c` holding the four r0..r3 rows (the
+    container is `''` for QuatKinematics itself, `qkin`-suffixed paths
+    elsewhere). Applied before canonicalisation, so `qkin` still strips
+    when it is a new path but the row identity survives — a cross-row
+    swap (r0.dq<->r1.dq, r0.qa<->r1.qa, wa<->wc, ...) can no longer
+    collapse into an identical canonical endpoint."""
+    paths = inst_paths(comp, lib)
+    containers = {p[:-3] for p in paths if p == 'r0' or p.endswith('.r0')}
+    e = {}
+    for c in containers:
+        P = lambda s: f'{c}.{s}' if c else s
+        if c != '' and not c.endswith('qkin'):
+            continue
+        if not all(P(f'r{i}') in paths for i in range(4)):
+            continue
+        for i, prods in enumerate(_QK_ROWS):
+            for k, prod in enumerate(prods):
+                e[P(f'r{i}.p{k + 1}')] = P(prod)
+            e[P(f'r{i}.s')] = P(f'dq{i}')
+    return e
+
+
+def _apply_prefix_map(ep, table):
+    """Rewrite endpoint `ep` by the longest matching prefix in `table`
+    (a match on PATH itself or on PATH.<anything>)."""
+    best = None
+    for old, new in table.items():
+        if ep == old or ep.startswith(old + '.'):
+            if best is None or len(old) > len(best[0]):
+                best = (old, new)
+    if best is not None:
+        old, new = best
+        return new + ep[len(old):]
+    return ep
 
 
 def full_partition(comp, lib, other_lib, cur=False):
     nr = flat_nets(comp, frozenset(lib.items()))
-    if cur:
-        # CUR paths count as new only when their normalised form has no
-        # counterpart in REF.
-        ref_paths = inst_paths(comp, other_lib)
-        newpaths = {p for p in inst_paths(comp, lib)
-                    if _norm_path(p, comp) not in ref_paths}
-    else:
-        cur_norm = {_norm_path(p, comp) for p in inst_paths(comp, other_lib)}
-        newpaths = {p for p in inst_paths(comp, lib) if p not in cur_norm}
-    return canon_nets(nr, comp, lib, newpaths), nr
+    newpaths = _newpaths(comp, lib, other_lib, cur)
+    rw = _cur_qk_map(comp, lib) if cur else None
+    return canon_nets(nr, comp, lib, newpaths, rw), nr
 
 def resolve_ref(ref, curdir):
     """REF may be a dyad dir, a demo dir containing dyad/, or a git ref."""
@@ -347,29 +507,291 @@ def apply_renames(nets, comp):
     """Rewrite canonical endpoints per RENAMES[comp] (ref -> cur names)."""
     table = RENAMES.get(comp)
     if not table: return nets
-    def ren(ep):
-        for old, new in table.items():
-            if ep == old: return new
-            if ep.startswith(old + '.'): return new + ep[len(old):]
-        return ep
-    return frozenset(frozenset(ren(ep) for ep in net) for net in nets)
+    out = Counter()
+    for net, k in nets.items():
+        out[frozenset(_apply_prefix_map(ep, table) for ep in net)] += k
+    return out
+
+# ---------------------------------------------------------------- semantics
+#
+# Wiring alone is not the model: the signature below also compares, per
+# component, the declared parameter defaults, every flattened block
+# instance's component type and parameter arguments (with parent parameter
+# values substituted down the hierarchy), the non-connect equations
+# (including `initial` values) and the analyses. Instance paths are
+# canonicalised with the same transparent-prefix rules as endpoints, so a
+# block's semantic slot follows its wiring slot.
+
+_PARAM = re.compile(r'(?m)^\s*parameter\s+(\w+)\s*(?:::[\w.]+)?\s*=\s*(.+?)\s*$')
+_DECL = re.compile(r'(\w+)\s*=\s*([\w.]+)\s*\(')
+_IDENT = re.compile(r'[A-Za-z_]\w*')
+
+
+def _strip_meta(s):
+    """Remove JSON `{...}` metadata blocks, comments and whitespace."""
+    out, i, depth = [], 0, 0
+    while i < len(s):
+        c = s[i]
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+        elif depth == 0:
+            out.append(c)
+        i += 1
+    s = ''.join(out)
+    s = re.sub(r'#.*$', '', s, flags=re.M)
+    return s
+
+
+def _norm_val(v):
+    v = v.strip()
+    try:
+        return float(v)
+    except ValueError:
+        return re.sub(r'\s+', '', v)
+
+
+def _subst(expr, env):
+    return _IDENT.sub(lambda m: env.get(m.group(0), m.group(0)), expr)
+
+
+def _sec_params(sec):
+    return {m.group(1): _norm_val(m.group(2).split('{', 1)[0])
+            for m in _PARAM.finditer(sec)}
+
+
+def _call_args(text, open_idx):
+    """(args dict) for the (...) call starting at text[open_idx] == '('."""
+    i, depth, buf = open_idx + 1, 1, ''
+    while depth and i < len(text):
+        ch = text[i]
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth -= 1
+            if depth == 0:
+                break
+        if depth:
+            buf += ch
+        i += 1
+    args, d2, last, n = {}, 0, 0, 0
+    for j in range(len(buf) + 1):
+        ch = buf[j] if j < len(buf) else ','
+        if ch == '(':
+            d2 += 1
+        elif ch == ')':
+            d2 -= 1
+        if ch == ',' and d2 == 0:
+            piece = buf[last:j].strip()
+            last = j + 1
+            if not piece:
+                continue
+            k, eq, v = piece.partition('=')
+            if eq:
+                args[k.strip()] = v.strip()
+            else:
+                n += 1
+                args[f'#{n}'] = piece
+    return args
+
+
+def _decls(sec):
+    """(name, type, args) for every `name = Type(args)` decl, stdlib
+    included; `parameter` lines are skipped and only the declarations
+    region (before `relations`/`metadata`/`end`) is scanned so equations
+    like `y = max(u1, u2)` are not mistaken for instances."""
+    m = re.search(r'(?m)^(relations|metadata|end)\b', sec)
+    head = sec[:m.start()] if m else sec
+    flat = '\n'.join(l for l in head.split('\n') if 'parameter' not in l)
+    for m in _DECL.finditer(flat):
+        yield m.group(1), m.group(2), _call_args(flat, m.end() - 1)
+
+
+def _flat_insts(comp, lib):
+    """{flat_instance_path: (type, resolved_args)} over the whole
+    sub-component tree. Parent parameter values are substituted down:
+    each instance's args are resolved against the enclosing component's
+    parameter bindings before descending."""
+    out = {}
+
+    def rec(cname, prefix, inherited, seen):
+        env = {}
+        for n, d in _sec_params(lib[cname]).items():
+            env[n] = _subst(str(inherited.get(n, d)),
+                            {**inherited, **env})
+        for name, typ, args in _decls(lib[cname]):
+            if name == cname:
+                continue
+            raw = {a: _subst(str(v), env) for a, v in args.items()}
+            resolved = {a: _norm_val(v) for a, v in raw.items()}
+            alias = _TYPE_ALIAS.get(typ)
+            if alias:
+                typ, extra = alias
+                resolved = {**extra, **resolved}
+            out[prefix + name] = (typ, resolved)
+            t = typ.split('.')[-1]
+            if t in lib and t != cname and t not in seen:
+                rec(t, prefix + name + '.', raw, seen | {t})
+
+    rec(comp, '', {}, {comp})
+    return out
+
+
+def _canon_inst(path, typ, comp, lib, newpaths, imaps, prefix=''):
+    """Canonical instance path: strip leading segments whose instance path
+    is new, keep the literal name of every surviving segment. Returns None
+    for a path whose innermost instance is itself new (an extraction
+    wrapper — its children carry the semantics) and for a port leaf that
+    sits inside a transparent wrapper (a wrapper boundary pin)."""
+    segs = path.split('.')
+    t = imaps(comp).get(segs[0])
+    ipath = prefix + segs[0]
+    if len(segs) == 1:
+        if t is not None and t in lib and ipath in newpaths:
+            return None
+        return segs[0]
+    if t is None or t not in lib:
+        return path
+    inner = _canon_inst('.'.join(segs[1:]), typ, t, lib, newpaths, imaps,
+                        ipath + '.')
+    if ipath in newpaths:
+        if inner is None:
+            return None
+        if '.' not in inner and typ.split('.')[-1].endswith(_PORT_SUFFIXES):
+            return None
+        return inner
+    return segs[0] + '.' + inner if inner is not None else None
+
+
+def _eq_chunks(sec):
+    """Non-connect statements in the relations region, normalised."""
+    rel = re.search(r'(?ms)^relations\s*$(.*?)(?:^metadata\b|^end\s*$)', sec)
+    if not rel:
+        return []
+    text = rel.group(1)
+    # remove connect(...) calls with their trailing metadata
+    out, i = [], 0
+    for m in CON.finditer(text):
+        out.append(text[i:m.start()])
+        j, depth = m.end(), 1
+        while depth and j < len(text):
+            ch = text[j]
+            if ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+            j += 1
+        i = j
+    out.append(text[i:])
+    text = re.sub(r'(?m)^\s*metadata\b', '', ''.join(out))
+    text = _strip_meta(text)
+    return [re.sub(r'\s+', '', ln) for ln in text.split('\n')
+            if re.sub(r'\s+', '', ln)]
+
+
+def _flat_eqs(comp, lib, newpaths, imaps, cur_rw):
+    """{canonical container path: [normalised statements]} — statements of
+    an extraction wrapper (canonical path None) attach to the nearest
+    surviving ancestor, matching the pre-extraction level."""
+    out = {}
+
+    def rec(cname, rawpath, canonpath, seen):
+        for ch in _eq_chunks(lib[cname]):
+            out.setdefault(canonpath, []).append(ch)
+        for name, t in instances(lib[cname], lib).items():
+            if t == cname or t in seen:
+                continue
+            rp = rawpath + name
+            p2 = _apply_prefix_map(rp, cur_rw) if cur_rw else rp
+            c2 = _canon_inst(p2, '', comp, lib, newpaths, imaps)
+            rec(t, rp + '.', c2 if c2 is not None else canonpath,
+                seen | {t})
+
+    rec(comp, '', '', {comp})
+    return out
+
+
+def _sem_signature(comp, lib, newpaths, renames=None, cur_rw=None):
+    """(params, insts, eqs) semantic signature of `comp`."""
+    imapcache = {}
+
+    def imaps(c):
+        if c not in imapcache:
+            imapcache[c] = instances(lib[c], lib)
+        return imapcache[c]
+
+    insts = {}
+    for p, ta in _flat_insts(comp, lib).items():
+        if cur_rw:
+            p = _apply_prefix_map(p, cur_rw)
+        cp = _canon_inst(p, ta[0], comp, lib, newpaths, imaps)
+        if cp is None:
+            continue
+        if renames:
+            cp = _apply_prefix_map(cp, renames)
+        if cp in insts:
+            raise CanonError(f"{comp}: instances collide at canonical "
+                             f"path {cp} ({p} vs {insts[cp]})")
+        insts[cp] = ta
+    eqs = _flat_eqs(comp, lib, newpaths, imaps, cur_rw)
+    if renames:
+        eqs = {_apply_prefix_map(k, renames) if k else k: v
+               for k, v in eqs.items()}
+    return _sec_params(lib[comp]), insts, eqs
+
+
+def _sem_diff(comp, reflib, curlib, ref_np, cur_np, cur_rw):
+    pr, ir, er = _sem_signature(comp, reflib, ref_np,
+                                renames=RENAMES.get(comp))
+    pc, ic, ec = _sem_signature(comp, curlib, cur_np, cur_rw=cur_rw)
+    diffs = []
+    if pr != pc:
+        diffs.append("  params: " +
+                     '; '.join(sorted(f"{k}: {pr.get(k)}!={pc.get(k)}"
+                                      for k in set(pr) | set(pc)
+                                      if pr.get(k) != pc.get(k))))
+    for k in sorted(set(ir) | set(ic)):
+        if k not in ir:
+            diffs.append(f"  inst only CUR: {k} = {ic[k][0]}{ic[k][1]}")
+        elif k not in ic:
+            diffs.append(f"  inst only REF: {k} = {ir[k][0]}{ir[k][1]}")
+        elif ir[k][0] != ic[k][0]:
+            diffs.append(f"  inst {k}: type {ir[k][0]} != {ic[k][0]}")
+        elif ir[k][1] != ic[k][1]:
+            diffs.append(f"  inst {k} args: {ir[k][1]} != {ic[k][1]}")
+        if len(diffs) > 12:
+            break
+    if er != ec:
+        diffs.append("  equations differ: " +
+                     '; '.join(sorted(f"{k or '<top>'}: REF{er.get(k)} "
+                                      f"CUR{ec.get(k)}"
+                                      for k in set(er) | set(ec)
+                                      if er.get(k) != ec.get(k))[:6]))
+    return diffs
+
 
 def compare(reflib, curlib, comp):
     """return (level, boundary_ok, diff_info) where level is
     'match' | 'shape' | 'mismatch' | None(component missing).
-    'match' is exact after canonicalisation and RENAMES. 'shape' (same
+    'match' is exact after canonicalisation and RENAMES, on both the
+    flattened wiring partition and the semantic signature. 'shape' (same
     net signatures, different internal endpoints) is reported for
     diagnosis but is a gate failure like 'mismatch'."""
     if comp not in reflib: return None, None, f"{comp} missing in REF"
     if comp not in curlib: return None, None, f"{comp} missing in CUR"
-    cr, nr = full_partition(comp, reflib, curlib)
-    cc, nc = full_partition(comp, curlib, reflib, cur=True)
+    info = []
+    try:
+        cr, nr = full_partition(comp, reflib, curlib)
+        cc, nc = full_partition(comp, curlib, reflib, cur=True)
+    except CanonError as e:
+        return 'mismatch', False, str(e)
     cr = apply_renames(cr, comp)
     ok = cr == cc
-    shape = shape_partition(cr) == shape_partition(cc)
+    shape = shape_partition(cr.elements()) == \
+        shape_partition(cc.elements())
     br = boundary_partition(flat_nets(comp, frozenset(reflib.items())))
     bc = boundary_partition(flat_nets(comp, frozenset(curlib.items())))
-    info = []
     if not ok:
         only_ref = sorted(cr - cc, key=str)
         only_cur = sorted(cc - cr, key=str)
@@ -380,8 +802,17 @@ def compare(reflib, curlib, comp):
                         "differ. If this is a reviewed rename or extraction, "
                         "add it to RENAMES in this tool; otherwise the wiring "
                         "changed.")
-    return ('match' if ok else 'shape' if shape else 'mismatch'), br == bc, \
-        '\n'.join(info)
+    try:
+        info += _sem_diff(comp, reflib, curlib,
+                          _newpaths(comp, reflib, curlib, cur=False),
+                          _newpaths(comp, curlib, reflib, cur=True),
+                          _cur_qk_map(comp, curlib))
+    except CanonError as e:
+        info.append(str(e))
+    if info:
+        ok = False
+    return ('match' if ok else 'shape' if shape else 'mismatch'), \
+        br == bc, '\n'.join(info)
 
 def selftest():
     """A swapped internal connection must fail the full check while the
@@ -481,18 +912,96 @@ end
         del RENAMES['QuatToBody']
     else:
         RENAMES['QuatToBody'] = saved
-    shape_ok = shape_partition(full_partition('QuatToBody', lib_r, lib_c)[0]) == \
-        shape_partition(full_partition('QuatToBody', lib_c, lib_r)[0])
+    shape_ok = shape_partition(full_partition('QuatToBody', lib_r, lib_c)[0].elements()) == \
+        shape_partition(full_partition('QuatToBody', lib_c, lib_r)[0].elements())
     print(f"selftest: extracted-swap level={lvl} (shapes {'equal' if shape_ok else 'differ'})")
-    if lvl == 'shape' and shape_ok:
-        print("selftest PASS: same-shape rewire reported as 'shape', which fails the gate")
-        return 0
-    if lvl == 'mismatch':
-        print("selftest PASS: same-shape rewire reported as mismatch (fails the gate)")
-        return 0
-    print("selftest FAIL: same-shape rewire was not flagged")
-    print(info)
-    return 1
+    if lvl not in ('shape', 'mismatch'):
+        print("selftest FAIL: same-shape rewire was not flagged")
+        print(info)
+        return 1
+    print("selftest: same-shape rewire flagged (fails the gate)")
+    return _selftest_real()
+
+
+def _swap2(text, a, b):
+    """Swap literals a and b in `text` (a<->b), applied to all copies."""
+    return text.replace(a, '\x00').replace(b, a).replace('\x00', b)
+
+
+def _mutate(lib, comp, old, new):
+    lib = dict(lib)
+    assert old in lib[comp], (comp, old)
+    lib[comp] = lib[comp].replace(old, new, 1)
+    return lib
+
+
+def _selftest_real():
+    """Every mutation a reviewer flagged must fail the gate on the real
+    model. Returns 0 if all are caught, 1 otherwise."""
+    dyaddir = os.path.join(HERE, '..', 'HL20Demo', 'dyad')
+    refdir = resolve_ref(DEFAULT_REF, dyaddir)
+    lib_r = lib_sections(refdir)
+    lib_c = lib_sections(dyaddir)
+    fails = []
+
+    def mut(comp, owner, *subs):
+        """apply (old,new) replacements inside section `owner`, compare `comp`"""
+        lib_m = dict(lib_c)
+        sec = lib_m[owner]
+        for old, new in subs:
+            if old not in sec:
+                fails.append((comp, f'mutation target missing: {old!r}'))
+                return
+            sec = sec.replace(old, new, 1)
+        lib_m[owner] = sec
+        lvl, _, info = compare(lib_r, lib_m, comp)
+        if lvl == 'match':
+            fails.append((comp, f'not caught: {subs!r}\n{info}'))
+
+    # cross-row QuatDerRow wiring swaps (item 1)
+    mut('RigidBody6DOF', 'QuatKinematics',
+        ('connect(r0.dq, int_q0.u)', 'connect(r1.dq, int_q0.u)'),
+        ('connect(r1.dq, int_q1.u)', 'connect(r0.dq, int_q1.u)'))
+    # r0.qa <-> r1.qa (cross-row quaternion-factor swap)
+    lib_m = dict(lib_c)
+    lib_m['QuatKinematics'] = _swap2(lib_m['QuatKinematics'], 'r0.qa', 'r1.qa')
+    lvl, _, info = compare(lib_r, lib_m, 'RigidBody6DOF')
+    if lvl == 'match':
+        fails.append(('RigidBody6DOF', 'r0.qa<->r1.qa swap not caught'))
+    # QuatDerRow's own wa<->wc
+    mut('RigidBody6DOF', 'QuatDerRow',
+        ('connect(wa, p1.u2)', 'connect(wc, p1.u2)'),
+        ('connect(wc, p3.u2)', 'connect(wa, p3.u2)'))
+    # changed row coefficient k3 -0.5 -> 0.5 (semantic)
+    mut('RigidBody6DOF', 'QuatKinematics',
+        ('r1 = QuatDerRow(k1 = 0.5, k2 = 0.5, k3 = -0.5)',
+         'r1 = QuatDerRow(k1 = 0.5, k2 = 0.5, k3 = 0.5)'))
+    # Product -> Division (semantic type)
+    mut('RigidBody6DOF', 'QuatDerRow',
+        ('p1 = BlockComponents.Math.Product()',
+         'p1 = BlockComponents.Math.Division()'))
+    # swapped integrator x0 q0_0 -> q1_0 (semantic args)
+    mut('RigidBody6DOF', 'QuatKinematics',
+        ('x0 = q0_0', 'x0 = q1_0'))
+    # swapped mass/g on RigidBody6DOF instantiation (semantic args)
+    mut('HL20Vehicle', 'VehicleDynamics',
+        ('mass=mass, g=g', 'mass=g, g=mass'))
+    # changed top-level parameter default -3048 -> -3000 (semantic params)
+    mut('HL20Vehicle', 'HL20Vehicle',
+        ('parameter p3_0::Real = -3048.0', 'parameter p3_0::Real = -3000.0'))
+    # aero coefficient-block input swap cl.DBFUR <-> cl.DWFL (item 2)
+    lib_m = dict(lib_c)
+    lib_m['AeroCLCD'] = _swap2(lib_m['AeroCLCD'], 'cl.DBFUR', 'cl.DWFL')
+    lvl, _, _ = compare(lib_r, lib_m, 'HL20Aero')
+    if lvl == 'match':
+        fails.append(('HL20Aero', 'cl.DBFUR<->cl.DWFL swap not caught'))
+
+    for comp, why in fails:
+        print(f"selftest FAIL {comp}: {why}")
+    if fails:
+        return 1
+    print("selftest: all 9 real-model mutations rejected")
+    return 0
 
 def main(argv):
     args = argv[1:]
@@ -512,6 +1021,12 @@ def main(argv):
     lib_r = lib_sections(refdir)
     lib_c = lib_sections(curdir)
     worst = 0
+    ar, ac = lib_analyses(refdir), lib_analyses(curdir)
+    if ar != ac:
+        worst = 2
+        for k in sorted(set(ar) | set(ac)):
+            if ar.get(k) != ac.get(k):
+                print(f"analysis {k}: MISMATCH")
     for comp in comps:
         level, bok, info = compare(lib_r, lib_c, comp)
         if level is None:
