@@ -142,7 +142,7 @@ component HL20Vehicle
   }
   SINPHI = RealOutput() {
     "Dyad": {
-      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 400, "y2": 450}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1629.9999999999998, "y2": 1689.9999999999998}}
+      "placement": {"icon": {"x1": 970, "x2": 1030, "y1": 400, "y2": 450}, "diagram": {"x1": 2740, "x2": 2800, "y1": 1630, "y2": 1690}}
     }
   }
   COSPHI = RealOutput() {

@@ -47,7 +47,10 @@ def _split_decls(region):
     chunks = []
     cur = ""
     depth = 0
-    for line in region.split("\n"):
+    lines = region.split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()  # split artefact: the region's final newline is not a line
+    for line in lines:
         cur += line + "\n"
         depth += line.count("{") - line.count("}")
         if depth == 0 and line.strip() and not line.strip().startswith('"'):
@@ -56,7 +59,7 @@ def _split_decls(region):
         elif depth == 0 and re.match(r'^\s*\w+\s*=', line):
             chunks.append(cur)
             cur = ""
-    if cur.strip():
+    if cur:
         chunks.append(cur)
     return chunks
 
@@ -86,14 +89,17 @@ def _split_connects(region):
     chunks = []
     cur = ""
     depth = 0
-    for line in region.split("\n"):
+    lines = region.split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()  # split artefact: the region's final newline is not a line
+    for line in lines:
         cur += line + "\n"
         depth += line.count("{") - line.count("}")
         if depth == 0 and line.strip():
             if line.strip().startswith("connect") or chunks or cur.strip().startswith("connect"):
                 chunks.append(cur)
                 cur = ""
-    if cur.strip():
+    if cur:
         chunks.append(cur)
     return chunks
 
@@ -192,15 +198,18 @@ class Component:
         out = [self.header]
         for d in self.decls:
             out.append(d["raw"])
-        out.append("relations\n")
+        out.append("relations")
         for c in self.connects:
             if c["kind"] == "connect" and c.get("emitted"):
-                out.append(c["emitted"])
+                raw = c["emitted"]
             else:
-                out.append(c["raw"].lstrip("\n"))
+                raw = c["raw"]
+            if not out[-1].endswith("\n") and not raw.startswith("\n"):
+                out.append("\n")
+            out.append(raw)
         if self.meta:
             out.append(self.meta)
-        out.append("end\n")
+        out.append("end")
         return "".join(out)
 
 
@@ -209,13 +218,12 @@ def _f(v):
     return int(f) if f == int(f) else f
 
 
-def load_file(path):
+def load_text(text):
     """-> list of segments; components become Component objects, the rest raw.
 
     A component block runs from its 'component NAME' line (plus an optional
     immediately preceding \"\"\" docstring \"\"\") to the next '^end$' line.
     """
-    text = Path(path).read_text()
     lines = text.split("\n")
     # find block starts/ends by line scan (components do not nest)
     segs = []
@@ -256,12 +264,12 @@ def load_file(path):
             eoff += len(lines[e]) + 1
             e += 1
         if e == n:
-            raise ValueError(f"no 'end' for component {name} in {path}")
+            raise ValueError(f"no 'end' for component {name}")
         end = eoff + len("end")
         if pos < start:
             segs.append(text[pos:start])
-        segs.append(Component(name, text[start:end] + "\n"))
-        pos = end + 1 if end < len(text) else end
+        segs.append(Component(name, text[start:end]))
+        pos = end
         # advance scanner past this component
         while i <= e:
             off += len(lines[i]) + 1
@@ -270,11 +278,151 @@ def load_file(path):
     return segs
 
 
+def load_file(path):
+    return load_text(Path(path).read_text())
+
+
+def render_segs(segs):
+    """Serialise segments back to file text; load+render is byte-stable."""
+    return "".join(s.render() if isinstance(s, Component) else s
+                   for s in segs)
+
+
 def save_file(path, segs):
-    out = []
-    for s in segs:
-        out.append(s.render() if isinstance(s, Component) else s)
-    Path(path).write_text("".join(out))
+    Path(path).write_text(render_segs(segs))
+
+
+def load_dir(root):
+    """{path_str: segs} for every *.dyad file under root (in-memory store)."""
+    return {str(p): load_text(p.read_text())
+            for p in sorted(Path(root).rglob("*.dyad"))}
+
+
+def materialize(segs):
+    """Parse raw string segments that contain a component body — a
+    generator may splice pre-built component text in as a plain string.
+    render() is byte-faithful, so this round-trips exactly."""
+    for i, s in enumerate(segs):
+        if isinstance(s, str):
+            m = re.search(r'\bcomponent\s+(\w+)', s)
+            if m:
+                segs[i] = Component(m.group(1), s)
+
+
+def pins_from(files):
+    """library_pins() equivalent over an in-memory {path: segs} store."""
+    pins = {}
+    for segs in files.values():
+        for seg in segs:
+            if not isinstance(seg, Component):
+                continue
+            p = {}
+            for d in seg.decls:
+                if "placement" in d and "icon" in d.get("placement", {}):
+                    p[d["name"]] = (d["placement"]["icon"], d.get("dir"))
+            pins[seg.name] = p
+    return pins
+
+
+# ------------------------------------------------------ semantic guard
+
+def _strip_layout(raw):
+    """Chunk text minus docstrings, comments and the {"Dyad": ...} metadata
+    block — the parts of a decl/relation chunk that carry meaning."""
+    m = re.search(r'\{\s*"Dyad"', raw)
+    if m:
+        raw = raw[:m.start()] + raw[_scan_block(raw, m.start()):]
+    keep = []
+    for line in raw.split("\n"):
+        s = line.strip()
+        if s and not s.startswith('"') and not s.startswith("#"):
+            keep.append(s)
+    return " ".join(keep)
+
+
+def sem_sig(text):
+    """{comp_name: (params, insts, conns, other)} — the non-layout content
+    of a dyad file.  Parameters keep name/type/default; instances keep
+    name/type/args with placement stripped; connects compare as endpoint
+    multisets; remaining relation chunks compare in order."""
+    from collections import Counter
+    sig = {}
+    for seg in load_text(text):
+        if not isinstance(seg, Component):
+            continue
+        params, insts = {}, {}
+        for d in seg.decls:
+            body = _strip_layout(d["raw"])
+            if not body:
+                continue
+            if d.get("kind") == "param":
+                m = re.search(r'parameter\s+(\w+)\s*::\s*([\w.]+)\s*=\s*(.*)',
+                              body)
+                if m:
+                    params[m.group(1)] = m.group(2) + " = " + m.group(3)
+            elif d.get("name"):
+                insts[d["name"]] = body
+            else:
+                insts[body] = body
+        conns = Counter(tuple(sorted(c["args"])) for c in seg.connects
+                        if c["kind"] == "connect")
+        other = tuple(re.sub(r"\s+", " ", c["raw"]).strip()
+                      for c in seg.connects if c["kind"] != "connect")
+        sig[seg.name] = (params, insts, conns, other)
+    return sig
+
+
+def sem_diff(old_text, new_text):
+    """List of non-layout differences between two dyad texts (empty when
+    only layout metadata — placements, edge routes — differs)."""
+    diffs = []
+    so, sn = sem_sig(old_text), sem_sig(new_text)
+    for name in sorted(set(so) | set(sn)):
+        if name not in so:
+            diffs.append(f"component {name} added")
+            continue
+        if name not in sn:
+            diffs.append(f"component {name} removed")
+            continue
+        po, io, co, oo = so[name]
+        pn, i2, cn, on = sn[name]
+        for k in sorted(set(po) | set(pn)):
+            if po.get(k) != pn.get(k):
+                diffs.append(f"{name}: parameter {k} "
+                             f"{po.get(k)!r} -> {pn.get(k)!r}")
+        for k in sorted(set(io) | set(i2)):
+            if io.get(k) != i2.get(k):
+                diffs.append(f"{name}: instance {k} changed "
+                             f"{io.get(k)!r} -> {i2.get(k)!r}")
+        if co != cn:
+            diffs.append(f"{name}: connect endpoint sets changed")
+        if oo != on:
+            diffs.append(f"{name}: equations changed")
+    return diffs
+
+
+def apply_guarded(files, paths):
+    """Write each path from files[path] (an in-memory store), but only if
+    no rendered output changes non-layout content.  Returns a list of
+    problems; empty means every differing path was written."""
+    plan, diffs = {}, []
+    for p in paths:
+        old = Path(p).read_text()
+        new = render_segs(files[str(p)])
+        if new != old:
+            diffs += [f"{p}: {d}" for d in sem_diff(old, new)]
+            plan[str(p)] = new
+    if diffs:
+        return diffs
+    for p, new in plan.items():
+        Path(p).write_text(new)
+    return []
+
+
+def drift_of(files, paths):
+    """paths whose rendered in-memory content differs from disk."""
+    return [str(p) for p in paths
+            if render_segs(files[str(p)]) != Path(p).read_text()]
 
 
 # ---------------------------------------------------------------- geometry
@@ -289,7 +437,9 @@ def icon_center(icon):
 
 def pin_xy(diag_box, icon_place, rot=0):
     """Map an icon placement box centre onto the diagram box, applying rot
-    (degrees clockwise, icon rotates inside its frame)."""
+    (degrees clockwise, icon rotates inside its frame).  The result is
+    rounded to the same grid as emitted bend points so endpoints land
+    exactly on routed coordinates."""
     cx, cy = icon_center(icon_place)  # 0..1000
     if rot == 90:
         cx, cy = cy, 1000 - cx
@@ -299,7 +449,7 @@ def pin_xy(diag_box, icon_place, rot=0):
         cx, cy = 1000 - cy, cx
     x = diag_box["x1"] + cx / 1000.0 * (diag_box["x2"] - diag_box["x1"])
     y = diag_box["y1"] + cy / 1000.0 * (diag_box["y2"] - diag_box["y1"])
-    return (x, y)
+    return (_f(x), _f(y))
 
 
 # ---------------------------------------------------------------- library pin db
@@ -365,6 +515,12 @@ STDLIB_PINS = {
         "y": {"x1": 970, "y1": 450, "x2": 1030, "y2": 550}},
 }
 
+# unary math blocks share the Gain/Integrator pin shape
+for _t in ("Sin", "Cos", "Abs", "Sqrt", "Exp", "Log"):
+    STDLIB_PINS.setdefault(
+        "BlockComponents.Math." + _t,
+        dict(STDLIB_PINS["BlockComponents.Math.Gain"]))
+
 
 class Ctx:
     """Resolution context for one component being generated."""
@@ -391,11 +547,3 @@ class Ctx:
         rot = inst["placement"]["diagram"].get("rot", 0)
         return pin_xy(inst["placement"]["diagram"], icon, rot)
 
-
-def hv(p1, p2):
-    """L route horizontal-then-vertical midpoints."""
-    return [(p2[0], p1[1])] if p1[0] != p2[0] and p1[1] != p2[1] else []
-
-
-def vh(p1, p2):
-    return [(p1[0], p2[1])] if p1[0] != p2[0] and p1[1] != p2[1] else []

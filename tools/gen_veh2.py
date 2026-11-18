@@ -25,11 +25,14 @@ Routing:
 - vd bottom -> vout top: staggered lanes 2650+15i, zero crossings.
 - vout right-edge -> boundary ports: straight runs.
 """
+import os
 import sys
 import laygen as lg
 from gen_aero import (f, box, icon_top, icon_bottom, E, mk_conn, finish)
 
-LIB = "HL20Demo/dyad"
+LIB = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                   "..", "HL20Demo", "dyad")
+V = os.path.join(LIB, "HL20Vehicle.dyad")
 
 VD = {"x1": 400, "x2": 1000, "y1": 200, "y2": 2600}
 AERO = {"x1": 2900, "x2": 3500, "y1": 400, "y2": 1600}
@@ -75,11 +78,10 @@ def vd_frac_x(x):
     return (x - VD["x1"]) / (VD["x2"] - VD["x1"]) * 1000
 
 
-def repin_vd():
-    src = lg.load_file(f"{LIB}/HL20Vehicle.dyad")
+def repin_vd(src, pins):
+    lg.materialize(src)  # gen_vd2 splices the component in as raw text
     comp = [x for x in src
             if isinstance(x, lg.Component) and x.name == "VehicleDynamics"][0]
-    pins = lg.library_pins(LIB)
     for i, nm in enumerate(VD_AERO):
         _, ay = lg.pin_xy(AERO, pins["HL20Aero"][AERO_LEFT[i]][0])
         comp.set_icon(nm, icon_right40(vd_frac_y(ay)))
@@ -89,12 +91,9 @@ def repin_vd():
         comp.set_icon(nm, icon_top(vd_frac_x(px)))
     for nm, f in zip(["p_rad", "q_rad", "r_rad", "Fz_body"], VD_BOT_F):
         comp.set_icon(nm, icon_bottom(f))
-    lg.save_file(f"{LIB}/HL20Vehicle.dyad", src)
 
 
-def gen():
-    pins = lg.library_pins(LIB)
-    src = lg.load_file(f"{LIB}/HL20Vehicle.dyad")
+def gen(src, pins):
     comp = [x for x in src
             if isinstance(x, lg.Component) and x.name == "HL20Vehicle"][0]
     comp.set_diagram("vd", VD)
@@ -164,34 +163,42 @@ def gen():
         conns.append(mk_conn(["vout." + nm, outp], [E(1, [], 2)]))
 
     finish(comp, conns)
-    lg.save_file(f"{LIB}/HL20Vehicle.dyad", src)
+
+
+def produce(files):
+    """Re-pin VehicleDynamics' icon and regenerate HL20Vehicle's routes,
+    inside the in-memory {path: segs} store."""
+    src = files[V]
+    repin_vd(src, lg.pins_from(files))
+    gen(src, lg.pins_from(files))
 
 
 def check():
-    """--check: run the gen_vd2 -> gen_veh2 pipeline and exit non-zero
-    if the committed file drifts."""
-    import subprocess
-    from pathlib import Path
-    target = f"{LIB}/HL20Vehicle.dyad"
-    orig = Path(target).read_bytes()
-    try:
-        subprocess.run([sys.executable, "tools/gen_vd2.py"], check=True)
-        repin_vd()
-        lg._LIB_CACHE.clear()
-        gen()
-    finally:
-        drift = Path(target).read_bytes() != orig
-        Path(target).write_bytes(orig)
-    if drift:
-        print(f"DRIFT: {target}")
+    """--check: run the gen_vd2 -> gen_veh2 pipeline in memory and exit
+    non-zero if the committed file drifts.  Nothing is written."""
+    import gen_vd2
+    files = lg.load_dir(LIB)
+    gen_vd2.produce(files)
+    produce(files)
+    if lg.drift_of(files, [V]):
+        print(f"DRIFT: {V}")
         sys.exit(1)
-    print(f"{target}: in sync")
+    print(f"{V}: in sync")
+
+
+def main():
+    files = lg.load_dir(LIB)
+    produce(files)
+    diffs = lg.apply_guarded(files, [V])
+    if diffs:
+        print("refusing to write: non-layout content would change")
+        for d in diffs:
+            print("  " + d)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
     if "--check" in sys.argv[1:]:
         check()
     else:
-        repin_vd()
-        lg._LIB_CACHE.clear()
-        gen()
+        main()

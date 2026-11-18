@@ -35,11 +35,20 @@ Structure (all x/y in diagram units):
   pin order and its seven feeds re-routed crossing-free.
 """
 import itertools
+import os
 import sys
 import laygen as lg
 from gen_aero import (f, box, icon_left, icon_right, E, mk_conn, finish)
 
-LIB = "HL20Demo/dyad"
+LIB = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                   "..", "HL20Demo", "dyad")
+
+TARGETS = ("HL20Vehicle.dyad", "Controllers.dyad",
+           "TestHarnesses.dyad", "HL20FullSystem.dyad")
+
+
+def _p(*parts):
+    return os.path.join(LIB, *parts)
 
 # ---------------------------------------------------------------- repins
 
@@ -62,28 +71,24 @@ def _ic_left(c):
     return {"x1": -30, "x2": 30, "y1": f(c - 25), "y2": f(c + 25)}
 
 
-def repin_vehicle():
-    src = lg.load_file(f"{LIB}/HL20Vehicle.dyad")
+def repin_vehicle(src):
     comp = [x for x in src
             if isinstance(x, lg.Component) and x.name == "HL20Vehicle"][0]
     for i, nm in enumerate(VEH_OUT):
         comp.set_icon(nm, _ic_right(25 + 50 * i))
     for i, nm in enumerate(VEH_IN):
         comp.set_icon(nm, _ic_left(150 + 100 * i))
-    lg.save_file(f"{LIB}/HL20Vehicle.dyad", src)
 
 
-def repin_yaw():
+def repin_yaw(src):
     """Move yaw.RDEG's bottom-edge icon pin east so its riser column in
     FullSystem clears the label drawn under the yaw block (~x517-553)."""
-    src = lg.load_file(f"{LIB}/Controllers.dyad")
     comp = [x for x in src
             if isinstance(x, lg.Component) and x.name == "YawControl"][0]
     comp.set_icon("RDEG", {"x1": 700, "x2": 760, "y1": 970, "y2": 1030})
-    lg.save_file(f"{LIB}/Controllers.dyad", src)
 
 
-def fix_subsonic():
+def fix_subsonic(src):
     """Re-row TestHL20Subsonic's constant wall to the repinned vehicle
     input order and re-route the seven feeds crossing-free.
 
@@ -92,8 +97,6 @@ def fix_subsonic():
     above its pin) take columns right-to-left, up-feeds left-to-right —
     zero crossings either way.
     """
-    path = f"{LIB}/TestHarnesses.dyad"
-    src = lg.load_file(path)
     comp = [x for x in src
             if isinstance(x, lg.Component) and x.name == "TestHL20Subsonic"][0]
     ROWS = [(200, 300), (450, 550), (700, 800), (950, 1050),
@@ -124,7 +127,6 @@ def fix_subsonic():
                 c["args"], [(1, [(cx, cy), (cx, PIN[src_arg])], 2)])
         new_conns.append(c)
     comp.connects = new_conns
-    lg.save_file(path, src)
 
 
 # ------------------------------------------------------- generic solver
@@ -439,9 +441,7 @@ TPY = {w: 530.0 + 40.0 * k for k, w in enumerate(TAPS_SORTED)}
 
 # ---------------------------------------------------------------- routes
 
-def gen():
-    pins = lg.library_pins(LIB)
-    src = lg.load_file(f"{LIB}/HL20FullSystem.dyad")
+def gen(src, pins):
     comp = [x for x in src
             if isinstance(x, lg.Component) and x.name == "HL20FullSystem"][0]
     ctx = lg.Ctx(comp, pins)
@@ -601,41 +601,49 @@ def gen():
         [E(1, [(EXS["ALTFT"], 457.5), (EXS["ALTFT"], EPY["ALTFT"])], 2)]))
 
     finish(comp, conns)
-    lg.save_file(f"{LIB}/HL20FullSystem.dyad", src)
+
+
+def produce(files):
+    """Regenerate the full-system family inside the in-memory
+    {path: segs} store."""
+    repin_vehicle(files[_p("HL20Vehicle.dyad")])
+    repin_yaw(files[_p("Controllers.dyad")])
+    fix_subsonic(files[_p("TestHarnesses.dyad")])
+    gen(files[_p("HL20FullSystem.dyad")], lg.pins_from(files))
+
+
+def _targets():
+    return [_p(t) for t in TARGETS]
 
 
 def check():
-    """--check: regenerate and exit non-zero if committed files drift."""
-    from pathlib import Path
-    targets = [f"{LIB}/HL20Vehicle.dyad", f"{LIB}/Controllers.dyad",
-               f"{LIB}/TestHarnesses.dyad", f"{LIB}/HL20FullSystem.dyad"]
-    orig = {t: Path(t).read_bytes() for t in targets}
-    try:
-        repin_vehicle()
-        repin_yaw()
-        fix_subsonic()
-        lg._LIB_CACHE.clear()
-        gen()
-    finally:
-        drift = [t for t in targets
-                 if Path(t).read_bytes() != orig[t]]
-        for t, b in orig.items():
-            Path(t).write_bytes(b)
-    if drift:
-        print("DRIFT:", ", ".join(drift))
+    """--check: regenerate in memory and exit non-zero on drift.
+    Nothing is written."""
+    files = lg.load_dir(LIB)
+    produce(files)
+    bad = lg.drift_of(files, _targets())
+    if bad:
+        print("DRIFT:", ", ".join(bad))
         sys.exit(1)
     print("gen_fs: in sync")
+
+
+def main():
+    print("north:", N_ORDER, "cost", N_COST)
+    print("fab:", F_ORDER, "cost", F_COST)
+    print("east:", ECOST, {k: round(v) for k, v in EXS.items()})
+    files = lg.load_dir(LIB)
+    produce(files)
+    diffs = lg.apply_guarded(files, _targets())
+    if diffs:
+        print("refusing to write: non-layout content would change")
+        for d in diffs:
+            print("  " + d)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
     if "--check" in sys.argv[1:]:
         check()
     else:
-        print("north:", N_ORDER, "cost", N_COST)
-        print("fab:", F_ORDER, "cost", F_COST)
-        print("east:", ECOST, {k: round(v) for k, v in EXS.items()})
-        repin_vehicle()
-        repin_yaw()
-        fix_subsonic()
-        lg._LIB_CACHE.clear()
-        gen()
+        main()

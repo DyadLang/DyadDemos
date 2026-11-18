@@ -928,13 +928,6 @@ def _swap2(text, a, b):
     return text.replace(a, '\x00').replace(b, a).replace('\x00', b)
 
 
-def _mutate(lib, comp, old, new):
-    lib = dict(lib)
-    assert old in lib[comp], (comp, old)
-    lib[comp] = lib[comp].replace(old, new, 1)
-    return lib
-
-
 def _selftest_real():
     """Every mutation a reviewer flagged must fail the gate on the real
     model. Returns 0 if all are caught, 1 otherwise."""

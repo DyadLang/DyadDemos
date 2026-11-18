@@ -7,16 +7,18 @@ Applies the proven AeroCLCD staircase recipe:
 - air/internal sources feed through a free far-left channel
 """
 
+import os
 import sys
 import laygen as lg
 
-LIB = "HL20Demo/dyad"
+LIB = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                   "..", "HL20Demo", "dyad")
 
-# unary math blocks share the Gain/Integrator pin shape
-for _t in ("Sin", "Cos", "Abs", "Sqrt", "Exp", "Log"):
-    lg.STDLIB_PINS.setdefault(
-        "BlockComponents.Math." + _t,
-        dict(lg.STDLIB_PINS["BlockComponents.Math.Gain"]))
+TARGETS = ("AeroLateral", "AeroCoefficients", "AeroGroups", "HL20Aero")
+
+
+def _p(*parts):
+    return os.path.join(LIB, *parts)
 
 
 def f(v):
@@ -53,12 +55,23 @@ def mk_conn(args, edges, junctions=()):
 
 
 def finish(comp, conns):
-    """Attach emitted text to generated connect records."""
+    """Attach emitted text to generated connect records, replacing only
+    connect chunks — non-connect relation chunks (equations, initial
+    statements, comments) keep their place."""
     for c in conns:
         c["emitted"] = comp.emit_connect(
             c["args"], c["edges"], c["junctions"])
-    comp.connects.clear()
-    comp.connects.extend(conns)
+    out, placed = [], False
+    for c in comp.connects:
+        if c["kind"] == "connect":
+            if not placed:
+                out.extend(conns)
+                placed = True
+        else:
+            out.append(c)
+    if not placed:
+        out.extend(conns)
+    comp.connects = out
 
 
 # ----------------------------------------------------------------------
@@ -369,32 +382,27 @@ def gen_hl20aero(src, pins):
 
 
 # ----------------------------------------------------------------------
-def main():
-    pins = lg.library_pins(LIB)
-
+def produce(files):
+    """Regenerate the aero files inside the in-memory {path: segs} store."""
     # ---- child icon re-pins --------------------------------------------
     # AeroLateral.dyad: HL20CY -> 11 left pins; HL20CN, HL20CR -> 14 top pins
-    src = lg.load_file(f"{LIB}/shared/AeroLateral.dyad")
-    for x in src:
+    for x in files[_p("shared", "AeroLateral.dyad")]:
         if isinstance(x, lg.Component) and x.name == "HL20CY":
             repin_inputs(x, SHARED_CYCN, "left")
         elif isinstance(x, lg.Component) and x.name == "HL20CN":
             repin_inputs(x, SHARED_CYCN + CN_ONLY, "top")
         elif isinstance(x, lg.Component) and x.name == "HL20CR":
             repin_inputs(x, SHARED_CYCN + CN_ONLY, "top")
-    lg.save_file(f"{LIB}/shared/AeroLateral.dyad", src)
 
     # AeroCoefficients.dyad: HL20CM -> 12 top pins
-    src = lg.load_file(f"{LIB}/shared/AeroCoefficients.dyad")
-    for x in src:
+    for x in files[_p("shared", "AeroCoefficients.dyad")]:
         if isinstance(x, lg.Component) and x.name == "HL20CM":
             repin_inputs(x, LON_SHARED + CM_ONLY, "top")
-    lg.save_file(f"{LIB}/shared/AeroCoefficients.dyad", src)
 
     # AeroGroups.dyad: AeroCYCN -> 14 left pins (icon for `pair`);
     # AeroLateralCoeffs -> 14 top pins (icon for `lat`);
     # AeroLongitudinal -> 12 left pins (icon for `lon`)
-    src = lg.load_file(f"{LIB}/shared/AeroGroups.dyad")
+    src = files[_p("shared", "AeroGroups.dyad")]
     for x in src:
         if isinstance(x, lg.Component) and x.name == "AeroCYCN":
             repin_inputs(x, SHARED_CYCN + CN_ONLY, "left")
@@ -410,40 +418,39 @@ def main():
             x.set_icon("damp_b2v", icon_left(350))
             x.set_icon("vrw_fps", icon_bottom(250))
             x.set_icon("DRUD", icon_bottom(750))
-    lg.save_file(f"{LIB}/shared/AeroGroups.dyad", src)
 
-    # pins map must be rebuilt off the saved files before diagram gen
-    # (library_pins caches in _LIB_CACHE; the repin above changed icons)
-    lg._LIB_CACHE.clear()
-    pins = lg.library_pins(LIB)
-    src = lg.load_file(f"{LIB}/shared/AeroGroups.dyad")
+    # pins map is rebuilt from the in-memory repinned icons
+    pins = lg.pins_from(files)
     gen_cycn(src, pins)
     gen_latcoeffs(src, pins)
     gen_lon(src, pins)
-    lg.save_file(f"{LIB}/shared/AeroGroups.dyad", src)
+    gen_hl20aero(files[_p("shared", "HL20Aero.dyad")], lg.pins_from(files))
 
-    # HL20Aero.dyad
-    src = lg.load_file(f"{LIB}/shared/HL20Aero.dyad")
-    pins = lg.library_pins(LIB)
-    gen_hl20aero(src, pins)
-    lg.save_file(f"{LIB}/shared/HL20Aero.dyad", src)
+
+def _targets():
+    return [_p("shared", n + ".dyad") for n in TARGETS]
 
 
 def check():
-    """--check: regenerate and exit non-zero if committed files drift."""
-    from pathlib import Path
-    targets = [f"{LIB}/shared/{n}.dyad" for n in
-               ("AeroLateral", "AeroCoefficients", "AeroGroups", "HL20Aero")]
-    bak = {t: Path(t).read_bytes() for t in targets}
-    try:
-        main()
-    finally:
-        bad = [t for t, b in bak.items() if Path(t).read_bytes() != b]
-        for t, b in bak.items():
-            Path(t).write_bytes(b)
+    """--check: regenerate in memory and exit non-zero on drift.
+    Nothing is written."""
+    files = lg.load_dir(LIB)
+    produce(files)
+    bad = lg.drift_of(files, _targets())
     for t in bad:
         print(f"DRIFT: {t}")
     sys.exit(1 if bad else 0)
+
+
+def main():
+    files = lg.load_dir(LIB)
+    produce(files)
+    diffs = lg.apply_guarded(files, _targets())
+    if diffs:
+        print("refusing to write: non-layout content would change")
+        for d in diffs:
+            print("  " + d)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -55,7 +55,6 @@ BLOCK_ICONS = {
     "quatrot.svg": (250, 1000, "#d7c9f2", [(155, 500, 150, "q⊗", True)]),
     "quatrow.svg": (1000, 800, "#c9e2f2", [(500, 480, 200, "qω", False)]),
     "vehdyn.svg": (250, 1000, "#84bfed", [(155, 500, 110, "DYN", True)]),
-    "ctrlsuite.svg": (1000, 1000, "#f2c1a0", [(500, 590, 160, "CTRL", False)]),
     "rotdyn.svg": (1000, 800, "#c9e2f2", [(500, 480, 230, "ω̇", False)]),
     "switch.svg": (1000, 1000, "#e8c7de", [(500, 590, 300, "⤨", False)]),
     "table.svg": (1000, 1000, "#e8c7de", [(500, 590, 400, "▦", False)]),
