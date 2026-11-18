@@ -176,10 +176,10 @@ def gen_lon(src, pins):
     comp.set_diagram("deg2rad", {"x1": 2500, "x2": 2600, "y1": 270, "y2": 370})
     comp.set_diagram("sin_a", {"x1": 2500, "x2": 2600, "y1": 570, "y2": 670})
     comp.set_diagram("cos_a", {"x1": 2500, "x2": 2600, "y1": 870, "y2": 970})
-    comp.set_diagram("cl_sin", {"x1": 2900, "x2": 3000, "y1": 470, "y2": 570})
-    comp.set_diagram("cd_cos", {"x1": 2900, "x2": 3000, "y1": 770, "y2": 870})
-    comp.set_diagram("cl_cos", {"x1": 2900, "x2": 3000, "y1": 1170, "y2": 1270})
-    comp.set_diagram("cd_sin", {"x1": 2900, "x2": 3000, "y1": 1470, "y2": 1570})
+    comp.set_diagram("cl_sin", {"x1": 2900, "x2": 3000, "y1": 470, "y2": 570}, rot=0)
+    comp.set_diagram("cd_sin", {"x1": 2900, "x2": 3000, "y1": 770, "y2": 870}, rot=0)
+    comp.set_diagram("cd_cos", {"x1": 2900, "x2": 3000, "y1": 1170, "y2": 1270}, rot=0)
+    comp.set_diagram("cl_cos", {"x1": 2900, "x2": 3000, "y1": 1470, "y2": 1570}, rot=0)
     comp.set_diagram("cx_sum", {"x1": 3300, "x2": 3400, "y1": 620, "y2": 720})
     comp.set_diagram("cz_sum", {"x1": 3300, "x2": 3400, "y1": 1320, "y2": 1420})
     ctx = lg.Ctx(comp, pins)
@@ -196,10 +196,12 @@ def gen_lon(src, pins):
             edges = [E(1, [], -1), E(-1, [(xc, pr_xy[1])], 2)]
             sinks = [cm_xy]
             if name == "alpha_deg":
-                # third leg: far-left channel, under cm, up right side
+                # third leg: shares the staircase riser column (same net),
+                # over the top of pair, down to the trig column.  The descent
+                # column stays left of deg2rad's parameter label.
                 du = pin(ctx, "deg2rad.u")
-                edges.append(E(-1, [(160, g), (160, 3400),
-                                    (2450, 3400), (2450, du[1])], 4))
+                edges.append(E(-1, [(200, g), (200, 80),
+                                    (2440, 80), (2440, du[1])], 4))
                 conns.append(mk_conn(
                     [name, "pair." + name, "cm." + name, "deg2rad.u"],
                     edges + [E(-1, [(cm_xy[0], g)], 3)],
@@ -211,71 +213,71 @@ def gen_lon(src, pins):
         else:
             conns.append(mk_conn([name, "cm." + name],
                                  [E(1, [(cm_xy[0], g)], 2)]))
-    # deg2rad -> sin/cos
+    # deg2rad -> sin/cos: wrap right of deg2rad, down the pair/trig gap,
+    # fan to the two left-edge u pins
     dy = pin(ctx, "deg2rad.y")
     su = pin(ctx, "sin_a.u")
     cu = pin(ctx, "cos_a.u")
-    J = (2700, dy[1])
+    J = (2450, 470)
     conns.append(mk_conn(
         ["deg2rad.y", "sin_a.u", "cos_a.u"],
-        [E(1, [], -1),
+        [E(1, [(2680, dy[1]), (2680, J[1]), (J[0], J[1])], -1),
          E(-1, [(J[0], su[1])], 2),
          E(-1, [(J[0], cu[1])], 3)],
         [J]))
-    # pair outputs to products
+    # pair/trig outputs to product u pins: one trunk column per net, ordered
+    # cos, cl, cd, sin left->right so taps cross the fewest trunks.  The cl
+    # source jogs up left of the trig blocks to a top lane.
     cly = pin(ctx, "pair.cl_y"); cdy = pin(ctx, "pair.cd_y")
     cs_u1 = pin(ctx, "cl_sin.u1"); cc_u1 = pin(ctx, "cl_cos.u1")
     dc_u1 = pin(ctx, "cd_cos.u1"); ds_u1 = pin(ctx, "cd_sin.u1")
     cs_u2 = pin(ctx, "cl_sin.u2"); cc_u2 = pin(ctx, "cl_cos.u2")
     dc_u2 = pin(ctx, "cd_cos.u2"); ds_u2 = pin(ctx, "cd_sin.u2")
     conns.append(mk_conn(
-        ["pair.cl_y", "cl_sin.u1", "cl_cos.u1"],
+        ["cos_a.y", "cd_cos.u2", "cl_cos.u2"],
         [E(1, [], -1),
-         E(-1, [(2720, cs_u1[1])], 2),
-         E(-1, [(2720, cc_u1[1])], 3)],
-        [(2720, cly[1])]))
+         E(-1, [(2820, dc_u2[1])], 2),
+         E(-1, [(2820, cc_u2[1])], 3)],
+        [(2820, pin(ctx, "cos_a.y")[1])]))
+    conns.append(mk_conn(
+        ["pair.cl_y", "cl_sin.u1", "cl_cos.u1"],
+        [E(1, [(2410, cly[1]), (2410, 460), (2840, 460)], -1),
+         E(-1, [(2840, cs_u1[1])], 2),
+         E(-1, [(2840, cc_u1[1])], 3)],
+        [(2840, 460)]))
     conns.append(mk_conn(
         ["pair.cd_y", "cd_cos.u1", "cd_sin.u1"],
         [E(1, [], -1),
-         E(-1, [(2820, dc_u1[1])], 2),
-         E(-1, [(2820, ds_u1[1])], 3)],
-        [(2820, cdy[1])]))
-    sy = pin(ctx, "sin_a.y"); cy_ = pin(ctx, "cos_a.y")
+         E(-1, [(2860, dc_u1[1])], 2),
+         E(-1, [(2860, ds_u1[1])], 3)],
+        [(2860, cdy[1])]))
+    sy = pin(ctx, "sin_a.y")
     conns.append(mk_conn(
         ["sin_a.y", "cl_sin.u2", "cd_sin.u2"],
         [E(1, [], -1),
-         E(-1, [(2760, cs_u2[1])], 2),
-         E(-1, [(2760, ds_u2[1])], 3)],
-        [(2760, sy[1])]))
-    conns.append(mk_conn(
-        ["cos_a.y", "cd_cos.u2", "cl_cos.u2"],
-        [E(1, [], -1),
-         E(-1, [(2860, dc_u2[1])], 2),
-         E(-1, [(2860, cc_u2[1])], 3)],
-        [(2860, cy_[1])]))
+         E(-1, [(2880, cs_u2[1])], 2),
+         E(-1, [(2880, ds_u2[1])], 3)],
+        [(2880, sy[1])]))
     # products -> sums -> outputs
     comp.set_diagram("CX", box(4300, pin(ctx, "cx_sum.y")[1]))
     comp.set_diagram("CZ", box(4300, pin(ctx, "cz_sum.y")[1]))
     conns.append(mk_conn(["cl_sin.y", "cx_sum.u1"],
-                         [E(1, [(3150, pin(ctx, "cl_sin.y")[1]),
-                                 (3150, pin(ctx, "cx_sum.u1")[1])], 2)]))
+                         [E(1, [(3200, pin(ctx, "cl_sin.y")[1]),
+                                 (3200, pin(ctx, "cx_sum.u1")[1])], 2)]))
     conns.append(mk_conn(["cd_cos.y", "cx_sum.u2"],
-                         [E(1, [(3180, pin(ctx, "cd_cos.y")[1]),
-                                 (3180, pin(ctx, "cx_sum.u2")[1])], 2)]))
+                         [E(1, [(3240, pin(ctx, "cd_cos.y")[1]),
+                                 (3240, pin(ctx, "cx_sum.u2")[1])], 2)]))
     conns.append(mk_conn(["cl_cos.y", "cz_sum.u1"],
-                         [E(1, [(3150, pin(ctx, "cl_cos.y")[1]),
-                                 (3150, pin(ctx, "cz_sum.u1")[1])], 2)]))
+                         [E(1, [(3200, pin(ctx, "cl_cos.y")[1]),
+                                 (3200, pin(ctx, "cz_sum.u1")[1])], 2)]))
     conns.append(mk_conn(["cd_sin.y", "cz_sum.u2"],
                          [E(1, [(3180, pin(ctx, "cd_sin.y")[1]),
                                  (3180, pin(ctx, "cz_sum.u2")[1])], 2)]))
     conns.append(mk_conn(["cx_sum.y", "CX"], [E(1, [], 2)]))
     conns.append(mk_conn(["cz_sum.y", "CZ"], [E(1, [], 2)]))
-    # cm.y -> Cm: high over-route at y=250 clears the alpha up-leg
-    cmy = pin(ctx, "cm.y")
-    comp.set_diagram("Cm", box(4300, 2600))
-    conns.append(mk_conn(
-        ["cm.y", "Cm"],
-        [E(1, [(2420, cmy[1]), (2420, 250), (4250, 250), (4250, 2600)], 2)]))
+    # cm.y -> Cm: straight across; nothing occupies the row
+    comp.set_diagram("Cm", box(4300, pin(ctx, "cm.y")[1]))
+    conns.append(mk_conn(["cm.y", "Cm"], [E(1, [], 2)]))
     finish(comp, conns)
 
 
@@ -297,7 +299,7 @@ def gen_hl20aero(src, pins):
     comp = [x for x in src if isinstance(x, lg.Component) and x.name == "HL20Aero"][0]
     comp.set_diagram("lon", {"x1": 1700, "x2": 2800, "y1": 100, "y2": 1250})
     comp.set_diagram("lat", {"x1": 1700, "x2": 2800, "y1": 2300, "y2": 3400})
-    comp.set_diagram("air", {"x1": 300, "x2": 1200, "y1": 3450, "y2": 4150})
+    comp.set_diagram("air", {"x1": 450, "x2": 1150, "y1": 3450, "y2": 4150})
     ctx = lg.Ctx(comp, pins)
     G0, DX, DG = 2040.0, 100.0, 40.0
     conns = []
@@ -326,16 +328,18 @@ def gen_hl20aero(src, pins):
             conns.append(mk_conn(
                 [name, "lat." + name],
                 [E(1, [(lat_xy[0], g)], 2)]))
-    # air input feeds (vrw_fps, DRUD) via far-left channel
-    for k, name in enumerate(["vrw_fps", "DRUD"]):
+    # air inputs sit on the bottom edge; ports drop straight in from below
+    for name in ["vrw_fps", "DRUD"]:
         axy = pin(ctx, "air." + name)
-        xch = 60 + 30 * k
-        py = 2500 + 200 * k
-        comp.set_diagram(name, box(xch + 50, py))
-        conns.append(mk_conn(
-            [name, "air." + name],
-            [E(1, [(xch, py), (xch, axy[1])], 2)]))
-    # air outputs
+        comp.set_diagram(name, box(axy[0], 4260))
+        conns.append(mk_conn([name, "air." + name], [E(1, [], 2)]))
+    # air outputs leave the left edge.  damp_c2v (topmost pin) rises in the
+    # narrow channel just inside the outer-wire tolerance, left of every
+    # staircase column, straight to lon's lower air pin.  abs_drud runs under
+    # the diagram: a descent column just right of the comb, a long under-run
+    # to a riser right of the output ports for the lon leg, and a lat tap
+    # that rises in the empty gap between the comb and lat.  damp_b2v
+    # under-runs one lane higher and reaches its lat pin via the same gap.
     aabs = pin(ctx, "air.abs_drud")
     adb = pin(ctx, "air.damp_b2v")
     adc = pin(ctx, "air.damp_c2v")
@@ -343,23 +347,19 @@ def gen_hl20aero(src, pins):
     ldb = pin(ctx, "lat.damp_b2v")
     labs_lon = pin(ctx, "lon.abs_drud")
     ldc_lon = pin(ctx, "lon.damp_c2v")
-    H_B = 2110.0   # damp_b2v run (higher)
-    H_A = 2180.0   # abs_drud run (lower)
-    XJ_A = 150.0   # abs junction column
-    X_D = 120.0    # damp_c2v column
-    X_B = 140.0    # damp_b2v column
-    conns.append(mk_conn(
-        ["air.abs_drud", "lon.abs_drud", "lat.abs_drud"],
-        [E(1, [(XJ_A, aabs[1])], -1),
-         E(-1, [(XJ_A, labs_lon[1])], 2),
-         E(-1, [(labs[0], H_A)], 3)],
-        [(XJ_A, H_A)]))
-    conns.append(mk_conn(
-        ["air.damp_b2v", "lat.damp_b2v"],
-        [E(1, [(X_B, adb[1]), (X_B, H_B), (ldb[0], H_B)], 2)]))
     conns.append(mk_conn(
         ["air.damp_c2v", "lon.damp_c2v"],
-        [E(1, [(X_D, adc[1]), (X_D, ldc_lon[1])], 2)]))
+        [E(1, [(195, adc[1]), (195, ldc_lon[1])], 2)]))
+    conns.append(mk_conn(
+        ["air.abs_drud", "lon.abs_drud", "lat.abs_drud"],
+        [E(1, [(205, aabs[1]), (205, 4310)], -1),
+         E(-1, [(191, labs_lon[1])], 2),
+         E(-1, [(1650, 4310), (1650, 2280), (labs[0], 2280)], 3)],
+        [(191, 4310)]))
+    conns.append(mk_conn(
+        ["air.damp_b2v", "lat.damp_b2v"],
+        [E(1, [(215, adb[1]), (215, 4300), (1600, 4300), (1600, 2110),
+               (ldb[0], 2110)], 2)]))
     # outputs
     for out, ep in [("CX", "lon.CX"), ("CZ", "lon.CZ"), ("Cm", "lon.Cm"),
                     ("CY", "lat.CY"), ("Cl", "lat.Cl"), ("Cn", "lat.Cn")]:
@@ -402,9 +402,19 @@ def main():
             repin_inputs(x, LAT_TOP_ORDER, "top")
         elif isinstance(x, lg.Component) and x.name == "AeroLongitudinal":
             repin_inputs(x, LON_LEFT_ORDER, "left")
+        elif isinstance(x, lg.Component) and x.name == "AeroAirData":
+            # outputs leave the left edge ordered so each exit wire clears
+            # the others' descent columns; inputs enter the bottom edge
+            x.set_icon("damp_c2v", icon_left(50))
+            x.set_icon("abs_drud", icon_left(200))
+            x.set_icon("damp_b2v", icon_left(350))
+            x.set_icon("vrw_fps", icon_bottom(250))
+            x.set_icon("DRUD", icon_bottom(750))
     lg.save_file(f"{LIB}/shared/AeroGroups.dyad", src)
 
     # pins map must be rebuilt off the saved files before diagram gen
+    # (library_pins caches in _LIB_CACHE; the repin above changed icons)
+    lg._LIB_CACHE.clear()
     pins = lg.library_pins(LIB)
     src = lg.load_file(f"{LIB}/shared/AeroGroups.dyad")
     gen_cycn(src, pins)
@@ -419,5 +429,25 @@ def main():
     lg.save_file(f"{LIB}/shared/HL20Aero.dyad", src)
 
 
+def check():
+    """--check: regenerate and exit non-zero if committed files drift."""
+    from pathlib import Path
+    targets = [f"{LIB}/shared/{n}.dyad" for n in
+               ("AeroLateral", "AeroCoefficients", "AeroGroups", "HL20Aero")]
+    bak = {t: Path(t).read_bytes() for t in targets}
+    try:
+        main()
+    finally:
+        bad = [t for t, b in bak.items() if Path(t).read_bytes() != b]
+        for t, b in bak.items():
+            Path(t).write_bytes(b)
+    for t in bad:
+        print(f"DRIFT: {t}")
+    sys.exit(1 if bad else 0)
+
+
 if __name__ == "__main__":
-    main()
+    if "--check" in sys.argv[1:]:
+        check()
+    else:
+        main()
