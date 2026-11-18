@@ -94,6 +94,23 @@ def _extraction(prefix, kind):
                 e[P(f'r{b}{a}')] = P(f'r{a}{b}')
     elif kind == 'aero':
         e[P('abs_drud')] = P('abs_d')
+    elif kind == 'qk':
+        # QuatDerRow extraction inside QuatKinematics: the twelve product
+        # blocks q_iw_j and four Add3 sums dq_i became four QuatDerRow
+        # instances r0..r3 (p1..p3 + s). The r_i prefix is transparent, so
+        # every row's blocks canonicalise to the same leaf names; the merge
+        # is safe because each ref name belongs to exactly one row.
+        # row 0: dq0 = q1w1 + q2w2 + q3w3   (k = -0.5, -0.5, -0.5)
+        # row 1: dq1 = q0w1 + q2w3 + q3w2   (k = +0.5, +0.5, -0.5)
+        # row 2: dq2 = q0w2 + q1w3 + q3w1   (k = +0.5, -0.5, +0.5)
+        # row 3: dq3 = q0w3 + q1w2 + q2w1   (k = +0.5, +0.5, -0.5)
+        for i, prods in enumerate((('q1w1', 'q2w2', 'q3w3'),
+                                  ('q0w1', 'q2w3', 'q3w2'),
+                                  ('q0w2', 'q1w3', 'q3w1'),
+                                  ('q0w3', 'q1w2', 'q2w1'))):
+            for k, prod in enumerate(prods):
+                e[P(prod)] = P(f'p{k + 1}')
+            e[P(f'dq{i}')] = P('s')
     else:
         raise ValueError(kind)
     return e
@@ -104,19 +121,24 @@ _EXTRACTIONS = {
     'HL20Aero': [('', 'aero')],
     'AeroForceBuilder': [('rot', 'qti')],
     'FlightState': [('rot', 'qtb')],
+    'RigidBody6DOF': [('', 'qk')],
     'HL20Vehicle': [('aero', 'aero'), ('flight.rot', 'qtb'),
-                    ('forces.rot', 'qti')],
+                    ('forces.rot', 'qti'), ('body', 'qk')],
     'HL20FullSystem': [('vehicle.aero', 'aero'),
                        ('vehicle.flight.rot', 'qtb'),
-                       ('vehicle.forces.rot', 'qti')],
+                       ('vehicle.forces.rot', 'qti'),
+                       ('vehicle.body', 'qk')],
     'TestAeroPoint': [('aero', 'aero')],
     'TestAeroSweep': [('aero', 'aero')],
+    'TestGravityOnly': [('body', 'qk')],
     'TestHL20FullSystem': [('sys.vehicle.aero', 'aero'),
                            ('sys.vehicle.flight.rot', 'qtb'),
-                           ('sys.vehicle.forces.rot', 'qti')],
+                           ('sys.vehicle.forces.rot', 'qti'),
+                           ('sys.vehicle.body', 'qk')],
     'TestHL20Subsonic': [('vehicle.aero', 'aero'),
                          ('vehicle.flight.rot', 'qtb'),
-                         ('vehicle.forces.rot', 'qti')],
+                         ('vehicle.forces.rot', 'qti'),
+                         ('vehicle.body', 'qk')],
     'TestQuatDirection': [('rot_a', 'qti'), ('rot_b', 'qti')],
     'TestQuatRoundTrip': [('rot_f', 'qti'), ('rot_b', 'qtb')],
 }
@@ -262,9 +284,47 @@ def shape_partition(nets):
         sigs[(b, suf)] += 1
     return sigs
 
-def full_partition(comp, lib, other_lib):
+# Sub-instance extraction path equivalences: _PATH_EQUIV[comp] maps a
+# CUR instance-path prefix to its REF equivalent, so paths that differ
+# only by an extraction wrapper compare equal. E.g. HL20Vehicle's
+# RigidBody6DOF/FlightState/AirData/AeroForceBuilder instances moved
+# inside a new `vd = VehicleDynamics` sub-component: `vd.body` == `body`.
+# `vd` itself stays a new path (transparent), but `vd.body` no longer
+# counts as new, so `body.` prefixes are kept on both sides and the
+# RENAMES extraction entries above continue to apply verbatim.
+_PATH_EQUIV = {
+    'HL20Vehicle': {'vd': ''},
+    'HL20FullSystem': {'vehicle.vd': 'vehicle'},
+    'TestHL20Subsonic': {'vehicle.vd': 'vehicle'},
+    'TestHL20FullSystem': {'sys.vehicle.vd': 'sys.vehicle'},
+}
+
+
+def _norm_path(p, comp):
+    """Collapse extraction prefixes in a CUR instance path to its REF
+    equivalent for new-path comparison. The wrapper instance itself is
+    NOT collapsed: it stays a new path (transparent) so its boundary pins
+    drop, but its children match their REF counterparts and keep their
+    prefixes."""
+    for old, new in _PATH_EQUIV.get(comp, {}).items():
+        if p == old:
+            return p
+        if p.startswith(old + '.'):
+            return new + p[len(old):] if new else p[len(old) + 1:]
+    return p
+
+
+def full_partition(comp, lib, other_lib, cur=False):
     nr = flat_nets(comp, frozenset(lib.items()))
-    newpaths = inst_paths(comp, lib) - inst_paths(comp, other_lib)
+    if cur:
+        # CUR paths count as new only when their normalised form has no
+        # counterpart in REF.
+        ref_paths = inst_paths(comp, other_lib)
+        newpaths = {p for p in inst_paths(comp, lib)
+                    if _norm_path(p, comp) not in ref_paths}
+    else:
+        cur_norm = {_norm_path(p, comp) for p in inst_paths(comp, other_lib)}
+        newpaths = {p for p in inst_paths(comp, lib) if p not in cur_norm}
     return canon_nets(nr, comp, lib, newpaths), nr
 
 def resolve_ref(ref, curdir):
@@ -303,7 +363,7 @@ def compare(reflib, curlib, comp):
     if comp not in reflib: return None, None, f"{comp} missing in REF"
     if comp not in curlib: return None, None, f"{comp} missing in CUR"
     cr, nr = full_partition(comp, reflib, curlib)
-    cc, nc = full_partition(comp, curlib, reflib)
+    cc, nc = full_partition(comp, curlib, reflib, cur=True)
     cr = apply_renames(cr, comp)
     ok = cr == cc
     shape = shape_partition(cr) == shape_partition(cc)
