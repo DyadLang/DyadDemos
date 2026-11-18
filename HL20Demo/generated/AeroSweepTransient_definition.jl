@@ -6,7 +6,7 @@
 
 using DyadInterface
 using DyadInterface: AbstractTransientAnalysisSpec, TransientAnalysisSpec
-@component function AeroSweepTransient__System(; name = nothing, var"alg"=ODEAlg.Auto(), var"start"=0, var"stop"=35.0, var"abstol"=0.000001, var"reltol"=0.000001, var"saveat"=0, var"dtmax"=0, var"tstops"=[], var"automatic_discontinuity_detection"=false, var"optimize"=OptimizationLevel.Aggressive(), var"progress"=true, var"respecialize"=false, var"specialization"=SpecializationLevel.Despecialize(), var"verbose"=DEVerbosity.Standard(), var"log_file"="", __overrides = Dict{String, Any}())
+@component function AeroSweepTransient__System(; name = nothing, var"alg"=ODEAlg.AutoImplicit(), var"start"=0, var"stop"=35.0, var"abstol"=0.000001, var"reltol"=0.000001, var"saveat"=0, var"dtmax"=0, var"tstops"=[], var"automatic_discontinuity_detection"=false, var"optimize"=OptimizationLevel.Aggressive(), var"progress"=true, var"respecialize"=false, var"specialization"=SpecializationLevel.Despecialize(), var"verbose"=DEVerbosity.Standard(), var"log_file"="", __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -136,7 +136,7 @@ export AeroSweepTransient__System
 @kwdef struct AeroSweepTransient__Spec <: AbstractTransientAnalysisSpec
   name::Symbol = :AeroSweepTransient
   __overrides::Dict{SymbolicT, SymbolicT} = Dict{SymbolicT, SymbolicT}()
-  var"alg"::ODEAlg.Type = ODEAlg.Auto()
+  var"alg"::ODEAlg.Type = ODEAlg.AutoImplicit()
   var"start"::Float64 = 0
   var"stop"::Float64 = 35.0
   var"abstol"::Float64 = 0.000001

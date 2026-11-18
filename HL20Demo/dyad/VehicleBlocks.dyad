@@ -25,7 +25,7 @@ component AirData
   p_rad = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 420, "y1": 970, "x2": 480, "y2": 1030},
+        "icon": {"x1": 790, "y1": 970, "x2": 850, "y2": 1030},
         "diagram": {"x1": -30, "x2": 30, "y1": 970, "y2": 1030}
       }
     }
@@ -33,7 +33,7 @@ component AirData
   sin_alpha = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": -30, "y1": 642.5, "x2": 30, "y2": 682.5},
+        "icon": {"x1": -30, "y1": 552.5, "x2": 30, "y2": 592.5},
         "diagram": {"x1": -30, "x2": 30, "y1": 1120, "y2": 1180}
       }
     }
@@ -41,7 +41,7 @@ component AirData
   r_rad = RealInput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 520, "y1": 970, "x2": 580, "y2": 1030},
+        "icon": {"x1": 860, "y1": 970, "x2": 920, "y2": 1030},
         "diagram": {"x1": -30, "x2": 30, "y1": 1270, "y2": 1330}
       }
     }
@@ -398,15 +398,15 @@ Body rates to degrees and normal acceleration g.
 """
 component VehicleOutputs
   # Inputs
-  p_rad = RealInput() {"Dyad": {"placement": {"icon": {"x1": 20, "y1": 970, "x2": 80, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}}}}
-  q_rad = RealInput() {"Dyad": {"placement": {"icon": {"x1": 320, "y1": 970, "x2": 380, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}}}}
-  r_rad = RealInput() {"Dyad": {"placement": {"icon": {"x1": 620, "y1": 970, "x2": 680, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}}}}
-  fz_body = RealInput() {"Dyad": {"placement": {"icon": {"x1": 920, "y1": 970, "x2": 980, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 770, "y2": 830}}}}
+  p_rad = RealInput() {"Dyad": {"placement": {"icon": {"x1": 120, "x2": 180, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}}}}
+  q_rad = RealInput() {"Dyad": {"placement": {"icon": {"x1": 370, "x2": 430, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}}}}
+  r_rad = RealInput() {"Dyad": {"placement": {"icon": {"x1": 620, "x2": 680, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}}}}
+  fz_body = RealInput() {"Dyad": {"placement": {"icon": {"x1": 870, "x2": 930, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 770, "y2": 830}}}}
   # Outputs
-  pdeg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80}, "diagram": {"x1": 1020, "x2": 1080, "y1": 170, "y2": 230}}}}
-  qdeg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 120, "x2": 1030, "y2": 180}, "diagram": {"x1": 1020, "x2": 1080, "y1": 370, "y2": 430}}}}
-  rdeg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280}, "diagram": {"x1": 1020, "x2": 1080, "y1": 570, "y2": 630}}}}
-  nz_g = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380}, "diagram": {"x1": 1020, "x2": 1080, "y1": 770, "y2": 830}}}}
+  pdeg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 20, "y2": 80}, "diagram": {"x1": 1020, "x2": 1080, "y1": 170, "y2": 230}}}}
+  qdeg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 150, "y2": 210}, "diagram": {"x1": 1020, "x2": 1080, "y1": 370, "y2": 430}}}}
+  rdeg = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 280, "y2": 340}, "diagram": {"x1": 1020, "x2": 1080, "y1": 570, "y2": 630}}}}
+  nz_g = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "x2": 1030, "y1": 410, "y2": 470}, "diagram": {"x1": 1020, "x2": 1080, "y1": 770, "y2": 830}}}}
   parameter mass::Real = 8664.1
   parameter g::Real = 9.81
   p_deg = BlockComponents.Math.Gain(k = 57.29577951308232) {"Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 150, "y2": 250}}}}

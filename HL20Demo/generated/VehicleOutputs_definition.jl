@@ -102,7 +102,7 @@ Body rates to degrees and normal acceleration g.
   push!(__systems, @named r_deg = BlockComponents.Math.Gain(; k=57.29577951308232, __overrides = r_deg_overrides))
   # Subcomponent nz of type BlockComponents.Math.Gain
   nz_overrides = __pop_subcomponent_overrides!(__overrides, "nz")
-  push!(__systems, @named nz = BlockComponents.Math.Gain(; k=-1.0 / (mass * g), __overrides = nz_overrides))
+  push!(__systems, @named nz = BlockComponents.Math.Gain(; k=-(1.0 / (mass * g)), __overrides = nz_overrides))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))

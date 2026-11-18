@@ -18,15 +18,15 @@ component AeroForceBuilder
   "Yawing-moment coefficient"
   Cn = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": -30, "x2": 30, "y1": 1240, "y2": 1300}}}}
   "Dynamic pressure (psf)"
-  qbar_psf = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}}}}
+  qbar_psf = RealInput() {"Dyad": {"placement": {"icon": {"x1": 3, "y1": -30, "x2": 63, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 570, "y2": 630}}}}
   "Quaternion scalar part"
-  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": 220, "y1": 970, "x2": 280, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 40, "y2": 100}}}}
+  qw = RealInput() {"Dyad": {"placement": {"icon": {"x1": 937, "y1": -30, "x2": 997, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 40, "y2": 100}}}}
   "Quaternion x part"
-  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": 320, "y1": 970, "x2": 380, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 180, "y2": 240}}}}
+  qx = RealInput() {"Dyad": {"placement": {"icon": {"x1": 703, "y1": -30, "x2": 763, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 180, "y2": 240}}}}
   "Quaternion y part"
-  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": 420, "y1": 970, "x2": 480, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}}}}
+  qy = RealInput() {"Dyad": {"placement": {"icon": {"x1": 470, "y1": -30, "x2": 530, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}}}}
   "Quaternion z part"
-  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": 520, "y1": 970, "x2": 580, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 460, "y2": 520}}}}
+  qz = RealInput() {"Dyad": {"placement": {"icon": {"x1": 237, "y1": -30, "x2": 297, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 460, "y2": 520}}}}
   "Aero force, inertial NED axis 1 (N)"
   F1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 20, "x2": 1030, "y2": 80}, "diagram": {"x1": 1620, "x2": 1680, "y1": 370, "y2": 430}}}}
   "Aero force, inertial NED axis 2 (N)"
@@ -40,7 +40,7 @@ component AeroForceBuilder
   "Aero moment, body axis 3 (N.m)"
   T3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1720, "y2": 1780}}}}
   "Aero force, body axis 3 (N), for NZ computation"
-  Fz_body = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 820, "x2": 1030, "y2": 880}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1820, "y2": 1880}}}}
+  Fz_body = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 310, "x2": 1030, "y2": 370}, "diagram": {"x1": 1620, "x2": 1680, "y1": 1820, "y2": 1880}}}}
   "Reference area (ft^2)"
   parameter S_ref::Real = 286.45
   "Reference chord (ft)"

@@ -181,7 +181,7 @@ component FlightState
   sin_alpha = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 970, "y1": 705, "x2": 1030, "y2": 745},
+        "icon": {"x1": 970, "y1": 205, "x2": 1030, "y2": 245},
         "diagram": {"x1": 3770, "x2": 3830, "y1": 720, "y2": 780}
       }
     }
@@ -190,7 +190,7 @@ component FlightState
   cos_alpha = RealOutput() {
     "Dyad": {
       "placement": {
-        "icon": {"x1": 970, "y1": 755, "x2": 1030, "y2": 795},
+        "icon": {"x1": 970, "y1": 505, "x2": 1030, "y2": 545},
         "diagram": {"x1": 3770, "x2": 3830, "y1": 870, "y2": 930}
       }
     }

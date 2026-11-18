@@ -284,9 +284,47 @@ def shape_partition(nets):
         sigs[(b, suf)] += 1
     return sigs
 
-def full_partition(comp, lib, other_lib):
+# Sub-instance extraction path equivalences: _PATH_EQUIV[comp] maps a
+# CUR instance-path prefix to its REF equivalent, so paths that differ
+# only by an extraction wrapper compare equal. E.g. HL20Vehicle's
+# RigidBody6DOF/FlightState/AirData/AeroForceBuilder instances moved
+# inside a new `vd = VehicleDynamics` sub-component: `vd.body` == `body`.
+# `vd` itself stays a new path (transparent), but `vd.body` no longer
+# counts as new, so `body.` prefixes are kept on both sides and the
+# RENAMES extraction entries above continue to apply verbatim.
+_PATH_EQUIV = {
+    'HL20Vehicle': {'vd': ''},
+    'HL20FullSystem': {'vehicle.vd': 'vehicle'},
+    'TestHL20Subsonic': {'vehicle.vd': 'vehicle'},
+    'TestHL20FullSystem': {'sys.vehicle.vd': 'sys.vehicle'},
+}
+
+
+def _norm_path(p, comp):
+    """Collapse extraction prefixes in a CUR instance path to its REF
+    equivalent for new-path comparison. The wrapper instance itself is
+    NOT collapsed: it stays a new path (transparent) so its boundary pins
+    drop, but its children match their REF counterparts and keep their
+    prefixes."""
+    for old, new in _PATH_EQUIV.get(comp, {}).items():
+        if p == old:
+            return p
+        if p.startswith(old + '.'):
+            return new + p[len(old):] if new else p[len(old) + 1:]
+    return p
+
+
+def full_partition(comp, lib, other_lib, cur=False):
     nr = flat_nets(comp, frozenset(lib.items()))
-    newpaths = inst_paths(comp, lib) - inst_paths(comp, other_lib)
+    if cur:
+        # CUR paths count as new only when their normalised form has no
+        # counterpart in REF.
+        ref_paths = inst_paths(comp, other_lib)
+        newpaths = {p for p in inst_paths(comp, lib)
+                    if _norm_path(p, comp) not in ref_paths}
+    else:
+        cur_norm = {_norm_path(p, comp) for p in inst_paths(comp, other_lib)}
+        newpaths = {p for p in inst_paths(comp, lib) if p not in cur_norm}
     return canon_nets(nr, comp, lib, newpaths), nr
 
 def resolve_ref(ref, curdir):
@@ -325,7 +363,7 @@ def compare(reflib, curlib, comp):
     if comp not in reflib: return None, None, f"{comp} missing in REF"
     if comp not in curlib: return None, None, f"{comp} missing in CUR"
     cr, nr = full_partition(comp, reflib, curlib)
-    cc, nc = full_partition(comp, curlib, reflib)
+    cc, nc = full_partition(comp, curlib, reflib, cur=True)
     cr = apply_renames(cr, comp)
     ok = cr == cc
     shape = shape_partition(cr) == shape_partition(cc)

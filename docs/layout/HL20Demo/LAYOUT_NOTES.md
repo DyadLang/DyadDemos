@@ -30,7 +30,7 @@ Verified by:
 - `dyad compile` clean; **1549/1549 generated tests + 20/20 aero tests
   pass**, including TestQuatDirection, TestQuatRoundTrip, TestMixerAssist.
 - `layout-report` (f4bd2fe, the current Studio-geometry gate — measures
-  label text ink and boundary-port captions) on all 43 public diagrams:
+  label text ink and boundary-port captions) on all 45 public diagrams:
   **zero** in every scored class — overlapping ports/blocks, wires
   through blocks or port glyphs, diagonal segments, false junctions,
   unrouted connects, wires routed outside the diagram bounding box,
@@ -52,7 +52,7 @@ AeroLongitudinal 46→46, AeroLateralCoeffs 60→55, QuatKinematics 65→55,
 QuatToDCM 62→25, FlightState 25→9, HL20Vehicle 128→119, HL20FullSystem
 73→62, TestControllers 23→1 (AeroCLCD and AeroLongitudinal were re-laid
 and held at 45 and 46) — with every non-crossing defect class at zero on
-all 43 diagrams except six structural label/wire contacts on five
+all 45 diagrams except six structural label/wire contacts on five
 diagrams (a bottom-edge pin above its own block's name-label band),
 listed in the metrics section below.
 
@@ -65,8 +65,10 @@ HL20Aero        → AeroAirData                       (alpha_rad, |DRUD|, dampin
 QuatToBody      → QuatToDCM + DCMMatVec             (shared by both rotations)
 QuatToInertial  → QuatToDCM + DCMMatVec (transpose wiring)
 RigidBody6DOF   → TransDynamics + RotDynamics + QuatKinematics
+QuatKinematics  → QuatDerRow ×4
 FlightState     → QuatToBody + AeroAngles + EulerAngles
-HL20Vehicle     → RigidBody6DOF + AirData + FlightState + AeroForceBuilder + VehicleOutputs
+HL20Vehicle     → VehicleDynamics { RigidBody6DOF + AirData + FlightState
+                                    + AeroForceBuilder } + VehicleOutputs
 HL20FullSystem  → (unchanged components; feedback pins moved to controller icon bottom edges)
 ```
 
@@ -96,7 +98,7 @@ diagrams deviate where the routing demanded it.
 | diagram | crossings before | crossings after¹ | defects after² |
 |---|---:|---:|---|
 | HL20Demo.shared.HL20Aero | 500 | 53 | 0 |
-| HL20Demo.HL20Vehicle | 276 | 124 | 0 |
+| HL20Demo.HL20Vehicle | 276 | 6 | 0 |
 | HL20Demo.RigidBody6DOF | 222 | 3 | 0 |
 | HL20Demo.QuatToInertial | 195 | 3 | 0 |
 | HL20Demo.FlightState | 173 | 9 | 0 |
@@ -124,13 +126,15 @@ diagrams deviate where the routing demanded it.
 | HL20Demo.TestAeroSweep | 0 | 0 | 0 |
 | HL20Demo.TestHL20FullSystem | 0 | 0 | 0 |
 | HL20Demo.TestHL20Subsonic | 0 | 0 | 0 |
-| HL20Demo.QuatKinematics | new | 55 | 0 |
+| HL20Demo.QuatKinematics | new | 21 | 0 |
+| HL20Demo.VehicleDynamics | new | 22 | 0 |
+| HL20Demo.QuatDerRow | new | 0 | 0 |
 | HL20Demo.QuatToDCM | new | 25 | 0 |
 | HL20Demo.shared.AeroCYCN | new | 49 | 0 |
 | HL20Demo.shared.AeroLateralCoeffs | new | 55 | 0 |
 | HL20Demo.EulerAngles | new | 19 | 0 |
 | HL20Demo.shared.AeroLongitudinal | new | 47 | 0 |
-| HL20Demo.shared.AeroCLCD | new | 45 | 0 |
+| HL20Demo.shared.AeroCLCD | new | 0 | 0 |
 | HL20Demo.DCMMatVec | new | 15 | 0 |
 | HL20Demo.AeroAngles | new | 18 | 0 |
 | HL20Demo.AirData | new | 10 | 0 |
@@ -146,29 +150,28 @@ boundary-port captions).
 ² defects = overlapping blocks + wires through blocks/ports + diagonal
 segments + false junctions + label overlaps + unrouted connects +
 wires leaving the diagram bounds + wires through glyphs/labels. Every
-scored class is zero on all 43 diagrams as of this writing.
+scored class is zero on all 45 diagrams as of this writing.
 
 Exceptions above the ~80-crossing target, one line each:
 
-- **HL20Vehicle (124)** — 46-pin strongly-connected loop; residual
-  crossings concentrate at the mixer→vehicle command fan (a complete
-  comb: every column through the fan crosses 7–8 wires) and the
-  ALT_FT→NZ feedback descents across the riser fence. ~110 is the
-  practical floor without moving blocks.
 - **HL20FullSystem (62)** — DLEDEG's mixer→pitch wire pays ~13X crossing
   the command comb; ALT_FT's riser crosses all 10 feedback risers (~11X).
-- **HL20Aero (53), AeroLateralCoeffs (55), QuatKinematics (55),
-  AeroLongitudinal (47), AeroCYCN (49), AeroCLCD (45), HL20CN/CR (35)** —
+- **HL20Aero (53), AeroLateralCoeffs (55),
+  AeroLongitudinal (47), AeroCYCN (49), HL20CN/CR (35)** —
   same-order coefficient/product fans: a planar floor ≈ C(n,2) per fan
   (each tap must cross every other tap's drop when source and sink
   orders disagree); the layouts sit at or near that floor.
+- **VehicleDynamics (22), QuatKinematics (21)** — the four-row
+  quaternion fabric: the conserved u-side staircase (6) plus the
+  om-lane × position-column blockade (8) and descent staircases; the
+  block arrangement bounds this at ~22 without moving blocks.
 - **HL20Mixer (33), QuatToDCM (25)** — residual fan-in crossings at the
   planarity floor for their fixed pin orders.
 
 ## Final gate pass (layout-report f4bd2fe)
 
 The last round zeroed every scored class the stricter f4bd2fe gate
-measures, on all 43 public diagrams:
+measures, on all 45 public diagrams:
 
 - **Caption/wire contacts (16 → 0)** — instance captions moved above
   their icons where a pin row sat in the name band (`PitchControl`'s
@@ -282,6 +285,63 @@ cleared all of them.
   pitchpulse QDEG, DECMD and DLE (reproducible ~1.3–1.7e-4 solver jitter,
   documented next to each tolerance); blanket 0.01 g / 0.5 m allowances
   removed.
+
+## VehicleDynamics extraction and HL20Vehicle repinning pass
+
+A later pass fixed `HL20Vehicle`'s instance rendering: `VehicleDynamics`
+existed as a clean *internal* diagram, but all of its connector icon
+placements were stacked placeholder positions, so the `vd` instance
+drew 83 crossings, 42 diagonals and 31 wires-through-blocks in the
+parent. The fix repinned `VehicleDynamics`'s icon for instance use —
+right-edge aero-facing pins aligned to `HL20Aero`'s committed pin rows
+(`HL20Aero` is shared by `TestAeroPoint`, `TestHarnesses` and
+`HL20FullSystem`, so its pins were left untouched), six coefficient
+inputs on the top edge and four `VehicleOutputs` feeds on the bottom —
+and rewired all 37 `HL20Vehicle` connects around the real pin map:
+
+- `vd → aero`: straight horizontal runs at aero's left-edge pin rows;
+  the four shared signals (`alpha_deg`, `beta_deg`, `mach`, `v_fps`)
+  tap boundary ports off junction risers in the lane band above aero,
+  with the four tap ports stacked in a label-safe stagger at
+  x 4410–4530, y 150–370 (above aero's top edge).
+- DBF command ports sit in alternating rows below aero (y 1880/1980)
+  and rise vertically into its bottom-edge pins — no wire enters the
+  aero block or its label band.
+- `aero.C* → vd` feedback uses risers at x 4600+, top channels at
+  y 90–110 and drops to vd's top pins; `vd → vout` uses staggered
+  lanes below the vd block.
+
+Result: **124 → 6 crossings**, zero in every other scored class
+(badness 28.5). The six are structural tap-riser crossings in the
+four-net shared tap.
+
+`VehicleDynamics`'s own diagram was also re-routed to its floor of
+**22 crossings** (0 defects): quaternion taps now use a decreasing
+pin order on `forces`' top edge so the descent staircase drops out,
+the `om` bus rides dedicated lanes at y 2290/2300 into `airdata`'s
+bottom pins, and `FlightState`'s `sin_alpha`/`cos_alpha` icon pins
+moved above the port-descent band so their feeds no longer cross the
+port columns.
+
+Reproducibility: both layouts are generated by the stdlib-only
+scripts `tools/gen_vd2.py` (VehicleDynamics internals + icon
+placeholders) and `tools/gen_veh2.py` (repin for instance rendering
++ all `HL20Vehicle` routes), on top of `tools/laygen.py`. Run order
+matters: `gen_vd2` then `gen_veh2` — `repin_vd` owns the parent-facing
+icon placement. Both are idempotent against the committed files.
+
+Renderer note: emitting `"icon": {}` in a child instance's diagram
+placement silently drops the child's icon *and* its placement in
+`dyad render` (all blocks stack at origin) — child placements must
+carry only the diagram box/rotation, no icon key.
+
+The partition checker gained a `_PATH_EQUIV` table for sub-instance
+extractions: `vd.*` normalizes to the pre-extraction paths so the
+existing `RENAMES` entries continue to apply (`vd.body` ≡ `body`,
+`vehicle.vd` ≡ `vehicle`, `sys.vehicle.vd` ≡ `sys.vehicle`). All
+45 components pass the flattened-graph gate; every `connect()` in the
+two rewritten diagrams carries explicit edge metadata
+(`verify_edges.py`: 37/37 and 39/39).
 
 ## Older notes (superseded by the restructure above)
 
