@@ -199,6 +199,8 @@ component.
 end
 
 
+include("ABSBrake_definition.jl")
+include("AEBController_definition.jl")
 include("BallJointForce_definition.jl")
 include("Brake_definition.jl")
 include("Differential1D_definition.jl")
@@ -207,8 +209,11 @@ include("DoubleWishboneSuspension_definition.jl")
 include("Driveline2WD_definition.jl")
 include("EngineCVTMap_definition.jl")
 include("HalfShaft_definition.jl")
+include("IdealRangeSensor_definition.jl")
 include("PathFollowerDriver_definition.jl")
 include("RackPinionSteering_definition.jl")
 include("SpeedController_definition.jl")
+include("StationaryTarget_definition.jl")
 include("TMeasySlippingWheel_definition.jl")
 include("TMeasyWheelJoint_definition.jl")
+include("ThrottleRobot_definition.jl")

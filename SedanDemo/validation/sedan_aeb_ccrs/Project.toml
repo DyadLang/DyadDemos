@@ -1,0 +1,27 @@
+[deps]
+ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+ChangesOfVariables = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
+MultibodyComponents = "01883e52-22cd-4538-b14d-b44f958a131d"
+OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+OrdinaryDiffEqNonlinearSolve = "127b3ac7-2247-4354-8eb6-78cf4e7c58e8"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
+SedanDemo = "0c91de3b-153d-460a-b2dc-635a02358e09"
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+SedanDemo = {path = "../.."}
+
+[compat]
+CairoMakie = "0.15"
+DelimitedFiles = "1"
+Printf = "1"
+TOML = "1"
+julia = "1.10"

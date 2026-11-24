@@ -5,12 +5,14 @@
 
 
 @doc Markdown.doc"""
-   SpeedController(; name, Kp, Ki, __overrides)
+   SpeedController(; name, Kp, Ki, Kt, __overrides)
 
 Longitudinal cruise controller producing throttle and brake commands.
 
 A PI controller on the speed error splits its output into a throttle command
 (positive part) and a brake command (negative part), both saturated to [0, 1].
+Back-calculation with gain `Kt` keeps the integrator from winding up while the
+output saturates.
 
 ## Parameters:
 
@@ -18,6 +20,7 @@ A PI controller on the speed error splits its output into a throttle command
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `Kp`         | Proportional gain                         | --  |   0.4 |
 | `Ki`         | Integral gain                         | --  |   0.0 |
+| `Kt`         | Anti-windup back-calculation gain                         | --  |   0.0 |
 
 ## Connectors
 
@@ -33,7 +36,7 @@ A PI controller on the speed error splits its output into a throttle command
 | `xi`         | Integrator state                         | --  |
 | `u`         | Raw controller output before splitting                         | --  |
 """
-@component function SpeedController(; name = nothing, var"Kp"=0.4, var"Ki"=Float64(0.0), __overrides = Dict{String, Any}())
+@component function SpeedController(; name = nothing, var"Kp"=0.4, var"Ki"=Float64(0.0), var"Kt"=Float64(0.0), __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -54,6 +57,7 @@ A PI controller on the speed error splits its output into a throttle command
   ### Keyword argument overrides
   haskey(__overrides, "Kp") && (Kp = pop!(__overrides, "Kp"))
   haskey(__overrides, "Ki") && (Ki = pop!(__overrides, "Ki"))
+  haskey(__overrides, "Kt") && (Kt = pop!(__overrides, "Kt"))
 
   ### Structural Parameters (functions)
 
@@ -74,6 +78,9 @@ A PI controller on the speed error splits its output into a throttle command
   __local__Ki = Ki
   append!(__params, @parameters (Ki::Real), [description = "Integral gain"])
   __dyad_seed_parameter!(__initial_conditions, __bindings, Ki, __local__Ki)
+  __local__Kt = Kt
+  append!(__params, @parameters (Kt::Real), [description = "Anti-windup back-calculation gain"])
+  __dyad_seed_parameter!(__initial_conditions, __bindings, Kt, __local__Kt)
 
   ### Final Parameters (assignments)
 
@@ -114,7 +121,7 @@ A PI controller on the speed error splits its output into a throttle command
   __assertions = []
 
   ### Equations
-  push!(__eqs, ModelingToolkit.D_nounits(xi) ~ v_ref - v)
+  push!(__eqs, ModelingToolkit.D_nounits(xi) ~ v_ref - v + Kt * (min(1, max(-1, u)) - u))
   push!(__eqs, u ~ Kp * (v_ref - v) + Ki * xi)
   push!(__eqs, throttle ~ min(1, max(0, u)))
   push!(__eqs, braking ~ min(1, max(0, -u)))

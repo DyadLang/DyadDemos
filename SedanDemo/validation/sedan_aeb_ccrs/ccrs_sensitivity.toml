@@ -1,0 +1,49 @@
+a_full_offset_mps2 = 3.0
+commit = "262eba1"
+dirty = true
+label = "design study, no criterion"
+
+[thresholds."a_on_10.0"]
+a_on_mps2 = 10.0
+all_conduct_valid = true
+extended_points = 0.11
+first_contact_kmh = 30.0
+req_aeb1 = true
+standard_points = 0.45
+total_points = 0.56
+
+[thresholds."a_on_5.0"]
+a_on_mps2 = 5.0
+all_conduct_valid = true
+extended_points = 0.15
+first_contact_kmh = "none"
+req_aeb1 = true
+standard_points = 1.2
+total_points = 1.35
+
+[thresholds."a_on_7.0"]
+a_on_mps2 = 7.0
+all_conduct_valid = true
+extended_points = 0.15
+first_contact_kmh = "none"
+req_aeb1 = true
+standard_points = 1.2
+total_points = 1.35
+
+[thresholds."a_on_8.0"]
+a_on_mps2 = 8.0
+all_conduct_valid = true
+extended_points = 0.15
+first_contact_kmh = 50.0
+req_aeb1 = true
+standard_points = 0.94
+total_points = 1.09
+
+[thresholds."a_on_9.0"]
+a_on_mps2 = 9.0
+all_conduct_valid = true
+extended_points = 0.15
+first_contact_kmh = 30.0
+req_aeb1 = true
+standard_points = 0.56
+total_points = 0.71

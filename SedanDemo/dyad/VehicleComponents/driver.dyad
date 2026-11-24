@@ -3,6 +3,8 @@ Longitudinal cruise controller producing throttle and brake commands.
 
 A PI controller on the speed error splits its output into a throttle command
 (positive part) and a brake command (negative part), both saturated to [0, 1].
+Back-calculation with gain `Kt` keeps the integrator from winding up while the
+output saturates.
 """
 component SpeedController
   "Reference speed [m/s]"
@@ -17,12 +19,14 @@ component SpeedController
   parameter Kp::Real = 0.4
   "Integral gain"
   parameter Ki::Real = 0.0
+  "Anti-windup back-calculation gain"
+  parameter Kt::Real = 0.0
   "Integrator state"
   variable xi::Real(initial = 0)
   "Raw controller output before splitting"
   variable u::Real
 relations
-  der(xi) = v_ref - v
+  der(xi) = v_ref - v + Kt * (min(1, max(-1, u)) - u)
   u = Kp * (v_ref - v) + Ki * xi {^id5}
   throttle = min(1, max(0, u)) {^id6}
   braking = min(1, max(0, -u)) {^id7}
@@ -40,10 +44,38 @@ metadata {
     ]
   },
   "_links": {
-    "v_ref": {},
-    "v": {},
-    "throttle": {},
-    "braking": {},
+    "v_ref": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "v": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 450, "y1": -100, "x2": 550, "y2": 0, "rot": 90},
+          "diagram": {"iconName": "default", "x1": 450, "y1": -100, "x2": 550, "y2": 0, "rot": 90}
+        }
+      }
+    },
+    "throttle": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 300, "x2": 1100, "y2": 400, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 300, "x2": 1100, "y2": 400, "rot": 0}
+        }
+      }
+    },
+    "braking": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 600, "x2": 1100, "y2": 700, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 600, "x2": 1100, "y2": 700, "rot": 0}
+        }
+      }
+    },
     "id5": {},
     "id6": {},
     "id7": {}
@@ -114,10 +146,38 @@ metadata {
     ]
   },
   "_links": {
-    "x": {},
-    "z": {},
-    "yaw": {},
-    "steering": {},
+    "x": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 200, "x2": 0, "y2": 300, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 200, "x2": 0, "y2": 300, "rot": 0}
+        }
+      }
+    },
+    "z": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "yaw": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 700, "x2": 0, "y2": 800, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 700, "x2": 0, "y2": 800, "rot": 0}
+        }
+      }
+    },
+    "steering": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0}
+        }
+      }
+    },
     "id5": {},
     "id6": {},
     "id7": {},

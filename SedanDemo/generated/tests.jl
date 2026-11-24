@@ -19,6 +19,7 @@ include("test_internals.jl")
 
 @testset "`SedanDemo`" begin
 include("SedanAcceleration_test.jl")
+include("SedanCCRs_test.jl")
 include("SedanCorner_test.jl")
 include("SedanDoubleLaneChange_test.jl")
 include("SedanSettle_test.jl")

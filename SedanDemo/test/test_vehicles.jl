@@ -128,6 +128,104 @@ end
     @test abs(sol(0.15, idxs = sys.inertia.w)) < 0.5
 end
 
+@testset "ABSBrake" begin
+    # A wheel rolling at ground speed v, braked at full command with no tire
+    # torque to spin it back up. The slip limiter removes the torque as the
+    # braking slip reaches slip_off, so the wheel settles at (1 - slip_off) v / r
+    # instead of locking; with the limiter off, or below v_off, it locks.
+    r, v, slip_off = 0.3, 10.0, 0.16
+    function braked_wheel(abs_enabled, v_ground)
+        @named brake = VD.ABSBrake(tau_max = 100.0, r = r, slip_on = 0.08, slip_off = slip_off; abs_enabled)
+        @named inertia = RotationalComponents.Components.Inertia(J = 1.0)
+        @named fixed = RotationalComponents.Components.Fixed()
+        conns = [
+            ModelingToolkit.connect(inertia.spline_a, brake.spline_a)
+            ModelingToolkit.connect(fixed.spline, brake.spline_b)
+            brake.braking ~ 1.0
+            brake.v ~ v_ground
+        ]
+        @named rig = ModelingToolkit.System(conns, t; systems = [brake, inertia, fixed])
+        sys = mtkcompile(rig)
+        prob = ODEProblem(sys, [sys.inertia.w => v / r, sys.inertia.phi => 0.0], (0.0, 1.0))
+        return sys, solve(prob, Rodas5P(autodiff = AutoFiniteDiff()))
+    end
+    slip(w) = 1 - abs(w) * r / v
+    sys, sol = braked_wheel(true, v)
+    @test successful_retcode(sol)
+    @test maximum(slip, sol(0:0.005:1.0, idxs = sys.inertia.w).u) <= slip_off + 1e-6
+    @test slip(sol(1.0, idxs = sys.inertia.w)) ≈ slip_off atol = 1e-3
+    sys_off, sol_off = braked_wheel(false, v)
+    @test abs(sol_off(1.0, idxs = sys_off.inertia.w)) < 0.5
+    sys_slow, sol_slow = braked_wheel(true, 0.5)
+    @test abs(sol_slow(1.0, idxs = sys_slow.inertia.w)) < 0.5
+end
+
+@testset "AEBController with IdealRangeSensor" begin
+    # A point mass that decelerates at a_max per unit brake command approaches a
+    # stationary target from v0 (REQ-AEB-1, REQ-AEB-4). The AEB stops it with
+    # about d_stop = 1 m left and cuts the throttle while it brakes. With a
+    # request threshold beyond what the brakes deliver, the mass reaches the
+    # target; with the target clear of the vehicle's width, the AEB never brakes.
+    # Under yaw, the part of the turned bumper inside the target's lateral span sets
+    # the gap and the overlap.
+    a_max, v0, x_target = 9.0, 20.0, 60.0
+    function approach(; a_on = 5.0, target_z = 0.0, yaw = 0.0)
+        @named target = VD.StationaryTarget(x = x_target, z = target_z)
+        @named sensor = VD.IdealRangeSensor(l_front = 0.0)
+        @named aeb = VD.AEBController(a_on = a_on, a_full = a_on + 3)
+        @variables x(t) v(t)
+        D = Differential(t)
+        eqs = [D(x) ~ v
+               D(v) ~ -a_max * aeb.braking * tanh(v / 0.05)
+               sensor.x ~ x
+               sensor.z ~ 0
+               sensor.yaw ~ yaw
+               sensor.v ~ v
+               aeb.throttle_in ~ 1.0
+               ModelingToolkit.connect(target.x_rear, sensor.target_x)
+               ModelingToolkit.connect(target.z_center, sensor.target_z)
+               ModelingToolkit.connect(target.width, sensor.target_width)
+               ModelingToolkit.connect(sensor.gap, aeb.gap)
+               ModelingToolkit.connect(sensor.closing_speed, aeb.closing_speed)
+               ModelingToolkit.connect(sensor.in_path, aeb.in_path)]
+        @named rig = ModelingToolkit.System(eqs, t; systems = [target, sensor, aeb])
+        sys = mtkcompile(rig)
+        prob = ODEProblem(sys, [sys.x => 0.0, sys.v => v0], (0.0, 8.0))
+        sol = solve(prob, Rodas5P(autodiff = AutoFiniteDiff()); saveat = 0.01)
+        @test successful_retcode(sol)
+        return sys, sol
+    end
+    sys, sol = approach()
+    gap, braking, throttle = sol[sys.sensor.gap], sol[sys.aeb.braking], sol[sys.aeb.throttle]
+    @test minimum(gap) > 0
+    @test gap[end] ≈ 1.0 atol = 0.1
+    @test abs(sol[sys.v][end]) < 0.05
+    @test all(throttle[braking .>= 0.02] .== 0)
+    @test maximum(braking) < 1    # the request stays below saturation
+    sys_late, sol_late = approach(a_on = 12.0)
+    @test minimum(sol_late[sys_late.sensor.gap]) < 0
+    sys_miss, sol_miss = approach(target_z = 2.0)
+    @test maximum(sol_miss[sys_miss.aeb.braking]) == 0
+    # Yaw 30°: the rotation about +y maps the body (x, z) axes to the columns of R.
+    # The gap runs from the farthest-forward bumper point inside the target's span,
+    # with the target centered and with only the bumper's trailing end facing it.
+    w, w_target = sol.ps[sys.sensor.w], sol.ps[sys.target.w]
+    θ = deg2rad(30)
+    R = [cos(θ) sin(θ); -sin(θ) cos(θ)]
+    bumper = [R * [0, s] for s in range(-w / 2, w / 2; length = 20001)]
+    for target_z in (0.0, -1.5)
+        sys_yaw, sol_yaw = approach(target_z = target_z, yaw = θ)
+        facing = filter(p -> abs(last(p) - target_z) <= w_target / 2, bumper)
+        expected = x_target .- sol_yaw[sys_yaw.x] .- maximum(first, facing)
+        @test maximum(abs, sol_yaw[sys_yaw.sensor.gap] .- expected) < 1e-4
+    end
+    # A target 5 cm clear of the turned bumper's span, inside the straight bumper's span
+    z_clear = maximum(p -> abs(last(p)), bumper) + w_target / 2 + 0.05
+    @test z_clear < (w + w_target) / 2
+    sys_clear, sol_clear = approach(target_z = z_clear, yaw = θ)
+    @test maximum(sol_clear[sys_clear.aeb.braking]) == 0
+end
+
 @testset "DoubleWishboneSuspension corner" begin
     # one corner hanging off a fixed chassis settles at a slight droop
     # closed_form = false keeps the position-constraint loop (Newton-closed)

@@ -8,6 +8,8 @@ using ModelingToolkit
 import Markdown
 using ModelingToolkit: t_nounits as t
 using OrdinaryDiffEqDefault
+using DyadInterface: ODEAlg, DEVerbosity, OptimizationLevel, SpecializationLevel
+using ModelingToolkit: SymbolicT, toggle_namespacing
 using RuntimeGeneratedFunctions
 RuntimeGeneratedFunctions.init(@__MODULE__)
 
@@ -212,6 +214,8 @@ end
 
 
 include("SedanAcceleration_definition.jl")
+include("SedanCCRsTest_definition.jl")
+include("SedanCCRs_definition.jl")
 include("SedanCorner_definition.jl")
 include("SedanDoubleLaneChange_definition.jl")
 include("SedanSettle_definition.jl")

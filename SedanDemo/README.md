@@ -33,6 +33,12 @@ Four closed-loop maneuvers exercise it:
 | `SedanStepSteer` | cruise to 15 m/s, then a 0.1 steering step into a steady left turn |
 | `SedanDoubleLaneChange` | ISO double lane change at 12 m/s under a look-ahead path follower |
 
+`SedanCCRs` adds automatic emergency braking (AEB) in the Euro NCAP car-to-car
+rear, stationary target scenario (CCRs): the sedan, with anti-lock brakes,
+approaches a parked target at the test speed and impact location, and an AEB
+controller brakes on the deceleration needed to stop short of it. The
+`SedanCCRsTest` analysis runs one such test.
+
 ## VehicleComponents
 
 `SedanDemo.VehicleComponents` holds the reusable parts. None of them is
@@ -50,7 +56,11 @@ specific to this sedan; the sedan supplies the geometry and parameters.
 | `Differential1D` | open differential |
 | `HalfShaft` | halfshaft between the differential and a wheel joint, carrying the drive reaction correctly |
 | `Brake` | regularized friction brake |
-| `SpeedController`, `PathFollowerDriver` | longitudinal speed control and a look-ahead lateral path follower |
+| `ABSBrake` | friction brake with an idealized anti-lock slip limiter, switched by `abs_enabled` |
+| `AEBController` | automatic emergency braking on the deceleration needed to stop short of an in-path target |
+| `IdealRangeSensor`, `StationaryTarget` | exact range, closing speed and in-path check against a parked target |
+| `ThrottleRobot` | accelerator robot that releases the throttle as a test protocol prescribes |
+| `SpeedController`, `PathFollowerDriver` | longitudinal speed control (with anti-windup) and a look-ahead lateral path follower |
 
 The 3D mechanics (bodies, joints, world, visualization) come from
 `MultibodyComponents`; rotational drivetrain parts from `RotationalComponents`;
@@ -113,6 +123,23 @@ Chrono sedan's six-speed automatic gearbox, so the acceleration maneuver is
 compared more loosely: speed within 15% from 8 s on, and the same direction
 and magnitude of lateral drift.
 
+The AEB scenario is checked against the Euro NCAP *Crash Avoidance – Frontal
+Collisions* protocol (version 1.2) in
+[`validation/sedan_aeb_ccrs/`](validation/sedan_aeb_ccrs/):
+[`requirements.md`](validation/sedan_aeb_ccrs/requirements.md) traces each test
+condition, measurement and score to the protocol, and `ccrs_sweep.jl` runs the
+56-test grid (10–80 km/h, impact locations −25 % to 125 %), checks the test
+conduct and scores it. With an ideal range sensor and the AEB trigger at
+5 m/s² of required deceleration, the sedan stops short of the target in all 56
+tests (0.91–0.98 m short) and scores the 1.35 CCRs points in scope; with later
+triggers the score drops to 0.56 points at 10 m/s². This is a simulation
+prediction with an ideal sensor, not a vehicle test.
+
+```sh
+julia +dyad-3.5.0 --project=validation/sedan_aeb_ccrs -e 'using Pkg; Pkg.instantiate()'
+julia +dyad-3.5.0 -t 8 --project=validation/sedan_aeb_ccrs validation/sedan_aeb_ccrs/ccrs_sweep.jl --gate --sensitivity
+```
+
 ## Provenance
 
 The vehicle is a port of Project Chrono's JSON-defined sedan
@@ -130,6 +157,7 @@ list of covered files.
 dyad/                    Dyad sources
   sedan.dyad             SedanCorner, SedanVehicle, Sedan
   sedan_maneuvers.dyad   the four maneuvers
+  sedan_ccrs.dyad        the AEB scenario (SedanCCRs, SedanCCRsTest)
   definitions.jl         sedan_asset(): mesh and data file resolution
   VehicleComponents/     reusable vehicle component library
 generated/               Julia emitted by the Dyad compiler (do not edit)
@@ -137,4 +165,5 @@ assets/                  component icons; sedan/ holds the Chrono meshes and .ti
 scripts/                 parameter sweep and studies, and the Pac02 magic-formula tire fit
 test/                    regression tests and Chrono reference trajectories
 validation/sedan_chrono/ PyChrono scripts that generate the references
+validation/sedan_aeb_ccrs/ Euro NCAP CCRs requirements, sweep, scoring and records
 ```

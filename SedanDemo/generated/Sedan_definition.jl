@@ -5,11 +5,12 @@
 
 
 @doc Markdown.doc"""
-   Sedan(; name, render, final_ratio, mu_road, __overrides)
+   Sedan(; name, render, abs_enabled, final_ratio, mu_road, __overrides)
 
 Complete rear-wheel-drive sedan: mechanical vehicle plus map-based engine and
 continuously variable transmission, shaft driveline with open differential on
-the rear axle, and friction brakes on all four wheels.
+the rear axle, and friction brakes on all four wheels, each with a slip
+limiter (ABS) that `abs_enabled` switches.
 
 Inputs are the normalized driver commands `steering` (-1..1, positive left),
 `throttle` (0..1), and `braking` (0..1). Convenience outputs report the
@@ -20,6 +21,7 @@ chassis planar pose and longitudinal speed for driver models.
 | Name         | Description                         | Units  |   Default value |
 | ------------ | ----------------------------------- | ------ | --------------- |
 | `render`         | Render the vehicle in animations; when false the mesh visualizers are left out of the model                         | --  |   true |
+| `abs_enabled`         | Enable the brakes' slip limiters (ABS); off matches the reference vehicle                         | --  |   false |
 | `final_ratio`         | Final drive speed ratio, axle/driveshaft                         | --  |   0.2 |
 | `mu_road`         | Road friction coefficient, the same under all four tires                         | --  |   0.9 |
 
@@ -33,7 +35,7 @@ chassis planar pose and longitudinal speed for driver models.
  * `yaw` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
  * `v` - This connector represents a real signal as an output from a component ([`RealOutput`](@ref))
 """
-@component function Sedan(; name = nothing, var"render"=true, var"final_ratio"=0.2, var"mu_road"=0.9, __overrides = Dict{String, Any}())
+@component function Sedan(; name = nothing, var"render"=true, var"abs_enabled"=false, var"final_ratio"=0.2, var"mu_road"=0.9, __overrides = Dict{String, Any}())
   isnothing(name) && throw(ArgumentError("""
     The `name` keyword must be provided. Please consider using the `@named` macro,
     like so:
@@ -53,6 +55,7 @@ chassis planar pose and longitudinal speed for driver models.
 
   ### Keyword argument overrides
   haskey(__overrides, "render") && (render = pop!(__overrides, "render"))
+  haskey(__overrides, "abs_enabled") && (abs_enabled = pop!(__overrides, "abs_enabled"))
   haskey(__overrides, "final_ratio") && (final_ratio = pop!(__overrides, "final_ratio"))
   haskey(__overrides, "mu_road") && (mu_road = pop!(__overrides, "mu_road"))
 
@@ -124,18 +127,18 @@ chassis planar pose and longitudinal speed for driver models.
   # Subcomponent halfshaft_r of type SedanDemo.VehicleComponents.HalfShaft
   halfshaft_r_overrides = __pop_subcomponent_overrides!(__overrides, "halfshaft_r")
   push!(__systems, @named halfshaft_r = SedanDemo.VehicleComponents.HalfShaft(; n=[Float64(0), Float64(0), Float64(-1)], __overrides = halfshaft_r_overrides))
-  # Subcomponent brake_fl of type SedanDemo.VehicleComponents.Brake
+  # Subcomponent brake_fl of type SedanDemo.VehicleComponents.ABSBrake
   brake_fl_overrides = __pop_subcomponent_overrides!(__overrides, "brake_fl")
-  push!(__systems, @named brake_fl = SedanDemo.VehicleComponents.Brake(; __overrides = brake_fl_overrides))
-  # Subcomponent brake_fr of type SedanDemo.VehicleComponents.Brake
+  push!(__systems, @named brake_fl = SedanDemo.VehicleComponents.ABSBrake(; r=0.3266, abs_enabled=abs_enabled, __overrides = brake_fl_overrides))
+  # Subcomponent brake_fr of type SedanDemo.VehicleComponents.ABSBrake
   brake_fr_overrides = __pop_subcomponent_overrides!(__overrides, "brake_fr")
-  push!(__systems, @named brake_fr = SedanDemo.VehicleComponents.Brake(; __overrides = brake_fr_overrides))
-  # Subcomponent brake_rl of type SedanDemo.VehicleComponents.Brake
+  push!(__systems, @named brake_fr = SedanDemo.VehicleComponents.ABSBrake(; r=0.3266, abs_enabled=abs_enabled, __overrides = brake_fr_overrides))
+  # Subcomponent brake_rl of type SedanDemo.VehicleComponents.ABSBrake
   brake_rl_overrides = __pop_subcomponent_overrides!(__overrides, "brake_rl")
-  push!(__systems, @named brake_rl = SedanDemo.VehicleComponents.Brake(; __overrides = brake_rl_overrides))
-  # Subcomponent brake_rr of type SedanDemo.VehicleComponents.Brake
+  push!(__systems, @named brake_rl = SedanDemo.VehicleComponents.ABSBrake(; r=0.3266, abs_enabled=abs_enabled, __overrides = brake_rl_overrides))
+  # Subcomponent brake_rr of type SedanDemo.VehicleComponents.ABSBrake
   brake_rr_overrides = __pop_subcomponent_overrides!(__overrides, "brake_rr")
-  push!(__systems, @named brake_rr = SedanDemo.VehicleComponents.Brake(; __overrides = brake_rr_overrides))
+  push!(__systems, @named brake_rr = SedanDemo.VehicleComponents.ABSBrake(; r=0.3266, abs_enabled=abs_enabled, __overrides = brake_rr_overrides))
 
   ### Check there are no unmatched overrides
   isempty(__overrides) || throw(ArgumentError("overrides: [$(join(keys(__overrides), ", "))] don't match names found in model. These names may exist in the model but could have been conditionally excluded. Override keys are dotted paths as written in Dyad source (e.g. inner.rate)."))
@@ -171,6 +174,7 @@ chassis planar pose and longitudinal speed for driver models.
   push!(__eqs, connect(z, position_sensor.r_z))
   push!(__eqs, connect(yaw, angle_sensor.angle_2))
   push!(__eqs, connect(v, velocity_sensor.v_x))
+  push!(__eqs, connect(velocity_sensor.v_x, brake_fl.v, brake_fr.v, brake_rl.v, brake_rr.v))
   push!(__eqs, connect(driveline.flange_left, halfshaft_l.flange_a))
   push!(__eqs, connect(brake_rl.spline_b, vehicle.support_rl))
 

@@ -11,4 +11,8 @@ end
     @testset "vehicles" begin
         include("test_vehicles.jl")
     end
+    @testset "CCRs analysis" begin
+        include("test_ccrs_analysis.jl")
+        include("test_ccrs_native.jl")
+    end
 end

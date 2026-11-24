@@ -41,8 +41,10 @@ ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["ADTypes", "DelimitedFiles", "GLMakie", "OrdinaryDiffEq", "SciMLBase", "Test"]
+test = ["ADTypes", "DelimitedFiles", "GLMakie", "OrdinaryDiffEq", "Printf", "SciMLBase", "TOML", "Test"]

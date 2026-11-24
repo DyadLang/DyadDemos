@@ -10,6 +10,7 @@ end
 
 
 include("SedanAcceleration_experiment.jl")
+include("SedanCCRs_experiment.jl")
 include("SedanCorner_experiment.jl")
 include("SedanDoubleLaneChange_experiment.jl")
 include("SedanSettle_experiment.jl")

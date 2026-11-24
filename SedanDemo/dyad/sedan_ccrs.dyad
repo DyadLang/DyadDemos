@@ -1,0 +1,102 @@
+"""
+# Sedan in Euro NCAP CCRs
+
+Car-to-car rear, stationary target. A PI cruise controller accelerates the
+sedan to the test speed on a straight path toward a stationary target and holds
+it there. The AEB brakes on the deceleration needed to stop short of the
+target, and the accelerator robot releases the throttle after a 5 km/h speed
+drop. The brakes' slip limiters (ABS) are on.
+
+The target's rear-center point sits at `impact_pct` of the vehicle width from
+the right edge (0 %) toward the left edge (100 %); the right edge is the near
+side of a left-hand-drive car. The target stands `t_lead` seconds of travel at
+the test speed ahead of the front bumper's start position. The test start
+(time-to-collision 4 s) and the impact speed are located on the solution.
+"""
+example component SedanCCRs
+  world = MultibodyComponents.World() {^world}
+  sedan = Sedan(abs_enabled = true) {^sedan}
+  "Test speed reference"
+  v_ref = BlockComponents.Sources.Constant(k = v_test) {^v_ref}
+  speed_controller = SedanDemo.VehicleComponents.SpeedController(Kp = 0.4, Ki = 0.1, Kt = 5) {^speed_controller}
+  "Releases the accelerator once armed, 6 s of travel before the target"
+  robot = SedanDemo.VehicleComponents.ThrottleRobot(v_test = v_test, x_armed = x_target - l_front - 6 * v_test) {^robot}
+  driver = SedanDemo.VehicleComponents.PathFollowerDriver(npath = 2, path_x = [0, 10000], path_z = [0, 0]) {^driver}
+  target = SedanDemo.VehicleComponents.StationaryTarget(x = x_target, z = z_target) {^target}
+  sensor = SedanDemo.VehicleComponents.IdealRangeSensor(l_front = l_front, w = w_vut) {^sensor}
+  aeb = SedanDemo.VehicleComponents.AEBController(a_on = a_on, a_full = a_on + 3) {^aeb}
+  "Test speed [km/h]"
+  parameter v_test_kmh::Real = 50
+  "Required deceleration at which the AEB starts braking; full request 3 m/s² above it"
+  parameter a_on::Acceleration = 5
+  "Impact location, percent of the vehicle width from the right edge"
+  parameter impact_pct::Real = 50
+  "Travel time at the test speed from the start to the target"
+  parameter t_lead::Time = 30
+  "Vehicle width"
+  parameter w_vut::Length = 1.849
+  "Front bumper ahead of the chassis frame origin"
+  parameter l_front::Length = 2.412
+  final parameter v_test::Velocity = v_test_kmh / 3.6
+  final parameter x_target::Length = l_front + v_test * t_lead
+  final parameter z_target::Length = (0.5 - impact_pct / 100) * w_vut
+relations
+  connect(v_ref.y, speed_controller.v_ref) {^id1}
+  connect(sedan.v, speed_controller.v, robot.v, sensor.v) {^id2}
+  connect(sedan.x, robot.x, driver.x, sensor.x) {^id3}
+  connect(sedan.z, driver.z, sensor.z) {^id4}
+  connect(sedan.yaw, driver.yaw, sensor.yaw) {^id5}
+  connect(driver.steering, sedan.steering) {^id6}
+  connect(speed_controller.throttle, robot.throttle_in) {^id7}
+  connect(robot.throttle, aeb.throttle_in) {^id8}
+  connect(target.x_rear, sensor.target_x) {^id9}
+  connect(target.z_center, sensor.target_z) {^id10}
+  connect(target.width, sensor.target_width) {^id11}
+  connect(sensor.gap, aeb.gap) {^id12}
+  connect(sensor.closing_speed, aeb.closing_speed) {^id13}
+  connect(sensor.in_path, aeb.in_path) {^id14}
+  connect(aeb.throttle, sedan.throttle) {^id15}
+  connect(aeb.braking, sedan.braking) {^id16}
+metadata {
+  "Dyad": {},
+  "_links": {
+    "world": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": -825, "y1": -75, "x2": -675, "y2": 75, "rot": 0}}}},
+    "sedan": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 1150, "y1": -135, "x2": 1450, "y2": 165, "rot": 0}}}},
+    "v_ref": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": -832.5, "y1": 325, "x2": -682.5, "y2": 475, "rot": 0}}}},
+    "speed_controller": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": -550, "y1": 300, "x2": -350, "y2": 500, "rot": 0}}}},
+    "robot": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": -200, "y1": 270, "x2": 0, "y2": 470, "rot": 0}}}},
+    "driver": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 750, "y1": -430, "x2": 950, "y2": -230, "rot": 0}}}},
+    "target": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 50, "y1": -100, "x2": 250, "y2": 100, "rot": 0}}}},
+    "sensor": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 400, "y1": -100, "x2": 600, "y2": 100, "rot": 0}}}},
+    "aeb": {"Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 750, "y1": -100, "x2": 950, "y2": 100, "rot": 0}}}},
+    "id1": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id2": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1610, "y": 117}, {"x": 1610, "y": -600}], "E": -1}, {"S": -1, "M": [], "E": 4}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": 3}, {"S": -2, "M": [{"x": -450, "y": -600}], "E": 2}], "junctions": [{"x": 440, "y": -600}, {"x": -130, "y": -600}], "renderStyle": "standard"}},
+    "id3": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1520, "y": -78}, {"x": 1520, "y": -480}], "E": -1}, {"S": -1, "M": [{"x": 720, "y": -380}], "E": 3}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": 4}, {"S": -2, "M": [{"x": -70, "y": -480}], "E": 2}], "junctions": [{"x": 720, "y": -480}, {"x": 560, "y": -480}], "renderStyle": "standard"}},
+    "id4": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1550, "y": -30}, {"x": 1550, "y": -520}], "E": -1}, {"S": -1, "M": [{"x": 700, "y": -330}], "E": 2}, {"S": -1, "M": [{"x": 520, "y": -520}], "E": 3}], "junctions": [{"x": 700, "y": -520}], "renderStyle": "standard"}},
+    "id5": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1580, "y": 39}, {"x": 1580, "y": -560}], "E": -1}, {"S": -1, "M": [{"x": 680, "y": -280}], "E": 2}, {"S": -1, "M": [{"x": 480, "y": -560}], "E": 3}], "junctions": [{"x": 680, "y": -560}], "renderStyle": "standard"}},
+    "id6": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1100, "y": -330}, {"x": 1100, "y": -90}], "E": 2}], "renderStyle": "standard"}},
+    "id7": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id8": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 850, "y": 370}], "E": 2}], "renderStyle": "standard"}},
+    "id9": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id10": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id11": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id12": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id13": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id14": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id15": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}},
+    "id16": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "renderStyle": "standard"}}
+  }
+}
+end
+
+"Euro NCAP CCRs test of the sedan at one test speed, impact location and AEB trigger"
+analysis SedanCCRsTest
+  extends TransientAnalysis(stop = 42, alg = ODEAlg.Rodas5P(), abstol = 1e-6, reltol = 1e-3)
+  model = SedanCCRs(v_test_kmh = v_test_kmh, impact_pct = impact_pct, a_on = a_on)
+  "Test speed [km/h]"
+  parameter v_test_kmh::Real = 50
+  "Impact location, percent of the vehicle width from the right edge"
+  parameter impact_pct::Real = 50
+  "Required deceleration at which the AEB starts braking"
+  parameter a_on::Real = 5
+end

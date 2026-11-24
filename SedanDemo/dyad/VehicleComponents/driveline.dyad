@@ -88,6 +88,7 @@ metadata {
     "flange_transmission": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 0},
           "diagram": {"iconName": "default", "x1": 20, "y1": 470, "x2": 80, "y2": 530, "rot": 0}
         },
         "tags": []
@@ -96,6 +97,7 @@ metadata {
     "flange_left": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 200, "x2": 1050, "y2": 300, "rot": 0},
           "diagram": {"iconName": "default", "x1": 920, "y1": 200, "x2": 980, "y2": 260, "rot": 0}
         },
         "tags": []
@@ -104,13 +106,19 @@ metadata {
     "flange_right": {
       "Dyad": {
         "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 700, "x2": 1050, "y2": 800, "rot": 0},
           "diagram": {"iconName": "default", "x1": 920, "y1": 720, "x2": 980, "y2": 780, "rot": 0}
         },
         "tags": []
       }
     },
     "frame_a": {
-      "Dyad": {"placement": {"diagram": {"x1": 840, "y1": 470, "x2": 900, "y2": 530}}}
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 700, "y1": 950, "x2": 800, "y2": 1050, "rot": 0},
+          "diagram": {"x1": 840, "y1": 470, "x2": 900, "y2": 530}
+        }
+      }
     },
     "driveshaft": {
       "Dyad": {

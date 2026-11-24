@@ -1,0 +1,798 @@
+all_conduct_valid = true
+commit = "262eba1"
+dirty = true
+julia = "1.13.2"
+
+[cells."10_kmh_+000_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 19.9
+peak_braking = 0.864
+speed_dev_worst_kmh = -0.048
+stop_gap_m = 0.907
+t0_s = 26.134
+taeb_s = 29.526
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.605
+v_impact_kmh = 0.0
+valid = true
+wall_s = 50.59
+
+[cells."10_kmh_+025_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 19.9
+peak_braking = 0.864
+speed_dev_worst_kmh = -0.048
+stop_gap_m = 0.907
+t0_s = 26.134
+taeb_s = 29.526
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.605
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.42
+
+[cells."10_kmh_+050_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 19.9
+peak_braking = 0.864
+speed_dev_worst_kmh = -0.048
+stop_gap_m = 0.907
+t0_s = 26.134
+taeb_s = 29.526
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.605
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.28
+
+[cells."10_kmh_+075_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 19.9
+peak_braking = 0.864
+speed_dev_worst_kmh = -0.048
+stop_gap_m = 0.907
+t0_s = 26.134
+taeb_s = 29.526
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.605
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.28
+
+[cells."10_kmh_+100_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 19.9
+peak_braking = 0.864
+speed_dev_worst_kmh = -0.048
+stop_gap_m = 0.907
+t0_s = 26.134
+taeb_s = 29.526
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.605
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.29
+
+[cells."10_kmh_+125_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 19.9
+peak_braking = 0.864
+speed_dev_worst_kmh = -0.048
+stop_gap_m = 0.907
+t0_s = 26.134
+taeb_s = 29.526
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.605
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.29
+
+[cells.10_kmh_-025_pct]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 19.9
+peak_braking = 0.864
+speed_dev_worst_kmh = -0.048
+stop_gap_m = 0.907
+t0_s = 26.134
+taeb_s = 29.526
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.605
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.29
+
+[cells."20_kmh_+000_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.3
+peak_braking = 0.659
+speed_dev_worst_kmh = -0.058
+stop_gap_m = 0.981
+t0_s = 26.342
+taeb_s = 29.648
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.691
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.32
+
+[cells."20_kmh_+025_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.3
+peak_braking = 0.659
+speed_dev_worst_kmh = -0.057
+stop_gap_m = 0.981
+t0_s = 26.342
+taeb_s = 29.648
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.691
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.32
+
+[cells."20_kmh_+050_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.3
+peak_braking = 0.659
+speed_dev_worst_kmh = -0.057
+stop_gap_m = 0.981
+t0_s = 26.342
+taeb_s = 29.648
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.691
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.33
+
+[cells."20_kmh_+075_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.3
+peak_braking = 0.659
+speed_dev_worst_kmh = -0.057
+stop_gap_m = 0.981
+t0_s = 26.342
+taeb_s = 29.648
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.691
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.34
+
+[cells."20_kmh_+100_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.3
+peak_braking = 0.659
+speed_dev_worst_kmh = -0.057
+stop_gap_m = 0.981
+t0_s = 26.342
+taeb_s = 29.648
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.691
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.32
+
+[cells."20_kmh_+125_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.3
+peak_braking = 0.659
+speed_dev_worst_kmh = -0.057
+stop_gap_m = 0.981
+t0_s = 26.342
+taeb_s = 29.648
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.691
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.32
+
+[cells.20_kmh_-025_pct]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.3
+peak_braking = 0.659
+speed_dev_worst_kmh = -0.057
+stop_gap_m = 0.981
+t0_s = 26.342
+taeb_s = 29.648
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.691
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.32
+
+[cells."30_kmh_+000_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.54
+peak_braking = 0.57
+speed_dev_worst_kmh = -0.068
+stop_gap_m = 0.979
+t0_s = 26.677
+taeb_s = 29.774
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.896
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.35
+
+[cells."30_kmh_+025_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.54
+peak_braking = 0.57
+speed_dev_worst_kmh = -0.068
+stop_gap_m = 0.979
+t0_s = 26.677
+taeb_s = 29.774
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.896
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.35
+
+[cells."30_kmh_+050_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.54
+peak_braking = 0.57
+speed_dev_worst_kmh = -0.068
+stop_gap_m = 0.979
+t0_s = 26.677
+taeb_s = 29.774
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.896
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.35
+
+[cells."30_kmh_+075_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.54
+peak_braking = 0.57
+speed_dev_worst_kmh = -0.068
+stop_gap_m = 0.979
+t0_s = 26.677
+taeb_s = 29.774
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.896
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.35
+
+[cells."30_kmh_+100_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.54
+peak_braking = 0.57
+speed_dev_worst_kmh = -0.068
+stop_gap_m = 0.979
+t0_s = 26.677
+taeb_s = 29.774
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.896
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.34
+
+[cells."30_kmh_+125_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.54
+peak_braking = 0.57
+speed_dev_worst_kmh = -0.068
+stop_gap_m = 0.979
+t0_s = 26.677
+taeb_s = 29.774
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.896
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.37
+
+[cells.30_kmh_-025_pct]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.53
+peak_braking = 0.57
+speed_dev_worst_kmh = -0.068
+stop_gap_m = 0.979
+t0_s = 26.677
+taeb_s = 29.774
+throttle_after_release = 0.0
+ttc_at_taeb_s = 0.896
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.34
+
+[cells."40_kmh_+000_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.19
+peak_braking = 0.569
+speed_dev_worst_kmh = -0.099
+stop_gap_m = 0.984
+t0_s = 27.009
+taeb_s = 29.878
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.129
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.37
+
+[cells."40_kmh_+025_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.19
+peak_braking = 0.569
+speed_dev_worst_kmh = -0.099
+stop_gap_m = 0.984
+t0_s = 27.009
+taeb_s = 29.878
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.129
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.39
+
+[cells."40_kmh_+050_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.19
+peak_braking = 0.569
+speed_dev_worst_kmh = -0.099
+stop_gap_m = 0.984
+t0_s = 27.009
+taeb_s = 29.878
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.129
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.36
+
+[cells."40_kmh_+075_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.19
+peak_braking = 0.569
+speed_dev_worst_kmh = -0.099
+stop_gap_m = 0.984
+t0_s = 27.009
+taeb_s = 29.878
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.129
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.36
+
+[cells."40_kmh_+100_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.2
+peak_braking = 0.569
+speed_dev_worst_kmh = -0.099
+stop_gap_m = 0.984
+t0_s = 27.009
+taeb_s = 29.878
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.129
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.37
+
+[cells."40_kmh_+125_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.2
+peak_braking = 0.569
+speed_dev_worst_kmh = -0.099
+stop_gap_m = 0.984
+t0_s = 27.009
+taeb_s = 29.878
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.129
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.36
+
+[cells.40_kmh_-025_pct]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.19
+peak_braking = 0.569
+speed_dev_worst_kmh = -0.099
+stop_gap_m = 0.984
+t0_s = 27.009
+taeb_s = 29.878
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.129
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.37
+
+[cells."50_kmh_+000_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.02
+peak_braking = 0.529
+speed_dev_worst_kmh = -0.136
+stop_gap_m = 0.982
+t0_s = 27.329
+taeb_s = 29.959
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.37
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.38
+
+[cells."50_kmh_+025_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.02
+peak_braking = 0.529
+speed_dev_worst_kmh = -0.136
+stop_gap_m = 0.982
+t0_s = 27.329
+taeb_s = 29.959
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.37
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.38
+
+[cells."50_kmh_+050_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.02
+peak_braking = 0.529
+speed_dev_worst_kmh = -0.136
+stop_gap_m = 0.982
+t0_s = 27.329
+taeb_s = 29.959
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.37
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.39
+
+[cells."50_kmh_+075_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.02
+peak_braking = 0.529
+speed_dev_worst_kmh = -0.136
+stop_gap_m = 0.982
+t0_s = 27.329
+taeb_s = 29.959
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.37
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.38
+
+[cells."50_kmh_+100_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.02
+peak_braking = 0.529
+speed_dev_worst_kmh = -0.136
+stop_gap_m = 0.982
+t0_s = 27.329
+taeb_s = 29.959
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.37
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.39
+
+[cells."50_kmh_+125_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.03
+peak_braking = 0.53
+speed_dev_worst_kmh = -0.136
+stop_gap_m = 0.982
+t0_s = 27.329
+taeb_s = 29.959
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.37
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.39
+
+[cells.50_kmh_-025_pct]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.02
+peak_braking = 0.529
+speed_dev_worst_kmh = -0.136
+stop_gap_m = 0.982
+t0_s = 27.329
+taeb_s = 29.959
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.37
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.38
+
+[cells."60_kmh_+000_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.1
+peak_braking = 0.53
+speed_dev_worst_kmh = -0.201
+stop_gap_m = 0.981
+t0_s = 27.625
+taeb_s = 30.018
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.608
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.37
+
+[cells."60_kmh_+025_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.1
+peak_braking = 0.53
+speed_dev_worst_kmh = -0.201
+stop_gap_m = 0.981
+t0_s = 27.625
+taeb_s = 30.018
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.608
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.37
+
+[cells."60_kmh_+050_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.1
+peak_braking = 0.53
+speed_dev_worst_kmh = -0.201
+stop_gap_m = 0.981
+t0_s = 27.625
+taeb_s = 30.018
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.608
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.39
+
+[cells."60_kmh_+075_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.1
+peak_braking = 0.53
+speed_dev_worst_kmh = -0.201
+stop_gap_m = 0.981
+t0_s = 27.625
+taeb_s = 30.018
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.608
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells."60_kmh_+100_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.11
+peak_braking = 0.53
+speed_dev_worst_kmh = -0.201
+stop_gap_m = 0.981
+t0_s = 27.625
+taeb_s = 30.018
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.608
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.37
+
+[cells."60_kmh_+125_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.11
+peak_braking = 0.531
+speed_dev_worst_kmh = -0.201
+stop_gap_m = 0.981
+t0_s = 27.625
+taeb_s = 30.018
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.608
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.38
+
+[cells.60_kmh_-025_pct]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.1
+peak_braking = 0.53
+speed_dev_worst_kmh = -0.201
+stop_gap_m = 0.982
+t0_s = 27.625
+taeb_s = 30.018
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.608
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.38
+
+[cells."70_kmh_+000_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.07
+peak_braking = 0.534
+speed_dev_worst_kmh = -0.295
+stop_gap_m = 0.982
+t0_s = 27.906
+taeb_s = 30.069
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.842
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.39
+
+[cells."70_kmh_+025_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.07
+peak_braking = 0.534
+speed_dev_worst_kmh = -0.295
+stop_gap_m = 0.982
+t0_s = 27.906
+taeb_s = 30.069
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.842
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.43
+
+[cells."70_kmh_+050_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.07
+peak_braking = 0.534
+speed_dev_worst_kmh = -0.295
+stop_gap_m = 0.981
+t0_s = 27.906
+taeb_s = 30.069
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.842
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells."70_kmh_+075_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.08
+peak_braking = 0.535
+speed_dev_worst_kmh = -0.295
+stop_gap_m = 0.981
+t0_s = 27.906
+taeb_s = 30.069
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.842
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells."70_kmh_+100_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.08
+peak_braking = 0.534
+speed_dev_worst_kmh = -0.295
+stop_gap_m = 0.981
+t0_s = 27.906
+taeb_s = 30.069
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.842
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.39
+
+[cells."70_kmh_+125_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.08
+peak_braking = 0.534
+speed_dev_worst_kmh = -0.295
+stop_gap_m = 0.981
+t0_s = 27.906
+taeb_s = 30.069
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.842
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells.70_kmh_-025_pct]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.07
+peak_braking = 0.534
+speed_dev_worst_kmh = -0.295
+stop_gap_m = 0.982
+t0_s = 27.906
+taeb_s = 30.069
+throttle_after_release = 0.0
+ttc_at_taeb_s = 1.842
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.39
+
+[cells."80_kmh_+000_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.05
+peak_braking = 0.531
+speed_dev_worst_kmh = -0.333
+stop_gap_m = 0.982
+t0_s = 28.188
+taeb_s = 30.102
+throttle_after_release = 0.0
+ttc_at_taeb_s = 2.085
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells."80_kmh_+025_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.05
+peak_braking = 0.531
+speed_dev_worst_kmh = -0.333
+stop_gap_m = 0.982
+t0_s = 28.188
+taeb_s = 30.102
+throttle_after_release = 0.0
+ttc_at_taeb_s = 2.085
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells."80_kmh_+050_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.05
+peak_braking = 0.532
+speed_dev_worst_kmh = -0.333
+stop_gap_m = 0.982
+t0_s = 28.188
+taeb_s = 30.102
+throttle_after_release = 0.0
+ttc_at_taeb_s = 2.085
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells."80_kmh_+075_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.05
+peak_braking = 0.532
+speed_dev_worst_kmh = -0.333
+stop_gap_m = 0.981
+t0_s = 28.188
+taeb_s = 30.102
+throttle_after_release = 0.0
+ttc_at_taeb_s = 2.085
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells."80_kmh_+100_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.06
+peak_braking = 0.532
+speed_dev_worst_kmh = -0.333
+stop_gap_m = 0.981
+t0_s = 28.188
+taeb_s = 30.102
+throttle_after_release = 0.0
+ttc_at_taeb_s = 2.085
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells."80_kmh_+125_pct"]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.06
+peak_braking = 0.532
+speed_dev_worst_kmh = -0.333
+stop_gap_m = 0.981
+t0_s = 28.188
+taeb_s = 30.102
+throttle_after_release = 0.0
+ttc_at_taeb_s = 2.085
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[cells.80_kmh_-025_pct]
+lateral_dev_worst_m = -0.0
+peak_a_req_mps2 = 7.05
+peak_braking = 0.531
+speed_dev_worst_kmh = -0.333
+stop_gap_m = 0.982
+t0_s = 28.188
+taeb_s = 30.102
+throttle_after_release = 0.0
+ttc_at_taeb_s = 2.085
+v_impact_kmh = 0.0
+valid = true
+wall_s = 0.4
+
+[score]
+extended_credit = 1.0
+extended_fraction = 1.0
+extended_points = 0.15
+extended_raw_points = 0.15
+req_aeb1 = true
+standard_points = 1.2
+standard_raw_points = 1.2
+total_points = 1.35

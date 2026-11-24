@@ -45,3 +45,89 @@ metadata {
   }
 }
 end
+
+"""
+Friction brake with a per-wheel slip limiter: an idealized anti-lock brake (ABS).
+
+The torque of `Brake` is scaled by a factor `k` that keeps the wheel from
+locking. With the braking slip `slip = 1 - |w_rel| r / max(v, v_off)`, the
+factor falls linearly from 1 at `slip_on` to 0 at `slip_off`, so the wheel
+settles inside that band instead of locking:
+
+    tau = braking * k * tau_max * tanh(w_rel / w0)
+
+The limiter is algebraic and continuous, without events or states: it holds
+the slip a real ABS holds on average, not its pressure cycling. `v` is the
+vehicle's longitudinal speed, taken as the ground speed of the wheel, which
+suits straight-line braking. Like a real ABS, the limiter is inactive at
+walking pace so that the brake can hold the car at standstill: it is off below
+`v_off` and fades in linearly up to `v_on`.
+"""
+component ABSBrake
+  extends RotationalComponents.Interfaces.PartialCompliantWithRelativeStates
+  "Normalized brake command, 0..1"
+  braking = RealInput() {^braking}
+  "Vehicle longitudinal speed [m/s]"
+  v = RealInput() {^v}
+  "Brake torque at full command"
+  parameter tau_max::Torque = 2000
+  "Regularization angular velocity of the friction torque around zero speed"
+  parameter w0::AngularVelocity = 0.1
+  "Rolling radius of the braked wheel"
+  parameter r::Length
+  "Enable the slip limiter"
+  structural parameter abs_enabled::Boolean = true
+  "Braking slip at which the limiter starts to reduce the torque"
+  parameter slip_on::Real = 0.08
+  "Braking slip at which the limiter has removed all torque"
+  parameter slip_off::Real = 0.16
+  "Speed below which the limiter is inactive"
+  parameter v_off::Velocity = 1.0
+  "Speed above which the limiter is fully active"
+  parameter v_on::Velocity = 2.0
+  "Longitudinal braking slip of the wheel"
+  variable slip::Real
+  "Slip limiter factor at full activation, 0..1"
+  variable k_slip::Real
+  "Limiter activation from the vehicle speed, 0..1"
+  variable activation::Real
+  "Torque factor applied to the commanded brake torque, 0..1"
+  variable k::Real
+relations
+  slip = 1 - abs(w_rel) * r / max(v, v_off) {^id2}
+  k_slip = min(1, max(0, (slip_off - slip) / (slip_off - slip_on))) {^id3}
+  activation = min(1, max(0, (v - v_off) / (v_on - v_off))) {^id4}
+  k = ifelse(abs_enabled, 1 - activation * (1 - k_slip), 1) {^id5}
+  tau = braking * k * tau_max * tanh(w_rel / w0) {^id6}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/ABSBrake.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "braking": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 250, "x2": 350, "y1": -100, "y2": 0, "rot": 90}}
+      }
+    },
+    "v": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 650, "x2": 750, "y1": -100, "y2": 0, "rot": 90}}
+      }
+    },
+    "id2": {},
+    "id3": {},
+    "id4": {},
+    "id5": {},
+    "id6": {}
+  }
+}
+end

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- target rear plane -->
+  <rect x="780" y="300" width="70" height="460" rx="12" fill="#98a8b8" stroke="#333" stroke-width="14"/>
+  <!-- beam toward the target -->
+  <g fill="none" stroke="#2e7d32" stroke-width="16" stroke-linecap="round">
+    <path d="M 359 472 A 90 90 0 0 1 359 588"/>
+    <path d="M 420 421 A 170 170 0 0 1 420 639"/>
+    <path d="M 482 369 A 250 250 0 0 1 482 691"/>
+  </g>
+  <!-- sensor housing and lens -->
+  <rect x="130" y="440" width="160" height="180" rx="26" fill="#7a8a9a" stroke="#333" stroke-width="14"/>
+  <circle cx="290" cy="530" r="44" fill="#2e7d32" stroke="#333" stroke-width="12"/>
+  <!-- measured gap -->
+  <g stroke="#333" stroke-width="10" stroke-linecap="round">
+    <line x1="290" y1="790" x2="290" y2="870"/>
+    <line x1="780" y1="790" x2="780" y2="870"/>
+    <line x1="320" y1="830" x2="750" y2="830"/>
+  </g>
+  <path d="M 296 830 L 346 806 L 346 854 Z" fill="#333"/>
+  <path d="M 774 830 L 724 806 L 724 854 Z" fill="#333"/>
+</svg>

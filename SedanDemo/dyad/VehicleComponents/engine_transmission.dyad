@@ -91,6 +91,56 @@ metadata {
         "attrs": {"font-size": "160"}
       }
     ]
+  },
+  "_links": {
+    "throttle": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "driveshaft": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "support": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 250, "y1": 950, "x2": 350, "y2": 1050, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 250, "y1": 950, "x2": 350, "y2": 1050, "rot": 0}
+        }
+      }
+    },
+    "ratio": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 150, "x2": 1100, "y2": 250, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 150, "x2": 1100, "y2": 250, "rot": 0}
+        }
+      }
+    },
+    "engine_rpm": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 650, "x2": 1100, "y2": 750, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 650, "x2": 1100, "y2": 750, "rot": 0}
+        }
+      }
+    },
+    "engine_torque": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 800, "x2": 1100, "y2": 900, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 800, "x2": 1100, "y2": 900, "rot": 0}
+        }
+      }
+    }
   }
 }
 end

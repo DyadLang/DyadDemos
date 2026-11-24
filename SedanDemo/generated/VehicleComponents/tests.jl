@@ -16,6 +16,8 @@ end
 
 
 @testset "`SedanDemo.VehicleComponents`" begin
+include("ABSBrake_test.jl")
+include("AEBController_test.jl")
 include("BallJointForce_test.jl")
 include("Brake_test.jl")
 include("Differential1D_test.jl")
@@ -24,9 +26,12 @@ include("DoubleWishboneSuspension_test.jl")
 include("Driveline2WD_test.jl")
 include("EngineCVTMap_test.jl")
 include("HalfShaft_test.jl")
+include("IdealRangeSensor_test.jl")
 include("PathFollowerDriver_test.jl")
 include("RackPinionSteering_test.jl")
 include("SpeedController_test.jl")
+include("StationaryTarget_test.jl")
 include("TMeasySlippingWheel_test.jl")
 include("TMeasyWheelJoint_test.jl")
+include("ThrottleRobot_test.jl")
 end

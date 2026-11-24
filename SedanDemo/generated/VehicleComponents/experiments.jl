@@ -9,6 +9,8 @@ if isfile(joinpath((@__DIR__) |> Base.dirname |> Base.dirname, "dyad", "VehicleC
 end
 
 
+include("ABSBrake_experiment.jl")
+include("AEBController_experiment.jl")
 include("BallJointForce_experiment.jl")
 include("Brake_experiment.jl")
 include("Differential1D_experiment.jl")
@@ -17,8 +19,11 @@ include("DoubleWishboneSuspension_experiment.jl")
 include("Driveline2WD_experiment.jl")
 include("EngineCVTMap_experiment.jl")
 include("HalfShaft_experiment.jl")
+include("IdealRangeSensor_experiment.jl")
 include("PathFollowerDriver_experiment.jl")
 include("RackPinionSteering_experiment.jl")
 include("SpeedController_experiment.jl")
+include("StationaryTarget_experiment.jl")
 include("TMeasySlippingWheel_experiment.jl")
 include("TMeasyWheelJoint_experiment.jl")
+include("ThrottleRobot_experiment.jl")
