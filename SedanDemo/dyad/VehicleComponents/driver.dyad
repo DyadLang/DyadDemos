@@ -1,0 +1,128 @@
+"""
+Longitudinal cruise controller producing throttle and brake commands.
+
+A PI controller on the speed error splits its output into a throttle command
+(positive part) and a brake command (negative part), both saturated to [0, 1].
+"""
+component SpeedController
+  "Reference speed [m/s]"
+  v_ref = RealInput() {^v_ref}
+  "Measured vehicle speed [m/s]"
+  v = RealInput() {^v}
+  "Throttle command, 0..1"
+  throttle = RealOutput() {^throttle}
+  "Brake command, 0..1"
+  braking = RealOutput() {^braking}
+  "Proportional gain"
+  parameter Kp::Real = 0.4
+  "Integral gain"
+  parameter Ki::Real = 0.0
+  "Integrator state"
+  variable xi::Real(initial = 0)
+  "Raw controller output before splitting"
+  variable u::Real
+relations
+  der(xi) = v_ref - v
+  u = Kp * (v_ref - v) + Ki * xi {^id5}
+  throttle = min(1, max(0, u)) {^id6}
+  braking = min(1, max(0, -u)) {^id7}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/SpeedController.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "v_ref": {},
+    "v": {},
+    "throttle": {},
+    "braking": {},
+    "id5": {},
+    "id6": {},
+    "id7": {}
+  }
+}
+end
+
+"""
+Lateral path-following steering controller with a look-ahead point.
+
+The path is a piecewise-linear table `z_path(x_path)` of lateral position as a
+function of longitudinal position in the ground plane (world x-z plane, y up),
+so it suits maneuvers whose longitudinal coordinate advances monotonically. A
+look-ahead point is projected `lookahead` meters ahead of the vehicle along its
+heading; the PI controller steers on the lateral offset between that point and
+the path. Positive steering output means steering left (toward negative z).
+"""
+component PathFollowerDriver
+  "Vehicle x position in the world frame [m]"
+  x = RealInput() {^x}
+  "Vehicle z position in the world frame [m]"
+  z = RealInput() {^z}
+  "Vehicle yaw angle about the world y axis [rad]"
+  yaw = RealInput() {^yaw}
+  "Normalized steering command, -1..1"
+  steering = RealOutput() {^steering}
+  "Number of path points"
+  structural parameter npath::Integer = 2
+  "Longitudinal positions of the path points [m]"
+  parameter path_x::Real[npath] = [0, 100]
+  "Lateral (z) positions of the path points [m]"
+  parameter path_z::Real[npath] = [0, 0]
+  "Look-ahead distance [m]"
+  parameter lookahead::Length = 5.0
+  "Proportional gain on the lateral offset [1/m]"
+  parameter Kp::Real = 0.8
+  "Integral gain on the lateral offset [1/(m*s)]"
+  parameter Ki::Real = 0.0
+  "Look-ahead point x position"
+  variable x_la::Real
+  "Look-ahead point z position"
+  variable z_la::Real
+  "Path lateral position at the look-ahead point"
+  variable z_ref::Real
+  "Lateral offset of the look-ahead point right of the path"
+  variable e::Real
+  "Integrator state"
+  variable xi::Real(initial = 0)
+relations
+  # Heading of the vehicle: rotation by yaw about +y maps +x to (cos, -sin) in (x, z)
+  x_la = x + lookahead * cos(yaw) {^id5}
+  z_la = z - lookahead * sin(yaw) {^id6}
+  z_ref = SedanDemo.VehicleComponents.interp1(path_x, path_z, x_la) {^id7}
+  e = z_la - z_ref {^id8}
+  der(xi) = e
+  steering = min(1, max(-1, Kp * e + Ki * xi)) {^id9}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/PathFollowerDriver.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "x": {},
+    "z": {},
+    "yaw": {},
+    "steering": {},
+    "id5": {},
+    "id6": {},
+    "id7": {},
+    "id8": {},
+    "id9": {}
+  }
+}
+end

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- chassis wall -->
+  <rect x="120" y="250" width="60" height="500" fill="#bbb" stroke="#333" stroke-width="12"/>
+  <line x1="100" y1="290" x2="60 " y2="330" stroke="#333" stroke-width="10"/>
+  <line x1="100" y1="390" x2="60 " y2="430" stroke="#333" stroke-width="10"/>
+  <line x1="100" y1="490" x2="60 " y2="530" stroke="#333" stroke-width="10"/>
+  <line x1="100" y1="590" x2="60 " y2="630" stroke="#333" stroke-width="10"/>
+  <line x1="100" y1="690" x2="60 " y2="730" stroke="#333" stroke-width="10"/>
+  <!-- upper wishbone -->
+  <polygon points="180,320 620,380 180,440" fill="#8fa8c8" stroke="#333" stroke-width="14" stroke-linejoin="round"/>
+  <!-- lower wishbone -->
+  <polygon points="180,580 620,660 180,740" fill="#8fa8c8" stroke="#333" stroke-width="14" stroke-linejoin="round"/>
+  <!-- upright -->
+  <line x1="620" y1="380" x2="620" y2="660" stroke="#555" stroke-width="26"/>
+  <!-- ball joints -->
+  <circle cx="620" cy="380" r="34" fill="#e0b040" stroke="#333" stroke-width="12"/>
+  <circle cx="620" cy="660" r="34" fill="#e0b040" stroke="#333" stroke-width="12"/>
+  <!-- hinges -->
+  <circle cx="180" cy="380" r="26" fill="#777" stroke="#333" stroke-width="10"/>
+  <circle cx="180" cy="660" r="26" fill="#777" stroke="#333" stroke-width="10"/>
+  <!-- spindle stub -->
+  <line x1="620" y1="520" x2="760" y2="520" stroke="#555" stroke-width="24"/>
+  <circle cx="760" cy="520" r="40" fill="none" stroke="#c0392b" stroke-width="18"/>
+  <!-- coil spring chassis -> lower arm -->
+  <polyline points="300,300 300,360 250,380 350,410 250,440 350,470 250,500 350,530 300,560 300,620"
+            fill="none" stroke="#2e7d32" stroke-width="16" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,165 @@
+"""
+Two-wheel-drive shaft driveline: driveshaft, angled final drive, and an open
+differential feeding two axle shafts.
+
+The transmission flange drives a driveshaft, then a 1D bevel gear whose input
+and output rotation axes differ in 3D (`n_drive` along the vehicle's
+longitudinal axis, `n_axle` along the wheel spin axis by default), an open
+differential, and two axle shafts. When `drive_train_mechanics_3d = true` all
+shafts are `Rotor1D` rotors carried by `frame_a` (the vehicle body): their
+spin momentum exerts gyroscopic reactions on the body, and the body's angular
+acceleration couples back into the shaft dynamics.
+
+`housing_reaction` controls whether the bevel gear's static housing reaction
+also acts on `frame_a`. Keep it enabled when the axle flanges drive the wheels
+through halfshafts whose joint-carrier reaction is compensated (see
+`HalfShaft`); set it to `false` when the axle flanges drive wheel-joint axis
+flanges directly — the joint then applies the drive torque between the wheel
+and its carrier, so the reaction already enters the vehicle there and applying
+the housing reaction to the body as well would double-count it (the vehicle
+would receive a net unbalanced pitch moment equal to the total axle torque).
+
+`final_ratio` is the speed ratio axle/driveshaft (a small value is a large
+torque multiplication); flip its sign to reverse the drive direction convention.
+"""
+component Driveline2WD
+  "From the transmission output"
+  flange_transmission = Spline() {^flange_transmission}
+  "Left wheel drive shaft"
+  flange_left = Spline() {^flange_left}
+  "Right wheel drive shaft"
+  flange_right = Spline() {^flange_right}
+  "Carries the shaft and final-drive reactions; connect to the vehicle body"
+  frame_a = Frame3D() if drive_train_mechanics_3d {^frame_a}
+  driveshaft = MultibodyComponents.Rotor1D(J = J_driveshaft, n = n_drive, drive_train_mechanics_3d = drive_train_mechanics_3d, render = false) {^driveshaft}
+  bevel = MultibodyComponents.BevelGear1D(final ratio = final_ratio, n_a = n_axle, n_b = n_drive, drive_train_mechanics_3d = housing_reaction) {^bevel}
+  diffbox = MultibodyComponents.Rotor1D(J = J_diffbox, n = n_axle, drive_train_mechanics_3d = drive_train_mechanics_3d, render = false) {^diffbox}
+  diff = Differential1D() {^diff}
+  axle_left = MultibodyComponents.Rotor1D(J = J_axle, n = n_axle, drive_train_mechanics_3d = drive_train_mechanics_3d, render = false) {^axle_left}
+  axle_right = MultibodyComponents.Rotor1D(J = J_axle, n = n_axle, drive_train_mechanics_3d = drive_train_mechanics_3d, render = false) {^axle_right}
+  "Expose frame_a and apply the shafts' gyroscopic/inertial reactions to it"
+  structural parameter drive_train_mechanics_3d::Boolean = true
+  "Apply the final-drive housing reaction to frame_a; disable when the axles drive wheel-joint axis flanges directly (reaction already enters through the joints)"
+  structural parameter housing_reaction::Boolean = drive_train_mechanics_3d
+  "Final drive speed ratio, axle speed / driveshaft speed"
+  parameter final_ratio::Real = 0.2
+  "Driveshaft rotation axis, resolved in frame_a"
+  parameter n_drive::Real[3] = [1, 0, 0]
+  "Axle rotation axis, resolved in frame_a"
+  parameter n_axle::Real[3] = [0, 0, 1]
+  "Driveshaft inertia"
+  parameter J_driveshaft::MomentOfInertia = 0.5
+  "Differential housing inertia"
+  parameter J_diffbox::MomentOfInertia = 0.6
+  "Axle shaft inertia, per side"
+  parameter J_axle::MomentOfInertia = 0.4
+relations
+  connect(flange_transmission, driveshaft.flange_a)
+  connect(driveshaft.flange_b, bevel.flange_b) {^id11}
+  if housing_reaction
+    connect(bevel.frame_a, frame_a)
+  end
+  if drive_train_mechanics_3d
+    connect(driveshaft.frame_a, frame_a)
+    connect(diffbox.frame_a, frame_a)
+    connect(axle_left.frame_a, frame_a)
+    connect(axle_right.frame_a, frame_a)
+  end
+  connect(bevel.flange_a, diffbox.flange_a) {^id12}
+  connect(diffbox.flange_b, diff.flange_drive)
+  connect(diff.flange_left, axle_left.flange_a) {^id13}
+  connect(axle_left.flange_b, flange_left) {^id14}
+  connect(axle_right.flange_b, flange_right) {^id15}
+  connect(axle_right.flange_a, diff.flange_right) {^id16}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/Driveline2WD.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "flange_transmission": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 470, "x2": 80, "y2": 530, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "flange_left": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 920, "y1": 200, "x2": 980, "y2": 260, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "flange_right": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 920, "y1": 720, "x2": 980, "y2": 780, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "frame_a": {
+      "Dyad": {"placement": {"diagram": {"x1": 840, "y1": 470, "x2": 900, "y2": 530}}}
+    },
+    "driveshaft": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 140, "y1": 440, "x2": 260, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "bevel": {
+      "Dyad": {"placement": {"diagram": {"x1": 440, "y1": 440, "x2": 320, "y2": 560}}}
+    },
+    "diffbox": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 500, "y1": 440, "x2": 620, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "diff": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 680, "y1": 440, "x2": 800, "y2": 560, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "axle_left": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 740, "y1": 280, "x2": 860, "y2": 400, "rot": 270}}
+      }
+    },
+    "axle_right": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 740, "y1": 610, "x2": 860, "y2": 730, "rot": 90}}
+      }
+    },
+    "id11": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}},
+    "id12": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}},
+    "id13": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 794, "y": 470}, {"x": 800, "y": 470}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id14": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 800, "y": 230}], "E": 2}], "path": {}}},
+    "id15": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 800, "y": 750}], "E": 2}], "path": {}}},
+    "id16": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 800, "y": 530}], "E": 2}], "path": {}}}
+  }
+}
+end

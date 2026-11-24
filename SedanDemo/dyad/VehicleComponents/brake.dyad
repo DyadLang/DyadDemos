@@ -1,0 +1,47 @@
+"""
+Friction brake applying a commanded torque between two rotational flanges.
+
+The brake torque opposes the relative angular velocity of the two flanges and
+is proportional to the normalized command:
+
+    tau = braking * tau_max * tanh(w_rel / w0)
+
+Mount `spline_a` on the wheel spin axis and `spline_b` on the joint support so
+the reaction torque acts on the carrier. The `tanh` regularization keeps the
+torque smooth around zero speed; unlike a locking friction brake, a fully
+braked wheel can therefore creep slowly under a sustained torque (at a rate set
+by `w0`), which is negligible for driving maneuvers.
+"""
+component Brake
+  extends RotationalComponents.Interfaces.PartialCompliantWithRelativeStates
+  "Normalized brake command, 0..1"
+  braking = RealInput() {^braking}
+  "Brake torque at full command"
+  parameter tau_max::Torque = 2000
+  "Regularization angular velocity of the friction torque around zero speed"
+  parameter w0::AngularVelocity = 0.1
+relations
+  tau = braking * tau_max * tanh(w_rel / w0) {^id2}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/Brake.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "braking": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 450, "x2": 550, "y1": -100, "y2": 0, "rot": 90}}
+      }
+    },
+    "id2": {}
+  }
+}
+end

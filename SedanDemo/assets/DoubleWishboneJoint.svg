@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <radialGradient id="ballGrad" cx="36%" cy="33%" r="70%">
+      <stop offset="0%" stop-color="#fafafa"/>
+      <stop offset="45%" stop-color="#cfcfcf"/>
+      <stop offset="100%" stop-color="#6f6f6f"/>
+    </radialGradient>
+  </defs>
+  <path fill="#fff" d="M0 0h1000v1000H0z"/>
+  <!-- Upper arm: revolute hinge (frame_b) to upper ball -->
+  <rect x="120" y="205" width="560" height="70" rx="8" ry="8" fill="#e0e0e0" stroke="#333" stroke-width="5"/>
+  <!-- Upright between the ball joints -->
+  <rect x="655" y="240" width="70" height="510" rx="8" ry="8" fill="#b9b9d6" stroke="#333" stroke-width="5"/>
+  <!-- Lower arm stub to the lower ball (frame_a) -->
+  <rect x="40" y="715" width="640" height="70" rx="8" ry="8" fill="#f0f0f0" stroke="#999" stroke-width="5" stroke-dasharray="20 14"/>
+  <!-- Tie rod from frame_c to the upright -->
+  <line x1="500" y1="950" x2="690" y2="600" stroke="#333" stroke-width="40" stroke-linecap="round"/>
+  <line x1="500" y1="950" x2="690" y2="600" stroke="#e0e0e0" stroke-width="26" stroke-linecap="round"/>
+  <!-- Revolute hinge on the chassis -->
+  <circle cx="120" cy="240" r="95" fill="#c8c8c8" stroke="#333" stroke-width="6"/>
+  <circle cx="120" cy="240" r="36" fill="#999" stroke="#333" stroke-width="5"/>
+  <!-- Upper and lower ball joints -->
+  <circle cx="690" cy="240" r="85" fill="url(#ballGrad)" stroke="#333" stroke-width="6"/>
+  <circle cx="690" cy="750" r="85" fill="url(#ballGrad)" stroke="#333" stroke-width="6"/>
+  <!-- Tie-rod ball joints -->
+  <circle cx="690" cy="600" r="45" fill="url(#ballGrad)" stroke="#333" stroke-width="5"/>
+  <circle cx="500" cy="950" r="45" fill="url(#ballGrad)" stroke="#333" stroke-width="5"/>
+</svg>

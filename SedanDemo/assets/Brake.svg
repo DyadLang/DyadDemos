@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- disc -->
+  <circle cx="500" cy="500" r="260" fill="#98a8b8" stroke="#333" stroke-width="16"/>
+  <circle cx="500" cy="500" r="90" fill="#e8e8e8" stroke="#333" stroke-width="12"/>
+  <g fill="#666">
+    <circle cx="500" cy="330" r="18"/><circle cx="670" cy="500" r="18"/>
+    <circle cx="500" cy="670" r="18"/><circle cx="330" cy="500" r="18"/>
+    <circle cx="620" cy="380" r="18"/><circle cx="620" cy="620" r="18"/>
+    <circle cx="380" cy="380" r="18"/><circle cx="380" cy="620" r="18"/>
+  </g>
+  <!-- caliper -->
+  <path d="M 640 200 A 320 320 0 0 1 800 460 L 700 460 A 220 220 0 0 0 590 290 Z" fill="#c0392b" stroke="#333" stroke-width="12"/>
+  <!-- shafts -->
+  <line x1="60" y1="500" x2="410" y2="500" stroke="#555" stroke-width="28"/>
+  <line x1="590" y1="500" x2="940" y2="500" stroke="#555" stroke-width="28"/>
+</svg>
