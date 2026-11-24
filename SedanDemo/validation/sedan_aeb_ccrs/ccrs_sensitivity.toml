@@ -1,6 +1,6 @@
 a_full_offset_mps2 = 3.0
-commit = "262eba1"
-dirty = true
+commit = "bdda09a"
+dirty = false
 label = "design study, no criterion"
 
 [thresholds."a_on_10.0"]

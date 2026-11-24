@@ -1,4 +1,4 @@
-commit = "262eba1"
+commit = "bdda09a"
 dirty = true
 julia = "1.13.2"
 t_brake_s = 12.0
@@ -17,7 +17,7 @@ tau_max_front_Nm = 2000.0
 tau_max_rear_Nm = 2000.0
 v0_kmh = 79.16
 v_end_kmh = -0.003
-wall_s = 0.34
+wall_s = 0.31
 yaw_change_deg = -0.0
 
     [cases."abs_0.35".min_wheel_speed_ratio]
@@ -39,7 +39,7 @@ tau_max_front_Nm = 2000.0
 tau_max_rear_Nm = 2000.0
 v0_kmh = 79.16
 v_end_kmh = -0.001
-wall_s = 14.6
+wall_s = 14.57
 yaw_change_deg = -0.06
 
     [cases.abs_full.min_wheel_speed_ratio]
@@ -61,7 +61,7 @@ tau_max_front_Nm = 2000.0
 tau_max_rear_Nm = 2000.0
 v0_kmh = 79.16
 v_end_kmh = -0.002
-wall_s = 0.34
+wall_s = 0.4
 yaw_change_deg = -0.02
 
     [cases.abs_half.min_wheel_speed_ratio]
@@ -83,7 +83,7 @@ tau_max_front_Nm = 2000.0
 tau_max_rear_Nm = 2000.0
 v0_kmh = 79.16
 v_end_kmh = -0.001
-wall_s = 19.25
+wall_s = 19.41
 yaw_change_deg = -0.85
 
     [cases.noabs_full.min_wheel_speed_ratio]
