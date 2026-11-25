@@ -1,0 +1,413 @@
+"""
+Stationary target vehicle whose rear faces a vehicle approaching along +x.
+
+The outputs give the target's rear plane and lateral span in the world ground
+plane (x along the test path, z to the right, y up).
+"""
+component StationaryTarget
+  "x position of the target's rear plane [m]"
+  x_rear = RealOutput() {^x_rear}
+  "z position of the target's rear-center point [m]"
+  z_center = RealOutput() {^z_center}
+  "Target width [m]"
+  width = RealOutput() {^width}
+  "x position of the rear plane"
+  parameter x::Length = 100
+  "z position of the rear-center point"
+  parameter z::Length = 0
+  "Target width, excluding mirrors"
+  parameter w::Length = 1.712
+relations
+  x_rear = x
+  z_center = z
+  width = w
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/StationaryTarget.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "x_rear": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 250, "x2": 1100, "y2": 350, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 250, "x2": 1100, "y2": 350, "rot": 0}
+        }
+      }
+    },
+    "z_center": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "width": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 650, "x2": 1100, "y2": 750, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 650, "x2": 1100, "y2": 750, "rot": 0}
+        }
+      }
+    }
+  }
+}
+end
+
+"""
+Ideal forward range sensor for a stationary target.
+
+Measures the gap along x to the target's rear plane and the closing speed, with
+no noise, delay or field-of-view limit. The bumper is a straight edge of width
+`w` that turns with the yaw, which must stay within ±90°. The gap runs from the
+farthest-forward point of the part of the bumper inside the target's lateral
+span, and the target is in path while that part has nonzero length. With the
+target out of path, the gap runs from the bumper end nearest the target's span.
+"""
+component IdealRangeSensor
+  "Vehicle chassis x position [m]"
+  x = RealInput() {^x}
+  "Vehicle chassis z position [m]"
+  z = RealInput() {^z}
+  "Vehicle yaw angle about the world y axis [rad]"
+  yaw = RealInput() {^yaw}
+  "Vehicle longitudinal speed [m/s]"
+  v = RealInput() {^v}
+  "Target rear-plane x position [m]"
+  target_x = RealInput() {^target_x}
+  "Target rear-center z position [m]"
+  target_z = RealInput() {^target_z}
+  "Target width [m]"
+  target_width = RealInput() {^target_width}
+  "Gap from the front bumper's leading point inside the target's lateral span to the target's rear plane [m]"
+  gap = RealOutput() {^gap}
+  "Closing speed toward the target [m/s]"
+  closing_speed = RealOutput() {^closing_speed}
+  "1 while the target overlaps the front bumper laterally, else 0"
+  in_path = RealOutput() {^in_path}
+  "Front bumper ahead of the chassis frame origin"
+  parameter l_front::Length = 2.412
+  "Vehicle width"
+  parameter w::Length = 1.849
+  "Front bumper center x position"
+  variable x_front::Real
+  "Front bumper center z position"
+  variable z_front::Real
+  "Lower end, as the position s along the bumper, of the part inside the target's lateral span"
+  variable s_lo::Real
+  "Upper end, as the position s along the bumper, of the part inside the target's lateral span"
+  variable s_hi::Real
+relations
+  # Heading: a rotation by yaw about +y maps +x to (cos, -sin) and +z to (sin, cos) in (x, z)
+  x_front = x + l_front * cos(yaw)
+  z_front = z - l_front * sin(yaw)
+  assert(cos(yaw) > 0, "IdealRangeSensor needs the yaw within ±90°; the bumper faces away from the target")
+  # Bumper points sit at s(sin, cos) from its center for s in [-w/2, w/2]
+  s_lo = max(-w / 2, min(w / 2, (target_z - target_width / 2 - z_front) / cos(yaw)))
+  s_hi = max(-w / 2, min(w / 2, (target_z + target_width / 2 - z_front) / cos(yaw)))
+  gap = target_x - x_front - max(s_lo * sin(yaw), s_hi * sin(yaw))
+  closing_speed = v * cos(yaw)
+  in_path = ifelse(s_lo < s_hi, 1.0, 0.0)
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/IdealRangeSensor.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "target_x": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 250, "x2": 0, "y2": 350, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 250, "x2": 0, "y2": 350, "rot": 0}
+        }
+      }
+    },
+    "target_z": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "target_width": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 650, "x2": 0, "y2": 750, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 650, "x2": 0, "y2": 750, "rot": 0}
+        }
+      }
+    },
+    "v": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 150, "y1": -100, "x2": 250, "y2": 0, "rot": 90},
+          "diagram": {"iconName": "default", "x1": 150, "y1": -100, "x2": 250, "y2": 0, "rot": 90}
+        }
+      }
+    },
+    "yaw": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 350, "y1": -100, "x2": 450, "y2": 0, "rot": 90},
+          "diagram": {"iconName": "default", "x1": 350, "y1": -100, "x2": 450, "y2": 0, "rot": 90}
+        }
+      }
+    },
+    "z": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 550, "y1": -100, "x2": 650, "y2": 0, "rot": 90},
+          "diagram": {"iconName": "default", "x1": 550, "y1": -100, "x2": 650, "y2": 0, "rot": 90}
+        }
+      }
+    },
+    "x": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 750, "y1": -100, "x2": 850, "y2": 0, "rot": 90},
+          "diagram": {"iconName": "default", "x1": 750, "y1": -100, "x2": 850, "y2": 0, "rot": 90}
+        }
+      }
+    },
+    "gap": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 250, "x2": 1100, "y2": 350, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 250, "x2": 1100, "y2": 350, "rot": 0}
+        }
+      }
+    },
+    "closing_speed": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "in_path": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 650, "x2": 1100, "y2": 750, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 650, "x2": 1100, "y2": 750, "rot": 0}
+        }
+      }
+    }
+  }
+}
+end
+
+"""
+Autonomous emergency braking (AEB) on the deceleration required to stop short
+of an in-path target.
+
+The required deceleration to stop with `d_stop` left to the target is
+
+    a_req = closing_speed^2 / (2 * max(gap - d_stop, d_min))
+
+The brake request rises linearly from 0 at `a_on` to 1 at `a_full`. A
+first-order lag with time constant `tau` models the brake pressure build-up.
+The throttle passes through until the applied brake command reaches `b_cut`,
+and is cut fully above it. The function has no discrete state and no events.
+"""
+component AEBController
+  "Gap to the target [m]"
+  gap = RealInput() {^gap}
+  "Closing speed toward the target [m/s]"
+  closing_speed = RealInput() {^closing_speed}
+  "1 while the target is in path, else 0"
+  in_path = RealInput() {^in_path}
+  "Driver throttle command, 0..1"
+  throttle_in = RealInput() {^throttle_in}
+  "Throttle command to the vehicle, 0..1"
+  throttle = RealOutput() {^throttle}
+  "Brake command to the vehicle, 0..1"
+  braking = RealOutput() {^braking}
+  "Required deceleration at which braking starts"
+  parameter a_on::Acceleration = 5
+  "Required deceleration for a full brake request"
+  parameter a_full::Acceleration = 8
+  "Gap left to the target at standstill"
+  parameter d_stop::Length = 1.0
+  "Smallest stopping distance used in the required deceleration"
+  parameter d_min::Length = 0.05
+  "Brake build-up time constant"
+  parameter tau::Time = 0.15
+  "Applied brake command above which the throttle is cut"
+  parameter b_cut::Real = 0.02
+  "Deceleration required to stop with d_stop left"
+  variable a_req::Real
+  "Brake request before the build-up lag"
+  variable request::Real
+  "Applied brake command"
+  variable b::Real(initial = 0)
+relations
+  a_req = max(closing_speed, 0)^2 / (2 * max(gap - d_stop, d_min))
+  request = in_path * min(1, max(0, (a_req - a_on) / (a_full - a_on)))
+  der(b) = (request - b) / tau
+  braking = b
+  throttle = throttle_in * min(1, max(0, 1 - b / b_cut))
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/AEBController.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "gap": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 250, "x2": 0, "y2": 350, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 250, "x2": 0, "y2": 350, "rot": 0}
+        }
+      }
+    },
+    "closing_speed": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "in_path": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 650, "x2": 0, "y2": 750, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 650, "x2": 0, "y2": 750, "rot": 0}
+        }
+      }
+    },
+    "throttle_in": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 450, "y1": 1000, "x2": 550, "y2": 1100, "rot": 270},
+          "diagram": {"iconName": "default", "x1": 450, "y1": 1000, "x2": 550, "y2": 1100, "rot": 270}
+        }
+      }
+    },
+    "throttle": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 300, "x2": 1100, "y2": 400, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 300, "x2": 1100, "y2": 400, "rot": 0}
+        }
+      }
+    },
+    "braking": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 600, "x2": 1100, "y2": 700, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 600, "x2": 1100, "y2": 700, "rot": 0}
+        }
+      }
+    }
+  }
+}
+end
+
+"""
+Accelerator robot for track tests: passes the throttle command through, and
+releases the accelerator once the speed has dropped `dv_release` below the test
+speed after the vehicle has passed `x_armed`.
+
+Before `x_armed` the throttle always passes, so the vehicle can accelerate to
+the test speed. The release is a ramp over the last `dv_ramp` of the drop, so
+the throttle is exactly zero at and below the release speed.
+"""
+component ThrottleRobot
+  "Throttle command from the speed controller, 0..1"
+  throttle_in = RealInput() {^throttle_in}
+  "Vehicle longitudinal speed [m/s]"
+  v = RealInput() {^v}
+  "Vehicle chassis x position [m]"
+  x = RealInput() {^x}
+  "Throttle command, 0..1"
+  throttle = RealOutput() {^throttle}
+  "Test speed"
+  parameter v_test::Velocity = 10
+  "Speed drop below the test speed that releases the accelerator"
+  parameter dv_release::Velocity = 5 / 3.6
+  "Width of the release ramp above the release speed"
+  parameter dv_ramp::Velocity = 0.05
+  "x position after which the release is armed"
+  parameter x_armed::Length = 0
+  "1 while the accelerator may be pressed, else 0"
+  variable gate::Real
+relations
+  gate = max(ifelse(x < x_armed, 1.0, 0.0), min(1, max(0, (v - (v_test - dv_release)) / dv_ramp)))
+  throttle = throttle_in * gate
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/ThrottleRobot.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "throttle_in": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "v": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 300, "y1": -100, "x2": 400, "y2": 0, "rot": 90},
+          "diagram": {"iconName": "default", "x1": 300, "y1": -100, "x2": 400, "y2": 0, "rot": 90}
+        }
+      }
+    },
+    "x": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 600, "y1": -100, "x2": 700, "y2": 0, "rot": 90},
+          "diagram": {"iconName": "default", "x1": 600, "y1": -100, "x2": 700, "y2": 0, "rot": 90}
+        }
+      }
+    },
+    "throttle": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 450, "x2": 1100, "y2": 550, "rot": 0}
+        }
+      }
+    }
+  }
+}
+end

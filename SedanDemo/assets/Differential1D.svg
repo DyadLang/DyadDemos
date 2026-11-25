@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- housing -->
+  <circle cx="500" cy="500" r="200" fill="#b8b090" stroke="#333" stroke-width="16"/>
+  <!-- crown gear -->
+  <ellipse cx="500" cy="500" rx="120" ry="170" fill="#e0b040" stroke="#333" stroke-width="14"/>
+  <!-- axle shafts -->
+  <line x1="60" y1="500" x2="300" y2="500" stroke="#555" stroke-width="30"/>
+  <line x1="700" y1="500" x2="940" y2="500" stroke="#555" stroke-width="30"/>
+  <!-- drive shaft -->
+  <line x1="500" y1="60" x2="500" y2="300" stroke="#555" stroke-width="30"/>
+  <!-- small pinions -->
+  <circle cx="500" cy="380" r="46" fill="#98a8b8" stroke="#333" stroke-width="12"/>
+  <circle cx="500" cy="620" r="46" fill="#98a8b8" stroke="#333" stroke-width="12"/>
+  <circle cx="390" cy="500" r="46" fill="#98a8b8" stroke="#333" stroke-width="12"/>
+  <circle cx="610" cy="500" r="46" fill="#98a8b8" stroke="#333" stroke-width="12"/>
+</svg>

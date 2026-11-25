@@ -1,0 +1,259 @@
+"""
+# Sedan settle
+
+The sedan is released just above its equilibrium ride height with all driver
+inputs zero and settles onto its suspension and tires. Because the rear
+suspension hardpoints sit 12.5 cm lower on the chassis than the front ones,
+the equilibrium chassis attitude is pitched slightly nose-down while the wheel
+centers level out.
+"""
+example component SedanSettle
+  world = MultibodyComponents.World() {^world}
+  sedan = Sedan(render = render) {^sedan}
+  "Zero driver inputs"
+  zero = BlockComponents.Sources.Constant(k = 0) {^zero}
+  "Render the vehicle in animations; when false the mesh visualizers are left out of the model"
+  structural parameter render::Boolean = true
+relations
+  connect(zero.y, sedan.steering, sedan.throttle, sedan.braking)
+metadata {
+  "Dyad": {"tests": {"case1": {"stop": 4, "solver": "Rodas5P"}}},
+  "_links": {
+    "world": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 60, "y1": 60, "x2": 180, "y2": 180, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "sedan": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 420, "y1": 380, "x2": 580, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zero": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 160, "y1": 400, "x2": 280, "y2": 520, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+"""
+# Sedan full-throttle acceleration
+
+After a one-second settling phase the throttle is stepped to full and the
+sedan accelerates in a straight line while its CVT varies the ratio continuously.
+"""
+example component SedanAcceleration
+  world = MultibodyComponents.World() {^world}
+  sedan = Sedan(render = render) {^sedan}
+  "Zero steering and brake inputs"
+  zero = BlockComponents.Sources.Constant(k = 0) {^zero}
+  "Full throttle after the settling phase"
+  throttle_step = BlockComponents.Sources.Step(height = 1, start_time = 1) {^throttle_step}
+  "Render the vehicle in animations; when false the mesh visualizers are left out of the model"
+  structural parameter render::Boolean = true
+relations
+  connect(zero.y, sedan.steering, sedan.braking) {^id5}
+  connect(throttle_step.y, sedan.throttle) {^id6}
+metadata {
+  "Dyad": {"tests": {"case1": {"stop": 17, "solver": "Rodas5P"}}},
+  "_links": {
+    "world": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 60, "y1": 60, "x2": 180, "y2": 180, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "sedan": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 420, "y1": 380, "x2": 580, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "zero": {
+      "Dyad": {"placement": {"diagram": {"x1": 160, "y1": 340, "x2": 280, "y2": 460}}}
+    },
+    "throttle_step": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 160, "y1": 520, "x2": 280, "y2": 640, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "id5": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 326, "y": 400}, {"x": 326, "y": 404}], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": 3, "M": [{"x": 370, "y": 468}], "E": -1}
+        ],
+        "junctions": [{"x": 370, "y": 404}],
+        "path": {}
+      }
+    },
+    "id6": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 350, "y": 580}, {"x": 350, "y": 436}], "E": 2}],
+        "path": {}
+      }
+    }
+  }
+}
+end
+
+"""
+# Sedan step steer
+
+A cruise controller accelerates the sedan to 15 m/s; once the speed has
+settled, the steering input is stepped to 0.1, putting the car into a
+steady-state left turn.
+"""
+example component SedanStepSteer
+  world = MultibodyComponents.World() {^world}
+  sedan = Sedan(render = render) {^sedan}
+  "Cruise speed reference"
+  v_ref = BlockComponents.Sources.Constant(k = 15) {^v_ref}
+  "Steering step once the speed has settled"
+  steering_step = BlockComponents.Sources.Step(height = 0.1, start_time = 12) {^steering_step}
+  speed_controller = SedanDemo.VehicleComponents.SpeedController(Kp = 0.4) {^speed_controller}
+  "Render the vehicle in animations; when false the mesh visualizers are left out of the model"
+  structural parameter render::Boolean = true
+relations
+  connect(v_ref.y, speed_controller.v_ref)
+  connect(speed_controller.v, sedan.v)
+  connect(speed_controller.throttle, sedan.throttle)
+  connect(speed_controller.braking, sedan.braking)
+  connect(steering_step.y, sedan.steering)
+metadata {
+  "Dyad": {"tests": {"case1": {"stop": 20, "solver": "Rodas5P"}}},
+  "_links": {
+    "world": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 60, "y1": 60, "x2": 180, "y2": 180, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "sedan": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 500, "y1": 380, "x2": 660, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "v_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 430, "x2": 120, "y2": 530, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "steering_step": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 300, "y1": 600, "x2": 400, "y2": 700, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "speed_controller": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 140, "y1": 400, "x2": 280, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+"""
+# Sedan double lane change
+
+The sedan drives a double-lane-change course at 12 m/s: a cruise controller
+holds the speed while a look-ahead path-following driver steers along a
+piecewise-linear path that swerves 4 m to the left and back over roughly 40 m.
+"""
+example component SedanDoubleLaneChange
+  world = MultibodyComponents.World() {^world}
+  sedan = Sedan(render = render) {^sedan}
+  "Cruise speed reference"
+  v_ref = BlockComponents.Sources.Constant(k = 12) {^v_ref}
+  speed_controller = SedanDemo.VehicleComponents.SpeedController(Kp = 0.4) {^speed_controller}
+  driver = SedanDemo.VehicleComponents.PathFollowerDriver(npath = 55, lookahead = 5.0, Kp = 0.8, path_x = [0.0, 3.681, 9.444, 16.875, 25.556, 35.069, 45.0, 54.931, 64.444, 73.125, 80.556, 86.319, 90.0, 92.26, 94.083, 96.667, 98.25, 99.844, 102.0, 104.007, 106.056, 108.188, 110.444, 112.868, 115.5, 117.53, 119.241, 120.812, 122.426, 124.262, 126.5, 128.884, 131.074, 133.125, 135.093, 137.032, 139.0, 140.583, 142.177, 144.333, 146.917, 148.74, 151.0, 153.5, 156.0, 158.5, 161.0, 163.5, 166.0, 168.5, 171.0, 173.5, 176.0, 178.5, 181.0], path_z = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.296, -1.037, -2.0, -2.963, -3.704, -4.0, -4.0, -4.0, -4.0, -4.0, -4.0, -4.0, -3.704, -2.963, -2.0, -1.037, -0.296, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]) {^driver}
+  "Render the vehicle in animations; when false the mesh visualizers are left out of the model"
+  structural parameter render::Boolean = true
+relations
+  connect(v_ref.y, speed_controller.v_ref)
+  connect(speed_controller.v, sedan.v)
+  connect(speed_controller.throttle, sedan.throttle)
+  connect(speed_controller.braking, sedan.braking)
+  connect(driver.x, sedan.x)
+  connect(driver.z, sedan.z)
+  connect(driver.yaw, sedan.yaw)
+  connect(driver.steering, sedan.steering)
+metadata {
+  "Dyad": {"tests": {"case1": {"stop": 25, "solver": "Rodas5P"}}},
+  "_links": {
+    "world": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 60, "y1": 60, "x2": 180, "y2": 180, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "sedan": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 520, "y1": 380, "x2": 680, "y2": 540, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "v_ref": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 330, "x2": 120, "y2": 430, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "speed_controller": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 140, "y1": 300, "x2": 280, "y2": 440, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "driver": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 140, "y1": 560, "x2": 280, "y2": 700, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

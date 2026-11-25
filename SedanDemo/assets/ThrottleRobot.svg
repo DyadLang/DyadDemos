@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- floor -->
+  <line x1="430" y1="885" x2="880" y2="885" stroke="#888" stroke-width="14" stroke-linecap="round"/>
+  <!-- accelerator pedal on its pivot -->
+  <g transform="rotate(25 620 840)">
+    <rect x="565" y="430" width="110" height="430" rx="40" fill="#2e7d32" stroke="#333" stroke-width="14"/>
+    <g stroke="#1b5e20" stroke-width="12" stroke-linecap="round">
+      <line x1="590" y1="520" x2="650" y2="520"/>
+      <line x1="590" y1="580" x2="650" y2="580"/>
+      <line x1="590" y1="640" x2="650" y2="640"/>
+    </g>
+  </g>
+  <circle cx="620" cy="840" r="34" fill="#555" stroke="#333" stroke-width="10"/>
+  <!-- linear actuator pressing the pedal -->
+  <line x1="440" y1="590" x2="652" y2="590" stroke="#555" stroke-width="30" stroke-linecap="round"/>
+  <rect x="150" y="530" width="300" height="120" rx="22" fill="#98a8b8" stroke="#333" stroke-width="14"/>
+  <rect x="110" y="490" width="50" height="200" rx="10" fill="#555" stroke="#333" stroke-width="10"/>
+  <!-- controller -->
+  <rect x="215" y="420" width="150" height="110" rx="16" fill="#7a8a9a" stroke="#333" stroke-width="12"/>
+  <circle cx="290" cy="475" r="22" fill="#2e7d32" stroke="#333" stroke-width="8"/>
+</svg>

@@ -1,0 +1,158 @@
+"""
+Ball joint that transmits force but no torque, without position constraints.
+
+For use inside joint assemblies that already place `frame_b` at `frame_a`
+analytically (such as `DoubleWishboneJoint`): the constraint force stays an
+unknown of the force balance, and no position equations are added. Same force
+and torque balance as `MultibodyComponents.SphericalConstraint`.
+"""
+component BallJointForce
+  extends MultibodyComponents.PartialTwoFrames()
+  "Position vector from origin of frame_a to origin of frame_b, resolved in frame_a"
+  variable r_rel_a::Position[3]
+relations
+  r_rel_a = MultibodyComponents.resolve2(frame_a.R, frame_b.r_0 - frame_a.r_0)
+  # No torque is transmitted through the ball joint
+  frame_b.tau = [0, 0, 0]
+  # Force and torque balance between the two frames
+  frame_a.f + MultibodyComponents.resolve_relative(frame_b.f, frame_b.R, frame_a.R) = [0, 0, 0]
+  frame_a.tau + MultibodyComponents.resolve_relative(frame_b.tau, frame_b.R, frame_a.R) - cross(r_rel_a, frame_a.f) = [0, 0, 0]
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/BallJointForce.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  }
+}
+end
+
+"""
+Joint assembly that closes the kinematic loops of a double-wishbone suspension
+analytically: the upright hangs on a **spherical** joint at `frame_a` (lower ball
+joint), its upper ball joint sits on an arm hinged by a **revolute** joint at
+`frame_b`, and a tie rod (**spherical-spherical** rod of fixed length) connects
+the upright to `frame_c` (tie-rod inner end on the chassis or steering rack).
+
+Given the positions of `frame_a` and `frame_c` and the pose of `frame_b`, the
+upper-arm angle and the upright orientation follow in closed form, in two
+steps (characteristic pairs of joints): the upper-arm angle closes the fixed
+distance between the two ball joints, and the spin of the upright about the line
+through the ball joints closes the tie-rod length. The assembly therefore adds no
+states and no nonlinear position constraints; the ball-joint and tie-rod
+constraint forces remain unknowns of the (linear) force balance.
+
+The upper arm frame is exposed as `frame_ib` (at the hinge, for the arm's body)
+and the upright frame as `frame_ub` (at the lower ball joint, for the upright
+body and the wheel). Both configurations of each step are selected automatically
+at initialization as the ones closest to `upper_phi_guess` and `spin_guess`; set
+`upper_positive_branch` or `spin_positive_branch` to force a branch. The spin
+angle is measured from the upright pose reached by the minimal rotation of
+`rUpper_ub` onto the current ball-joint line, so it is near zero when the
+upright frame is aligned with the design geometry.
+"""
+component DoubleWishboneJoint
+  extends MultibodyComponents.PartialTwoFrames()
+  "Tie-rod inner end (chassis or steering rack)"
+  frame_c = Frame3D() {^frame_c}
+  "Upright frame at the lower ball joint"
+  frame_ub = Frame3D() {^frame_ub}
+  "Upper arm frame at the hinge (rotates with the upper-arm angle)"
+  frame_ib = Frame3D() {^frame_ib}
+  revolute = MultibodyComponents.RevoluteWithLengthConstraint(n = n_b, length_constraint = upper_length, phi_guess = upper_phi_guess, positive_branch = upper_positive_branch) {^revolute}
+  upper_arm = MultibodyComponents.FixedTranslation(r = rUpper_ib, render = render, radius = rod_radius, color = rod_color) {^upper_arm}
+  lower_ball = MultibodyComponents.Spherical(orientation_state = MultibodyComponents.OrientationState.None(), render = render) {^lower_ball}
+  upright_upper = MultibodyComponents.FixedTranslation(r = rUpper_ub, render = render, radius = rod_radius, color = rod_color) {^upright_upper}
+  upright_tie = MultibodyComponents.FixedTranslation(r = rTie_ub, render = render, radius = rod_radius, color = rod_color) {^upright_tie}
+  upper_ball = SedanDemo.VehicleComponents.BallJointForce() {^upper_ball}
+  tierod = MultibodyComponents.SphericalSpherical(r_0 = rTie_0, kinematic_constraint = false, constraint_residue_external = true, render = render, radius = rod_radius, color = rod_color) {^tierod}
+  "Force a branch of the upper-arm angle instead of selecting it from upper_phi_guess"
+  structural parameter upper_positive_branch::Boolean = missing
+  "Force a branch of the upright spin instead of selecting it from spin_guess"
+  structural parameter spin_positive_branch::Boolean = missing
+  "Upper-arm hinge axis, resolved in frame_b"
+  parameter n_b::Real[3] = [1, 0, 0]
+  "Vector from the hinge (frame_b origin) to the upper ball joint, resolved in frame_ib"
+  parameter rUpper_ib::Length[3] = [0, 0, 0.3]
+  "Vector from the lower ball joint (frame_ub origin) to the upper ball joint, resolved in frame_ub"
+  parameter rUpper_ub::Length[3] = [0, 0.4, 0]
+  "Vector from the lower ball joint (frame_ub origin) to the tie-rod outer end, resolved in frame_ub"
+  parameter rTie_ub::Length[3] = [-0.15, 0.2, 0]
+  "Nominal vector from the tie-rod inner end to its outer end; its norm is the tie-rod length"
+  parameter rTie_0::Length[3] = [0, 0, 0.3]
+  "Guess value for the upper-arm angle at the initial time"
+  parameter upper_phi_guess::Angle = 0
+  "Guess value for the upright spin angle at the initial time"
+  parameter spin_guess::Angle = 0
+  "Sign of the square-root term picking the branch of the spin solution. Determined at initialization, do not set (use spin_guess, or spin_positive_branch to force a branch)"
+  parameter spin_branch_sign::Real = missing
+  "Render the links in animations"
+  parameter render::Boolean = true
+  "Rendering radius of the links"
+  parameter rod_radius::Real = 0.02
+  "RGBA color of the links"
+  parameter rod_color::Real[4] = [0.5, 0, 0.5, 1]
+  final parameter upper_length::Length = MultibodyComponents.norm_(rUpper_ub)
+  final parameter tie_length::Length = MultibodyComponents.norm_(rTie_0)
+  final parameter d0::Real[3] = rUpper_ub / upper_length
+  "Unit vector from the lower to the upper ball joint, resolved in world"
+  variable e_bu::Real[3]
+  "Vector from the lower ball joint to the tie-rod inner end, resolved in the aligned reference frame of the upright"
+  variable r_tie_ref::Position[3]
+  "Spin angle of the upright about the ball-joint line"
+  variable psi::Angle
+relations
+  guess psi = spin_guess
+  guess spin_branch_sign = 1
+  initial spin_branch_sign = MultibodyComponents.select_branch_angle(tie_length, d0, r_tie_ref, rTie_ub, spin_guess, spin_positive_branch)
+  # Step 1: upper-arm angle closing the ball-joint distance
+  revolute.r_a = MultibodyComponents.resolve2(frame_b.R, frame_a.r_0 - frame_b.r_0)
+  revolute.r_b = rUpper_ib
+  # The upper arm hinge transmits no torque about its axis (no analytic force
+  # distribution here: the ball-joint and tie-rod forces stay unknowns)
+  revolute.tau = -dot(revolute.frame_b.tau, revolute.e)
+  # Step 2: upright spin about the ball-joint line closing the tie-rod length
+  e_bu = (upper_arm.frame_b.r_0 - frame_a.r_0) / upper_length
+  r_tie_ref = SedanDemo.VehicleComponents.align_transform(d0, e_bu) * (frame_c.r_0 - frame_a.r_0)
+  psi = MultibodyComponents.compute_angle(tie_length, d0, r_tie_ref, rTie_ub, spin_branch_sign)
+  lower_ball.frame_b.R = SedanDemo.VehicleComponents.spin_transform(d0, psi) * SedanDemo.VehicleComponents.align_transform(d0, e_bu)
+  connect(frame_b, revolute.frame_a) {^id1}
+  connect(revolute.frame_b, upper_arm.frame_a, frame_ib) {^id2}
+  connect(frame_a, lower_ball.frame_a) {^id3}
+  connect(lower_ball.frame_b, frame_ub, upright_upper.frame_a, upright_tie.frame_a) {^id4}
+  connect(upper_arm.frame_b, upper_ball.frame_a) {^id5}
+  connect(upper_ball.frame_b, upright_upper.frame_b) {^id6}
+  connect(frame_c, tierod.frame_a) {^id7}
+  connect(tierod.frame_b, upright_tie.frame_b) {^id8}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/DoubleWishboneJoint.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 1100,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "frame_c": {
+      "Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 450, "y1": 900, "x2": 550, "y2": 1000, "rot": 0}}}
+    },
+    "frame_ub": {
+      "Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 900, "y1": 700, "x2": 1000, "y2": 800, "rot": 0}}}
+    },
+    "frame_ib": {
+      "Dyad": {"placement": {"diagram": {"iconName": "default", "x1": 900, "y1": 200, "x2": 1000, "y2": 300, "rot": 0}}}
+    }
+  }
+}
+end

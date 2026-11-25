@@ -1,0 +1,562 @@
+
+"""
+Wheel joint with the TMeasy semi-empirical tire model on the plane y = 0.
+
+Forces are computed from the combined longitudinal/lateral slip through a
+piecewise characteristic (initial slope, adhesion maximum, full sliding) whose
+parameters are load-dependent: each is specified at the nominal load `pn` and
+at twice the nominal load, and inter-/extrapolated in the actual normal force
+(quadratically for forces and slopes, linearly for slip locations). Default
+curve parameters follow a standard passenger-car pattern scaled by `pn`, so a
+typical tire is configured by its nominal load alone.
+
+Standstill and low speed are handled by a bristle friction model (elastic
+tread blocks with stiffness `sigma0` and damping `sigma1`) whose force is
+blended with the slip-based force between `frblend_begin` and `frblend_end`
+forward speed, allowing the tire to hold a vehicle at rest without creep.
+Rolling resistance acts as a torque opposing the wheel spin. The aligning
+torque (`m_align`, from a pneumatic-trail lever) and the overturning moment
+from camber (`m_overturn`) act on the wheel; the model is intended for forward
+driving.
+
+`frame_a` is at the wheel center with the spin axis along its z-axis. Road
+friction enters through `mu_road` relative to the reference friction `mu_0`
+of the tire parameters.
+"""
+component TMeasyWheelJoint
+  extends MultibodyComponents.Renderable(color = [1, 0, 0, 1])
+  extends MultibodyComponents.CutJoint()
+  frame_a = Frame3D() {^frame_a}
+  """
+   Optional road-surface frame: when surface=true the contact patch position
+   equals this frame's position, so a connected component can define the road
+   height y = f(x, z). When false, the wheel rolls on the flat plane y = 0.
+  """
+  surface_frame = Frame3D() if surface {^surface_frame}
+  "Tire visualization: cylinder centered on frame_a with axis along z"
+  tire_shape = MultibodyComponents.CylinderShape(render = render, color = color, r = frame_a.r_0, R = transpose(frame_a.R), r_shape = [0, 0, -width / 2], length_direction = [0, 0, 1], length = width, width = 2 * radius, height = 2 * radius)
+  "Rim cross-cylinder 1: thin spoke spanning the wheel diameter; rotates with the wheel to make the spin visible"
+  rim1_shape = MultibodyComponents.CylinderShape(render = render, color = [0.8, 0.8, 0.8, 1.0], r = frame_a.r_0, R = transpose(frame_a.R), r_shape = [-radius, 0, 0], length_direction = [1, 0, 0], length = 2 * radius, width = radius / 3, height = radius / 3)
+  "Rim cross-cylinder 2: second spoke, perpendicular to the first"
+  rim2_shape = MultibodyComponents.CylinderShape(render = render, color = [0.8, 0.8, 0.8, 1.0], r = frame_a.r_0, R = transpose(frame_a.R), r_shape = [0, -radius, 0], length_direction = [0, 1, 0], length = 2 * radius, width = radius / 3, height = radius / 3)
+  "Use an external road surface supplied via surface_frame (else flat ground y=0)"
+  structural parameter surface::Boolean = false
+  """
+  Use a compliant (elastic) normal contact instead of the rigid no-penetration
+   constraint: f_n = max(0, c_z*pen + d_z*der(pen)) is then explicit, so f_n and
+   the contact-point acceleration leave the coupled algebraic block (this decouples
+   free-floating multi-wheel cars). The wheel vertical position becomes a dynamic
+   tire-compression state.
+  """
+  structural parameter elastic_contact::Boolean = false
+  """
+  Include the bristle standstill friction model (two additional states). When
+   false, the slip-based force acts at all speeds and the tire creeps at rest.
+  """
+  structural parameter low_speed_model::Boolean = true
+  """
+  Include the wheel's angular state (Cardan angles). Set false when the wheel is
+   mounted on an already-rooted axis: the orientation is then taken from frame_a
+   and no orientation loop/state is introduced (avoids redundant constraint forces
+   in free-floating multi-wheel assemblies).
+  """
+  structural parameter angular_state::Boolean = true
+  "Rotation axis sequence for the Cardan angles that orient `frame_a` (default y, z, x)"
+  structural parameter sequence::Integer[3] = [2, 3, 1]
+  "Unloaded radius of the wheel"
+  parameter radius::Length = 0.3
+  "Width of the wheel"
+  parameter width::Real = 0.2
+  "Vertical contact stiffness, used only when elastic_contact = true [N/m]"
+  parameter c_z::Real = 250000
+  "Vertical contact damping, used only when elastic_contact = true [N*s/m]"
+  parameter d_z::Real = 500
+  "Nominal (design) vertical load [N]"
+  parameter pn::Real = 3580.65
+  "Maximum vertical load used for the curve parameters [N]"
+  parameter pn_max::Real = 3.5 * pn
+  "Reference friction coefficient of the tire parameters"
+  parameter mu_0::Real = 0.8
+  "Actual road friction coefficient"
+  parameter mu_road::Real = 0.8
+  "Rolling resistance coefficient"
+  parameter rolling_resistance::Real = 0.015
+  "Numerical velocity floor of the slip normalization [m/s]"
+  parameter vnum::Real = 0.01
+  "Bristle stiffness of the standstill friction model [N/m]"
+  parameter sigma0::Real = 100000
+  "Bristle damping of the standstill friction model [N*s/m]"
+  parameter sigma1::Real = 5000
+  "Forward speed where the blend from bristle to slip-based force begins [m/s]"
+  parameter frblend_begin::Real = 1.0
+  "Forward speed where the blend to the slip-based force is complete [m/s]"
+  parameter frblend_end::Real = 3.0
+  "Initial longitudinal slope at nominal load [N]"
+  parameter dfx0_pn::Real = 18.3741 * pn
+  "Initial longitudinal slope at twice nominal load [N]"
+  parameter dfx0_p2n::Real = 19.4669 * 2 * pn
+  "Longitudinal force maximum at nominal load [N]"
+  parameter fxm_pn::Real = 1.1292 * pn
+  "Longitudinal force maximum at twice nominal load [N]"
+  parameter fxm_p2n::Real = 1.0896 * 2 * pn
+  "Longitudinal sliding force at nominal load [N]"
+  parameter fxs_pn::Real = 0.80149 * pn
+  "Longitudinal sliding force at twice nominal load [N]"
+  parameter fxs_p2n::Real = 0.76917 * 2 * pn
+  "Slip of the longitudinal force maximum at nominal load"
+  parameter sxm_pn::Real = 0.13913
+  "Slip of the longitudinal force maximum at twice nominal load"
+  parameter sxm_p2n::Real = 0.13913
+  "Slip where longitudinal sliding starts at nominal load"
+  parameter sxs_pn::Real = 0.66667
+  "Slip where longitudinal sliding starts at twice nominal load"
+  parameter sxs_p2n::Real = 0.66667
+  "Initial lateral slope at nominal load [N]"
+  parameter dfy0_pn::Real = 15.9826 * pn
+  "Initial lateral slope at twice nominal load [N]"
+  parameter dfy0_p2n::Real = 12.8509 * 2 * pn
+  "Lateral force maximum at nominal load [N]"
+  parameter fym_pn::Real = 1.0009 * pn
+  "Lateral force maximum at twice nominal load [N]"
+  parameter fym_p2n::Real = 0.91367 * 2 * pn
+  "Lateral sliding force at nominal load [N]"
+  parameter fys_pn::Real = 0.8336 * pn
+  "Lateral sliding force at twice nominal load [N]"
+  parameter fys_p2n::Real = 0.77336 * 2 * pn
+  "Slip of the lateral force maximum at nominal load"
+  parameter sym_pn::Real = 0.14852
+  "Slip of the lateral force maximum at twice nominal load"
+  parameter sym_p2n::Real = 0.18504
+  "Slip where lateral sliding starts at nominal load"
+  parameter sys_pn::Real = 0.96524
+  "Slip where lateral sliding starts at twice nominal load"
+  parameter sys_p2n::Real = 1.0714
+  "Aligning-torque pseudo lever at zero lateral slip, at the nominal load"
+  parameter nL0_pn::Real = 0.178
+  "Aligning-torque pseudo lever at zero lateral slip, at twice the nominal load"
+  parameter nL0_p2n::Real = 0.19
+  "Lateral slip where the aligning lever crosses zero, at the nominal load"
+  parameter sq0_pn::Real = 0.16337
+  "Lateral slip where the aligning lever crosses zero, at twice the nominal load"
+  parameter sq0_p2n::Real = 0.20355
+  "Lateral slip where the aligning lever vanishes, at the nominal load"
+  parameter sqe_pn::Real = 0.96524
+  "Lateral slip where the aligning lever vanishes, at twice the nominal load"
+  parameter sqe_p2n::Real = 1.0714
+  "Overturning stiffness of the contact patch about the longitudinal axis"
+  final parameter c_gamma::Real = width ^ 2 * c_z / 12
+  "x-position of the wheel axis"
+  variable x::Length(statePriority = 15)
+  "y-position of the wheel axis"
+  variable y::Length(statePriority = 0)
+  "z-position of the wheel axis"
+  variable z::Length(statePriority = 15)
+  "Angles that rotate the world frame into `frame_a` around the y-, z-, x-axis"
+  variable angles::Angle(statePriority = 15)[3] if angular_state
+  "Time derivatives of `angles`"
+  variable der_angles::AngularVelocity(statePriority = 30)[3] if angular_state
+  "Wheel rolling angle (`angles[2]`)"
+  variable phi_roll::Angle if angular_state
+  "Wheel rolling angular velocity"
+  variable w_roll::AngularVelocity
+  "Position vector from world frame to contact point on the road, resolved in world frame"
+  variable r_road_0::Position[3]
+  "Force vector on the wheel at the contact point, resolved in world frame"
+  variable f_wheel_0::Real[3]
+  "Contact force acting on the wheel in the normal direction"
+  variable f_n::Dyad.Force
+  "Contact force acting on the wheel in the lateral direction"
+  variable f_lat::Dyad.Force
+  "Contact force acting on the wheel in the longitudinal direction"
+  variable f_long::Dyad.Force
+  "Unit vector along the wheel axis, resolved in world frame"
+  variable e_axis_0::Real[3]
+  "Distance vector from wheel center to contact point, resolved in world frame"
+  variable delta_0::Real[3]
+  "Tire penetration depth (radius minus center-to-road normal distance); >0 when compressed"
+  variable pen::Real
+  "Unit vector normal to the road at the contact point, resolved in world frame"
+  variable e_n_0::Real[3]
+  "Unit vector in the lateral direction of the road at the contact point, resolved in world frame"
+  variable e_lat_0::Real[3]
+  "Unit vector in the longitudinal direction of the road at the contact point, resolved in world frame"
+  variable e_long_0::Real[3]
+  "Road heading at (s, w), resolved in world frame (unit vector)"
+  variable e_s_0::Real[3]
+  "Road surface parameter 1"
+  variable s::Real
+  "Road surface parameter 2"
+  variable w::Real
+  "Velocity of wheel center, resolved in world frame"
+  variable v_0::Velocity[3]
+  "Angular velocity of the wheel, resolved in world frame"
+  variable w_0::AngularVelocity[3]
+  "Auxiliary vector for building the contact frame"
+  variable aux::Real[3]
+  "Forward-positive wheel spin speed"
+  variable omega::AngularVelocity
+  "Effective rolling radius"
+  variable R_eff::Length
+  "Slip-normalization transport speed"
+  variable vta::Velocity
+  "Longitudinal slip velocity of the wheel center"
+  variable vsx::Velocity
+  "Lateral slip velocity of the wheel center"
+  variable vsy::Velocity
+  "Longitudinal slip"
+  variable sx::Real
+  "Lateral slip"
+  variable sy::Real
+  "Combined slip magnitude"
+  variable sc::Real
+  "Normalized vertical load, f_n clamped to [0, pn_max] over pn"
+  variable q_n::Real
+  "Load-interpolated initial slope, longitudinal"
+  variable dfx0::Real
+  "Load-interpolated force maximum, longitudinal"
+  variable fxm::Real
+  "Load-interpolated sliding force, longitudinal"
+  variable fxs::Real
+  "Load-interpolated slip of the force maximum, longitudinal"
+  variable sxm::Real
+  "Load-interpolated slip where sliding starts, longitudinal"
+  variable sxs::Real
+  "Load-interpolated initial slope, lateral"
+  variable dfy0::Real
+  "Load-interpolated force maximum, lateral"
+  variable fym::Real
+  "Load-interpolated sliding force, lateral"
+  variable fys::Real
+  "Load-interpolated slip of the force maximum, lateral"
+  variable sym::Real
+  "Load-interpolated slip where sliding starts, lateral"
+  variable sys::Real
+  "Load-interpolated aligning lever at zero lateral slip"
+  variable nL0::Real
+  "Load-interpolated lateral slip where the aligning lever crosses zero"
+  variable sq0::Real
+  "Load-interpolated lateral slip where the aligning lever vanishes"
+  variable sqe::Real
+  "Contact patch length"
+  variable P_len::Length
+  "Aligning torque about the contact normal"
+  variable m_align::Dyad.Torque
+  "Camber angle of the wheel plane against the contact normal"
+  variable gamma_c::Angle
+  "Overturning moment about the longitudinal axis"
+  variable m_overturn::Dyad.Torque
+  "Longitudinal direction cosine of the combined slip"
+  variable ca::Real
+  "Lateral direction cosine of the combined slip"
+  variable sa::Real
+  "Combined-slip force magnitude from the tire characteristic"
+  variable f_c::Real
+  "Slip-based longitudinal force"
+  variable fx_tm::Real
+  "Slip-based lateral force"
+  variable fy_tm::Real
+  "Bristle deflection, longitudinal"
+  variable brx::Length if low_speed_model
+  "Bristle deflection, lateral"
+  variable bry::Length if low_speed_model
+  "Bristle deflection rate, longitudinal"
+  variable brx_dot::Velocity if low_speed_model
+  "Bristle deflection rate, lateral"
+  variable bry_dot::Velocity if low_speed_model
+  "Coulomb force limit of the bristle model"
+  variable f_coulomb::Real if low_speed_model
+  "Bristle force before the friction-circle saturation, longitudinal"
+  variable fx_br::Real if low_speed_model
+  "Bristle force before the friction-circle saturation, lateral"
+  variable fy_br::Real if low_speed_model
+  "Friction-circle scaling of the bristle force"
+  variable br_scale::Real if low_speed_model
+  "Blend factor between the bristle force (0) and the slip-based force (1)"
+  variable frblend::Real
+relations
+  # Solver guesses for algebraic intermediates
+  guess x = 0
+  guess y = radius
+  guess z = 0
+  if angular_state
+    guess angles = [0, 0, 0]
+    guess der_angles = [0, 0, 0]
+    guess phi_roll = 0
+  end
+  guess w_roll = 0
+  guess f_n = 1.0
+  guess delta_0 = [0, -radius, 0]
+  guess pen = 0
+  guess e_n_0 = [0, 1, 0]
+  guess aux = [1, 0, 0]
+  guess vsx = 0
+  guess vsy = 0
+  if low_speed_model
+    initial brx = 0
+    initial bry = 0
+  end
+  # Road description
+  if surface
+    # The surface frame is a kinematic road reference: it exerts no force.
+    surface_frame.f = [0, 0, 0]
+    surface_frame.tau = [0, 0, 0]
+    s = surface_frame.r_0[1]
+    w = surface_frame.r_0[3]
+    r_road_0 = surface_frame.r_0
+    e_n_0 = MultibodyComponents.resolve1(surface_frame.R, [0, 1, 0])
+    e_s_0 = MultibodyComponents.resolve1(surface_frame.R, [1, 0, 0])
+  else
+    # Flat road description
+    r_road_0 = [s, 0, w]
+    e_n_0 = [0, 1, 0]
+    e_s_0 = [1, 0, 0]
+  end
+  # Pose / orientation (see PacejkaWheelJoint)
+  frame_a.r_0 = [x, y, z]
+  Rleaf = frame_a.R
+  if angular_state
+    Rroot = MultibodyComponents.RR(MultibodyComponents.axes_rotations(sequence, angles, der_angles))
+    der_angles = der(angles)
+    phi_roll = angles[2]
+    w_roll = der(phi_roll)
+    w_0 = MultibodyComponents.resolve1(frame_a.R, MultibodyComponents.angular_velocity2(MultibodyComponents.axes_rotations(sequence, angles, der_angles)))
+  else
+    Rroot = frame_a.R
+    w_roll = dot(MultibodyComponents.angular_velocity2(MultibodyComponents.ori(frame_a)), [0, 0, 1])
+    w_0 = MultibodyComponents.angular_velocity1(MultibodyComponents.ori(frame_a))
+  end
+  # Contact-point coordinate frame
+  e_axis_0 = MultibodyComponents.resolve1(frame_a.R, [0, 0, 1])
+  assert(abs(dot(e_n_0, e_axis_0)) < 0.99, "Wheel lays nearly on the ground (which is a singularity)")
+  aux = cross(e_n_0, e_axis_0)
+  e_long_0 = aux / MultibodyComponents.norm_(aux)
+  e_lat_0 = -cross(e_long_0, e_n_0)
+  # Contact-point geometry
+  delta_0 = r_road_0 - frame_a.r_0
+  0 = dot(delta_0, e_axis_0)
+  0 = dot(delta_0, e_long_0)
+  # Normal contact (see PacejkaWheelJoint)
+  pen = radius - dot(delta_0, cross(e_long_0, e_axis_0))
+  if elastic_contact
+    f_n = max(0, c_z * pen + d_z * der(pen))
+  else
+    0 = pen
+  end
+  # Velocities and slip: slips are normalized by the transport speed of the
+  # contact patch, computed from the effective rolling radius
+  v_0 = der(frame_a.r_0)
+  omega = -w_roll
+  R_eff = (2 * radius + (radius - pen)) / 3
+  vta = R_eff * abs(omega) + vnum
+  vsx = dot(v_0, e_long_0) - omega * R_eff
+  vsy = dot(v_0, e_lat_0)
+  sx = -vsx / vta
+  sy = -vsy / vta
+  sc = sqrt(sx ^ 2 + sy ^ 2)
+  # Load-dependent curve parameters: forces and slopes interpolate
+  # quadratically in the normalized load through (0,0), (1, y_pn), (2, y_p2n);
+  # slip locations interpolate linearly through (1, y_pn), (2, y_p2n)
+  q_n = min(max(f_n, 0), pn_max) / pn
+  dfx0 = q_n * (2 * dfx0_pn - 0.5 * dfx0_p2n - (dfx0_pn - 0.5 * dfx0_p2n) * q_n)
+  fxm = q_n * (2 * fxm_pn - 0.5 * fxm_p2n - (fxm_pn - 0.5 * fxm_p2n) * q_n)
+  fxs = q_n * (2 * fxs_pn - 0.5 * fxs_p2n - (fxs_pn - 0.5 * fxs_p2n) * q_n)
+  sxm = sxm_pn + (sxm_p2n - sxm_pn) * (q_n - 1)
+  sxs = sxs_pn + (sxs_p2n - sxs_pn) * (q_n - 1)
+  dfy0 = q_n * (2 * dfy0_pn - 0.5 * dfy0_p2n - (dfy0_pn - 0.5 * dfy0_p2n) * q_n)
+  fym = q_n * (2 * fym_pn - 0.5 * fym_p2n - (fym_pn - 0.5 * fym_p2n) * q_n)
+  fys = q_n * (2 * fys_pn - 0.5 * fys_p2n - (fys_pn - 0.5 * fys_p2n) * q_n)
+  sym = sym_pn + (sym_p2n - sym_pn) * (q_n - 1)
+  sys = sys_pn + (sys_p2n - sys_pn) * (q_n - 1)
+  nL0 = nL0_pn + (nL0_p2n - nL0_pn) * (q_n - 1)
+  sq0 = sq0_pn + (sq0_p2n - sq0_pn) * (q_n - 1)
+  sqe = sqe_pn + (sqe_p2n - sqe_pn) * (q_n - 1)
+  # Aligning torque: lateral force times the pseudo lever (a fraction of the
+  # contact patch length), faded in over the same speed window as the
+  # slip-based force so it vanishes smoothly at standstill
+  P_len = 2 * sqrt(radius * max(pen, 0))
+  m_align = -f_lat * P_len * SedanDemo.VehicleComponents.tmeasy_alignment_lever(abs(sy), nL0, sq0, sqe) * frblend
+  # Overturning moment of the cambered contact patch
+  gamma_c = asin(max(min(dot(e_axis_0, e_n_0), 1), -1))
+  m_overturn = -c_gamma * gamma_c
+  # Resultant characteristic along the combined-slip direction: the curve
+  # parameters are blended between the two axes by the direction cosines, and
+  # the friction maxima scale with the road friction relative to mu_0
+  ca = sx / max(sc, 1e-6)
+  sa = sy / max(sc, 1e-6)
+  f_c = SedanDemo.VehicleComponents.tmeasy_force(sc, sqrt((dfx0 * ca) ^ 2 + (dfy0 * sa) ^ 2), (mu_road / mu_0) * sqrt((sxm * ca) ^ 2 + (sym * sa) ^ 2), (mu_road / mu_0) * sqrt((fxm * ca) ^ 2 + (fym * sa) ^ 2), (mu_road / mu_0) * sqrt((sxs * ca) ^ 2 + (sys * sa) ^ 2), (mu_road / mu_0) * sqrt((fxs * ca) ^ 2 + (fys * sa) ^ 2))
+  fx_tm = f_c * ca
+  fy_tm = f_c * sa
+  # Blend between the bristle force at standstill and the slip-based force
+  frblend = SedanDemo.VehicleComponents.sine_step(dot(v_0, e_long_0), frblend_begin, 0, frblend_end, 1)
+  if low_speed_model
+    # Bristle (elastic tread block) friction with friction-circle saturation;
+    # the Coulomb limit is floored to stay well-defined for an airborne wheel
+    f_coulomb = max((mu_road / mu_0) * f_n, 1)
+    brx_dot = vsx - sigma0 * brx * abs(vsx) / f_coulomb
+    bry_dot = vsy - sigma0 * bry * abs(vsy) / f_coulomb
+    der(brx) = brx_dot
+    der(bry) = bry_dot
+    fx_br = -(sigma0 * brx + sigma1 * brx_dot)
+    fy_br = -(sigma0 * bry + sigma1 * bry_dot)
+    br_scale = min(1, f_coulomb / sqrt(fx_br ^ 2 + fy_br ^ 2 + 1e-12))
+    f_long = (1 - frblend) * fx_br * br_scale + frblend * fx_tm
+    f_lat = (1 - frblend) * fy_br * br_scale + frblend * fy_tm
+  else
+    f_long = fx_tm
+    f_lat = fy_tm
+  end
+  # Contact force in world frame
+  f_wheel_0 = f_n * e_n_0 + f_long * e_long_0 + f_lat * e_lat_0
+  # Force and torque balance at the wheel center, including rolling resistance
+  [0, 0, 0] = frame_a.f + MultibodyComponents.resolve2(frame_a.R, f_wheel_0)
+  [0, 0, 0] = frame_a.tau + MultibodyComponents.resolve2(frame_a.R, cross(delta_0, f_wheel_0) - rolling_resistance * f_n * radius * tanh(w_roll) * e_axis_0 + m_align * e_n_0 + m_overturn * e_long_0)
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/TMeasyWheelJoint.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "frame_a": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 450, "x2": 550, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "surface_frame": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end
+
+"""
+Wheel with mass, inertia, and the TMeasy semi-empirical tire model on the flat
+plane y = 0.
+
+Composes `TMeasyWheelJoint` and a `Body` carrying the wheel's mass and
+diagonal inertia tensor (`I_axis` about the spin axis, `I_long` perpendicular).
+The tire's load-dependent curve parameters default to a standard passenger-car
+pattern scaled by the nominal load `pn`; see `TMeasyWheelJoint` for the full
+parameter set (accessible on `wheeljoint`).
+"""
+component TMeasySlippingWheel
+  frame_a = Frame3D() {^frame_a}
+  # Road-surface frame, exposed only when surface=true (see TMeasyWheelJoint)
+  surface_frame = Frame3D() if surface {^surface_frame}
+  wheeljoint = TMeasyWheelJoint(final radius = radius, final width = width, final pn = pn, final mu_0 = mu_0, final mu_road = mu_road, final c_z = c_z, final d_z = d_z, final rolling_resistance = rolling_resistance, iscut = iscut, surface = surface, angular_state = angular_state, elastic_contact = elastic_contact, low_speed_model = low_speed_model, render = render, color = color) {^wheeljoint}
+  body = MultibodyComponents.Body(final m = m, final I_11 = I_long, final I_22 = I_long, final I_33 = I_axis, r_cm = [0, 0, 0], render = false) {^body}
+  structural parameter iscut::Boolean = false
+  structural parameter surface::Boolean = false
+  """
+  Use a compliant (elastic) normal contact instead of the rigid no-penetration
+   constraint (see TMeasyWheelJoint).
+  """
+  structural parameter elastic_contact::Boolean = false
+  "Include the bristle standstill friction model (see TMeasyWheelJoint)."
+  structural parameter low_speed_model::Boolean = true
+  """
+  Include the wheel's angular state (see TMeasyWheelJoint). Set false on an
+   already-rooted axis to drop the angular state and orientation loop.
+  """
+  structural parameter angular_state::Boolean = true
+  "Render the wheel"
+  parameter render::Boolean = true
+  "Color of the wheel in animations"
+  parameter color::Real[4] = [1, 0, 0, 1]
+  "Unloaded radius of the wheel"
+  parameter radius::Length = 0.3
+  "Mass of the wheel"
+  parameter m::Mass = 1
+  "Moment of inertia of the wheel about its spin axis"
+  parameter I_axis::Inertia = 0.06
+  "Moment of inertia of the wheel perpendicular to its spin axis"
+  parameter I_long::Inertia = 0.12
+  "Width of the wheel"
+  parameter width::Real = 0.2
+  "Nominal (design) vertical load [N]"
+  parameter pn::Real = 3580.65
+  "Reference friction coefficient of the tire parameters"
+  parameter mu_0::Real = 0.8
+  "Actual road friction coefficient"
+  parameter mu_road::Real = 0.8
+  "Vertical contact stiffness, used only when elastic_contact = true [N/m]"
+  parameter c_z::Real = 250000
+  "Vertical contact damping, used only when elastic_contact = true [N*s/m]"
+  parameter d_z::Real = 500
+  "Rolling resistance coefficient"
+  parameter rolling_resistance::Real = 0.015
+  "x-position of the wheel axis"
+  variable x::Length(statePriority = 20)
+  "z-position of the wheel axis"
+  variable z::Length(statePriority = 20)
+  "Angles that rotate the world frame into `frame_a` around the y-, z-, x-axis"
+  variable angles::Angle(statePriority = 30)[3] if angular_state
+  "Time derivatives of `angles`"
+  variable der_angles::AngularVelocity(statePriority = 30)[3] if angular_state
+relations
+  # Solver guesses for the wheel's generalized coordinates
+  guess x = 0
+  guess z = 0
+  wheeljoint.x = x
+  wheeljoint.z = z
+  if angular_state
+    guess angles = [0, 0, 0]
+    guess der_angles = [0, 0, 0]
+    wheeljoint.angles = angles
+    der_angles = der(angles)
+  end
+  connect(body.frame_a, frame_a)
+  connect(wheeljoint.frame_a, frame_a)
+  if surface
+    connect(surface_frame, wheeljoint.surface_frame)
+  end
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/TMeasySlippingWheel.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "frame_a": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 450, "x2": 550, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "surface_frame": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "wheeljoint": {},
+    "body": {}
+  }
+}
+end

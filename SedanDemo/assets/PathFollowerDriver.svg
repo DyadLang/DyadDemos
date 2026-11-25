@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- path -->
+  <path d="M 100 850 C 300 850 300 550 500 550 C 700 550 700 250 900 250" fill="none" stroke="#888" stroke-width="20" stroke-dasharray="55 35"/>
+  <!-- car -->
+  <g transform="translate(430 480) rotate(-18)">
+    <rect x="0" y="0" width="150" height="90" rx="26" fill="#c0392b" stroke="#333" stroke-width="12"/>
+    <rect x="14" y="-14" width="34" height="20" rx="8" fill="#222"/>
+    <rect x="100" y="-14" width="34" height="20" rx="8" fill="#222"/>
+    <rect x="14" y="84" width="34" height="20" rx="8" fill="#222"/>
+    <rect x="100" y="84" width="34" height="20" rx="8" fill="#222"/>
+  </g>
+  <!-- look-ahead ray -->
+  <line x1="590" y1="490" x2="760" y2="400" stroke="#2e7d32" stroke-width="14" stroke-dasharray="20 20"/>
+  <circle cx="760" cy="400" r="30" fill="none" stroke="#2e7d32" stroke-width="14"/>
+</svg>

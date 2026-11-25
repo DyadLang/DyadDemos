@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- speedometer -->
+  <path d="M 180 640 A 320 320 0 1 1 820 640" fill="#e8e8e8" stroke="#333" stroke-width="16"/>
+  <g stroke="#333" stroke-width="12">
+    <line x1="500" y1="180" x2="500" y2="240"/>
+    <line x1="273" y1="273" x2="315" y2="315"/>
+    <line x1="727" y1="273" x2="685" y2="315"/>
+    <line x1="180" y1="500" x2="240" y2="500"/>
+    <line x1="820" y1="500" x2="760" y2="500"/>
+  </g>
+  <line x1="500" y1="560" x2="660" y2="340" stroke="#c0392b" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="500" cy="560" r="36" fill="#333"/>
+  <!-- throttle / brake bars -->
+  <rect x="270" y="720" width="180" height="120" rx="20" fill="#2e7d32" stroke="#333" stroke-width="12"/>
+  <rect x="550" y="720" width="180" height="120" rx="20" fill="#c0392b" stroke="#333" stroke-width="12"/>
+</svg>

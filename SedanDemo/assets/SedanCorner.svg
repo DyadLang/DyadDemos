@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- chassis wall -->
+  <rect x="90" y="250" width="60" height="500" fill="#bbb" stroke="#333" stroke-width="12"/>
+  <!-- wishbones -->
+  <polygon points="150,320 520,380 150,440" fill="#8fa8c8" stroke="#333" stroke-width="14" stroke-linejoin="round"/>
+  <polygon points="150,580 520,660 150,740" fill="#8fa8c8" stroke="#333" stroke-width="14" stroke-linejoin="round"/>
+  <line x1="520" y1="380" x2="520" y2="660" stroke="#555" stroke-width="24"/>
+  <circle cx="520" cy="380" r="30" fill="#e0b040" stroke="#333" stroke-width="10"/>
+  <circle cx="520" cy="660" r="30" fill="#e0b040" stroke="#333" stroke-width="10"/>
+  <!-- coil spring -->
+  <polyline points="280,300 280,360 230,380 330,410 230,440 330,470 230,500 330,530 280,560 280,620"
+            fill="none" stroke="#2e7d32" stroke-width="14" stroke-linejoin="round"/>
+  <!-- wheel -->
+  <circle cx="700" cy="520" r="240" fill="#222" stroke="#111" stroke-width="14"/>
+  <circle cx="700" cy="520" r="130" fill="#ccc" stroke="#333" stroke-width="12"/>
+  <g stroke="#888" stroke-width="14">
+    <line x1="700" y1="410" x2="700" y2="630"/>
+    <line x1="590" y1="520" x2="810" y2="520"/>
+    <line x1="625" y1="445" x2="775" y2="595"/>
+    <line x1="775" y1="445" x2="625" y2="595"/>
+  </g>
+  <!-- ground -->
+  <line x1="380" y1="770" x2="1000" y2="770" stroke="#333" stroke-width="12"/>
+  <line x1="430" y1="770" x2="390" y2="810" stroke="#333" stroke-width="8"/>
+  <line x1="530" y1="770" x2="490" y2="810" stroke="#333" stroke-width="8"/>
+  <line x1="630" y1="770" x2="590" y2="810" stroke="#333" stroke-width="8"/>
+  <line x1="730" y1="770" x2="690" y2="810" stroke="#333" stroke-width="8"/>
+  <line x1="830" y1="770" x2="790" y2="810" stroke="#333" stroke-width="8"/>
+  <line x1="930" y1="770" x2="890" y2="810" stroke="#333" stroke-width="8"/>
+</svg>

@@ -1,0 +1,93 @@
+commit = "3f889c2"
+dirty = false
+julia = "1.13.2"
+t_brake_s = 12.0
+t_end_s = 18.0
+
+[cases."abs_0.35"]
+abs_enabled = true
+b_cmd = 0.35
+max_abs_z_m = 0.002
+mfdd_mps2 = 5.365
+peak_decel_mps2 = 6.636
+retcode = "Success"
+stop_distance_m = 45.96
+stop_time_s = 4.112
+tau_max_front_Nm = 2000.0
+tau_max_rear_Nm = 2000.0
+v0_kmh = 79.16
+v_end_kmh = -0.003
+wall_s = 0.3
+yaw_change_deg = -0.0
+
+    [cases."abs_0.35".min_wheel_speed_ratio]
+    corner_fl = 0.979
+    corner_fr = 0.979
+    corner_rl = 0.943
+    corner_rr = 0.944
+
+[cases.abs_full]
+abs_enabled = true
+b_cmd = 1.0
+max_abs_z_m = 0.001
+mfdd_mps2 = 9.825
+peak_decel_mps2 = 17.086
+retcode = "Success"
+stop_distance_m = 24.81
+stop_time_s = 2.266
+tau_max_front_Nm = 2000.0
+tau_max_rear_Nm = 2000.0
+v0_kmh = 79.16
+v_end_kmh = -0.001
+wall_s = 14.41
+yaw_change_deg = -0.06
+
+    [cases.abs_full.min_wheel_speed_ratio]
+    corner_fl = 0.91
+    corner_fr = 0.911
+    corner_rl = 0.841
+    corner_rr = 0.846
+
+[cases.abs_half]
+abs_enabled = true
+b_cmd = 0.5
+max_abs_z_m = 0.002
+mfdd_mps2 = 6.973
+peak_decel_mps2 = 9.313
+retcode = "Success"
+stop_distance_m = 35.21
+stop_time_s = 3.186
+tau_max_front_Nm = 2000.0
+tau_max_rear_Nm = 2000.0
+v0_kmh = 79.16
+v_end_kmh = -0.002
+wall_s = 0.38
+yaw_change_deg = -0.02
+
+    [cases.abs_half.min_wheel_speed_ratio]
+    corner_fl = 0.965
+    corner_fr = 0.965
+    corner_rl = 0.901
+    corner_rr = 0.902
+
+[cases.noabs_full]
+abs_enabled = false
+b_cmd = 1.0
+max_abs_z_m = 0.06
+mfdd_mps2 = 9.351
+peak_decel_mps2 = 17.804
+retcode = "Success"
+stop_distance_m = 25.94
+stop_time_s = 2.348
+tau_max_front_Nm = 2000.0
+tau_max_rear_Nm = 2000.0
+v0_kmh = 79.16
+v_end_kmh = -0.001
+wall_s = 19.55
+yaw_change_deg = -0.85
+
+    [cases.noabs_full.min_wheel_speed_ratio]
+    corner_fl = 0.89
+    corner_fr = 0.892
+    corner_rl = 0.0
+    corner_rr = 0.0

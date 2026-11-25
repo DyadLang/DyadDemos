@@ -1,0 +1,81 @@
+"""
+Open differential distributing drive torque equally between two axle shafts.
+
+An ideal planetary gear set wired so the drive flange turns at the mean speed
+of the two output flanges:
+
+    2 phi_drive = phi_left + phi_right
+    tau_left = tau_right = -tau_drive / 2
+
+There is no inertia and no friction, and the differential is not lockable: the
+two outputs are free to spin at different speeds under equal torque.
+"""
+component Differential1D
+  "Drive input (ring gear), connect to the final drive"
+  flange_drive = Spline() {^flange_drive}
+  "Left axle shaft"
+  flange_left = Spline() {^flange_left}
+  "Right axle shaft"
+  flange_right = Spline() {^flange_right}
+  planetary = RotationalComponents.Components.IdealPlanetaryGear(ratio = -2) {^planetary}
+relations
+  connect(flange_drive, planetary.ring) {^id5}
+  connect(flange_left, planetary.sun) {^id6}
+  connect(flange_right, planetary.carrier) {^id7}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/Differential1D.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "flange_drive": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 470, "x2": 80, "y2": 530, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "flange_left": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 920, "y1": 200, "x2": 980, "y2": 260, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "flange_right": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 920, "y1": 720, "x2": 980, "y2": 780, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "planetary": {
+      "Dyad": {"placement": {"diagram": {"x1": 540, "y1": 550, "x2": 440, "y2": 450}}}
+    },
+    "id5": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}},
+    "id6": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 630, "y": 230}, {"x": 630, "y": 500}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id7": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 630, "y": 750}, {"x": 630, "y": 521}], "E": 2}],
+        "path": {}
+      }
+    }
+  }
+}
+end

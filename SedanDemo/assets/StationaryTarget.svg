@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- ground -->
+  <line x1="80" y1="885" x2="920" y2="885" stroke="#888" stroke-width="14" stroke-linecap="round"/>
+  <!-- tires -->
+  <rect x="200" y="760" width="110" height="118" rx="18" fill="#222"/>
+  <rect x="690" y="760" width="110" height="118" rx="18" fill="#222"/>
+  <!-- cabin and rear window, seen from behind -->
+  <path d="M 280 560 L 342 362 Q 352 330 388 330 L 612 330 Q 648 330 658 362 L 720 560 Z" fill="#98a8b8" stroke="#333" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M 332 548 L 378 396 Q 385 372 410 372 L 590 372 Q 615 372 622 396 L 668 548 Z" fill="#e8e8e8" stroke="#333" stroke-width="10" stroke-linejoin="round"/>
+  <!-- body -->
+  <rect x="150" y="540" width="700" height="250" rx="50" fill="#98a8b8" stroke="#333" stroke-width="14"/>
+  <!-- tail lights -->
+  <rect x="188" y="586" width="130" height="58" rx="14" fill="#c0392b" stroke="#333" stroke-width="10"/>
+  <rect x="682" y="586" width="130" height="58" rx="14" fill="#c0392b" stroke="#333" stroke-width="10"/>
+  <!-- number plate and bumper -->
+  <rect x="420" y="636" width="160" height="72" rx="10" fill="#fff" stroke="#333" stroke-width="10"/>
+  <line x1="172" y1="742" x2="828" y2="742" stroke="#333" stroke-width="10"/>
+</svg>

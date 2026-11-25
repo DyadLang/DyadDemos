@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+
+  <!-- Shaft between the two joints -->
+  <line x1="220" y1="500" x2="780" y2="500" stroke="#333" stroke-width="14"/>
+  <!-- Stub shafts to the flanges -->
+  <line x1="50" y1="500" x2="160" y2="500" stroke="#333" stroke-width="8"/>
+  <line x1="840" y1="500" x2="950" y2="500" stroke="#333" stroke-width="8"/>
+
+  <!-- Constant-velocity joints at both ends -->
+  <circle cx="190" cy="500" r="65" fill="#ffffff" stroke="#333" stroke-width="6"/>
+  <circle cx="190" cy="500" r="22" fill="#333"/>
+  <circle cx="810" cy="500" r="65" fill="#ffffff" stroke="#333" stroke-width="6"/>
+  <circle cx="810" cy="500" r="22" fill="#333"/>
+
+  <!-- Carrier mount: leg from the wheel-side joint down to frame_a -->
+  <line x1="810" y1="565" x2="810" y2="700" stroke="#333" stroke-width="6"/>
+  <line x1="810" y1="700" x2="500" y2="700" stroke="#333" stroke-width="6"/>
+  <line x1="500" y1="700" x2="500" y2="860" stroke="#333" stroke-width="6"/>
+  <!-- Hatched carrier bar -->
+  <rect x="380" y="860" width="240" height="60" fill="#ffffff" stroke="#333" stroke-width="5"/>
+  <line x1="600" y1="860" x2="540" y2="920" stroke="#333" stroke-width="4"/>
+  <line x1="520" y1="860" x2="460" y2="920" stroke="#333" stroke-width="4"/>
+  <line x1="440" y1="860" x2="380" y2="920" stroke="#333" stroke-width="4"/>
+</svg>

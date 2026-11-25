@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 896 744" role="img" aria-labelledby="title desc">
+<title id="title">CCRs predicted performance</title><desc id="desc">Impact speed in km/h; green indicates no contact. Extended range columns have dashed borders.</desc>
+<rect width="896" height="744" fill="#f4f4f2"/>
+<g font-family="Arial, sans-serif" fill="#171717">
+<text x="32" y="38" font-size="24" font-weight="bold">CCRs predicted performance</text>
+<text x="32" y="64" font-size="13">Euro NCAP protocol 1.2 | Figure 5-1; sections 5.1 and 5.3</text>
+<text x="32" y="89" font-size="13">Rows: test speed (km/h) | Columns: impact location (%) | Cells: impact speed (km/h)</text>
+<text x="178.0" y="122" text-anchor="middle" font-size="16">125%</text>
+<text x="178.0" y="139" text-anchor="middle" font-size="10">EXTENDED</text>
+<text x="282.0" y="122" text-anchor="middle" font-size="16">100%</text>
+<text x="386.0" y="122" text-anchor="middle" font-size="16">75%</text>
+<text x="490.0" y="122" text-anchor="middle" font-size="16">50%</text>
+<text x="594.0" y="122" text-anchor="middle" font-size="16">25%</text>
+<text x="698.0" y="122" text-anchor="middle" font-size="16">0%</text>
+<text x="802.0" y="122" text-anchor="middle" font-size="16">-25%</text>
+<text x="802.0" y="139" text-anchor="middle" font-size="10">EXTENDED</text>
+<text x="110" y="178" text-anchor="end" font-size="16">80</text>
+<rect class="cell" data-speed="80" data-location="125" x="129" y="149" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>80 km/h, 125%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="80" data-location="100" x="233" y="149" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>80 km/h, 100%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="80" data-location="75" x="337" y="149" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>80 km/h, 75%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="80" data-location="50" x="441" y="149" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>80 km/h, 50%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="80" data-location="25" x="545" y="149" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>80 km/h, 25%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="80" data-location="0" x="649" y="149" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>80 km/h, 0%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="80" data-location="-25" x="753" y="149" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>80 km/h, -25%: green; impact 0.0 km/h</title></rect>
+<text x="110" y="230" text-anchor="end" font-size="16">70</text>
+<rect class="cell" data-speed="70" data-location="125" x="129" y="201" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>70 km/h, 125%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="70" data-location="100" x="233" y="201" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>70 km/h, 100%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="70" data-location="75" x="337" y="201" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>70 km/h, 75%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="70" data-location="50" x="441" y="201" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>70 km/h, 50%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="70" data-location="25" x="545" y="201" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>70 km/h, 25%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="70" data-location="0" x="649" y="201" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>70 km/h, 0%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="70" data-location="-25" x="753" y="201" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>70 km/h, -25%: green; impact 0.0 km/h</title></rect>
+<text x="110" y="282" text-anchor="end" font-size="16">60</text>
+<rect class="cell" data-speed="60" data-location="125" x="129" y="253" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>60 km/h, 125%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="60" data-location="100" x="233" y="253" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>60 km/h, 100%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="60" data-location="75" x="337" y="253" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>60 km/h, 75%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="60" data-location="50" x="441" y="253" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>60 km/h, 50%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="60" data-location="25" x="545" y="253" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>60 km/h, 25%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="60" data-location="0" x="649" y="253" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>60 km/h, 0%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="60" data-location="-25" x="753" y="253" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>60 km/h, -25%: green; impact 0.0 km/h</title></rect>
+<text x="110" y="334" text-anchor="end" font-size="16">50</text>
+<rect class="cell" data-speed="50" data-location="125" x="129" y="305" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>50 km/h, 125%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="50" data-location="100" x="233" y="305" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>50 km/h, 100%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="50" data-location="75" x="337" y="305" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>50 km/h, 75%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="50" data-location="50" x="441" y="305" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>50 km/h, 50%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="50" data-location="25" x="545" y="305" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>50 km/h, 25%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="50" data-location="0" x="649" y="305" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>50 km/h, 0%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="50" data-location="-25" x="753" y="305" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>50 km/h, -25%: green; impact 0.0 km/h</title></rect>
+<text x="110" y="386" text-anchor="end" font-size="16">40</text>
+<rect class="cell" data-speed="40" data-location="125" x="129" y="357" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>40 km/h, 125%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="40" data-location="100" x="233" y="357" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>40 km/h, 100%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="40" data-location="75" x="337" y="357" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>40 km/h, 75%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="40" data-location="50" x="441" y="357" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>40 km/h, 50%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="40" data-location="25" x="545" y="357" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>40 km/h, 25%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="40" data-location="0" x="649" y="357" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>40 km/h, 0%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="40" data-location="-25" x="753" y="357" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>40 km/h, -25%: green; impact 0.0 km/h</title></rect>
+<text x="110" y="438" text-anchor="end" font-size="16">30</text>
+<rect class="cell" data-speed="30" data-location="125" x="129" y="409" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>30 km/h, 125%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="30" data-location="100" x="233" y="409" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>30 km/h, 100%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="30" data-location="75" x="337" y="409" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>30 km/h, 75%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="30" data-location="50" x="441" y="409" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>30 km/h, 50%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="30" data-location="25" x="545" y="409" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>30 km/h, 25%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="30" data-location="0" x="649" y="409" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>30 km/h, 0%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="30" data-location="-25" x="753" y="409" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>30 km/h, -25%: green; impact 0.0 km/h</title></rect>
+<text x="110" y="490" text-anchor="end" font-size="16">20</text>
+<rect class="cell" data-speed="20" data-location="125" x="129" y="461" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>20 km/h, 125%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="20" data-location="100" x="233" y="461" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>20 km/h, 100%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="20" data-location="75" x="337" y="461" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>20 km/h, 75%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="20" data-location="50" x="441" y="461" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>20 km/h, 50%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="20" data-location="25" x="545" y="461" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>20 km/h, 25%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="20" data-location="0" x="649" y="461" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>20 km/h, 0%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="20" data-location="-25" x="753" y="461" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>20 km/h, -25%: green; impact 0.0 km/h</title></rect>
+<text x="110" y="542" text-anchor="end" font-size="16">10</text>
+<rect class="cell" data-speed="10" data-location="125" x="129" y="513" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>10 km/h, 125%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="10" data-location="100" x="233" y="513" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>10 km/h, 100%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="10" data-location="75" x="337" y="513" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>10 km/h, 75%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="10" data-location="50" x="441" y="513" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>10 km/h, 50%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="10" data-location="25" x="545" y="513" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>10 km/h, 25%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="10" data-location="0" x="649" y="513" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333"><title>10 km/h, 0%: green; impact 0.0 km/h</title></rect>
+<rect class="cell" data-speed="10" data-location="-25" x="753" y="513" width="98" height="46" rx="4" fill="#00ad4f" stroke="#333333" stroke-dasharray="5 3"><title>10 km/h, -25%: green; impact 0.0 km/h</title></rect>
+<rect x="32" y="586" width="16" height="16" fill="#00ad4f"/><text x="56" y="599" font-size="13">green</text>
+<rect x="187" y="586" width="16" height="16" fill="#fff03b"/><text x="211" y="599" font-size="13">yellow</text>
+<rect x="342" y="586" width="16" height="16" fill="#ffc000"/><text x="366" y="599" font-size="13">orange</text>
+<rect x="497" y="586" width="16" height="16" fill="#843c0c"/><text x="521" y="599" font-size="13">brown</text>
+<rect x="652" y="586" width="16" height="16" fill="#e30613"/><text x="676" y="599" font-size="13">red</text>
+<text x="32" y="636" font-size="16">Predicted points: standard 1.20 / 1.20 | extended 0.15 / 0.15</text>
+<text x="32" y="663" font-size="16">REQ-AEB-1: met | Eligible total: 1.35 points</text>
+<text x="32" y="693" font-size="12">Prediction only. Robustness layers and official verification tests are outside this analysis.</text>
+<a href="https://cdn.euroncap.com/cars/assets/Euro_NCAP_Protocol_Crash_Avoidance_Frontal_Collisions_v1_2_220d87e28a.pdf#page=69"><text x="32" y="719" font-size="12" text-decoration="underline">Source: Euro NCAP Crash Avoidance - Frontal Collisions</text></a></g></svg>

@@ -1,0 +1,148 @@
+"""
+Map-based engine with a continuously variable transmission (CVT).
+
+The engine torque is interpolated from full- and closed-throttle speed-torque
+tables and blended with the throttle input. The CVT regulates engine speed
+toward `target_rpm` with a continuously varying output/input speed ratio. The
+ratio is a smooth algebraic function of driveshaft speed, so there is no
+discrete gear state, threshold crossing, or shift callback.
+
+The transmission is kinematic and carries no shaft inertia. Connect `support`
+to a `Mounting1D` on the vehicle body so the reaction torque acts on the
+chassis. Forward driving only; driveshaft speed magnitude is regularized
+smoothly around zero. There is no idle speed or launch clutch: the engine turns
+with the driveshaft through the CVT ratio, so at standstill it is at 0 rpm and
+delivers the full-throttle table's value there.
+"""
+component EngineCVTMap
+  "Transmission output shaft, connect to the driveline"
+  driveshaft = Spline() {^driveshaft}
+  "Reaction torque support; connect to a Mounting1D on the vehicle body"
+  support = Spline() {^support}
+  "Throttle command, 0..1"
+  throttle = RealInput() {^throttle}
+  "Current CVT speed ratio, driveshaft speed / engine speed"
+  ratio = RealOutput() {^ratio}
+  "Engine speed [rpm]"
+  engine_rpm = RealOutput() {^engine_rpm}
+  "Engine torque [N*m]"
+  engine_torque = RealOutput() {^engine_torque}
+  "Measures driveshaft speed"
+  speed_sensor = RotationalComponents.Sensors.VelocitySensor() {^speed_sensor}
+  "Applies driveshaft torque between shaft and support"
+  torque_source = RotationalComponents.Sources.TorqueSource() {^torque_source}
+  "Minimum CVT output/input speed ratio"
+  parameter ratio_min::Real = 0.265
+  "Maximum CVT output/input speed ratio"
+  parameter ratio_max::Real = 1.499
+  "Engine-speed target used by the CVT controller [rpm]"
+  parameter target_rpm::Real = 4000
+  "Smoothing width for the CVT ratio bounds"
+  parameter ratio_smoothing::Real = 1e-4
+  "Regularization speed for the smooth driveshaft-speed magnitude"
+  parameter speed_regularization::AngularVelocity = 0.1
+  "Number of points of the full-throttle torque table"
+  structural parameter nfull::Integer = 21
+  "Engine speed grid of the full-throttle torque table [rpm]"
+  parameter rpm_full::Real[nfull] = [-10, 1000, 1200, 1400, 1500, 1600, 2000, 2500, 3000, 3500, 4000, 4500, 4600, 4800, 5000, 5200, 5500, 5700, 6000, 6200, 6500]
+  "Full-throttle engine torque at `rpm_full` [N*m]"
+  parameter tau_full::Real[nfull] = [104.64, 236.8, 296.0, 338.3, 355.2, 370.0, 370.0, 370.0, 370.0, 370.0, 370.0, 370.0, 369.3, 364.0, 353.3, 339.7, 321.2, 309.9, 294.4, 280.4, 244.6]
+  "Number of points of the closed-throttle torque table"
+  structural parameter nzero::Integer = 13
+  "Engine speed grid of the closed-throttle torque table [rpm]"
+  parameter rpm_zero::Real[nzero] = [-10, 10, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000, 6500]
+  "Closed-throttle engine torque at `rpm_zero` [N*m]"
+  parameter tau_zero::Real[nzero] = [0.0, 0.0, -10.0, -10.0, -15.0, -15.0, -15.0, -20.0, -20.0, -30.0, -50.0, -70.0, -100.0]
+  "Unbounded ratio required to hold target engine speed"
+  variable ratio_raw::Real
+  "Intermediate smoothly lower-bounded ratio"
+  variable ratio_lower::Real
+  "Smoothly bounded ratio command"
+  variable ratio_command::Real
+  "Smooth driveshaft-speed magnitude"
+  variable w_driveshaft_abs::AngularVelocity
+  "Engine angular speed"
+  variable w_engine::AngularVelocity
+  variable tau_engine::Torque
+  variable tau_ds::Torque
+  final parameter w_target::AngularVelocity = target_rpm * pi / 30
+relations
+  connect(driveshaft, speed_sensor.spline)
+  w_driveshaft_abs = sqrt(speed_sensor.w^2 + speed_regularization^2) - speed_regularization
+  ratio_raw = w_driveshaft_abs / w_target
+  ratio_lower = 0.5 * (ratio_raw + ratio_min + sqrt((ratio_raw - ratio_min)^2 + ratio_smoothing^2))
+  ratio_command = 0.5 * (ratio_lower + ratio_max - sqrt((ratio_lower - ratio_max)^2 + ratio_smoothing^2))
+  ratio = ratio_command
+  w_engine = w_driveshaft_abs / ratio_command
+  engine_rpm = w_engine * 30 / pi
+  tau_engine = SedanDemo.VehicleComponents.interp1(rpm_zero, tau_zero, engine_rpm) * (1 - throttle) + SedanDemo.VehicleComponents.interp1(rpm_full, tau_full, engine_rpm) * throttle
+  tau_ds = tau_engine / ratio_command
+  torque_source.tau = tau_ds
+  connect(torque_source.spline, driveshaft)
+  connect(torque_source.support, support)
+  engine_torque = tau_engine
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/EngineTransmissionMap.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "throttle": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": -100, "y1": 450, "x2": 0, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "driveshaft": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0}
+        }
+      }
+    },
+    "support": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 250, "y1": 950, "x2": 350, "y2": 1050, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 250, "y1": 950, "x2": 350, "y2": 1050, "rot": 0}
+        }
+      }
+    },
+    "ratio": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 150, "x2": 1100, "y2": 250, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 150, "x2": 1100, "y2": 250, "rot": 0}
+        }
+      }
+    },
+    "engine_rpm": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 650, "x2": 1100, "y2": 750, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 650, "x2": 1100, "y2": 750, "rot": 0}
+        }
+      }
+    },
+    "engine_torque": {
+      "Dyad": {
+        "placement": {
+          "icon": {"iconName": "default", "x1": 1000, "y1": 800, "x2": 1100, "y2": 900, "rot": 0},
+          "diagram": {"iconName": "default", "x1": 1000, "y1": 800, "x2": 1100, "y2": 900, "rot": 0}
+        }
+      }
+    }
+  }
+}
+end

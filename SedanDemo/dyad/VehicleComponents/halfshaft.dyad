@@ -1,0 +1,79 @@
+
+"""
+Rigid halfshaft between an inboard differential and a wheel-joint axis flange.
+
+The drive torque passes through unchanged (`flange_a` on the differential
+side, `flange_b` on the wheel-joint side). A joint's axis flange applies its
+torque between the wheel and the joint carrier, which is correct when the
+actuator is mounted on the carrier (a brake caliper, a hub motor) but not for
+a wheel driven through a halfshaft: there the carrier holds only the wheel
+bearing and the drive reaction is carried by the differential housing.
+`frame_a` must be connected to the joint carrier; the component applies the
+axis torque back to it, cancelling the joint's carrier reaction so that the
+net drive reaction is left where the differential housing puts it (see the
+`housing_reaction` parameter of drivelines).
+
+The pass-through equates the two flange angles, so the drive angle is
+measured relative to the joint carrier rather than relative to the
+differential housing. This neglects carrier rotation about the wheel axis,
+which is small for suspension travel and steering motion.
+
+`n` is the joint axis resolved in `frame_a` and must match the `n` of the
+joint whose axis flange `flange_b` drives.
+"""
+component HalfShaft
+  "Differential side"
+  flange_a = Spline() {^flange_a}
+  "Wheel-joint axis flange side"
+  flange_b = Spline() {^flange_b}
+  "Joint carrier (e.g. suspension upright); receives the compensating torque"
+  frame_a = Frame3D() {^frame_a}
+  "Joint axis of rotation, resolved in frame_a"
+  parameter n::Real[3] = [0, 0, 1]
+  final parameter e::Real[3] = MultibodyComponents.normalize_(n)
+relations
+  flange_a.phi = flange_b.phi
+  0 = flange_a.tau + flange_b.tau
+  frame_a.f = [0, 0, 0]
+  frame_a.tau = e * flange_b.tau
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/HalfShaft.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 120,
+        "rot": 0,
+        "attrs": {"font-size": "140"}
+      }
+    ]
+  },
+  "_links": {
+    "flange_a": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": -50, "y1": 450, "x2": 50, "y2": 550, "rot": 180}
+        },
+        "tags": []
+      }
+    },
+    "flange_b": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 950, "y1": 450, "x2": 1050, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "frame_a": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 90}
+        },
+        "tags": []
+      }
+    }
+  }
+}
+end

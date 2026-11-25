@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- rack bar -->
+  <rect x="80" y="520" width="840" height="90" fill="#8fa8c8" stroke="#333" stroke-width="14"/>
+  <!-- rack teeth -->
+  <g fill="#666" stroke="#333" stroke-width="6">
+    <rect x="330" y="480" width="40" height="40"/>
+    <rect x="400" y="480" width="40" height="40"/>
+    <rect x="470" y="480" width="40" height="40"/>
+    <rect x="540" y="480" width="40" height="40"/>
+    <rect x="610" y="480" width="40" height="40"/>
+  </g>
+  <!-- pinion -->
+  <circle cx="505" cy="360" r="120" fill="#e0b040" stroke="#333" stroke-width="14"/>
+  <circle cx="505" cy="360" r="28" fill="#666" stroke="#333" stroke-width="10"/>
+  <g stroke="#333" stroke-width="12">
+    <line x1="505" y1="240" x2="505" y2="480"/>
+    <line x1="385" y1="360" x2="625" y2="360"/>
+    <line x1="420" y1="275" x2="590" y2="445"/>
+    <line x1="590" y1="275" x2="420" y2="445"/>
+  </g>
+  <!-- tie-rod stubs -->
+  <line x1="80" y1="565" x2="30" y2="700" stroke="#555" stroke-width="22"/>
+  <line x1="920" y1="565" x2="970" y2="700" stroke="#555" stroke-width="22"/>
+  <circle cx="80" cy="565" r="26" fill="#e0b040" stroke="#333" stroke-width="10"/>
+  <circle cx="920" cy="565" r="26" fill="#e0b040" stroke="#333" stroke-width="10"/>
+</svg>

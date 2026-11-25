@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  
+  <!-- Left half (frame_a) -->
+  <rect x="80" y="300" width="350" height="400" rx="8" ry="8" fill="#fff" stroke="#404040" stroke-width="5"/>
+  <!-- Right half (frame_b) -->
+  <rect x="570" y="300" width="350" height="400" rx="8" ry="8" fill="#fff" stroke="#404040" stroke-width="5"/>
+  <!-- Center ball joint (sphere) -->
+  <circle cx="500" cy="500" r="85" fill="#c0c0c0" stroke="#404040" stroke-width="5"/>
+  <ellipse cx="472" cy="472" rx="28" ry="19" fill="#e8e8e8" opacity="0.8"/>
+  <!-- Red constraint zigzag line -->
+  <polyline points="95,830 285,375 700,695 985,145" fill="none" stroke="#e00000" stroke-width="25" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- Frame labels -->
+  <text x="175" y="280" font-family="sans-serif" font-size="70" fill="#808080" text-anchor="middle">a</text>
+  <text x="825" y="280" font-family="sans-serif" font-size="70" fill="#808080" text-anchor="middle">b</text>
+</svg>

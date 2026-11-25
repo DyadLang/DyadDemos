@@ -1,0 +1,799 @@
+"""
+One corner of the sedan: double-wishbone linkage, wheel spin joint, spindle,
+and a load-sensitive TMeasy tire with elastic normal contact.
+
+The tire uses the passenger-car TMeasy parameter pattern at the nominal load
+`pn` = 3580.65 N (derived from load index 97: half the 730 kg maximum load),
+with the vertical stiffness and damping of the 245/40 R18 tire it represents
+and road friction `mu_road` = 0.9. As in Chrono, the friction-limited forces
+scale with `mu_road / mu_0` (`mu_0` = 0.8 for this tire), so the peak
+longitudinal force coefficient is about 1.27 at the nominal load. A
+magic-formula alternative fitted from the Pac02
+property file shipped with this model is retained in `scripts/fit_tire.jl`.
+
+Drive and brake torque attach to the `axis` flange, with `support` fixed in
+the upright; positive `axis` speed rolls the wheel forward on both sides of
+the vehicle.
+"""
+component SedanCorner
+  "Rigid attachment on the chassis at the suspension-frame origin"
+  chassis_frame = Frame3D() {^chassis_frame}
+  "Tie-rod inner end (only on steered corners)"
+  steer_frame = Frame3D() if steered {^steer_frame}
+  "Wheel spin flange for drive/brake torque"
+  axis = Spline() {^axis}
+  "Spin-joint support flange, fixed in the upright"
+  support = Spline() {^support}
+  "Upright-fixed frame at the wheel center (the spin-joint carrier)"
+  carrier = Frame3D() {^carrier}
+  suspension = SedanDemo.VehicleComponents.DoubleWishboneSuspension(mirror = mirror, steered = steered, render = render, lca_phi0 = lca_phi0, lca_ball_phi0 = lca_ball_phi0, uca_rev_phi0 = uca_rev_phi0) {^suspension}
+  wheel_rotation = MultibodyComponents.Revolute(n = [0, 0, -1], n_nonzero = [false, false, true], statePriority = 100, render = false, phi(initial = 0), w(initial = 0)) {^wheel_rotation}
+  spindle = MultibodyComponents.Body(m = 1.103, I_11 = 0.000478, I_22 = 0.000478, I_33 = 0.000496, render = false) {^spindle}
+  wheel = SedanDemo.VehicleComponents.TMeasySlippingWheel(radius = 0.3266, width = 0.245, m = 24.7, I_axis = 1.099, I_long = 0.396, angular_state = false, elastic_contact = true, pn = 3580.65, mu_0 = 0.8, final mu_road = mu_road, c_z = 456715.6, d_z = 2291.8, render = false) {^wheel}
+  "Rim mesh, rotating with the wheel"
+  rim_vis = MultibodyComponents.ShapefileVisualizer(shapefile = sedan_asset("sedan_rim.obj"), shape_transform = T_wheel, color = [0.8, 0.8, 0.8, 1.0], render = render) if render {^rim_vis}
+  "Tire mesh, rotating with the wheel"
+  tire_vis = MultibodyComponents.ShapefileVisualizer(shapefile = sedan_asset("sedan_tire.obj"), shape_transform = T_wheel, color = [0.15, 0.15, 0.15, 1.0], render = render) if render {^tire_vis}
+  "Tie rod driven by the steering rack instead of anchored to the chassis"
+  structural parameter steered::Boolean = false
+  "Left (true) or right (false) side of the vehicle"
+  structural parameter mirror::Boolean = false
+  "Render this corner in animations; when false the mesh visualizers are left out of the model"
+  structural parameter render::Boolean = true
+  "Initial lower-control-arm hinge angle (settled value for an equilibrium start)"
+  parameter lca_phi0::Angle = 0
+  "Guess for the lower ball joint's Euler angles in the settled pose"
+  parameter lca_ball_phi0::Angle[3] = [1e-6, 1e-6, 1e-6]
+  "Guess for the upper-control-arm hinge angle in the settled pose"
+  parameter uca_rev_phi0::Angle = 1e-6
+  "Road friction coefficient under this tire"
+  parameter mu_road::Real = 0.9
+  final parameter dir::Real = ifelse(mirror, -1.0, 1.0)
+  "Wheel-mesh placement: meshes are authored with the spin axis along their local y"
+  final parameter T_wheel::Real[4, 4] = [[-dir, 0, 0, 0], [0, 0, 1, 0], [0, dir, 0, 0], [0, 0, 0, 1]]
+relations
+  connect(chassis_frame, suspension.chassis_frame) {^id12}
+  if steered
+    connect(steer_frame, suspension.steer_frame)
+  end
+  connect(suspension.wheel_frame, wheel_rotation.frame_a, carrier) {^id13}
+  connect(wheel_rotation.frame_b, spindle.frame_a, wheel.frame_a) {^id14}
+  if render
+    connect(wheel_rotation.frame_b, rim_vis.frame_a, tire_vis.frame_a)
+  end
+  connect(axis, wheel_rotation.axis) {^id15}
+  connect(support, wheel_rotation.support) {^id16}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/SedanCorner.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "chassis_frame": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 470, "y1": 20, "x2": 530, "y2": 80, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "steer_frame": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 470, "x2": 80, "y2": 530, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "axis": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 920, "y1": 560, "x2": 980, "y2": 620, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "support": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 920, "y1": 680, "x2": 980, "y2": 740, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "carrier": {
+      "Dyad": {"placement": {"diagram": {"x1": 60, "x2": 160, "y1": 720, "y2": 820}}}
+    },
+    "suspension": {
+      "Dyad": {"placement": {"diagram": {"x1": 320, "y1": 430, "x2": 440, "y2": 550}}}
+    },
+    "wheel_rotation": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 440, "y1": 550, "x2": 560, "y2": 670, "rot": 90}}
+      }
+    },
+    "spindle": {
+      "Dyad": {"placement": {"diagram": {"x1": 500, "y1": 700, "x2": 600, "y2": 800}}}
+    },
+    "wheel": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 440, "y1": 780, "x2": 560, "y2": 900, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "rim_vis": {
+      "Dyad": {"placement": {"diagram": {"x1": 710, "y1": 770, "x2": 790, "y2": 850}}}
+    },
+    "tire_vis": {
+      "Dyad": {"placement": {"diagram": {"x1": 710, "y1": 880, "x2": 790, "y2": 960}}}
+    },
+    "id12": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 500, "y": 187}, {"x": 336.8, "y": 187}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id13": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 500, "y": 492.4}], "E": 2}], "path": {}}
+    },
+    "id14": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 500, "y": 750}], "E": 2},
+          {"S": 2, "M": [{"x": 505, "y": 840}], "E": 3}
+        ],
+        "path": {}
+      }
+    },
+    "id15": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 910, "y": 590}, {"x": 910, "y": 610}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id16": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 910, "y": 710},
+              {"x": 910, "y": 680},
+              {"x": 600, "y": 680},
+              {"x": 600, "y": 568}
+            ],
+            "E": 2
+          }
+        ],
+        "path": {}
+      }
+    }
+  }
+}
+end
+
+"""
+Mechanical model of a sedan: rigid chassis, four double-wishbone corners with
+load-sensitive TMeasy tires, and rack-and-pinion steering on the front axle.
+
+The chassis reference frame (`chassis_frame`) is the vehicle reference frame:
+x forward, y up, z right, origin between the axles at hardpoint height. The
+front suspension frame sits at (1.388, 0.25, 0) and the rear at
+(-1.388, 0.125, 0) in this frame; note the rear hardpoints are 12.5 cm lower,
+so the vehicle settles pitched slightly nose-down (about -0.046 rad) with the
+wheel centers level.
+
+Wheel spin flanges (`axis_*`/`support_*`) are exposed for the driveline and
+brakes; `steering` is the normalized steering input (positive steers left).
+"""
+component SedanVehicle
+  "Normalized steering input, -1..1 (positive steers left)"
+  steering = RealInput() {^steering}
+  "Front-left wheel spin flange"
+  axis_fl = Spline() {^axis_fl}
+  "Front-right wheel spin flange"
+  axis_fr = Spline() {^axis_fr}
+  "Rear-left wheel spin flange"
+  axis_rl = Spline() {^axis_rl}
+  "Rear-right wheel spin flange"
+  axis_rr = Spline() {^axis_rr}
+  "Front-left spin support"
+  support_fl = Spline() {^support_fl}
+  "Front-right spin support"
+  support_fr = Spline() {^support_fr}
+  "Rear-left spin support"
+  support_rl = Spline() {^support_rl}
+  "Rear-right spin support"
+  support_rr = Spline() {^support_rr}
+  "Rear-left upright frame (spin-joint carrier)"
+  carrier_rl = Frame3D() {^carrier_rl}
+  "Rear-right upright frame (spin-joint carrier)"
+  carrier_rr = Frame3D() {^carrier_rr}
+  "Vehicle reference frame on the chassis"
+  chassis_frame = Frame3D() {^chassis_frame}
+  chassis = MultibodyComponents.Body(m = 1550, r_cm = [0, 0.7, 0], I_11 = 222.8, I_22 = 1053.5, I_33 = 944.1, orientation_state = MultibodyComponents.OrientationState.Euler(), statePriority = 1000, linearStatePriority = 1000, render = false, r_0(initial = [0, 0.21914, 0]), phi(initial = [0, 0, -0.045543])) {^chassis}
+  "Chassis mesh, authored in the vehicle reference frame with ISO axes"
+  chassis_vis = MultibodyComponents.ShapefileVisualizer(shapefile = sedan_asset("sedan_chassis_vis.obj"), shape_transform = [[1, 0, 0, 0], [0, 0, 1, 0], [0, -1, 0, 0], [0, 0, 0, 1]], color = [0.6, 0.6, 0.6, 0.3], render = render) if render {^chassis_vis}
+  to_front = MultibodyComponents.FixedTranslation(r = [1.388, 0.25, 0], render = false) {^to_front}
+  to_rear = MultibodyComponents.FixedTranslation(r = [-1.388, 0.125, 0], render = false) {^to_rear}
+  to_steer = MultibodyComponents.FixedTranslation(r = [1.2, 0.14, 0], render = false) {^to_steer}
+  corner_fl = SedanCorner(mirror = true, steered = true, render = render, lca_phi0 = 0.096203, lca_ball_phi0 = [-0.0835121, 0.0184215, -0.0079627], uca_rev_phi0 = 0.1298739, final mu_road = mu_road) {^corner_fl}
+  corner_fr = SedanCorner(mirror = false, steered = true, render = render, lca_phi0 = -0.096203, lca_ball_phi0 = [0.0835121, -0.0184215, -0.0079627], uca_rev_phi0 = -0.1298739, final mu_road = mu_road) {^corner_fr}
+  corner_rl = SedanCorner(mirror = true, render = render, lca_phi0 = 0.092663, lca_ball_phi0 = [-0.0804888, 0.0178293, -0.0076816], uca_rev_phi0 = 0.1250692, final mu_road = mu_road) {^corner_rl}
+  corner_rr = SedanCorner(mirror = false, render = render, lca_phi0 = -0.092663, lca_ball_phi0 = [0.0804888, -0.0178293, -0.0076816], uca_rev_phi0 = -0.1250692, final mu_road = mu_road) {^corner_rr}
+  rack = SedanDemo.VehicleComponents.RackPinionSteering(render = render) {^rack}
+  "Render the vehicle in animations; when false the mesh visualizers are left out of the model"
+  structural parameter render::Boolean = true
+  "Road friction coefficient, the same under all four tires"
+  parameter mu_road::Real = 0.9
+relations
+  connect(steering, rack.steering) {^id23}
+  connect(to_front.frame_b, corner_fl.chassis_frame, corner_fr.chassis_frame) {^id24}
+  connect(corner_rl.chassis_frame, to_rear.frame_b) {^id25}
+  connect(to_steer.frame_b, rack.chassis_frame) {^id26}
+  connect(axis_fl, corner_fl.axis) {^id27}
+  connect(axis_fr, corner_fr.axis) {^id28}
+  connect(support_fl, corner_fl.support) {^id29}
+  connect(support_fr, corner_fr.support) {^id30}
+  connect(corner_rl.axis, axis_rl) {^id31}
+  connect(corner_rl.support, support_rl) {^id32}
+  connect(corner_rr.support, support_rr) {^id33}
+  connect(corner_rr.axis, axis_rr) {^id34}
+  connect(to_front.frame_a, to_rear.frame_a, chassis.frame_a) {^id35}
+  connect(corner_fl.steer_frame, rack.left_frame) {^id36}
+  connect(rack.right_frame, corner_fr.steer_frame) {^id37}
+  connect(corner_rr.chassis_frame, corner_rl.chassis_frame) {^id38}
+  connect(to_steer.frame_a, chassis.frame_a) {^id39}
+  connect(chassis.frame_a, chassis_frame) {^id40}
+  if render
+    connect(chassis.frame_a, chassis_vis.frame_a)
+  end
+  connect(carrier_rl, corner_rl.carrier) {^id41}
+  connect(carrier_rr, corner_rr.carrier) {^id42}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/SedanVehicle.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "steering": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": -30, "y1": 925, "x2": 0, "y2": 955, "rot": 0}, "diagram": {"x1": 20, "y1": 490, "x2": 80, "y2": 550}}}},
+    "axis_fl": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 45, "y1": -15, "x2": 75, "y2": 15, "rot": 0}, "diagram": {"x1": 20, "y1": 100, "x2": 80, "y2": 160}}}},
+    "axis_fr": {"Dyad": {"placement": {"icon": {"iconName": "default", "x1": 545, "y1": -15, "x2": 575, "y2": 15, "rot": 0}, "diagram": {"x1": 0, "y1": 870, "x2": 60, "y2": 930}}}},
+    "axis_rl": {
+      "Dyad": {"placement": {"icon": {"iconName": "default", "x1": -15, "y1": 185, "x2": 15, "y2": 215, "rot": 0}, "diagram": {"x1": 750, "y1": 90, "x2": 810, "y2": 150}}}
+    },
+    "axis_rr": {
+      "Dyad": {"placement": {"icon": {"iconName": "default", "x1": -15, "y1": 545, "x2": 15, "y2": 575, "rot": 0}, "diagram": {"x1": 730, "y1": 880, "x2": 790, "y2": 940}}}
+    },
+    "support_fl": {
+      "Dyad": {"placement": {"icon": {"iconName": "default", "x1": 445, "y1": -15, "x2": 475, "y2": 15, "rot": 0}, "diagram": {"x1": 250, "y1": 100, "x2": 310, "y2": 160}}}
+    },
+    "support_fr": {
+      "Dyad": {"placement": {"icon": {"iconName": "default", "x1": 945, "y1": -15, "x2": 975, "y2": 15, "rot": 0}, "diagram": {"x1": 220, "y1": 870, "x2": 280, "y2": 930}}}
+    },
+    "support_rl": {
+      "Dyad": {"placement": {"icon": {"iconName": "default", "x1": -15, "y1": 65, "x2": 15, "y2": 95, "rot": 0}, "diagram": {"x1": 930, "y1": 90, "x2": 990, "y2": 150}}}
+    },
+    "support_rr": {
+      "Dyad": {"placement": {"icon": {"iconName": "default", "x1": -15, "y1": 425, "x2": 15, "y2": 455, "rot": 0}, "diagram": {"x1": 920, "y1": 880, "x2": 980, "y2": 940}}}
+    },
+    "carrier_rl": {
+      "Dyad": {"placement": {"icon": {"iconName": "default", "x1": -15, "y1": 305, "x2": 15, "y2": 335, "rot": 0}, "diagram": {"x1": 820, "x2": 920, "y1": 260, "y2": 360}}}
+    },
+    "carrier_rr": {
+      "Dyad": {"placement": {"icon": {"iconName": "default", "x1": -15, "y1": 665, "x2": 15, "y2": 695, "rot": 0}, "diagram": {"x1": 820, "x2": 920, "y1": 610, "y2": 710}}}
+    },
+    "chassis_frame": {
+      "Dyad": {"placement": {"icon": {"iconName": "default", "x1": -15, "y1": 785, "x2": 15, "y2": 815, "rot": 0}, "diagram": {"x1": 500, "y1": 650, "x2": 560, "y2": 710}}}
+    },
+    "chassis": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 420, "y1": 540, "x2": 560, "y2": 680, "rot": 90}}
+      }
+    },
+    "chassis_vis": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 540, "y1": 570, "x2": 620, "y2": 650, "rot": 90}}
+      }
+    },
+    "to_front": {
+      "Dyad": {"placement": {"diagram": {"x1": 430, "y1": 260, "x2": 350, "y2": 340}}}
+    },
+    "to_rear": {
+      "Dyad": {"placement": {"diagram": {"x1": 540, "y1": 260, "x2": 620, "y2": 340}}}
+    },
+    "to_steer": {
+      "Dyad": {"placement": {"diagram": {"x1": 470, "y1": 510, "x2": 390, "y2": 590}}}
+    },
+    "corner_fl": {
+      "Dyad": {"placement": {"diagram": {"x1": 300, "y1": 290, "x2": 180, "y2": 410}}}
+    },
+    "corner_fr": {
+      "Dyad": {"placement": {"diagram": {"x1": 300, "y1": 670, "x2": 180, "y2": 790}}}
+    },
+    "corner_rl": {
+      "Dyad": {"placement": {"diagram": {"x1": 620, "y1": 300, "x2": 740, "y2": 420}}}
+    },
+    "corner_rr": {
+      "Dyad": {"placement": {"diagram": {"x1": 620, "y1": 680, "x2": 740, "y2": 800}}}
+    },
+    "rack": {
+      "Dyad": {
+        "placement": {"diagram": {"x1": 270, "y1": 490, "x2": 390, "y2": 610, "rot": 90}}
+      }
+    },
+    "id23": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 90, "y": 520}, {"x": 90, "y": 551.2}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id24": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 280, "y": 300}, {"x": 280, "y": 296}], "E": 2},
+          {"S": 2, "M": [], "E": 3}
+        ],
+        "path": {}
+      }
+    },
+    "id25": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 680, "y": 300}], "E": 2}], "path": {}}},
+    "id26": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}},
+    "id27": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 100, "y": 130}, {"x": 100, "y": 360.8}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id28": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 110, "y": 900}, {"x": 110, "y": 740.8}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id29": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 130, "y": 130}, {"x": 130, "y": 375.2}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id30": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 186, "y": 900}], "E": 2}], "path": {}}},
+    "id31": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 780, "y": 370.8}], "E": 2}], "path": {}}
+    },
+    "id32": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 960, "y": 385.2}], "E": 2}], "path": {}}
+    },
+    "id33": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 950, "y": 765.2}], "E": 2}], "path": {}}
+    },
+    "id34": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 760, "y": 750.8}], "E": 2}], "path": {}}
+    },
+    "id35": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": 3, "M": [], "E": -1}
+        ],
+        "junctions": [{"x": 490, "y": 300}],
+        "path": {}
+      }
+    },
+    "id36": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 303.6, "y": 350}], "E": 2}], "path": {}}
+    },
+    "id37": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 303.6, "y": 730}], "E": 2}], "path": {}}
+    },
+    "id38": {"Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}}},
+    "id39": {"Dyad": {"edges": [{"S": 1, "M": [{"x": 490, "y": 550}], "E": 2}], "path": {}}},
+    "id40": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 490, "y": 550}, {"x": 580, "y": 550}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id41": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 870, "y": 460}, {"x": 610, "y": 460}, {"x": 610, "y": 392.4}],
+            "E": 2
+          }
+        ],
+        "path": {}
+      }
+    },
+    "id42": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 830, "y": 660}, {"x": 830, "y": 820}, {"x": 633.2, "y": 820}],
+            "E": 2
+          }
+        ],
+        "path": {}
+      }
+    }
+  }
+}
+end
+
+"""
+Complete rear-wheel-drive sedan: mechanical vehicle plus map-based engine and
+continuously variable transmission, shaft driveline with open differential on
+the rear axle, and friction brakes on all four wheels, each with a slip
+limiter (ABS) that `abs_enabled` switches.
+
+Inputs are the normalized driver commands `steering` (-1..1, positive left),
+`throttle` (0..1), and `braking` (0..1). Convenience outputs report the
+chassis planar pose and longitudinal speed for driver models.
+"""
+component Sedan
+  "Normalized steering input, -1..1 (positive steers left)"
+  steering = RealInput() {^steering}
+  "Throttle command, 0..1"
+  throttle = RealInput() {^throttle}
+  "Brake command, 0..1"
+  braking = RealInput() {^braking}
+  "Chassis x position in the world frame [m]"
+  x = RealOutput() {^x}
+  "Chassis z position in the world frame [m]"
+  z = RealOutput() {^z}
+  "Chassis yaw angle about the world y axis [rad]"
+  yaw = RealOutput() {^yaw}
+  "Chassis longitudinal velocity (x of the chassis frame) [m/s]"
+  v = RealOutput() {^v}
+  vehicle = SedanVehicle(render = render, final mu_road = mu_road) {^vehicle}
+  "Chassis position sensor, world frame"
+  position_sensor = MultibodyComponents.AbsolutePosition(resolve_in_frame = MultibodyComponents.ResolveInFrame.World()) {^position_sensor}
+  "Chassis velocity sensor, resolved in the chassis frame (v_x is the longitudinal speed)"
+  velocity_sensor = MultibodyComponents.AbsoluteVelocity() {^velocity_sensor}
+  "Chassis orientation sensor (x-y-z rotation sequence; angle_2 is the yaw)"
+  angle_sensor = MultibodyComponents.AbsoluteAngles() {^angle_sensor}
+  engine = SedanDemo.VehicleComponents.EngineCVTMap() {^engine}
+  # The rear wheels are driven through halfshafts, so the joint-carrier
+  # reaction is compensated (see HalfShaft) and the housing reaction acts on
+  # the chassis; the shafts are Rotor1D rotors carried by the chassis. The
+  # net drive reaction on the vehicle is then torque-balanced, and transient
+  # shaft spin-up appears as a roll moment on the chassis.
+  driveline = SedanDemo.VehicleComponents.Driveline2WD(final final_ratio = final_ratio, n_drive = [1, 0, 0], n_axle = [0, 0, -1]) {^driveline}
+  # The engine reaction torque acts on the chassis about the driveshaft
+  # axis; its axis convention must match the driveline's n_drive so the
+  # static roll reactions of mount and final-drive housing cancel. The
+  # driveshaft spin direction (positive about +x) is chosen to match the
+  # reference vehicle, which sets which rear wheel the transient spin-up
+  # roll unloads first during a traction-limited launch.
+  engine_mount = MultibodyComponents.Mounting1D(n = [1, 0, 0]) {^engine_mount}
+  halfshaft_l = SedanDemo.VehicleComponents.HalfShaft(n = [0, 0, -1]) {^halfshaft_l}
+  halfshaft_r = SedanDemo.VehicleComponents.HalfShaft(n = [0, 0, -1]) {^halfshaft_r}
+  # r is the TMeasy wheel radius of SedanCorner.
+  brake_fl = SedanDemo.VehicleComponents.ABSBrake(r = 0.3266, abs_enabled = abs_enabled) {^brake_fl}
+  brake_fr = SedanDemo.VehicleComponents.ABSBrake(r = 0.3266, abs_enabled = abs_enabled) {^brake_fr}
+  brake_rl = SedanDemo.VehicleComponents.ABSBrake(r = 0.3266, abs_enabled = abs_enabled) {^brake_rl}
+  brake_rr = SedanDemo.VehicleComponents.ABSBrake(r = 0.3266, abs_enabled = abs_enabled) {^brake_rr}
+  "Render the vehicle in animations; when false the mesh visualizers are left out of the model"
+  structural parameter render::Boolean = true
+  "Final drive speed ratio, axle/driveshaft"
+  parameter final_ratio::Real = 0.2
+  "Road friction coefficient, the same under all four tires"
+  parameter mu_road::Real = 0.9
+  "Enable the brakes' slip limiters (ABS); off matches the reference vehicle"
+  structural parameter abs_enabled::Boolean = false
+relations
+  connect(engine.driveshaft, driveline.flange_transmission) {^id21}
+  connect(halfshaft_l.frame_a, vehicle.carrier_rl) {^id22}
+  connect(driveline.flange_right, halfshaft_r.flange_a) {^id23}
+  connect(halfshaft_r.flange_b, vehicle.axis_rr) {^id24}
+  connect(halfshaft_r.frame_a, vehicle.carrier_rr) {^id25}
+  connect(driveline.frame_a, vehicle.chassis_frame) {^id26}
+  connect(engine.support, engine_mount.flange_b) {^id27}
+  connect(engine_mount.frame_a, vehicle.chassis_frame) {^id28}
+  connect(brake_fl.spline_a, vehicle.axis_fl) {^id29}
+  connect(brake_fl.spline_b, vehicle.support_fl) {^id30}
+  connect(brake_fr.spline_a, vehicle.axis_fr) {^id31}
+  connect(brake_fr.spline_b, vehicle.support_fr) {^id32}
+  connect(brake_rl.spline_a, vehicle.axis_rl, halfshaft_l.flange_b) {^id33}
+  connect(brake_rr.spline_a, vehicle.axis_rr) {^id34}
+  connect(brake_rr.spline_b, vehicle.support_rr) {^id35}
+  connect(steering, vehicle.steering) {^id36}
+  connect(throttle, engine.throttle) {^id37}
+  connect(brake_rr.braking, brake_fr.braking, braking, brake_fl.braking, brake_rl.braking) {^id38}
+  connect(vehicle.chassis_frame, velocity_sensor.frame_a, angle_sensor.frame_a, position_sensor.frame_a) {^id39}
+  connect(x, position_sensor.r_x) {^id40}
+  connect(z, position_sensor.r_z) {^id41}
+  connect(yaw, angle_sensor.angle_2) {^id42}
+  connect(v, velocity_sensor.v_x) {^id43}
+  connect(velocity_sensor.v_x, brake_fl.v, brake_fr.v, brake_rl.v, brake_rr.v)
+  connect(driveline.flange_left, halfshaft_l.flange_a) {^id44}
+  connect(brake_rl.spline_b, vehicle.support_rl) {^id45}
+metadata {
+  "Dyad": {
+    "icons": {"default": "dyad://SedanDemo/SedanVehicle.svg"},
+    "labels": [
+      {
+        "label": "$(instance)",
+        "x": 500,
+        "y": 200,
+        "rot": 0,
+        "attrs": {"font-size": "160"}
+      }
+    ]
+  },
+  "_links": {
+    "steering": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 120, "x2": 80, "y2": 180, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "throttle": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 320, "x2": 80, "y2": 380, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "braking": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 20, "y1": 520, "x2": 80, "y2": 580, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "x": {
+      "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 160, "x2": 1060, "y2": 220}}}
+    },
+    "z": {
+      "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 320, "x2": 1060, "y2": 380}}}
+    },
+    "yaw": {
+      "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 550, "x2": 1060, "y2": 610}}}
+    },
+    "v": {
+      "Dyad": {"placement": {"diagram": {"x1": 1000, "y1": 810, "x2": 1060, "y2": 870}}}
+    },
+    "vehicle": {
+      "Dyad": {"placement": {"diagram": {"x1": 700, "y1": 390, "x2": 560, "y2": 530}}}
+    },
+    "position_sensor": {
+      "Dyad": {"placement": {"diagram": {"x1": 800, "y1": 390, "x2": 880, "y2": 470}}}
+    },
+    "velocity_sensor": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 800, "y1": 600, "x2": 880, "y2": 680, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "angle_sensor": {
+      "Dyad": {"placement": {"diagram": {"x1": 800, "y1": 490, "x2": 880, "y2": 570}}}
+    },
+    "engine": {
+      "Dyad": {"placement": {"diagram": {"x1": 140, "y1": 400, "x2": 260, "y2": 520}}}
+    },
+    "driveline": {
+      "Dyad": {"placement": {"diagram": {"x1": 270, "y1": 400, "x2": 390, "y2": 520}}}
+    },
+    "engine_mount": {
+      "Dyad": {"placement": {"diagram": {"x1": 150, "y1": 570, "x2": 250, "y2": 670}}}
+    },
+    "halfshaft_l": {
+      "Dyad": {"placement": {"diagram": {"x1": 380, "x2": 480, "y1": 270, "y2": 370}}}
+    },
+    "halfshaft_r": {
+      "Dyad": {"placement": {"diagram": {"x1": 380, "x2": 480, "y1": 640, "y2": 540}}}
+    },
+    "brake_fl": {
+      "Dyad": {"placement": {"diagram": {"x1": 770, "y1": 190, "x2": 670, "y2": 290}}}
+    },
+    "brake_fr": {
+      "Dyad": {"placement": {"diagram": {"x1": 770, "y1": 750, "x2": 670, "y2": 850}}}
+    },
+    "brake_rl": {
+      "Dyad": {"placement": {"diagram": {"x1": 590, "y1": 190, "x2": 490, "y2": 290}}}
+    },
+    "brake_rr": {
+      "Dyad": {"placement": {"diagram": {"x1": 600, "y1": 750, "x2": 500, "y2": 850}}}
+    },
+    "id21": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 284, "y": 451.6}, {"x": 284, "y": 460}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id22": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [{"x": 430, "y": 420}, {"x": 580, "y": 420}, {"x": 580, "y": 433.4}],
+            "E": 2
+          }
+        ],
+        "path": {}
+      }
+    },
+    "id23": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 384, "y": 530}, {"x": 380, "y": 530}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id24": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 608.2, "y": 590}, {"x": 608.2, "y": 517.4}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id25": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 430, "y": 490}, {"x": 578.2, "y": 490}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id26": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 625.8, "y": 460}], "E": 2}], "path": {}}
+    },
+    "id27": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 254, "y": 610}, {"x": 250, "y": 610}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id28": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 625.8, "y": 670}], "E": 2}], "path": {}}
+    },
+    "id29": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 770, "y": 409.6}], "E": 2}], "path": {}}
+    },
+    "id30": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 660.8, "y": 240}], "E": 2}], "path": {}}
+    },
+    "id31": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 770, "y": 600}, {"x": 695.8, "y": 600}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id32": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 670, "y": 760}, {"x": 665, "y": 760}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id33": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 590, "y": 290}, {"x": 590.8, "y": 290}], "E": -1},
+          {"S": -1, "M": [], "E": 2},
+          {"S": 3, "M": [], "E": -1}
+        ],
+        "junctions": [{"x": 590.8, "y": 320}],
+        "path": {}
+      }
+    },
+    "id34": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 600, "y": 780}, {"x": 593.6, "y": 780}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id35": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 500, "y": 520}, {"x": 567, "y": 520}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id36": {
+      "Dyad": {
+        "edges": [
+          {
+            "S": 1,
+            "M": [
+              {"x": 90, "y": 150},
+              {"x": 90, "y": 360},
+              {"x": 720, "y": 360},
+              {"x": 720, "y": 462.8}
+            ],
+            "E": 2
+          }
+        ],
+        "path": {}
+      }
+    },
+    "id37": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 50, "y": 439.6}], "E": 2}], "path": {}}
+    },
+    "id38": {
+      "Dyad": {
+        "edges": [
+          {"S": -1, "M": [], "E": 1},
+          {"S": 2, "M": [{"x": 720, "y": 700}], "E": -1},
+          {"S": 3, "M": [], "E": -2},
+          {
+            "S": -2,
+            "M": [{"x": 120, "y": 800}, {"x": 400, "y": 800}, {"x": 400, "y": 700}],
+            "E": -1
+          },
+          {"S": 4, "M": [{"x": 720, "y": 140}], "E": -3},
+          {"S": -3, "M": [{"x": 120, "y": 140}], "E": -2},
+          {"S": 5, "M": [], "E": -3}
+        ],
+        "junctions": [{"x": 550, "y": 700}, {"x": 120, "y": 550}, {"x": 540, "y": 140}],
+        "path": {}
+      }
+    },
+    "id39": {
+      "Dyad": {
+        "edges": [
+          {"S": 1, "M": [{"x": 625.8, "y": 530}], "E": -1},
+          {"S": -1, "M": [{"x": 780, "y": 640}], "E": 2},
+          {"S": 3, "M": [], "E": -2},
+          {"S": -2, "M": [], "E": -1},
+          {"S": 4, "M": [{"x": 780, "y": 430}], "E": -2}
+        ],
+        "junctions": [{"x": 780, "y": 530}, {"x": 780, "y": 530}],
+        "path": {}
+      }
+    },
+    "id40": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 933.6, "y": 190}, {"x": 933.6, "y": 405.2}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id41": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 990, "y": 350}, {"x": 990, "y": 454.8}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id42": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 920.4, "y": 580}, {"x": 920.4, "y": 530}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id43": {
+      "Dyad": {
+        "edges": [{"S": 1, "M": [{"x": 933.6, "y": 840}, {"x": 933.6, "y": 615.2}], "E": 2}],
+        "path": {}
+      }
+    },
+    "id44": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 380, "y": 427.6}], "E": 2}], "path": {}}
+    },
+    "id45": {
+      "Dyad": {"edges": [{"S": 1, "M": [{"x": 490, "y": 406.8}], "E": 2}], "path": {}}
+    }
+  }
+}
+end

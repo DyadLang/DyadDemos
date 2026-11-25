@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- driveshaft in -->
+  <line x1="60" y1="500" x2="430" y2="500" stroke="#555" stroke-width="30"/>
+  <rect x="180" y="465" width="90" height="70" rx="14" fill="#98a8b8" stroke="#333" stroke-width="12"/>
+  <!-- final drive / diff -->
+  <circle cx="520" cy="500" r="120" fill="#b8b090" stroke="#333" stroke-width="16"/>
+  <ellipse cx="520" cy="500" rx="66" ry="100" fill="#e0b040" stroke="#333" stroke-width="12"/>
+  <!-- axles to wheels -->
+  <line x1="520" y1="380" x2="520" y2="120" stroke="#555" stroke-width="26"/>
+  <line x1="520" y1="620" x2="520" y2="880" stroke="#555" stroke-width="26"/>
+  <!-- wheels -->
+  <rect x="440" y="40" width="160" height="80" rx="30" fill="#222" stroke="#333" stroke-width="12"/>
+  <rect x="440" y="880" width="160" height="80" rx="30" fill="#222" stroke="#333" stroke-width="12"/>
+</svg>

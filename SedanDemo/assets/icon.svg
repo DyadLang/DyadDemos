@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- body silhouette -->
+  <path d="M 80 620 L 100 540 C 180 520 240 510 320 500 C 400 420 470 380 570 380 C 680 380 740 430 800 500 C 880 510 920 530 940 560 L 950 620 Z"
+        fill="#8c1a1a" stroke="#333" stroke-width="14" stroke-linejoin="round"/>
+  <!-- windows -->
+  <path d="M 350 495 C 415 425 470 395 560 395 C 640 395 690 430 740 490 Z" fill="#b8d0e8" stroke="#333" stroke-width="10"/>
+  <line x1="545" y1="395" x2="545" y2="493" stroke="#333" stroke-width="10"/>
+  <!-- wheels -->
+  <circle cx="280" cy="640" r="110" fill="#222" stroke="#111" stroke-width="10"/>
+  <circle cx="280" cy="640" r="55" fill="#ccc" stroke="#333" stroke-width="10"/>
+  <circle cx="750" cy="640" r="110" fill="#222" stroke="#111" stroke-width="10"/>
+  <circle cx="750" cy="640" r="55" fill="#ccc" stroke="#333" stroke-width="10"/>
+  <!-- ground -->
+  <line x1="40" y1="760" x2="960" y2="760" stroke="#333" stroke-width="12"/>
+  <line x1="120" y1="760" x2="80" y2="800" stroke="#333" stroke-width="8"/>
+  <line x1="320" y1="760" x2="280" y2="800" stroke="#333" stroke-width="8"/>
+  <line x1="520" y1="760" x2="480" y2="800" stroke="#333" stroke-width="8"/>
+  <line x1="720" y1="760" x2="680" y2="800" stroke="#333" stroke-width="8"/>
+  <line x1="920" y1="760" x2="880" y2="800" stroke="#333" stroke-width="8"/>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- engine block -->
+  <rect x="120" y="350" width="360" height="330" rx="30" fill="#98a8b8" stroke="#333" stroke-width="14"/>
+  <rect x="160" y="270" width="280" height="90" rx="20" fill="#7a8a9a" stroke="#333" stroke-width="12"/>
+  <!-- torque-map curve -->
+  <polyline points="170,610 240,470 330,430 420,440 450,470" fill="none" stroke="#c0392b" stroke-width="18" stroke-linecap="round"/>
+  <!-- gearbox -->
+  <rect x="540" y="400" width="300" height="230" rx="26" fill="#b8b090" stroke="#333" stroke-width="14"/>
+  <circle cx="620" cy="515" r="60" fill="none" stroke="#333" stroke-width="14"/>
+  <circle cx="740" cy="515" r="40" fill="none" stroke="#333" stroke-width="14"/>
+  <!-- shaft out -->
+  <line x1="840" y1="515" x2="980" y2="515" stroke="#555" stroke-width="28"/>
+  <line x1="480" y1="515" x2="540" y2="515" stroke="#555" stroke-width="28"/>
+</svg>

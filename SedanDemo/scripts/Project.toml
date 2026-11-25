@@ -1,0 +1,17 @@
+[deps]
+ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
+ChangesOfVariables = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+DyadInterface = "99806f68-afab-45ca-9d8c-ceff6bc61f54"
+DyadParameterAnalysis = "16027831-8860-47f2-9ab3-135e39703bf6"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
+OrdinaryDiffEqBDF = "6ad6398a-0878-4a85-9266-38940aa047c8"
+OrdinaryDiffEqRosenbrock = "43230ef6-c299-4910-a778-202eb28ce4ce"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
+SedanDemo = "0c91de3b-153d-460a-b2dc-635a02358e09"
+SymbolicIndexingInterface = "2efcf032-c050-4f8e-a9bb-153293bab1f5"
+
+[sources]
+SedanDemo = {path = ".."}
