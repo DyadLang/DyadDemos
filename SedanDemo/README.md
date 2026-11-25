@@ -41,8 +41,9 @@ controller brakes on the deceleration needed to stop short of it. The
 
 ## VehicleComponents
 
-`SedanDemo.VehicleComponents` holds the reusable parts. None of them is
-specific to this sedan; the sedan supplies the geometry and parameters.
+`SedanDemo.VehicleComponents` holds the reusable parts. They are
+parameterized components; their default parameter values are those of the
+Chrono sedan, which another vehicle would override.
 
 | Component | Description |
 |---|---|
@@ -105,6 +106,8 @@ sol(20.0, idxs = sys.sedan.yaw)
 `scripts/parameter_sweep.jl` sweeps the full-throttle launch over road friction
 and final drive ratio with DyadParameterAnalysis on CPU threads, and reports
 for each road friction the best ratio and how many ratios spin the car out.
+`scripts/aeb_walkthrough.jl` runs the 50 km/h CCRs test, the full sweep (which
+rewrites the records) and the animation.
 `scripts/mu_road_sensitivity.jl` shows how to vary a single parameter (the road
 friction coefficient `sedan.mu_road`) on a compiled problem without rebuilding
 the model.
@@ -137,7 +140,7 @@ prediction with an ideal sensor, not a vehicle test.
 
 ```sh
 julia +dyad-3.5.0 --project=validation/sedan_aeb_ccrs -e 'using Pkg; Pkg.instantiate()'
-julia +dyad-3.5.0 -t 8 --project=validation/sedan_aeb_ccrs validation/sedan_aeb_ccrs/ccrs_sweep.jl --gate --sensitivity
+julia +dyad-3.5.0 --project=validation/sedan_aeb_ccrs validation/sedan_aeb_ccrs/ccrs_sweep.jl --gate --sensitivity
 ```
 
 ## Provenance

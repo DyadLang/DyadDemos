@@ -4,13 +4,15 @@ reproduced below:
 
 - assets/sedan/sedan_chassis_vis.obj, sedan_rim.obj, sedan_tire.obj,
   Sedan_Pac02Tire.tir (Chrono vehicle data set, data/vehicle/sedan)
-- validation/sedan_chrono/ISO_double_lane_change.txt (Chrono vehicle data set)
 - the TMeasy tire model: `tmeasy_force`, `tmeasy_alignment_lever` and
   `sine_step` in dyad/VehicleComponents/definitions.jl, and the force
   computation of `TMeasyWheelJoint` in dyad/VehicleComponents/tmeasy_tire.dyad
   (ported from src/chrono_vehicle/wheeled_vehicle/tire/ChTMeasyTire.cpp)
-- the sedan geometry, mass and suspension parameters in dyad/sedan.dyad
-  (from the Chrono sedan JSON specification files)
+- the vehicle data of the Chrono sedan JSON specification files: the parameter
+  values in dyad/sedan.dyad and the default parameters in
+  dyad/VehicleComponents/ (double_wishbone.dyad, rack_pinion.dyad,
+  engine_transmission.dyad, driveline.dyad, brake.dyad, tmeasy_tire.dyad)
+- generated/, the Julia code compiled from the files above
 
 ----------------------------------------------------------------------------
 

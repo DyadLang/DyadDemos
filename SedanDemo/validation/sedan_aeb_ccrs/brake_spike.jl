@@ -1,4 +1,4 @@
-# Straight-line braking capability of the Sedan (RISK-1 in progress.md).
+# Straight-line braking capability of the Sedan, with and without ABS.
 #
 # A P speed controller brings the car to about 80 km/h while a path follower holds
 # it on z = 0; at `t_brake` the throttle drops to zero and the brake command steps

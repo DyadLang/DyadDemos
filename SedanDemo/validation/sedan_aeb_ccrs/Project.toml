@@ -1,7 +1,6 @@
 [deps]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
-ChangesOfVariables = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -24,4 +23,4 @@ CairoMakie = "0.15"
 DelimitedFiles = "1"
 Printf = "1"
 TOML = "1"
-julia = "1.10"
+julia = "1.13.2"

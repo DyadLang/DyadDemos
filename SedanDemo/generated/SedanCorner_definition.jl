@@ -13,7 +13,10 @@ and a load-sensitive TMeasy tire with elastic normal contact.
 The tire uses the passenger-car TMeasy parameter pattern at the nominal load
 `pn` = 3580.65 N (derived from load index 97: half the 730 kg maximum load),
 with the vertical stiffness and damping of the 245/40 R18 tire it represents
-and road friction 0.9. A magic-formula alternative fitted from the Pac02
+and road friction `mu_road` = 0.9. As in Chrono, the friction-limited forces
+scale with `mu_road / mu_0` (`mu_0` = 0.8 for this tire), so the peak
+longitudinal force coefficient is about 1.27 at the nominal load. A
+magic-formula alternative fitted from the Pac02
 property file shipped with this model is retained in `scripts/fit_tire.jl`.
 
 Drive and brake torque attach to the `axis` flange, with `support` fixed in

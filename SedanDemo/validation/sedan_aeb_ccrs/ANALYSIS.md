@@ -6,7 +6,8 @@ The source is Euro NCAP [Crash Avoidance - Frontal Collisions, v1.2](https://cdn
 definitions p.4; measurement sections 1.3/1.5; conduct section 4.3.2; entry
 condition section 5.1; colour Figure 5-1; scoring sections 5.3.1/5.3.2.
 
-This ten-line example creates a synthetic, all-green prediction grid:
+This ten-line example, run from the `SedanDemo` folder, creates a synthetic,
+all-green prediction grid:
 
 ```julia
 include("validation/sedan_aeb_ccrs/ccrs_analysis.jl")
@@ -63,7 +64,7 @@ type for the cell vector.
 
 ## Numerical and scoring choices
 
-- **Sampled contact:** linear interpolation implements the assigned helper.
+- **Sampled contact:** the scoring helper uses linear interpolation between samples.
   REQ-MEAS-1 also requires a root on the dense simulation solution. The scenario
   integrator must supply that refinement; sampled tests alone do not fulfill it.
   The profile is a straight line that turns with the vehicle yaw, with no body
@@ -95,7 +96,7 @@ type for the cell vector.
 These are prediction and numerical-verification outputs. Robustness layers,
 official verification tests, and vehicle/controller acceptance are separate.
 
-Run the focused synthetic suite from the repository root:
+Run the focused synthetic suite from the `SedanDemo` folder:
 
 ```sh
 julia +dyad-3.5.0 --project=validation/sedan_aeb_ccrs test/test_ccrs_analysis.jl

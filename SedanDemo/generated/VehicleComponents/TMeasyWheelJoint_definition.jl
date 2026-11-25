@@ -21,8 +21,9 @@ Standstill and low speed are handled by a bristle friction model (elastic
 tread blocks with stiffness `sigma0` and damping `sigma1`) whose force is
 blended with the slip-based force between `frblend_begin` and `frblend_end`
 forward speed, allowing the tire to hold a vehicle at rest without creep.
-Rolling resistance acts as a torque opposing the wheel spin. Aligning torque
-and camber-induced effects are not modeled; the model is intended for forward
+Rolling resistance acts as a torque opposing the wheel spin. The aligning
+torque (`m_align`, from a pneumatic-trail lever) and the overturning moment
+from camber (`m_overturn`) act on the wheel; the model is intended for forward
 driving.
 
 `frame_a` is at the wheel center with the spin axis along its z-axis. Road
@@ -861,7 +862,7 @@ connectors that can be connected together ([`Frame3D`](@ref))
 
   ### Assertions
   __assertions = []
-  push!(__assertions, (abs(dot(e_n_0, e_axis_0)) < 0.99 => "Wheel lays nearly on the ground (which is a singularity) (at tmeasy_tire.dyad:329:3)"))
+  push!(__assertions, (abs(dot(e_n_0, e_axis_0)) < 0.99 => "Wheel lays nearly on the ground (which is a singularity) (at tmeasy_tire.dyad:330:3)"))
 
   ### Equations
   push!(__eqs, frame_a.r_0 ~ [x, y, z])

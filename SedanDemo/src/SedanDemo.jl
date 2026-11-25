@@ -12,9 +12,11 @@ friction brakes. It takes normalized `steering`, `throttle`, and `braking` comma
 reports the chassis pose (`x`, `z`, `yaw`) and longitudinal speed (`v`).
 
 [`SedanSettle`](@ref), [`SedanAcceleration`](@ref), [`SedanStepSteer`](@ref),
-and [`SedanDoubleLaneChange`](@ref) are closed-loop maneuvers built from it.
+and [`SedanDoubleLaneChange`](@ref) are closed-loop maneuvers built from it;
+[`SedanCCRs`](@ref) adds automatic emergency braking in the Euro NCAP CCRs
+scenario.
 
-Simplify a model for simulation with `MultibodyComponents.multibody`.
+Simplify a model for simulation with `DyadInterface.simplify_model`.
 """
 module SedanDemo
 

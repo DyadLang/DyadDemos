@@ -18,7 +18,9 @@ discrete gear state, threshold crossing, or shift callback.
 The transmission is kinematic and carries no shaft inertia. Connect `support`
 to a `Mounting1D` on the vehicle body so the reaction torque acts on the
 chassis. Forward driving only; driveshaft speed magnitude is regularized
-smoothly around zero.
+smoothly around zero. There is no idle speed or launch clutch: the engine turns
+with the driveshaft through the CVT ratio, so at standstill it is at 0 rpm and
+delivers the full-throttle table's value there.
 
 ## Parameters:
 

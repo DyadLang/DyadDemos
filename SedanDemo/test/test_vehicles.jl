@@ -5,7 +5,7 @@
 # validation/sedan_chrono/README.md) with the same TMeasy tire model and
 # parameters. Statics match to a fraction of a percent and dynamic responses
 # to a few percent; remaining differences come from the reference's
-# fixed-step (1 ms) integration, its discrete-time bristle low-speed model,
+# fixed-step (0.1 ms) integration, its discrete-time bristle low-speed model,
 # and minor contact-geometry differences.
 using ModelingToolkit, MultibodyComponents, SedanDemo
 using OrdinaryDiffEq
@@ -40,13 +40,8 @@ ref_at(data, time, col) = data[argmin(abs.(data[:, REF.t] .- time)), col]
     @test fx(ss) ≈ fs rtol = 1e-9           # start of full sliding
     @test fx(1.0) ≈ fs rtol = 1e-12         # full sliding
     @test fx(1e-6) / 1e-6 ≈ df0 rtol = 1e-3 # initial slope
-    @test fx(sm / 2) < fm                   # monotone below the peak
-    # load interpolation of the quadratic formula: recovers the anchors
-    q(y1, y2, qn) = qn * (2y1 - 0.5y2 - (y1 - 0.5y2) * qn)
-    @test q(4043.27, 7802.95, 1.0) ≈ 4043.27
-    @test q(4043.27, 7802.95, 2.0) ≈ 7802.95
-    # degressive with load: force at 2x load is less than twice the force at 1x
-    @test q(4043.27, 7802.95, 2.0) < 2 * q(4043.27, 7802.95, 1.0)
+    @test all(diff(fx.(range(0, sm; length = 200))) .> 0)    # monotone up to the peak
+    @test all(diff(fx.(range(sm, ss; length = 200))) .<= 0)  # falling to full sliding
     # sine_step endpoints and midpoint
     @test SedanDemo.VehicleComponents.sine_step(0.5, 1, 0, 3, 1) == 0
     @test SedanDemo.VehicleComponents.sine_step(2.0, 1, 0, 3, 1) ≈ 0.5

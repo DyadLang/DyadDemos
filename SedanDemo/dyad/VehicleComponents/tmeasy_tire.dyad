@@ -14,8 +14,9 @@ Standstill and low speed are handled by a bristle friction model (elastic
 tread blocks with stiffness `sigma0` and damping `sigma1`) whose force is
 blended with the slip-based force between `frblend_begin` and `frblend_end`
 forward speed, allowing the tire to hold a vehicle at rest without creep.
-Rolling resistance acts as a torque opposing the wheel spin. Aligning torque
-and camber-induced effects are not modeled; the model is intended for forward
+Rolling resistance acts as a torque opposing the wheel spin. The aligning
+torque (`m_align`, from a pneumatic-trail lever) and the overturning moment
+from camber (`m_overturn`) act on the wheel; the model is intended for forward
 driving.
 
 `frame_a` is at the wheel center with the spin axis along its z-axis. Road
@@ -422,7 +423,24 @@ metadata {
       }
     ]
   },
-  "_links": {"frame_a": {}, "surface_frame": {}}
+  "_links": {
+    "frame_a": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 450, "x2": 550, "y2": 550, "rot": 0}
+        },
+        "tags": []
+      }
+    },
+    "surface_frame": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 0}
+        },
+        "tags": []
+      }
+    }
+  }
 }
 end
 
@@ -529,7 +547,14 @@ metadata {
         "tags": []
       }
     },
-    "surface_frame": {},
+    "surface_frame": {
+      "Dyad": {
+        "placement": {
+          "diagram": {"iconName": "default", "x1": 450, "y1": 950, "x2": 550, "y2": 1050, "rot": 0}
+        },
+        "tags": []
+      }
+    },
     "wheeljoint": {},
     "body": {}
   }
