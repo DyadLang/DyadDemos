@@ -13,10 +13,13 @@ On top of the wiring the checker compares the semantics of every block
 instance (after canonicalisation): its component type — with audited
 aliases for renames — and its parameter arguments, with parent parameter
 values substituted down the hierarchy so `k=k` compares the same numbers
-on both sides. Top-level parameter defaults, non-connect equations,
-`initial` values and `analysis` sections are compared as well, so a
-Product→Division swap, a changed integrator x0, a mass/g swap or a
-changed default all FAIL.
+on both sides. Arguments are also compared by the symbolic reference
+they denote — the top-level parameter name resolved through the binding
+chain — so swapping two references with equal defaults still fails.
+Top-level parameter defaults, non-connect equations, `initial` values
+and `analysis` sections are compared as well, so a Product→Division
+swap, a changed integrator x0, a mass/g swap or a changed default all
+FAIL.
 
 Because layout work legitimately restructures a component into new
 sub-components, endpoint names are canonicalised before comparing: an
@@ -49,7 +52,7 @@ swapping `mv.a11` and `mv.a12` in QuatToBody. A renamed or extracted
 block passes only through an explicit entry in RENAMES below, which a
 reviewer can audit line by line.
 """
-import os, re, sys, functools, subprocess, tempfile
+import os, re, sys, functools, shutil, subprocess, tempfile
 from collections import Counter
 
 COMPSTART = re.compile(r'\n((?:(?:abstract|test)\s+)?(?:component|model|connector|record|block)\s+)(\w+)')
@@ -450,24 +453,40 @@ def _newpaths(comp, lib, other_lib, cur):
             if p not in cur_paths and p not in cur_norm}
 
 
+def _inst_types(libname, lib):
+    """{dot-joined instance path: component type} for every nested
+    same-library instance — the type-keyed view of inst_paths."""
+    out = {}
+    def rec(c, prefix, seen):
+        for n, t in instances(lib[c], lib).items():
+            if t == c or t in seen: continue
+            p = prefix + n
+            out[p] = t
+            rec(t, p + '.', seen | {t})
+    rec(libname, '', {libname})
+    return out
+
+
 def _cur_qk_map(comp, lib):
     """CUR-side endpoint rewrites for the audited QuatDerRow extraction:
     map each row's blocks back to that row's ORIGINAL inline names
     (`<c>.r{i}.p{k}` -> `<c>.q_j w_l`, `<c>.r{i}.s` -> `<c>.dq{i}`) for
-    every flattened container `c` holding the four r0..r3 rows (the
-    container is `''` for QuatKinematics itself, `qkin`-suffixed paths
-    elsewhere). Applied before canonicalisation, so `qkin` still strips
-    when it is a new path but the row identity survives — a cross-row
-    swap (r0.dq<->r1.dq, r0.qa<->r1.qa, wa<->wc, ...) can no longer
-    collapse into an identical canonical endpoint."""
+    every flattened container `c` whose four instances r0..r3 are all of
+    type QuatDerRow (the container is `''` for QuatKinematics itself,
+    `qkin`-suffixed paths elsewhere). Applied before canonicalisation, so
+    `qkin` still strips when it is a new path but the row identity
+    survives — a cross-row swap (r0.dq<->r1.dq, r0.qa<->r1.qa, wa<->wc,
+    ...) can no longer collapse into an identical canonical endpoint."""
     paths = inst_paths(comp, lib)
-    containers = {p[:-3] for p in paths if p == 'r0' or p.endswith('.r0')}
+    types = _inst_types(comp, lib)
+    containers = {p[:-3] for p in paths
+                  if types.get(p) == 'QuatDerRow'
+                  and (p == 'r0' or p.endswith('.r0'))}
     e = {}
     for c in containers:
         P = lambda s: f'{c}.{s}' if c else s
-        if c != '' and not c.endswith('qkin'):
-            continue
-        if not all(P(f'r{i}') in paths for i in range(4)):
+        if not all(types.get(P(f'r{i}')) == 'QuatDerRow'
+                   for i in range(4)):
             continue
         for i, prods in enumerate(_QK_ROWS):
             for k, prod in enumerate(prods):
@@ -497,20 +516,28 @@ def full_partition(comp, lib, other_lib, cur=False):
     return canon_nets(nr, comp, lib, newpaths, rw), nr
 
 def resolve_ref(ref, curdir):
-    """REF may be a dyad dir, a demo dir containing dyad/, or a git ref."""
+    """REF may be a dyad dir, a demo dir containing dyad/, or a git ref.
+    Returns (dyaddir, tmpdir): tmpdir is None for a directory ref and the
+    caller-owned pcheck-* scratch dir (remove after use) for a git ref."""
     if os.path.isdir(ref):
-        return ref if os.path.basename(os.path.normpath(ref)) == 'dyad' \
-            else os.path.join(ref, 'dyad')
+        return (ref if os.path.basename(os.path.normpath(ref)) == 'dyad'
+                else os.path.join(ref, 'dyad')), None
     root = subprocess.run(['git', '-C', curdir, 'rev-parse', '--show-toplevel'],
                           capture_output=True, text=True, check=True).stdout.strip()
     rel = os.path.relpath(os.path.abspath(curdir), root)
-    tmp = tempfile.mkdtemp(prefix='pcheck-')
-    archive = subprocess.run(['git', '-C', root, 'archive', ref, rel],
-                             check=True, capture_output=True).stdout
-    open(os.path.join(tmp, 'ref.tar'), 'wb').write(archive)
-    subprocess.run(['tar', '-x', '-f', os.path.join(tmp, 'ref.tar'), '-C', tmp],
-                   check=True)
-    return os.path.join(tmp, rel)
+    cache = os.path.join(root, '.cache')
+    os.makedirs(cache, exist_ok=True)
+    tmp = tempfile.mkdtemp(prefix='pcheck-', dir=cache)
+    try:
+        archive = subprocess.run(['git', '-C', root, 'archive', ref, rel],
+                                 check=True, capture_output=True).stdout
+        open(os.path.join(tmp, 'ref.tar'), 'wb').write(archive)
+        subprocess.run(['tar', '-x', '-f', os.path.join(tmp, 'ref.tar'), '-C', tmp],
+                       check=True)
+    except BaseException:
+        shutil.rmtree(tmp, ignore_errors=True)
+        raise
+    return os.path.join(tmp, rel), tmp
 
 def apply_renames(nets, comp):
     """Rewrite canonical endpoints per RENAMES[comp] (ref -> cur names)."""
@@ -525,11 +552,12 @@ def apply_renames(nets, comp):
 #
 # Wiring alone is not the model: the signature below also compares, per
 # component, the declared parameter defaults, every flattened block
-# instance's component type and parameter arguments (with parent parameter
-# values substituted down the hierarchy), the non-connect equations
-# (including `initial` values) and the analyses. Instance paths are
-# canonicalised with the same transparent-prefix rules as endpoints, so a
-# block's semantic slot follows its wiring slot.
+# instance's component type and parameter arguments — both by resolved
+# value (parent parameter values substituted down the hierarchy) and by
+# the symbolic reference each argument denotes — the non-connect
+# equations (including `initial` values) and the analyses. Instance
+# paths are canonicalised with the same transparent-prefix rules as
+# endpoints, so a block's semantic slot follows its wiring slot.
 
 _PARAM = re.compile(r'(?m)^\s*parameter\s+(\w+)\s*(?:::[\w.]+)?\s*=\s*(.+?)\s*$')
 _DECL = re.compile(r'(\w+)\s*=\s*([\w.]+)\s*\(')
@@ -618,30 +646,50 @@ def _decls(sec):
 
 
 def _flat_insts(comp, lib):
-    """{flat_instance_path: (type, resolved_args)} over the whole
-    sub-component tree. Parent parameter values are substituted down:
-    each instance's args are resolved against the enclosing component's
-    parameter bindings before descending."""
+    """{flat_instance_path: (type, resolved_args, arg_refs)} over the
+    whole sub-component tree. Parent parameter values are substituted
+    down: each instance's args are resolved against the enclosing
+    component's parameter bindings before descending. `arg_refs` maps
+    each arg to the set of symbolic names its identifiers denote —
+    a bound parameter resolves through the binding chain to the
+    top-level parameter names it ultimately refers to (empty when the
+    binding is a literal), an unbound identifier denotes itself — so
+    swapping two references with equal values still fails."""
     out = {}
 
+    def denotation(expr, refs_env):
+        den = set()
+        for ident in set(_IDENT.findall(expr)):
+            den |= refs_env.get(ident, frozenset({ident}))
+        return frozenset(den)
+
     def rec(cname, prefix, inherited, seen):
-        env = {}
+        env, refs_env = {}, {}
+        raw_inh = {n: v for n, (v, _) in inherited.items()}
         for n, d in _sec_params(lib[cname]).items():
-            env[n] = _subst(str(inherited.get(n, d)),
-                            {**inherited, **env})
+            expr, den = inherited.get(n, (str(d), None))
+            env[n] = _subst(expr, {**raw_inh, **env})
+            refs_env[n] = den if den is not None else \
+                (denotation(expr, refs_env) or frozenset({n}))
         for name, typ, args in _decls(lib[cname]):
             if name == cname:
                 continue
-            raw = {a: _subst(str(v), env) for a, v in args.items()}
+            raw, dens, refs = {}, {}, {}
+            for a, v in args.items():
+                raw[a] = _subst(str(v), env)
+                dens[a] = denotation(str(v), refs_env)
+                if dens[a]:
+                    refs[a] = dens[a]
             resolved = {a: _norm_val(v) for a, v in raw.items()}
             alias = _TYPE_ALIAS.get(typ)
             if alias:
                 typ, extra = alias
                 resolved = {**extra, **resolved}
-            out[prefix + name] = (typ, resolved)
+            out[prefix + name] = (typ, resolved, refs)
             t = typ.split('.')[-1]
             if t in lib and t != cname and t not in seen:
-                rec(t, prefix + name + '.', raw, seen | {t})
+                child = {a: (raw[a], dens[a]) for a in args}
+                rec(t, prefix + name + '.', child, seen | {t})
 
     rec(comp, '', {}, {comp})
     return out
@@ -769,6 +817,8 @@ def _sem_diff(comp, reflib, curlib, ref_np, cur_np, cur_rw):
             diffs.append(f"  inst {k}: type {ir[k][0]} != {ic[k][0]}")
         elif ir[k][1] != ic[k][1]:
             diffs.append(f"  inst {k} args: {ir[k][1]} != {ic[k][1]}")
+        elif ir[k][2] != ic[k][2]:
+            diffs.append(f"  inst {k} arg refs: {ir[k][2]} != {ic[k][2]}")
         if len(diffs) > 12:
             break
     if er != ec:
@@ -941,9 +991,22 @@ def _selftest_real():
     """Every mutation a reviewer flagged must fail the gate on the real
     model. Returns 0 if all are caught, 1 otherwise."""
     dyaddir = os.path.join(HERE, '..', 'HL20Demo', 'dyad')
-    refdir = resolve_ref(DEFAULT_REF, dyaddir)
-    lib_r = lib_sections(refdir)
-    lib_c = lib_sections(dyaddir)
+    refdir, tmp = resolve_ref(DEFAULT_REF, dyaddir)
+    # QuatKinematics exists only from 227734c on (it is an extraction of
+    # this PR relative to the default ref), so mutations aimed at the
+    # component itself are checked against that second reference.
+    refdir2, tmp2 = resolve_ref('227734c', dyaddir)
+    try:
+        return _selftest_mutations(lib_sections(refdir),
+                                   lib_sections(refdir2),
+                                   lib_sections(dyaddir))
+    finally:
+        for t in (tmp, tmp2):
+            if t:
+                shutil.rmtree(t, ignore_errors=True)
+
+
+def _selftest_mutations(lib_r, lib_r2, lib_c):
     fails = []
 
     def mut(comp, owner, *subs):
@@ -997,12 +1060,24 @@ def _selftest_real():
     lvl, _, _ = compare(lib_r, lib_m, 'HL20Aero')
     if lvl == 'match':
         fails.append(('HL20Aero', 'cl.DBFUR<->cl.DWFL swap not caught'))
+    # equal-default parameter-reference swap: integrator args
+    # `x0 = q2_0` <-> `x0 = q3_0` in QuatKinematics. Both parameters
+    # default to 0.0, so a value-only compare misses the swap — the
+    # symbolic reference must reject it on QuatKinematics itself (whose
+    # reference version lives at 227734c).
+    lib_m = dict(lib_c)
+    lib_m['QuatKinematics'] = _swap2(lib_m['QuatKinematics'],
+                                   'x0 = q2_0', 'x0 = q3_0')
+    lvl, _, info = compare(lib_r2, lib_m, 'QuatKinematics')
+    if lvl == 'match':
+        fails.append(('QuatKinematics',
+                      'x0 = q2_0<->q3_0 reference swap not caught'))
 
     for comp, why in fails:
         print(f"selftest FAIL {comp}: {why}")
     if fails:
         return 1
-    print("selftest: all 9 real-model mutations rejected")
+    print("selftest: all 10 real-model mutations rejected")
     return 0
 
 def main(argv):
@@ -1013,13 +1088,22 @@ def main(argv):
     if '--ref' in args:
         i = args.index('--ref'); ref = args[i + 1]
         del args[i:i + 2]
+    tmp = None
     if len(args) == 4 and os.path.isdir(args[0]):
         refdir, curdir, _, comps = args[0], args[1], args[2], [args[3]]
     elif len(args) >= 2:
         curdir, comps = args[0], args[1:]
-        refdir = resolve_ref(ref, curdir)
+        refdir, tmp = resolve_ref(ref, curdir)
     else:
         print(__doc__); return 2
+    try:
+        return _run(refdir, curdir, comps, ref)
+    finally:
+        if tmp:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _run(refdir, curdir, comps, ref):
     lib_r = lib_sections(refdir)
     lib_c = lib_sections(curdir)
     worst = 0

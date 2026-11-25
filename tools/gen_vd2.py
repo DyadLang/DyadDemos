@@ -264,8 +264,13 @@ def check():
 
 def main():
     verbose = "--verbose" in sys.argv[1:] or "-v" in sys.argv[1:]
+    # Write mode runs the same gen_vd2 -> gen_veh2 pipeline as --check:
+    # VehicleDynamics' icon placements are owned by gen_veh2.repin_vd, so
+    # writing gen_vd2's output alone would drift them (26 icon boxes).
+    import gen_veh2
     files = lg.load_dir(LIB)
     produce(files)
+    gen_veh2.produce(files)
     diffs = lg.apply_guarded(files, [V])
     if diffs:
         print("refusing to write: non-layout content would change")

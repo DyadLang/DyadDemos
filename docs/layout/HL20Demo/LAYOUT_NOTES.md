@@ -28,12 +28,17 @@ Verified by:
   values substituted down the hierarchy), top-level parameter defaults,
   non-connect equations, initial values and analyses. The gate is exact:
   renamed or extracted blocks pass only through the audited `RENAMES`,
-  `_PATH_EQUIV` and extraction tables inside the script; a same-shape
+  `_PATH_EQUIV`, `_EXTRACTIONS`, `_TYPE_ALIAS` and `_QK_ROWS` (the
+  hard-coded QuatDerRow row table) inside the script; a same-shape
   rewire (e.g. swapping `mv.a11` and `mv.a12` in QuatToBody, or
   `cl.DBFUR`↔`cl.DWFL` inside an aero coefficient block) still fails, as
   do a `Product`→`Division` type swap, an integrator `x0` swap, a
-  parameter-value swap and a changed default. Current run: **all 51
-  components pass** — 35 compared directly against the reference, 16 new
+  parameter-value swap and a changed default. Parameter arguments are
+  compared by the symbolic reference they denote as well as by
+  substituted value, so swapping two references with equal defaults
+  (e.g. `x0 = q2_0`↔`x0 = q3_0` in `QuatKinematics`) also fails.
+  Current run: **all 51 components pass** — 35 compared directly
+  against the reference, 16 new
   extracted components covered through the flattened comparisons of the
   components that instantiate them — against both the default `2e80df8`
   reference and `--ref 227734c`. `--selftest` rejects every seeded
@@ -543,5 +548,8 @@ A recompile with the 3.6.0 CLI had flipped the transient solver default
 from `ODEAlg.Auto()` to `ODEAlg.AutoImplicit()` in the five `*Sim`
 files with no source change; they are restored to `ODEAlg.Auto()`,
 byte-identical to what the 3.5.x CLI emits for the current sources
-(the only codegen difference between the two CLI versions on this
-model was that default).
+(the solver default was one of two codegen differences between the
+CLI versions on this model — the other was the `nz` gain
+parenthesisation in `VehicleOutputs_definition.jl`, emitted by the
+3.6.0 CLI as `k=-(1.0 / (mass * g))` where 3.5.x emits
+`k=-1.0 / (mass * g)`).
