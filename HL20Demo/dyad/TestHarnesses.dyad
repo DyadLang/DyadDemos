@@ -282,90 +282,34 @@ test component TestHL20Subsonic
     "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 550, "y1": 950, "y2": 1250}}}
   }
   c_dbful = BlockComponents.Sources.Constant(k = -6.42) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 200, "y2": 300}}}
-  }
-  c_dbfur = BlockComponents.Sources.Constant(k = -6.42) {
-    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 450, "y2": 550}}}
-  }
-  c_dbfll = BlockComponents.Sources.Constant(k = 16.42) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 700, "y2": 800}}}
   }
-  c_dbflr = BlockComponents.Sources.Constant(k = 16.42) {
+  c_dbfur = BlockComponents.Sources.Constant(k = -6.42) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 950, "y2": 1050}}}
   }
-  c_dwfl = BlockComponents.Sources.Constant(k = 5.5) {
+  c_dbfll = BlockComponents.Sources.Constant(k = 16.42) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1200, "y2": 1300}}}
   }
-  c_dwfr = BlockComponents.Sources.Constant(k = 5.5) {
+  c_dbflr = BlockComponents.Sources.Constant(k = 16.42) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1450, "y2": 1550}}}
+  }
+  c_dwfl = BlockComponents.Sources.Constant(k = 5.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 200, "y2": 300}}}
+  }
+  c_dwfr = BlockComponents.Sources.Constant(k = 5.5) {
+    "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 450, "y2": 550}}}
   }
   c_drud = BlockComponents.Sources.Constant(k = 0.0) {
     "Dyad": {"placement": {"diagram": {"x1": 200, "x2": 300, "y1": 1700, "y2": 1800}}}
   }
 relations
-  connect(c_dbful.y, vehicle.DBFUL) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 430, "y": 250}, {"x": 430, "y": 995}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_dbfur.y, vehicle.DBFUR) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 410, "y": 500}, {"x": 410, "y": 1025}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_dbfll.y, vehicle.DBFLL) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 390, "y": 750}, {"x": 390, "y": 1055}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_dbflr.y, vehicle.DBFLR) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [{"x": 370, "y": 1000}, {"x": 370, "y": 1085}],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(c_dwfl.y, vehicle.DWFL) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [{"x": 320, "y": 1250}, {"x": 320, "y": 1115}],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(c_dwfr.y, vehicle.DWFR) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 335, "y": 1500}, {"x": 335, "y": 1145}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(c_drud.y, vehicle.DRUD) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 350, "y": 1750},
-            {"x": 350, "y": 1175}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
+  connect(c_dbful.y, vehicle.DBFUL) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 390, "y": 750}, {"x": 390, "y": 1055}], "E": 2}], "path": {}} }
+  connect(c_dbfur.y, vehicle.DBFUR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 370, "y": 1000}, {"x": 370, "y": 1085}], "E": 2}], "path": {}} }
+  connect(c_dbfll.y, vehicle.DBFLL) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 320, "y": 1250}, {"x": 320, "y": 1115}], "E": 2}], "path": {}} }
+  connect(c_dbflr.y, vehicle.DBFLR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 335, "y": 1500}, {"x": 335, "y": 1145}], "E": 2}], "path": {}} }
+  connect(c_dwfl.y, vehicle.DWFL) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 430, "y": 250}, {"x": 430, "y": 995}], "E": 2}], "path": {}} }
+  connect(c_dwfr.y, vehicle.DWFR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 410, "y": 500}, {"x": 410, "y": 1025}], "E": 2}], "path": {}} }
+  connect(c_drud.y, vehicle.DRUD) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 350, "y": 1750}, {"x": 350, "y": 1175}], "E": 2}], "path": {}} }
 metadata {
   "Dyad": {
     "tests": {
@@ -408,22 +352,22 @@ test component TestControllers
   c_dppilot = BlockComponents.Sources.Constant(k = 0.0) {"Dyad": {"placement": {"diagram": {"x1": 650, "x2": 750, "y1": 2600, "y2": 2700}}}}
   c_dlsbcom = BlockComponents.Sources.Constant(k = 20.9) {"Dyad": {"placement": {"diagram": {"x1": 250, "x2": 350, "y1": 3120, "y2": 3220}}}}
 relations
-  connect(c_dcpilot.y, pitch_ctrl.DCPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 900, "y": 1055}], "E": 2}], "path": {}} }
+  connect(c_dcpilot.y, pitch_ctrl.DCPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 550, "y": 1055}], "E": 2}], "path": {}} }
   connect(c_qdeg.y, pitch_ctrl.QDEG) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 973.125, "y": 1550.0}], "E": 2}], "path": {}} }
-      connect(c_rdeg.y, pitch_ctrl.RDEG, yaw_ctrl.RDEG) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -1, "M": [{"x": 1023.75, "y": 1772.5}, {"x": 235, "y": 1772.5}, {"x": 235, "y": 3070}, {"x": 1060, "y": 3070}, {"x": 1060, "y": 2800}], "E": 3}], "path": {}, "junctions": [{"x": 1023.75, "y": 1700}]}}
+  connect(c_rdeg.y, pitch_ctrl.RDEG, yaw_ctrl.RDEG) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": 2}, {"S": -1, "M": [{"x": 1023.75, "y": 1772.5}, {"x": 235, "y": 1772.5}], "E": -2}, {"S": -2, "M": [{"x": 235, "y": 3070}, {"x": 1059.5, "y": 3070}, {"x": 1059.5, "y": 3070}], "E": 3}], "path": {}, "junctions": [{"x": 1023.75, "y": 1700}, {"x": 235, "y": 1772.5}]} }
   connect(c_nz.y, pitch_ctrl.NZ) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1276.875, "y": 2450.0}], "E": 2}], "path": {}} }
   connect(c_sinphi.y, pitch_ctrl.SINPHI) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1074.375, "y": 1850.0}], "E": 2}], "path": {}} }
   connect(c_cosphi.y, pitch_ctrl.COSPHI) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1125, "y": 2000.0}], "E": 2}], "path": {}} }
   connect(c_costhe.y, pitch_ctrl.COSTHE) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1175.625, "y": 2150.0}], "E": 2}], "path": {}} }
-  connect(c_dledeg.y, pitch_ctrl.DLEDEG) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 700, "y": 1210}, {"x": 700, "y": 1125}, {"x": 900, "y": 1125}], "E": 2}], "path": {}} }
+  connect(c_dledeg.y, pitch_ctrl.DLEDEG) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 700, "y": 1210}, {"x": 700, "y": 1125}, {"x": 700, "y": 1125}], "E": 2}], "path": {}} }
   connect(c_qbar.y, pitch_ctrl.QBAR) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1226.25, "y": 2300.0}], "E": 2}], "path": {}} }
-        connect(c_mach.y, pitch_ctrl.MACH, yaw_ctrl.MACH) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 930, "y": 1400}, {"x": 930, "y": 1150}], "E": 2}, {"S": -1, "M": [{"x": 960, "y": 1300}, {"x": 245, "y": 1300}, {"x": 245, "y": 3050}, {"x": 940, "y": 3050}, {"x": 940, "y": 2800}], "E": 3}], "path": {}, "junctions": [{"x": 960, "y": 1400}]}}
+  connect(c_mach.y, pitch_ctrl.MACH, yaw_ctrl.MACH) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 930, "y": 1400}, {"x": 922.5, "y": 1400}], "E": 2}, {"S": -1, "M": [{"x": 960, "y": 1300}, {"x": 245, "y": 1300}], "E": -2}, {"S": -2, "M": [{"x": 245, "y": 3050}, {"x": 940, "y": 3050}, {"x": 980, "y": 3050}], "E": 3}], "path": {}, "junctions": [{"x": 960, "y": 1400}, {"x": 245, "y": 1300}]} }
       connect(c_vtotali.y, pitch_ctrl.VTOTALI) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 1327.5, "y": 2600}], "E": 2}], "path": {}}}
-  connect(c_dwpilot.y, roll_ctrl.DWPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 450, "y": 2750}, {"x": 450, "y": 2725}, {"x": 500, "y": 2725}], "E": 2}], "path": {}} }
-    connect(c_pdeg.y, roll_ctrl.PDEG) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 490, "y": 2950}, {"x": 490, "y": 2805}], "E": 2}], "path": {}}}
-  connect(c_dppilot.y, yaw_ctrl.DPPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 890, "y": 2650}, {"x": 890, "y": 2715}, {"x": 950, "y": 2715}], "E": 2}], "path": {}} }
-    connect(roll_ctrl.DACMD, yaw_ctrl.DACMD) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 950, "y": 2755}], "E": 2}], "path": {}} }
-    connect(c_dlsbcom.y, speed_ctrl.DLSBCOM) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 750, "y": 3170}], "E": 2}], "path": {}} }
+  connect(c_dwpilot.y, roll_ctrl.DWPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 450, "y": 2750}, {"x": 450, "y": 2725}, {"x": 450, "y": 2725}], "E": 2}], "path": {}} }
+  connect(c_pdeg.y, roll_ctrl.PDEG) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 490, "y": 2950}, {"x": 490, "y": 2805}], "E": 2}], "path": {}} }
+  connect(c_dppilot.y, yaw_ctrl.DPPILOT) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 890, "y": 2650}, {"x": 890, "y": 2715}, {"x": 890, "y": 2715}], "E": 2}], "path": {}} }
+  connect(roll_ctrl.DACMD, yaw_ctrl.DACMD) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 650, "y": 2755}], "E": 2}], "path": {}} }
+  connect(c_dlsbcom.y, speed_ctrl.DLSBCOM) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 350, "y": 3170}], "E": 2}], "path": {}} }
 metadata {
   "Dyad": {
     "tests": {

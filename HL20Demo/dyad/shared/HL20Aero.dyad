@@ -12,115 +12,73 @@ component HL20Aero
   # Inputs
   alpha_deg = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80},
-        "diagram": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}
-      }
+      "placement": {"icon": {"x1": -30, "y1": 20, "x2": 30, "y2": 80}, "diagram": {"x1": 220, "x2": 280, "y1": 2010, "y2": 2070}}
     }
   }
   beta_deg = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180},
-        "diagram": {"x1": -30, "x2": 30, "y1": 170, "y2": 230}
-      }
+      "placement": {"icon": {"x1": -30, "y1": 120, "x2": 30, "y2": 180}, "diagram": {"x1": 1220, "x2": 1280, "y1": 1610, "y2": 1670}}
     }
   }
   mach = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280},
-        "diagram": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}
-      }
+      "placement": {"icon": {"x1": -30, "y1": 220, "x2": 30, "y2": 280}, "diagram": {"x1": 320, "x2": 380, "y1": 1970, "y2": 2030}}
     }
   }
   vrw_fps = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380},
-        "diagram": {"x1": -30, "x2": 30, "y1": 1670, "y2": 1730}
-      }
+      "placement": {"icon": {"x1": -30, "y1": 320, "x2": 30, "y2": 380}, "diagram": {"x1": 595, "x2": 655, "y1": 4230, "y2": 4290}}
     }
   }
   hob = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480},
-        "diagram": {"x1": -30, "x2": 30, "y1": 470, "y2": 530}
-      }
+      "placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": 420, "x2": 480, "y1": 1930, "y2": 1990}}
     }
   }
   pb = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580},
-        "diagram": {"x1": -30, "x2": 30, "y1": 1820, "y2": 1880}
-      }
+      "placement": {"icon": {"x1": -30, "y1": 520, "x2": 30, "y2": 580}, "diagram": {"x1": 1320, "x2": 1380, "y1": 1570, "y2": 1630}}
     }
   }
-  qb = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": 3370, "x2": 3430, "y1": 1170, "y2": 1230}}}}
+  qb = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 620, "x2": 30, "y2": 680}, "diagram": {"x1": 1120, "x2": 1180, "y1": 1650, "y2": 1710}}}}
   rb = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780},
-        "diagram": {"x1": -30, "x2": 30, "y1": 1970, "y2": 2030}
-      }
+      "placement": {"icon": {"x1": -30, "y1": 720, "x2": 30, "y2": 780}, "diagram": {"x1": 1420, "x2": 1480, "y1": 1530, "y2": 1590}}
     }
   }
   DBFUL = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 20, "y1": 970, "x2": 80, "y2": 1030},
-        "diagram": {"x1": -30, "x2": 30, "y1": 920, "y2": 980}
-      }
+      "placement": {"icon": {"x1": 20, "y1": 970, "x2": 80, "y2": 1030}, "diagram": {"x1": 720, "x2": 780, "y1": 1810, "y2": 1870}}
     }
   }
   DBFUR = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 120, "y1": 970, "x2": 180, "y2": 1030},
-        "diagram": {"x1": -30, "x2": 30, "y1": 1070, "y2": 1130}
-      }
+      "placement": {"icon": {"x1": 120, "y1": 970, "x2": 180, "y2": 1030}, "diagram": {"x1": 820, "x2": 880, "y1": 1770, "y2": 1830}}
     }
   }
   DBFLL = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 220, "y1": 970, "x2": 280, "y2": 1030},
-        "diagram": {"x1": -30, "x2": 30, "y1": 620, "y2": 680}
-      }
+      "placement": {"icon": {"x1": 220, "y1": 970, "x2": 280, "y2": 1030}, "diagram": {"x1": 520, "x2": 580, "y1": 1890, "y2": 1950}}
     }
   }
   DBFLR = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 320, "y1": 970, "x2": 380, "y2": 1030},
-        "diagram": {"x1": -30, "x2": 30, "y1": 770, "y2": 830}
-      }
+      "placement": {"icon": {"x1": 320, "y1": 970, "x2": 380, "y2": 1030}, "diagram": {"x1": 620, "x2": 680, "y1": 1850, "y2": 1910}}
     }
   }
   DWFL = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 420, "y1": 970, "x2": 480, "y2": 1030},
-        "diagram": {"x1": -30, "x2": 30, "y1": 1220, "y2": 1280}
-      }
+      "placement": {"icon": {"x1": 420, "y1": 970, "x2": 480, "y2": 1030}, "diagram": {"x1": 920, "x2": 980, "y1": 1730, "y2": 1790}}
     }
   }
   DWFR = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 520, "y1": 970, "x2": 580, "y2": 1030},
-        "diagram": {"x1": -30, "x2": 30, "y1": 1370, "y2": 1430}
-      }
+      "placement": {"icon": {"x1": 520, "y1": 970, "x2": 580, "y2": 1030}, "diagram": {"x1": 1020, "x2": 1080, "y1": 1690, "y2": 1750}}
     }
   }
   DRUD = RealInput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 620, "y1": 970, "x2": 680, "y2": 1030},
-        "diagram": {"x1": -30, "x2": 30, "y1": 1520, "y2": 1580}
-      }
+      "placement": {"icon": {"x1": 620, "y1": 970, "x2": 680, "y2": 1030}, "diagram": {"x1": 945, "x2": 1005, "y1": 4230, "y2": 4290}}
     }
   }
   parameter DLG::Real = 0.0
@@ -151,55 +109,37 @@ component HL20Aero
   # Outputs
   CX = RealOutput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 970, "y1": 120, "x2": 1030, "y2": 180},
-        "diagram": {"x1": 3370, "x2": 3430, "y1": 270, "y2": 330}
-      }
+      "placement": {"icon": {"x1": 970, "y1": 120, "x2": 1030, "y2": 180}, "diagram": {"x1": 3320, "x2": 3380, "y1": 415, "y2": 475}}
     }
   }
   CY = RealOutput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280},
-        "diagram": {"x1": 3370, "x2": 3430, "y1": 1920, "y2": 1980}
-      }
+      "placement": {"icon": {"x1": 970, "y1": 220, "x2": 1030, "y2": 280}, "diagram": {"x1": 3320, "x2": 3380, "y1": 2710, "y2": 2770}}
     }
   }
   CZ = RealOutput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380},
-        "diagram": {"x1": 3370, "x2": 3430, "y1": 420, "y2": 480}
-      }
+      "placement": {"icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380}, "diagram": {"x1": 3320, "x2": 3380, "y1": 530, "y2": 590}}
     }
   }
   Cl = RealOutput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480},
-        "diagram": {"x1": 3370, "x2": 3430, "y1": 2070, "y2": 2130}
-      }
+      "placement": {"icon": {"x1": 970, "y1": 420, "x2": 1030, "y2": 480}, "diagram": {"x1": 3320, "x2": 3380, "y1": 2820, "y2": 2880}}
     }
   }
   Cm = RealOutput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 970, "y1": 520, "x2": 1030, "y2": 580},
-        "diagram": {"x1": 3370, "x2": 3430, "y1": 620, "y2": 680}
-      }
+      "placement": {"icon": {"x1": 970, "y1": 520, "x2": 1030, "y2": 580}, "diagram": {"x1": 3320, "x2": 3380, "y1": 760, "y2": 820}}
     }
   }
   Cn = RealOutput() {
     "Dyad": {
-      "placement": {
-        "icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680},
-        "diagram": {"x1": 3370, "x2": 3430, "y1": 2220, "y2": 2280}
-      }
+      "placement": {"icon": {"x1": 970, "y1": 620, "x2": 1030, "y2": 680}, "diagram": {"x1": 3320, "x2": 3380, "y1": 2930, "y2": 2990}}
     }
   }
   # Air-data conditioning: |DRUD|, b/(2V), c/(2V)
   air = AeroAirData(CBAR_ft = CBAR_ft, BSPAN_ft = BSPAN_ft) {
-    "Dyad": {"placement": {"diagram": {"x1": 1700, "x2": 2800, "y1": 3275, "y2": 4375}}}
+    "Dyad": {"placement": {"diagram": {"x1": 450, "x2": 1150, "y1": 3450, "y2": 4150}}}
   }
   # Longitudinal coefficients: CL, CD, Cm, CX, CZ
   lon = AeroLongitudinal(DLG = DLG, Cm_bias = Cm_bias, CMQ0 = CMQ0, CMQ1 = CMQ1, CMQ2 = CMQ2, CMQ3 = CMQ3) {
@@ -207,79 +147,32 @@ component HL20Aero
   }
   # Lateral-directional coefficients: CY, Cl, Cn
   lat = AeroLateralCoeffs(DLG = DLG, CNP0 = CNP0, CNP1 = CNP1, CNP2 = CNP2, CNP3 = CNP3, CNR0 = CNR0, CNR1 = CNR1, CNR2 = CNR2, CNR3 = CNR3, CLP0 = CLP0, CLP1 = CLP1, CLP2 = CLP2, CLP3 = CLP3, CLR0 = CLR0, CLR1 = CLR1, CLR2 = CLR2, CLR3 = CLR3) {
-    "Dyad": {"placement": {"diagram": {"x1": 1700, "x2": 2800, "y1": 1675, "y2": 2775}}}
+    "Dyad": {"placement": {"diagram": {"x1": 1700, "x2": 2800, "y1": 2300, "y2": 3400}}}
   }
 relations
-          connect(alpha_deg, lon.alpha_deg, lat.alpha_deg) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 200, "y": 157.5}], "E": -1}, {"S": 3, "M": [{"x": 1400, "y": 1730.0}, {"x": 1400, "y": 50.0}], "E": -1}], "path": {}, "junctions": [{"x": 200, "y": 50.0}]}}
-  connect(beta_deg, lat.beta_deg) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1351, "y": 200}, {"x": 1351, "y": 1840}], "E": 2}], "path": {}} }
-          connect(mach, lon.mach, lat.mach) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 250, "y": 272.5}], "E": -1}, {"S": 3, "M": [{"x": 1350, "y": 1950.0}, {"x": 1350, "y": 350.0}], "E": -1}], "path": {}, "junctions": [{"x": 250, "y": 350.0}]}}
-          connect(hob, lon.hob, lat.hob) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 300, "y": 387.5}], "E": -1}, {"S": 3, "M": [{"x": 1300, "y": 2060.0}, {"x": 1300, "y": 500.0}], "E": -1}], "path": {}, "junctions": [{"x": 300, "y": 500.0}]}}
-          connect(DBFLL, lon.DBFLL, lat.DBFLL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 350, "y": 502.5}], "E": -1}, {"S": 3, "M": [{"x": 1250, "y": 2170.0}, {"x": 1250, "y": 650.0}], "E": -1}], "path": {}, "junctions": [{"x": 350, "y": 650.0}]}}
-          connect(DBFLR, lon.DBFLR, lat.DBFLR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 400, "y": 617.5}], "E": -1}, {"S": 3, "M": [{"x": 1200, "y": 2280.0}, {"x": 1200, "y": 800.0}], "E": -1}], "path": {}, "junctions": [{"x": 400, "y": 800.0}]}}
-          connect(DBFUL, lon.DBFUL, lat.DBFUL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 450, "y": 732.5}], "E": -1}, {"S": 3, "M": [{"x": 1150, "y": 2390.0}, {"x": 1150, "y": 950.0}], "E": -1}], "path": {}, "junctions": [{"x": 450, "y": 950.0}]}}
-          connect(DBFUR, lon.DBFUR, lat.DBFUR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 500, "y": 847.5}], "E": -1}, {"S": 3, "M": [{"x": 1100, "y": 2500.0}, {"x": 1100, "y": 1100.0}], "E": -1}], "path": {}, "junctions": [{"x": 500, "y": 1100.0}]}}
-          connect(DWFL, lon.DWFL, lat.DWFL) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 550, "y": 962.5}], "E": -1}, {"S": 3, "M": [{"x": 1050, "y": 2610.0}, {"x": 1050, "y": 1250.0}], "E": -1}], "path": {}, "junctions": [{"x": 550, "y": 1250.0}]}}
-          connect(DWFR, lon.DWFR, lat.DWFR) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": 2, "M": [{"x": 600, "y": 1077.5}], "E": -1}, {"S": 3, "M": [{"x": 1000, "y": 2720.0}, {"x": 1000, "y": 1400.0}], "E": -1}], "path": {}, "junctions": [{"x": 600, "y": 1400.0}]}}
-          connect(air.abs_drud, lon.abs_drud, lat.abs_drud) {"Dyad": {"edges": [{"S": 1, "M": [{"x": 2800, "y": 3300}, {"x": 2850, "y": 3300}], "E": -1}, {"S": 2, "M": [{"x": 1700, "y": 1500}, {"x": 3440, "y": 1500}, {"x": 3440, "y": 3520}, {"x": 2850, "y": 3520}], "E": -1}, {"S": 3, "M": [{"x": 1810, "y": 3060}, {"x": 2850, "y": 3060}], "E": -1}], "path": {}, "junctions": [{"x": 2850, "y": 3300}]}}
-  connect(air.damp_b2v, lat.damp_b2v) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2890, "y": 3495}, {"x": 2890, "y": 2980}, {"x": 2470, "y": 2980}], "E": 2}], "path": {}} }
-  connect(air.damp_c2v, lon.damp_c2v) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3455, "y": 3660}, {"x": 3455, "y": 1290}, {"x": 2140, "y": 1290}, {"x": 2140, "y": 1250}], "E": 2}], "path": {}} }
-  connect(DRUD, air.DRUD) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 999, "y": 1550}, {"x": 999, "y": 3495}], "E": 2}], "path": {}} }
-  connect(vrw_fps, air.vrw_fps) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 997, "y": 1700}, {"x": 997, "y": 3330}], "E": 2}], "path": {}} }
-  connect(pb, lat.pb) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 996, "y": 1850}, {"x": 996, "y": 3030}, {"x": 2030, "y": 3030}], "E": 2}], "path": {}} }
-  connect(rb, lat.rb) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 993, "y": 2000}, {"x": 993, "y": 3055}, {"x": 2320, "y": 3055}, {"x": 2320, "y": 2810}, {"x": 2250, "y": 2810}, {"x": 2250, "y": 2775}], "E": 2}], "path": {}} }
-  connect(qb, lon.qb) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 3390, "y": 1200}, {"x": 3390, "y": 1480}, {"x": 1920, "y": 1480}], "E": 2}], "path": {}} }
-  connect(lon.CX, CX) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [{"x": 2850, "y": 444.99999999999994}, {"x": 2850, "y": 300}],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(lon.CZ, CZ) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2850, "y": 560}, {"x": 2850, "y": 450}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(lon.Cm, Cm) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2850, "y": 790}, {"x": 2850, "y": 650}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(lat.CY, CY) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2850, "y": 2115}, {"x": 2850, "y": 1950}], "E": 2}],
-      "path": {}
-    }
-  }
-  connect(lat.Cl, Cl) {
-    "Dyad": {
-      "edges": [
-        {
-          "S": 1,
-          "M": [
-            {"x": 2850, "y": 2225},
-            {"x": 2850, "y": 2200},
-            {"x": 3350, "y": 2200},
-            {"x": 3350, "y": 2100}
-          ],
-          "E": 2
-        }
-      ],
-      "path": {}
-    }
-  }
-  connect(lat.Cn, Cn) {
-    "Dyad": {
-      "edges": [{"S": 1, "M": [{"x": 2850, "y": 2335}, {"x": 2850, "y": 2250}], "E": 2}],
-      "path": {}
-    }
-  }
+  connect(alpha_deg, lon.alpha_deg, lat.alpha_deg) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 200, "y": 365.3846}], "E": 2}, {"S": -1, "M": [{"x": 1920, "y": 2040}], "E": 3}], "path": {}, "junctions": [{"x": 200, "y": 2040}]} }
+  connect(mach, lon.mach, lat.mach) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 300, "y": 453.8462}], "E": 2}, {"S": -1, "M": [{"x": 1993.3333, "y": 2000}], "E": 3}], "path": {}, "junctions": [{"x": 300, "y": 2000}]} }
+  connect(hob, lon.hob, lat.hob) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 400, "y": 542.3077}], "E": 2}, {"S": -1, "M": [{"x": 2066.6667, "y": 1960}], "E": 3}], "path": {}, "junctions": [{"x": 400, "y": 1960}]} }
+  connect(DBFLL, lon.DBFLL, lat.DBFLL) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 500, "y": 630.7692}], "E": 2}, {"S": -1, "M": [{"x": 2140, "y": 1920}], "E": 3}], "path": {}, "junctions": [{"x": 500, "y": 1920}]} }
+  connect(DBFLR, lon.DBFLR, lat.DBFLR) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 600, "y": 719.2308}], "E": 2}, {"S": -1, "M": [{"x": 2213.3333, "y": 1880}], "E": 3}], "path": {}, "junctions": [{"x": 600, "y": 1880}]} }
+  connect(DBFUL, lon.DBFUL, lat.DBFUL) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 700, "y": 807.6923}], "E": 2}, {"S": -1, "M": [{"x": 2286.6667, "y": 1840}], "E": 3}], "path": {}, "junctions": [{"x": 700, "y": 1840}]} }
+  connect(DBFUR, lon.DBFUR, lat.DBFUR) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 800, "y": 896.1538}], "E": 2}, {"S": -1, "M": [{"x": 2360, "y": 1800}], "E": 3}], "path": {}, "junctions": [{"x": 800, "y": 1800}]} }
+  connect(DWFL, lon.DWFL, lat.DWFL) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 900, "y": 984.6154}], "E": 2}, {"S": -1, "M": [{"x": 2433.3333, "y": 1760}], "E": 3}], "path": {}, "junctions": [{"x": 900, "y": 1760}]} }
+  connect(DWFR, lon.DWFR, lat.DWFR) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [{"x": 1000, "y": 1073.0769}], "E": 2}, {"S": -1, "M": [{"x": 2506.6667, "y": 1720}], "E": 3}], "path": {}, "junctions": [{"x": 1000, "y": 1720}]} }
+  connect(qb, lon.qb) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1100, "y": 1680}, {"x": 1100, "y": 1161.5385}], "E": 2}], "path": {}} }
+  connect(beta_deg, lat.beta_deg) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2580, "y": 1640}], "E": 2}], "path": {}} }
+  connect(pb, lat.pb) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2653.3333, "y": 1600}], "E": 2}], "path": {}} }
+  connect(rb, lat.rb) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2726.6667, "y": 1560}], "E": 2}], "path": {}} }
+  connect(vrw_fps, air.vrw_fps) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(DRUD, air.DRUD) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(air.damp_c2v, lon.damp_c2v) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 195, "y": 3485}, {"x": 195, "y": 276.9231}], "E": 2}], "path": {}} }
+  connect(air.abs_drud, lon.abs_drud, lat.abs_drud) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 205, "y": 3590}, {"x": 205, "y": 4310}], "E": -1}, {"S": -1, "M": [{"x": 191, "y": 188.4615}], "E": 2}, {"S": -1, "M": [{"x": 1650, "y": 4310}, {"x": 1650, "y": 2280}, {"x": 1773.3333, "y": 2280}], "E": 3}], "path": {}, "junctions": [{"x": 191, "y": 4310}]} }
+  connect(air.damp_b2v, lat.damp_b2v) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 215, "y": 3695}, {"x": 215, "y": 4300}, {"x": 1600, "y": 4300}, {"x": 1600, "y": 2110}, {"x": 1846.6667, "y": 2110}], "E": 2}], "path": {}} }
+  connect(lon.CX, CX) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(lon.CZ, CZ) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(lon.Cm, Cm) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(lat.CY, CY) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(lat.Cl, Cl) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(lat.Cn, Cn) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
 metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/aero_icon.svg"}}}
 end

@@ -217,8 +217,8 @@ pb, rb and the span damping factor b/(2V).
   push!(__eqs, connect(rb, pair.rb, cr.rb))
   push!(__eqs, connect(damp_b2v, pair.damp_b2v, cr.damp_b2v))
   push!(__eqs, connect(pair.cy_y, CY))
-  push!(__eqs, connect(cr.y, Cl))
   push!(__eqs, connect(pair.cn_y, Cn))
+  push!(__eqs, connect(cr.y, Cl))
 
   # Return completely constructed System
   return System(__eqs, ModelingToolkit.t_nounits, __vars, __params; systems=__systems, initial_conditions=__initial_conditions, guesses=__guesses, name, initialization_eqs=__initialization_eqs, bindings=__bindings, assertions=__assertions)

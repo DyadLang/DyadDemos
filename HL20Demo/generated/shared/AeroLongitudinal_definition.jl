@@ -169,8 +169,7 @@ the stability-axis to body-axis rotation (sin/cos of alpha) producing CX, CZ.
   __assertions = []
 
   ### Equations
-  push!(__eqs, connect(alpha_deg, deg2rad.u, pair.alpha_deg, cm.alpha_deg))
-  push!(__eqs, connect(deg2rad.y, sin_a.u, cos_a.u))
+  push!(__eqs, connect(alpha_deg, pair.alpha_deg, cm.alpha_deg, deg2rad.u))
   push!(__eqs, connect(mach, pair.mach, cm.mach))
   push!(__eqs, connect(hob, pair.hob, cm.hob))
   push!(__eqs, connect(DBFLL, pair.DBFLL, cm.DBFLL))
@@ -182,15 +181,16 @@ the stability-axis to body-axis rotation (sin/cos of alpha) producing CX, CZ.
   push!(__eqs, connect(abs_drud, pair.abs_drud, cm.abs_drud))
   push!(__eqs, connect(qb, cm.qb))
   push!(__eqs, connect(damp_c2v, cm.damp_c2v))
-  push!(__eqs, connect(pair.cl_y, cl_sin.u1, cl_cos.u1))
-  push!(__eqs, connect(sin_a.y, cl_sin.u2, cd_sin.u2))
-  push!(__eqs, connect(pair.cd_y, cd_cos.u1, cd_sin.u1))
+  push!(__eqs, connect(deg2rad.y, sin_a.u, cos_a.u))
   push!(__eqs, connect(cos_a.y, cd_cos.u2, cl_cos.u2))
+  push!(__eqs, connect(pair.cl_y, cl_sin.u1, cl_cos.u1))
+  push!(__eqs, connect(pair.cd_y, cd_cos.u1, cd_sin.u1))
+  push!(__eqs, connect(sin_a.y, cl_sin.u2, cd_sin.u2))
   push!(__eqs, connect(cl_sin.y, cx_sum.u1))
   push!(__eqs, connect(cd_cos.y, cx_sum.u2))
-  push!(__eqs, connect(cx_sum.y, CX))
   push!(__eqs, connect(cl_cos.y, cz_sum.u1))
   push!(__eqs, connect(cd_sin.y, cz_sum.u2))
+  push!(__eqs, connect(cx_sum.y, CX))
   push!(__eqs, connect(cz_sum.y, CZ))
   push!(__eqs, connect(cm.y, Cm))
 

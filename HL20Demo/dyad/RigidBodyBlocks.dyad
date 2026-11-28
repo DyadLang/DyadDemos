@@ -250,25 +250,68 @@ metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/rotdyn.svg"}}}
 end
 
 """
+One quaternion-derivative row: dq = k1*qa*wa + k2*qb*wb + k3*qc*wc,
+a single row of der(q) = 0.5 * q * omega. Every operation is a wired block.
+"""
+component QuatDerRow
+  "Quaternion factor, product 1"
+  qa = RealInput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 70, "x2": 1030, "y2": 130}, "diagram": {"x1": -330, "x2": -270, "y1": 95, "y2": 145}}}}
+  "Quaternion factor, product 2"
+  qb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 170, "x2": 1030, "y2": 230}, "diagram": {"x1": -330, "x2": -270, "y1": 395, "y2": 445}}}}
+  "Quaternion factor, product 3"
+  qc = RealInput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 270, "x2": 1030, "y2": 330}, "diagram": {"x1": -330, "x2": -270, "y1": 695, "y2": 745}}}}
+  "Angular rate factor, product 1"
+  wa = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 70, "x2": 30, "y2": 130}, "diagram": {"x1": -30, "x2": 30, "y1": 155, "y2": 205}}}}
+  "Angular rate factor, product 2"
+  wb = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230}, "diagram": {"x1": -30, "x2": 30, "y1": 455, "y2": 505}}}}
+  "Angular rate factor, product 3"
+  wc = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 270, "x2": 30, "y2": 330}, "diagram": {"x1": -30, "x2": 30, "y1": 755, "y2": 805}}}}
+  "Derivative contribution"
+  dq = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 530, "x2": 1030, "y2": 590}, "diagram": {"x1": 1170, "x2": 1230, "y1": 370, "y2": 430}}}}
+  "Weight, product 1"
+  parameter k1::Real = 0.5
+  "Weight, product 2"
+  parameter k2::Real = 0.5
+  "Weight, product 3"
+  parameter k3::Real = 0.5
+  p1 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 100, "y2": 200}}}}
+  p2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 400, "y2": 500}}}}
+  p3 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 400, "x2": 500, "y1": 700, "y2": 800}}}}
+  s = BlockComponents.Math.Add3(k1 = k1, k2 = k2, k3 = k3) {"Dyad": {"placement": {"diagram": {"x1": 800, "x2": 900, "y1": 350, "y2": 450}}}}
+relations
+  connect(qa, p1.u1) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(wa, p1.u2) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(qb, p2.u1) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(wb, p2.u2) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(qc, p3.u1) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(wc, p3.u2) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(p1.y, s.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 640, "y": 150}, {"x": 640, "y": 370}], "E": 2}], "path": {}} }
+  connect(p2.y, s.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 660, "y": 450}, {"x": 660, "y": 400}], "E": 2}], "path": {}} }
+  connect(p3.y, s.u3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 680, "y": 750}, {"x": 680, "y": 430}], "E": 2}], "path": {}} }
+  connect(s.y, dq) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/quatrow.svg"}}}
+end
+
+"""
 Quaternion kinematics of the flat-earth 6-DOF body:
 der(q) = 0.5 * q * omega for the scalar-first body-to-inertial NED
 quaternion q = [q0, q1, q2, q3]. Every operation is a wired block.
 """
 component QuatKinematics
   "Body angular rate, axis 1 (rad/s)"
-  w1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230}, "diagram": {"x1": 635, "x2": 695, "y1": 260, "y2": 320}}}}
+  w1 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 170, "x2": 30, "y2": 230}, "diagram": {"x1": 240, "x2": 300, "y1": 250.0, "y2": 310.0}}}}
   "Body angular rate, axis 2 (rad/s)"
-  w2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": 935, "x2": 995, "y1": 260, "y2": 320}}}}
+  w2 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 420, "x2": 30, "y2": 480}, "diagram": {"x1": 440, "x2": 500, "y1": 330.0, "y2": 390.0}}}}
   "Body angular rate, axis 3 (rad/s)"
-  w3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 670, "x2": 30, "y2": 730}, "diagram": {"x1": 1235, "x2": 1295, "y1": 260, "y2": 320}}}}
+  w3 = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "y1": 670, "x2": 30, "y2": 730}, "diagram": {"x1": 640, "x2": 700, "y1": 410.0, "y2": 470.0}}}}
   "Quaternion scalar part"
-  q0 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 120, "x2": 1030, "y2": 180}, "diagram": {"x1": -280, "x2": -220, "y1": 80, "y2": 140}}}}
+  q0 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 120, "x2": 1030, "y2": 180}, "diagram": {"x1": 2680, "x2": 2740, "y1": 1250.0, "y2": 1310.0}}}}
   "Quaternion x part"
-  q1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380}, "diagram": {"x1": -140, "x2": -80, "y1": 370, "y2": 430}}}}
+  q1 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 320, "x2": 1030, "y2": 380}, "diagram": {"x1": 2980, "x2": 3040, "y1": 1618, "y2": 1678}}}}
   "Quaternion y part"
-  q2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 520, "x2": 1030, "y2": 580}, "diagram": {"x1": -140, "x2": -80, "y1": 670, "y2": 730}}}}
+  q2 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 520, "x2": 1030, "y2": 580}, "diagram": {"x1": 2880, "x2": 2940, "y1": 2618, "y2": 2678}}}}
   "Quaternion z part"
-  q3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 720, "x2": 1030, "y2": 780}, "diagram": {"x1": -140, "x2": -80, "y1": 1620, "y2": 1680}}}}
+  q3 = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 720, "x2": 1030, "y2": 780}, "diagram": {"x1": 2780, "x2": 2840, "y1": 2410.0, "y2": 2470.0}}}}
   "Initial quaternion scalar part"
   parameter q0_0::Real = 1.0
   "Initial quaternion x part"
@@ -278,49 +321,25 @@ component QuatKinematics
   "Initial quaternion z part"
   parameter q3_0::Real = 0.0
   # Quaternion kinematics: der(q) = 0.5 * q * omega
-  q1w1 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 650, "y2": 750}}}}
-  q2w2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 950, "y2": 1050}}}}
-  q3w3 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 1250, "y2": 1350}}}}
-  dq0 = BlockComponents.Math.Add3(k1 = -0.5, k2 = -0.5, k3 = -0.5) {"Dyad": {"placement": {"diagram": {"x1": 2100, "x2": 2200, "y1": 950, "y2": 1050}}}}
-  int_q0 = BlockComponents.Continuous.Integrator(x0 = q0_0) {"Dyad": {"placement": {"diagram": {"x1": 50, "x2": 140, "y1": 200, "y2": 300}}}}
-  q0w1 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 350, "y2": 450}}}}
-  q2w3 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 950, "y2": 1050}}}}
-  q3w2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 1250, "y2": 1350}}}}
-  dq1 = BlockComponents.Math.Add3(k1 = 0.5, k2 = 0.5, k3 = -0.5) {"Dyad": {"placement": {"diagram": {"x1": 2100, "x2": 2200, "y1": 1350, "y2": 1450}}}}
-  int_q1 = BlockComponents.Continuous.Integrator(x0 = q1_0) {"Dyad": {"placement": {"diagram": {"x1": 50, "x2": 140, "y1": 500, "y2": 600}}}}
-  q0w2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 350, "y2": 450}}}}
-  q1w3 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 650, "y2": 750}}}}
-  q3w1 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 1250, "y2": 1350}}}}
-  dq2 = BlockComponents.Math.Add3(k1 = 0.5, k2 = -0.5, k3 = 0.5) {"Dyad": {"placement": {"diagram": {"x1": 2100, "x2": 2200, "y1": 350, "y2": 450}}}}
-  int_q2 = BlockComponents.Continuous.Integrator(x0 = q2_0) {"Dyad": {"placement": {"diagram": {"x1": 50, "x2": 140, "y1": 800, "y2": 900}}}}
-  q0w3 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 1350, "x2": 1450, "y1": 350, "y2": 450}}}}
-  q1w2 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 1050, "x2": 1150, "y1": 650, "y2": 750}}}}
-  q2w1 = BlockComponents.Math.Product() {"Dyad": {"placement": {"diagram": {"x1": 750, "x2": 850, "y1": 950, "y2": 1050}}}}
-  dq3 = BlockComponents.Math.Add3(k1 = 0.5, k2 = 0.5, k3 = -0.5) {"Dyad": {"placement": {"diagram": {"x1": 2100, "x2": 2200, "y1": 650, "y2": 750}}}}
-  int_q3 = BlockComponents.Continuous.Integrator(x0 = q3_0) {"Dyad": {"placement": {"diagram": {"x1": 50, "x2": 140, "y1": 1100, "y2": 1200}}}}
+  r0 = QuatDerRow(k1 = -0.5, k2 = -0.5, k3 = -0.5) {"Dyad": {"placement": {"diagram": {"x1": 1200, "x2": 2200, "y1": 200, "y2": 1000}}}}
+  r1 = QuatDerRow(k1 = 0.5, k2 = 0.5, k3 = -0.5) {"Dyad": {"placement": {"diagram": {"x1": 1200, "x2": 2200, "y1": 1200, "y2": 2000}}}}
+  r2 = QuatDerRow(k1 = 0.5, k2 = -0.5, k3 = 0.5) {"Dyad": {"placement": {"diagram": {"x1": 1200, "x2": 2200, "y1": 2200, "y2": 3000}}}}
+  r3 = QuatDerRow(k1 = 0.5, k2 = 0.5, k3 = -0.5) {"Dyad": {"placement": {"diagram": {"x1": 1200, "x2": 2200, "y1": 3200, "y2": 4000}}}}
+  int_q0 = BlockComponents.Continuous.Integrator(x0 = q0_0) {"Dyad": {"placement": {"diagram": {"x1": 2400, "x2": 2550, "y1": 573, "y2": 723}}}}
+  int_q1 = BlockComponents.Continuous.Integrator(x0 = q1_0) {"Dyad": {"placement": {"diagram": {"x1": 2400, "x2": 2550, "y1": 1573, "y2": 1723}}}}
+  int_q2 = BlockComponents.Continuous.Integrator(x0 = q2_0) {"Dyad": {"placement": {"diagram": {"x1": 2400, "x2": 2550, "y1": 2573, "y2": 2723}}}}
+  int_q3 = BlockComponents.Continuous.Integrator(x0 = q3_0) {"Dyad": {"placement": {"diagram": {"x1": 2400, "x2": 2550, "y1": 3573, "y2": 3723}}}}
 relations
-    connect(int_q1.y, q1w1.u1, q1w2.u1, q1w3.u1, q1) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [], "E": -5}, {"S": -3, "M": [{"x": 720, "y": 670}], "E": 2}, {"S": -4, "M": [{"x": 1020, "y": 670}], "E": 3}, {"S": -5, "M": [{"x": 1320, "y": 670}], "E": 4}, {"S": -2, "M": [{"x": 600, "y": 400}], "E": 5}], "path": {}, "junctions": [{"x": 140.0, "y": 550.0}, {"x": 600.0, "y": 550.0}, {"x": 720.0, "y": 550.0}, {"x": 1020.0, "y": 550.0}, {"x": 1320.0, "y": 550.0}]}}
-    connect(w1, q0w1.u2, q1w1.u2, q2w1.u2, q3w1.u2) {"Dyad": {"edges": [{"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [], "E": -5}, {"S": 1, "M": [], "E": -1}, {"S": -2, "M": [], "E": 2}, {"S": -3, "M": [], "E": 3}, {"S": -4, "M": [], "E": 4}, {"S": -5, "M": [], "E": 5}], "path": {}, "junctions": [{"x": 705.0, "y": 290.0}, {"x": 705.0, "y": 430.0}, {"x": 705.0, "y": 730.0}, {"x": 705.0, "y": 1030.0}, {"x": 705.0, "y": 1330.0}]}}
-    connect(int_q2.y, q2w1.u1, q2w2.u1, q2w3.u1, q2) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [], "E": -5}, {"S": -3, "M": [{"x": 720, "y": 970}], "E": 2}, {"S": -4, "M": [{"x": 1020, "y": 970}], "E": 3}, {"S": -5, "M": [{"x": 1320, "y": 970}], "E": 4}, {"S": -2, "M": [{"x": 600, "y": 700}], "E": 5}], "path": {}, "junctions": [{"x": 140.0, "y": 850.0}, {"x": 600.0, "y": 850.0}, {"x": 720.0, "y": 850.0}, {"x": 1020.0, "y": 850.0}, {"x": 1320.0, "y": 850.0}]}}
-    connect(w2, q0w2.u2, q1w2.u2, q2w2.u2, q3w2.u2) {"Dyad": {"edges": [{"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [], "E": -5}, {"S": 1, "M": [], "E": -1}, {"S": -2, "M": [], "E": 2}, {"S": -3, "M": [], "E": 3}, {"S": -4, "M": [], "E": 4}, {"S": -5, "M": [], "E": 5}], "path": {}, "junctions": [{"x": 1005.0, "y": 290.0}, {"x": 1005.0, "y": 430.0}, {"x": 1005.0, "y": 730.0}, {"x": 1005.0, "y": 1030.0}, {"x": 1005.0, "y": 1330.0}]}}
-    connect(int_q3.y, q3w1.u1, q3w2.u1, q3w3.u1, q3) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [], "E": -5}, {"S": -3, "M": [{"x": 720, "y": 1270}], "E": 2}, {"S": -4, "M": [{"x": 1020, "y": 1270}], "E": 3}, {"S": -5, "M": [{"x": 1320, "y": 1270}], "E": 4}, {"S": -2, "M": [{"x": 600, "y": 1650}], "E": 5}], "path": {}, "junctions": [{"x": 140.0, "y": 1150.0}, {"x": 600.0, "y": 1150.0}, {"x": 720.0, "y": 1150.0}, {"x": 1020.0, "y": 1150.0}, {"x": 1320.0, "y": 1150.0}]}}
-    connect(w3, q0w3.u2, q1w3.u2, q2w3.u2, q3w3.u2) {"Dyad": {"edges": [{"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [], "E": -4}, {"S": -4, "M": [], "E": -5}, {"S": 1, "M": [], "E": -1}, {"S": -2, "M": [], "E": 2}, {"S": -3, "M": [], "E": 3}, {"S": -4, "M": [], "E": 4}, {"S": -5, "M": [], "E": 5}], "path": {}, "junctions": [{"x": 1305.0, "y": 290.0}, {"x": 1305.0, "y": 430.0}, {"x": 1305.0, "y": 730.0}, {"x": 1305.0, "y": 1030.0}, {"x": 1305.0, "y": 1330.0}]}}
-  connect(q1w1.y, dq0.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 880, "y": 700}, {"x": 880, "y": 150}, {"x": 1920, "y": 150}, {"x": 1920, "y": 970}], "E": 2}], "path": {}} }
-  connect(q2w2.y, dq0.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1295, "y": 1000}, {"x": 1295, "y": 1540}, {"x": 1950, "y": 1540}, {"x": 1950, "y": 1000}], "E": 2}], "path": {}} }
-  connect(q3w3.y, dq0.u3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1600, "y": 1300}, {"x": 1600, "y": 1560}, {"x": 1970, "y": 1560}, {"x": 1970, "y": 1030}], "E": 2}], "path": {}} }
-  connect(dq0.y, int_q0.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2219, "y": 1000.0}, {"x": 2219, "y": 60}, {"x": -299, "y": 60}, {"x": -299, "y": 250}], "E": 2}], "path": {}} }
-                connect(int_q0.y, q0w1.u1, q0w2.u1, q0w3.u1, q0) {"Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -3, "M": [{"x": 850, "y": 110}, {"x": 850, "y": 240}, {"x": 1035, "y": 240}], "E": -4}, {"S": -4, "M": [{"x": 1335, "y": 240}], "E": -5}, {"S": -3, "M": [{"x": 735, "y": 370}], "E": 2}, {"S": -4, "M": [{"x": 1035, "y": 370}], "E": 3}, {"S": -5, "M": [{"x": 1335, "y": 370}], "E": 4}, {"S": -2, "M": [{"x": 600, "y": 110}], "E": 5}], "path": {}, "junctions": [{"x": 144.5, "y": 110}, {"x": 600.0, "y": 110}, {"x": 735.0, "y": 110}, {"x": 1035.0, "y": 240}, {"x": 1335.0, "y": 240}]}}
-            connect(q0w1.y, dq1.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 910, "y": 400}, {"x": 910, "y": 130}, {"x": 1900, "y": 130}, {"x": 1900, "y": 1370}], "E": 2}], "path": {}} }
-  connect(q2w3.y, dq1.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1560, "y": 1000}, {"x": 1560, "y": 1580}, {"x": 1990, "y": 1580}, {"x": 1990, "y": 1400}], "E": 2}], "path": {}} }
-  connect(q3w2.y, dq1.u3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1260, "y": 1300}, {"x": 1260, "y": 1600}, {"x": 2010, "y": 1600}, {"x": 2010, "y": 1430}], "E": 2}], "path": {}} }
-  connect(dq1.y, int_q1.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2226, "y": 1400.0}, {"x": 2226, "y": 54}, {"x": -306, "y": 54}, {"x": -306, "y": 550}], "E": 2}], "path": {}} }
-              connect(q0w2.y, dq2.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1180, "y": 400}, {"x": 1180, "y": 170}, {"x": 2000, "y": 170}, {"x": 2000, "y": 370}], "E": 2}], "path": {}} }
-  connect(q1w3.y, dq2.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1480, "y": 700}, {"x": 1480, "y": 190}, {"x": 1980, "y": 190}, {"x": 1980, "y": 400}], "E": 2}], "path": {}} }
-  connect(q3w1.y, dq2.u3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 995, "y": 1300}, {"x": 995, "y": 1500}, {"x": 1910, "y": 1500}, {"x": 1910, "y": 430}], "E": 2}], "path": {}} }
-  connect(dq2.y, int_q2.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2205, "y": 400.0}, {"x": 2205, "y": 70}, {"x": -285, "y": 70}, {"x": -285, "y": 850}], "E": 2}], "path": {}} }
-              connect(q0w3.y, dq3.u1) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1520, "y": 400}, {"x": 1520, "y": 210}, {"x": 1960, "y": 210}, {"x": 1960, "y": 670}], "E": 2}], "path": {}} }
-  connect(q1w2.y, dq3.u2) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 1200, "y": 700}, {"x": 1200, "y": 230}, {"x": 1940, "y": 230}, {"x": 1940, "y": 700}], "E": 2}], "path": {}} }
-  connect(q2w1.y, dq3.u3) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 960, "y": 1000}, {"x": 960, "y": 1520}, {"x": 1930, "y": 1520}, {"x": 1930, "y": 730}], "E": 2}], "path": {}} }
-  connect(dq3.y, int_q3.u) { "Dyad": {"edges": [{"S": 1, "M": [{"x": 2212, "y": 700.0}, {"x": 2212, "y": 62}, {"x": -292, "y": 62}, {"x": -292, "y": 1150}], "E": 2}], "path": {}} }
-        metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/quatkin.svg"}}}
+  connect(int_q0.y, q0, r1.qa, r2.qa, r3.qa) { "Dyad": {"edges": [{"S": -1, "M": [], "E": -2}, {"S": -1, "M": [], "E": 3}, {"S": -2, "M": [], "E": 4}, {"S": -1, "M": [{"x": 2650, "y": 648}], "E": 1}, {"S": -2, "M": [{"x": 2650, "y": 3280}], "E": 5}, {"S": -1, "M": [], "E": 2}], "path": {}, "junctions": [{"x": 2650, "y": 1280}, {"x": 2650, "y": 2280}]} }
+  connect(int_q1.y, q1, r0.qa, r2.qb, r3.qb) { "Dyad": {"edges": [{"S": -1, "M": [], "E": -2}, {"S": -1, "M": [], "E": 1}, {"S": -2, "M": [], "E": 4}, {"S": -1, "M": [{"x": 2950, "y": 280}], "E": 3}, {"S": -2, "M": [{"x": 2950, "y": 3360}], "E": 5}, {"S": -1, "M": [], "E": 2}], "path": {}, "junctions": [{"x": 2950, "y": 1648}, {"x": 2950, "y": 2360}]} }
+  connect(int_q2.y, q2, r0.qb, r1.qb, r3.qc) { "Dyad": {"edges": [{"S": -1, "M": [], "E": -2}, {"S": -1, "M": [], "E": 4}, {"S": -2, "M": [], "E": 1}, {"S": -1, "M": [{"x": 2850, "y": 360}], "E": 3}, {"S": -2, "M": [{"x": 2850, "y": 3440}], "E": 5}, {"S": -2, "M": [], "E": 2}], "path": {}, "junctions": [{"x": 2850, "y": 1360}, {"x": 2850, "y": 2648}]} }
+  connect(int_q3.y, q3, r0.qc, r1.qc, r2.qc) { "Dyad": {"edges": [{"S": -1, "M": [], "E": -2}, {"S": -1, "M": [], "E": 4}, {"S": -2, "M": [], "E": 5}, {"S": -1, "M": [{"x": 2750, "y": 440}], "E": 3}, {"S": -2, "M": [{"x": 2750, "y": 3648}], "E": 1}, {"S": -2, "M": [], "E": 2}], "path": {}, "junctions": [{"x": 2750, "y": 1440}, {"x": 2750, "y": 2440}]} }
+  connect(w1, r0.wa, r1.wa, r2.wc, r3.wc) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -1, "M": [], "E": 2}, {"S": -2, "M": [], "E": 3}, {"S": -3, "M": [], "E": 4}, {"S": -3, "M": [{"x": 350, "y": 3440}], "E": 5}], "path": {}, "junctions": [{"x": 350, "y": 280}, {"x": 350, "y": 1280}, {"x": 350, "y": 2440}]} }
+  connect(w2, r0.wb, r1.wc, r2.wa, r3.wb) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -1, "M": [], "E": 2}, {"S": -2, "M": [], "E": 3}, {"S": -3, "M": [], "E": 4}, {"S": -3, "M": [{"x": 550, "y": 3360}], "E": 5}], "path": {}, "junctions": [{"x": 550, "y": 360}, {"x": 550, "y": 1440}, {"x": 550, "y": 2280}]} }
+  connect(w3, r0.wc, r1.wb, r2.wb, r3.wa) { "Dyad": {"edges": [{"S": 1, "M": [], "E": -1}, {"S": -1, "M": [], "E": -2}, {"S": -2, "M": [], "E": -3}, {"S": -1, "M": [], "E": 2}, {"S": -2, "M": [], "E": 3}, {"S": -3, "M": [], "E": 4}, {"S": -3, "M": [{"x": 750, "y": 3280}], "E": 5}], "path": {}, "junctions": [{"x": 750, "y": 440}, {"x": 750, "y": 1360}, {"x": 750, "y": 2360}]} }
+  connect(r0.dq, int_q0.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(r1.dq, int_q1.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(r2.dq, int_q2.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+  connect(r3.dq, int_q3.u) { "Dyad": {"edges": [{"S": 1, "M": [], "E": 2}], "path": {}} }
+metadata {"Dyad": {"icons": {"default": "dyad://HL20Demo/quatkin.svg"}}}
 end

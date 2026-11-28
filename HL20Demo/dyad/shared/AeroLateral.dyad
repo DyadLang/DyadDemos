@@ -5,27 +5,27 @@ Right-side surface lateral effects are antisymmetric and subtracted.
 """
 component HL20CY
   "Angle of attack (deg)"
-  alpha_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}, "diagram": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}}}}
+  alpha_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 53.33333333333333, "y2": 113.33333333333333}, "diagram": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}}}}
   "Sideslip angle (deg)"
-  beta_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}, "diagram": {"x1": 1495, "x2": 1555, "y1": -30, "y2": 30}}}}
+  beta_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 136.66666666666666, "y2": 196.66666666666666}, "diagram": {"x1": 1495, "x2": 1555, "y1": -30, "y2": 30}}}}
   "Mach number"
   mach = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 220, "y2": 280}, "diagram": {"x1": -30, "x2": 30, "y1": 370, "y2": 430}}}}
   "Height over body span (ground effect)"
-  hob = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}, "diagram": {"x1": -30, "x2": 30, "y1": 700, "y2": 760}}}}
+  hob = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 303.3333333333333, "y2": 363.3333333333333}, "diagram": {"x1": -30, "x2": 30, "y1": 700, "y2": 760}}}}
   "Left body flap deflection (deg)"
-  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 420, "y2": 480}, "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}}}}
+  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 386.66666666666663, "y2": 446.66666666666663}, "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}}}}
   "Right body flap deflection (deg)"
-  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}, "diagram": {"x1": -30, "x2": 30, "y1": 1420, "y2": 1480}}}}
+  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 470, "y2": 530}, "diagram": {"x1": -30, "x2": 30, "y1": 1420, "y2": 1480}}}}
   "Upper left body flap deflection (deg)"
-  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 620, "y2": 680}, "diagram": {"x1": -30, "x2": 30, "y1": 1670, "y2": 1730}}}}
+  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 553.3333333333333, "y2": 613.3333333333333}, "diagram": {"x1": -30, "x2": 30, "y1": 1670, "y2": 1730}}}}
   "Upper right body flap deflection (deg)"
-  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}, "diagram": {"x1": -30, "x2": 30, "y1": 1920, "y2": 1980}}}}
+  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 636.6666666666666, "y2": 696.6666666666666}, "diagram": {"x1": -30, "x2": 30, "y1": 1920, "y2": 1980}}}}
   "Left wing flap deflection (deg)"
-  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 820, "y2": 880}, "diagram": {"x1": -30, "x2": 30, "y1": 2170, "y2": 2230}}}}
+  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}, "diagram": {"x1": -30, "x2": 30, "y1": 2170, "y2": 2230}}}}
   "Right wing flap deflection (deg)"
-  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 920, "y2": 980}, "diagram": {"x1": -30, "x2": 30, "y1": 2420, "y2": 2480}}}}
+  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 803.3333333333333, "y2": 863.3333333333333}, "diagram": {"x1": -30, "x2": 30, "y1": 2420, "y2": 2480}}}}
   "Rudder deflection magnitude (deg)"
-  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": 170, "y1": 970, "x2": 230, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 2670, "y2": 2730}}}}
+  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 886.6666666666666, "y2": 946.6666666666666}, "diagram": {"x1": -30, "x2": 30, "y1": 2670, "y2": 2730}}}}
   "Total side-force coefficient"
   y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 470, "x2": 1030, "y2": 530}, "diagram": {"x1": 2320, "x2": 2380, "y1": 2070, "y2": 2130}}}}
   "Landing gear deflection (deg)"
@@ -87,33 +87,33 @@ damping polynomials scaled by the span damping factor.
 """
 component HL20CN
   "Angle of attack (deg)"
-  alpha_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}, "diagram": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}}}}
+  alpha_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": 36.66666666666667, "x2": 96.66666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}}}}
   "Sideslip angle (deg)"
-  beta_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}, "diagram": {"x1": -30, "x2": 30, "y1": 330, "y2": 390}}}}
+  beta_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": 103.33333333333334, "x2": 163.33333333333334, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 330, "y2": 390}}}}
   "Mach number"
-  mach = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 220, "y2": 280}, "diagram": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}}}}
+  mach = RealInput() {"Dyad": {"placement": {"icon": {"x1": 170, "x2": 230, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}}}}
   "Height over body span (ground effect)"
-  hob = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}, "diagram": {"x1": -30, "x2": 30, "y1": 700, "y2": 760}}}}
+  hob = RealInput() {"Dyad": {"placement": {"icon": {"x1": 236.66666666666669, "x2": 296.6666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 700, "y2": 760}}}}
   "Left body flap deflection (deg)"
-  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 420, "y2": 480}, "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}}}}
+  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": 303.33333333333337, "x2": 363.33333333333337, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}}}}
   "Right body flap deflection (deg)"
-  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}, "diagram": {"x1": -30, "x2": 30, "y1": 1420, "y2": 1480}}}}
+  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": 370, "x2": 430, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 1420, "y2": 1480}}}}
   "Upper left body flap deflection (deg)"
-  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 620, "y2": 680}, "diagram": {"x1": -30, "x2": 30, "y1": 1670, "y2": 1730}}}}
+  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": 436.6666666666667, "x2": 496.6666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 1670, "y2": 1730}}}}
   "Upper right body flap deflection (deg)"
-  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}, "diagram": {"x1": -30, "x2": 30, "y1": 1920, "y2": 1980}}}}
+  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": 503.33333333333337, "x2": 563.3333333333334, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 1920, "y2": 1980}}}}
   "Left wing flap deflection (deg)"
-  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 820, "y2": 880}, "diagram": {"x1": -30, "x2": 30, "y1": 2170, "y2": 2230}}}}
+  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": 570, "x2": 630, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 2170, "y2": 2230}}}}
   "Right wing flap deflection (deg)"
-  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 920, "y2": 980}, "diagram": {"x1": -30, "x2": 30, "y1": 2420, "y2": 2480}}}}
+  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": 636.6666666666667, "x2": 696.6666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 2420, "y2": 2480}}}}
   "Rudder deflection magnitude (deg)"
-  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": 70, "y1": 970, "x2": 130, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 2670, "y2": 2730}}}}
+  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": 703.3333333333334, "x2": 763.3333333333334, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 2670, "y2": 2730}}}}
   "Body roll rate (rad/s)"
-  pb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 270, "y1": 970, "x2": 330, "y2": 1030}, "diagram": {"x1": 1170, "x2": 1230, "y1": -30, "y2": 30}}}}
+  pb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 770, "x2": 830, "y1": -30, "y2": 30}, "diagram": {"x1": 1170, "x2": 1230, "y1": -30, "y2": 30}}}}
   "Body yaw rate (rad/s)"
-  rb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 470, "y1": 970, "x2": 530, "y2": 1030}, "diagram": {"x1": 1300, "x2": 1360, "y1": -30, "y2": 30}}}}
+  rb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 836.6666666666667, "x2": 896.6666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": 1300, "x2": 1360, "y1": -30, "y2": 30}}}}
   "Span damping factor b/(2 V)"
-  damp_b2v = RealInput() {"Dyad": {"placement": {"icon": {"x1": 670, "y1": 970, "x2": 730, "y2": 1030}, "diagram": {"x1": 1595, "x2": 1655, "y1": -30, "y2": 30}}}}
+  damp_b2v = RealInput() {"Dyad": {"placement": {"icon": {"x1": 903.3333333333334, "x2": 963.3333333333334, "y1": -30, "y2": 30}, "diagram": {"x1": 1595, "x2": 1655, "y1": -30, "y2": 30}}}}
   "Total yawing-moment coefficient"
   y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 470, "x2": 1030, "y2": 530}, "diagram": {"x1": 2570, "x2": 2630, "y1": 240, "y2": 300}}}}
   "Landing gear deflection (deg)"
@@ -202,33 +202,33 @@ damping polynomials scaled by the span damping factor.
 """
 component HL20CR
   "Angle of attack (deg)"
-  alpha_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 20, "y2": 80}, "diagram": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}}}}
+  alpha_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": 36.66666666666667, "x2": 96.66666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}}}}
   "Sideslip angle (deg)"
-  beta_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 120, "y2": 180}, "diagram": {"x1": -30, "x2": 30, "y1": 330, "y2": 390}}}}
+  beta_deg = RealInput() {"Dyad": {"placement": {"icon": {"x1": 103.33333333333334, "x2": 163.33333333333334, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 330, "y2": 390}}}}
   "Mach number"
-  mach = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 220, "y2": 280}, "diagram": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}}}}
+  mach = RealInput() {"Dyad": {"placement": {"icon": {"x1": 170, "x2": 230, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}}}}
   "Height over body span (ground effect)"
-  hob = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 320, "y2": 380}, "diagram": {"x1": -30, "x2": 30, "y1": 700, "y2": 760}}}}
+  hob = RealInput() {"Dyad": {"placement": {"icon": {"x1": 236.66666666666669, "x2": 296.6666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 700, "y2": 760}}}}
   "Left body flap deflection (deg)"
-  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 420, "y2": 480}, "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}}}}
+  DBFLL = RealInput() {"Dyad": {"placement": {"icon": {"x1": 303.33333333333337, "x2": 363.33333333333337, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 1170, "y2": 1230}}}}
   "Right body flap deflection (deg)"
-  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 520, "y2": 580}, "diagram": {"x1": -30, "x2": 30, "y1": 1420, "y2": 1480}}}}
+  DBFLR = RealInput() {"Dyad": {"placement": {"icon": {"x1": 370, "x2": 430, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 1420, "y2": 1480}}}}
   "Upper left body flap deflection (deg)"
-  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 620, "y2": 680}, "diagram": {"x1": -30, "x2": 30, "y1": 1670, "y2": 1730}}}}
+  DBFUL = RealInput() {"Dyad": {"placement": {"icon": {"x1": 436.6666666666667, "x2": 496.6666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 1670, "y2": 1730}}}}
   "Upper right body flap deflection (deg)"
-  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 720, "y2": 780}, "diagram": {"x1": -30, "x2": 30, "y1": 1920, "y2": 1980}}}}
+  DBFUR = RealInput() {"Dyad": {"placement": {"icon": {"x1": 503.33333333333337, "x2": 563.3333333333334, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 1920, "y2": 1980}}}}
   "Left wing flap deflection (deg)"
-  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 820, "y2": 880}, "diagram": {"x1": -30, "x2": 30, "y1": 2170, "y2": 2230}}}}
+  DWFL = RealInput() {"Dyad": {"placement": {"icon": {"x1": 570, "x2": 630, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 2170, "y2": 2230}}}}
   "Right wing flap deflection (deg)"
-  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": -30, "x2": 30, "y1": 920, "y2": 980}, "diagram": {"x1": -30, "x2": 30, "y1": 2420, "y2": 2480}}}}
+  DWFR = RealInput() {"Dyad": {"placement": {"icon": {"x1": 636.6666666666667, "x2": 696.6666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 2420, "y2": 2480}}}}
   "Rudder deflection magnitude (deg)"
-  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": 70, "y1": 970, "x2": 130, "y2": 1030}, "diagram": {"x1": -30, "x2": 30, "y1": 2670, "y2": 2730}}}}
+  abs_drud = RealInput() {"Dyad": {"placement": {"icon": {"x1": 703.3333333333334, "x2": 763.3333333333334, "y1": -30, "y2": 30}, "diagram": {"x1": -30, "x2": 30, "y1": 2670, "y2": 2730}}}}
   "Body roll rate (rad/s)"
-  pb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 270, "y1": 970, "x2": 330, "y2": 1030}, "diagram": {"x1": 1170, "x2": 1230, "y1": -30, "y2": 30}}}}
+  pb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 770, "x2": 830, "y1": -30, "y2": 30}, "diagram": {"x1": 1170, "x2": 1230, "y1": -30, "y2": 30}}}}
   "Body yaw rate (rad/s)"
-  rb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 470, "y1": 970, "x2": 530, "y2": 1030}, "diagram": {"x1": 1300, "x2": 1360, "y1": -30, "y2": 30}}}}
+  rb = RealInput() {"Dyad": {"placement": {"icon": {"x1": 836.6666666666667, "x2": 896.6666666666667, "y1": -30, "y2": 30}, "diagram": {"x1": 1300, "x2": 1360, "y1": -30, "y2": 30}}}}
   "Span damping factor b/(2 V)"
-  damp_b2v = RealInput() {"Dyad": {"placement": {"icon": {"x1": 670, "y1": 970, "x2": 730, "y2": 1030}, "diagram": {"x1": 1595, "x2": 1655, "y1": -30, "y2": 30}}}}
+  damp_b2v = RealInput() {"Dyad": {"placement": {"icon": {"x1": 903.3333333333334, "x2": 963.3333333333334, "y1": -30, "y2": 30}, "diagram": {"x1": 1595, "x2": 1655, "y1": -30, "y2": 30}}}}
   "Total rolling-moment coefficient"
   y = RealOutput() {"Dyad": {"placement": {"icon": {"x1": 970, "y1": 470, "x2": 1030, "y2": 530}, "diagram": {"x1": 2570, "x2": 2630, "y1": 240, "y2": 300}}}}
   "Landing gear deflection (deg)"
